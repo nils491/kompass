@@ -821,9 +821,22 @@
                 <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
               </button>
 
-              <div id="countdown-live-display" class="hidden text-center py-2 space-y-1">
+              <div id="countdown-live-display" class="hidden text-center py-2 space-y-2">
                 <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
                 <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
+
+                <!-- Play / Pause / Stop Buttons -->
+                <div class="grid grid-cols-3 gap-1.5 pt-1.5 max-w-xs mx-auto">
+                  <button type="button" onclick="resumeOrgasmCountdown()" id="btn-cd-play" class="py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill" title="Countdown fortsetzen">
+                    <span>▶</span> <span>Play</span>
+                  </button>
+                  <button type="button" onclick="pauseOrgasmCountdown()" id="btn-cd-pause" class="py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown pausieren">
+                    <span>⏸</span> <span>Pause</span>
+                  </button>
+                  <button type="button" onclick="stopOrgasmCountdown()" id="btn-cd-stop" class="py-2 px-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown abbrechen">
+                    <span>⏹</span> <span>Stop</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1002,6 +1015,8 @@
     let edgeCount = 0;
     let countdownTimer = null;
     let selectedCountdownDuration = 10;
+    let countdownCurrentCount = 10;
+    let isCountdownPaused = false;
     let countdownAudioMode = 'self'; // 'self', 'metronome', 'voice'
 
     let zenBreatheInterval = null;
@@ -1219,48 +1234,113 @@
       if (countdownTimer) clearInterval(countdownTimer);
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
+      countdownCurrentCount = selectedCountdownDuration;
+      isCountdownPaused = false;
+
       const btn = document.getElementById('btn-start-countdown');
       const disp = document.getElementById('countdown-live-display');
-      const numEl = document.getElementById('countdown-number');
-      const quoteEl = document.getElementById('countdown-voice-quote');
 
       if (btn) btn.classList.add('hidden');
       if (disp) disp.classList.remove('hidden');
 
-      let currentCount = selectedCountdownDuration;
+      updateCountdownControlsUI(true, false);
+      runCountdownTick();
+      countdownTimer = setInterval(runCountdownTick, 1000);
+    }
 
-      function updateStep() {
-        if (numEl) numEl.innerText = currentCount;
-        if (quoteEl) {
-          quoteEl.innerText = getCountdownVoiceQuote(currentCount);
-        }
-        
-        // Audio-Ausgabe je nach gewähltem Modus
-        if (countdownAudioMode === 'metronome') {
-          playMetronomeTick(currentCount, selectedCountdownDuration);
-        } else if (countdownAudioMode === 'voice') {
-          speakCountdownNumber(currentCount);
-        } else {
-          // 'self': Top zählt selbst - keine störenden Töne, nur Display & dezent vibrieren
-          if (navigator.vibrate) {
-            navigator.vibrate(currentCount === 1 ? [100, 50, 100] : 30);
-          }
-        }
+    function runCountdownTick() {
+      if (isCountdownPaused) return;
 
-        if (currentCount <= 1) {
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-          setTimeout(() => {
-            if (btn) btn.classList.remove('hidden');
-            if (disp) disp.classList.add('hidden');
-          }, 3500);
-        } else {
-          currentCount--;
+      const numEl = document.getElementById('countdown-number');
+      const quoteEl = document.getElementById('countdown-voice-quote');
+      const btn = document.getElementById('btn-start-countdown');
+      const disp = document.getElementById('countdown-live-display');
+
+      if (numEl) numEl.innerText = countdownCurrentCount;
+      if (quoteEl) {
+        quoteEl.innerText = getCountdownVoiceQuote(countdownCurrentCount);
+      }
+
+      // Audio-Ausgabe je nach gewähltem Modus
+      if (countdownAudioMode === 'metronome') {
+        playMetronomeTick(countdownCurrentCount, selectedCountdownDuration);
+      } else if (countdownAudioMode === 'voice') {
+        speakCountdownNumber(countdownCurrentCount);
+      } else {
+        // 'self': Top zählt selbst - keine störenden Töne, nur Display & dezent vibrieren
+        if (navigator.vibrate) {
+          navigator.vibrate(countdownCurrentCount === 1 ? [100, 50, 100] : 30);
         }
       }
 
-      updateStep();
-      countdownTimer = setInterval(updateStep, 1000);
+      if (countdownCurrentCount <= 1) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        setTimeout(() => {
+          if (btn) btn.classList.remove('hidden');
+          if (disp) disp.classList.add('hidden');
+        }, 3500);
+      } else {
+        countdownCurrentCount--;
+      }
+    }
+
+    function pauseOrgasmCountdown() {
+      if (!countdownTimer && isCountdownPaused) return;
+      isCountdownPaused = true;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      updateCountdownControlsUI(false, true);
+      showToast("⏸ Countdown pausiert");
+    }
+
+    function resumeOrgasmCountdown() {
+      const disp = document.getElementById('countdown-live-display');
+      if (disp && disp.classList.contains('hidden')) {
+        startOrgasmCountdown();
+        return;
+      }
+      if (!isCountdownPaused) return;
+      isCountdownPaused = false;
+      updateCountdownControlsUI(true, false);
+      showToast("▶ Countdown fortgesetzt");
+      runCountdownTick();
+    }
+
+    function stopOrgasmCountdown() {
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      isCountdownPaused = false;
+      countdownCurrentCount = selectedCountdownDuration;
+
+      const btn = document.getElementById('btn-start-countdown');
+      const disp = document.getElementById('countdown-live-display');
+      if (btn) btn.classList.remove('hidden');
+      if (disp) disp.classList.add('hidden');
+
+      showToast("⏹ Countdown gestoppt & zurückgesetzt");
+    }
+
+    function updateCountdownControlsUI(isRunning, isPaused) {
+      const btnPlay = document.getElementById('btn-cd-play');
+      const btnPause = document.getElementById('btn-cd-pause');
+
+      if (btnPlay) {
+        if (isPaused) {
+          btnPlay.className = "py-2 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md animate-pulse";
+        } else {
+          btnPlay.className = "py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill";
+        }
+      }
+      if (btnPause) {
+        if (isRunning && !isPaused) {
+          btnPause.className = "py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md";
+        } else {
+          btnPause.className = "py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill";
+        }
+      }
     }
 
     /* 4/7/8 ZEN ATEM-RING */
