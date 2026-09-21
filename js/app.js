@@ -44,26 +44,31 @@ function applySavedTheme() {
   const saved = localStorage.getItem('kompass_theme') || 'dark';
   if (saved === 'dark') {
     document.documentElement.classList.add('dark');
-    updateThemeUI('dark');
   } else {
     document.documentElement.classList.remove('dark');
-    updateThemeUI('light');
   }
+  updateThemeUI(saved);
 }
 
 function toggleGlobalTheme() {
   const isDark = document.documentElement.classList.contains('dark');
-  if (isDark) {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('kompass_theme', 'light');
-    updateThemeUI('light');
-    showToast("Helles Design aktiviert");
-  } else {
+  const newTheme = isDark ? 'light' : 'dark';
+
+  if (newTheme === 'dark') {
     document.documentElement.classList.add('dark');
     localStorage.setItem('kompass_theme', 'dark');
-    updateThemeUI('dark');
     showToast("Nacht-Design aktiviert");
+  } else {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('kompass_theme', 'light');
+    showToast("Helles Design aktiviert");
   }
+
+  updateThemeUI(newTheme);
+
+  // Radar-Charts bei Bedarf neu zeichnen
+  if (singleRadarInstance) renderSingleRadar();
+  if (pairRadarInstance) renderPairRadar();
 }
 
 function updateThemeUI(theme) {
@@ -71,6 +76,11 @@ function updateThemeUI(theme) {
   const label = document.getElementById('theme-toggle-label');
   if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
   if (label) label.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
+
+  const sessionIcon = document.getElementById('session-theme-icon');
+  const sessionText = document.getElementById('session-theme-text');
+  if (sessionIcon) sessionIcon.innerText = (theme === 'dark') ? '🌙' : '☀️';
+  if (sessionText) sessionText.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
 }
 
 function verifySitePassword() {
