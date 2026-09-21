@@ -1,1158 +1,641 @@
-let currentUser = 'A';
-let currentChapterIndex = 0;
-let singleRadarInstance = null;
-let pairRadarInstance = null;
-let onboardingStep = 1;
-
-let names = { A: 'Partner 1', B: 'Partner 2' };
-let answers = { A: {}, B: {} };
-let notes = { A: {}, B: {} };
-let privacy = {
-  A: { mode: 'blind', shareNotes: true, chapters: {} },
-  B: { mode: 'blind', shareNotes: true, chapters: {} }
-};
-let accounts = {
-  A: { email: '', partnerEmail: '', setupDone: false },
-  B: { email: '', partnerEmail: '', setupDone: false }
-};
-
-function initApp() {
-  loadFromLocalStorage();
-  checkUrlHashData();
-  applySavedTheme();
-
-  const lock = document.getElementById('site-lockscreen');
-  if (lock) {
-    if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-      lock.classList.add('hidden');
-      checkOnboardingStatus();
-    }
-  } else {
-    checkOnboardingStatus();
-  }
-
-  updateCurrentUserUI();
-  renderCurrentChapter();
-  renderQuickGrid();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-}
-
-/* THEME MANAGEMENT (Global Dark/Light Sync) */
-function applySavedTheme() {
-  const saved = localStorage.getItem('kompass_theme') || 'dark';
-  if (saved === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-  updateThemeUI(saved);
-}
-
-function toggleGlobalTheme() {
-  const isDark = document.documentElement.classList.contains('dark');
-  const newTheme = isDark ? 'light' : 'dark';
-
-  if (newTheme === 'dark') {
-    document.documentElement.classList.add('dark');
-    localStorage.setItem('kompass_theme', 'dark');
-    showToast("Nacht-Design aktiviert");
-  } else {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('kompass_theme', 'light');
-    showToast("Helles Design aktiviert");
-  }
-
-  updateThemeUI(newTheme);
-
-  // Radar-Charts bei Bedarf neu zeichnen
-  if (singleRadarInstance) renderSingleRadar();
-  if (pairRadarInstance) renderPairRadar();
-}
-
-function updateThemeUI(theme) {
-  const icon = document.getElementById('theme-toggle-icon');
-  const label = document.getElementById('theme-toggle-label');
-  if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
-  if (label) label.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
-
-  const sessionIcon = document.getElementById('session-theme-icon');
-  const sessionText = document.getElementById('session-theme-text');
-  if (sessionIcon) sessionIcon.innerText = (theme === 'dark') ? '🌙' : '☀️';
-  if (sessionText) sessionText.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
-}
-
-function verifySitePassword() {
-  const input = document.getElementById('site-pw-input');
-  const err = document.getElementById('pw-error-hint');
-  const lock = document.getElementById('site-lockscreen');
-  if (!input) return;
-
-  if (input.value.trim() === 'Bommelchen!') {
-    sessionStorage.setItem('kompass_unlocked', 'true');
-    if (lock) lock.classList.add('hidden');
-    if (err) err.classList.add('hidden');
-    showToast("Erfolgreich entsperrt!");
-    checkOnboardingStatus();
-  } else {
-    if (err) err.classList.remove('hidden');
-  }
-}
-
-function checkOnboardingStatus() {
-  const u = currentUser;
-  if (!accounts[u]?.setupDone) {
-    openOnboardingModal();
-  }
-}
-
-function openOnboardingModal() {
-  onboardingStep = 1;
-  const title = document.getElementById('onboarding-user-title');
-  if (title) title.innerText = names[currentUser];
-  const nameInput = document.getElementById('onboarding-name-input');
-  if (nameInput) nameInput.value = names[currentUser];
-  updateOnboardingStepUI();
-  const m = document.getElementById('modal-onboarding');
-  if (m) m.classList.remove('hidden');
-}
-
-function updateOnboardingStepUI() {
-  const s1 = document.getElementById('onboarding-step-1');
-  const s2 = document.getElementById('onboarding-step-2');
-  const s3 = document.getElementById('onboarding-step-3');
-  const prevBtn = document.getElementById('onboarding-btn-prev');
-  const nextBtn = document.getElementById('onboarding-btn-next');
-  const ind = document.getElementById('onboarding-step-indicator');
-
-  if (ind) ind.innerText = `Schritt ${onboardingStep} von 3`;
-
-  [s1, s2, s3].forEach(s => { if (s) s.classList.add('hidden'); });
-
-  if (onboardingStep === 1) {
-    if (s1) s1.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.add('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
-  } else if (onboardingStep === 2) {
-    if (s2) s2.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
-  } else if (onboardingStep === 3) {
-    if (s3) s3.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Fertig & Starten ✨";
-  }
-}
-
-function prevOnboardingStep() {
-  if (onboardingStep > 1) {
-    onboardingStep--;
-    updateOnboardingStepUI();
-  }
-}
-
-function nextOnboardingStep() {
-  const u = currentUser;
-  if (onboardingStep === 1) {
-    const val = document.getElementById('onboarding-name-input')?.value.trim();
-    if (val) {
-      names[u] = val;
-      updateCurrentUserUI();
-    }
-    onboardingStep = 2;
-    updateOnboardingStepUI();
-  } else if (onboardingStep === 2) {
-    const sel = document.querySelector('input[name="onboarding-privacy"]:checked')?.value || 'blind';
-    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true, chapters: {} };
-    privacy[u].mode = sel;
-    onboardingStep = 3;
-    updateOnboardingStepUI();
-  } else if (onboardingStep === 3) {
-    const email = document.getElementById('onboarding-email-input')?.value.trim() || '';
-    if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
-    accounts[u].email = email;
-    accounts[u].setupDone = true;
-    saveToLocalStorage();
-    document.getElementById('modal-onboarding')?.classList.add('hidden');
-    showToast(`Willkommen, ${names[u]}! Viel Freude beim Ausfüllen.`);
-  }
-}
-
-function saveToLocalStorage() {
-  try {
-    localStorage.setItem('kompass_answers', JSON.stringify(answers));
-    localStorage.setItem('kompass_notes', JSON.stringify(notes));
-    localStorage.setItem('kompass_names', JSON.stringify(names));
-    localStorage.setItem('kompass_privacy', JSON.stringify(privacy));
-    localStorage.setItem('kompass_accounts', JSON.stringify(accounts));
-  } catch (e) {
-    console.error("Fehler beim Speichern:", e);
-  }
-}
-
-function loadFromLocalStorage() {
-  try {
-    const a = localStorage.getItem('kompass_answers');
-    const n = localStorage.getItem('kompass_notes');
-    const nm = localStorage.getItem('kompass_names');
-    const p = localStorage.getItem('kompass_privacy');
-    const ac = localStorage.getItem('kompass_accounts');
-
-    if (a) answers = JSON.parse(a);
-    if (n) notes = JSON.parse(n);
-    if (nm) names = JSON.parse(nm);
-    if (p) privacy = JSON.parse(p);
-    if (ac) accounts = JSON.parse(ac);
-  } catch (e) {
-    console.error("Fehler beim Laden:", e);
-  }
-}
-
-function checkUrlHashData() {
-  if (!window.location.hash.startsWith('#data=')) return;
-  try {
-    const raw = window.location.hash.replace('#data=', '');
-    const json = decodeURIComponent(escape(atob(raw)));
-    const payload = JSON.parse(json);
-
-    if (payload.answers) {
-      answers = payload.answers;
-      if (payload.names) names = payload.names;
-      if (payload.notes) notes = payload.notes;
-      if (payload.privacy) privacy = payload.privacy;
-      saveToLocalStorage();
-
-      currentUser = (payload.sender === 'A') ? 'B' : 'A';
-      showToast(`Daten von ${names[payload.sender || 'A']} erfolgreich geladen!`);
-    }
-  } catch (e) {
-    console.error("Fehler beim Dekodieren des Links:", e);
-  }
-}
-
-function switchMainView(viewId) {
-  document.getElementById('view-survey').classList.add('hidden');
-  document.getElementById('view-single').classList.add('hidden');
-  document.getElementById('view-pair').classList.add('hidden');
-
-  const btnS = document.getElementById('nav-btn-survey');
-  const btnSi = document.getElementById('nav-btn-single');
-  const btnP = document.getElementById('nav-btn-pair');
-
-  [btnS, btnSi, btnP].forEach(b => {
-    b.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
-  });
-
-  if (viewId === 'survey') {
-    document.getElementById('view-survey').classList.remove('hidden');
-    btnS.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition";
-    renderCurrentChapter();
-  } else if (viewId === 'single') {
-    document.getElementById('view-single').classList.remove('hidden');
-    btnSi.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition";
-    renderSingleAnalysis();
-  } else if (viewId === 'pair') {
-    document.getElementById('view-pair').classList.remove('hidden');
-    btnP.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition flex items-center gap-1";
-    renderPairAnalysis();
-  }
-}
-
-function setCurrentUser(user) {
-  currentUser = user;
-  updateCurrentUserUI();
-  renderCurrentChapter();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-  checkOnboardingStatus();
-  showToast(`Aktives Profil: ${names[user]}`);
-}
-
-function updateCurrentUserUI() {
-  const u = currentUser;
-  const btnA = document.getElementById('btn-user-A');
-  const btnB = document.getElementById('btn-user-B');
-  const dispA = document.getElementById('user-display-A');
-  const dispB = document.getElementById('user-display-B');
-
-  if (dispA) dispA.innerText = names.A;
-  if (dispB) dispB.innerText = names.B;
-
-  if (u === 'A') {
-    btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs";
-    btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-  } else {
-    btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-purple-700 shadow-xs";
-    btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-  }
-
-  const emptyName = document.getElementById('empty-state-username');
-  if (emptyName) emptyName.innerText = names[u];
-  const singleName = document.getElementById('single-profile-name');
-  if (singleName) singleName.innerText = names[u];
-}
-
-function renderCurrentChapter() {
-  const chapters = window.surveyChapters || [];
-  if (chapters.length === 0) return;
-  const ch = chapters[currentChapterIndex];
-  if (!ch) return;
-
-  document.getElementById('chapter-badge').innerText = `Kapitel ${currentChapterIndex + 1} / ${chapters.length}`;
-  document.getElementById('chapter-title').innerText = ch.title;
-  document.getElementById('chapter-desc').innerText = ch.desc;
-  document.getElementById('chapter-items-count').innerText = `${ch.items.length} Punkte`;
-
-  const prevBtn = document.getElementById('btn-prev-chapter');
-  if (prevBtn) prevBtn.disabled = (currentChapterIndex === 0);
-
-  const nextBtn = document.getElementById('btn-next-chapter');
-  if (nextBtn) {
-    nextBtn.innerText = (currentChapterIndex === chapters.length - 1) ? "Zur Analyse →" : "Weiter →";
-  }
-
-  const container = document.getElementById('survey-items-container');
-  let html = '';
-
-  ch.items.forEach(it => {
-    const keyR1 = `it_${it.id}_r1`;
-    const keyR2 = `it_${it.id}_r2`;
-    const keyChoice = `it_${it.id}_choice`;
-
-    const valR1 = answers[currentUser][keyR1];
-    const valR2 = answers[currentUser][keyR2];
-    const valChoice = answers[currentUser][keyChoice];
-    const noteVal = notes[currentUser][it.id] || '';
-
-    if (it.type === 'choice') {
-      html += `
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-              <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-            <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            ${it.options.map(opt => {
-              const isChecked = (valChoice === opt.val);
-              return `
-                <button onclick="recordChoiceAnswer(${it.id}, '${opt.val}')" 
-                        class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
-                  ${opt.label}
-                </button>
-              `;
-            }).join('')}
-          </div>
-          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-      `;
-    } else {
-      html += `
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-              <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
-              <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR1)}</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1">
-              ${[0, 1, 2, 3, 4, 5].map(sc => `
-                <button onclick="recordScaleAnswer('${keyR1}',${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                  ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
-              <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR2)}</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1">
-              ${[0, 1, 2, 3, 4, 5].map(sc => `
-                <button onclick="recordScaleAnswer('${keyR2}',${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                  ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-
-          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Vorwarnung')..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-      `;
-    }
-  });
-
-  container.innerHTML = html;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function getPillLabel(score) {
-  if (score === undefined || score === null) return "Nicht bewertet";
-  if (score === 0) return "0 (Entfällt / Desinteresse)";
-  if (score === 1) return "⛔ 1 (Absolutes Tabu / Grenze)";
-  if (score === 2) return "🎁 2 (Dem Partner zuliebe / Strafe)";
-  if (score === 3) return "💡 3 (Neugierig / Gesprächsbedarf)";
-  if (score === 4) return "✨ 4 (Reizvoll / Schöne Bereicherung)";
-  if (score === 5) return "⭐ 5 (Leidenschaft / Must-Have)";
-  return score;
-}
-
-function getScoreActiveStyle(sc) {
-  if (sc === 1) return 'bg-rose-600 text-white border-rose-700 shadow-xs font-black';
-  if (sc === 2) return 'bg-indigo-600 text-white border-indigo-700 shadow-xs font-black';
-  if (sc === 3) return 'bg-blue-600 text-white border-blue-700 shadow-xs font-black';
-  if (sc === 4) return 'bg-amber-600 text-white border-amber-700 shadow-xs font-black';
-  if (sc === 5) return 'bg-emerald-600 text-white border-emerald-700 shadow-xs font-black';
-  return 'bg-slate-800 text-white border-slate-900 shadow-xs font-black';
-}
-
-function recordScaleAnswer(key, score) {
-  answers[currentUser][key] = score;
-  saveToLocalStorage();
-  renderCurrentChapter();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-}
-
-function recordChoiceAnswer(id, val) {
-  answers[currentUser][`it_${id}_choice`] = val;
-  saveToLocalStorage();
-  renderCurrentChapter();
-  updateProgressBar();
-  checkChapterQuickGridVisibility();
-}
-
-function recordNote(id, text) {
-  notes[currentUser][id] = text.trim();
-  saveToLocalStorage();
-}
-
-function prevChapter() {
-  if (currentChapterIndex > 0) {
-    currentChapterIndex--;
-    renderCurrentChapter();
-  }
-}
-
-function nextChapter() {
-  const chapters = window.surveyChapters || [];
-  if (currentChapterIndex < chapters.length - 1) {
-    currentChapterIndex++;
-    renderCurrentChapter();
-  } else {
-    switchMainView('single');
-  }
-}
-
-function jumpToChapter(idx) {
-  currentChapterIndex = idx;
-  switchMainView('survey');
-}
-
-function renderQuickGrid() {
-  const grid = document.getElementById('quick-grid-buttons');
-  const chapters = window.surveyChapters || [];
-  if (!grid || chapters.length === 0) return;
-  grid.innerHTML = chapters.map((ch, idx) => `
-    <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
-      ${idx + 1}. ${escapeHtml(ch.title)}
-    </button>
-  `).join('');
-}
-
-function checkChapterQuickGridVisibility() {
-  const qg = document.getElementById('chapter-quick-grid');
-  if (!qg) return;
-  const count = Object.keys(answers[currentUser]).length;
-  if (count >= 15) {
-    qg.classList.remove('hidden');
-  } else {
-    qg.classList.add('hidden');
-  }
-}
-
-function updateProgressBar() {
-  const chapters = window.surveyChapters || [];
-  if (chapters.length === 0) return;
-  let totalQuestions = 0;
-  chapters.forEach(c => {
-    c.items.forEach(it => {
-      if (it.type === 'choice') totalQuestions += 1;
-      else totalQuestions += 2;
-    });
-  });
-
-  const answered = Object.keys(answers[currentUser]).length;
-  const pct = totalQuestions > 0 ? Math.min(100, Math.round((answered / totalQuestions) * 100)) : 0;
-
-  const fill = document.getElementById('progress-bar-fill');
-  const txt = document.getElementById('progress-text');
-  if (fill) fill.style.width = `${pct}%`;
-  if (txt) txt.innerText = `Fortschritt: ${pct} % (${answered}/${totalQuestions})`;
-}
-
-function updateTabuBadge() {
-  let count = 0;
-  const uAnswers = answers[currentUser];
-  Object.keys(uAnswers).forEach(k => {
-    if (uAnswers[k] === 1) count++;
-  });
-  const badge = document.getElementById('header-tabu-count');
-  if (badge) badge.innerText = count;
-}
-
-function renderSingleAnalysis() {
-  const uAnswers = answers[currentUser];
-  const count = Object.keys(uAnswers).length;
-  const emptyBox = document.getElementById('single-empty-state');
-  const contentBox = document.getElementById('single-content-state');
-
-  if (count < 3) {
-    if (emptyBox) emptyBox.classList.remove('hidden');
-    if (contentBox) contentBox.classList.add('hidden');
-    return;
-  }
-
-  if (emptyBox) emptyBox.classList.add('hidden');
-  if (contentBox) contentBox.classList.remove('hidden');
-
-  let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-  let totalPoints = 0;
-
-  Object.keys(uAnswers).forEach(k => {
-    const v = uAnswers[k];
-    if (typeof v === 'number' && v > 0) {
-      totalPoints += v;
-      if (k.includes('115') || k.includes('117') || k.includes('198')) pPower += v;
-      else if (k.includes('217') || k.includes('262') || k.includes('264')) pSensation += v;
-      else if (k.includes('320') || k.includes('322') || k.includes('526')) pNurturing += v;
-      else if (k.includes('303') || k.includes('304') || k.includes('581')) pThrill += v;
-      else pVisual += v;
-    }
-  });
-
-  const maxP = Math.max(1, totalPoints);
-  setBar('power', Math.min(100, Math.round((pPower / maxP) * 220)));
-  setBar('sensation', Math.min(100, Math.round((pSensation / maxP) * 220)));
-  setBar('nurturing', Math.min(100, Math.round((pNurturing / maxP) * 220)));
-  setBar('thrill', Math.min(100, Math.round((pThrill / maxP) * 220)));
-  setBar('visual', Math.min(100, Math.round((pVisual / maxP) * 220)));
-
-  let high5 = [];
-  let tabus = [];
-
-  const chapters = window.surveyChapters || [];
-  chapters.forEach(ch => {
-    ch.items.forEach(it => {
-      const r1 = uAnswers[`it_${it.id}_r1`];
-      const r2 = uAnswers[`it_${it.id}_r2`];
-      if (r1 === 5) high5.push(`${it.title} (Aktiv: ${it.r1})`);
-      if (r2 === 5) high5.push(`${it.title} (Passiv: ${it.r2})`);
-      if (r1 === 1) tabus.push(`${it.title} (Aktiv abgelehnt)`);
-      if (r2 === 1) tabus.push(`${it.title} (Passiv abgelehnt)`);
-    });
-  });
-
-  const h5El = document.getElementById('single-high-prio-list');
-  if (h5El) {
-    h5El.innerHTML = high5.map(h => `<div class="p-2 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200">⭐ ${escapeHtml(h)}</div>`).join('') || '<p class="text-slate-400 italic">Noch keine 5er-Punkte.</p>';
-  }
-
-  const tbEl = document.getElementById('single-tabus-list');
-  if (tbEl) {
-    tbEl.innerHTML = tabus.map(t => `<div class="p-2 rounded-lg bg-rose-50 text-rose-900 border border-rose-200">⛔ ${escapeHtml(t)}</div>`).join('') || '<p class="text-slate-400 italic">Keine Tabus gesetzt.</p>';
-  }
-
-  renderSingleRadar();
-}
-
-function setBar(id, pct) {
-  const val = document.getElementById(`bar-val-${id}`);
-  const fill = document.getElementById(`bar-fill-${id}`);
-  if (val) val.innerText = `${pct} %`;
-  if (fill) fill.style.width = `${pct}%`;
-}
-
-function renderSingleRadar() {
-  const canvas = document.getElementById('singleRadarChart');
-  if (!canvas) return;
-
-  if (singleRadarInstance) singleRadarInstance.destroy();
-  const isDark = document.documentElement.classList.contains('dark');
-  const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
-  const labelColor = isDark ? '#cbd5e1' : '#334155';
-
-  singleRadarInstance = new Chart(canvas, {
-    type: 'radar',
-    data: {
-      labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
-      datasets: [{
-        label: names[currentUser],
-        data: [80, 85, 90, 75, 85, 60, 70, 95, 90],
-        backgroundColor: 'rgba(225, 29, 72, 0.2)',
-        borderColor: 'rgba(225, 29, 72, 1)',
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(225, 29, 72, 1)'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          angleLines: { color: gridColor },
-          grid: { color: gridColor },
-          pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
-          ticks: { display: false, max: 100, min: 0 }
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
-}
-
-function renderPairAnalysis() {
-  const hasBoth = (Object.keys(answers.A).length > 0) && (Object.keys(answers.B).length > 0);
-  const lockedBanner = document.getElementById('pair-locked-banner');
-  const unlockedContent = document.getElementById('pair-unlocked-content');
-  const lockIcon = document.getElementById('nav-pair-lock');
-
-  if (!hasBoth) {
-    if (lockedBanner) lockedBanner.classList.remove('hidden');
-    if (unlockedContent) unlockedContent.classList.add('hidden');
-    if (lockIcon) lockIcon.innerText = '🔒';
-    return;
-  }
-
-  if (lockedBanner) lockedBanner.classList.add('hidden');
-  if (unlockedContent) unlockedContent.classList.remove('hidden');
-  if (lockIcon) lockIcon.innerText = '🔓';
-
-  document.getElementById('pair-name-1').innerText = names.A;
-  document.getElementById('pair-name-2').innerText = names.B;
-
-  let matchesCount = 0;
-  let positiveMatches = 0;
-  let doppel5 = [];
-  let bridges = [];
-  let tabus = [];
-  let compromises = [];
-  let visibleDetailItems = [];
-
-  const modeA = privacy.A?.mode || 'blind';
-  const modeB = privacy.B?.mode || 'blind';
-  const shareNotesA = privacy.A?.shareNotes !== false;
-  const shareNotesB = privacy.B?.shareNotes !== false;
-
-  const chapters = window.surveyChapters || [];
-  chapters.forEach(ch => {
-    ch.items.forEach(it => {
-      const aR1 = answers.A[`it_${it.id}_r1`];
-      const aR2 = answers.A[`it_${it.id}_r2`];
-      const bR1 = answers.B[`it_${it.id}_r1`];
-      const bR2 = answers.B[`it_${it.id}_r2`];
-      const noteA = shareNotesA ? (notes.A[it.id] || '') : '';
-      const noteB = shareNotesB ? (notes.B[it.id] || '') : '';
-
-      const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
-      if (isTabu) {
-        tabus.push({ item: it, aR1, aR2, bR1, bR2 });
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kink- & Beziehungs-Kompass (Master-Version)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
       } else {
-        if (aR1 === 5 && bR2 === 5) doppel5.push({ item: it, text: `${names.A} will führen (5) & ${names.B} will empfangen (5)` });
-        if (bR1 === 5 && aR2 === 5) doppel5.push({ item: it, text: `${names.B} will führen (5) & ${names.A} will empfangen (5)` });
+        document.documentElement.classList.remove('dark');
+      }
+    })();
 
-        if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridges.push({ item: it, text: `${names.A} Wunsch (${aR1}) trifft ${names.B} Bereitschaft (${bR2})` });
-        if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridges.push({ item: it, text: `${names.B} Wunsch (${bR1}) trifft ${names.A} Bereitschaft (${aR2})` });
-
-        if (bR2 === 2 && aR1 >= 3) compromises.push({ from: names.B, to: names.A, role: it.r2, item: it, wishScore: aR1 });
-        if (aR2 === 2 && bR1 >= 3) compromises.push({ from: names.A, to: names.B, role: it.r2, item: it, wishScore: bR1 });
-
-        if (aR1 !== undefined && bR2 !== undefined) {
-          matchesCount++;
-          if (aR1 >= 3 && bR2 >= 3) positiveMatches++;
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              950: '#4c0519',
+            },
+            noir: {
+              950: '#05070c',
+              900: '#090d16',
+              850: '#101624',
+              800: '#161f33',
+              700: '#23304b',
+              600: '#38496d',
+            }
+          }
         }
       }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+    }
+    
+    html.dark body {
+      background-color: #05070c !important;
+      color: #f8fafc !important;
+    }
+    html.dark .theme-card {
+      background-color: #0f1523 !important;
+      border-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+    html.dark .theme-panel {
+      background-color: #141c2e !important;
+      border-color: #24334f !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .theme-subtle {
+      background-color: #090d16 !important;
+      border-color: #1a2438 !important;
+    }
 
-      const isMatch = (aR1 >= 3 && bR2 >= 3) || (bR1 >= 3 && aR2 >= 3);
-      const isOpenMode = (modeA === 'open' && modeB === 'open');
+    html.dark .bg-white {
+      background-color: #0f1523 !important;
+      color: #f8fafc !important;
+    }
+    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 {
+      background-color: #141c2e !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .bg-slate-100 {
+      background-color: #1a2438 !important;
+      color: #f8fafc !important;
+    }
+    html.dark .border-slate-200, html.dark .border-slate-300, html.dark .border-slate-100 {
+      border-color: #1e293b !important;
+    }
+    html.dark .text-slate-900, html.dark .text-slate-800 {
+      color: #f8fafc !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .text-slate-600, html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark input[type="text"], html.dark input[type="email"], html.dark select {
+      background-color: #141c2e !important;
+      border-color: #24334f !important;
+      color: #f8fafc !important;
+    }
+    html.dark input::placeholder {
+      color: #64748b !important;
+    }
+    html.dark footer {
+      background-color: #090d16 !important;
+      border-color: #1e293b !important;
+    }
+
+    html:not(.dark) body {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .theme-card {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .theme-panel {
+      background-color: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #1e293b !important;
+    }
+    html:not(.dark) .theme-subtle {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .bg-white {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .bg-slate-50 {
+      background-color: #f8fafc !important;
+      color: #334155 !important;
+    }
+    html:not(.dark) .border-slate-200 {
+      border-color: #e2e8f0 !important;
+    }
+
+    .touch-pill {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .touch-pill:active {
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
+
+  <!-- HEADER NAVIGATION -->
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
       
-      if (isTabu || isMatch || isOpenMode || (aR1 >= 3) || (bR1 >= 3)) {
-        visibleDetailItems.push({
-          item: it,
-          isTabu,
-          isMatch,
-          aR1, aR2, bR1, bR2,
-          noteA, noteB
-        });
-      }
-    });
-  });
-
-  const harmonyPct = matchesCount > 0 ? Math.round((positiveMatches / matchesCount) * 100) : 0;
-  document.getElementById('kpi-harmony').innerText = `${harmonyPct} %`;
-  document.getElementById('kpi-doppel5').innerText = doppel5.length;
-  document.getElementById('kpi-bridges').innerText = bridges.length;
-  document.getElementById('kpi-tabus').innerText = tabus.length;
-
-  const compEl = document.getElementById('pair-compromises-list');
-  if (compEl) {
-    compEl.innerHTML = compromises.slice(0, 10).map(c => `
-      <div class="p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 flex items-start justify-between gap-2">
+      <!-- Brand -->
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
+          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
+            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
+            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+          </svg>
+        </div>
         <div>
-          <strong class="text-indigo-950 block">${escapeHtml(c.item.title)}</strong>
-          <span class="text-[11px] text-indigo-900">${c.from} würde ${c.to} zuliebe: <em>"${escapeHtml(c.role)}"</em> (Wunsch von ${c.to}: Note ${c.wishScore})</span>
-        </div>
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200">Note 2</span>
-      </div>
-    `).join('') || '<p class="text-slate-400 italic">Keine offenen 2er-Kompromisse erfasst.</p>';
-  }
-
-  const d5El = document.getElementById('pair-doppel5-list');
-  if (d5El) {
-    d5El.innerHTML = doppel5.slice(0, 8).map(d => `
-      <div class="p-2 rounded-lg bg-emerald-50 border border-emerald-200">
-        <strong class="text-emerald-950 block">${escapeHtml(d.item.title)}</strong>
-        <span class="text-[10.5px] text-emerald-800">${escapeHtml(d.text)}</span>
-      </div>
-    `).join('') || '<p class="text-slate-400 italic">Noch keine beidseitigen 5er-Matches.</p>';
-  }
-
-  const brEl = document.getElementById('pair-bridges-list');
-  if (brEl) {
-    brEl.innerHTML = bridges.slice(0, 8).map(b => `
-      <div class="p-2 rounded-lg bg-amber-50 border border-amber-200">
-        <strong class="text-amber-950 block">${escapeHtml(b.item.title)}</strong>
-        <span class="text-[10.5px] text-amber-800">${escapeHtml(b.text)}</span>
-      </div>
-    `).join('') || '<p class="text-slate-400 italic">Keine offenen Brückenpunkte.</p>';
-  }
-
-  const badgeEl = document.getElementById('pair-transparency-badge');
-  const hintEl = document.getElementById('pair-transparency-hint');
-  const detailEl = document.getElementById('pair-detailed-breakdown');
-
-  if (badgeEl && hintEl && detailEl) {
-    if (modeA === 'open' && modeB === 'open') {
-      badgeEl.innerHTML = `<span class="px-2 py-0.5 rounded font-bold bg-indigo-100 text-indigo-800">100 % Offene Einsicht</span>`;
-      hintEl.innerText = "Beide Partner haben die vollständige Einsicht aktiviert: Alle vergebenen Noten und freigegebenen Notizen sind für euch beide sichtbar.";
-    } else {
-      badgeEl.innerHTML = `<span class="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800">Selektiver Abgleich aktiv</span>`;
-      hintEl.innerText = "Selektiver Blind-Match: Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen bleiben verborgen.";
-    }
-
-    detailEl.innerHTML = visibleDetailItems.map(d => {
-      let tag = '';
-      if (d.isTabu) {
-        tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-rose-100 text-rose-800">⛔ Tabu</span>`;
-      } else if (d.isMatch) {
-        tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800">✓ Schnittmenge</span>`;
-      } else {
-        tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700">Offene Bewertung</span>`;
-      }
-
-      const valTextA = (d.aR1 !== undefined || d.aR2 !== undefined) 
-        ? `${names.A}: Aktiv ${d.aR1 ?? '-'} | Passiv ${d.aR2 ?? '-'}` 
-        : `${names.A}: Noch nicht bewertet`;
-
-      const valTextB = (d.bR1 !== undefined || d.bR2 !== undefined) 
-        ? `${names.B}: Aktiv ${d.bR1 ?? '-'} | Passiv ${d.bR2 ?? '-'}` 
-        : `${names.B}: Noch nicht bewertet`;
-
-      const notesHtml = (d.noteA || d.noteB) 
-        ? `<div class="pt-1 text-[10.5px] text-slate-500 space-y-0.5">
-            ${d.noteA ? `<p><strong>Notiz ${names.A}:</strong> ${escapeHtml(d.noteA)}</p>` : ''}
-            ${d.noteB ? `<p><strong>Notiz ${names.B}:</strong> ${escapeHtml(d.noteB)}</p>` : ''}
-           </div>`
-        : '';
-
-      return `
-        <div class="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1">
-          <div class="flex items-center justify-between gap-2">
-            <strong class="text-slate-900 text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
-            ${tag}
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Intim- & Paar-Kompass</h1>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
           </div>
-          <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-600 pt-0.5 gap-2">
-            <span class="bg-white px-2 py-0.5 rounded border border-slate-200">${valTextA}</span>
-            <span class="bg-white px-2 py-0.5 rounded border border-slate-200">${valTextB}</span>
-          </div>
-          ${notesHtml}
+          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Beziehungs-Dynamik</span>
         </div>
-      `;
-    }).join('') || '<p class="text-slate-400 italic p-2 text-center">Keine passenden Übereinstimmungen gefunden.</p>';
-  }
-
-  renderPairRadar();
-  rollDailyKinkDice();
-}
-
-function renderPairRadar() {
-  const canvas = document.getElementById('pairRadarChart');
-  if (!canvas) return;
-
-  if (pairRadarInstance) pairRadarInstance.destroy();
-  const isDark = document.documentElement.classList.contains('dark');
-  const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
-  const labelColor = isDark ? '#cbd5e1' : '#334155';
-
-  pairRadarInstance = new Chart(canvas, {
-    type: 'radar',
-    data: {
-      labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
-      datasets: [
-        {
-          label: names.A,
-          data: [85, 90, 95, 80, 85, 65, 75, 90, 95],
-          backgroundColor: 'rgba(99, 102, 241, 0.2)',
-          borderColor: 'rgba(99, 102, 241, 1)',
-          borderWidth: 2
-        },
-        {
-          label: names.B,
-          data: [90, 95, 85, 85, 90, 55, 80, 100, 100],
-          backgroundColor: 'rgba(168, 85, 247, 0.2)',
-          borderColor: 'rgba(168, 85, 247, 1)',
-          borderWidth: 2
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          angleLines: { color: gridColor },
-          grid: { color: gridColor },
-          pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
-          ticks: { display: false, max: 100, min: 0 }
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
-}
-
-function rollDailyKinkDice() {
-  const positiveItems = [];
-  const chapters = window.surveyChapters || [];
-  chapters.forEach(c => {
-    c.items.forEach(it => {
-      const a = answers.A[`it_${it.id}_r1`];
-      const b = answers.B[`it_${it.id}_r2`];
-      if (a >= 3 && b >= 3) positiveItems.push(it);
-    });
-  });
-
-  const cardTitle = document.getElementById('dice-title');
-  const cardDesc = document.getElementById('dice-desc');
-  if (!cardTitle || !cardDesc) return;
-
-  if (positiveItems.length === 0) {
-    cardTitle.innerText = "Sinnlicher Lippentanz & 5-Sekunden Blickkontakt";
-    cardDesc.innerText = "Nehmt euch heute 5 Minuten Zeit, euch schweigend in die Augen zu schauen und zärtlich zu küssen.";
-    return;
-  }
-
-  const randomIt = positiveItems[Math.floor(Math.random() * positiveItems.length)];
-  cardTitle.innerText = `🎲 Heute: ${randomIt.title}`;
-  cardDesc.innerText = randomIt.desc;
-}
-
-function openAccountModal() {
-  const user = currentUser;
-  const nameEl = document.getElementById('account-active-username');
-  if (nameEl) nameEl.innerText = names[user];
-
-  const nameInput = document.getElementById('account-name-input');
-  if (nameInput) nameInput.value = names[user] || '';
-
-  const emailInput = document.getElementById('account-email-input');
-  if (emailInput) emailInput.value = accounts[user]?.email || '';
-
-  const partnerEmailInput = document.getElementById('account-partner-email-input');
-  if (partnerEmailInput) partnerEmailInput.value = accounts[user]?.partnerEmail || '';
-
-  const resetUserSpan = document.getElementById('reset-current-username');
-  if (resetUserSpan) resetUserSpan.innerText = names[user];
-  cancelResetConfirmation();
-
-  const modal = document.getElementById('modal-account');
-  if (modal) modal.classList.remove('hidden');
-}
-
-function closeAccountModal() {
-  const modal = document.getElementById('modal-account');
-  if (modal) modal.classList.add('hidden');
-}
-
-function updateCurrentUserName(val) {
-  names[currentUser] = val.trim() || ((currentUser === 'A') ? 'Partner 1' : 'Partner 2');
-  saveToLocalStorage();
-  updateCurrentUserUI();
-  showToast(`Name aktualisiert: ${names[currentUser]}`);
-}
-
-function updateCurrentUserEmail(val) {
-  if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
-  accounts[currentUser].email = val.trim();
-  saveToLocalStorage();
-}
-
-function updatePartnerAccountEmail(val) {
-  if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
-  accounts[currentUser].partnerEmail = val.trim();
-  saveToLocalStorage();
-}
-
-function showResetConfirmation() {
-  const trigger = document.getElementById('reset-trigger-area');
-  const box = document.getElementById('reset-confirmation-box');
-  if (trigger) trigger.classList.add('hidden');
-  if (box) box.classList.remove('hidden');
-}
-
-function cancelResetConfirmation() {
-  const trigger = document.getElementById('reset-trigger-area');
-  const box = document.getElementById('reset-confirmation-box');
-  if (trigger) trigger.classList.remove('hidden');
-  if (box) box.classList.add('hidden');
-}
-
-function resetCurrentUserProfile() {
-  const u = currentUser;
-  answers[u] = {};
-  notes[u] = {};
-  names[u] = (u === 'A') ? 'Partner 1' : 'Partner 2';
-  if (accounts[u]) accounts[u].setupDone = false;
-  
-  saveToLocalStorage();
-  cancelResetConfirmation();
-  closeAccountModal();
-  
-  updateCurrentUserUI();
-  renderCurrentChapter();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-  
-  showToast(`Profil ${names[u]} erfolgreich zurückgesetzt.`);
-}
-
-function resetAllAppData() {
-  try {
-    localStorage.removeItem('kompass_answers');
-    localStorage.removeItem('kompass_notes');
-    localStorage.removeItem('kompass_names');
-    localStorage.removeItem('kompass_privacy');
-    localStorage.removeItem('kompass_accounts');
-  } catch (e) {
-    console.error(e);
-  }
-  
-  answers = { A: {}, B: {} };
-  notes = { A: {}, B: {} };
-  names = { A: 'Partner 1', B: 'Partner 2' };
-  privacy = {
-    A: { mode: 'blind', shareNotes: true, chapters: {} },
-    B: { mode: 'blind', shareNotes: true, chapters: {} }
-  };
-  accounts = {
-    A: { email: '', partnerEmail: '', setupDone: false },
-    B: { email: '', partnerEmail: '', setupDone: false }
-  };
-
-  cancelResetConfirmation();
-  closeAccountModal();
-  
-  currentUser = 'A';
-  updateCurrentUserUI();
-  renderCurrentChapter();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-  
-  showToast("Alle Daten & Profile wurden vollständig gelöscht.");
-  setTimeout(() => { window.location.reload(); }, 600);
-}
-
-function openTabuModal() {
-  const list = document.getElementById('tabu-modal-list');
-  if (!list) return;
-
-  let tabuItems = [];
-  const chapters = window.surveyChapters || [];
-  chapters.forEach(ch => {
-    ch.items.forEach(it => {
-      const aR1 = answers.A[`it_${it.id}_r1`];
-      const aR2 = answers.A[`it_${it.id}_r2`];
-      const bR1 = answers.B[`it_${it.id}_r1`];
-      const bR2 = answers.B[`it_${it.id}_r2`];
-
-      if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-        let who = [];
-        if (aR1 === 1 || aR2 === 1) who.push(names.A);
-        if (bR1 === 1 || bR2 === 1) who.push(names.B);
-        tabuItems.push({ it, who: who.join(' & ') });
-      }
-    });
-  });
-
-  list.innerHTML = tabuItems.map(t => `
-    <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
-      <div class="flex justify-between items-start">
-        <strong class="text-rose-950 font-bold">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-200 text-rose-900">Limit von ${t.who}</span>
       </div>
-      <p class="text-[11px] text-rose-800 mt-0.5">${escapeHtml(t.it.desc)}</p>
-    </div>
-  `).join('') || '<p class="text-slate-400 italic p-3 text-center">Aktuell sind keine Tabus (Note 1) hinterlegt.</p>';
 
-  const m = document.getElementById('modal-tabus');
-  if (m) m.classList.remove('hidden');
-}
+      <!-- Navigation Views -->
+      <nav class="flex items-center theme-panel p-1 rounded-xl border text-xs font-bold overflow-x-auto">
+        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
+          📝 Fragebogen
+        </button>
+        <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+          👤 Mein Profil
+        </button>
+        <a href="analyse.html" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1 font-bold">
+          <span>📊 Paar-Analyse ↗</span>
+        </a>
+      </nav>
 
-function closeTabuModal() {
-  const m = document.getElementById('modal-tabus');
-  if (m) m.classList.add('hidden');
-}
-
-function openShareModal() {
-  const url = getLiveShareUrl();
-  const input = document.getElementById('share-link-input');
-  if (input) input.value = url;
-  const m = document.getElementById('modal-share');
-  if (m) m.classList.remove('hidden');
-}
-
-function closeShareModal() {
-  const m = document.getElementById('modal-share');
-  if (m) m.classList.add('hidden');
-}
-
-function getLiveShareUrl() {
-  const payload = {
-    sender: currentUser,
-    answers: answers,
-    notes: notes,
-    names: names,
-    privacy: privacy,
-    ts: Date.now()
-  };
-  const json = JSON.stringify(payload);
-  const encoded = btoa(unescape(encodeURIComponent(json)));
-  const base = window.location.href.split('#')[0];
-  return `${base}#data=${encoded}`;
-}
-
-function copyShareLinkToClipboard() {
-  const input = document.getElementById('share-link-input');
-  if (!input) return;
-  input.select();
-  document.execCommand('copy');
-  const btn = document.getElementById('btn-copy-share-link');
-  if (btn) {
-    const orig = btn.innerText;
-    btn.innerText = "✓ Link kopiert!";
-    setTimeout(() => { btn.innerText = orig; }, 2000);
-  }
-  showToast("Link in die Zwischenablage kopiert!");
-}
-
-function openLexikonModal() {
-  filterLexikon('');
-  const m = document.getElementById('modal-lexikon');
-  if (m) m.classList.remove('hidden');
-}
-
-function closeLexikonModal() {
-  const m = document.getElementById('modal-lexikon');
-  if (m) m.classList.add('hidden');
-}
-
-function filterLexikon(q) {
-  const container = document.getElementById('lexikon-entries-container');
-  if (!container || !window.lexikonData) return;
-  const query = (q || '').toLowerCase();
-  const filtered = lexikonData.filter(l => l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query));
-
-  container.innerHTML = filtered.map(l => `
-    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-      <div class="flex justify-between items-center">
-        <strong class="text-slate-900 font-bold text-xs">${escapeHtml(l.term)}</strong>
-        <a href="${l.link}" target="_blank" class="text-[10px] text-indigo-600 hover:underline">Wikipedia ↗</a>
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2 py-1.5 sm:px-2.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten">
+          <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
+        </button>
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
+          <span>🕯️</span> <span class="hidden md:inline">Session</span>
+        </a>
+        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
+          <span>⛔</span> (<span id="header-tabu-count">0</span>)
+        </button>
+        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
+          <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
+        </button>
+        <button onclick="openShareModal()" class="px-2.5 sm:px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
+          <span>🔗</span> <span class="hidden xs:inline">Teilen</span>
+        </button>
+        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
+          <span>⚙️</span>
+        </button>
       </div>
-      <p class="text-[11px] text-slate-600 leading-relaxed">${escapeHtml(l.def)}</p>
+
     </div>
-  `).join('') || '<p class="text-slate-400 italic text-center p-2">Kein Begriff gefunden.</p>';
-}
+  </header>
 
-function searchInLexikon(term) {
-  openLexikonModal();
-  const input = document.getElementById('lexikon-search-input');
-  if (input) {
-    input.value = term;
-    filterLexikon(term);
-  }
-}
+  <!-- SUB-HEADER: NUTZER & FORTSCHRITT -->
+  <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
+      
+      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <span class="text-[10.5px] font-bold text-slate-500 pl-2">Du füllst aus für:</span>
+        <button onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs">
+          <span>🔵</span> <span id="user-display-A">Partner 1</span>
+        </button>
+        <button onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
+          <span>🟣</span> <span id="user-display-B">Partner 2</span>
+        </button>
+      </div>
 
-function sendBackupEmail() {
-  const url = getLiveShareUrl();
-  const email = accounts[currentUser]?.email || '';
-  const subject = encodeURIComponent("Sicherung: Dein persönlicher Kink-Kompass Zugangs-Link");
-  const body = encodeURIComponent(`Hallo ${names[currentUser]},\n\nhier ist dein aktueller, verschlüsselter Zugangs-Link zu deinen Bewertungen:\n\n${url}\n\nBewahre diese E-Mail auf, um deinen Stand jederzeit wieder abrufen zu können.`);
-  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-}
+      <div class="flex items-center gap-2.5 flex-1 max-w-xs sm:max-w-md justify-end">
+        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 %</span>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+          <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+        </div>
+      </div>
 
-function sendPartnerEmailNotification() {
-  const url = getLiveShareUrl();
-  const email = accounts[currentUser]?.partnerEmail || '';
-  const subject = encodeURIComponent(`${names[currentUser]} hat den Kink-Kompass ausgefüllt`);
-  const body = encodeURIComponent(`Hallo,\n\n${names[currentUser]} hat den Beziehungs- und Kink-Kompass ausgefüllt und lädt dich zum unbeeinflussten Blind-Abgleich ein.\n\nHier geht es direkt zu deinem Fragebogen:\n${url}\n\nViel Spaß beim Entdecken eurer gemeinsamen Fantasien!`);
-  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-}
+    </div>
+  </div>
 
-function showToast(msg) {
-  const c = document.getElementById('toast-container');
-  if (!c) return;
-  const el = document.createElement('div');
-  el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-  el.innerText = msg;
-  c.appendChild(el);
+  <!-- HAUPTBEREICH -->
+  <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
 
-  setTimeout(() => {
-    el.classList.remove('translate-y-2', 'opacity-0');
-  }, 10);
+    <!-- VIEW A: FRAGEBOGEN -->
+    <section id="view-survey" class="space-y-4">
+      <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+          <span>📑 Kapitel-Schnellverzeichnis</span>
+          <span class="text-[10px] text-slate-400 font-normal">Tippe auf ein Kapitel zum direkten Wechsel</span>
+        </div>
+        <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]"></div>
+      </div>
 
-  setTimeout(() => {
-    el.classList.add('opacity-0');
-    setTimeout(() => { el.remove(); }, 300);
-  }, 2500);
-}
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-brand-50 text-brand-700 border border-brand-200 uppercase" id="chapter-badge">
+              Kapitel 1
+            </span>
+            <span class="text-xs text-slate-400 font-bold" id="chapter-items-count">0 Praktiken</span>
+          </div>
+          <h2 class="text-base sm:text-lg font-black text-slate-900 mt-1" id="chapter-title">Lade Kapitel...</h2>
+          <p class="text-xs text-slate-500 mt-0.5 leading-relaxed" id="chapter-desc">Beschreibung lädt...</p>
+        </div>
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+        <div class="flex items-center gap-1.5 self-end sm:self-center">
+          <button onclick="prevChapter()" id="btn-prev-chapter" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition disabled:opacity-30 disabled:pointer-events-none">
+            ← Zurück
+          </button>
+          <button onclick="nextChapter()" id="btn-next-chapter" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
+            Weiter →
+          </button>
+        </div>
+      </div>
 
-window.addEventListener('DOMContentLoaded', () => {
-  initApp();
-});
+      <div id="survey-items-container" class="space-y-3.5"></div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
+          ← Vorheriges Kapitel
+        </button>
+        <button onclick="nextChapter()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
+          Nächstes Kapitel →
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW B: MEIN PROFIL -->
+    <section id="view-single" class="space-y-5 hidden">
+      <div id="single-empty-state" class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 text-2xl mx-auto flex items-center justify-center">
+          🌱
+        </div>
+        <div class="max-w-md mx-auto space-y-1.5">
+          <h3 class="text-base font-extrabold text-slate-900">Dein Profil erwacht mit deinen Antworten</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine Tiefenanalyse.
+          </p>
+        </div>
+        <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
+          Jetzt Fragebogen starten →
+        </button>
+      </div>
+
+      <div id="single-content-state" class="space-y-5 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+              Psychologisches Profil
+            </span>
+            <h2 class="text-lg font-extrabold text-slate-900 mt-1">
+              Persönlichkeitsanalyse von <span id="single-profile-name" class="text-indigo-600">Partner 1</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Basierend auf deinen bisherigen Bewertungen und Vorlieben.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="analyse.html" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition">
+              Zur großen Paaranalyse ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
+            <h3 class="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <span>🕸️ Archetypen-Radar</span>
+              <span class="text-[10px] text-slate-400 font-normal">Dimensionen</span>
+            </h3>
+            <div class="relative h-64 w-full flex items-center justify-center">
+              <canvas id="singleRadarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3 flex flex-col justify-between">
+            <div class="space-y-1">
+              <h3 class="text-xs font-bold text-slate-800">📊 Die 5 Motivations-Säulen</h3>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Verteilung deiner Antriebe:</p>
+            </div>
+            
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                  <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
+                  <span id="bar-val-power">0 %</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="bar-fill-power" class="bg-indigo-600 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                  <span>Sensorik & Schmerz (Impact, Shibari, Temperatur)</span>
+                  <span id="bar-val-sensation">0 %</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                  <span>Fürsorge & Geborgenheit (Caregiver, Decken, Nurturing)</span>
+                  <span id="bar-val-nurturing">0 %</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                  <span>Tabubruch & Nervenkitzel (CNC, Verhör, Fear)</span>
+                  <span id="bar-val-thrill">0 %</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                  <span>Visuelle Erotik & Lingerie (CFNM, Leder, Dessous)</span>
+                  <span id="bar-val-visual">0 %</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 leading-normal" id="single-interpretation-box">
+              Dein Profil zeigt eine ausgewogene Balance zwischen emotionaler Sicherheit und gezielter Reizexploration.
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
+            <h3 class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⭐</span> Deine absoluten Highlights (Note 5)
+            </h3>
+            <div id="single-high-prio-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
+            <h3 class="text-xs font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⛔</span> Deine persönlichen Tabus (Note 1)
+            </h3>
+            <div id="single-tabus-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-6 px-4 mt-8">
+    <div class="max-w-4xl mx-auto text-center space-y-3">
+      <div class="inline-flex items-center gap-1 text-brand-600 text-xs font-extrabold uppercase tracking-wider bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
+        <span>✨</span> Das Fundament: Vertrauen, Liebe & Freiwilligkeit
+      </div>
+      <p class="text-xs text-slate-600 leading-relaxed max-w-2xl mx-auto">
+        Kink und BDSM sind keine Leistungssportarten und kein Zwang. Jede Session, jede Fessel und jede Rollenverteilung beruht auf dem unantastbaren Fundament gegenseitiger Wertschätzung und <strong>absoluter Freiwilligkeit (SSC: Safe, Sane, Consensual)</strong>.
+      </p>
+      <div class="text-[11px] text-slate-400">
+        🛡️ Alle Antworten bleiben zu 100 % auf diesem Endgerät gespeichert. Keine Cloud, kein Tracking.
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+  <!-- MODAL: ONBOARDING -->
+  <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 border-b border-slate-200 flex justify-between items-center">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600">Willkommen im Kompass</span>
+          <h3 class="text-base font-extrabold text-slate-900 mt-0.5">Kurzes Setup für <span id="onboarding-user-title">Partner 1</span></h3>
+        </div>
+        <span class="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[10px] text-slate-600" id="onboarding-step-indicator">Schritt 1 von 3</span>
+      </div>
+
+      <div class="p-6 space-y-5">
+        <div id="onboarding-step-1" class="space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">1. Wie möchtest du genannt werden?</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Dein Name wird für die Auswertungen und den Session-Begleiter verwendet.
+            </p>
+          </div>
+          <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+
+        <div id="onboarding-step-2" class="hidden space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Wähle, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
+            </p>
+          </div>
+          <div class="space-y-2">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="onboarding-privacy" value="blind" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-900 block font-bold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
+                <span class="text-[11px] text-slate-500 block leading-normal">
+                  Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen bleiben verborgen.
+                </span>
+              </div>
+            </label>
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="onboarding-privacy" value="open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-900 block font-bold">Vollständiger Abgleich (Offene Einsicht)</strong>
+                <span class="text-[11px] text-slate-500 block leading-normal">
+                  Alle vergebenen Noten von 0 bis 5 sind in der Detailübersicht vollständig für den Partner einsehbar.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div id="onboarding-step-3" class="hidden space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen.
+            </p>
+          </div>
+          <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-100">
+          ← Zurück
+        </button>
+        <div class="flex-1"></div>
+        <button id="onboarding-btn-next" onclick="nextOnboardingStep()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs touch-pill">
+          Weiter →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCOUNT -->
+  <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+          <span>⚙️</span> Account & Datenverwaltung (<span id="account-active-username">Partner 1</span>)
+        </h3>
+        <button onclick="closeAccountModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div class="space-y-1.5">
+          <label class="font-bold text-slate-700 block">Dein angezeigter Name:</label>
+          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backups):</label>
+          <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+          <strong class="text-slate-900 block font-semibold text-xs">Aktionen & Sicherheit:</strong>
+          <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
+            <span>✉️</span> Meinen aktuellen Daten-Link an mich mailen
+          </button>
+          <!-- Testdaten-Generator zum Debuggen -->
+          <button onclick="generateRandomTestData()" class="w-full py-2 px-3 bg-indigo-50/80 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
+            <span>🎲</span> Testdaten einspielen (Zufallsantworten für Partner 1 & 2)
+          </button>
+        </div>
+
+        <div class="p-3.5 bg-gradient-to-tr from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 rounded-2xl space-y-2.5 text-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📲</span>
+            <strong class="font-bold text-white text-xs">Als App auf dem Smartphone speichern:</strong>
+          </div>
+          <div class="space-y-1.5 text-[11px] leading-relaxed text-slate-300">
+            <p>• <strong>iPhone (Safari):</strong> Teilen-Symbol <span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 font-mono text-[10px]">⎋</span> tippen $\rightarrow$ <strong>„Zum Home-Bildschirm“</strong>.</p>
+            <p>• <strong>Android (Chrome):</strong> Drei Punkte $\rightarrow$ <strong>„App installieren“</strong>.</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
+          <div id="reset-trigger-area">
+            <button onclick="showResetConfirmation()" class="w-full py-2 px-3 bg-white border border-rose-300 hover:bg-rose-100 text-rose-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
+              <span>🗑️</span> Mein Profil zurücksetzen (<span id="reset-current-username">Partner 1</span>)
+            </button>
+          </div>
+          <div id="reset-confirmation-box" class="hidden p-3 bg-white border border-rose-300 rounded-xl space-y-2 text-xs">
+            <strong class="text-rose-950 block font-bold">Bist du sicher?</strong>
+            <p class="text-slate-600 text-[11px]">Alle Antworten und Notizen dieses Profils werden gelöscht.</p>
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button onclick="resetCurrentUserProfile()" class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs transition">Ja, leeren</button>
+              <button onclick="cancelResetConfirmation()" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">Abbrechen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
+        <button onclick="closeAccountModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TABU-LISTE -->
+  <div id="modal-tabus" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-4 bg-rose-50 border-b border-rose-200 flex justify-between items-center">
+        <h3 class="font-extrabold text-rose-950 text-sm flex items-center gap-1.5">
+          <span>⛔</span> Die Rote Tabu- & No-Go-Liste (Note 1)
+        </h3>
+        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white border border-rose-200 text-rose-700 font-bold hover:bg-rose-100 flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto" id="tabu-modal-list"></div>
+      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
+        <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SHARING -->
+  <div id="modal-share" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+          <span>🔗</span> Partner einladen & Antworten teilen
+        </h3>
+        <button onclick="closeShareModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-5 space-y-3.5">
+        <p class="text-[11px] text-slate-600 leading-relaxed">
+          Sende diesen Link an deinen Partner. Deine Antworten sind direkt verschlüsselt im Link hinterlegt – ohne Cloud!
+        </p>
+        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+          <input type="text" id="share-link-input" readonly class="w-full text-[11px] bg-white border border-slate-300 rounded-lg p-2 font-mono text-slate-600 select-all">
+          <button onclick="copyShareLinkToClipboard()" id="btn-copy-share-link" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition shadow-xs touch-pill">
+            📋 Link in Zwischenablage kopieren
+          </button>
+        </div>
+      </div>
+      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
+        <button onclick="closeShareModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LEXIKON -->
+  <div id="modal-lexikon" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+          <span>📖</span> A–Z BDSM-, Kink- & Begriffs-Lexikon
+        </h3>
+        <button onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-4 border-b border-slate-100">
+        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none">
+      </div>
+      <div class="p-4 space-y-2 max-h-[60vh] overflow-y-auto" id="lexikon-entries-container"></div>
+      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
+        <button onclick="closeLexikonModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
+
+  <!-- SKRIPTE -->
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
