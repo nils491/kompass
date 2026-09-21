@@ -19,6 +19,7 @@ let accounts = {
 function initApp() {
   loadFromLocalStorage();
   checkUrlHashData();
+  applySavedTheme();
 
   const lock = document.getElementById('site-lockscreen');
   if (lock) {
@@ -26,6 +27,51 @@ function initApp() {
       lock.classList.add('hidden');
       checkOnboardingStatus();
     }
+  } else {
+    checkOnboardingStatus();
+  }
+
+  updateCurrentUserUI();
+  renderCurrentChapter();
+  renderQuickGrid();
+  updateProgressBar();
+  updateTabuBadge();
+  checkChapterQuickGridVisibility();
+}
+
+/* THEME MANAGEMENT (Global Dark/Light Sync) */
+function applySavedTheme() {
+  const saved = localStorage.getItem('kompass_theme') || 'dark';
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+    updateThemeUI('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+    updateThemeUI('light');
+  }
+}
+
+function toggleGlobalTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  if (isDark) {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('kompass_theme', 'light');
+    updateThemeUI('light');
+    showToast("Helles Design aktiviert");
+  } else {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('kompass_theme', 'dark');
+    updateThemeUI('dark');
+    showToast("Nacht-Design aktiviert");
+  }
+}
+
+function updateThemeUI(theme) {
+  const icon = document.getElementById('theme-toggle-icon');
+  const label = document.getElementById('theme-toggle-label');
+  if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
+  if (label) label.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
+}
   } else {
     checkOnboardingStatus();
   }
@@ -825,40 +871,152 @@ function renderPlaybooks() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-      <div class="flex justify-between items-center">
-        <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 1: Sinnliche Entschleunigung & Seidentrance (2 Std.)</h4>
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Sensual & Shibari</span>
+    <!-- PLAYBOOK 1: SEIDENTRANCE & NURU -->
+    <div class="p-5 theme-card rounded-2xl border space-y-4 shadow-sm">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20 uppercase tracking-wider">Drehbuch 1: Sinnliche Entschleunigung</span>
+          <h4 class="font-bold text-sm sm:text-base mt-1">Die Seidentrance & das Nuru-Gleitritual (ca. 90–120 Min.)</h4>
+        </div>
+        <a href="session.html" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
+          <span>🕯️</span> In Sessionbegleiter starten →
+        </a>
       </div>
-      <p class="text-[11px] text-slate-600 leading-relaxed">
-        <strong>Phase 1 (30 Min):</strong> Raum abdunkeln, Duftkerze entzünden. ${names.A} legt ${names.B} die Augenbinde an. 15 Minuten stummes Streicheln der Haare und Nackenzone.<br>
-        <strong>Phase 2 (60 Min):</strong> Japanisches Mormai-Harness mit geölten Juteseilen knüpfen. Nuru-Massage am Oberkörper. Edging und kontrolliertes Teasing.<br>
-        <strong>Phase 3 (30 Min Aftercare):</strong> Seile lösen, warmes Entspannungsbad, Decken und 24h-Check-in am Folgetag.
-      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-teal-400 block font-bold">Phase 1: Vorbereitung & Ankommen (20 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Raum auf 23 °C vorheizen, Licht dimmen, Duftkerze entzünden.<br>
+            • ${names.A} nimmt ${names.B} an die Hand: <em>„Heute gibt es keine Eile. Lass alle Gedanken los.“</em><br>
+            • ${names.B} wird entkleidet und auf eine vorbereitete Schutzdecke gebettet.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-teal-400 block font-bold">Phase 2: Sinnesentzug & Seidentrance (30 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • ${names.A} legt die Augenbinde (Pos. 241) an. 10 Min. lautloses Streicheln von Kopfhaut und Nacken.<br>
+            • Japanisches Mormai-Brustgeschirr mit geölten Juteseilen (Pos. 217) knüpfen.<br>
+            • Handdrück-Sicherheitssignal (2x / 3x) nochmals kurz bestätigen.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-teal-400 block font-bold">Phase 3: Nuru-Gleitmassage & Teasing (45 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Erwärmtes Nuru-Algen-Gel (Pos. 542) auf beiden Körpern verteilen.<br>
+            • Schwereloses Gleiten Body-to-Body ohne Hast.<br>
+            • 3-faches Edging an der Lustschwelle mit anschließendem Freigabe-Kommando.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-teal-400 block font-bold">Phase 4: Landung & 4-Stufen-Aftercare (25 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Seile lösen, gemeinsames warmes Entspannungsbad (Pos. 527).<br>
+            • Dicke Decken, warmen Tee und mindestens 15 Minuten wortlose Geborgenheit.<br>
+            • Fester Termin: 24h-Check-in am nächsten Tag zur Mittagszeit.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-      <div class="flex justify-between items-center">
-        <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 2: Hof-Protokoll & Disziplinierte Keuschheit (2 Std.)</h4>
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">D/s & Teasing</span>
+    <!-- PLAYBOOK 2: DISZIPLIN & PROTOKOLL -->
+    <div class="p-5 theme-card rounded-2xl border space-y-4 shadow-sm">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">Drehbuch 2: D/s & Struktur</span>
+          <h4 class="font-bold text-sm sm:text-base mt-1">Das Hof-Protokoll & Disziplinierte Keuschheit (ca. 75–90 Min.)</h4>
+        </div>
+        <a href="session.html" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
+          <span>🕯️</span> In Sessionbegleiter starten →
+        </a>
       </div>
-      <p class="text-[11px] text-slate-600 leading-relaxed">
-        <strong>Phase 1 (25 Min):</strong> Servieren von Tee in formeller Haltung. Schlosskontrolle am Käfig.<br>
-        <strong>Phase 2 (65 Min):</strong> Knieprotokoll, gezieltes Teasing durch das Gitter. Flächiges Handspanking auf das Gesäß zur Disziplinierung mit anschließendem Praise Play.<br>
-        <strong>Phase 3 (30 Min Aftercare):</strong> Schlüsselübergabe oder Belohnung, eng umschlungenes Kuscheln im Bett.
-      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-amber-400 block font-bold">Phase 1: Begrüßung & Servierdienst (20 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • ${names.B} serviert Tee auf Knien (Pos. 352) und verharrt im Nadu neben dem Sessel.<br>
+            • ${names.A} prüft den Sitz des Keuschheitskäfigs (Pos. 128) und nickt anerkennend.<br>
+            • Festlegung der heutigen Hausregeln für den Abend.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-amber-400 block font-bold">Phase 2: Disziplinierung & Handspanking (25 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Über die Knie legen (Pos. 263). Flächiges, warmes Handspanking zur Erwärmung.<br>
+            • ${names.B} zählt jeden Hieb andächtig mit.<br>
+            • Sofortige befreiende Umarmung: <em>„Das hast du brav durchgehalten.“</em>
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-amber-400 block font-bold">Phase 3: Teasing durchs Gitter & Countdown (30 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Gezieltes Erregen durch die Gitterstäbe (Pos. 117).<br>
+            • Schlossschlüssel küssen auf Knien.<br>
+            • Freigabe oder verweigerter Orgasmus nach Countdown von 10 rückwärts.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-amber-400 block font-bold">Phase 4: Arnika-Pflege & Praise Play (20 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Den roten Po mit Arnika-Balsam einreiben und kühlen.<br>
+            • Warmes Lob (Praise Play, Pos. 339), Kuss auf die Stirn und gemeinsames Einkuscheln.
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-      <div class="flex justify-between items-center">
-        <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 3: Primal-Jagd, Bändigung & Kerker-Geborgenheit (2 Std.)</h4>
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Primal & Impact</span>
+    <!-- PLAYBOOK 3: PRIMAL-JAGD & BÄNDIGUNG -->
+    <div class="p-5 theme-card rounded-2xl border space-y-4 shadow-sm">
+      <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">Drehbuch 3: Instinkt & Dynamik</span>
+          <h4 class="font-bold text-sm sm:text-base mt-1">Primal-Jagd, Bändigung & Kerker-Nachtruhe (ca. 90 Min.)</h4>
+        </div>
+        <a href="session.html" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
+          <span>🕯️</span> In Sessionbegleiter starten →
+        </a>
       </div>
-      <p class="text-[11px] text-slate-600 leading-relaxed">
-        <strong>Phase 1 (30 Min):</strong> Bratting und spielerische Flucht durch die Wohnung. Stellen der Beute auf der Bodenmatte.<br>
-        <strong>Phase 2 (55 Min):</strong> Intensives Matten-Ringen bis zur Kapitulation. Fixierung an der Kerkerwand. Dumpfe Paddle-Schläge.<br>
-        <strong>Phase 3 (35 Min Aftercare):</strong> Stillen der Schmerzen mit Kühlpads, Vorlesen im Bett und vollständige emotionale Entlastung.
-      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-rose-400 block font-bold">Phase 1: Provokation & Flucht (15 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Freches Necken (Bratting, Pos. 311) und spielerische Flucht durch die Wohnung.<br>
+            • ${names.A} nimmt die Fährte auf, stellt die Beute im Flur und treibt sie auf die Bodenmatte.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-rose-400 block font-bold">Phase 2: Matten-Ringen bis zum Tap-Out (30 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Intensives Kräftemessen ohne Schläge (Pos. 303). Hände pinnen, sanfte Nackenbisse.<br>
+            • Raufen bis zum Auspowern; ${names.B} klopft ab und kapituliert selig.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-rose-400 block font-bold">Phase 3: Bändigung & Kerker-Ruhe (30 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Fixierung im geschützten Kerkerbett (Pos. 581) mit schweren Decken.<br>
+            • Stumme Wache am Bett und Vorlesen einer Geschichte zur Beruhigung des Nervensystems.
+          </p>
+        </div>
+
+        <div class="p-3.5 theme-panel rounded-xl border space-y-1.5">
+          <strong class="text-rose-400 block font-bold">Phase 4: Traubenzucker & Nachruhe (20 Min.)</strong>
+          <p class="text-slate-400 leading-relaxed">
+            • Sofortige Zufuhr von Traubenzucker und Wasser gegen Muskelzittern.<br>
+            • Fester Schlaf im sicheren Kokon bis zum Morgen.
+          </p>
+        </div>
+      </div>
     </div>
   `;
 }
