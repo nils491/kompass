@@ -56,7 +56,6 @@
       padding-right: env(safe-area-inset-right, 0px);
     }
     
-    /* iOS Safari Auto-Zoom Fix bei Inputs & Selects */
     @media screen and (max-width: 640px) {
       select, input[type="text"], textarea {
         font-size: 16px !important;
@@ -120,6 +119,10 @@
     .touch-pill:active {
       transform: scale(0.97);
     }
+    .checkpoint-done {
+      border-color: rgba(16, 185, 129, 0.4) !important;
+      background-color: rgba(6, 78, 59, 0.15) !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -127,6 +130,7 @@
   <!-- NOTFALL-OVERLAY BEI ROT (Display wird zur sanften Notbeleuchtung) -->
   <div id="emergency-overlay" class="hidden fixed inset-0 z-[100] bg-[#fffbf2] text-slate-900 p-4 sm:p-6 flex flex-col justify-between overflow-y-auto animate-fade-in pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
     <div class="space-y-4 max-w-xl mx-auto w-full pt-2">
+      <div class="p-3 bg-amber-100 border border-amber-300 rounded-2xl">
         <strong class="text-sm text-amber-950 block">💡 Dein Bildschirm dient jetzt als Notfall-Lampe:</strong>
         <p class="text-xs text-amber-900 leading-relaxed">
           Nutze das sanfte Licht, um Sicherheits-Cutter, Schlüssel oder Knoten sofort zu finden.
@@ -190,7 +194,7 @@
             <span class="text-[10.5px] text-slate-400">Absolute Schutzgrenzen (Note 1 im Fragebogen)</span>
           </div>
         </div>
-        <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
       <p class="text-xs text-slate-300 leading-relaxed">
@@ -200,7 +204,7 @@
       <div id="session-tabus-list-container" class="space-y-2 max-h-[55vh] overflow-y-auto pr-1 text-xs"></div>
 
       <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition">
+        <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition">
           Verstanden & Schließen
         </button>
       </div>
@@ -247,129 +251,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
-  <header class="border-b session-card/90 backdrop-blur-md px-3 sm:px-4 py-2.5 sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg shadow-brand-950/40 p-1.5 flex-shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="1.5" fill="#f43f5e" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xs sm:text-sm font-black tracking-tight leading-tight">Session-Begleiter</h1>
-          <span class="text-[10px] text-slate-400 block" id="active-pair-display">Lade Profile...</span>
-        </div>
-      </div>
-
-      <!-- Quick Controls: Tabus, Blackout, Audio, OLED, Theme, Kompass -->
-      <div class="flex items-center space-x-1.5">
-        <button onclick="openSessionTabuModal()" class="px-2.5 py-1.5 bg-rose-950/50 hover:bg-rose-900/70 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/60 flex items-center gap-1 transition" title="Gemeinsame Tabus & Grenzen anzeigen">
-          <span>⛔</span> <span class="hidden sm:inline">Tabus</span> (<span id="session-tabu-count">0</span>)
-        </button>
-        <button onclick="toggleQuickBlackout()" class="p-2 rounded-xl session-panel border text-xs font-bold transition text-slate-400 hover:text-white" title="Diskreter Sofort-Blackout (Tarnung)">
-          <span>👁️‍🗨️</span>
-        </button>
-        <button onclick="toggleAudioSound()" id="btn-audio-toggle" class="p-2 rounded-xl session-panel border text-xs font-bold transition" title="Klangschalen-Gong ein/ausschalten">
-          <span id="audio-icon">🔔</span>
-        </button>
-        <button onclick="toggleOledMode()" id="btn-oled-toggle" class="p-2 rounded-xl session-panel border text-xs font-bold transition" title="OLED True Black (Pitch Black)">
-          <span>🖤</span>
-        </button>
-        <button onclick="toggleGlobalTheme()" id="btn-theme-toggle" class="px-2.5 py-1.5 rounded-xl session-panel border text-[11px] font-bold transition flex items-center gap-1">
-          <span id="session-theme-icon">🌙</span> <span class="hidden sm:inline" id="session-theme-text">Nacht</span>
-        </button>
-        <a href="index.html" class="px-3 py-1.5 rounded-xl session-panel hover:border-brand-700 border text-xs font-bold transition flex items-center gap-1">
-          ← <span class="hidden sm:inline">Kompass</span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- HAUPTBEREICH -->
-  <main class="max-w-4xl mx-auto p-3 sm:p-5 w-full flex-1 space-y-4">
-
-    <!-- AUFGERÄUMTE HAUPT-TABS (Freier Flow als Standard) -->
-    <div class="grid grid-cols-4 gap-1.5 p-1 session-panel rounded-2xl border text-xs font-bold">
-      <button onclick="switchTab('free')" id="tab-free" class="py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>🕯️</span> <span class="truncate">Freier Flow</span>
-      </button>
-      <button onclick="switchTab('guide')" id="tab-guide" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>📖</span> <span class="truncate">Regiebuch</span>
-      </button>
-      <button onclick="switchTab('config')" id="tab-config" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>✨</span> <span class="truncate">Szenen-Planer</span>
-      </button>
-      <button onclick="switchTab('punish')" id="tab-punish" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>⚖️</span> <span class="truncate">Strafen</span>
-      </button>
-    </div>
-
-    <!-- VIEW 0: FREIER FLOW (ALL-IN-ONE SCHLAFZIMMER-ZENTRALE) -->
-    <section id="view-free" class="space-y-3.5">
-      
-      <!-- HAUPT-TIMER & SCHNELLE STEUERUNG -->
-      <div class="session-card p-4 rounded-3xl border shadow-sm space-y-3.5">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-          <div class="flex items-center gap-3">
-            <button onclick="toggleTimer()" id="free-timer-toggle-btn" class="w-12 h-12 rounded-2xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-lg font-black transition shadow-lg touch-pill">
-              ▶
-            </button>
-            <div>
-              <span class="text-3xl sm:text-4xl font-mono font-black text-brand-400 leading-none block" id="free-timer-display">45:00</span>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-xs text-slate-400" id="free-timer-elapsed-info">Verstrichen: 0 Min.</span>
-                <span id="free-wake-lock-status" class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700">Display: Auto</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Schnelle Dauer-Wahl & Verlängerungen -->
-          <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
-            <button onclick="startTimer(45)" id="btn-free-dur-45" class="px-3 py-2 rounded-xl bg-brand-700 text-white border border-brand-600 touch-target-48 flex items-center justify-center">45m</button>
-            <button onclick="startTimer(75)" id="btn-free-dur-75" class="px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">75m</button>
-            <button onclick="startTimer(120)" id="btn-free-dur-120" class="px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">120m</button>
-            <div class="w-px h-6 bg-slate-700 mx-0.5"></div>
-            <button onclick="extendTimer(15)" class="px-3 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="15 Min. verlängern">+15m</button>
-            <button onclick="extendTimer(30)" class="px-3 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">+30m</button>
-            <button onclick="finishSessionGently()" class="px-3.5 py-2 rounded-xl bg-teal-950/70 hover:bg-teal-900 border border-teal-700 text-teal-300 font-bold transition touch-pill flex items-center gap-1.5" title="Friedlich beenden & direkt ins Aftercare">
-              <span>✨</span> <span>Sanft beenden</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- DIGITALE GROSSFLÄCHEN-AMPEL (Sofortige Bedienung ohne Tab-Wechsel) -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Farb-Ampel & Sicherheits-Stopp:</span>
-            <span class="text-[10.5px] text-slate-400" id="free-checkin-preference-note">Präferenz: Lade...</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2.5 h-24 sm:h-28">
-            <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48 touch-pill">
-              <span class="text-2xl sm:text-3xl">🟢</span>
-              <span>GRÜN</span>
-              <span class="text-[9.5px] font-normal opacity-85">Alles super</span>
-            </button>
-            <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48 touch-pill">
-              <span class="text-2xl sm:text-3xl">🟡</span>
-              <span>GELB</span>
-              <span class="text-[9.5px] font-normal opacity-85">Pause / Sanfter</span>
-            </button>
-            <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition touch-target-48 touch-pill">
-              <span class="text-2xl sm:text-3xl">🔴</span>
-              <span>ROT</span>
-              <span class="text-[9.5px] font-normal opacity-95">NOTFALL-STOPP</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- AMPEL-CHECK-IN EINSTELLUNGEN & SCHNELLWECHSEL -->
-        <div class="session-panel p-2.5 sm:p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🚦</span>
   <!-- HEADER (Mobile & Tablet optimiert) -->
   <header class="border-b session-card/90 backdrop-blur-md px-2.5 sm:px-4 py-2 sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
@@ -391,7 +272,7 @@
       <!-- Quick Controls: Tabus, Blackout, Audio, OLED, Theme, Kompass -->
       <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
         <button onclick="openTabuModal()" class="px-2 py-1.5 sm:px-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-bold text-[11px] transition flex items-center gap-1" title="Gemeinsame Tabus (Note 1)">
-          <span>⛔</span> <span id="header-tabu-badge" class="font-mono font-black">0</span>
+          <span>⛔</span> <span id="session-tabu-count" class="font-mono font-black">0</span>
         </button>
         <button onclick="toggleQuickBlackout()" class="p-1.5 sm:p-2 rounded-xl session-panel border text-xs font-bold transition text-slate-400 hover:text-white" title="Diskreter Sofort-Blackout (Tarnung)">
           <span>👁️‍🗨️</span>
@@ -437,31 +318,36 @@
       <!-- Großer zentraler Timer & Zeitleiste -->
       <div class="session-card p-4 sm:p-6 rounded-3xl border space-y-4 shadow-lg text-center">
         <div class="space-y-1">
-          <span class="text-[10px] font-black uppercase tracking-widest text-brand-400 bg-brand-500/10 px-2.5 py-0.5 rounded-full border border-brand-500/20">
-            Aktive Session
-          </span>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-[10px] font-black uppercase tracking-widest text-brand-400 bg-brand-500/10 px-2.5 py-0.5 rounded-full border border-brand-500/20">
+              Aktive Session
+            </span>
+            <span id="active-safeword-badge" class="hidden text-[10.5px] font-bold text-amber-300 bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-800/80">
+              Safeword: <strong id="active-safeword-text">Rot</strong>
+            </span>
+          </div>
           <div class="flex items-center justify-center gap-3 pt-1">
-            <span class="text-5xl sm:text-7xl font-mono font-black text-white tracking-tight" id="timer-display-main">45:00</span>
+            <span class="text-5xl sm:text-7xl font-mono font-black text-white tracking-tight" id="free-timer-display">45:00</span>
           </div>
           <div class="flex items-center justify-center gap-2 pt-1 text-xs text-slate-400">
-            <span id="timer-elapsed-info-main">Verstrichen: 0 Min.</span>
+            <span id="free-timer-elapsed-info">Verstrichen: 0 Min.</span>
             <span>•</span>
-            <span id="wake-lock-status-main" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-800 text-slate-300 border border-slate-700">Display: Auto</span>
+            <span id="free-wake-lock-status" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-800 text-slate-300 border border-slate-700">Display: Auto</span>
           </div>
         </div>
 
         <!-- Timer Controls: Start/Pause, Dauern, Verlängerung & Sanftes Beenden -->
         <div class="space-y-2.5 max-w-lg mx-auto w-full">
           <div class="grid grid-cols-4 gap-2">
-            <button onclick="toggleTimer()" id="main-timer-toggle-btn" class="col-span-4 py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white text-sm sm:text-base font-black transition shadow-lg touch-pill flex items-center justify-center gap-2">
-              <span id="main-play-icon">▶</span> <span id="main-play-text">Session starten</span>
+            <button onclick="toggleTimer()" id="free-timer-toggle-btn" class="col-span-4 py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white text-sm sm:text-base font-black transition shadow-lg touch-pill flex items-center justify-center gap-2">
+              <span id="free-play-icon">▶</span> <span id="free-play-text">Session starten</span>
             </button>
           </div>
 
           <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
-            <button onclick="startTimer(45)" id="btn-main-dur-45" class="py-2.5 rounded-xl bg-brand-700 border border-brand-600 text-white touch-target-48">45 Min.</button>
-            <button onclick="startTimer(75)" id="btn-main-dur-75" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">75 Min.</button>
-            <button onclick="startTimer(120)" id="btn-main-dur-120" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">120 Min.</button>
+            <button onclick="startTimer(45)" id="btn-free-dur-45" class="py-2.5 rounded-xl bg-brand-700 border border-brand-600 text-white touch-target-48">45 Min.</button>
+            <button onclick="startTimer(75)" id="btn-free-dur-75" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">75 Min.</button>
+            <button onclick="startTimer(120)" id="btn-free-dur-120" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">120 Min.</button>
           </div>
 
           <div class="flex items-center justify-between gap-1.5 pt-1 text-xs font-bold">
@@ -484,7 +370,7 @@
           <strong class="text-white font-bold flex items-center gap-1.5">
             <span>🚦</span> Sicherheits-Ampel (Großtasten)
           </strong>
-          <span class="text-[10px] text-slate-400">Sofort erreichbar</span>
+          <span class="text-[10.5px] text-slate-400" id="free-checkin-preference-note">Präferenz: Lade...</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2 sm:gap-2.5 h-28 sm:h-32">
@@ -519,14 +405,14 @@
               Jetzt abfragen ↗
             </button>
           </div>
-          <select id="checkin-interval-select" onchange="updateCheckInInterval(this.value)" class="w-full session-card border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:border-brand-500">
+          <select id="free-checkin-select" onchange="updateCheckInInterval(this.value)" class="w-full session-card border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:border-brand-500">
             <option value="0">❌ Deaktiviert (Nur Safeword)</option>
             <option value="10">⏱️ Alle 10 Min. abfragen</option>
             <option value="15" selected>⏱️ Alle 15 Min. abfragen</option>
             <option value="20">⏱️ Alle 20 Min. abfragen</option>
             <option value="phase">📑 Nur bei Phasenwechsel</option>
           </select>
-          <span class="text-[9.5px] text-slate-400 block" id="checkin-source-hint">Lade Profil-Präferenzen...</span>
+          <span class="text-[9.5px] text-slate-400 block" id="free-checkin-reason-hint">Lade Profil-Präferenzen...</span>
         </div>
 
         <!-- Spontane Reize & Strafen -->
@@ -540,9 +426,121 @@
               <span>⚖️</span> <span>Strafe wählen</span>
             </button>
           </div>
-          <span class="text-[9.5px] text-slate-400 block truncate">Zieht live geprüfte Doppel-5er oder Note-2 Duldungen heran.</span>
+          <span class="text-[9.5px] text-slate-400 block truncate">Greift auf geprüfte Doppel-5er oder Note-2 Duldungen zu.</span>
         </div>
 
+      </div>
+
+    </section>
+
+    <!-- VIEW 1: REGIEBUCH (INTERAKTIVE PHASEN-FÜHRUNG MIT KARTEN) -->
+    <section id="view-guide" class="space-y-3.5 hidden">
+      
+      <!-- Phasen-Stepper & Fortschritt -->
+      <div class="session-card p-3 sm:p-4 rounded-3xl border space-y-3 shadow-md">
+        <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-brand-400" id="guide-step-badge">Schritt 1 von 4</span>
+            <h2 class="text-sm sm:text-base font-black text-white" id="guide-step-name">Phase 1: Vorbereitung & Safeword</h2>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-mono font-bold text-amber-300" id="guide-phase-time-allocated">ca. 9 Min.</span>
+            <span class="text-[9.5px] text-slate-400 block">Geplante Dauer</span>
+          </div>
+        </div>
+
+        <!-- 4 Stepper Tabs -->
+        <div class="grid grid-cols-4 gap-1.5">
+          <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600">
+            1. Ankommen
+          </button>
+          <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+            2. Sensorik
+          </button>
+          <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+            3. Hauptakt
+          </button>
+          <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+            4. Aftercare
+          </button>
+        </div>
+
+        <!-- Zitat / Leitwort für den Führenden -->
+        <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-800/40 text-xs italic text-brand-200">
+          <span id="phase-prompt-quote">„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“</span>
+        </div>
+      </div>
+
+      <!-- SPEZIELLE SAFEWORD-KARTE (In Phase 1 immer oben eingeblendet) -->
+      <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-amber-500/40 space-y-3 shadow-md bg-amber-950/10">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🛡️</span>
+            <div>
+              <strong class="text-xs sm:text-sm font-black text-amber-200 block">Safeword aktiv einprägen & bestätigen</strong>
+              <span class="text-[10px] text-amber-300/80">Tippt das vereinbarte Notfallwort ein, damit es nicht vergessen wird</span>
+            </div>
+          </div>
+          <button onclick="suggestRandomSafeword()" class="px-2.5 py-1 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
+            <span>🎲</span> <span>Vorschlag</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="guide-safeword-input" placeholder="z. B. Ananas, Kaktus, Erdbeere..." class="flex-1 px-3 py-2 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+          <button onclick="confirmSafewordInGuide()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
+            ✓ Bestätigen
+          </button>
+        </div>
+
+        <div id="confirmed-safeword-display" class="hidden p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-700/60 flex items-center justify-between text-xs text-emerald-200">
+          <span>Gespeichertes Safeword: <strong id="confirmed-safeword-name" class="font-mono text-white underline">Ananas</strong></span>
+          <span class="text-[10px] font-bold text-emerald-400">✓ Für Session aktiv</span>
+        </div>
+      </div>
+
+      <!-- Interaktive Phase Checkpoint Cards (Statt unübersichtlicher Checkboxen) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between px-1 text-xs">
+          <strong class="text-slate-300 font-bold">Schritt-für-Schritt Ablaufkarten:</strong>
+          <span class="text-[10px] text-slate-400" id="checkpoint-progress-info">0 von 4 erledigt</span>
+        </div>
+        <div id="phase-checkpoints-container" class="space-y-2"></div>
+      </div>
+
+      <!-- Dynamischer Kasten für Phase 3 (Eingewobene Strafen & Impulse) -->
+      <div id="phase-dynamic-injection" class="hidden"></div>
+
+      <!-- De-Briefing Box in Phase 4 -->
+      <div id="debriefing-box" class="hidden session-card p-4 rounded-3xl border space-y-3">
+        <strong class="text-xs font-bold text-white block">💬 2-Minuten De-Briefing nach der Session:</strong>
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="space-y-1 session-panel p-2.5 rounded-2xl border">
+            <span class="text-[10.5px] text-slate-400 font-bold block" id="debrief-name-A">Partner 1 Intensität:</span>
+            <input type="range" min="1" max="10" value="7" oninput="updateDebriefVal('A', this.value)" class="w-full accent-brand-500">
+            <span class="text-right text-[10px] font-mono text-brand-300 block" id="debrief-val-A">7 / 10</span>
+          </div>
+          <div class="space-y-1 session-panel p-2.5 rounded-2xl border">
+            <span class="text-[10.5px] text-slate-400 font-bold block" id="debrief-name-B">Partner 2 Intensität:</span>
+            <input type="range" min="1" max="10" value="8" oninput="updateDebriefVal('B', this.value)" class="w-full accent-brand-500">
+            <span class="text-right text-[10px] font-mono text-brand-300 block" id="debrief-val-B">8 / 10</span>
+          </div>
+        </div>
+        <textarea id="debrief-notes-input" placeholder="Was war das Highlight heute? Was machen wir nächstes Mal sanfter? (optional)" class="w-full session-panel border rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500" rows="2"></textarea>
+        <button onclick="saveSessionDebriefing()" class="w-full py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-md transition touch-pill">
+          💾 Im Tagebuch festhalten
+        </button>
+        <div id="past-debriefings-list" class="space-y-1.5 pt-1"></div>
+      </div>
+
+      <!-- Stepper Vor- / Zurück Buttons -->
+      <div class="flex items-center justify-between gap-2 pt-2">
+        <button onclick="prevPhase()" id="btn-guide-prev" class="px-4 py-2.5 rounded-xl session-panel border text-slate-300 font-bold text-xs hover:text-white transition disabled:opacity-30 disabled:pointer-events-none">
+          ← Vorherige Phase
+        </button>
+        <button onclick="nextPhase()" id="btn-guide-next" class="flex-1 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs shadow-md transition touch-pill text-center">
+          Nächster Schritt →
+        </button>
       </div>
 
     </section>
@@ -699,6 +697,8 @@
     let lastCheckInElapsed = 0;
 
     let executedActions = [];
+    let completedCheckpoints = {};
+    let customSafeword = '';
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let currentFilteredPunishments = [];
@@ -706,6 +706,11 @@
     let configIntensity = 'moderate';
     let configEnergyA = 4;
     let configEnergyB = 3;
+
+    const commonSafewords = [
+      "Ananas", "Kaktus", "Erdbeere", "Murmel", "Himmelblau",
+      "Flugzeug", "Zitrone", "Kuckuck", "Blaulicht", "Paprika"
+    ];
 
     let phaseConfig = [
       {
@@ -716,8 +721,8 @@
         quote: "„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“",
         checkpoints: [
           "Raum auf wohlige 23 °C vorheizen & Licht dimmen",
-          "Safeword (Ampel: Grün/Gelb/Rot) & Handdrück-Signal (2x / 3x) bestätigen",
-          "Wasserflasche mit Strohhalm & Seilschneider bereitlegen",
+          "Safeword (Ampel / Codewort) & Handdrück-Signal (2x / 3x) abstimmen",
+          "Wasserflasche mit Strohhalm & Seilschneider griffbereit platzieren",
           "Partner entkleiden und auf weiche Schutzdecke betten"
         ]
       },
@@ -730,7 +735,7 @@
         checkpoints: [
           "Augenbinde oder Seidentuch behutsam anlegen",
           "10 Minuten stummes Kraulen von Kopfhaut und Nackenzone",
-          "Erste Shibari-Fesseln oder Armmanschetten schmerzfrei anlegen",
+          "Erste Shibari-Fesseln oder Manschetten schmerzfrei anlegen",
           "Puls- und Durchblutungsprüfung an den Fingerspitzen"
         ]
       },
@@ -742,8 +747,8 @@
         quote: "„Du gehörst heute vollkommen mir. Spüre jeden einzelnen Reiz.“",
         checkpoints: [
           "Geplante Praktik oder Strafe aus den Matches vollziehen",
-          "3-faches Edging an der Lustschwelle mit Pause",
-          "Freigabe oder Orgasmus-Countdown",
+          "3-faches Edging an der Lustschwelle mit bewusster Pause",
+          "Freigabe oder Orgasmus-Countdown (Pos. 103)",
           "Befreiende Umarmung unmittelbar nach dem Höhepunkt"
         ]
       },
@@ -774,6 +779,7 @@
       updateNamesDisplay();
       detectCheckInPreferenceFromSurvey();
       updateSessionTabuBadge();
+      updateSafewordUI();
       renderPhaseUI();
       renderPunishments();
       renderPastDebriefings();
@@ -869,7 +875,49 @@
       if (lEB) lEB.innerText = `${names.B}:`;
     }
 
-    /* GEMEINSAME TABUS: MODAL & ANZEIGE */
+    /* SAFEWORD-VERWALTUNG & GENERATOR */
+    function suggestRandomSafeword() {
+      const current = document.getElementById('guide-safeword-input')?.value.trim();
+      const filtered = commonSafewords.filter(w => w !== current);
+      const chosen = filtered[Math.floor(Math.random() * filtered.length)] || "Ananas";
+      const input = document.getElementById('guide-safeword-input');
+      if (input) input.value = chosen;
+      showToast(`🎲 Vorschlag: „${chosen}“`);
+    }
+
+    function confirmSafewordInGuide() {
+      const val = document.getElementById('guide-safeword-input')?.value.trim();
+      if (!val) {
+        showToast("Bitte tippe zuerst ein Safeword ein oder nutze 'Vorschlag'");
+        return;
+      }
+      customSafeword = val;
+      updateSafewordUI();
+      saveSessionSnapshot();
+      playHarmonicGong(1.1);
+      showToast(`🛡️ Safeword „${val}“ für diese Session bestätigt!`);
+    }
+
+    function updateSafewordUI() {
+      const badge = document.getElementById('active-safeword-badge');
+      const text = document.getElementById('active-safeword-text');
+      const confirmedBox = document.getElementById('confirmed-safeword-display');
+      const confirmedName = document.getElementById('confirmed-safeword-name');
+      const input = document.getElementById('guide-safeword-input');
+
+      if (customSafeword) {
+        if (badge) badge.classList.remove('hidden');
+        if (text) text.innerText = customSafeword;
+        if (confirmedBox) confirmedBox.classList.remove('hidden');
+        if (confirmedName) confirmedName.innerText = customSafeword;
+        if (input && !input.value) input.value = customSafeword;
+      } else {
+        if (badge) badge.classList.add('hidden');
+        if (confirmedBox) confirmedBox.classList.add('hidden');
+      }
+    }
+
+    /* GEMEINSAME TABUS */
     function getSharedTaboosList() {
       const allChapters = window.surveyChapters || [];
       const tabooItems = [];
@@ -904,7 +952,7 @@
       if (badge) badge.innerText = taboos.length;
     }
 
-    function openSessionTabuModal() {
+    function openTabuModal() {
       const taboos = getSharedTaboosList();
       const container = document.getElementById('session-tabus-list-container');
       const modal = document.getElementById('modal-session-tabus');
@@ -937,7 +985,7 @@
       if (modal) modal.classList.remove('hidden');
     }
 
-    function closeSessionTabuModal() {
+    function closeTabuModal() {
       document.getElementById('modal-session-tabus')?.classList.add('hidden');
     }
 
@@ -969,11 +1017,11 @@
       const elFree = document.getElementById('free-wake-lock-status');
       if (elFree) {
         if (isActive) {
-          elFree.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
-          elFree.innerText = "📱 Display: Dauerhaft an";
+          elFree.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+          elFree.innerText = "Display: Dauerhaft an";
         } else {
-          elFree.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700";
-          elFree.innerText = "📱 Display: Auto";
+          elFree.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-800 text-slate-300 border border-slate-700";
+          elFree.innerText = "Display: Auto";
         }
       }
     }
@@ -1046,6 +1094,8 @@
         checkInIntervalSetting,
         lastCheckInElapsed,
         executedActions,
+        completedCheckpoints,
+        customSafeword,
         phaseConfig,
         targetEndTime: timerInterval ? (Date.now() + timerRemaining * 1000) : null,
         ts: Date.now()
@@ -1067,6 +1117,8 @@
         checkInIntervalSetting = snap.checkInIntervalSetting || '15';
         lastCheckInElapsed = snap.lastCheckInElapsed || 0;
         executedActions = snap.executedActions || [];
+        completedCheckpoints = snap.completedCheckpoints || {};
+        customSafeword = snap.customSafeword || '';
         if (snap.phaseConfig) phaseConfig = snap.phaseConfig;
 
         const selFree = document.getElementById('free-checkin-select');
@@ -1088,7 +1140,7 @@
       }
     }
 
-    /* FRAGEBOGEN-KOPPLUNG: AMPEL & CHECK-IN */
+    /* FRAGEBOGEN-KOPPLUNG */
     function detectCheckInPreferenceFromSurvey() {
       const hintFree = document.getElementById('free-checkin-reason-hint');
       const noteFree = document.getElementById('free-checkin-preference-note');
@@ -1233,13 +1285,13 @@
       ['free', 'guide', 'config', 'punish'].forEach(t => {
         document.getElementById(`view-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tab-${t}`);
-        if (btn) btn.className = "py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
+        if (btn) btn.className = "py-2 sm:py-2.5 px-1 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48";
       });
 
       document.getElementById(`view-${tabId}`)?.classList.remove('hidden');
       const activeBtn = document.getElementById(`tab-${tabId}`);
       if (activeBtn) {
-        activeBtn.className = "py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
+        activeBtn.className = "py-2 sm:py-2.5 px-1 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48";
       }
 
       saveSessionSnapshot();
@@ -1291,6 +1343,17 @@
       return list;
     }
 
+    /* INTERAKTIVE CHECKPOINT-KARTEN TOGGLE */
+    function toggleCheckpoint(idx) {
+      const key = `p${currentPhase}_c${idx}`;
+      completedCheckpoints[key] = !completedCheckpoints[key];
+      if (completedCheckpoints[key]) {
+        playHarmonicGong(1.3);
+      }
+      renderPhaseUI();
+      saveSessionSnapshot();
+    }
+
     /* REGIEBUCH PHASEN-UI */
     function renderPhaseUI() {
       const cfg = phaseConfig[currentPhase - 1];
@@ -1298,49 +1361,76 @@
 
       const stepBadge = document.getElementById('guide-step-badge');
       const stepName = document.getElementById('guide-step-name');
-      const catTag = document.getElementById('phase-category-tag');
-      const title = document.getElementById('phase-title');
       const quote = document.getElementById('phase-prompt-quote');
-      const calcTime = document.getElementById('phase-calc-time');
       const allocTime = document.getElementById('guide-phase-time-allocated');
 
       const minutesAllocated = Math.round(sessionTotalMinutes * cfg.timePct);
 
       if (stepBadge) stepBadge.innerText = `Schritt ${cfg.step} von 4`;
       if (stepName) stepName.innerText = cfg.title;
-      if (catTag) catTag.innerText = cfg.category;
-      if (title) title.innerText = cfg.title;
       if (quote) quote.innerText = cfg.quote;
-      if (calcTime) calcTime.innerText = `${minutesAllocated} Min.`;
       if (allocTime) allocTime.innerText = `ca. ${minutesAllocated} Min.`;
 
+      // Safeword Card nur in Phase 1
+      const safewordCard = document.getElementById('guide-safeword-card');
+      if (safewordCard) {
+        if (currentPhase === 1) {
+          safewordCard.classList.remove('hidden');
+        } else {
+          safewordCard.classList.add('hidden');
+        }
+      }
+
+      // Stepper Tabs
       [1, 2, 3, 4].forEach(s => {
         const tab = document.getElementById(`stepper-tab-${s}`);
         if (tab) {
           if (s === currentPhase) {
-            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600 shadow-xs";
+            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600 shadow-xs";
           } else if (s < currentPhase) {
-            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-brand-300 border-brand-800/60";
+            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-brand-300 border-brand-800/60";
           } else {
-            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700";
+            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700";
           }
         }
       });
 
+      // Interaktive Checkpoint-Karten rendern
       const cpContainer = document.getElementById('phase-checkpoints-container');
+      const progressInfo = document.getElementById('checkpoint-progress-info');
       if (cpContainer) {
         const activeCheckpoints = (currentPhase === 4) ? computeDynamicAftercareCheckpoints() : cfg.checkpoints;
-        cpContainer.innerHTML = activeCheckpoints.map(cp => `
-          <label class="flex items-start gap-3 p-3 rounded-2xl session-panel border border-slate-700/60 hover:border-slate-500 cursor-pointer text-xs">
-            <input type="checkbox" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
-            <span class="text-slate-300 leading-relaxed">${escapeHtml(cp)}</span>
-          </label>
-        `).join('');
+        let doneCount = 0;
+
+        cpContainer.innerHTML = activeCheckpoints.map((cp, idx) => {
+          const key = `p${currentPhase}_c${idx}`;
+          const isDone = !!completedCheckpoints[key];
+          if (isDone) doneCount++;
+
+          return `
+            <div onclick="toggleCheckpoint(${idx})" class="p-3.5 rounded-2xl session-card border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-sm ${isDone ? 'checkpoint-done' : 'hover:border-slate-600'}">
+              <div class="flex items-start gap-2.5 flex-1 min-w-0">
+                <span class="w-6 h-6 rounded-lg ${isDone ? 'bg-emerald-600 text-white' : 'session-panel text-slate-400 border border-slate-700'} font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                  ${isDone ? '✓' : (idx + 1)}
+                </span>
+                <span class="text-xs leading-relaxed ${isDone ? 'text-emerald-200 line-through opacity-85' : 'text-slate-200'}">
+                  ${escapeHtml(cp)}
+                </span>
+              </div>
+              <button type="button" class="px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold transition flex-shrink-0 touch-target-48 ${isDone ? 'bg-emerald-600 text-white' : 'session-panel border border-slate-700 text-slate-300'}">
+                ${isDone ? '✓ Erledigt' : 'Abhaken'}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        if (progressInfo) {
+          progressInfo.innerText = `${doneCount} von ${activeCheckpoints.length} erledigt`;
+        }
       }
 
+      // Dynamische Boxen
       const injectBox = document.getElementById('phase-dynamic-injection');
-      const punishBtn = document.getElementById('btn-guide-quick-punish');
-      const impulseBtn = document.getElementById('btn-guide-impulse');
       const debriefBox = document.getElementById('debriefing-box');
 
       if (currentPhase === 3) {
@@ -1360,18 +1450,12 @@
             </div>
           `;
         }
-        if (punishBtn) punishBtn.classList.remove('hidden');
-        if (impulseBtn) impulseBtn.classList.remove('hidden');
         if (debriefBox) debriefBox.classList.add('hidden');
       } else if (currentPhase === 4) {
         if (injectBox) injectBox.classList.add('hidden');
-        if (punishBtn) punishBtn.classList.add('hidden');
-        if (impulseBtn) impulseBtn.classList.add('hidden');
         if (debriefBox) debriefBox.classList.remove('hidden');
       } else {
         if (injectBox) injectBox.classList.add('hidden');
-        if (punishBtn) punishBtn.classList.add('hidden');
-        if (impulseBtn) impulseBtn.classList.add('hidden');
         if (debriefBox) debriefBox.classList.add('hidden');
       }
 
@@ -1392,6 +1476,14 @@
         openActiveCheckInModal(`Phasenwechsel zu Phase ${phaseNum}: Kurzer Ampel-Check-in`);
       }
       renderPhaseUI();
+    }
+
+    function prevPhase() {
+      if (currentPhase > 1) {
+        currentPhase--;
+        playHarmonicGong(1.0);
+        renderPhaseUI();
+      }
     }
 
     function nextPhase() {
@@ -1572,6 +1664,7 @@ REGELN:
           const parsedPhases = JSON.parse(candidateText);
           if (Array.isArray(parsedPhases) && parsedPhases.length === 4) {
             phaseConfig = parsedPhases;
+            completedCheckpoints = {};
             renderPhaseUI();
             showToast("✨ KI-Regiebuch erfolgreich aus euren Matches generiert!");
             switchTab('guide');
@@ -1661,6 +1754,7 @@ REGELN:
         }
       ];
 
+      completedCheckpoints = {};
       renderPhaseUI();
       saveSessionSnapshot();
     }
@@ -1871,10 +1965,10 @@ REGELN:
 
       showToast(`Eingewoben: ${entry.item.title}`);
       renderPhaseUI();
-      switchTab('free');
+      switchTab('guide');
     }
 
-    /* TIMER ENGINE & INTERVALL-STEUERUNG */
+    /* TIMER ENGINE */
     function startTimer(min) {
       sessionTotalMinutes = min;
       timerRemaining = min * 60;
@@ -1886,9 +1980,9 @@ REGELN:
         const btnFree = document.getElementById(`btn-free-dur-${d}`);
         if (btnFree) {
           if (d === min) {
-            btnFree.className = "px-3 py-2 rounded-xl bg-brand-700 border border-brand-600 text-white font-bold touch-target-48 flex items-center justify-center";
+            btnFree.className = "py-2.5 rounded-xl bg-brand-700 border border-brand-600 text-white font-bold touch-target-48";
           } else {
-            btnFree.className = "px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center";
+            btnFree.className = "py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48";
           }
         }
       });
@@ -1919,7 +2013,10 @@ REGELN:
       requestWakeLock();
 
       const btnFree = document.getElementById('free-timer-toggle-btn');
-      if (btnFree) btnFree.innerText = "⏸";
+      const icon = document.getElementById('free-play-icon');
+      const text = document.getElementById('free-play-text');
+      if (icon) icon.innerText = "⏸";
+      if (text) text.innerText = "Session pausieren";
 
       timerInterval = setInterval(() => {
         sessionElapsedSeconds++;
@@ -1952,8 +2049,10 @@ REGELN:
         clearInterval(timerInterval);
         timerInterval = null;
       }
-      const btnFree = document.getElementById('free-timer-toggle-btn');
-      if (btnFree) btnFree.innerText = "▶";
+      const icon = document.getElementById('free-play-icon');
+      const text = document.getElementById('free-play-text');
+      if (icon) icon.innerText = "▶";
+      if (text) text.innerText = "Session fortsetzen";
       releaseWakeLock();
       saveSessionSnapshot();
     }
