@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kink- & Beziehungs-Kompass (Interaktive Selbstanalyse & Blind-Abgleich)</title>
+  <title>Kink- & Beziehungs-Kompass (Interaktive Selbstanalyse & Abgleich)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -90,9 +90,9 @@
           Entsperren
         </button>
       </form>
-      <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-950 text-[10px] leading-tight space-y-0.5">
-        <span class="font-bold flex items-center justify-center gap-1">🛡️ 100 % Cloud-frei & Privat</span>
-        <p class="text-emerald-800">Keine Server-Datenbank. Antworten existieren nur auf deinem Gerät & im geteilten Link.</p>
+      <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-[10px] leading-tight space-y-0.5">
+        <span class="font-bold flex items-center justify-center gap-1 text-slate-900">100 % Cloud-frei & Privat</span>
+        <p class="text-slate-500">Keine Server-Datenbank. Antworten existieren nur auf deinem Gerät & im geteilten Link.</p>
       </div>
     </div>
   </div>
@@ -117,52 +117,52 @@
             <label class="block font-bold text-slate-800">Dein Vorname / Rufname:</label>
             <input type="text" id="onboarding-name-input" placeholder="Z. B. Alex oder Sam" class="w-full text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-slate-900 focus:outline-none">
           </div>
-          <div class="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-indigo-950 text-[11px] leading-relaxed">
-            💡 <strong>100 % Ohne Cloud:</strong> Dein Name und alle Bewertungen werden niemals auf fremden Servern gespeichert. Alles verbleibt auf deinem Endgerät und im geschützten Einladungslink.
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-[11px] leading-relaxed">
+            <strong>Hinweis zum Speicherort:</strong> Dein Name und alle Bewertungen verbleiben ausschließlich lokal in deinem Browser und im geteilten Link. Es findet keine Übertragung an externe Server statt.
           </div>
         </div>
 
-        <!-- Step 2: Sharing & Transparenz -->
+        <!-- Step 2: Sharing & Transparenz (Vollkommen neutral formuliert) -->
         <div id="onboarding-step-2" class="hidden space-y-3">
           <p class="text-slate-600 leading-relaxed">
-            Wie offen möchtest du deine Antworten mit deinem Partner teilen? Du hast die volle Souveränität über deine Grenzen und Wünsche.
+            Wähle aus, in welchem Umfang deine Antworten bei der späteren gemeinsamen Auswertung für deinen Partner sichtbar sein sollen. Du kannst diese Auswahl jederzeit in deinem Account anpassen.
           </p>
           <div class="space-y-2">
             <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
               <input type="radio" name="onboarding-privacy" value="blind" id="onboarding-priv-blind" checked class="mt-0.5 text-slate-900 focus:ring-slate-900">
               <div>
-                <strong class="text-slate-900 block font-bold text-xs">🔒 Blind-Match & Schutzzone (Sehr empfohlen)</strong>
+                <strong class="text-slate-900 block font-bold text-xs">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
                 <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                  Dein Partner sieht ausschließlich echte Schnittmengen (beide mit mindestens Note 3 bewertet) und eure unverhandelbaren Tabus (Note 1). Einseitige niedrige Wertungen (0, 2) bleiben diskret geschützt.
+                  Dein Partner sieht ausschließlich gemeinsame Schnittmengen (beide mit mindestens Note 3 bewertet) sowie eure unverhandelbaren Tabus (Note 1). Einseitige niedrige Bewertungen (Noten 0 und 2) werden dem Partner nicht angezeigt.
                 </p>
               </div>
             </label>
             <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
               <input type="radio" name="onboarding-privacy" value="open" id="onboarding-priv-open" class="mt-0.5 text-slate-900 focus:ring-slate-900">
               <div>
-                <strong class="text-slate-900 block font-bold text-xs">📖 100 % Transparenz (Offenes Buch)</strong>
+                <strong class="text-slate-900 block font-bold text-xs">Vollständiger Abgleich (Offene Einsicht)</strong>
                 <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                  Dein Partner darf jede deiner Bewertungen Punkt für Punkt einsehen. Ideal bei langjähriger Verbundenheit ohne Schamgrenzen.
+                  Dein Partner kann alle von dir vergebenen Noten für jede einzelne Praktik detailliert einsehen.
                 </p>
               </div>
             </label>
           </div>
           <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-[11px] leading-relaxed">
-            🛡️ <strong>Wichtig:</strong> Deinen eigenen Bogen siehst <strong>du selbst immer zu 100 % vollständig</strong>. Du kannst diese Freigabe im Account jederzeit nachträglich anpassen.
+            Deinen eigenen Fragebogen siehst du selbst in jedem Fall immer zu 100 % vollständig.
           </div>
         </div>
 
         <!-- Step 3: E-Mail & Sicherung (Optional) -->
         <div id="onboarding-step-3" class="hidden space-y-3">
           <p class="text-slate-600 leading-relaxed">
-            Möchtest du optional deine E-Mail-Adresse hinterlegen? So kannst du dir deinen verschlüsselten Zugangslink selbst zusenden und Playbooks direkt ins Postfach erhalten.
+            Möchtest du optional eine E-Mail-Adresse hinterlegen? So kannst du dir deinen persönlichen Zugangslink selbst zusenden, um ihn nicht zu verlieren, oder Playbooks ins Postfach leiten.
           </p>
           <div class="space-y-1.5">
             <label class="block font-bold text-slate-800">Deine E-Mail (Vollkommen freiwillig):</label>
             <input type="email" id="onboarding-email-input" placeholder="deine.mail@beispiel.de (optional)" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-slate-900 focus:outline-none">
           </div>
-          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-950 text-[11px] leading-relaxed">
-            ✉️ <strong>Kein Cloud-Zwang:</strong> Die E-Mail wird nur lokal auf deinem Smartphone gespeichert. Sie dient lediglich dazu, dir per Mailprogramm Backups und Playbooks zu mailen.
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-[11px] leading-relaxed">
+            Die E-Mail-Adresse wird ausschließlich lokal im Browser gespeichert und dient nur dazu, dir über dein eigenes Mailprogramm Sicherungslinks und Playbooks bereitzustellen.
           </div>
         </div>
 
@@ -193,7 +193,7 @@
             <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight tracking-tight">Kink- & Beziehungs-Kompass</h1>
             <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200" title="Safe, Sane, Consensual – Fundament gesunder Sexualität">SSC & RACK</span>
           </div>
-          <p class="text-[10px] text-slate-500 font-medium">Psychologische Tiefenanalyse • 100 % Cloud-frei & Diskret</p>
+          <p class="text-[10px] text-slate-500 font-medium">Psychologische Tiefenanalyse • Gesamtkatalog aller 35 Themenbereiche</p>
         </div>
       </div>
 
@@ -230,7 +230,7 @@
     </div>
   </header>
 
-  <!-- Sub-Header: Progress, Privacy Banner & Current Persona -->
+  <!-- Sub-Header: Progress & Current Persona (Datenschutz-Badge entfernt) -->
   <div class="no-print bg-white border-b border-slate-200 py-2 px-3 sm:px-6">
     <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2">
@@ -239,12 +239,9 @@
           <span>Partner 1</span>
           <span class="text-[9px] opacity-70">⇄</span>
         </button>
-        <span class="px-2 py-0.5 rounded-md font-bold bg-emerald-50 text-emerald-800 text-[10px] border border-emerald-200 flex items-center gap-1">
-          <span>🛡️</span> Keine Cloud (Nur auf eurem Gerät)
-        </span>
       </div>
       <div class="flex items-center gap-3">
-        <span class="text-slate-500 text-[11px]" id="survey-progress-text">Kapitel 1 von 15 • 0 % ausgefüllt</span>
+        <span class="text-slate-500 text-[11px]" id="survey-progress-text">Kapitel 1 von 35 • 0 % ausgefüllt</span>
         <div class="w-24 sm:w-36 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
           <div id="survey-progress-bar" class="h-full bg-slate-900 transition-all duration-300" style="width: 0%"></div>
         </div>
@@ -255,7 +252,7 @@
   <main class="max-w-5xl mx-auto p-3 sm:p-6 space-y-6">
 
     <!-- ========================================================== -->
-    <!-- PROMINENTES SSC & VERTRAUENS-MANIFEST (HERVORGEHOBEN)       -->
+    <!-- SSC & VERTRAUENS-MANIFEST                                  -->
     <!-- ========================================================== -->
     <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3.5">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -271,7 +268,7 @@
         </button>
       </div>
       <p class="text-xs text-slate-300 leading-relaxed">
-        Hinter allen Fesseln, Rollen, Hierarchien und erotischen Reizen steht im Kern nur ein einziges tragendes Element: <strong>grenzenloses, liebevolles Vertrauen</strong>. BDSM und Kink sind kein Machtmissbrauch und keine seelische Kälte, sondern das tiefste, achtsamste Einverständnis zweier Menschen, verletzlich zu sein. Jedes „Ja“ gewinnt seine Magie ausschließlich durch das unantastbare Recht auf ein jederzeitiges „Nein“.
+        Hinter allen Fesseln, Rollen, Hierarchien und erotischen Reizen steht im Kern nur ein einziges tragendes Element: <strong>grenzenloses gegenseitiges Vertrauen</strong>. BDSM und Kink sind kein Machtmissbrauch und keine seelische Kälte, sondern das tiefste, achtsamste Einverständnis zweier Menschen, verletzlich zu sein. Jedes „Ja“ gewinnt seine Magie ausschließlich durch das unantastbare Recht auf ein jederzeitiges „Nein“.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-[11px]">
         <div class="bg-white/5 border border-white/10 p-2.5 rounded-xl space-y-0.5">
@@ -290,18 +287,18 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- VIEW 1: DER FRAGEBOGEN MIT INTERAKTIVEM KAPITELVERZEICHNIS -->
+    <!-- VIEW 1: DER FRAGEBOGEN                                     -->
     <!-- ========================================================== -->
     <section id="view-survey" class="space-y-4">
       
-      <!-- KAPITELVERZEICHNIS (SCHNELLNAVIGATION DIREKT ÜBER DEM BOGEN) -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2.5">
+      <!-- KAPITELVERZEICHNIS: Erst sichtbar nach vollständigem Ausfüllen -->
+      <div id="chapter-quick-container" class="hidden bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Direktes Kapitelverzeichnis</span>
-          <span class="text-[10px] text-slate-500">Tippe auf ein Thema zum schnellen Hinspringen</span>
+          <span class="text-[10px] text-emerald-600 font-bold">✓ Bogen ausgefüllt – Schnellauswahl aktiv</span>
         </div>
-        <div id="chapter-quick-grid" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
-          <!-- Dynamically rendered chapter pills -->
+        <div id="chapter-quick-grid" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+          <!-- Dynamisch gerendert -->
         </div>
       </div>
 
@@ -311,9 +308,9 @@
           ← Zurück
         </button>
         <div class="text-center px-2">
-          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-widest" id="chapter-nav-indicator">Kapitel 1 von 15</span>
+          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-widest" id="chapter-nav-indicator">Kapitel 1 von 35</span>
           <select id="chapter-select" onchange="jumpToChapter(parseInt(this.value))" class="text-xs font-bold text-slate-900 bg-transparent border-none focus:outline-none cursor-pointer text-center">
-            <!-- Dynamically populated -->
+            <!-- Dynamisch befüllt -->
           </select>
         </div>
         <button onclick="nextChapter()" id="btn-next-chapter" class="px-3 py-1.5 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-800 disabled:opacity-30 transition">
@@ -350,7 +347,7 @@
             <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-0.5">
               Profil von <span id="self-profile-name" class="underline decoration-indigo-400">Partner 1</span>
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Abgleich mit sexualwissenschaftlichen Studien & Archetypen</p>
+            <p class="text-xs text-slate-500 mt-0.5">Wissenschaftliche Einordnung über alle 35 Themenbereiche</p>
           </div>
           <button onclick="switchMainView('survey')" class="text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
             ✏️ Antworten bearbeiten
@@ -362,7 +359,7 @@
           <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
               <span>Archetypen-Kompass</span>
-              <span class="text-[10px] text-slate-500 font-normal">9 Dimensionen</span>
+              <span class="text-[10px] text-slate-500 font-normal">9 Hauptdimensionen</span>
             </h3>
             <div class="relative h-[270px] w-full flex items-center justify-center">
               <canvas id="selfRadarChart"></canvas>
@@ -383,7 +380,7 @@
         <!-- Psychologische Auswertung: Was bedeutet das für mich? -->
         <div class="space-y-3">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <span>🧠</span> Wissenschaftliche Einordnung deiner stärksten Ausprägungen
+            <span>🧠</span> Wissenschaftliche Einordnung deiner Ausprägungen
           </h3>
           <div id="self-psych-analysis" class="space-y-3 text-xs leading-relaxed">
             <!-- Dynamically calculated psychological explanation -->
@@ -393,7 +390,7 @@
         <!-- High Priority Highlights (Note 5) -->
         <div>
           <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-2 flex items-center gap-1.5">
-            <span>⭐</span> Deine absoluten Kern-Kinks (Höchste Leidenschaft = 5)
+            <span>⭐</span> Deine Kern-Kinks (Höchste Leidenschaft = Note 5)
           </h3>
           <div id="self-prio5-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <!-- Dynamically populated -->
@@ -420,10 +417,10 @@
         <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
           <div class="space-y-0.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-              <span>🛡️</span> Deine Freigabe für Partner
+              <span>🛡️</span> Deine Freigabe für deinen Partner
             </span>
             <div class="text-xs font-bold text-slate-900" id="self-privacy-status-text">
-              Status: Blind-Match & Schutzzone aktiv
+              Status: Selektiver Abgleich aktiv
             </div>
             <p class="text-[11px] text-slate-500">Du kannst jederzeit granular einstellen, wie viel der Partner von deinen Antworten sehen darf.</p>
           </div>
@@ -446,7 +443,7 @@
     </section>
 
     <!-- ========================================================== -->
-    <!-- VIEW 3: PAAR-ANALYSE, ROLLING DICE & 1-SEITEN-PLAYBOOKS   -->
+    <!-- VIEW 3: PAAR-ANALYSE, ROLLING DICE & PLAYBOOKS             -->
     <!-- ========================================================== -->
     <section id="view-pair" class="hidden space-y-6">
 
@@ -521,7 +518,7 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Micro-Rituale & Überraschungen</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Micro-Rituale & Anregungen</span>
               <h3 class="text-sm font-bold text-slate-900 mt-0.5">🎲 Rolling Dice: Alltags-Kink des Tages</h3>
             </div>
             <button onclick="rollDailyKinkDice()" class="px-3.5 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition flex items-center gap-1.5 shadow-sm">
@@ -534,7 +531,7 @@
           </div>
         </div>
 
-        <!-- 3 AUSFÜHRLICHE 1-SEITEN-PLAYBOOKS -->
+        <!-- 3 AUSFÜHRLICHE PLAYBOOKS -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
@@ -572,7 +569,7 @@
     </section>
 
     <!-- ========================================================== -->
-    <!-- GROSSES ABSCHLUSS-MANIFEST: VERTRAUEN & KEINE CLOUD        -->
+    <!-- GROSSES ABSCHLUSS-MANIFEST: VERTRAUEN & LOKALE PRIVATSPHÄRE -->
     <!-- ========================================================== -->
     <footer class="mt-8 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5 text-xs">
       <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -581,7 +578,7 @@
         </span>
         <div>
           <h3 class="text-sm sm:text-base font-black text-slate-900">Abschließendes Beziehungs-Manifest & Sicherheits-Charta</h3>
-          <p class="text-[11px] text-slate-500">Das Versprechen gegenseitiger Achtsamkeit, Fürsorge und absoluter Privatsphäre</p>
+          <p class="text-[11px] text-slate-500">Das Versprechen gegenseitiger Achtsamkeit, Fürsorge und absoluter Diskretion</p>
         </div>
       </div>
 
@@ -619,7 +616,7 @@
             </li>
             <li class="flex items-start gap-1.5">
               <span class="text-emerald-600 font-bold">✓</span>
-              <span><strong>Ende-zu-Ende-Austausch:</strong> Der Teilen-Link transportiert eure Daten verschlüsselt direkt von Smartphone zu Smartphone.</span>
+              <span><strong>Ende-zu-Ende-Austausch:</strong> Der Einladungslink transportiert eure Daten verschlüsselt direkt von Smartphone zu Smartphone.</span>
             </li>
           </ul>
           <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-[11px]">
@@ -639,7 +636,7 @@
   </main>
 
   <!-- ========================================================== -->
-  <!-- MODAL: DAS GROSSE IN-APP BDSM & KINK LEXIKON              -->
+  <!-- MODAL: DAS GROSSE IN-APP BDSM & KINK LEXIKON (A–Z)        -->
   <!-- ========================================================== -->
   <div id="modal-lexicon" class="no-print fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
@@ -659,13 +656,13 @@
       <!-- Live Search Bar -->
       <div class="p-3 bg-white border-b border-slate-100">
         <div class="relative">
-          <input type="text" id="lexicon-search-input" onkeyup="filterLexiconEntries()" placeholder="Begriff suchen (z. B. SSC, Shibari, Aftercare, Edging, Safeword)..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+          <input type="text" id="lexicon-search-input" onkeyup="filterLexiconEntries()" placeholder="Begriff suchen (z. B. SSC, Shibari, Aftercare, Edging, Queening, CBT, Pegging)..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none">
           <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
         </div>
       </div>
 
       <!-- Lexicon Entries List -->
-      <div id="lexicon-entries-container" class="p-4 sm:p-5 overflow-y-auto space-y-3 text-xs flex-1 divide-y divide-slate-100">
+      <div id="lexicon-entries-container" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs flex-1 divide-y divide-slate-100">
         <!-- Dynamically rendered -->
       </div>
 
@@ -717,13 +714,16 @@
         </div>
 
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-          <strong class="text-slate-900 block font-semibold text-xs">Aktionen:</strong>
+          <strong class="text-slate-900 block font-semibold text-xs">Aktionen & Sicherheit:</strong>
           <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
             <span>✉️</span> Meinen aktuellen Daten-Link an mich mailen
           </button>
           <button onclick="openPrivacyModal()" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
             <span>🛡️</span> Transparenz & Freigabe für Partner anpassen
           </button>
+          <div class="pt-1 text-[10.5px] text-slate-500 leading-normal">
+            🛡️ <strong>Lokale Datenhaltung:</strong> Sämtliche Antworten bleiben zu 100 % auf diesem Endgerät gespeichert.
+          </div>
         </div>
       </div>
 
@@ -782,7 +782,7 @@
           </button>
         </div>
         <p class="text-[11px] text-slate-500 leading-relaxed">
-          Kopiere diesen Link und sende ihn deinem Partner per WhatsApp, Signal oder SMS. Wenn dein Partner ihn öffnet, startet er mit einem eigenen Bogen. Deine Antworten bleiben bis zum Abschluss geschützt verborgen!
+          Kopiere diesen Link und sende ihn deinem Partner per Messenger oder SMS. Wenn dein Partner ihn öffnet, startet er mit einem eigenen Bogen. Deine Antworten bleiben bis zum Abschluss geschützt verborgen.
         </p>
       </div>
 
@@ -812,8 +812,8 @@
 
       <div class="p-4 overflow-y-auto space-y-4 text-xs flex-1">
         
-        <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 text-[11px] leading-relaxed">
-          ℹ️ <strong>Hinweis für dich:</strong> Deinen eigenen Fragebogen siehst <strong>du selbst immer zu 100 % vollständig</strong>. Diese Einstellungen regeln ausschließlich, was dein Partner bei der Auswertung sieht.
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-[11px] leading-relaxed">
+          <strong>Hinweis:</strong> Deinen eigenen Fragebogen siehst <strong>du selbst immer zu 100 % vollständig</strong>. Diese Einstellungen regeln ausschließlich, was dein Partner bei der gemeinsamen Auswertung einsehen darf.
         </div>
 
         <div class="space-y-2">
@@ -822,9 +822,9 @@
           <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
             <input type="radio" name="privacy-global-mode" value="blind" checked onchange="updatePrivacyMode('blind')" class="mt-0.5 text-slate-900 focus:ring-slate-900">
             <div>
-              <strong class="text-slate-900 block font-semibold">🔒 Blind-Match & Schutzzone (Empfohlen)</strong>
+              <strong class="text-slate-900 block font-semibold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
               <p class="text-[11px] text-slate-500 mt-0.5">
-                Dein Partner sieht nur echte Schnittmengen (beide $\ge 3$) sowie eure Tabus (1). Einseitige niedrige Bewertungen (0, 2) bleiben für deinen Partner diskret verborgen.
+                Dein Partner sieht nur echte Schnittmengen (beide mit mindestens Note 3 bewertet) sowie eure Tabus (Note 1). Einseitige niedrige Bewertungen (0, 2) bleiben für deinen Partner verborgen.
               </p>
             </div>
           </label>
@@ -832,9 +832,9 @@
           <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
             <input type="radio" name="privacy-global-mode" value="open" onchange="updatePrivacyMode('open')" class="mt-0.5 text-slate-900 focus:ring-slate-900">
             <div>
-              <strong class="text-slate-900 block font-semibold">📖 Vollständiges Buch (100 % Transparenz)</strong>
+              <strong class="text-slate-900 block font-semibold">Vollständiger Abgleich (Offene Einsicht)</strong>
               <p class="text-[11px] text-slate-500 mt-0.5">
-                Dein Partner darf alle deine genauen Bewertungen für jede einzelne Praktik Punkt für Punkt einsehen.
+                Dein Partner darf alle deine Bewertungen für jede einzelne Praktik detailliert einsehen.
               </p>
             </div>
           </label>
@@ -846,7 +846,7 @@
             <input type="checkbox" id="privacy-share-notes" onchange="updateNotesPrivacy(this.checked)" class="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 cursor-pointer">
           </label>
           <p class="text-[10.5px] text-slate-500 leading-normal">
-            Wenn deaktiviert, bleiben deine handschriftlichen Notizen/Bedingungen rein für dich sichtbar.
+            Wenn deaktiviert, bleiben deine persönlichen Notizen rein für dich selbst sichtbar.
           </p>
         </div>
 
@@ -890,128 +890,153 @@
     let pairRadarChartInstance = null;
     let currentDicePick = null;
 
-    // IN-APP BDSM & KINK LEXIKON DATENBANK
+    // UMFASSENDE IN-APP BDSM & KINK LEXIKON-DATENBANK MIT DEUTSCHEN LINKS
     const lexiconDatabase = [
       {
         term: "SSC (Safe, Sane, Consensual)",
         category: "Grundprinzip & Sicherheit",
         badge: "Fundament",
-        desc: "Der weltweite ethische Goldstandard im BDSM: <strong>Safe</strong> (Sicher: Risiken minimieren, physische & seelische Unversehrtheit wahren), <strong>Sane</strong> (Vernünftig: klarer Verstand, kein Drogenrausch, Unterscheidung zwischen Spiel und Realität) und <strong>Consensual</strong> (Einvernehmlich: absolute Freiwilligkeit aller Beteiligten zu jeder Sekunde)."
+        desc: "Der weltweite ethische Goldstandard im BDSM: Safe (Risiken minimieren), Sane (klarer Verstand, ohne Drogenrausch) und Consensual (vollkommene Einvernehmlichkeit aller Beteiligten zu jedem Zeitpunkt).",
+        link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual"
       },
       {
         term: "RACK (Risk-Aware Consensual Kink)",
         category: "Grundprinzip & Sicherheit",
         badge: "Prinzip",
-        desc: "Eine Weiterentwicklung von SSC, die anerkennt, dass bestimmte Praktiken (z. B. Rope Suspensions, Breathplay oder Wachs) niemals zu 100 % risikofrei sind. Beide Partner informieren sich eigenverantwortlich über physiologische Risiken und treffen gemeinsam eine informierte, einvernehmliche Entscheidung."
+        desc: "Weiterentwicklung von SSC: Beide Partner anerkennen bestehende Risiken bestimmter Praktiken eigenverantwortlich und treffen gemeinsam informierte, konsensuelle Entscheidungen.",
+        link: "https://de.wikipedia.org/wiki/BDSM#RACK"
       },
       {
         term: "Safeword & Ampelsystem",
         category: "Sicherheit & Kommunikation",
         badge: "Notbremse",
-        desc: "Ein vereinbartes Signalwort zur sofortigen Steuerung der Intensität, wenn ein 'Nein' im Rollenspiel vorkommen könnte. Das bewährte Ampelsystem: <strong>Grün</strong> (Alles super, gerne mehr), <strong>Gelb</strong> (Grenze nähert sich, Tempo/Druck drosseln), <strong>Rot</strong> (Sofortiger, bedingungsloser Abbruch der Session)."
+        desc: "Vereinbartes Signalwort zur sofortigen Steuerung: Grün (Mehr/Gut), Gelb (Grenze naht, verlangsamen), Rot (Sofortiger, bedingungsloser Abbruch der Session).",
+        link: "https://de.wikipedia.org/wiki/Safeword"
       },
       {
         term: "Aftercare (Achtsame Nachsorge)",
         category: "Fürsorge & Psychologie",
         badge: "Essentiell",
-        desc: "Die unverzichtbare Phase direkt nach einer Session. Der Körper schüttet nach Adrenalin- und Endorphinhochs oft schlagartig Stresshormone aus (Gefahr des Subdrops). Aftercare umfasst wärmende Decken, Tee/Zucker, langes stilles Kuscheln, tröstende Worte und das behutsame emotionale Abholen des Partners."
+        desc: "Die unverzichtbare Phase direkt nach einer Session: Wärmende Decken, Tee, langes stilles Kuscheln, emotionale Fürsorge und Abfangen von hormonellen Tiefs (Subdrop).",
+        link: "https://de.wikipedia.org/wiki/BDSM#Aftercare"
       },
       {
         term: "Subdrop & Topdrop",
         category: "Psychologie & Neurochemie",
         badge: "Wissen",
-        desc: "Ein emotionales Tief (Traurigkeit, Leere, Kältezittern), das Stunden oder bis zu 48 Stunden nach einer intensiven Szene auftreten kann, wenn Endorphine und Dopamin abfallen. Auch Dominante können betroffen sein (Topdrop durch Entlastung der Leitungsverantwortung). Lösung: 24h-Check-ins und liebevoller Zuspruch."
+        desc: "Emotionales oder hormonelles Tief nach einer intensiven Szene durch abrupten Abfall von Endorphin und Dopamin. Erfordert liebevolle Zuwendung und 24h-Check-ins.",
+        link: "https://de.wikipedia.org/wiki/Subdrop"
       },
       {
         term: "Subspace & Topspace",
         category: "Bewusstseinszustand",
         badge: "Trance",
-        desc: "Ein meditativer, tranceartiger Trancezustand des submissiven Partners, hervorgerufen durch Endorphine, repetitive Reize (Seile, Schläge) oder das vollkommene Loslassen aller Alltagsverantwortung. Führt oft zu tiefer Glückseligkeit und seelischer Katharsis."
+        desc: "Meditativer, endorphingesteuerter Trancezustand des Loslassens aller Alltagsverantwortung bzw. hochfokussierter Leitungsverantwortung des Tops.",
+        link: "https://de.wikipedia.org/wiki/Subspace_(BDSM)"
       },
       {
         term: "Shibari / Kinbaku",
         category: "Fesselungskunst",
         badge: "Technik",
-        desc: "Die traditionelle japanische Kunst des Seilbindens mit Naturseilen (meist geölte Jute oder Hanf). Neben ästhetischen geometrischen Mustern (z. B. Mormai-Harness) steht die Verbindung zwischen Rigger (Fesselndem) und Model sowie der gleichmäßige Druck im Vordergrund. Sicherheit: Immer einen Seilschneider griffbereit halten!"
+        desc: "Die traditionelle japanische Kunst des Seilbindens mit Naturseilen (meist Jute oder Hanf). Im Mittelpunkt stehen Ästhetik, gleichmäßiger Druck und die Verbindung zwischen Rigger und Model.",
+        link: "https://de.wikipedia.org/wiki/Kinbaku"
       },
       {
         term: "Edging & Orgasmuskontrolle",
         category: "Erregungssteuerung",
         badge: "Praxis",
-        desc: "Das wiederholte Heranführen des Partners an den 'Point of No Return' kurz vor dem Höhepunkt, gefolgt von einem abrupten Stimulationsstopp. Dies staut sexuelle Energie extrem an und führt bei späterer Freigabe zu unvergleichlich intensiveren Höhepunkten."
+        desc: "Wiederholtes Heranführen des Partners an den Point of No Return kurz vor dem Höhepunkt mit abruptem Stopp, um sexuelle Spannung extrem aufzustauen.",
+        link: "https://de.wikipedia.org/wiki/Orgasmuskontrolle"
       },
       {
         term: "Tease & Denial",
         category: "Dominanz & Keuschheit",
         badge: "Dynamik",
-        desc: "Das lustvolle, quälende Erregen des Partners, während die direkte genitale Erlösung gezielt verweigert oder der Orgasmus über Stunden, Tage oder Wochen aufgeschoben wird. Es verlagert die Lust vom reinen Zielorgasmus in den Kopf."
+        desc: "Lustvolles Erregen des Partners bei gezielter Verweigerung oder zeitlichem Aufschub des Orgasmus über Stunden, Tage oder Wochen.",
+        link: "https://de.wikipedia.org/wiki/Keuschhaltung"
       },
       {
         term: "Praise Play",
         category: "Dominanz & Bestätigung",
         badge: "Motivation",
-        desc: "Führung und Disziplinierung durch warme, anerkennende und liebevolle Worte ('Braves Mädchen', 'Guter Junge'). Im Gegensatz zu Degradation blühen Submissive durch ehrliches, bestätigendes Lob emotional auf und fühlen sich vollkommen geborgen."
+        desc: "Führung und Disziplinierung durch warme, stärkende und lobende Worte. Submissive blühen durch ehrliche Anerkennung und Geborgenheit auf.",
+        link: "https://de.wikipedia.org/wiki/Dominanz_und_Unterwerfung"
       },
       {
         term: "Bratting & Brat Taming",
         category: "Primal & Rollenspiel",
         badge: "Verspielt",
-        desc: "Ein 'Brat' (Frechdachs) provoziert den dominanten Part schelmisch durch absichtlichen Ungehorsam, Widerworte oder Kichern, um dessen ungeteilte Aufmerksamkeit und liebevolle Strenge herauszufordern. 'Brat Taming' ist das körperliche Bändigen und Festhalten, bis der Widerstand bricht."
+        desc: "Schelmisches Provozieren durch Ungehorsam, um dominante Aufmerksamkeit herauszufordern; Brat Taming ist das körperliche Festhalten und Bändigen bis zum Aufgeben.",
+        link: "https://de.wikipedia.org/wiki/BDSM-Rollen"
       },
       {
         term: "Primal Play",
         category: "Körperlichkeit",
         badge: "Animalisch",
-        desc: "Instinktives, rohes Spiel ohne starre Protokolle oder Förmlichkeiten: Ringen auf Bodenmatten, Jagen durch die Wohnung (Chase Play), Knurren, Festpinnen und Beißreize. Schafft einen befreienden Ausgleich zum kognitiven Alltagsstress."
+        desc: "Instinktives, rohes Spiel ohne starre Förmlichkeiten: Ringen auf Matten, Jagen durch den Raum, Festpinnen und Beißreize.",
+        link: "https://de.wikipedia.org/wiki/Primal_Play"
       },
       {
         term: "Caregiver & Little (DDLG / MDLB)",
         category: "Fürsorge & Regression",
         badge: "Geborgenheit",
-        desc: "Eine zärtliche Beziehungsdynamik, in der ein Partner in eine kindliche, sorglose Rolle schlüpft (Little), während der andere bedingungslose Fürsorge übernimmt (Caregiver): Zubettbringen, Geschichten vorlesen, Haare bürsten, Baden und Füttern ohne sexuellen Leistungsdruck."
+        desc: "Beziehungsdynamik, in der ein Partner in eine sorglose, kindliche Rolle schlüpft, während der andere liebevolle Fürsorge (Zudecken, Baden, Vorlesen) übernimmt.",
+        link: "https://de.wikipedia.org/wiki/Altersspiele"
       },
       {
         term: "Queening / Facesitting",
         category: "Macht & Körpererotik",
         badge: "Hingabe",
-        desc: "Die dominante Person setzt sich rittlings auf das Gesicht des liegenden Partners und dirigiert Atmung, Rhythmus und Zungeneinsatz über das eigene Körpergewicht. Gilt als ultimatives Zeichen von Dienstbarkeit und körperlicher Verehrung."
+        desc: "Die dominante Person setzt sich auf das Gesicht des liegenden Partners und steuert Atmung und Rhythmus über das eigene Körpergewicht.",
+        link: "https://de.wikipedia.org/wiki/Facesitting"
       },
       {
         term: "CFNM (Clothed Female, Naked Male)",
         category: "Visuelle Machtbalance",
         badge: "Förmlichkeit",
-        desc: "Visuelle Asymmetrie: Die Frau bleibt vollständig, elegant oder förmlich bekleidet (z. B. Hosenanzug oder High Heels), während der Mann nackt dienen, massieren oder posieren muss. Schafft ein starkes psychologisches Hierarchiegefühl."
+        desc: "Visuelle Asymmetrie: Die Frau bleibt förmlich oder vollständig bekleidet, während der Mann nackt dient oder posiert.",
+        link: "https://de.wikipedia.org/wiki/CFNM"
       },
       {
         term: "Nuru-Massage",
         category: "Tantra & Sensorik",
         badge: "Ganzkörper",
-        desc: "Traditionelle japanische Body-to-Body Gleitmassage mit extrem rutschigem, hautfreundlichem Seetang-Algen-Gel. Beide Partner sind vollkommen nackt; die Körper gleiten schwerelos und reibungslos aneinander vorbei."
+        desc: "Traditionelle japanische Body-to-Body Gleitmassage mit extrem rutschigem Algen-Gel, bei der beide nackten Körper reibungslos aneinandergleiten.",
+        link: "https://de.wikipedia.org/wiki/Nuru-Massage"
       },
       {
         term: "CBT (Cock & Ball Torture)",
         category: "Genitalreize",
         badge: "Sensibel",
-        desc: "Dosierte sensorische Reize auf die männlichen Hoden und das Glied (Abbinden, Klemmen, Dehnen, leichtes Spanken). Erfordert extreme Vorsicht, anatomisches Wissen und ständige Kommunikation zur Vermeidung von Verletzungen."
+        desc: "Dosierte Reize auf die männlichen Genitalien (Abbinden, Dehnen, Klemmen). Erfordert höchste Vorsicht und ständige Kommunikation.",
+        link: "https://de.wikipedia.org/wiki/Cock_and_Ball_Torture"
       },
       {
         term: "Pegging",
         category: "Rollenwechsel",
         badge: "Intimität",
-        desc: "Die anale Penetration eines Mannes durch eine Frau mithilfe eines Umschnalldildos (Strap-On). Verbindet intensive physische Stimulation der Prostata mit einem befreienden psychologischen Rollenwechsel."
+        desc: "Die anale Penetration eines Mannes durch eine Frau mithilfe eines Umschnalldildos (Strap-On).",
+        link: "https://de.wikipedia.org/wiki/Pegging"
+      },
+      {
+        term: "Kinderschutz & Familiendiskretion",
+        category: "Sicherheit & Alltag",
+        badge: "Standard",
+        desc: "Strikte Vereinbarung, dass BDSM-Toys, Fesseln und Outfits vor Kindern zu 100 % weggeschlossen und unsichtbar bleiben.",
+        link: "https://de.wikipedia.org/wiki/Kinderschutz"
       }
     ];
 
-    // Vollständiger 15-Kapitel-Katalog mit Lexikon-Suchbegriffen
+    // VOLLSTÄNDIGER KATALOG ALLER 35 THEMENBEREICHE
     const surveyChapters = [
       {
         id: 1,
         title: "1. Körperbild, Schamgrenzen & Grundvoraussetzungen",
         desc: "Körperakzeptanz, Schamzonen, emotionale Sicherheit und elementare Schutzgrenzen vor jeder intimen Interaktion.",
         items: [
-          { id: 1, title: "Körperakzeptanz & Nacktheit ohne Bewertung", desc: "Vollkommen ungezwungen nackt im Raum sein können, ohne Scham vor Makeln, Narben oder Körperzonen. Dies schafft ein sicheres Fundament, auf dem jede weitere Praxis aufbaut. Liebhaber schätzen die tiefe seelische Erleichterung, nicht perfekt sein zu müssen.", r1: "Partner bedingungslos annehmen & loben", r2: "Angenommen werden & Scham ablegen", dim: "romance", motive: "attachment", intensity: "soft", term: "Body Neutrality Kink Sexualität" },
-          { id: 2, title: "Schonung sensibler Schamzonen", desc: "Das explizite Aussparen oder besonders behutsame Behandeln bestimmter Körperregionen, die mit Scham besetzt sind. Es wird vorab geklärt, welche Zonen tabu oder besonders geschützt sind. Fans schätzen die Gewissheit, dass persönliche Unsicherheiten respektiert werden.", r1: "Schamzonen behutsam respektieren", r2: "Grenzen für sensible Zonen setzen", dim: "romance", motive: "attachment", intensity: "soft", term: "Schamgrenzen BDSM Konsens" },
-          { id: 3, title: "Tagesform- & Stimmungs-Check vor Sessions", desc: "Ein kurzes, ehrliches Innehalten und Austauschen des energetischen Akkus vor dem Spiel. Bei Müdigkeit oder Überlastung wird die Intensität sofort gedrosselt. Dies verhindert Überforderung und stärkt das Vertrauensverhältnis nachhaltig.", r1: "Tagesform des Partners erfragen", r2: "Eigene Tagesform ehrlich mitteilen", dim: "care", motive: "attachment", intensity: "soft", term: "Negotiation BDSM Vorsprechung" },
+          { id: 1, title: "Körperakzeptanz & Nacktheit ohne Bewertung", desc: "Vollkommen ungezwungen nackt im Raum sein können, ohne Scham vor Makeln, Narben oder Körperzonen. Dies schafft ein sicheres Fundament, auf dem jede weitere Praxis aufbaut. Liebhaber schätzen die tiefe seelische Erleichterung, nicht perfekt sein zu müssen.", r1: "Partner bedingungslos annehmen & loben", r2: "Angenommen werden & Scham ablegen", dim: "romance", motive: "attachment", intensity: "soft", term: "Körperakzeptanz Body Neutrality" },
+          { id: 2, title: "Schonung sensibler Schamzonen", desc: "Das explizite Aussparen oder besonders behutsame Behandeln bestimmter Körperregionen, die mit Scham besetzt sind. Es wird vorab geklärt, welche Zonen tabu oder besonders geschützt sind. Fans schätzen die Gewissheit, dass persönliche Unsicherheiten respektiert werden.", r1: "Schamzonen behutsam respektieren", r2: "Grenzen für sensible Zonen setzen", dim: "romance", motive: "attachment", intensity: "soft", term: "Schamgrenzen Intimität" },
+          { id: 3, title: "Tagesform- & Stimmungs-Check vor Sessions", desc: "Ein kurzes, ehrliches Innehalten und Austauschen des energetischen Akkus vor dem Spiel. Bei Müdigkeit oder Überlastung wird die Intensität sofort gedrosselt. Dies verhindert Überforderung und stärkt das Vertrauensverhältnis nachhaltig.", r1: "Tagesform des Partners erfragen", r2: "Eigene Tagesform ehrlich mitteilen", dim: "care", motive: "attachment", intensity: "soft", term: "Check-in Vorsprechung BDSM" },
           { id: 4, title: "Nonverbale Sicherheitsgesten (Handdrück-Code)", desc: "Ein stilles Sicherheitssignal durch dreimaliges festes Drücken der Hand, falls das Sprechen durch Knebel oder Trance unmöglich ist. Es dient als Notbremse in tiefen Zuständen. Beide Partner gewinnen dadurch maximale Sicherheit ohne Spielunterbrechung.", r1: "Handdrück-Signale aufmerksam spüren", r2: "Handdrücken als Notsignal nutzen", dim: "care", motive: "attachment", intensity: "soft", term: "Nonverbale Safewords BDSM" }
         ]
       },
@@ -1020,10 +1045,10 @@
         title: "2. Romantik, Zärtlichkeit & Emotionale Intimität",
         desc: "Sanfte Berührungen, Geborgenheit, Herzverbindung und zärtliche Gesten als unverzichtbares Fundament.",
         items: [
-          { id: 5, title: "Zärtliches Streicheln & Kuscheln", desc: "Sanfte Hände und Fingerspitzen berühren behutsam die Haut des Partners, ohne dass ein Zwang zu Erregung oder Penetration besteht. Dies dient der mentalen Erdung und dem behutsamen Herantasten vor einer Session. Liebhaber genießen das Gefühl absoluter Geborgenheit und die Ausschüttung von beruhigendem Oxytocin.", r1: "Aktiv liebkosen & streicheln", r2: "Gestreichelt werden & genießen", dim: "romance", motive: "attachment", intensity: "soft", term: "Sensuales Kuscheln Erotik" },
-          { id: 6, title: "Intimer Augenkontakt", desc: "Das bewusste, ununterbrochene Halten des Blickkontakts während des Liebesspiels oder beim Streicheln aus nächster Nähe. Es erfordert Mut zur Verletzlichkeit, da man dem Partner gestattet, ungefiltert in die eigene Seele zu blicken. Fans empfinden diesen Blick als erotischen Brandbeschleuniger, der Lust mit tiefer emotionaler Verschmelzung auflädt.", r1: "Aktiv den Blick halten", r2: "Den Blick erwidern & standhalten", dim: "romance", motive: "attachment", intensity: "soft", term: "Erotischer Blickkontakt Intimität" },
-          { id: 7, title: "Sanftes Halten im Arm", desc: "Ein Partner umschließt den anderen im Liegen fest und schützend, sodass Körperwärme und Herzschlag direkt spürbar werden. Diese Haltung dient als seelischer Ruheanker vor oder nach aufwühlenden Erfahrungen. Der besondere Reiz liegt im Gefühl, die Last der Welt für einen Moment komplett abtreten zu können.", r1: "Im Arm halten & beschützen", r2: "Gehalten werden & loslassen", dim: "romance", motive: "attachment", intensity: "soft", term: "Holding Nurturing BDSM" },
-          { id: 8, title: "Flüster-Erotik & Zärtlicher Dirty Talk", desc: "Leise, intime Worte, sanfte Anzüglichkeiten oder rhythmisches Atmen werden direkt an die empfindliche Ohrmuschel gehaucht. Die akustische Nähe erzeugt einen ASMR-artigen Schauer, der über die Nackennerven durch den gesamten Körper wandert. Begeisterte schätzen die prickelnde Kombination aus stimmlicher Autorität und Verbundenheit.", r1: "Ins Ohr flüstern", r2: "Zugeflüstert bekommen & lauschen", dim: "romance", motive: "thrill", intensity: "medium", term: "Dirty Talk Flüster Erotik" }
+          { id: 5, title: "Zärtliches Streicheln & Kuscheln", desc: "Sanfte Hände und Fingerspitzen berühren behutsam die Haut des Partners, ohne dass ein Zwang zu Erregung oder Penetration besteht. Dies dient der mentalen Erdung und dem behutsamen Herantasten vor einer Session. Liebhaber genießen das Gefühl absoluter Geborgenheit und die Ausschüttung von beruhigendem Oxytocin.", r1: "Aktiv liebkosen & streicheln", r2: "Gestreichelt werden & genießen", dim: "romance", motive: "attachment", intensity: "soft", term: "Zärtlichkeit Kuscheln" },
+          { id: 6, title: "Intimer Augenkontakt", desc: "Das bewusste, ununterbrochene Halten des Blickkontakts während des Liebesspiels oder beim Streicheln aus nächster Nähe. Es erfordert Mut zur Verletzlichkeit, da man dem Partner gestattet, ungefiltert in die eigene Seele zu blicken. Fans empfinden diesen Blick als erotischen Brandbeschleuniger, der Lust mit tiefer emotionaler Verschmelzung auflädt.", r1: "Aktiv den Blick halten", r2: "Den Blick erwidern & standhalten", dim: "romance", motive: "attachment", intensity: "soft", term: "Blickkontakt Intimität" },
+          { id: 7, title: "Sanftes Halten im Arm", desc: "Ein Partner umschließt den anderen im Liegen fest und schützend, sodass Körperwärme und Herzschlag direkt spürbar werden. Diese Haltung dient als seelischer Ruheanker vor oder nach aufwühlenden Erfahrungen. Der besondere Reiz liegt im Gefühl, die Last der Welt für einen Moment komplett abtreten zu können.", r1: "Im Arm halten & beschützen", r2: "Gehalten werden & loslassen", dim: "romance", motive: "attachment", intensity: "soft", term: "Holding Geborgenheit" },
+          { id: 8, title: "Flüster-Erotik & Zärtlicher Dirty Talk", desc: "Leise, intime Worte, sanfte Anzüglichkeiten oder rhythmisches Atmen werden direkt an die empfindliche Ohrmuschel gehaucht. Die akustische Nähe erzeugt einen ASMR-artigen Schauer, der über die Nackennerven durch den gesamten Körper wandert. Begeisterte schätzen die prickelnde Kombination aus stimmlicher Autorität und Verbundenheit.", r1: "Ins Ohr flüstern", r2: "Zugeflüstert bekommen & lauschen", dim: "romance", motive: "thrill", intensity: "medium", term: "Dirty Talk Flüstern" }
         ]
       },
       {
@@ -1031,11 +1056,10 @@
         title: "3. Küsse, Lippen & Sinnliche Zuwendung",
         desc: "Vom flüchtigen Hauchkuss bis zur fordernden Lippenübernahme.",
         items: [
-          { id: 9, title: "Sanfte Hauchküsse", desc: "Die Lippen berühren kaum merklich die Augenlider, Schläfen, Wangen oder Lippen des Partners wie ein zarter Lufthauch. Diese Küsse werden vor allem zu Beginn eingesetzt, um Nervenenden behutsam aufzuwecken. Der Reiz liegt in der unschuldigen Verspieltheit und Vorfreude.", r1: "Aktiv sanft küssen", r2: "Küsse empfangen", dim: "romance", motive: "attachment", intensity: "soft", term: "Schmetterlingskuss Zärtlichkeit" },
+          { id: 9, title: "Sanfte Hauchküsse", desc: "Die Lippen berühren kaum merklich die Augenlider, Schläfen, Wangen oder Lippen des Partners wie ein zarter Lufthauch. Diese Küsse werden vor allem zu Beginn eingesetzt, um Nervenenden behutsam aufzuwecken. Der Reiz liegt in der unschuldigen Verspieltheit und Vorfreude.", r1: "Aktiv sanft küssen", r2: "Küsse empfangen", dim: "romance", motive: "attachment", intensity: "soft", term: "Kuss Schmetterlingskuss" },
           { id: 10, title: "Sinnlicher Lippentanz (Slow Kissing)", desc: "Ein extrem entschleunigtes, ausgiebiges Erkunden der Lippen ohne jede Eile oder sofortigen Übergang zu weiteren Handlungen. Beide Partner konzentrieren sich vollkommen auf Feuchtigkeit, Textur und Wärme der Münder. Viele erleben dies als meditative Form der Erotik, die den Leistungsdruck vollkommen nimmt.", r1: "Lippen erkunden & führen", r2: "Hingebungsvoll erwidern", dim: "romance", motive: "attachment", intensity: "soft", term: "Slow Kissing Tantra" },
-          { id: 11, title: "Sanftes Knabbern an Lippe oder Ohr", desc: "Die Zähne fassen behutsam die Unterlippe oder das Ohrläppchen und üben dosierten Zug aus. Dieser Reiz wird eingesetzt, um die Grenze zwischen Schmerz und wohliger Erregung spielerisch anzutasten. Liebhaber empfinden diesen plötzlichen sensorischen Impuls als elektrisierenden Wachmacher.", r1: "Behutsam anknabbern", r2: "Knabbern spüren & genießen", dim: "romance", motive: "sensation", intensity: "medium", term: "Knabbern Erotik Lippen Ohr" },
-          { id: 12, title: "Nackengriff beim Küssen (Hair Pulling / Scruffing)", desc: "Eine Hand greift fest und kontrollierend in das Kopfhaar oder den Nacken, um den Kopf sanft nach hinten zu neigen und die Kehle freizulegen. Dies geschieht oft mitten in einem Kuss, um Dominanz und körperliche Führung zu demonstrieren. Der Reiz liegt für den Führenden in der spürbaren Macht und für den Empfangenden in der erregenden Hilflosigkeit.", r1: "Nackengriff führen & lenken", r2: "Halt im Nacken annehmen & Kehle darbieten", dim: "ds", motive: "power", intensity: "medium", term: "Scruffing Hair pulling BDSM" },
-          { id: 13, title: "Dominakuss / Masterkuss", desc: "Der dominante Part fixiert fest das Kinn des Partners und nimmt dessen Lippen mit fordernder Intensität vollkommen ein. Der passive Part darf den Kuss nicht aktiv steuern, sondern muss ihn reglos oder demütig empfangen. Fans dieser Geste berauscht die unmissverständliche Besitzanzeige, die durch den Mundraum besiegelt wird.", r1: "Kinn fixieren & fordernd küssen", r2: "Lippen überlassen & empfangen", dim: "ds", motive: "power", intensity: "hard", term: "Master Kuss Dominanz BDSM" }
+          { id: 11, title: "Sanftes Knabbern an Lippe oder Ohr", desc: "Die Zähne fassen behutsam die Unterlippe oder das Ohrläppchen und üben dosierten Zug aus. Dieser Reiz wird eingesetzt, um die Grenze zwischen Schmerz und wohliger Erregung spielerisch anzutasten. Liebhaber empfinden diesen plötzlichen sensorischen Impuls als elektrisierenden Wachmacher.", r1: "Behutsam anknabbern", r2: "Knabbern spüren & genießen", dim: "romance", motive: "sensation", intensity: "medium", term: "Knabbern Erotik" },
+          { id: 12, title: "Nackengriff beim Küssen (Hair Pulling / Scruffing)", desc: "Eine Hand greift fest und kontrollierend in das Kopfhaar oder den Nacken, um den Kopf sanft nach hinten zu neigen und die Kehle freizulegen. Dies geschieht oft mitten in einem Kuss, um Dominanz und körperliche Führung zu demonstrieren. Der Reiz liegt für den Führenden in der spürbaren Macht und für den Empfangenden in der erregenden Hilflosigkeit.", r1: "Nackengriff führen & lenken", r2: "Halt im Nacken annehmen & Kehle darbieten", dim: "ds", motive: "power", intensity: "medium", term: "Scruffing Haareziehen" }
         ]
       },
       {
@@ -1043,10 +1067,9 @@
         title: "4. Tantra, Slow Sex & Achtsames Vorspiel",
         desc: "Entschleunigte Körperarbeit, energetische Verbindung und Reizaufbau über Zeit.",
         items: [
-          { id: 14, title: "Synchrone Atmung (Harmonisierung)", desc: "Beide Partner liegen Brust an Brust und passen ihre Ein- und Ausatmung bewusst an denselben Rhythmus an. Dies beruhigt das vegetative Nervensystem und synchronisiert die Herzfrequenzen beider Körper. Praktizierende beschreiben das Erlebnis als Auflösung individueller Grenzen zu einem gemeinsamen Organismus.", r1: "Atmung führen", r2: "Sich im Takt anpassen", dim: "tantra", motive: "attachment", intensity: "soft", term: "Synchrone Atmung Tantra" },
-          { id: 15, title: "Ganztägiges Vorspiel (Slow Teasing)", desc: "Über viele Stunden hinweg werden erotische Andeutungen, vielsagende Blicke und diskrete Textnachrichten im Alltag ausgetauscht. Es findet keine sofortige Entladung statt, sodass sich die Erregung über den Tag im Kopf anstaut. Der gewaltige Reiz liegt in der quälenden Vorfreude und der Gewissheit des bevorstehenden gemeinsamen Abends.", r1: "Spannung aufbauen & senden", r2: "Spannung empfangen & vorfreuen", dim: "tantra", motive: "thrill", intensity: "soft", term: "Slow Teasing Erotik" },
-          { id: 16, title: "Nuru-Massage (Body-to-Body Algenmassage)", desc: "Beide Partner sind vollkommen nackt und werden mit warmem, extrem gleitfähigem Algen-Gel übergossen. Die Körper gleiten reibungslos und schwerelos übereinander, sodass Haut auf Haut ohne jeden Widerstand verschmilzt. Liebhaber fasziniert das surreale Gefühl der Schwerelosigkeit und die ununterbrochene Ganzkörperberührung.", r1: "Gleitend massieren", r2: "Körpergleiten empfangen", dim: "tantra", motive: "sensation", intensity: "medium", term: "Nuru Massage Algen" },
-          { id: 17, title: "Cock Warming / Soft Insertion (Stille Vereinigung)", desc: "Das Glied wird im schlaffen oder halberigierten Zustand behutsam eingeführt, um minutenlang reglos die feuchte Körperwärme zu teilen. Diese Praxis wird oft am frühen Morgen oder zum Ausklang intimer Stunden genutzt. Der Kick liegt in der unzerstörbaren Gemütlichkeit und dem zärtlichen Einssein zweier Körper.", r1: "Einführen & reglos verweilen", r2: "Aufnehmen & Körperwärme spüren", dim: "tantra", motive: "attachment", intensity: "soft", term: "Cock Warming Karezza" }
+          { id: 13, title: "Synchrone Atmung (Harmonisierung)", desc: "Beide Partner liegen Brust an Brust und passen ihre Ein- und Ausatmung bewusst an denselben Rhythmus an. Dies beruhigt das vegetative Nervensystem und synchronisiert die Herzfrequenzen beider Körper. Praktizierende beschreiben das Erlebnis als Auflösung individueller Grenzen zu einem gemeinsamen Organismus.", r1: "Atmung führen", r2: "Sich im Takt anpassen", dim: "tantra", motive: "attachment", intensity: "soft", term: "Synchrone Atmung Tantra" },
+          { id: 14, title: "Ganztägiges Vorspiel (Slow Teasing)", desc: "Über viele Stunden hinweg werden erotische Andeutungen, vielsagende Blicke und diskrete Textnachrichten im Alltag ausgetauscht. Es findet keine sofortige Entladung statt, sodass sich die Erregung über den Tag im Kopf anstaut. Der gewaltige Reiz liegt in der quälenden Vorfreude und der Gewissheit des bevorstehenden gemeinsamen Abends.", r1: "Spannung aufbauen & senden", r2: "Spannung empfangen & vorfreuen", dim: "tantra", motive: "thrill", intensity: "soft", term: "Slow Teasing Vorspiel" },
+          { id: 15, title: "Cock Warming / Soft Insertion (Stille Vereinigung)", desc: "Das Glied wird im schlaffen oder halberigierten Zustand behutsam eingeführt, um minutenlang reglos die feuchte Körperwärme zu teilen. Diese Praxis wird oft am frühen Morgen oder zum Ausklang intimer Stunden genutzt. Der Kick liegt in der unzerstörbaren Gemütlichkeit und dem zärtlichen Einssein zweier Körper.", r1: "Einführen & reglos verweilen", r2: "Aufnehmen & Körperwärme spüren", dim: "tantra", motive: "attachment", intensity: "soft", term: "Cock Warming Karezza" }
         ]
       },
       {
@@ -1054,122 +1077,280 @@
         title: "5. Stellungen & Erotische Variationen",
         desc: "Klassische und fordernde Positionen im Wechselspiel von Nähe und Führung.",
         items: [
-          { id: 18, title: "Klassische Missionarsstellung", desc: "Gesicht an Gesicht liegend, ermöglicht diese Haltung maximalen Augenkontakt, zärtliche Küsse und enge Umarmungen. Sie ist der Inbegriff romantischer Verbundenheit. Der Kick liegt in der vollständigen Transparenz der Gefühle, da man jede Regung des Partners unmittelbar sieht.", r1: "Oben / Führend", r2: "Unten / Empfangend", dim: "romance", motive: "attachment", intensity: "soft", term: "Missionarsstellung Erotik" },
-          { id: 19, title: "Löffelchen-Stellung (Spooning)", desc: "Beide Partner liegen seitlich hintereinander geschmiegt; die Vereinigung erfolgt ruhig von hinten. Diese Position eignet sich perfekt für verschlafene Sonntage oder nach langen Tagen. Liebhaber schätzen das wärmende Gefühl des Umschlungenwerdens.", r1: "Hinterer / Führender Part", r2: "Vorderer / Aufnehmender Part", dim: "romance", motive: "attachment", intensity: "soft", term: "Spooning Loeffelchen" },
-          { id: 20, title: "Von hinten (Doggy Style)", desc: "Auf allen Vieren kniend, empfängt der passive Part die Penetration von hinten, während der aktive Part das Becken fest greift. Dies erlaubt tiefe Stöße und gewährt freien Zugriff auf Gesäß und Rücken für Spanks. Liebhaber fasziniert der animalische, ungefilterte Charakter.", r1: "Von hinten führen & Becken halten", r2: "Darbieten & aufnehmen", dim: "primal", motive: "power", intensity: "medium", term: "Doggy Style Erotik" },
-          { id: 21, title: "Spiegel-Sex mit Blickkontakt", desc: "Die Vereinigung findet unmittelbar vor einem großen Spiegel statt, wobei sich beide Partner ausschließlich über das Spiegelbild in die Augen schauen. Dies erzeugt eine voyeuristische Distanz, die das eigene Tun wie einen privaten Erotikfilm wirken lässt. Der Kick entsteht aus der visuellen Überhöhung.", r1: "Blick im Spiegel fordern & führen", r2: "Blick im Spiegel erwidern", dim: "ds", motive: "exhibition", intensity: "medium", term: "Spiegel Sex Erotik" }
+          { id: 16, title: "Klassische Missionarsstellung", desc: "Gesicht an Gesicht liegend, ermöglicht diese Haltung maximalen Augenkontakt, zärtliche Küsse und enge Umarmungen. Sie ist der Inbegriff romantischer Verbundenheit. Der Kick liegt in der vollständigen Transparenz der Gefühle, da man jede Regung des Partners unmittelbar sieht.", r1: "Oben / Führend", r2: "Unten / Empfangend", dim: "romance", motive: "attachment", intensity: "soft", term: "Missionarsstellung" },
+          { id: 17, title: "Löffelchen-Stellung (Spooning)", desc: "Beide Partner liegen seitlich hintereinander geschmiegt; die Vereinigung erfolgt ruhig von hinten. Diese Position eignet sich perfekt für verschlafene Sonntage oder nach langen Tagen. Liebhaber schätzen das wärmende Gefühl des Umschlungenwerdens.", r1: "Hinterer / Führender Part", r2: "Vorderer / Aufnehmender Part", dim: "romance", motive: "attachment", intensity: "soft", term: "Löffelchenstellung" },
+          { id: 18, title: "Von hinten (Doggy Style)", desc: "Auf allen Vieren kniend, empfängt der passive Part die Penetration von hinten, während der aktive Part das Becken fest greift. Dies erlaubt tiefe Stöße und gewährt freien Zugriff auf Gesäß und Rücken für Spanks. Liebhaber fasziniert der animalische, ungefilterte Charakter.", r1: "Von hinten führen & Becken halten", r2: "Darbieten & aufnehmen", dim: "primal", motive: "power", intensity: "medium", term: "Doggy Style Erotik" },
+          { id: 19, title: "Spiegel-Sex mit Blickkontakt", desc: "Die Vereinigung findet unmittelbar vor einem großen Spiegel statt, wobei sich beide Partner ausschließlich über das Spiegelbild in die Augen schauen. Dies erzeugt eine voyeuristische Distanz, die das eigene Tun wie einen privaten Erotikfilm wirken lässt. Der Kick entsteht aus der visuellen Überhöhung.", r1: "Blick im Spiegel fordern & führen", r2: "Blick im Spiegel erwidern", dim: "ds", motive: "exhibition", intensity: "medium", term: "Spiegel Sex" }
         ]
       },
       {
         id: 6,
-        title: "6. Orgasmuskontrolle, Edging & Keuschhaltung",
-        desc: "Verzögerung, Verweigerung, Ruinieren, Freigabe und Verwahrung des Höhepunkts.",
+        title: "6. Spontaneität, Orte & Clothed Sex",
+        desc: "Sex an unkonventionellen Orten, schnelles Ausleben von Lust und Sex in Alltagskleidung.",
         items: [
-          { id: 22, title: "Sensuelles Tease & Denial", desc: "Das quälend langsame Streicheln und Küssen des gesamten Körpers, während die Genitalien peinlich genau ausgespart oder nur gestreift werden. Wenn Verlangen auflodert, zieht sich der aktive Part lächelnd zurück. Fans lieben die fast schmerzhafte mentale Erregung.", r1: "Reize verweigern & necken", r2: "Verlangen aushalten", dim: "chastity", motive: "power", intensity: "medium", term: "Tease and Denial BDSM" },
-          { id: 23, title: "Edging (Stoppen kurz vor dem Orgasmus)", desc: "Das wiederholte Heranführen des Partners an den Point of No Return mit abruptem Berührungsstopp im letzten Moment. Der Körper zittert vor Lust, muss sich jedoch wieder beruhigen. Der Kick liegt in der massiven Endorphinausschüttung und der Potenzierung des späteren Orgasmus.", r1: "Partner edgen & stoppen", r2: "Ge-edgt werden & aushalten", dim: "chastity", motive: "sensation", intensity: "medium", term: "Edging Orgasmuskontrolle" },
-          { id: 24, title: "Orgasmus auf Countdown-Kommando", desc: "Der Orgasmus darf erst exakt bei der Zahl Eins eines laut gesprochenen Countdowns des dominanten Partners ausgelöst werden. Der Zählende variiert Tempo und Pausen nach Belieben. Der Kick ist die absolute Unterordnung der körperlichen Reflexe unter den Willen des anderen.", r1: "Countdown zählen & freigeben", r2: "Strikt auf Zählkommando kommen", dim: "chastity", motive: "power", intensity: "hard", term: "Orgasmus auf Kommando BDSM" },
-          { id: 25, title: "Teasing des Keuschlings im Käfig", desc: "Kontinuierliches Erregen und Berühren des verschlossenen Genitals im Keuschheitskäfig ohne Öffnung. Dies verhindert Abstumpfung und hält den Keuschling mental auf den Top fixiert. Für Submissive ist dies eine quälend süße Erinnerung an die Macht des Tops.", r1: "Im Käfig intensiv necken & erregen", r2: "Im Käfig heiß gehalten werden", dim: "chastity", motive: "power", intensity: "hard", term: "Chastity Keuschheitskaefig" },
-          { id: 26, title: "Vollständiger Orgasmus-Entzug (Denial)", desc: "Eine intensive Session endet für den submissiven Part ganz bewusst ohne eigenen Orgasmus; die Stimulation wird einfach beendet und das Spiel geschlossen. Er muss die unbefriedigte Erregung mitnehmen. Für Devote ist dies eine tiefgreifende Lektion in Selbstdisziplin und purer Dienstbarkeit.", r1: "Orgasmus verwehren & beenden", r2: "Ohne Höhepunkt ruhen & dienen", dim: "chastity", motive: "power", intensity: "hard", term: "Orgasm Denial BDSM" }
+          { id: 20, title: "Spontaner Quickie im Alltag", desc: "Sex ohne langes Ausziehen und ohne Vorspiel, wenn die Lust plötzlich aufflammt (z. B. im Flur oder in der Küche).", r1: "Spontan initiieren", r2: "Spontan hingeben", dim: "primal", motive: "thrill", intensity: "medium", term: "Quickie Erotik" },
+          { id: 21, title: "Sex in halber Kleidung (Clothed Sex / Dry Humping)", desc: "Reibung und Vereinigung, während Shirts, Röcke oder Jeans nur zur Seite geschoben werden.", r1: "Bekleidet dominieren", r2: "Bekleidet empfangen", dim: "ds", motive: "thrill", intensity: "medium", term: "Clothed Sex" }
         ]
       },
       {
         id: 7,
-        title: "7. Fesselungen, Shibari & Restriktion",
-        desc: "Vom sanften Seidentuch über kunstvolle Seilmuster bis zu starren Arretierungen.",
+        title: "7. Oralverkehr, Zungenspiele & Training",
+        desc: "Intensive orale Verwöhnung, Ausdauer und gezielte Rachenspiele.",
         items: [
-          { id: 27, title: "Handgelenksfesselung mit Seidentüchern", desc: "Behutsames Verbinden der Handgelenke am Bettpfosten mit weichen Seidentüchern. Es dient als sanfter Einstieg in das Loslassen von Kontrolle ohne Druckstellen. Für Einsteiger schenkt es die wohlige Gewissheit, sich für kurze Zeit ganz den Berührungen des Partners überlassen zu dürfen.", r1: "Behutsam mit Seide binden", r2: "In Seidentüchern geborgen daliegen", dim: "shibari", motive: "attachment", intensity: "soft", term: "Bondage Seidentuch Einsteiger" },
-          { id: 28, title: "Lederfesseln mit D-Ringen", desc: "Gepolsterte Lederfesseln an Hand- und Fußgelenken, die mit Karabinern arretiert werden. Sie verleihen dem Spiel sofortige Festigkeit und Sicherheit. Der Reiz liegt in der unentrinnbaren Verbindlichkeit und dem haptischen Duft des schweren Leders.", r1: "Lederfesseln arretieren & führen", r2: "In Leder fixiert daliegen", dim: "shibari", motive: "power", intensity: "medium", term: "Lederfesseln BDSM D-Ring" },
-          { id: 29, title: "Shibari (Mormai-Harness)", desc: "Das Binden traditioneller, geometrischer Seilmuster mit geöltem Juteseil um Brust und Oberkörper. Neben der optischen Schönheit erzeugt der gleichmäßige Seildruck eine tranceartige Entspannung (Subspace). Fans lieben das Zusammenspiel aus handwerklicher Präzision und erotischer Skulptur.", r1: "Als Rigger Seilmuster knüpfen", r2: "Im Seil verharren & Subspace spüren", dim: "shibari", motive: "sensation", intensity: "hard", term: "Shibari Kinbaku Mormai" },
-          { id: 30, title: "Leder-Armbinder (Monohandschuh)", desc: "Eine eng geschnürte Lederhülle, die beide Arme hinter dem Rücken unbeweglich zusammenpresst. Jede Abwehrbewegung wird unmöglich gemacht, während die Brust betont hervortritt. Der Kick entsteht aus der absoluten Bewegungslosigkeit und dem Ausgeliefertsein.", r1: "Armbinder schnüren & fixieren", r2: "Im Armbinder bewegungslos verharren", dim: "shibari", motive: "power", intensity: "hard", term: "Armbinder BDSM Monohandschuh" }
+          { id: 22, title: "Hingebungsvoller Oralverkehr (Cunnilingus / Fellatio)", desc: "Langes, genussvolles Verwöhnen des Partners mit Zunge und Lippen bis zum Höhepunkt.", r1: "Aktiv mit Zunge verwöhnen", r2: "Hingebungsvoll empfangen", dim: "romance", motive: "attachment", intensity: "soft", term: "Oralverkehr Fellatio Cunnilingus" },
+          { id: 23, title: "Dildo-Blastraining für Ausdauer", desc: "Gezieltes Training des Würgereflexes und der Zungenbeweglichkeit an Übungs-Toys.", r1: "Training anleiten", r2: "Training durchführen", dim: "ds", motive: "power", intensity: "medium", term: "Deepthroat Training" }
         ]
       },
       {
         id: 8,
-        title: "8. Sinnesentzug, Masken & Trance",
-        desc: "Ausschalten visueller und auditiver Reize zur radikalen Steigerung des Tastsinns.",
+        title: "8. Garderobe & Lingerie (Frau)",
+        desc: "Visuelle Reize durch edle Stoffe, Schnürkorsetts, Strümpfe und High Heels.",
         items: [
-          { id: 31, title: "Samtgefütterte Augenbinde", desc: "Das vollständige Ausschalten des Sehsinns durch eine weiche Augenmaske. Wenn die Augen geschlossen sind, verstärken sich Tast-, Hör- und Geruchssinn um ein Vielfaches. Der Kick liegt in der prickelnden Vorfreude, da man Berührungen erst im Moment des Hautkontakts spürt.", r1: "Augenbinde anlegen & leiten", r2: "Blind vertrauen & Reize spüren", dim: "sensory", motive: "sensation", intensity: "soft", term: "Augenbinde Blindfold BDSM" },
-          { id: 32, title: "Noise-Cancelling-Kopfhörer mit Soundscapes", desc: "Ausschalten der akustischen Umwelt durch moderne Kopfhörer mit beruhigenden Frequenzen oder erotischen Soundtracks. Der Submissive wird akustisch komplett isoliert. Es erleichtert das meditative Abtauchen in den Subspace enorm.", r1: "Kopfhörer aufsetzen & Sound dirigieren", r2: "Isoliert in Klangwelt versinken", dim: "sensory", motive: "sensation", intensity: "medium", term: "Sensory Deprivation Kopfhoerer BDSM" },
-          { id: 33, title: "Totaler Sinnesentzug (Blind + Taub)", desc: "Gleichzeitiges Anlegen von blicksicherer Augenbinde und geräuschunterdrückenden Kopfhörern. Jede Orientierung im Raum geht verloren; der Körper spürt nur noch die Hände des Tops. Es gilt als ultimativer Vertrauensbeweis und tiefe sensorische Trance.", r1: "Reize dosieren & führen", r2: "Vollkommen ausgeliefert genießen", dim: "sensory", motive: "power", intensity: "hard", term: "Totaler Sinnesentzug BDSM" }
+          { id: 24, title: "Spitzen-Dessous & Bodysuits", desc: "Feine Wäsche, die den Körper betont und das Liebesleben optisch veredelt.", r1: "Am Partner bewundern", r2: "Selbst tragen", dim: "romance", motive: "exhibition", intensity: "soft", term: "Dessous Reizwäsche" },
+          { id: 25, title: "Echtschnür-Korsett (Tightlacing)", desc: "Enges Schnüren einer Stahlkorsage, die eine Wespentaille formt und eine aufrechte Haltung erzwingt.", r1: "Korsett fest schnüren", r2: "Korsett geschnürt tragen", dim: "ds", motive: "sensation", intensity: "medium", term: "Korsett Tightlacing" }
         ]
       },
       {
         id: 9,
-        title: "9. Dominanz, Praise Play & Alltagsprotokolle",
-        desc: "Führung, verbale Disziplinierung, Kniehaltungen und stärkendes Lob.",
+        title: "9. Fetischbekleidung (Mann)",
+        desc: "Männliche Reizbekleidung von Jockstraps bis zu sportlichen Harness-Riemen.",
         items: [
-          { id: 34, title: "Praise Play & Verbale Bestätigung", desc: "Das Führen durch warme, stärkende und liebevolle Worte ('Braves Mädchen / Guter Junge'). Der dominante Part schenkt dem Partner tiefe Anerkennung für seinen Gehorsam. Submissive blühen durch dieses Lob emotional auf und fühlen sich vollkommen gesehen.", r1: "Mit warmen Worten loben & bestätigen", r2: "Gelobt werden & emotional aufblühen", dim: "ds", motive: "attachment", intensity: "soft", term: "Praise Play BDSM" },
-          { id: 35, title: "Leine am Halsband führen", desc: "Das Führen des Partners an einer Lederleine durch die Wohnung. Es ist die physische Verlängerung des Willens des Tops. Der Reiz liegt in der wortlosen Lenkung und dem spürbaren Band zwischen beiden Körpern.", r1: "Leine führen & Richtung vorgeben", r2: "An Leine geführt werden & folgen", dim: "ds", motive: "power", intensity: "medium", term: "Collar Halsband Leine BDSM" },
-          { id: 36, title: "Servieren auf Knien", desc: "Das formelle Reichen von Speisen, Getränken oder Gegenständen ausschließlich in aufrechter Kniehaltung. Der Diener senkt dabei demütig den Blick. Fans schätzen die Manifestation der Hierarchie in einer eleganten Geste.", r1: "Knieservieren anordnen & empfangen", r2: "Auf Knien dienen & verharren", dim: "ds", motive: "power", intensity: "medium", term: "Service Kniedienst BDSM" },
-          { id: 37, title: "Geheimer Kleider-Code im Alltag", desc: "Der dominante Part bestimmt morgens diskret, welches Wäschestück (Dessous, Käfig, Harness) der andere unter der normalen Kleidung tragen muss. Dies schafft ein unsichtbares, aufregendes Geheimnis mitten im Alltag.", r1: "Wäschecode vorgeben", r2: "Vorgegebene Wäsche tragen", dim: "ds", motive: "thrill", intensity: "medium", term: "Day Collar Kleidercode BDSM" }
+          { id: 26, title: "Jockstrap & Sport-Harness", desc: "Tragen von elastischen Sportriemen oder Jockstraps, die Gesäß und Brustmuskulatur betonen.", r1: "Am Mann sehen & greifen", r2: "Als Mann tragen", dim: "ds", motive: "exhibition", intensity: "soft", term: "Jockstrap Harness" }
         ]
       },
       {
         id: 10,
-        title: "10. Primal Play, Bratting & Körperliches Ringen",
-        desc: "Animalisches Kräftemessen, Jagdinstinkte, Provokation und Bändigung.",
+        title: "10. Leder, Lack & Latex",
+        desc: "Materialien mit unverwechselbarem Duft, Glanz und sensorischem Zweithaut-Gefühl.",
         items: [
-          { id: 38, title: "Primal Wrestling (Matten-Ringen)", desc: "Freies, spielerisches Ringen auf dem Boden ohne starre Regeln, sondern mit reiner Muskelkraft. Beide Partner kämpfen intensiv, bis der Stärkere den anderen am Boden festpinnt. Es dient dem Abbau von Alltagsfrust und entfesselt rohe Leidenschaft.", r1: "Partner niederringen & bändigen", r2: "Kämpfen, Widerstand leisten & kapitulieren", dim: "primal", motive: "power", intensity: "medium", term: "Primal Play Wrestling BDSM" },
-          { id: 39, title: "Die Jagd (Chase Play)", desc: "Ein Partner ergreift spielerisch die Flucht durch die Wohnung, während der andere als Jäger die Verfolgung aufnimmt. Der Flucht-Part spürt einen aufregenden Adrenalinkick, während der Jäger den Triumph des Stellens und Packens genießt.", r1: "Flüchtende Beute jagen & packen", r2: "Fliehen, Adrenalin spüren & erbeutet werden", dim: "primal", motive: "thrill", intensity: "medium", term: "Chase Play Jagd BDSM" },
-          { id: 40, title: "Bratting (Absichtliches Frechsein)", desc: "Schelmisches Provozieren des Tops durch freche Bemerkungen, Augenrollen oder absichtlichen Ungehorsam. Der 'Brat' testet Grenzen aus, um die dominante Aufmerksamkeit und Strenge des Partners zu erzwingen.", r1: "Provokation annehmen & strafen", r2: "Frech provozieren & Grenzen testen", dim: "primal", motive: "thrill", intensity: "medium", term: "Bratting Brat BDSM" },
-          { id: 41, title: "Brat Taming (Körperliches Bändigen)", desc: "Das unnachgiebige, feste Festhalten des zappelnden Brats, bis dessen Widerstand bricht und er sich schnurrend oder erleichtert in die Arme des Tops schmiegt. Es bringt die Erlösung nach der Provokation.", r1: "Zappelnden Partner bändigen & fixieren", r2: "Gebändigt werden & erleichtert aufgeben", dim: "primal", motive: "attachment", intensity: "hard", term: "Brat Taming Baendigung" }
+          { id: 27, title: "Enganliegende Lederkleidung (Jeans / Jacken)", desc: "Schweres Leder auf nackter Haut; der Geruch und die Festigkeit erzeugen Dominanz.", r1: "Leder am Partner berühren", r2: "Leder tragen", dim: "sensory", motive: "sensation", intensity: "medium", term: "Lederfetisch" }
         ]
       },
       {
         id: 11,
-        title: "11. Impact Play (Schlagintimität) & Reiztools",
-        desc: "Vom wärmenden Handspanking über Lederpaddles bis zu sensorischen Reizen.",
+        title: "11. Körperfetische & Haare",
+        desc: "Fokussierung auf bestimmte Körpermerkmale, Fußverehrung und Haarebürsten.",
         items: [
-          { id: 42, title: "Warmes Handspanking", desc: "Rhythmische Schläge mit der flachen, warmen Hand auf die Pobacken zur allmählichen Durchblutung und Erwärmung der Haut. Es dient dem Abbau von Hemmungen und schüttet Endorphine aus. Der Empfangende spürt eine wohltuende Hitze, die den Kopf frei macht.", r1: "Mit Hand rhythmisch spanken", r2: "Handspanking empfangen & erwärmen", dim: "impact", motive: "sensation", intensity: "soft", term: "Spanking Handspanking BDSM" },
-          { id: 43, title: "Flächiges Leder-Paddle", desc: "Dumpfe, großflächige Schläge mit einem breiten Lederpaddle auf Gesäß und Oberschenkel. Der Ton ist dumpf und der Schmerz verteilt sich gleichmäßig, ohne Striemen zu hinterlassen. Fans schätzen die emotionale Katharsis und Tiefenentspannung.", r1: "Lederpaddle führen", r2: "Paddle-Hiebe ertragen", dim: "impact", motive: "sensation", intensity: "medium", term: "Paddle Leder Impact Play" },
-          { id: 44, title: "Eis- & Wachstropfen (Temperatur-Spiel)", desc: "Gezieltes Tropfen von speziellem Niedrigtemperatur-Wachs oder das langsame Streichen von Eiswürfeln über erhitzte Haut. Der extreme Wechsel zwischen Kälte und wohliger Hitze verwirrt die Nervenenden und erzeugt elektrisierende Gänsehautschauer.", r1: "Wachs/Eis dosiert führen", r2: "Temperaturwechsel auf Haut spüren", dim: "sensory", motive: "sensation", intensity: "medium", term: "Wax Play Temperaturspiel BDSM" },
-          { id: 45, title: "Wäscheklammern-Reiz (Clothespin Play)", desc: "Anbringen von Wäscheklammern an Hautfalten oder Brustwarzen, die nach einiger Zeit abrupt abgerissen werden. Der pulsierende Druck weicht einem stechenden Schreckreiz, der intensive Adrenalinschübe freisetzt.", r1: "Klammern setzen & abziehen", r2: "Klammerdruck ertragen & Schock spüren", dim: "impact", motive: "sensation", intensity: "hard", term: "Clothespin Play BDSM" }
+          { id: 28, title: "Haarebürsten & Kopfmassage", desc: "Langsames, beruhigendes Bürsten der Haare und Kneten der Kopfhaut zur vollkommenen Entspannung.", r1: "Haare bürsten & pflegen", r2: "Gebürstet werden", dim: "care", motive: "attachment", intensity: "soft", term: "Haarebürsten Pflege" }
         ]
       },
       {
         id: 12,
-        title: "12. Caregiver, Little & Nurturing (DDLG)",
-        desc: "Bedingungslose Fürsorge, kindliche Regression und elterliches Umsorgtwerden.",
+        title: "12. Orgasmuskontrolle, Edging & Keuschhaltung",
+        desc: "Verzögerung, Verweigerung, Freigabe und Verwahrung des Höhepunkts.",
         items: [
-          { id: 46, title: "Gute-Nacht-Rituale & Vorlesen", desc: "Der Caregiver deckt den erschöpften Partner liebevoll mit Decken ein, reicht ein wärmendes Getränk und liest Geschichten vor. Jede Verantwortung des Tages darf komplett abgegeben werden. Für das 'Little' ist dies pure seelische Erlösung.", r1: "Partner zudecken & vorlesen", r2: "Eingekuschelt zuhören & geborgen sein", dim: "care", motive: "attachment", intensity: "soft", term: "Caregiver Little DDLG BDSM" },
-          { id: 47, title: "Entspannungs-Bad nach Stresstagen", desc: "Wortloses Setzen des Partners in ein warmes Schaumbad, Waschen der Haare und sanftes Abtrocknen mit vorgewärmten Tüchern. Es geschieht ohne sexuellen Druck als reines Geschenk der Zuneigung.", r1: "Partner behutsam waschen & pflegen", r2: "Gewaschen werden & versorgt sein", dim: "care", motive: "attachment", intensity: "soft", term: "Nurturing Care BDSM Bad" },
-          { id: 48, title: "Im Arm wiegen & Trösten (Nurturing)", desc: "Fester, beschützender Halt, bei dem der Partner wie ein kleines Kind gewiegt und getröstet wird, während er weinen oder zur Ruhe kommen darf. Es heilt emotionale Erschöpfung nach Überforderung im Alltag.", r1: "Im Arm wiegen & trösten", r2: "Gewiegt werden & Schutz annehmen", dim: "care", motive: "attachment", intensity: "soft", term: "Ageplay Nurturing Trost" }
+          { id: 29, title: "Sensuelles Tease & Denial", desc: "Das quälend langsame Streicheln und Küssen des gesamten Körpers, während die Genitalien peinlich genau ausgespart oder nur gestreift werden. Wenn Verlangen auflodert, zieht sich der aktive Part lächelnd zurück. Fans lieben die fast schmerzhafte mentale Erregung.", r1: "Reize verweigern & necken", r2: "Verlangen aushalten", dim: "chastity", motive: "power", intensity: "medium", term: "Tease and Denial BDSM" },
+          { id: 30, title: "Edging (Stoppen kurz vor dem Orgasmus)", desc: "Das wiederholte Heranführen des Partners an den Point of No Return mit abruptem Berührungsstopp im letzten Moment. Der Körper zittert vor Lust, muss sich jedoch wieder beruhigen. Der Kick liegt in der massiven Endorphinausschüttung und der Potenzierung des späteren Orgasmus.", r1: "Partner edgen & stoppen", r2: "Ge-edgt werden & aushalten", dim: "chastity", motive: "sensation", intensity: "medium", term: "Edging Orgasmuskontrolle" },
+          { id: 31, title: "Orgasmus auf Countdown-Kommando", desc: "Der Orgasmus darf erst exakt bei der Zahl Eins eines laut gesprochenen Countdowns des dominanten Partners ausgelöst werden. Der Zählende variiert Tempo und Pausen nach Belieben. Der Kick ist die absolute Unterordnung der körperlichen Reflexe unter den Willen des anderen.", r1: "Countdown zählen & freigeben", r2: "Strikt auf Zählkommando kommen", dim: "chastity", motive: "power", intensity: "hard", term: "Orgasmus auf Kommando BDSM" },
+          { id: 32, title: "Teasing des Keuschlings im Käfig", desc: "Kontinuierliches Erregen und Berühren des verschlossenen Genitals im Keuschheitskäfig ohne Öffnung. Dies verhindert Abstumpfung und hält den Keuschling mental auf den Top fixiert. Für Submissive ist dies eine quälend süße Erinnerung an die Macht des Tops.", r1: "Im Käfig intensiv necken & erregen", r2: "Im Käfig heiß gehalten werden", dim: "chastity", motive: "power", intensity: "hard", term: "Chastity Keuschheitskäfig" }
         ]
       },
       {
         id: 13,
-        title: "13. Aftercare, Nachsorge & Kinderschutz",
-        desc: "Sichere Landung nach Sessions, emotionale Geborgenheit und strikte Trennung von Familie.",
+        title: "13. Fesselungen, Shibari & Restriktion",
+        desc: "Vom sanften Seidentuch über kunstvolle Seilmuster bis zu starren Arretierungen.",
         items: [
-          { id: 49, title: "Stilles Kuscheln in Decken (Aftercare)", desc: "Unmittelbar nach dem Ende einer intensiven Session wird der Partner in Decken gehüllt, mit warmem Tee versorgt und mindestens 30 Minuten wortlos gehalten. Dies verhindert den 'Subdrop' und vertieft die seelische Bindung ungemein.", r1: "Partner wärmen & im Arm halten", r2: "In Decken gekuschelt erden", dim: "care", motive: "attachment", intensity: "soft", term: "Aftercare Subdrop BDSM" },
-          { id: 50, title: "24-Stunden-Check-in am Folgetag", desc: "Eine aufmerksame Nachricht oder ein Anruf am Tag nach der Session, um zu fragen, wie der Körper sich anfühlt und ob emotionale Nachwehen bestehen. Es zeigt verlässliche Fürsorge über den Spielmoment hinaus.", r1: "Check-in senden & nachfragen", r2: "Check-in empfangen & rückmelden", dim: "care", motive: "attachment", intensity: "soft", term: "Check-in Aftercare Folgetag" },
-          { id: 51, title: "Absolute Trennung von Kink und Kindern", desc: "Strikte Vereinbarung, dass alle Toys, Möbel, Fesseln und Keuschheitskäfige vor Kindern zu 100 % unsichtbar und weggeschlossen bleiben. In Gegenwart von Kindern gelten keinerlei D/s-Rollen.", r1: "Ausrüstung wegschließen & sichern", r2: "Schutzraum für Familie wahren", dim: "care", motive: "attachment", intensity: "soft", term: "Kinderschutz Privatsphaere BDSM" },
-          { id: 52, title: "Digitaler Datenschutz (Handy & Fotos)", desc: "Intime Fotos, BDSM-Chats und Profile werden durch PINs, versteckte Ordner und Codewörter vor neugierigen Blicken von Freunden oder Familie geschützt.", r1: "Handys sperren & sichern", r2: "Datenschutz im Alltag einhalten", dim: "care", motive: "attachment", intensity: "soft", term: "Datenschutz BDSM Chats Fotos" }
+          { id: 33, title: "Handgelenksfesselung mit Seidentüchern", desc: "Behutsames Verbinden der Handgelenke am Bettpfosten mit weichen Seidentüchern. Es dient als sanfter Einstieg in das Loslassen von Kontrolle ohne Druckstellen. Für Einsteiger schenkt es die wohlige Gewissheit, sich für kurze Zeit ganz den Berührungen des Partners überlassen zu dürfen.", r1: "Behutsam mit Seide binden", r2: "In Seidentüchern geborgen daliegen", dim: "shibari", motive: "attachment", intensity: "soft", term: "Bondage Seidentuch" },
+          { id: 34, title: "Lederfesseln mit D-Ringen", desc: "Gepolsterte Lederfesseln an Hand- und Fußgelenken, die mit Karabinern arretiert werden. Sie verleihen dem Spiel sofortige Festigkeit und Sicherheit. Der Reiz liegt in der unentrinnbaren Verbindlichkeit und dem haptischen Duft des schweren Leders.", r1: "Lederfesseln arretieren & führen", r2: "In Leder fixiert daliegen", dim: "shibari", motive: "power", intensity: "medium", term: "Lederfesseln BDSM" },
+          { id: 35, title: "Shibari (Mormai-Harness)", desc: "Das Binden traditioneller, geometrischer Seilmuster mit geöltem Juteseil um Brust und Oberkörper. Neben der optischen Schönheit erzeugt der gleichmäßige Seildruck eine tranceartige Entspannung (Subspace). Fans lieben das Zusammenspiel aus handwerklicher Präzision und erotischer Skulptur.", r1: "Als Rigger Seilmuster knüpfen", r2: "Im Seil verharren & Subspace spüren", dim: "shibari", motive: "sensation", intensity: "hard", term: "Shibari Kinbaku Mormai" }
         ]
       },
       {
         id: 14,
-        title: "14. Neuheiten: Queening, Demut & Körperrituale",
-        desc: "Facesitting, Boot Worship, CFNM, Bettel-Disziplin und formale Posen.",
+        title: "14. BDSM-Möbel, Pranger & Fixierung",
+        desc: "Starre Holz- und Metallkonstruktionen zur vollständigen Präsentation des Partners.",
         items: [
-          { id: 53, title: "Queening / Facesitting", desc: "Der dominante Partner setzt sich rittlings auf das Gesicht des liegenden Partners, steuert Atmung und Lippenkontakt über das eigene Körpergewicht und fordert Ausdauer beim Lecken. Fans fasziniert die totale Auslieferung und das erotische Smothering.", r1: "Auf das Gesicht setzen & steuern", r2: "Unter Gesäß liegen & verwöhnen", dim: "ds", motive: "power", intensity: "medium", term: "Queening Facesitting BDSM" },
-          { id: 54, title: "Boot Worship & Lederstiefel-Pflege", desc: "Kniende oder liegende Verehrung von schweren Leder- oder Lackstiefeln; Säubern der Sohlen, Absätze und des Leders mit Zunge, Lippen und Speichel. Begeisterte schätzen die greifbare, haptische Demut.", r1: "Stiefel zur Verehrung hinhalten", r2: "Stiefel auf Knien mit Zunge pflegen", dim: "ds", motive: "power", intensity: "hard", term: "Boot Worship Lederstiefel BDSM" },
-          { id: 55, title: "CFNM (Clothed Female, Naked Male)", desc: "Visuelles Machtungleichgewicht: Ein Part bleibt elegant, vollständig und förmlich bekleidet (z. B. Hosenanzug oder Abendkleid), während der andere vollkommen nackt dienen oder posieren muss. Der Kick liegt in der spürbaren Scham und Förmlichkeit.", r1: "Vollständig bekleidet dominieren", r2: "Vollkommen nackt neben Bekleidetem agieren", dim: "ds", motive: "exhibition", intensity: "medium", term: "CFNM Clothed Female Naked Male" },
-          { id: 56, title: "Bettel-Disziplin & Erlaubnis-Protokoll", desc: "Der submissive Part darf keine Handlung (Hinsetzen, Trinken, Entkleiden oder Orgasmus) ohne vorheriges, formal formuliertes Bitten und Flehen vollziehen. Fans lieben das Zelebrieren der Abhängigkeit.", r1: "Bitten fordern & gewähren", r2: "Demütig um Erlaubnis bitten", dim: "ds", motive: "power", intensity: "medium", term: "Begging Protocol Betteln BDSM" }
+          { id: 36, title: "Hand-Hals-Pranger (Pillory)", desc: "Arretieren von Kopf und Handgelenken in einem Holzpranger zur bewegungslosen Vorführung.", r1: "In Pranger schließen & vorführen", r2: "Im Pranger arretiert stehen", dim: "shibari", motive: "power", intensity: "medium", term: "Pranger BDSM" }
         ]
       },
       {
         id: 15,
-        title: "15. Eigene Fantasien & Freitext",
+        title: "15. Masken, Sinnesentzug & Trance",
+        desc: "Ausschalten visueller und auditiver Reize zur radikalen Steigerung des Tastsinns.",
+        items: [
+          { id: 37, title: "Samtgefütterte Augenbinde", desc: "Das vollständige Ausschalten des Sehsinns durch eine weiche Augenmaske. Wenn die Augen geschlossen sind, verstärken sich Tast-, Hör- und Geruchssinn um ein Vielfaches. Der Kick liegt in der prickelnden Vorfreude, da man Berührungen erst im Moment des Hautkontakts spürt.", r1: "Augenbinde anlegen & leiten", r2: "Blind vertrauen & Reize spüren", dim: "sensory", motive: "sensation", intensity: "soft", term: "Augenbinde Blindfold BDSM" },
+          { id: 38, title: "Noise-Cancelling-Kopfhörer mit Soundscapes", desc: "Ausschalten der akustischen Umwelt durch moderne Kopfhörer mit beruhigenden Frequenzen oder erotischen Soundtracks. Der Submissive wird akustisch komplett isoliert. Es erleichtert das meditative Abtauchen in den Subspace enorm.", r1: "Kopfhörer aufsetzen & Sound dirigieren", r2: "Isoliert in Klangwelt versinken", dim: "sensory", motive: "sensation", intensity: "medium", term: "Sensory Deprivation Kopfhörer" },
+          { id: 39, title: "Totaler Sinnesentzug (Blind + Taub)", desc: "Gleichzeitiges Anlegen von blicksicherer Augenbinde und geräuschunterdrückenden Kopfhörern. Jede Orientierung im Raum geht verloren; der Körper spürt nur noch die Hände des Tops. Es gilt als ultimativer Vertrauensbeweis und tiefe sensorische Trance.", r1: "Reize dosieren & führen", r2: "Vollkommen ausgeliefert genießen", dim: "sensory", motive: "power", intensity: "hard", term: "Totaler Sinnesentzug BDSM" }
+        ]
+      },
+      {
+        id: 16,
+        title: "16. Impact Play (Schlagintimität) & Reiztools",
+        desc: "Vom wärmenden Handspanking über Lederpaddles bis zu sensorischen Reizen.",
+        items: [
+          { id: 40, title: "Warmes Handspanking", desc: "Rhythmische Schläge mit der flachen, warmen Hand auf die Pobacken zur allmählichen Durchblutung und Erwärmung der Haut. Es dient dem Abbau von Hemmungen und schüttet Endorphine aus. Der Empfangende spürt eine wohltuende Hitze, die den Kopf frei macht.", r1: "Mit Hand rhythmisch spanken", r2: "Handspanking empfangen & erwärmen", dim: "impact", motive: "sensation", intensity: "soft", term: "Spanking Handspanking BDSM" },
+          { id: 41, title: "Flächiges Leder-Paddle", desc: "Dumpfe, großflächige Schläge mit einem breiten Lederpaddle auf Gesäß und Oberschenkel. Der Ton ist dumpf und der Schmerz verteilt sich gleichmäßig, ohne Striemen zu hinterlassen. Fans schätzen die emotionale Katharsis und Tiefenentspannung.", r1: "Lederpaddle führen", r2: "Paddle-Hiebe ertragen", dim: "impact", motive: "sensation", intensity: "medium", term: "Paddle Leder Impact Play" },
+          { id: 42, title: "Eis- & Wachstropfen (Temperatur-Spiel)", desc: "Gezieltes Tropfen von speziellem Niedrigtemperatur-Wachs oder das langsame Streichen von Eiswürfeln über erhitzte Haut. Der extreme Wechsel zwischen Kälte und wohliger Hitze verwirrt die Nervenenden und erzeugt elektrisierende Gänsehautschauer.", r1: "Wachs/Eis dosiert führen", r2: "Temperaturwechsel auf Haut spüren", dim: "sensory", motive: "sensation", intensity: "medium", term: "Wax Play Temperaturspiel BDSM" }
+        ]
+      },
+      {
+        id: 17,
+        title: "17. CBT & Genitalreize",
+        desc: "Dosierte sensorische Reize auf empfindliche Zonen unter höchster Vorsicht.",
+        items: [
+          { id: 43, title: "Hoden wiegen, dehnen & sanft abbinden", desc: "Behutsamer sensorischer Druck und Dehnen des Hodensacks mit weichen Lederbändern.", r1: "Genitalreiz dosieren", r2: "Druck ertragen", dim: "impact", motive: "sensation", intensity: "medium", term: "CBT Cock and Ball Torture" }
+        ]
+      },
+      {
+        id: 18,
+        title: "18. Primal Play, Kräftemessen & Ringen",
+        desc: "Animalisches Kräftemessen, Jagdinstinkte und körperliche Auspowerung.",
+        items: [
+          { id: 44, title: "Primal Wrestling (Matten-Ringen)", desc: "Freies, spielerisches Ringen auf dem Boden ohne starre Regeln, sondern mit reiner Muskelkraft. Beide Partner kämpfen intensiv, bis der Stärkere den anderen am Boden festpinnt. Es dient dem Abbau von Alltagsfrust und entfesselt rohe Leidenschaft.", r1: "Partner niederringen & bändigen", r2: "Kämpfen, Widerstand leisten & kapitulieren", dim: "primal", motive: "power", intensity: "medium", term: "Primal Play Wrestling" },
+          { id: 45, title: "Die Jagd (Chase Play)", desc: "Ein Partner ergreift spielerisch die Flucht durch die Wohnung, während der andere als Jäger die Verfolgung aufnimmt. Der Flucht-Part spürt einen aufregenden Adrenalinkick, während der Jäger den Triumph des Stellens und Packens genießt.", r1: "Flüchtende Beute jagen & packen", r2: "Fliehen, Adrenalin spüren & erbeutet werden", dim: "primal", motive: "thrill", intensity: "medium", term: "Chase Play BDSM" }
+        ]
+      },
+      {
+        id: 19,
+        title: "19. Bratting & Bändigung",
+        desc: "Schelmische Provokation, Widerworte und das Genießen liebevoller Konsequenzen.",
+        items: [
+          { id: 46, title: "Bratting (Absichtliches Frechsein)", desc: "Schelmisches Provozieren des Tops durch freche Bemerkungen, Augenrollen oder absichtlichen Ungehorsam. Der 'Brat' testet Grenzen aus, um die dominante Aufmerksamkeit und Strenge des Partners zu erzwingen.", r1: "Provokation annehmen & strafen", r2: "Frech provozieren & Grenzen testen", dim: "primal", motive: "thrill", intensity: "medium", term: "Bratting Brat BDSM" },
+          { id: 47, title: "Brat Taming (Körperliches Bändigen)", desc: "Das unnachgiebige, feste Festhalten des zappelnden Brats, bis dessen Widerstand bricht und er sich schnurrend oder erleichtert in die Arme des Tops schmiegt. Es bringt die Erlösung nach der Provokation.", r1: "Zappelnden Partner bändigen & fixieren", r2: "Gebändigt werden & erleichtert aufgeben", dim: "primal", motive: "attachment", intensity: "hard", term: "Brat Taming BDSM" }
+        ]
+      },
+      {
+        id: 20,
+        title: "20. Caregiver, Little & Nurturing (DDLG)",
+        desc: "Bedingungslose Fürsorge, kindliche Regression und elterliches Umsorgtwerden.",
+        items: [
+          { id: 48, title: "Gute-Nacht-Rituale & Vorlesen", desc: "Der Caregiver deckt den erschöpften Partner liebevoll mit Decken ein, reicht ein wärmendes Getränk und liest Geschichten vor. Jede Verantwortung des Tages darf komplett abgegeben werden. Für das 'Little' ist dies pure seelische Erlösung.", r1: "Partner zudecken & vorlesen", r2: "Eingekuschelt zuhören & geborgen sein", dim: "care", motive: "attachment", intensity: "soft", term: "Caregiver Little DDLG" },
+          { id: 49, title: "Entspannungs-Bad nach Stresstagen", desc: "Wortloses Setzen des Partners in ein warmes Schaumbad, Waschen der Haare und sanftes Abtrocknen mit vorgewärmten Tüchern. Es geschieht ohne sexuellen Druck als reines Geschenk der Zuneigung.", r1: "Partner behutsam waschen & pflegen", r2: "Gewaschen werden & versorgt sein", dim: "care", motive: "attachment", intensity: "soft", term: "Nurturing Care BDSM" }
+        ]
+      },
+      {
+        id: 21,
+        title: "21. Free-Use & Ständige Verfügbarkeit",
+        desc: "Einvernehmliches Schenken der spontanen körperlichen Verfügbarkeit.",
+        items: [
+          { id: 50, title: "Free-Use Vereinbarung im Schlafzimmer", desc: "Der dominante Part darf sich ohne langes Nachfragen jederzeit körperlich am Partner bedienen.", r1: "Partner spontan nutzen", r2: "Verfügbar daliegen", dim: "ds", motive: "power", intensity: "medium", term: "Free Use BDSM" }
+        ]
+      },
+      {
+        id: 22,
+        title: "22. Dominanz, Praise Play & Alltagsprotokolle",
+        desc: "Führung, verbale Disziplinierung, Kniehaltungen und stärkendes Lob.",
+        items: [
+          { id: 51, title: "Praise Play & Verbale Bestätigung", desc: "Das Führen durch warme, stärkende und liebevolle Worte ('Braves Mädchen / Guter Junge'). Der dominante Part schenkt dem Partner tiefe Anerkennung für seinen Gehorsam. Submissive blühen durch dieses Lob emotional auf und fühlen sich vollkommen gesehen.", r1: "Mit warmen Worten loben & bestätigen", r2: "Gelobt werden & emotional aufblühen", dim: "ds", motive: "attachment", intensity: "soft", term: "Praise Play BDSM" },
+          { id: 52, title: "Leine am Halsband führen", desc: "Das Führen des Partners an einer Lederleine durch die Wohnung. Es ist die physische Verlängerung des Willens des Tops. Der Reiz liegt in der wortlosen Lenkung und dem spürbaren Band zwischen beiden Körpern.", r1: "Leine führen & Richtung vorgeben", r2: "An Leine geführt werden & folgen", dim: "ds", motive: "power", intensity: "medium", term: "Collar Halsband Leine" }
+        ]
+      },
+      {
+        id: 23,
+        title: "23. Formelle Demut, Queening & Hingaberituale",
+        desc: "Facesitting, Boot Worship, CFNM, Bettel-Disziplin und formale Körperposen.",
+        items: [
+          { id: 53, title: "Queening / Facesitting", desc: "Der dominante Partner setzt sich rittlings auf das Gesicht des liegenden Partners, steuert Atmung und Lippenkontakt über das eigene Körpergewicht und fordert Ausdauer beim Lecken. Fans fasziniert die totale Auslieferung und das erotische Smothering.", r1: "Auf das Gesicht setzen & steuern", r2: "Unter Gesäß liegen & verwöhnen", dim: "ds", motive: "power", intensity: "medium", term: "Queening Facesitting BDSM" },
+          { id: 54, title: "Boot Worship & Lederstiefel-Pflege", desc: "Kniende oder liegende Verehrung von schweren Leder- oder Lackstiefeln; Säubern der Sohlen, Absätze und des Leders mit Zunge, Lippen und Speichel. Begeisterte schätzen die greifbare, haptische Demut.", r1: "Stiefel zur Verehrung hinhalten", r2: "Stiefel auf Knien mit Zunge pflegen", dim: "ds", motive: "power", intensity: "hard", term: "Boot Worship Lederstiefel" },
+          { id: 55, title: "CFNM (Clothed Female, Naked Male)", desc: "Visuelles Machtungleichgewicht: Ein Part bleibt elegant, vollständig und förmlich bekleidet (z. B. Hosenanzug oder Abendkleid), während der andere vollkommen nackt dienen oder posieren muss. Der Kick liegt in der spürbaren Scham und Förmlichkeit.", r1: "Vollständig bekleidet dominieren", r2: "Vollkommen nackt neben Bekleidetem agieren", dim: "ds", motive: "exhibition", intensity: "medium", term: "CFNM Clothed Female Naked Male" },
+          { id: 56, title: "Bettel-Disziplin & Erlaubnis-Protokoll", desc: "Der submissive Part darf keine Handlung (Hinsetzen, Trinken, Entkleiden oder Orgasmus) ohne vorheriges, formal formuliertes Bitten und Flehen vollziehen. Fans lieben das Zelebrieren der Abhängigkeit.", r1: "Bitten fordern & gewähren", r2: "Demütig um Erlaubnis bitten", dim: "ds", motive: "power", intensity: "medium", term: "Begging Protocol Betteln" }
+        ]
+      },
+      {
+        id: 24,
+        title: "24. Zucht, Strafprotokolle & Reue",
+        desc: "Formelle Disziplinierungsmaßnahmen wie Strafzeilen, Ecke-Stehen und Haltestrafen.",
+        items: [
+          { id: 57, title: "Strafzeilen schreiben oder Ecke-Stehen", desc: "Klassische Disziplinierung zur inneren Einkehr und Besinnung nach Regelverstößen.", r1: "Strafe anordnen", r2: "Strafe ableisten", dim: "ds", motive: "power", intensity: "medium", term: "Disziplinierung BDSM" }
+        ]
+      },
+      {
+        id: 25,
+        title: "25. Rollenspiele & Erotische Narrative",
+        desc: "Szenarien wie Chef/Angestellte, Verhör oder Entführungs-Spiele mit klarem Konsens.",
+        items: [
+          { id: 58, title: "Macht-Rollenspiel (Chef/Angestellte)", desc: "Spielen mit hierarchischen Alltagssituationen und erotischer Überlegenheit.", r1: "Machtrolle einnehmen", r2: "Untergeordnete Rolle spielen", dim: "ds", motive: "thrill", intensity: "medium", term: "Rollenspiel BDSM" }
+        ]
+      },
+      {
+        id: 26,
+        title: "26. Analerotik & Pegging",
+        desc: "Behutsame Stimulation der Prostata, Butt Plugs und Umschnalldildo-Spiele.",
+        items: [
+          { id: 59, title: "Pegging (Strap-On für die Frau am Mann)", desc: "Die Frau penetriert den Mann anal mit einem Umschnalldildo zur intensiven Prostatastimulation.", r1: "Aktiv penetrieren", r2: "Hingebungsvoll empfangen", dim: "ds", motive: "power", intensity: "hard", term: "Pegging Umschnalldildo" }
+        ]
+      },
+      {
+        id: 27,
+        title: "27. Sensorische Extreme & Körperflüssigkeiten",
+        desc: "Reize mit Eis, Speichel oder Nahrungsmitteln wie Nyotaimori.",
+        items: [
+          { id: 60, title: "Nyotaimori (Essen von der nackten Haut)", desc: "Anrichten von Fingerfood oder Früchten auf dem reglos daliegenden Körper des Partners.", r1: "Vom Partner speisen", r2: "Als Speiseplatte daliegen", dim: "sensory", motive: "sensation", intensity: "medium", term: "Nyotaimori" }
+        ]
+      },
+      {
+        id: 28,
+        title: "28. Paargrenzen & Tabuzonen",
+        desc: "Klären strikter No-Gos wie das Einbeziehen Dritter oder verletzende Praktiken.",
+        items: [
+          { id: 61, title: "Strikte Monogamie (Keine realen Dritten)", desc: "Vereinbarung, dass Kinks und BDSM exklusiv zwischen beiden Partnern gelebt werden.", r1: "Monogamie einfordern", r2: "Monogamie zusagen", dim: "care", motive: "attachment", intensity: "soft", term: "Monogamie BDSM" }
+        ]
+      },
+      {
+        id: 29,
+        title: "29. Diskrete Kinks & Codes im Alltag",
+        desc: "Geheime Codewörter, Blicke und diskrete Signale in der Öffentlichkeit.",
+        items: [
+          { id: 62, title: "Geheimer Wäsche-Code im Alltag", desc: "Der dominante Part bestimmt morgens diskret, welches Dessous oder Halsband getragen werden muss.", r1: "Code vorgeben", r2: "Vorgegebenes tragen", dim: "ds", motive: "thrill", intensity: "medium", term: "Day Collar Alltag" }
+        ]
+      },
+      {
+        id: 30,
+        title: "30. Sicherheitsarchitektur & Notfall-Codes",
+        desc: "Klare Vereinbarung von Safewords, Ampelsystem und nonverbalen Abbruchsignalen.",
+        items: [
+          { id: 63, title: "Verbindliches Ampelsystem (Grün / Gelb / Rot)", desc: "Klare verbale und nonverbale Signale zur jederzeitigen Steuerung der Spielintensität.", r1: "Signale aufmerksam achten", r2: "Signale bei Bedarf nutzen", dim: "care", motive: "attachment", intensity: "soft", term: "Safeword Ampelsystem" }
+        ]
+      },
+      {
+        id: 31,
+        title: "31. Aftercare & Ganzheitliche Nachsorge (Pos. 526–536)",
+        desc: "Sichere Landung nach Sessions, Kuscheln, De-Briefing und 24h-Check-ins.",
+        items: [
+          { id: 526, title: "Absolutes Schweigen & Ruhezeit", desc: "Vereinbarte Phase ohne Worte, nur mit sanftem Handkontakt und Deckenwärme.", r1: "Ruhe wahren & halten", r2: "Ruhe genießen", dim: "care", motive: "attachment", intensity: "soft", term: "Aftercare Ruhezeit" },
+          { id: 527, title: "Gemeinsames Entspannungsbad nach Session", desc: "Warmes Badewasser zum Abwaschen von Schweiß, Ölen und sanften Zur-Ruhe-Kommen.", r1: "Partner waschen & pflegen", r2: "Gewaschen werden", dim: "care", motive: "attachment", intensity: "soft", term: "Aftercare Bad" },
+          { id: 532, title: "24-Stunden-Check-in am Folgetag", desc: "Aufmerksame Nachricht oder Anruf am Folgetag zur Befindlichkeitsprüfung gegen den Subdrop.", r1: "Check-in senden", r2: "Check-in empfangen", dim: "care", motive: "attachment", intensity: "soft", term: "Subdrop Check-in" }
+        ]
+      },
+      {
+        id: 32,
+        title: "32. Spezifische Nischen & Praktiken (Pos. 537–595)",
+        desc: "Spezielle Praktiken, Kerker-Momente, Nuru-Massage und Ejakulationszonen.",
+        items: [
+          { id: 542, title: "Nuru-Massage (Body-to-Body Algenmassage)", desc: "Ganzkörper-Gleitmassage mit glitschigem Nuru-Gel; beide Körper gleiten schwerelos aneinander.", r1: "Gleitend massieren", r2: "Massiert werden", dim: "tantra", motive: "sensation", intensity: "medium", term: "Nuru Massage" },
+          { id: 581, title: "Eingesperrt & Angekettet im Kerker (Wachzustand)", desc: "Einsperren in eine Gitterzelle oder Anketten an die Kerkerwand während der Spielsession.", r1: "Partner einsperren", r2: "Eingesperrt sein", dim: "shibari", motive: "power", intensity: "hard", term: "Kerker BDSM Verlies" },
+          { id: 582, title: "Übernachten & Schlafen im Kerker (Ganze Nacht)", desc: "Die gesamte Nacht in der Zelle oder im Käfig verbringen und dort geborgen schlafen.", r1: "Nachtruhe anordnen", r2: "Im Kerker schlafen", dim: "shibari", motive: "power", intensity: "hard", term: "Kerker Übernachtung BDSM" }
+        ]
+      },
+      {
+        id: 33,
+        title: "33. Privatsphäre, Familie & Kinderschutz (Pos. 596–603)",
+        desc: "Schutzraum nach außen: 100 % Kinderschutz, Tresorsicherung und Smartphone-Datenschutz.",
+        items: [
+          { id: 598, title: "Absolute Trennung von Kink und Kindern (Kinderschutz)", desc: "Strikte Vereinbarung: Wenn Kinder im Haus sind, bleiben alle Toys, Käfige und Fesseln weggeschlossen und unsichtbar.", r1: "Ausrüstung wegschließen & sichern", r2: "Schutzraum für Familie wahren", dim: "care", motive: "attachment", intensity: "soft", term: "Kinderschutz BDSM" },
+          { id: 602, title: "Digitaler Datenschutz (Handy & Fotos)", desc: "Trennung intimer Chats, Fotos und Apps durch PINs und versteckte Ordner vor fremden Blicken.", r1: "Handys sperren & sichern", r2: "Datenschutz im Alltag einhalten", dim: "care", motive: "attachment", intensity: "soft", term: "Datenschutz Handy BDSM" }
+        ]
+      },
+      {
+        id: 34,
+        title: "34. Formelle Macht- & Sensorikrituale",
+        desc: "Stummpflicht, Stimmgabel-Vibration, Nadelreize und formale Goreanische Posen.",
+        items: [
+          { id: 603, title: "Stummpflicht & Rede-Erlaubnis (Speech Restrictions)", desc: "Absolutes Schweigegebot im Raum; der Partner darf nur sprechen, wenn das Wort ausdrücklich erteilt wird.", r1: "Schweigen gebieten & Rederecht zuteilen", r2: "Schweigen wahren & nur auf Erlaubnis sprechen", dim: "ds", motive: "power", intensity: "medium", term: "Speech Restrictions BDSM" },
+          { id: 604, title: "Körperschall & Stimmgabel-Vibration", desc: "Aufsetzen vibrierender medizinischer Stimmgabeln auf Brustbein und Knochen für tiefe Resonanzschwingungen.", r1: "Stimmgabel aufsetzen & führen", r2: "Tiefenschwingung im Körper spüren", dim: "sensory", motive: "sensation", intensity: "medium", term: "Stimmgabel BDSM Körperschall" }
+        ]
+      },
+      {
+        id: 35,
+        title: "35. Eigene Fantasien & Freitext (Pos. 605–608)",
         desc: "Deine ganz individuellen Wünsche, Nischen und Notizen.",
         items: [
-          { id: 57, title: "Eigene Fantasie / Freitext 1", desc: "Ein ganz persönlicher Kink, den du dir wünschst und der bisher nicht genannt wurde. Beschreibe ihn in deinen eigenen Worten für den gemeinsamen Abgleich.", r1: "Selbst ausführen / leiten", r2: "Empfangen / erleben", dim: "custom", motive: "thrill", intensity: "medium", term: "Kink BDSM Fetisch Lexikon" },
-          { id: 58, title: "Eigene Fantasie / Freitext 2", desc: "Ein weiteres vertrautes Ritual oder eine Neugierde für gemeinsame Experimente im geschützten Raum.", r1: "Selbst ausführen / leiten", r2: "Empfangen / erleben", dim: "custom", motive: "thrill", intensity: "medium", term: "BDSM Glossar Praktiken" }
+          { id: 605, title: "Eigene Fantasie / Freitext 1", desc: "Ein ganz persönlicher Kink, den du dir wünschst und der bisher nicht genannt wurde. Beschreibe ihn in deinen eigenen Worten für den gemeinsamen Abgleich.", r1: "Selbst ausführen / leiten", r2: "Empfangen / erleben", dim: "custom", motive: "thrill", intensity: "medium", term: "Kink BDSM Fetisch Lexikon" },
+          { id: 606, title: "Eigene Fantasie / Freitext 2", desc: "Ein weiteres vertrautes Ritual oder eine Neugierde für gemeinsame Experimente im geschützten Raum.", r1: "Selbst ausführen / leiten", r2: "Empfangen / erleben", dim: "custom", motive: "thrill", intensity: "medium", term: "BDSM Glossar Praktiken" }
         ]
       }
     ];
 
-    // Intuitive Bewertungs-Labels statt nackter Zahlen
     const ratingOptions = [
       { val: 0, label: "0 • Kein Interesse", short: "0", desc: "Kein Reiz / Neutral" },
       { val: 1, label: "⛔ 1 • Tabu / No-Go", short: "⛔ 1", desc: "Striktes Limit" },
@@ -1183,7 +1364,6 @@
     // INITIALIZATION & PASSWORD VERIFICATION
     // ==========================================
     function initApp() {
-      // Check session unlock
       if (sessionStorage.getItem('kompass_unlocked') === 'true') {
         const lock = document.getElementById('app-lockscreen');
         if (lock) lock.classList.add('hidden');
@@ -1192,14 +1372,12 @@
       loadFromLocalStorage();
       parseUrlHash();
       populateChapterSelect();
-      renderChapterQuickGrid();
       renderCurrentChapter();
       renderLexiconEntries();
       updateProgressBar();
       updateTabuBadge();
       updateCurrentUserUI();
-
-      // Check Onboarding
+      checkChapterQuickGridVisibility();
       checkOnboarding();
     }
 
@@ -1222,9 +1400,6 @@
       }
     }
 
-    // ==========================================
-    // ONBOARDING WIZARD
-    // ==========================================
     function checkOnboarding() {
       if (sessionStorage.getItem('kompass_unlocked') !== 'true') return;
       if (!accounts[currentUser] || !accounts[currentUser].setupDone) {
@@ -1234,16 +1409,12 @@
 
     function openOnboardingModal() {
       onboardingStep = 1;
-      
-      // Werte für das aktuelle Profil vorbefüllen
       const nameInput = document.getElementById('onboarding-name-input');
-      if (nameInput) {
-        nameInput.value = names[currentUser] || '';
-      }
+      if (nameInput) nameInput.value = names[currentUser] || '';
+      
       const emailInput = document.getElementById('onboarding-email-input');
-      if (emailInput) {
-        emailInput.value = accounts[currentUser]?.email || '';
-      }
+      if (emailInput) emailInput.value = accounts[currentUser]?.email || '';
+
       const curMode = privacy[currentUser]?.mode || 'blind';
       const rBlind = document.getElementById('onboarding-priv-blind');
       const rOpen = document.getElementById('onboarding-priv-open');
@@ -1277,7 +1448,7 @@
         if (btnNext) btnNext.innerText = "Weiter →";
       } else if (onboardingStep === 2) {
         if (stepInd) stepInd.innerText = "Schritt 2 von 3";
-        if (stepTitle) stepTitle.innerText = "Deine Freigabe für deinen Partner";
+        if (stepTitle) stepTitle.innerText = "Freigabe für deinen Partner";
         if (s2) s2.classList.remove('hidden');
         if (btnBack) btnBack.classList.remove('hidden');
         if (btnNext) btnNext.innerText = "Weiter →";
@@ -1312,13 +1483,11 @@
         if (!accounts[currentUser]) {
           accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
         }
-        if (mailVal) {
-          accounts[currentUser].email = mailVal;
-        }
+        if (mailVal) accounts[currentUser].email = mailVal;
         accounts[currentUser].setupDone = true;
         saveToLocalStorage();
         document.getElementById('modal-onboarding').classList.add('hidden');
-        showToast(`Setup abgeschlossen. Viel Freude beim Ausfüllen, ${names[currentUser]}!`);
+        showToast(`Setup abgeschlossen. Viel Freude, ${names[currentUser]}!`);
       }
     }
 
@@ -1330,7 +1499,7 @@
     }
 
     // ==========================================
-    // LEXIKON FUNKTIONEN & MODAL
+    // LEXIKON FUNKTIONEN (A–Z)
     // ==========================================
     function openLexiconModal() {
       const modal = document.getElementById('modal-lexicon');
@@ -1373,7 +1542,7 @@
       }
 
       container.innerHTML = filtered.map(e => `
-        <div class="pt-3 first:pt-0 space-y-1">
+        <div class="pt-3 first:pt-0 space-y-1.5">
           <div class="flex items-center justify-between gap-2">
             <h4 class="font-black text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
               <span>•</span> ${escapeHtml(e.term)}
@@ -1384,20 +1553,43 @@
             </div>
           </div>
           <p class="text-slate-600 leading-relaxed text-[11.5px]">${e.desc}</p>
+          <div class="pt-0.5">
+            <a href="${e.link || `https://de.wikipedia.org/w/index.php?search=${encodeURIComponent(e.term)}`}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[10.5px] font-bold text-indigo-600 hover:text-indigo-800 transition">
+              <span>🔗 Im deutschsprachigen Web nachschlagen</span>
+              <span class="text-[9px]">↗</span>
+            </a>
+          </div>
         </div>
       `).join('');
     }
 
     function filterLexiconEntries() {
       const input = document.getElementById('lexicon-search-input');
-      if (input) {
-        renderLexiconEntries(input.value);
-      }
+      if (input) renderLexiconEntries(input.value);
     }
 
     // ==========================================
-    // NAVIGATION & KAPITELVERZEICHNIS
+    // KAPITELVERZEICHNIS-LOGIK
     // ==========================================
+    function isSurveyCompletedBy(userKey) {
+      let totalQuestions = 0;
+      surveyChapters.forEach(ch => { totalQuestions += (ch.items.length * 2); });
+      const userAns = answers[userKey] || {};
+      const answeredCount = Object.keys(userAns).length;
+      return totalQuestions > 0 && answeredCount >= totalQuestions;
+    }
+
+    function checkChapterQuickGridVisibility() {
+      const container = document.getElementById('chapter-quick-container');
+      if (!container) return;
+      if (isSurveyCompletedBy(currentUser)) {
+        container.classList.remove('hidden');
+        renderChapterQuickGrid();
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
     function renderChapterQuickGrid() {
       const grid = document.getElementById('chapter-quick-grid');
       if (!grid) return;
@@ -1440,7 +1632,7 @@
       if (btnNext) btnNext.innerText = isLast ? "Abschließen & Auswerten ➔" : "Weiter →";
       if (btnBtmNext) btnBtmNext.innerText = isLast ? "Abschließen & Zur Tiefenanalyse ➔" : "Weiter →";
 
-      renderChapterQuickGrid();
+      checkChapterQuickGridVisibility();
 
       const container = document.getElementById('chapter-card-container');
       if (!container) return;
@@ -1472,7 +1664,7 @@
                 <button onclick="openLexiconModal()" class="no-print inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 px-2 py-0.5 rounded-md transition" title="In-App Lexikon aufrufen">
                   <span>📖 Lexikon</span>
                 </button>
-                <a href="https://de.wikipedia.org/w/index.php?search=${searchKeyword}" target="_blank" rel="noopener noreferrer" class="no-print inline-flex items-center gap-0.5 text-[10px] font-medium text-slate-500 hover:text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 px-1.5 py-0.5 rounded-md transition" title="Exklusiv im Web nachschlagen">
+                <a href="https://de.wikipedia.org/w/index.php?search=${searchKeyword}" target="_blank" rel="noopener noreferrer" class="no-print inline-flex items-center gap-0.5 text-[10px] font-medium text-slate-500 hover:text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 px-1.5 py-0.5 rounded-md transition" title="Im deutschen Web nachschlagen">
                   <span>Web</span>
                   <span class="text-slate-400 text-[9px]">↗</span>
                 </a>
@@ -1542,7 +1734,6 @@
         renderCurrentChapter();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        // AUTOMATISCH WEITERLEITEN ZUR TIEFENANALYSE
         switchMainView('self');
       }
     }
@@ -1555,15 +1746,13 @@
       }
     }
 
-    // ==========================================
-    // STATE RECORDING & STORAGE
-    // ==========================================
     function recordAnswer(name, val) {
       if (!answers[currentUser]) answers[currentUser] = {};
       answers[currentUser][name] = parseInt(val);
       saveToLocalStorage();
       updateProgressBar();
       updateTabuBadge();
+      checkChapterQuickGridVisibility();
     }
 
     function recordNote(id, text) {
@@ -1604,6 +1793,7 @@
       renderCurrentChapter();
       updateProgressBar();
       updateTabuBadge();
+      checkChapterQuickGridVisibility();
       showToast(`Wechsel zu ${names[currentUser]}`);
     }
 
@@ -1652,8 +1842,6 @@
           const raw = hash.split('data=')[1];
           if (raw) {
             const decoded = JSON.parse(decodeURIComponent(atob(raw)));
-            
-            // Beide Profile sicher importieren
             if (decoded.answers) {
               if (decoded.answers.A || decoded.answers.B) {
                 if (decoded.answers.A) answers.A = decoded.answers.A;
@@ -1673,7 +1861,6 @@
             if (decoded.names) names = Object.assign(names, decoded.names);
             if (decoded.privacy) privacy = Object.assign(privacy, decoded.privacy);
             
-            // Aktiven Nutzer intelligent umschalten
             if (decoded.sender === 'A') {
               currentUser = 'B';
             } else if (decoded.sender === 'B') {
@@ -1686,7 +1873,7 @@
             updateCurrentUserUI();
             updateProgressBar();
             updateTabuBadge();
-            showToast("Antworten erfolgreich geladen!");
+            showToast("Antworten geladen!");
           }
         }
       } catch (e) {
@@ -1694,9 +1881,6 @@
       }
     }
 
-    // ==========================================
-    // VIEW SWITCHING
-    // ==========================================
     function switchMainView(view) {
       currentMainView = view;
       const vSurvey = document.getElementById('view-survey');
@@ -1728,7 +1912,7 @@
     }
 
     // ==========================================
-    // PSYCHOLOGISCHE SELBSTANALYSE & PROFIL
+    // PSYCHOLOGISCHE SELBSTANALYSE
     // ==========================================
     function renderSelfProfile() {
       const activeName = names[currentUser];
@@ -1763,7 +1947,6 @@
       const dimKeys = ['romance', 'tantra', 'chastity', 'shibari', 'sensory', 'ds', 'primal', 'impact', 'care'];
       const dimScores = dimKeys.map(k => calcPct(dims[k]));
 
-      // 1. Radar Chart: Archetypen
       const chartCanvas = document.getElementById('selfRadarChart');
       if (chartCanvas) {
         const ctx = chartCanvas.getContext('2d');
@@ -1796,7 +1979,6 @@
         });
       }
 
-      // 2. Bar Chart: Wissenschaftliche Motivations-Säulen
       const motiveLabels = ['Macht & Hingabe', 'Sensorik & Reiz', 'Bindung & Fürsorge', 'Kitzel & Adrenalin', 'Visual & Zeigelust'];
       const motiveKeys = ['power', 'sensation', 'attachment', 'thrill', 'exhibition'];
       const motiveScores = motiveKeys.map(k => calcPct(motives[k]));
@@ -1834,7 +2016,6 @@
         });
       }
 
-      // 3. Tiefenpsychologische Deutungstexte
       const psychEl = document.getElementById('self-psych-analysis');
       if (psychEl) {
         const topDim = dimKeys.map((k, i) => ({ key: k, label: dimLabels[i], score: dimScores[i] })).sort((a,b)=>b.score - a.score)[0];
@@ -1842,15 +2023,15 @@
 
         let motiveExplanation = "";
         if (topMotive.key === 'attachment') {
-          motiveExplanation = "Deine stärkste Motivations-Säule ist <strong>Bindung & Fürsorge</strong>. Studien zeigen, dass Menschen mit diesem Schwerpunkt BDSM und Kink primär als sicheren Hafen nutzen. Es geht dir nicht um Kälte oder rohe Gewalt, sondern um tiefe Verbundenheit, Vertrauen und das Gefühl, bedingungslos gehalten oder umsorgt zu werden.";
+          motiveExplanation = "Deine stärkste Motivations-Säule ist <strong>Bindung & Fürsorge</strong>. Studien zeigen, dass Menschen mit diesem Schwerpunkt BDSM und Kink primär als sicheren Hafen nutzen: Es geht dir um tiefe emotionale Verbundenheit, Vertrauen und das Gefühl, bedingungslos gehalten und umsorgt zu werden.";
         } else if (topMotive.key === 'power') {
-          motiveExplanation = "Deine Haupt-Triebfeder liegt im Bereich <strong>Macht & Hingabe</strong>. Psychologisch betrachtet ermöglicht das bewusste Spiel mit Hierarchien eine befreiende Entlastung vom Alltag: Wer abgibt, muss keine Entscheidungen treffen (Subspace); wer führt, erfährt fokussierte Präsenz und verantwortungsvolle Leitung.";
+          motiveExplanation = "Deine Haupt-Triebfeder liegt im Bereich <strong>Macht & Hingabe</strong>. Psychologisch betrachtet ermöglicht das bewusste Spiel mit Hierarchien eine befreiende Entlastung vom Alltag: Wer abgibt, muss keine Entscheidungen treffen; wer führt, erfährt fokussierte Präsenz und verantwortungsvolle Leitung.";
         } else if (topMotive.key === 'sensation') {
           motiveExplanation = "Du wirst stark durch <strong>Sensorik & Reizübertragung</strong> angetrieben. In der Sexualpsychologie spricht man von 'Sensation Seeking' – dein Nervensystem schüttet bei taktilen Kontrasten (Seile, Temperatur, Schläge) intensive Endorphine und Dopamin aus, was meditative Zustände hervorruft.";
         } else if (topMotive.key === 'thrill') {
-          motiveExplanation = "Dein stärkster Kitzel entsteht durch <strong>Adrenalin & Tabubruch</strong>. Du liebst das Spiel mit Geheimnissen, spielerischer Provokation (Bratting) oder dem Kitzel des Verbotenen. Es sorgt für den erotischen Brandbeschleuniger in deinem Alltag.";
+          motiveExplanation = "Dein stärkster Kitzel entsteht durch <strong>Adrenalin & Tabubruch</strong>. Du liebst das Spiel mit Geheimnissen, schelmischer Provokation oder dem Kitzel des Verbotenen.";
         } else {
-          motiveExplanation = "Deine stärkste Säule liegt in der <strong>visuellen Erotik & Darbietung</strong>. Du schöpfst Lust aus dem Sehen und Gesehenwerden, vor dem Spiegel oder in aufregenden Posen.";
+          motiveExplanation = "Deine stärkste Säule liegt in der <strong>visuellen Erotik & Darbietung</strong>. Du schöpfst Lust aus dem Sehen und Gesehenwerden in aufregenden Posen und Outfits.";
         }
 
         psychEl.innerHTML = `
@@ -1867,7 +2048,6 @@
         `;
       }
 
-      // 4. Prio 5 Highlights
       const prio5Container = document.getElementById('self-prio5-container');
       if (prio5Container) {
         let p5Html = '';
@@ -1879,7 +2059,7 @@
               p5Html += `
                 <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
                   <strong class="text-slate-900 block">${escapeHtml(it.title)}</strong>
-                  <span class="text-[10px] text-indigo-600 font-semibold">${r1 === 5 ? 'Aktiv (5: Must-Have)' : ''} ${r2 === 5 ? 'Passiv (5: Must-Have)' : ''}</span>
+                  <span class="text-[10px] text-indigo-600 font-semibold">${r1 === 5 ? 'Aktiv (Note 5)' : ''} ${r2 === 5 ? 'Passiv (Note 5)' : ''}</span>
                 </div>
               `;
             }
@@ -1888,7 +2068,6 @@
         prio5Container.innerHTML = p5Html || '<p class="text-slate-400 italic">Noch keine Prio-5 Punkte markiert.</p>';
       }
 
-      // 5. Eigene Tabus (Wert 1)
       const tabuListEl = document.getElementById('self-tabu-list');
       const tabuCountText = document.getElementById('self-tabu-count-text');
       if (tabuListEl) {
@@ -1913,9 +2092,6 @@
       }
     }
 
-    // ==========================================
-    // PAAR-ANALYSE
-    // ==========================================
     function renderPairAnalysis() {
       const hasBoth = (Object.keys(answers.A).length > 0) && (Object.keys(answers.B).length > 0);
       const lockedBanner = document.getElementById('pair-locked-banner');
@@ -2084,7 +2260,7 @@
           <strong class="text-sm text-slate-900 block mt-1">${escapeHtml(pick.title)}</strong>
           <p class="text-slate-600 leading-relaxed">${escapeHtml(pick.desc)}</p>
           <div class="p-2 bg-white rounded-lg border border-slate-200 text-[11px] text-slate-700 flex flex-wrap items-center justify-between gap-2">
-            <span>💡 <strong>Empfohlene Umsetzung für heute:</strong> Ohne Erwartungsdruck in den Alltag einweben.</span>
+            <span>💡 <strong>Umsetzung:</strong> Ohne Erwartungsdruck in den Tag einweben.</span>
             <button onclick="sendDiceEmail()" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white font-bold text-[10.5px] hover:bg-slate-800 transition flex items-center gap-1 shadow-xs">
               <span>✉️ Kink per Mail senden</span>
             </button>
@@ -2093,13 +2269,10 @@
       }
     }
 
-    // ==========================================
-    // PLAYBOOKS DATA & RENDERING
-    // ==========================================
     const fullPlaybooksData = [
       {
         id: "pb-1",
-        tier: "Sanft & Sensual (Vanilla-Einstieg)",
+        tier: "Sanft & Sensual",
         badge: "Stufe I",
         title: "Session I: Die Berührungs-Oase & Das Erwachen der Sinne",
         duration: "Gesamtdauer: ca. 2 Stunden (inkl. 40 Min. Aftercare)",
@@ -2109,29 +2282,23 @@
           <p class="text-xs text-slate-500 mb-4">Ein achtsames Drehbuch zur vollkommenen Entlastung ohne Orgasmuszwang.</p>
           <div class="space-y-4 text-xs leading-relaxed">
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <strong class="text-slate-900 block mb-1">Phase 1 (0:00 – 0:35 Std.) • Raum schaffen, Ankommen & Entschleunigen</strong>
-              <p class="text-slate-700">
-                Der Raum wird vorbereitet: Warmes, gedämpftes Licht, leise Ambient-Klänge und vorgewärmte Tücher. Beide Partner streifen den Alltag ab. Auf dem Bett liegend beginnt die Einstimmung mit synchroner Atmung (Brust an Brust), gefolgt von ausgiebigem Slow Kissing ohne Hast. Niemand muss funktionieren oder Erregung demonstrieren.
-              </p>
+              <strong class="text-slate-900 block mb-1">Phase 1 (0:00 – 0:35 Std.) • Ankommen & Entschleunigen</strong>
+              <p class="text-slate-700">Warmes, gedämpftes Licht, leise Ambient-Klänge. Einstimmung mit synchroner Atmung (Brust an Brust), gefolgt von Slow Kissing ohne Hast.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <strong class="text-slate-900 block mb-1">Phase 2 (0:35 – 1:25 Std.) • Die Hauptszene: Taktile Entdeckung & Hingabe</strong>
-              <p class="text-slate-700">
-                Ein Partner erhält eine weiche Augenbinde. Mit sanften Federberührungen, warmen Handflächen und einem zarten Hauchkuss-Streifzug über Nacken, Rippenbögen und Innenschenkel wird die Wahrnehmung auf die Haut verlagert. Es folgt eine ausgiebige Ganzkörper-Entspannungsmassage mit duftendem Mandelöl. Die Intimzone wird zunächst bewusst ausgespart (Sensuelles Tease & Denial), um ein tiefes inneres Verlangen aufzubauen.
-              </p>
+              <strong class="text-slate-900 block mb-1">Phase 2 (0:35 – 1:25 Std.) • Taktile Entdeckung & Hingabe</strong>
+              <p class="text-slate-700">Weiche Augenbinde, Federberührungen und Ganzkörpermassage mit duftendem Mandelöl. Die Intimzone wird zunächst bewusst ausgespart.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <strong class="text-slate-900 block mb-1">Phase 3 (1:25 – 2:05 Std.) • Liebevolle Nachsorge (Aftercare) & Landung</strong>
-              <p class="text-slate-700">
-                Die Augenbinde wird gelöst. Beide Partner wickeln sich eng umschlungen in schwere Kuscheldecken. Ein Glas warmes Wasser oder Kamillentee wird gereicht. Mindestens 30 Minuten wortlose Stille, um das vegetative Nervensystem sanft zu erden. Anschließend ein kurzes De-Briefing: Welche Berührung hat das Herz besonders berührt?
-              </p>
+              <strong class="text-slate-900 block mb-1">Phase 3 (1:25 – 2:05 Std.) • Liebevolle Nachsorge (Aftercare)</strong>
+              <p class="text-slate-700">In Kuscheldecken eingewickelt verweilen, Kamillentee trinken und ein kurzes De-Briefing abhalten.</p>
             </div>
           </div>
         `
       },
       {
         id: "pb-2",
-        tier: "Moderat & Führend (D/s & Disziplin)",
+        tier: "Moderat & Führend",
         badge: "Stufe II",
         title: "Session II: Das Hof-Protokoll & Das Lob der Hingabe",
         duration: "Gesamtdauer: ca. 2 Stunden 15 Min. (inkl. 45 Min. Aftercare)",
@@ -2142,53 +2309,41 @@
           <div class="space-y-4 text-xs leading-relaxed">
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 1 (0:00 – 0:30 Std.) • Rollenübernahme & Formelles Ritual</strong>
-              <p class="text-slate-700">
-                Klare Trennung vom Alltag: Der devote Part legt alle Kleidung ab und kniet demütig vor der Schlafzimmertür. Der dominante Part tritt heran, legt das Lederhalsband an und übernimmt wortlos die Führung. Ein Glas Wasser wird ausschließlich auf Knien serviert. Das Stoppwort-System (Ampel: Grün, Gelb, Rot) wird kurz bestätigt.
-              </p>
+              <p class="text-slate-700">Der devote Part kniet vor der Schlafzimmertür; Anlegen des Halsbands und Bestätigung des Ampel-Safewords.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 2 (0:30 – 1:30 Std.) • Forderung, Edging & Warmes Lob</strong>
-              <p class="text-slate-700">
-                Der Bottom wird an den Händen mit Seidentüchern fixiert. Der Top dirigiert die Reize. Es folgt rhythmisches, wärmendes Handspanking auf das Gesäß zur Durchblutung. Jedes disziplinierte Stillhalten wird vom Top mit warmem Praise Play („Braves Mädchen / Guter Junge“) belohnt. Im Anschluss wird der Bottom dreimal an die Grenze des Orgasmus geführt (Edging) und abrupt gestoppt. Die finale Freigabe erfolgt erst auf das gesprochene Countdown-Kommando.
-              </p>
+              <p class="text-slate-700">Handspanking mit Praise Play ('Braves Mädchen / Guter Junge'), gefolgt von dreifachem Edging mit Countdown-Freigabe.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 3 (1:30 – 2:15 Std.) • Auflösung der Hierarchie & Geborgenheit</strong>
-              <p class="text-slate-700">
-                Das Halsband wird geöffnet – die D/s-Rolle ist augenblicklich beendet. Der Top schließt den erschöpften Partner fest in die Arme, streicht die Haare aus dem Gesicht und bekräftigt die tiefe partnerschaftliche Gleichwertigkeit. Ein warmes Bad oder feuchte warme Tücher, gefolgt von Traubenzucker zur Blutzuckerstabilisierung.
-              </p>
+              <p class="text-slate-700">Öffnen des Halsbands, warme Umarmung und Bestätigung der partnerschaftlichen Gleichwertigkeit.</p>
             </div>
           </div>
         `
       },
       {
         id: "pb-3",
-        tier: "Intensiv & Fordernd (Primal, Impact & Shibari)",
+        tier: "Intensiv & Fordernd",
         badge: "Stufe III",
         title: "Session III: Primal-Ekstase & Die Kunst der Bändigung",
         duration: "Gesamtdauer: ca. 2 Stunden 30 Min. (inkl. 50 Min. Aftercare)",
         focus: "Bratting, die Jagd, Matten-Ringen, Leder-Paddle, Shibari-Fesseln & tiefer Subspace",
         pageContent: `
           <h2 class="text-base font-black mb-1">Dramaturgie: Session III – Primal-Jagd, Ringen & Shibari</h2>
-          <p class="text-xs text-slate-500 mb-4">Ein explosives, forderndes Szenario aus roher Energie, Widerstand und befreiender Kapitulation.</p>
+          <p class="text-xs text-slate-500 mb-4">Ein forderndes Szenario aus roher Energie, Widerstand und befreiender Kapitulation.</p>
           <div class="space-y-4 text-xs leading-relaxed">
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 1 (0:00 – 0:35 Std.) • Provokation, Flucht & Die Jagd (Chase Play)</strong>
-              <p class="text-slate-700">
-                Der Funke entzündet sich spielerisch: Freches Aufbegehren (Bratting), schelmisches Grenzen-Testen und plötzliche Flucht durch die Wohnung. Der Jäger nimmt die Verfolgung auf, stellt die Beute und bändigt sie auf der Bodenmatte. Es folgt ein intensives Primal-Wrestling, bei dem beide Partner ihre rohe Körperkraft spüren, bis der Widerstand bricht.
-              </p>
+              <p class="text-slate-700">Bratting, spielerische Flucht durch die Wohnung und Matten-Ringen bis zum Aufgeben.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 2 (0:35 – 1:40 Std.) • Shibari-Restriktion, Leder-Paddle & Trance</strong>
-              <p class="text-slate-700">
-                Die überwältigte Beute wird mit geöltem Juteseil in ein festes Mormai-Harness gebunden. Die Arme werden arretiert. Mit einem breiten Lederpaddle werden dumpfe, großflächige Hiebe auf Gesäß und Oberschenkel gesetzt. Der rhythmische Schmerz setzt massive Endorphine frei – der Bottom gleitet in den tiefen Subspace. Danach folgt eine ungefilterte, animalische Vereinigung von hinten.
-              </p>
+              <p class="text-slate-700">Mormai-Harness mit Juteseil, flächiges Lederpaddle und Gleiten in den Subspace.</p>
             </div>
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <strong class="text-slate-900 block mb-1">Phase 3 (1:40 – 2:30 Std.) • Intensiver Aftercare-Schutz gegen Subdrop</strong>
-              <p class="text-slate-700">
-                Die Seile werden mit Bedacht gelöst; Gelenke sanft durchbewegt. Der schweißnasse Körper wird abgetupft und in mehrere dicke Decken gehüllt. Der Top hält den Partner mindestens 45 Minuten reglos fest im Arm, da nach starker Adrenalinausschüttung ein plötzlicher Subdrop droht. Feste Vereinbarung eines Check-ins für den nächsten Tag.
-              </p>
+              <p class="text-slate-700">Behutsames Lösen der Seile, 45 Minuten enges Halten im Arm und 24h-Check-in Vereinbarung.</p>
             </div>
           </div>
         `
@@ -2213,11 +2368,11 @@
                 <p class="text-[11px] text-slate-500">${pb.duration} • ${escapeHtml(pb.focus)}</p>
               </div>
               <div class="flex items-center gap-2">
-                <button onclick="event.stopPropagation(); sendPlaybookEmail('${pb.id}')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1" title="Dieses Playbook an meine E-Mail senden">
+                <button onclick="event.stopPropagation(); sendPlaybookEmail('${pb.id}')" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1" title="Per E-Mail senden">
                   <span>✉️ Mailen</span>
                 </button>
                 <button onclick="event.stopPropagation(); printSinglePlaybook('${pb.id}')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1">
-                  <span>🖨️ DIN A4 drucken</span>
+                  <span>🖨️ Drucken</span>
                 </button>
                 <span id="icon-${pb.id}" class="text-slate-400 font-bold text-sm">▼</span>
               </div>
@@ -2257,7 +2412,7 @@
           <meta charset="UTF-8">
           <title>${pb.title}</title>
           <style>
-            @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
+            @page { size: A4 portrait; margin: 15mm; }
             body { font-family: sans-serif; color: #0f172a; line-height: 1.4; font-size: 10pt; margin: 0; padding: 0; }
             .header-badge { display: inline-block; background: #0f172a; color: white; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; }
             h1 { font-size: 15pt; margin: 6px 0 2px 0; color: #020617; }
@@ -2269,14 +2424,14 @@
         <body onload="window.print();">
           <div class="header-badge">${pb.tier}</div>
           <h1>${pb.title}</h1>
-          <div class="sub-title">Kink- & Beziehungs-Kompass • Maßgeschneidertes 2-Stunden-Drehbuch</div>
+          <div class="sub-title">Kink- & Beziehungs-Kompass • 2-Stunden-Drehbuch</div>
           <div class="meta-box">
             <strong>${pb.duration}</strong><br>
             <strong>Fokus:</strong> ${pb.focus}
           </div>
           ${pb.pageContent}
           <div class="footer-note">
-            Vertrauliches Dokument für Partner 1 & Partner 2. Basiert zu 100 % auf gegenseitigem Einverständnis und freiwilliger Hingabe (SSC & RACK).
+            Vertrauliches Dokument für Partner 1 & Partner 2. Basiert zu 100 % auf SSC & RACK.
           </div>
         </body>
         </html>
@@ -2300,13 +2455,13 @@
           if ((a1 && a1 >= 4) && (b2 && b2 >= 3)) positiveList.push(it.title);
         }));
 
-        const prompt = `Erstelle ein extrem ausführliches, genau 2 Stunden dauerndes BDSM- und Intimitäts-Playbook für zwei liebende Partner.
-        Gemeinsame Vorlieben der beiden: ${positiveList.slice(0, 10).join(', ') || 'Slow Sex, Massage, leichte Fesseln, Dirty Talk'}.
+        const prompt = `Erstelle ein ausführliches, genau 2 Stunden dauerndes BDSM- und Intimitäts-Playbook für zwei liebende Partner.
+        Gemeinsame Vorlieben: ${positiveList.slice(0, 10).join(', ') || 'Slow Sex, Massage, leichte Fesseln, Dirty Talk'}.
         Gliedere es streng in 3 Phasen:
         Phase 1: Ankommen, Raum, Entschleunigung (30 Min)
         Phase 2: Hauptszene, Steigerung, Höhepunkt (60 Min)
         Phase 3: Ausführliche Aftercare, Decken, Trinken, De-Briefing (30 Min).
-        Schreibe respektvoll, atmosphärisch, tabufrei und im Präteritum oder Präsens.`;
+        Schreibe respektvoll, atmosphärisch und tabufrei.`;
 
         const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
@@ -2324,7 +2479,7 @@
           const newId = `pb-ai-${Date.now()}`;
           fullPlaybooksData.unshift({
             id: newId,
-            tier: "KI-Generiertes Maßwerk",
+            tier: "KI-Generiert",
             badge: "Neu ✨",
             title: "Individuelles KI-Session-Playbook",
             duration: "ca. 2 Stunden (inkl. Aftercare)",
@@ -2333,7 +2488,7 @@
           });
           renderPlaybooks();
           togglePlaybookAccordion(newId);
-          showToast("Neues 1-Seiten Playbook erfolgreich generiert!");
+          showToast("Neues Playbook erfolgreich generiert!");
         } else {
           showToast("Generierung abgeschlossen. Kein Text empfangen.");
         }
@@ -2347,9 +2502,6 @@
       }
     }
 
-    // ==========================================
-    // ACCOUNT & EMAIL DISPATCH LOGIC
-    // ==========================================
     function openAccountModal() {
       const user = currentUser;
       const nameEl = document.getElementById('account-active-username');
@@ -2423,11 +2575,11 @@
       }
 
       const url = getLiveShareUrl();
-      const subject = `Dein Kink- & Beziehungs-Kompass: Aktueller Zugangslink (${names[currentUser]})`;
-      const body = `Hallo ${names[currentUser]},\n\nhier ist dein persönlicher, immer aktueller Zugangslink zu eurem Kink- & Beziehungs-Kompass:\n\n${url}\n\nÖffne diesen Link jederzeit im Browser, um deinen aktuellen Stand einzusehen, Antworten anzupassen oder die gemeinsame Paar-Analyse aufzurufen.\n\n100 % Privat: Deine Daten sind ausschließlich in diesem Link verschlüsselt und werden niemals auf Servern gespeichert.\n\nHerzliche Grüße,\nEuer Beziehungs-Kompass`;
+      const subject = `Dein Kink- & Beziehungs-Kompass: Zugangslink (${names[currentUser]})`;
+      const body = `Hallo ${names[currentUser]},\n\nhier ist dein persönlicher Zugangslink zu eurem Kink- & Beziehungs-Kompass:\n\n${url}\n\n100 % Privat: Deine Daten sind ausschließlich in diesem Link verschlüsselt und werden niemals auf Servern gespeichert.\n\nHerzliche Grüße,\nEuer Beziehungs-Kompass`;
 
       window.location.href = `mailto:${encodeURIComponent(myEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      showToast("E-Mail-Entwurf für dich wurde geöffnet!");
+      showToast("E-Mail-Entwurf geöffnet!");
     }
 
     function sendPlaybookEmail(id) {
@@ -2437,7 +2589,7 @@
       const myEmail = accounts[currentUser]?.email || '';
       const cleanContent = pb.pageContent.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
       const subject = `Playbook: ${pb.title}`;
-      const body = `${pb.title}\n${pb.duration}\nFokus: ${pb.focus}\n\n=========================================\n${cleanContent}\n\n=========================================\nZugangslink zu eurem Kompass:\n${getLiveShareUrl()}`;
+      const body = `${pb.title}\n${pb.duration}\nFokus: ${pb.focus}\n\n=========================================\n${cleanContent}\n\n=========================================\nZugangslink:\n${getLiveShareUrl()}`;
 
       window.location.href = `mailto:${encodeURIComponent(myEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       showToast("Playbook als E-Mail vorbereitet!");
@@ -2449,15 +2601,12 @@
       const desc = currentDicePick.desc;
       const myEmail = accounts[currentUser]?.email || '';
       const subject = `Alltags-Kink des Tages: ${title}`;
-      const body = `Alltags-Kink des Tages:\n${title}\n\nBeschreibung:\n${desc}\n\nEmpfehlung: Ohne Zeitdruck und Erwartungshaltung liebevoll in den gemeinsamen Tag einweben.\n\nEuer Beziehungs-Kompass:\n${getLiveShareUrl()}`;
+      const body = `Alltags-Kink des Tages:\n${title}\n\nBeschreibung:\n${desc}\n\nZugangslink:\n${getLiveShareUrl()}`;
 
       window.location.href = `mailto:${encodeURIComponent(myEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       showToast("Alltags-Kink als E-Mail vorbereitet!");
     }
 
-    // ==========================================
-    // TABU LIST MODAL
-    // ==========================================
     function openTabuModal() {
       const listEl = document.getElementById('tabu-modal-list');
       if (!listEl) return;
@@ -2538,8 +2687,8 @@
       privacy[currentUser].mode = mode;
       const statusText = document.getElementById('self-privacy-status-text');
       if (statusText) {
-        if (mode === 'open') statusText.innerText = 'Status: 100 % Transparenz (Vollständig)';
-        else statusText.innerText = 'Status: Blind-Match & Schutzzone aktiv';
+        if (mode === 'open') statusText.innerText = 'Status: Vollständiger Abgleich (Offene Einsicht)';
+        else statusText.innerText = 'Status: Selektiver Abgleich aktiv';
       }
     }
 
