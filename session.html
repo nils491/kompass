@@ -151,7 +151,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
   <header class="sticky top-0 z-40 session-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
       
@@ -180,8 +179,8 @@
           <span>⛔</span> <span class="hidden sm:inline text-[11px]">Tabus</span> (<span id="header-tabu-count">0</span>)
         </button>
 
-        <button onclick="openCockpitToolsModal()" class="px-2 py-1.5 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Cockpit-Werkzeuge (Atemkreis, Edging, Flüster-Prompt)">
-          <span>☰</span> <span class="hidden md:inline text-[11px]">Tools</span>
+        <button onclick="openCockpitToolsModal()" class="px-2.5 py-1.5 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Schlafzimmer-Werkzeuge öffnen">
+          <span>🛠️</span> <span class="text-[11px]">Werkzeuge</span>
         </button>
 
         <button onclick="toggleBlackout()" class="p-1.5 sm:px-2.5 sm:py-1.5 session-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="Schnell-Tarnung / Sofort-Blackout">
@@ -214,44 +213,47 @@
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
         <div class="flex items-center gap-2">
           <span class="text-xl">🛠️</span>
-          <h3 class="text-sm sm:text-base font-black text-white">Schlafzimmer-Werkzeuge</h3>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-white">Schlafzimmer-Werkzeuge</h3>
+            <span class="text-[10px] text-slate-400">Direkter Zugriff auf alle Spezial-Tools</span>
+          </div>
         </div>
         <button onclick="closeCockpitToolsModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <button onclick="openEdgingToolDirect()" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-left space-y-1">
-          <span class="text-lg block">⏱️</span>
+      <div class="grid grid-cols-2 gap-2.5 text-xs">
+        <button onclick="toggleEdgingToolPanel(); closeCockpitToolsModal();" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-left space-y-1 touch-pill">
+          <span class="text-xl block">⏱️</span>
           <strong class="text-brand-200 block font-bold">Edge-Counter</strong>
-          <span class="text-[10px] text-slate-400 block">Zähler & Countdown</span>
+          <span class="text-[10px] text-slate-400 block leading-tight">Zähler & variabler Orgasmus-Countdown</span>
         </button>
 
-        <button onclick="openZenBreathingModal()" class="p-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/80 text-left space-y-1">
-          <span class="text-lg block">🫁</span>
+        <button onclick="openZenBreathingModal()" class="p-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/80 text-left space-y-1 touch-pill">
+          <span class="text-xl block">🫁</span>
           <strong class="text-teal-200 block font-bold">4/7/8 Atem-Takt</strong>
-          <span class="text-[10px] text-slate-400 block">Pulsierender Zen-Ring</span>
+          <span class="text-[10px] text-slate-400 block leading-tight">Pulsierender Vagusnerv-Zen-Ring</span>
         </button>
 
-        <button onclick="triggerWhisperPrompt()" class="p-3 rounded-2xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/80 text-left space-y-1">
-          <span class="text-lg block">💬</span>
+        <button onclick="triggerWhisperPrompt()" class="p-3 rounded-2xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/80 text-left space-y-1 touch-pill">
+          <span class="text-xl block">💬</span>
           <strong class="text-purple-200 block font-bold">Flüster-Impuls</strong>
-          <span class="text-[10px] text-slate-400 block">Zärtlicher Dirty Talk</span>
+          <span class="text-[10px] text-slate-400 block leading-tight">Zärtlicher Dirty Talk ins Ohr</span>
         </button>
 
-        <button onclick="openDiscreetBedsideClock()" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left space-y-1">
-          <span class="text-lg block">🕰️</span>
+        <button onclick="openDiscreetBedsideClock()" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left space-y-1 touch-pill">
+          <span class="text-xl block">🕰️</span>
           <strong class="text-slate-200 block font-bold">Nachttisch-Uhr</strong>
-          <span class="text-[10px] text-slate-400 block">Unauffällige Tarnung</span>
+          <span class="text-[10px] text-slate-400 block leading-tight">Unauffällige Tarnung bei Klopfen</span>
         </button>
       </div>
 
-      <!-- Whisper Prompt Result Box -->
-      <div id="whisper-result-box" class="hidden p-3 rounded-2xl bg-purple-950/50 border border-purple-700/60 text-xs space-y-1">
+      <!-- Whisper Prompt Result Box inside Modal -->
+      <div id="whisper-result-box" class="hidden p-3.5 rounded-2xl bg-purple-950/50 border border-purple-700/60 text-xs space-y-1">
         <span class="text-[9.5px] font-bold text-purple-300 uppercase tracking-widest block">🗣️ Jetzt ins Ohr flüstern:</span>
-        <p class="text-slate-200 italic" id="whisper-text">„...“</p>
+        <p class="text-slate-200 italic text-xs leading-relaxed" id="whisper-text">„...“</p>
       </div>
 
-      <div class="pt-1 border-t border-slate-800 flex justify-end">
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
         <button onclick="closeCockpitToolsModal()" class="px-4 py-2 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-xs">Schließen</button>
       </div>
     </div>
@@ -473,7 +475,7 @@
     <!-- 2-SPALTEN COCKPIT GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
       
-      <!-- LINKE SPALTE: DAS FESTE STEUERPULT -->
+      <!-- LINKE SPALTE: DAS FESTE STEUERPULT (TIMER, AMPEL & QUICK-WERKZEUGE) -->
       <aside class="lg:col-span-5 space-y-3.5">
         
         <!-- Timer-Kachel -->
@@ -559,6 +561,49 @@
           </div>
         </div>
 
+        <!-- DIREKT SICHTBARER WERKZEUGKASTEN (IMMER GRIFFBEREIT IM COCKPIT) -->
+        <div class="session-card p-4 rounded-3xl border space-y-2.5 shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Schlafzimmer-Werkzeuge</span>
+            <span class="text-[9.5px] text-brand-400 font-bold">Sofort-Tools</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="toggleEdgingToolPanel()" class="p-2.5 rounded-2xl session-panel hover:border-brand-500/60 border text-left space-y-1 transition touch-pill">
+              <div class="flex items-center justify-between">
+                <span class="text-base">⏱️</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-brand-950 text-brand-300" id="cockpit-edge-badge">0 Edges</span>
+              </div>
+              <strong class="text-white block font-bold text-[11px]">Edge-Counter</strong>
+              <span class="text-[9.5px] text-slate-400 block">Zähler & Countdown</span>
+            </button>
+
+            <button onclick="openZenBreathingModal()" class="p-2.5 rounded-2xl session-panel hover:border-teal-500/60 border text-left space-y-1 transition touch-pill">
+              <span class="text-base block">🫁</span>
+              <strong class="text-teal-200 block font-bold text-[11px]">4/7/8 Atemkreis</strong>
+              <span class="text-[9.5px] text-slate-400 block">Vagusnerv-Takt</span>
+            </button>
+
+            <button onclick="triggerWhisperPrompt()" class="p-2.5 rounded-2xl session-panel hover:border-purple-500/60 border text-left space-y-1 transition touch-pill">
+              <span class="text-base block">💬</span>
+              <strong class="text-purple-200 block font-bold text-[11px]">Flüster-Impuls</strong>
+              <span class="text-[9.5px] text-slate-400 block">Dirty Talk ins Ohr</span>
+            </button>
+
+            <button onclick="openDiscreetBedsideClock()" class="p-2.5 rounded-2xl session-panel hover:border-slate-500 border text-left space-y-1 transition touch-pill">
+              <span class="text-base block">🕰️</span>
+              <strong class="text-slate-300 block font-bold text-[11px]">Nachttisch-Uhr</strong>
+              <span class="text-[9.5px] text-slate-400 block">Diskrete Tarnung</span>
+            </button>
+          </div>
+
+          <!-- Schneller Flüster-Anzeige-Kasten -->
+          <div id="inline-whisper-card" class="hidden p-3 rounded-2xl bg-purple-950/40 border border-purple-800/60 text-xs space-y-1">
+            <span class="text-[9px] font-bold text-purple-300 uppercase tracking-widest block">🗣️ Ins Ohr flüstern:</span>
+            <p class="text-slate-200 italic text-[11.5px] leading-relaxed" id="inline-whisper-text">„...“</p>
+          </div>
+        </div>
+
       </aside>
 
       <!-- RECHTE SPALTE: DIE BÜHNE (4 HAUPT-TABS) -->
@@ -633,35 +678,6 @@
               <span class="text-[10px] text-slate-400 font-mono" id="guide-phase-time-allocated">ca. 10 Min.</span>
             </div>
 
-            <!-- Countdown-Orgasmus oder Freigabe -->
-            <div id="edging-interactive-card" class="p-3.5 rounded-2xl bg-brand-950/40 border border-brand-700/60 space-y-2 text-xs">
-              <div class="flex items-center justify-between">
-                <strong class="text-brand-300 font-bold flex items-center gap-1.5">
-                  <span>⏱️</span> <span>Live Edge-Counter & Countdown</span>
-                </strong>
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-900/60 text-brand-200" id="edge-count-badge">Edge 0</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button onclick="incrementEdgeCount()" class="py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-xs shadow transition touch-pill flex items-center justify-center gap-1">
-                  <span>+1</span> <span>Edge zählen</span>
-                </button>
-                <button onclick="resetEdgeCount()" class="py-2.5 rounded-xl session-panel hover:border-slate-500 border text-slate-300 text-xs font-bold transition touch-pill">
-                  Zähler Reset
-                </button>
-              </div>
-
-              <!-- Orgasmus Countdown Trigger -->
-              <div id="countdown-trigger-area" class="pt-1">
-                <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
-                  <span>💥</span> <span>Countdown starten (5... 4... 3... 2... 1)</span>
-                </button>
-                <div id="countdown-live-display" class="hidden text-center py-2 space-y-1">
-                  <span class="text-3xl font-mono font-black text-rose-400 animate-pulse" id="countdown-number">5</span>
-                  <p class="text-[10.5px] italic text-rose-200" id="countdown-voice-quote">„Fünf... Atme ein. Noch kein Zucken.“</p>
-                </div>
-              </div>
-            </div>
-
             <!-- 4 Stepper Tabs -->
             <div class="grid grid-cols-4 gap-1.5">
               <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600">
@@ -697,7 +713,7 @@
             </p>
           </div>
 
-          <!-- SPEZIELLE SAFEWORD-KARTE -->
+          <!-- SPEZIELLE SAFEWORD-KARTE (NUR IN PHASE 1) -->
           <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-amber-500/40 space-y-3 shadow-md bg-amber-950/10">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
@@ -725,6 +741,74 @@
             </div>
           </div>
 
+          <!-- EDGING-PANEL MIT SEKUNDENVORWAHL (NUR BEI BEDARF ODER IN PHASE 3) -->
+          <div id="edging-interactive-card" class="hidden session-card p-4 rounded-3xl border-2 border-brand-500/50 space-y-3 text-xs shadow-lg bg-brand-950/20">
+            <div class="flex items-center justify-between border-b border-brand-800/60 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">⏱️</span>
+                <div>
+                  <strong class="text-sm font-black text-brand-200 block">Edge-Counter & Orgasmus-Countdown</strong>
+                  <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt präzise an</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-brand-900 border border-brand-700 text-brand-200 shadow-sm" id="edge-count-badge">Edge 0</span>
+                <button onclick="toggleEdgingToolPanel()" class="w-6 h-6 rounded-lg session-panel border text-slate-400 hover:text-white text-xs">✕</button>
+              </div>
+            </div>
+
+            <!-- Edge Steuerung -->
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="incrementEdgeCount()" class="py-3 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-black text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
+                <span class="text-sm">+1</span> <span>Edge zählen</span>
+              </button>
+              <button onclick="resetEdgeCount()" class="py-3 rounded-2xl session-panel hover:border-slate-500 border text-slate-300 text-xs font-bold transition touch-pill">
+                Zähler Reset
+              </button>
+            </div>
+
+            <!-- Countdown-Vorwahl & Trigger -->
+            <div class="p-3 rounded-2xl session-panel border border-slate-700/60 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[10.5px] font-bold text-slate-300">Countdown-Dauer:</span>
+                <!-- Schnellauswahl Pills: 10s (Standard), 20s, 30s, 60s -->
+                <div class="flex items-center gap-1 text-[10.5px] font-mono font-bold">
+                  <button onclick="setCountdownDuration(10)" id="cd-pill-10" class="px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold">10s</button>
+                  <button onclick="setCountdownDuration(20)" id="cd-pill-20" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">20s</button>
+                  <button onclick="setCountdownDuration(30)" id="cd-pill-30" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">30s</button>
+                  <button onclick="setCountdownDuration(60)" id="cd-pill-60" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">60s</button>
+                </div>
+              </div>
+
+              <!-- Individuelle Sekunden-Eingabe mit Schnell-Reglern (+ / -) -->
+              <div class="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
+                <span class="text-[10px] text-slate-400 font-medium pl-1">Freie Eingabe:</span>
+                <div class="flex items-center gap-1">
+                  <button onclick="adjustCountdownDuration(-5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-5</button>
+                  <button onclick="adjustCountdownDuration(-1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-1</button>
+                  <div class="flex items-center gap-1 px-1">
+                    <input type="number" id="cd-custom-input" min="1" max="300" value="10" 
+                           onchange="setCountdownDuration(this.value)"
+                           oninput="setCountdownDuration(this.value)"
+                           class="w-12 text-center py-1 rounded-lg session-panel border border-brand-600/60 font-mono font-bold text-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    <span class="text-[10px] font-bold text-slate-400">Sek.</span>
+                  </div>
+                  <button onclick="adjustCountdownDuration(1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+1</button>
+                  <button onclick="adjustCountdownDuration(5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+5</button>
+                </div>
+              </div>
+
+              <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
+                <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
+              </button>
+
+              <div id="countdown-live-display" class="hidden text-center py-2 space-y-1">
+                <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
+                <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
+              </div>
+            </div>
+          </div>
+
           <!-- FOKUS-KARTEN: WAS NUN ZU TUN IST + VORSCHAU -->
           <div class="space-y-3">
             <div id="active-step-focus-card" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500/60 shadow-xl space-y-3">
@@ -732,9 +816,14 @@
                 <span class="text-[10.5px] font-black uppercase tracking-wider text-brand-300 bg-brand-500/20 px-2.5 py-0.5 rounded-full border border-brand-500/30" id="focus-step-indicator">
                   Schritt 1 von 4
                 </span>
-                <button onclick="openIncidentModal()" class="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1">
-                  <span>⚡</span> <span>Verstoß melden</span>
-                </button>
+                <div class="flex items-center gap-2">
+                  <button onclick="toggleEdgingToolPanel()" class="text-[10px] font-bold text-brand-300 hover:underline flex items-center gap-1">
+                    <span>⏱️</span> <span>Edge-Tool</span>
+                  </button>
+                  <button onclick="openIncidentModal()" class="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1">
+                    <span>⚡</span> <span>Verstoß</span>
+                  </button>
+                </div>
               </div>
 
               <div class="space-y-1">
@@ -866,7 +955,7 @@
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
 
-  <!-- OPTIONALE SKRIPTE DES FRAGENKATALOGS -->
+  <!-- FRAGENKATALOGE -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
 
@@ -890,8 +979,11 @@
     let checkInIntervalSetting = '15';
     let lastCheckInElapsed = 0;
 
+    // Edge Counter & Countdown State
     let edgeCount = 0;
     let countdownTimer = null;
+    let selectedCountdownDuration = 10;
+
     let zenBreatheInterval = null;
     let bedsideClockInterval = null;
 
@@ -927,7 +1019,6 @@
       }
     }
 
-    /* COCKPIT TOOLS */
     function openCockpitToolsModal() {
       document.getElementById('modal-cockpit-tools')?.classList.remove('hidden');
     }
@@ -935,31 +1026,85 @@
       document.getElementById('modal-cockpit-tools')?.classList.add('hidden');
     }
 
-    function openEdgingToolDirect() {
-      closeCockpitToolsModal();
-      jumpToPhase(3);
-      switchTab('guide');
+    function toggleEdgingToolPanel() {
       const card = document.getElementById('edging-interactive-card');
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth' });
-        card.classList.add('ring-2', 'ring-brand-500');
-        setTimeout(() => card.classList.remove('ring-2', 'ring-brand-500'), 2000);
+      if (!card) return;
+      const isHidden = card.classList.contains('hidden');
+      if (isHidden) {
+        card.classList.remove('hidden');
+        // Switch to guide or scroll into view
+        if (activeTabId !== 'guide') {
+          switchTab('guide');
+        }
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        showToast("⏱️ Edge-Counter & Countdown eingeblendet");
+      } else {
+        card.classList.add('hidden');
       }
     }
 
     function incrementEdgeCount() {
       edgeCount++;
-      const badge = document.getElementById('edge-count-badge');
-      if (badge) badge.innerText = `Edge ${edgeCount}`;
-      playHarmonicGong(1.1 + (edgeCount * 0.05));
+      const badge1 = document.getElementById('edge-count-badge');
+      const badge2 = document.getElementById('cockpit-edge-badge');
+      if (badge1) badge1.innerText = `Edge ${edgeCount}`;
+      if (badge2) badge2.innerText = `${edgeCount} Edges`;
+      playHarmonicGong(1.1 + (edgeCount * 0.04));
       showToast(`Edge ${edgeCount} gezählt!`);
     }
 
     function resetEdgeCount() {
       edgeCount = 0;
-      const badge = document.getElementById('edge-count-badge');
-      if (badge) badge.innerText = `Edge 0`;
+      const badge1 = document.getElementById('edge-count-badge');
+      const badge2 = document.getElementById('cockpit-edge-badge');
+      if (badge1) badge1.innerText = `Edge 0`;
+      if (badge2) badge2.innerText = `0 Edges`;
       showToast("Edge-Zähler zurückgesetzt.");
+    }
+
+    function adjustCountdownDuration(delta) {
+      setCountdownDuration(selectedCountdownDuration + delta);
+    }
+
+    function setCountdownDuration(seconds) {
+      const parsed = parseInt(seconds, 10);
+      selectedCountdownDuration = isNaN(parsed) || parsed < 1 ? 1 : (parsed > 300 ? 300 : parsed);
+
+      const customInput = document.getElementById('cd-custom-input');
+      if (customInput && document.activeElement !== customInput) {
+        customInput.value = selectedCountdownDuration;
+      }
+
+      [10, 20, 30, 60].forEach(s => {
+        const btn = document.getElementById(`cd-pill-${s}`);
+        if (btn) {
+          if (s === selectedCountdownDuration) {
+            btn.className = "px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white";
+          }
+        }
+      });
+
+      const btnText = document.getElementById('countdown-btn-text');
+      if (btnText) btnText.innerText = `Countdown starten (${selectedCountdownDuration}s Freigabe)`;
+    }
+
+    function getCountdownVoiceQuote(count) {
+      if (count >= 25) return "„Ganz ruhig durchatmen... halte die Spannung, ich zähle dich herunter.“";
+      if (count >= 20) return "„Zwanzig... Spüre das Beben in deinem Körper, aber halte still!“";
+      if (count >= 15) return "„Fünfzehn... Die Lust gehört mir. Noch kein Zucken.“";
+      if (count === 10) return "„Zehn... Atme ganz tief ein. Wir nähern uns der Schwelle.“";
+      if (count === 9) return "„Neun... Konzentrier dich voll auf meine Stimme.“";
+      if (count === 8) return "„Acht... Spüre die Schwelle, halte still!“";
+      if (count === 7) return "„Sieben... Nicht nachgeben, bleib ganz bei mir.“";
+      if (count === 6) return "„Sechs... Die Erregung steigt, noch halten!“";
+      if (count === 5) return "„Fünf... Atme ein. Noch kein Ausbrechen.“";
+      if (count === 4) return "„Vier... Spüre die absolute Grenze.“";
+      if (count === 3) return "„Drei... Ganz kurz noch halten!“";
+      if (count === 2) return "„Zwei... Mach dich bereit für die Explosion!“";
+      if (count === 1) return "„Eins! Jetzt! Du darfst explodieren! Lass alles raus!“";
+      return `„Noch ${count}... Halte still!“`;
     }
 
     function startOrgasmCountdown() {
@@ -972,19 +1117,18 @@
       if (btn) btn.classList.add('hidden');
       if (disp) disp.classList.remove('hidden');
 
-      let currentCount = 5;
-      const voiceQuotes = {
-        5: "„Fünf... Atme tief ein. Noch nicht kommen.“",
-        4: "„Vier... Halte still. Spüre die Grenze.“",
-        3: "„Drei... Die Lust gehört mir. Gleich darfst du.“",
-        2: "„Zwei... Ganz kurz noch halten!“",
-        1: "„Eins! Jetzt! Du darfst explodieren!“"
-      };
+      let currentCount = selectedCountdownDuration;
 
       function updateStep() {
         if (numEl) numEl.innerText = currentCount;
-        if (quoteEl) quoteEl.innerText = voiceQuotes[currentCount] || "Jetzt!";
-        playHarmonicGong(1.0 + ((6 - currentCount) * 0.15));
+        if (quoteEl) {
+          quoteEl.innerText = getCountdownVoiceQuote(currentCount);
+        }
+        
+        // Tonhöhe steigt harmonisch mit jedem Schritt bis zum Finale
+        const progress = Math.max(0, selectedCountdownDuration - currentCount);
+        const pitchRatio = Math.min(0.6, (progress / Math.max(1, selectedCountdownDuration)) * 0.6);
+        playHarmonicGong(1.0 + pitchRatio);
 
         if (currentCount <= 1) {
           clearInterval(countdownTimer);
@@ -992,14 +1136,14 @@
           setTimeout(() => {
             if (btn) btn.classList.remove('hidden');
             if (disp) disp.classList.add('hidden');
-          }, 4000);
+          }, 3500);
         } else {
           currentCount--;
         }
       }
 
       updateStep();
-      countdownTimer = setInterval(updateStep, 1500);
+      countdownTimer = setInterval(updateStep, 1000);
     }
 
     /* 4/7/8 ZEN ATEM-RING */
@@ -1056,12 +1200,22 @@
       ];
 
       const p = prompts[Math.floor(Math.random() * prompts.length)];
+      
+      // Update both modal box and inline card
       const box = document.getElementById('whisper-result-box');
       const text = document.getElementById('whisper-text');
       if (box && text) {
         text.innerText = p;
         box.classList.remove('hidden');
       }
+
+      const inlineCard = document.getElementById('inline-whisper-card');
+      const inlineText = document.getElementById('inline-whisper-text');
+      if (inlineCard && inlineText) {
+        inlineText.innerText = p;
+        inlineCard.classList.remove('hidden');
+      }
+
       playHarmonicGong(1.2);
     }
 
@@ -1781,7 +1935,7 @@
             <strong class="text-xs font-bold text-white">${p.item.id}. ${escapeHtml(p.item.title)}</strong>
             ${p.isNote2 ? '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Note 2 Duldung</span>' : '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold session-card text-slate-300">Match</span>'}
           </div>
-          <p class="text-[11px] text-slate-300">${escapeHtml(p.item.desc)}</p>
+          <p class="text-[11px] text-slate-300">${escapeHtml(p.desc)}</p>
           <button onclick="applyIncidentPenaltyDirectly('${escapeHtml(p.role)}', '${escapeHtml(p.item.title)}')" class="w-full py-1.5 mt-1 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow transition touch-pill">
             ✓ In Phase 3 einweben
           </button>
@@ -1985,6 +2139,8 @@
         subPartner,
         executedActions,
         checkInIntervalSetting,
+        edgeCount,
+        selectedCountdownDuration,
         timestamp: Date.now()
       };
       sessionStorage.setItem('session_snapshot', JSON.stringify(snap));
@@ -2004,6 +2160,16 @@
           customSafeword = snap.customSafeword || '';
           subPartner = snap.subPartner || 'B';
           executedActions = snap.executedActions || [];
+          if (snap.edgeCount !== undefined) {
+            edgeCount = snap.edgeCount;
+            const b1 = document.getElementById('edge-count-badge');
+            const b2 = document.getElementById('cockpit-edge-badge');
+            if (b1) b1.innerText = `Edge ${edgeCount}`;
+            if (b2) b2.innerText = `${edgeCount} Edges`;
+          }
+          if (snap.selectedCountdownDuration) {
+            setCountdownDuration(snap.selectedCountdownDuration);
+          }
           if (snap.checkInIntervalSetting) {
             checkInIntervalSetting = snap.checkInIntervalSetting;
             const selectEl = document.getElementById('select-checkin-interval');
