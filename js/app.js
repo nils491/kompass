@@ -1,7 +1,8 @@
-let currentUser = 'A'; // 'A' oder 'B'
+let currentUser = 'A';
 let currentChapterIndex = 0;
 let singleRadarInstance = null;
 let pairRadarInstance = null;
+let onboardingStep = 1;
 
 let names = { A: 'Partner 1', B: 'Partner 2' };
 let answers = { A: {}, B: {} };
@@ -22,6 +23,7 @@ function initApp() {
   if (sessionStorage.getItem('kompass_unlocked') === 'true') {
     const lock = document.getElementById('site-lockscreen');
     if (lock) lock.classList.add('hidden');
+    checkOnboardingStatus();
   }
 
   updateCurrentUserUI();
@@ -43,8 +45,88 @@ function verifySitePassword() {
     if (lock) lock.classList.add('hidden');
     if (err) err.classList.add('hidden');
     showToast("Erfolgreich entsperrt!");
+    checkOnboardingStatus();
   } else {
     if (err) err.classList.remove('hidden');
+  }
+}
+
+function checkOnboardingStatus() {
+  const u = currentUser;
+  if (!accounts[u]?.setupDone) {
+    openOnboardingModal();
+  }
+}
+
+function openOnboardingModal() {
+  onboardingStep = 1;
+  const title = document.getElementById('onboarding-user-title');
+  if (title) title.innerText = names[currentUser];
+  const nameInput = document.getElementById('onboarding-name-input');
+  if (nameInput) nameInput.value = names[currentUser];
+  updateOnboardingStepUI();
+  const m = document.getElementById('modal-onboarding');
+  if (m) m.classList.remove('hidden');
+}
+
+function updateOnboardingStepUI() {
+  const s1 = document.getElementById('onboarding-step-1');
+  const s2 = document.getElementById('onboarding-step-2');
+  const s3 = document.getElementById('onboarding-step-3');
+  const prevBtn = document.getElementById('onboarding-btn-prev');
+  const nextBtn = document.getElementById('onboarding-btn-next');
+  const ind = document.getElementById('onboarding-step-indicator');
+
+  if (ind) ind.innerText = `Schritt ${onboardingStep} von 3`;
+
+  [s1, s2, s3].forEach(s => { if (s) s.classList.add('hidden'); });
+
+  if (onboardingStep === 1) {
+    if (s1) s1.classList.remove('hidden');
+    if (prevBtn) prevBtn.classList.add('hidden');
+    if (nextBtn) nextBtn.innerText = "Weiter →";
+  } else if (onboardingStep === 2) {
+    if (s2) s2.classList.remove('hidden');
+    if (prevBtn) prevBtn.classList.remove('hidden');
+    if (nextBtn) nextBtn.innerText = "Weiter →";
+  } else if (onboardingStep === 3) {
+    if (s3) s3.classList.remove('hidden');
+    if (prevBtn) prevBtn.classList.remove('hidden');
+    if (nextBtn) nextBtn.innerText = "Fertig & Starten ✨";
+  }
+}
+
+function prevOnboardingStep() {
+  if (onboardingStep > 1) {
+    onboardingStep--;
+    updateOnboardingStepUI();
+  }
+}
+
+function nextOnboardingStep() {
+  const u = currentUser;
+  if (onboardingStep === 1) {
+    const val = document.getElementById('onboarding-name-input')?.value.trim();
+    if (val) {
+      names[u] = val;
+      updateCurrentUserUI();
+    }
+    onboardingStep = 2;
+    updateOnboardingStepUI();
+  } else if (onboardingStep === 2) {
+    const sel = document.querySelector('input[name="onboarding-privacy"]:checked')?.value || 'blind';
+    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true, chapters: {} };
+    privacy[u].mode = sel;
+    onboardingStep = 3;
+    updateOnboardingStepUI();
+  } else if (onboardingStep === 3) {
+    const email = document.getElementById('onboarding-email-input')?.value.trim() || '';
+    if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
+    accounts[u].email = email;
+    accounts[u].setupDone = true;
+    saveToLocalStorage();
+    document.getElementById('modal-onboarding')?.classList.add('hidden');
+    showToast(`Willkommen, ${names[u]}! Viel Freude beim Ausfüllen.`);
   }
 }
 
@@ -135,6 +217,7 @@ function setCurrentUser(user) {
   updateProgressBar();
   updateTabuBadge();
   checkChapterQuickGridVisibility();
+  checkOnboardingStatus();
   showToast(`Aktives Profil: ${names[user]}`);
 }
 
@@ -152,7 +235,7 @@ function updateCurrentUserUI() {
     btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs";
     btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
   } else {
-    btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-violet-700 shadow-xs";
+    btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-purple-700 shadow-xs";
     btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
   }
 
@@ -163,6 +246,7 @@ function updateCurrentUserUI() {
 }
 
 function renderCurrentChapter() {
+  if (!window.surveyChapters || window.surveyChapters.length === 0) return;
   const ch = surveyChapters[currentChapterIndex];
   if (!ch) return;
 
@@ -228,7 +312,6 @@ function renderCurrentChapter() {
             <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
           </div>
 
-          <!-- Zeile 1: Aktiv / Geben -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
             <div class="flex justify-between items-center text-xs">
               <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
@@ -243,7 +326,6 @@ function renderCurrentChapter() {
             </div>
           </div>
 
-          <!-- Zeile 2: Passiv / Empfangen -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
             <div class="flex justify-between items-center text-xs">
               <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
@@ -333,7 +415,7 @@ function jumpToChapter(idx) {
 
 function renderQuickGrid() {
   const grid = document.getElementById('quick-grid-buttons');
-  if (!grid) return;
+  if (!grid || !window.surveyChapters) return;
   grid.innerHTML = surveyChapters.map((ch, idx) => `
     <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
       ${idx + 1}. ${escapeHtml(ch.title)}
@@ -353,6 +435,7 @@ function checkChapterQuickGridVisibility() {
 }
 
 function updateProgressBar() {
+  if (!window.surveyChapters) return;
   let totalQuestions = 0;
   surveyChapters.forEach(c => {
     c.items.forEach(it => {
@@ -633,8 +716,8 @@ function renderPairAnalysis() {
 
       const notesHtml = (d.noteA || d.noteB) 
         ? `<div class="pt-1 text-[10.5px] text-slate-500 space-y-0.5">
-            ${d.noteA ? `<p><strong>Notiz ${names.A}:</strong>${escapeHtml(d.noteA)}</p>` : ''}
-            ${d.noteB ? `<p><strong>Notiz ${names.B}:</strong>${escapeHtml(d.noteB)}</p>` : ''}
+            ${d.noteA ? `<p><strong>Notiz ${names.A}:</strong> ${escapeHtml(d.noteA)}</p>` : ''}
+            ${d.noteB ? `<p><strong>Notiz ${names.B}:</strong> ${escapeHtml(d.noteB)}</p>` : ''}
            </div>`
         : '';
 
@@ -981,7 +1064,7 @@ function closeLexikonModal() {
 
 function filterLexikon(q) {
   const container = document.getElementById('lexikon-entries-container');
-  if (!container) return;
+  if (!container || !window.lexikonData) return;
   const query = (q || '').toLowerCase();
   const filtered = lexikonData.filter(l => l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query));
 
