@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,6 +63,44 @@
       border-color: #1a2438 !important;
     }
 
+    /* Globale Dark-Mode Mappings für dynamisch generierte Karten & Dialoge */
+    html.dark .bg-white {
+      background-color: #0f1523 !important;
+      color: #f8fafc !important;
+    }
+    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 {
+      background-color: #141c2e !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .bg-slate-100 {
+      background-color: #1a2438 !important;
+      color: #f8fafc !important;
+    }
+    html.dark .border-slate-200, html.dark .border-slate-300, html.dark .border-slate-100 {
+      border-color: #1e293b !important;
+    }
+    html.dark .text-slate-900, html.dark .text-slate-800 {
+      color: #f8fafc !important;
+    }
+    html.dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    html.dark .text-slate-600, html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    html.dark input[type="text"], html.dark input[type="email"], html.dark select {
+      background-color: #141c2e !important;
+      border-color: #24334f !important;
+      color: #f8fafc !important;
+    }
+    html.dark input::placeholder {
+      color: #64748b !important;
+    }
+    html.dark footer {
+      background-color: #090d16 !important;
+      border-color: #1e293b !important;
+    }
+
     /* Light Theme (Clean Neutral Slate & Wine) */
     html:not(.dark) body {
       background-color: #f8fafc !important;
@@ -97,17 +135,22 @@
   <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
       
-      <!-- Brand -->
+      <!-- Brand mit edlem Vektor-Logo -->
       <div class="flex items-center space-x-2.5">
-        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-700 to-rose-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-brand-950/30">
-          🧭
-        </span>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg shadow-brand-950/40 p-1.5 flex-shrink-0">
+          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
+            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
+            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+          </svg>
+        </div>
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Kink- & Paar-Kompass</h1>
+            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Intim- & Paar-Kompass</h1>
             <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
           </div>
-          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Selbsterkenntnis & Beziehungs-Dynamik</span>
+          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Beziehungs-Dynamik</span>
         </div>
       </div>
 
