@@ -7,6 +7,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    // Sofortiges Auslesen des gespeicherten Designs zur Vermeidung von Flimmern
+    (function() {
+      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -43,7 +53,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     
-    /* Dark Theme (Standard: Obsidian / Anthrazit / Weiß / Weinrot) */
+    /* Dark Theme (Obsidian / Anthrazit / Weiß / Weinrot) */
     html.dark body {
       background-color: #05070c !important;
       color: #f8fafc !important;
@@ -63,7 +73,7 @@
       border-color: #1a2438 !important;
     }
 
-    /* Globale Dark-Mode Mappings für dynamisch generierte Karten & Dialoge */
+    /* Globale Dark-Mode Mappings für dynamische Karten */
     html.dark .bg-white {
       background-color: #0f1523 !important;
       color: #f8fafc !important;
@@ -118,6 +128,17 @@
     }
     html:not(.dark) .theme-subtle {
       background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .bg-white {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .bg-slate-50 {
+      background-color: #f8fafc !important;
+      color: #334155 !important;
+    }
+    html:not(.dark) .border-slate-200 {
       border-color: #e2e8f0 !important;
     }
 
