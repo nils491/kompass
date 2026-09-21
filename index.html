@@ -46,13 +46,45 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      background-color: #090d16;
+      color: #f1f5f9;
+    }
+    /* Mystischer, geschmackvoller Dark-Modus */
+    .bg-white {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+    .bg-slate-50 {
+      background-color: #141c2e !important;
+      border-color: #1e293b !important;
+      color: #cbd5e1 !important;
+    }
+    .bg-slate-100 {
+      background-color: #1a243b !important;
+      border-color: #334155 !important;
+      color: #e2e8f0 !important;
+    }
+    .text-slate-900, .text-slate-800, .text-slate-700 {
+      color: #f8fafc !important;
+    }
+    .text-slate-600, .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    .border-slate-200, .border-slate-300 {
+      border-color: #1e293b !important;
+    }
+    input, select {
+      background-color: #0b1120 !important;
+      color: #f8fafc !important;
+      border-color: #334155 !important;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 5px;
       height: 5px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #334155;
       border-radius: 9999px;
     }
     .touch-pill {
@@ -63,39 +95,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
-
-  <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 text-center space-y-5">
-      <div class="w-16 h-16 bg-brand-50 border border-brand-200 text-brand-600 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner">
-        🔒
-      </div>
-      <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Privater Beziehungs-Kompass</h2>
-        <p class="text-xs text-slate-500 leading-relaxed">
-          Diese Seite enthält persönliche und vertrauliche Intimbereiche. Bitte gib das vereinbarte Zugangspasswort ein.
-        </p>
-      </div>
-      <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
-               onkeydown="if(event.key==='Enter') verifySitePassword()"
-               class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold tracking-wider focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md shadow-brand-600/20 transition touch-pill">
-          Entsperren & Fortfahren
-        </button>
-        <p id="pw-error-hint" class="hidden text-xs text-rose-600 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-      <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-400">
-        🛡️ <strong>100 % Lokaler Datenschutz:</strong> Eure Daten werden niemals in einer Cloud gespeichert.
-      </div>
-    </div>
-  </div>
-
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3 sm:px-6 py-2.5">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
-      
-      <div class="flex items-center space-x-2.5">
-        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-500 text-white flex items-center justify-center font-black text-sm shadow-xs">
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
           🧭
         </span>
         <div>
@@ -591,6 +591,18 @@
           <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
             <span>✉️</span> Meinen aktuellen Daten-Link an mich mailen
           </button>
+        </div>
+
+        <div class="p-3.5 bg-gradient-to-tr from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 rounded-2xl space-y-2.5 text-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📲</span>
+            <strong class="font-bold text-white text-xs">Als App auf dem Smartphone speichern:</strong>
+          </div>
+          <div class="space-y-1.5 text-[11px] leading-relaxed text-slate-300">
+            <p>• <strong>iPhone (Safari):</strong> Unten auf das Teilen-Symbol <span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 font-mono text-[10px]">⎋ / ↥</span> tippen $\rightarrow$ etwas nach unten scrollen $\rightarrow$ <strong>„Zum Home-Bildschirm“</strong> wählen.</p>
+            <p>• <strong>Android (Chrome):</strong> Oben rechts auf die <strong>drei Punkte</strong> tippen $\rightarrow$ <strong>„App installieren“</strong> oder <strong>„Zum Startbildschirm hinzufügen“</strong> wählen.</p>
+          </div>
+          <span class="text-[10px] text-indigo-300 block font-medium">✨ Startet danach ohne störende Browserleisten im Vollbild.</span>
         </div>
 
         <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
