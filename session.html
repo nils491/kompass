@@ -2,10 +2,10 @@
 <html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"                                   >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Session-Begleiter & Schlafzimmer-Zentrale</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>                           
+  <script>
     (function() {
       const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
       if (savedTheme === 'dark') {
@@ -28,7 +28,6 @@
               600: '#e11d48',
               700: '#be123c',
               800: '#9f1239',
-              900: '#881337',
               950: '#4c0519',
             },
             obsidian: {
@@ -112,14 +111,6 @@
     .touch-target-48 {
       min-height: 48px;
     }
-
-    @keyframes pulse-gentle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.85; transform: scale(0.99); }
-    }
-    .animate-pulse-gentle {
-      animation: pulse-gentle 4s ease-in-out infinite;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -151,6 +142,7 @@
     </div>
   </div>
 
+  <!-- KOMPAKTER HEADER (AUFGERÄUMT FÜR SMARTPHONES) -->
   <header class="sticky top-0 z-40 session-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
       
@@ -161,7 +153,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
             <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
             <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+            <circle cx="12" cy="1.5" fill="#f43f5e" />
           </svg>
         </div>
         <div>
@@ -173,89 +165,129 @@
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-1 sm:gap-1.5">
-        <button onclick="openSessionTabuModal()" class="px-2 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/80 flex items-center gap-1 transition touch-pill" title="Gemeinsame Tabus (Note 1)">
+      <!-- Action Buttons (Mobil: Nur Tabu & Burger-Menü) -->
+      <div class="flex items-center gap-1.5">
+        <!-- Schnelltaste Tabus -->
+        <button onclick="openSessionTabuModal()" class="px-2.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/80 flex items-center gap-1 transition touch-pill" title="Gemeinsame Tabus (Note 1)">
           <span>⛔</span> <span class="hidden sm:inline text-[11px]">Tabus</span> (<span id="header-tabu-count">0</span>)
         </button>
 
-        <button onclick="openCockpitToolsModal()" class="px-2.5 py-1.5 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Schlafzimmer-Werkzeuge öffnen">
+        <!-- Desktop Quick Tools -->
+        <button onclick="openBurgerMenu()" class="hidden md:flex px-2.5 py-2 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs items-center gap-1.5 transition touch-pill" title="Schlafzimmer-Menü & Werkzeuge">
           <span>🛠️</span> <span class="text-[11px]">Werkzeuge</span>
         </button>
 
-        <button onclick="toggleBlackout()" class="p-1.5 sm:px-2.5 sm:py-1.5 session-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="Schnell-Tarnung / Sofort-Blackout">
-          <span>👁️‍🗨️</span>
+        <!-- Burger Menü Button (Großes Touch-Target für Smartphones) -->
+        <button onclick="openBurgerMenu()" id="btn-burger-open" class="w-10 h-10 rounded-xl session-panel hover:border-brand-500 border text-slate-200 hover:text-white font-black text-lg flex items-center justify-center transition touch-pill" title="Menü & Werkzeuge öffnen" aria-label="Menü">
+          ☰
         </button>
-
-        <button onclick="toggleSound()" id="btn-sound-toggle" class="p-1.5 sm:px-2.5 sm:py-1.5 session-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="Klangschalen-Gong umschalten">
-          <span id="sound-icon">🔔</span>
-        </button>
-
-        <button onclick="toggleOledMode()" id="btn-oled-toggle" class="p-1.5 sm:px-2.5 sm:py-1.5 session-panel hover:border-amber-600 border rounded-xl text-xs font-bold transition touch-pill" title="OLED Pure-Black Modus">
-          <span>🖤</span>
-        </button>
-
-        <button onclick="toggleGlobalTheme()" class="p-1.5 sm:px-2.5 sm:py-1.5 session-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="Hell/Dunkel umschalten">
-          <span id="theme-icon">🌙</span>
-        </button>
-
-        <a href="index.html" class="px-2.5 py-1.5 session-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition touch-pill flex items-center gap-1" title="Zurück zum Fragebogen">
-          <span>🧭</span> <span class="hidden md:inline text-[11px]">Kompass</span>
-        </a>
       </div>
 
     </div>
   </header>
 
-  <!-- MODAL: COCKPIT WERKZEUGE -->
-  <div id="modal-cockpit-tools" class="hidden fixed inset-0 z-[112] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-md w-full session-card p-5 rounded-3xl border border-brand-500/40 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🛠️</span>
-          <div>
-            <h3 class="text-sm sm:text-base font-black text-white">Schlafzimmer-Werkzeuge</h3>
-            <span class="text-[10px] text-slate-400">Direkter Zugriff auf alle Spezial-Tools</span>
+  <!-- SLIDE-OVER DRAWER (BURGER-MENÜ VON RECHTS) -->
+  <div id="drawer-burger-menu" class="hidden fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex justify-end">
+    <div class="max-w-xs sm:max-w-sm w-full h-full session-card border-l p-5 space-y-5 overflow-y-auto flex flex-col justify-between shadow-2xl">
+      
+      <!-- Drawer Header -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🛠️</span>
+            <div>
+              <h3 class="text-sm font-black text-white">Cockpit & Werkzeuge</h3>
+              <span class="text-[10px] text-slate-400">Direktzugriff für das Schlafzimmer</span>
+            </div>
+          </div>
+          <button onclick="closeBurgerMenu()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center text-sm">✕</button>
+        </div>
+
+        <!-- 4 Schlafzimmer-Werkzeuge -->
+        <div class="space-y-2">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Spezial-Werkzeuge</span>
+          <div class="grid grid-cols-1 gap-2 text-xs">
+            <button onclick="toggleEdgingToolPanel(); closeBurgerMenu();" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-left flex items-center gap-3 touch-pill">
+              <span class="text-2xl">⏱️</span>
+              <div>
+                <strong class="text-brand-200 block font-bold text-xs">Edge-Counter & Countdown</strong>
+                <span class="text-[10px] text-slate-400 block leading-tight">Zähler & variabler Orgasmus-Countdown</span>
+              </div>
+            </button>
+
+            <button onclick="openZenBreathingModal(); closeBurgerMenu();" class="p-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/80 text-left flex items-center gap-3 touch-pill">
+              <span class="text-2xl">🫁</span>
+              <div>
+                <strong class="text-teal-200 block font-bold text-xs">4/7/8 Atem-Taktkreis</strong>
+                <span class="text-[10px] text-slate-400 block leading-tight">Vagusnerv-Entspannung mit Zen-Ring</span>
+              </div>
+            </button>
+
+            <button onclick="triggerWhisperPrompt(); closeBurgerMenu();" class="p-3 rounded-2xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/80 text-left flex items-center gap-3 touch-pill">
+              <span class="text-2xl">💬</span>
+              <div>
+                <strong class="text-purple-200 block font-bold text-xs">Flüster-Impuls</strong>
+                <span class="text-[10px] text-slate-400 block leading-tight">Zärtlicher Dirty Talk ins Ohr</span>
+              </div>
+            </button>
+
+            <button onclick="openDiscreetBedsideClock(); closeBurgerMenu();" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex items-center gap-3 touch-pill">
+              <span class="text-2xl">🕰️</span>
+              <div>
+                <strong class="text-slate-200 block font-bold text-xs">Nachttisch-Uhr</strong>
+                <span class="text-[10px] text-slate-400 block leading-tight">Unauffällige Tarnung bei Störung</span>
+              </div>
+            </button>
           </div>
         </div>
-        <button onclick="closeCockpitToolsModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+
+        <!-- Ambiente & Tarnung -->
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ambiente & Schalter</span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="toggleBlackout(); closeBurgerMenu();" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
+              <span class="block text-base">👁️‍🗨️</span>
+              <strong class="block text-[11px] text-slate-200">Sofort-Blackout</strong>
+            </button>
+
+            <button onclick="toggleSound()" id="drawer-btn-sound" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
+              <span class="block text-base" id="drawer-sound-icon">🔔</span>
+              <strong class="block text-[11px] text-slate-200" id="drawer-sound-text">Gong: Aktiv</strong>
+            </button>
+
+            <button onclick="toggleOledMode()" class="p-2.5 rounded-xl session-panel hover:border-amber-600 border text-left touch-pill">
+              <span class="block text-base">🖤</span>
+              <strong class="block text-[11px] text-slate-200">OLED Pure Black</strong>
+            </button>
+
+            <button onclick="toggleGlobalTheme()" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
+              <span class="block text-base" id="drawer-theme-icon">🌙</span>
+              <strong class="block text-[11px] text-slate-200" id="drawer-theme-text">Tag/Nacht</strong>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation zu anderen Teilen -->
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Verknüpfte Bereiche</span>
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+            <a href="index.html" class="p-2.5 rounded-xl session-panel hover:border-brand-600 border flex items-center gap-2 text-slate-200 hover:text-white">
+              <span>🧭</span> <span>Fragebogen</span>
+            </a>
+            <a href="analyse.html" class="p-2.5 rounded-xl session-panel hover:border-brand-600 border flex items-center gap-2 text-slate-200 hover:text-white">
+              <span>📊</span> <span>Paar-Analyse</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2.5 text-xs">
-        <button onclick="toggleEdgingToolPanel(); closeCockpitToolsModal();" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-left space-y-1 touch-pill">
-          <span class="text-xl block">⏱️</span>
-          <strong class="text-brand-200 block font-bold">Edge-Counter</strong>
-          <span class="text-[10px] text-slate-400 block leading-tight">Zähler & variabler Orgasmus-Countdown</span>
-        </button>
-
-        <button onclick="openZenBreathingModal()" class="p-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/80 text-left space-y-1 touch-pill">
-          <span class="text-xl block">🫁</span>
-          <strong class="text-teal-200 block font-bold">4/7/8 Atem-Takt</strong>
-          <span class="text-[10px] text-slate-400 block leading-tight">Pulsierender Vagusnerv-Zen-Ring</span>
-        </button>
-
-        <button onclick="triggerWhisperPrompt()" class="p-3 rounded-2xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/80 text-left space-y-1 touch-pill">
-          <span class="text-xl block">💬</span>
-          <strong class="text-purple-200 block font-bold">Flüster-Impuls</strong>
-          <span class="text-[10px] text-slate-400 block leading-tight">Zärtlicher Dirty Talk ins Ohr</span>
-        </button>
-
-        <button onclick="openDiscreetBedsideClock()" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left space-y-1 touch-pill">
-          <span class="text-xl block">🕰️</span>
-          <strong class="text-slate-200 block font-bold">Nachttisch-Uhr</strong>
-          <span class="text-[10px] text-slate-400 block leading-tight">Unauffällige Tarnung bei Klopfen</span>
+      <!-- Drawer Footer -->
+      <div class="pt-3 border-t border-slate-800 text-center">
+        <button onclick="closeBurgerMenu()" class="w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-pill">
+          Schließen & Zurück zur Session
         </button>
       </div>
 
-      <!-- Whisper Prompt Result Box inside Modal -->
-      <div id="whisper-result-box" class="hidden p-3.5 rounded-2xl bg-purple-950/50 border border-purple-700/60 text-xs space-y-1">
-        <span class="text-[9.5px] font-bold text-purple-300 uppercase tracking-widest block">🗣️ Jetzt ins Ohr flüstern:</span>
-        <p class="text-slate-200 italic text-xs leading-relaxed" id="whisper-text">„...“</p>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeCockpitToolsModal()" class="px-4 py-2 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-xs">Schließen</button>
-      </div>
     </div>
   </div>
 
@@ -503,7 +535,7 @@
           </div>
         </button>
 
-        <!-- Weg 2: Geführte Session (Planer als natürlicher Schritt 1, dann Regiebuch) -->
+        <!-- Weg 2: Geführte Session -->
         <button onclick="selectSessionMode('guided_flow')" class="session-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl bg-purple-950/80 border border-purple-700/80 text-purple-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
             📖
@@ -531,7 +563,7 @@
 
     </div>
 
-    <!-- STUFE 2: VOLLSTÄNDIGER ARBEITSBEREICH MIT TIMER & COCKPIT (INITIAL VERBORGEN) -->
+    <!-- STUFE 2: VOLLSTÄNDIGER ARBEITSBEREICH MIT TIMER & COCKPIT -->
     <div id="cockpit-main-workspace" class="hidden space-y-4">
       
       <!-- SUB-BAR: ROLLENWAHL, MODUS-WECHSLER & STATUS -->
@@ -562,22 +594,82 @@
 
       <!-- 2-SPALTEN COCKPIT GRID -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-              <span class="text-base block">🫁</span>
-              <strong class="text-teal-200 block font-bold text-[11px]">4/7/8 Atemkreis</strong>
-              <span class="text-[9.5px] text-slate-400 block">Vagusnerv-Takt</span>
-            </button>
+        
+        <!-- LINKE SPALTE: DAS FESTE STEUERPULT (TIMER & AMPEL) -->
+        <aside class="lg:col-span-5 space-y-4">
+          
+          <!-- Der Haupt-Timer -->
+          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3.5 shadow-md">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Session-Laufzeit</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="openTimerResetModal()" class="px-2 py-0.5 rounded-lg session-panel border text-slate-400 hover:text-white text-[10.5px] font-bold transition touch-pill" title="Timer zurücksetzen">
+                  🔄 Reset
+                </button>
+                <span class="px-2 py-0.5 rounded-lg bg-brand-950 border border-brand-800 text-brand-300 text-[10px] font-mono font-bold" id="cockpit-edge-badge">0 Edges</span>
+              </div>
+            </div>
 
-            <button onclick="triggerWhisperPrompt()" class="p-2.5 rounded-2xl session-panel hover:border-purple-500/60 border text-left space-y-1 transition touch-pill">
-              <span class="text-base block">💬</span>
-              <strong class="text-purple-200 block font-bold text-[11px]">Flüster-Impuls</strong>
-              <span class="text-[9.5px] text-slate-400 block">Dirty Talk ins Ohr</span>
-            </button>
+            <!-- Zeitanzeige -->
+            <div class="text-center py-1">
+              <div class="text-5xl sm:text-6xl font-mono font-black tracking-tight text-white" id="timer-display">45:00</div>
+              <span class="text-[11px] text-slate-400 font-medium block mt-1">Verbleibende Session-Dauer</span>
+            </div>
 
-            <button onclick="openDiscreetBedsideClock()" class="p-2.5 rounded-2xl session-panel hover:border-slate-500 border text-left space-y-1 transition touch-pill">
-              <span class="text-base block">🕰️</span>
-              <strong class="text-slate-300 block font-bold text-[11px]">Nachttisch-Uhr</strong>
-              <span class="text-[9.5px] text-slate-400 block">Diskrete Tarnung</span>
+            <!-- Start / Pause Button & Verlängerung -->
+            <div class="space-y-2">
+              <button onclick="toggleTimer()" id="btn-timer-toggle" class="w-full py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-sm shadow-lg transition touch-pill flex items-center justify-center gap-2">
+                <span id="free-play-icon">▶</span>
+                <span id="free-play-text">Session starten</span>
+              </button>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                <button onclick="extendTimer(15)" class="py-2.5 rounded-xl session-panel hover:border-brand-600 border text-slate-300 hover:text-white transition touch-pill">
+                  +15 Min.
+                </button>
+                <button onclick="extendTimer(30)" class="py-2.5 rounded-xl session-panel hover:border-brand-600 border text-slate-300 hover:text-white transition touch-pill">
+                  +30 Min.
+                </button>
+              </div>
+            </div>
+
+            <!-- Laufzeit-Vorauswahl -->
+            <div class="pt-2 border-t border-slate-800">
+              <div class="flex justify-between items-center text-[10.5px] text-slate-400 mb-1.5">
+                <span>Dauer festlegen:</span>
+                <span>45 / 75 / 120 Min.</span>
+              </div>
+              <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
+                <button onclick="startTimer(45)" id="btn-free-dur-45" class="py-2 rounded-xl bg-brand-700 border border-brand-600 text-white touch-pill">45 Min.</button>
+                <button onclick="startTimer(75)" id="btn-free-dur-75" class="py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill">75 Min.</button>
+                <button onclick="startTimer(120)" id="btn-free-dur-120" class="py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill">120 Min.</button>
+              </div>
+            </div>
+
+            <!-- Sanfter Übergang zu Aftercare -->
+            <button onclick="finishSessionGently()" class="w-full py-2 session-panel hover:border-teal-500/60 border text-teal-300 hover:text-teal-200 font-bold text-xs rounded-xl transition touch-pill">
+              ✨ Sanfter Übergang ins Aftercare
             </button>
+          </div>
+
+          <!-- Die Taktile 3-Farb-Ampel -->
+          <div class="session-card p-4 rounded-3xl border space-y-2.5 shadow-md">
+            <div class="flex justify-between items-center">
+              <strong class="text-xs font-bold text-slate-300">Blinde Notfall-Ampel:</strong>
+              <span class="text-[10px] text-slate-500 font-mono">Taktiler Fingertipp</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="triggerTrafficLight('green')" class="py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-md transition touch-pill">
+                🟢 Grün<br><span class="text-[9.5px] font-normal opacity-80">Weiter</span>
+              </button>
+              <button onclick="triggerTrafficLight('yellow')" class="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-xs shadow-md transition touch-pill">
+                🟡 Gelb<br><span class="text-[9.5px] font-normal opacity-80">Sanfter</span>
+              </button>
+              <button onclick="triggerTrafficLight('red')" class="py-4 rounded-2xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md transition touch-pill">
+                🔴 Rot<br><span class="text-[9.5px] font-normal opacity-80">Stopp</span>
+              </button>
+            </div>
           </div>
 
           <!-- Schneller Flüster-Anzeige-Kasten -->
@@ -585,391 +677,390 @@
             <span class="text-[9px] font-bold text-purple-300 uppercase tracking-widest block">🗣️ Ins Ohr flüstern:</span>
             <p class="text-slate-200 italic text-[11.5px] leading-relaxed" id="inline-whisper-text">„...“</p>
           </div>
-        </div>
 
-      </aside>
+        </aside>
 
-      <!-- RECHTE SPALTE: DIE BÜHNE (4 HAUPT-TABS) -->
-      <section class="lg:col-span-7 space-y-3.5">
-        
-        <!-- Tab Navigation (4 Reiter) -->
-        <nav class="grid grid-cols-4 gap-1 p-1 session-card rounded-2xl border text-xs font-bold shadow-xs">
-          <button onclick="switchTab('free')" id="tab-btn-free" class="py-2.5 rounded-xl bg-brand-700 text-white shadow transition flex flex-col sm:flex-row items-center justify-center gap-1">
-            <span>🕯️</span> <span class="text-[11px] truncate">Freier Flow</span>
-          </button>
-          <button onclick="switchTab('guide')" id="tab-btn-guide" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-            <span>📖</span> <span class="text-[11px] truncate">Regiebuch</span>
-          </button>
-          <button onclick="switchTab('planner')" id="tab-btn-planner" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-            <span>⚙️</span> <span class="text-[11px] truncate">Planer</span>
-          </button>
-          <button onclick="switchTab('punishments')" id="tab-btn-punishments" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-            <span>⚖️</span> <span class="text-[11px] truncate">Strafen</span>
-          </button>
-        </nav>
-
-        <!-- VIEW 0: FREIER FLOW (DEFAULT) -->
-        <div id="view-free" class="space-y-3.5">
-          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div>
-                <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Modus: Freier Flow</span>
-                <h2 class="text-sm sm:text-base font-black text-white">Ungestörtes Spiel ohne Zwang</h2>
-              </div>
-              <span class="text-[10px] text-slate-400">Reine Cockpit-Steuerung</span>
-            </div>
-
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Ihr spielt frei nach eurer Intuition. Das linke Steuerpult hält die Zeit, den automatischen Farb-Check und die Safeword-Wächter im Blick.
-            </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-              <button onclick="rollRandomKinkPrompt()" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-brand-200 font-bold text-xs transition touch-pill flex items-center gap-2">
-                <span class="text-lg">🎲</span>
-                <div class="text-left">
-                  <span>Spontaner Reiz-Impuls</span>
-                  <span class="block text-[9.5px] font-normal text-slate-400">Zieht eine Praxis aus euren Matches</span>
-                </div>
-              </button>
-
-              <button onclick="openIncidentModal()" class="p-3 rounded-2xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-200 font-bold text-xs transition touch-pill flex items-center gap-2">
-                <span class="text-lg">⚖️</span>
-                <div class="text-left">
-                  <span>Vorfall disziplinieren</span>
-                  <span class="block text-[9.5px] font-normal text-slate-400">Verstoß sofort maßregeln</span>
-                </div>
-              </button>
-            </div>
-
-            <!-- Spontaner Prompt Kasten -->
-            <div id="spontaneous-prompt-card" class="hidden p-3 rounded-2xl bg-brand-950/40 border border-brand-800/60 space-y-1">
-              <strong class="text-xs font-bold text-brand-300 block" id="spontaneous-prompt-title">Impuls</strong>
-              <p class="text-slate-300 text-xs" id="spontaneous-prompt-desc">Beschreibung...</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- VIEW 1: REGIEBUCH (STEPPER) -->
-        <div id="view-guide" class="space-y-3.5 hidden">
-          <!-- Phasen-Header Kachel -->
-          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30" id="guide-step-badge">Phase 1 von 4</span>
-                <h2 class="text-sm sm:text-base font-black text-white" id="guide-step-name">1. Ankommen & Vorbereitung</h2>
-              </div>
-              <span class="text-[10px] text-slate-400 font-mono" id="guide-phase-time-allocated">ca. 10 Min.</span>
-            </div>
-
-            <!-- 4 Stepper Tabs -->
-            <div class="grid grid-cols-4 gap-1.5">
-              <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600">
-                1. Ankommen
-              </button>
-              <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                2. Sensorik
-              </button>
-              <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                3. Hauptakt
-              </button>
-              <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                4. Aftercare
-              </button>
-            </div>
-
-            <!-- Zitat / Leitwort für den Führenden -->
-            <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-800/40 text-xs italic text-brand-200">
-              <span id="phase-prompt-quote">„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“</span>
-            </div>
-          </div>
-
-          <!-- BOTTOM-PROTOKOLL: AKTUELLE REGELN & VERHALTEN FÜR DEN SUB -->
-          <div id="guide-bottom-protocol-card" class="session-panel p-3.5 rounded-2xl border border-indigo-500/30 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <strong class="text-xs font-black text-indigo-200 flex items-center gap-1.5">
-                <span>📜</span> <span>Aktuelles Protokoll für <span id="guide-sub-name">Partner 2</span>:</span>
-              </strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded font-bold bg-indigo-950 border border-indigo-800 text-indigo-300">Verbindlich</span>
-            </div>
-            <p class="text-[11px] text-slate-300 leading-relaxed" id="guide-bottom-protocol-text">
-              Lade Haltungsregeln...
-            </p>
-          </div>
-
-          <!-- SPEZIELLE SAFEWORD-KARTE (NUR IN PHASE 1) -->
-          <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-amber-500/40 space-y-3 shadow-md bg-amber-950/10">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">🛡️</span>
-                <div>
-                  <strong class="text-xs sm:text-sm font-black text-amber-200 block">Safeword aktiv einprägen & bestätigen</strong>
-                  <span class="text-[10px] text-amber-300/80">Tippt das vereinbarte Notfallwort ein, damit es nicht vergessen wird</span>
-                </div>
-              </div>
-              <button onclick="suggestRandomSafeword()" class="px-2.5 py-1 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
-                <span>🎲</span> <span>Vorschlag</span>
-              </button>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="text" id="guide-safeword-input" placeholder="z. B. Ananas, Kaktus, Erdbeere..." class="flex-1 px-3 py-2 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
-              <button onclick="confirmSafewordInGuide()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
-                ✓ Bestätigen
-              </button>
-            </div>
-
-            <div id="confirmed-safeword-display" class="hidden p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-700/60 flex items-center justify-between text-xs text-emerald-200">
-              <span>Gespeichertes Safeword: <strong id="confirmed-safeword-name" class="font-mono text-white underline">Ananas</strong></span>
-              <span class="text-[10px] font-bold text-emerald-400">✓ Für Session aktiv</span>
-            </div>
-          </div>
-
-          <!-- EDGING-PANEL MIT SEKUNDENVORWAHL (NUR BEI BEDARF ODER IN PHASE 3) -->
-          <div id="edging-interactive-card" class="hidden session-card p-4 rounded-3xl border-2 border-brand-500/50 space-y-3 text-xs shadow-lg bg-brand-950/20">
-            <div class="flex items-center justify-between border-b border-brand-800/60 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">⏱️</span>
-                <div>
-                  <strong class="text-sm font-black text-brand-200 block">Edge-Counter & Orgasmus-Countdown</strong>
-                  <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt präzise an</span>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <span class="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-brand-900 border border-brand-700 text-brand-200 shadow-sm" id="edge-count-badge">Edge 0</span>
-                <button onclick="toggleEdgingToolPanel()" class="w-6 h-6 rounded-lg session-panel border text-slate-400 hover:text-white text-xs">✕</button>
-              </div>
-            </div>
-
-            <!-- Edge Steuerung -->
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="incrementEdgeCount()" class="py-3 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-black text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
-                <span class="text-sm">+1</span> <span>Edge zählen</span>
-              </button>
-              <button onclick="resetEdgeCount()" class="py-3 rounded-2xl session-panel hover:border-slate-500 border text-slate-300 text-xs font-bold transition touch-pill">
-                Zähler Reset
-              </button>
-            </div>
-
-            <!-- Countdown-Vorwahl & Trigger -->
-            <div class="p-3 rounded-2xl session-panel border border-slate-700/60 space-y-2.5">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-[10.5px] font-bold text-slate-300">Countdown-Dauer:</span>
-                <!-- Schnellauswahl Pills: 10s (Standard), 20s, 30s, 60s -->
-                <div class="flex items-center gap-1 text-[10.5px] font-mono font-bold">
-                  <button onclick="setCountdownDuration(10)" id="cd-pill-10" class="px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold">10s</button>
-                  <button onclick="setCountdownDuration(20)" id="cd-pill-20" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">20s</button>
-                  <button onclick="setCountdownDuration(30)" id="cd-pill-30" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">30s</button>
-                  <button onclick="setCountdownDuration(60)" id="cd-pill-60" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">60s</button>
-                </div>
-              </div>
-
-              <!-- Individuelle Sekunden-Eingabe mit Schnell-Reglern (+ / -) -->
-              <div class="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
-                <span class="text-[10px] text-slate-400 font-medium pl-1">Freie Eingabe:</span>
-                <div class="flex items-center gap-1">
-                  <button onclick="adjustCountdownDuration(-5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-5</button>
-                  <button onclick="adjustCountdownDuration(-1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-1</button>
-                  <div class="flex items-center gap-1 px-1">
-                    <input type="number" id="cd-custom-input" min="1" max="300" value="10" 
-                           onchange="setCountdownDuration(this.value)"
-                           oninput="setCountdownDuration(this.value)"
-                           class="w-12 text-center py-1 rounded-lg session-panel border border-brand-600/60 font-mono font-bold text-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
-                    <span class="text-[10px] font-bold text-slate-400">Sek.</span>
-                  </div>
-                  <button onclick="adjustCountdownDuration(1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+1</button>
-                  <button onclick="adjustCountdownDuration(5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+5</button>
-                </div>
-              </div>
-
-              <!-- Audio-Modus Wahl (1-Klick Auswahl für den Top) -->
-              <div class="space-y-1.5 pt-1 border-t border-slate-800">
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-bold text-slate-300">Countdown-Begleitung:</span>
-                  <span class="text-[9.5px] text-brand-300 font-mono font-bold" id="cd-audio-mode-label">🗣️ Selbst zählen</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 text-[11px] font-bold">
-                  <button onclick="setCountdownAudioMode('self')" id="cd-mode-self" class="py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill">
-                    <span>🗣️</span> <span>Selbst</span>
-                  </button>
-                  <button onclick="setCountdownAudioMode('metronome')" id="cd-mode-metronome" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
-                    <span>⏱️</span> <span>Metronom</span>
-                  </button>
-                  <button onclick="setCountdownAudioMode('voice')" id="cd-mode-voice" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
-                    <span>🎙️</span> <span>Stimme</span>
-                  </button>
-                </div>
-              </div>
-
-              <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
-                <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
-              </button>
-
-              <div id="countdown-live-display" class="hidden text-center py-2 space-y-2">
-                <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
-                <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
-
-                <!-- Play / Pause / Stop Buttons -->
-                <div class="grid grid-cols-3 gap-1.5 pt-1.5 max-w-xs mx-auto">
-                  <button type="button" onclick="resumeOrgasmCountdown()" id="btn-cd-play" class="py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill" title="Countdown fortsetzen">
-                    <span>▶</span> <span>Play</span>
-                  </button>
-                  <button type="button" onclick="pauseOrgasmCountdown()" id="btn-cd-pause" class="py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown pausieren">
-                    <span>⏸</span> <span>Pause</span>
-                  </button>
-                  <button type="button" onclick="stopOrgasmCountdown()" id="btn-cd-stop" class="py-2 px-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown abbrechen">
-                    <span>⏹</span> <span>Stop</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FOKUS-KARTEN: WAS NUN ZU TUN IST + VORSCHAU -->
-          <div class="space-y-3">
-            <div id="active-step-focus-card" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500/60 shadow-xl space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[10.5px] font-black uppercase tracking-wider text-brand-300 bg-brand-500/20 px-2.5 py-0.5 rounded-full border border-brand-500/30" id="focus-step-indicator">
-                  Schritt 1 von 4
-                </span>
-                <div class="flex items-center gap-2">
-                  <button onclick="toggleEdgingToolPanel()" class="text-[10px] font-bold text-brand-300 hover:underline flex items-center gap-1">
-                    <span>⏱️</span> <span>Edge-Tool</span>
-                  </button>
-                  <button onclick="openIncidentModal()" class="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1">
-                    <span>⚡</span> <span>Verstoß</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="space-y-1">
-                <h3 class="text-sm sm:text-base font-black text-white" id="focus-step-title">Lade Aktion...</h3>
-                <p class="text-xs text-slate-300 leading-relaxed" id="focus-step-desc">Lade Beschreibung...</p>
-              </div>
-
-              <!-- Wörtliche Top-Sprechzeile -->
-              <div class="p-3 rounded-2xl bg-brand-950/50 border border-brand-800/60 space-y-1">
-                <span class="text-[9.5px] font-bold text-brand-300 uppercase tracking-widest block">🗣️ Wörtlich zum Partner sprechen:</span>
-                <p class="text-xs italic text-brand-100 font-medium" id="focus-step-top-quote">„...“</p>
-              </div>
-
-              <!-- Weiter-Button -->
-              <button onclick="advanceToNextStep()" class="w-full py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
-                <span>✓ Schritt vollzogen & weiter</span>
-                <span>→</span>
-              </button>
-            </div>
-
-            <!-- 2. Vorschau-Kachel -->
-            <div id="upcoming-step-preview-card" class="session-panel p-3.5 rounded-2xl border border-slate-700/60 opacity-80 space-y-1">
-              <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">👀 Als Nächstes kommt:</span>
-              <h4 class="text-xs font-bold text-slate-200" id="preview-step-title">Nächster Schritt</h4>
-              <p class="text-[11px] text-slate-400 leading-snug line-clamp-2" id="preview-step-desc">Vorschau lädt...</p>
-            </div>
-          </div>
-
-          <!-- Dynamischer Kasten für Phase 3 -->
-          <div id="phase-dynamic-injection" class="hidden"></div>
-
-          <!-- De-Briefing Box in Phase 4 -->
-          <div id="debriefing-box" class="hidden session-card p-4 rounded-3xl border space-y-3">
-            <h3 class="text-xs sm:text-sm font-bold text-teal-300">📝 2-Minuten De-Briefing-Tagebuch</h3>
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 1 (1–10):</label>
-                <input type="range" min="1" max="10" value="7" id="slider-intensity-a" class="w-full accent-brand-600">
-              </div>
-              <div>
-                <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 2 (1–10):</label>
-                <input type="range" min="1" max="10" value="7" id="slider-intensity-b" class="w-full accent-brand-600">
-              </div>
-            </div>
-            <textarea id="debrief-notes" placeholder="Was war das Highlight? Was passen wir nächstes Mal an?..." class="w-full p-2.5 rounded-xl session-panel border text-xs focus:outline-none focus:border-brand-500"></textarea>
-            <button onclick="saveDeBriefing()" class="w-full py-2 bg-teal-700 hover:bg-teal-600 text-white font-bold rounded-xl text-xs shadow transition touch-pill">
-              💾 Im Tagebuch festhalten
+        <!-- RECHTE SPALTE: DIE BÜHNE (4 HAUPT-TABS) -->
+        <section class="lg:col-span-7 space-y-3.5">
+          
+          <!-- Tab Navigation (4 Reiter) -->
+          <nav class="grid grid-cols-4 gap-1 p-1 session-card rounded-2xl border text-xs font-bold shadow-xs">
+            <button onclick="switchTab('free')" id="tab-btn-free" class="py-2.5 rounded-xl bg-brand-700 text-white shadow transition flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span>🕯️</span> <span class="text-[11px] truncate">Freier Flow</span>
             </button>
-          </div>
+            <button onclick="switchTab('guide')" id="tab-btn-guide" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span>📖</span> <span class="text-[11px] truncate">Regiebuch</span>
+            </button>
+            <button onclick="switchTab('planner')" id="tab-btn-planner" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span>⚙️</span> <span class="text-[11px] truncate">Planer</span>
+            </button>
+            <button onclick="switchTab('punishments')" id="tab-btn-punishments" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
+              <span>⚖️</span> <span class="text-[11px] truncate">Strafen</span>
+            </button>
+          </nav>
 
-        </div>
-
-        <!-- VIEW 2: SZENEN-PLANER -->
-        <div id="view-planner" class="space-y-3.5 hidden">
-          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-            <div class="border-b border-slate-800 pb-2">
-              <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Schritt 1: Session-Kalibrierung</span>
-              <h2 class="text-sm sm:text-base font-black text-white">Tagesform & Schwerpunkte für das Regiebuch</h2>
-              <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und Intensität ist heute da? Die App passt euer Drehbuch daran an.</p>
-            </div>
-
-            <div class="space-y-3 text-xs">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="space-y-1">
-                  <label class="font-bold text-slate-300 block">Gewünschte Intensität:</label>
-                  <select id="plan-intensity" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
-                    <option value="mild">🟢 Milde & Geborgen (Sensual, Nurturing)</option>
-                    <option value="moderate" selected>🟡 Moderat (Teasing, D/s, Fesseln)</option>
-                    <option value="hard">🔴 Intensiv (Disziplin, Impact, Kälte/Hitze)</option>
-                  </select>
+          <!-- VIEW 0: FREIER FLOW (DEFAULT) -->
+          <div id="view-free" class="space-y-3.5">
+            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Modus: Freier Flow</span>
+                  <h2 class="text-sm sm:text-base font-black text-white">Ungestörtes Spiel ohne Zwang</h2>
                 </div>
-                <div class="space-y-1">
-                  <label class="font-bold text-slate-300 block">Fokus-Thema:</label>
-                  <select id="plan-focus" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
-                    <option value="all">Ausgewogene Mischung aller Matches</option>
-                    <option value="sensual">Fokus auf Entschleunigung & Berührung</option>
-                    <option value="shibari">Fokus auf Seilkunst & Shibari</option>
-                    <option value="chastity">Fokus auf Keuschhaltung & Teasing</option>
-                    <option value="impact">Fokus auf Spanking & Disziplin</option>
-                  </select>
-                </div>
+                <span class="text-[10px] text-slate-400">Reine Cockpit-Steuerung</span>
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
-                <div class="space-y-1">
-                  <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-A">Partner 1</span> Tages-Energie (1–5):</label>
-                  <input type="range" min="1" max="5" value="4" id="plan-energy-a" class="w-full accent-brand-600">
-                </div>
-                <div class="space-y-1">
-                  <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-B">Partner 2</span> Tages-Energie (1–5):</label>
-                  <input type="range" min="1" max="5" value="3" id="plan-energy-b" class="w-full accent-brand-600">
-                </div>
-              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Ihr spielt frei nach eurer Intuition. Das linke Steuerpult hält die Zeit, den automatischen Farb-Check und die Safeword-Wächter im Blick.
+              </p>
 
-              <div class="pt-2 flex flex-col sm:flex-row gap-2">
-                <button onclick="generateCustomSessionPlan()" class="flex-1 py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
-                  <span>✨</span> <span>Drehbuch generieren & Phase 1 starten →</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <button onclick="rollRandomKinkPrompt()" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-brand-200 font-bold text-xs transition touch-pill flex items-center gap-2">
+                  <span class="text-lg">🎲</span>
+                  <div class="text-left">
+                    <span>Spontaner Reiz-Impuls</span>
+                    <span class="block text-[9.5px] font-normal text-slate-400">Zieht eine Praxis aus euren Matches</span>
+                  </div>
                 </button>
-                <button onclick="switchTab('guide'); jumpToPhase(1);" class="py-2.5 px-3 rounded-2xl session-panel border text-slate-400 hover:text-white font-bold text-[11px] transition touch-pill">
-                  Standard-Ablauf sofort starten
+
+                <button onclick="openIncidentModal()" class="p-3 rounded-2xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-200 font-bold text-xs transition touch-pill flex items-center gap-2">
+                  <span class="text-lg">⚖️</span>
+                  <div class="text-left">
+                    <span>Vorfall disziplinieren</span>
+                    <span class="block text-[9.5px] font-normal text-slate-400">Verstoß sofort maßregeln</span>
+                  </div>
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- VIEW 3: STRAFEN-KATALOG -->
-        <div id="view-punishments" class="space-y-3.5 hidden">
-          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div>
-                <span class="text-[10px] font-black uppercase tracking-wider text-rose-400">Disziplinierung</span>
-                <h2 class="text-sm sm:text-base font-black text-white">Strafen-Katalog & Duldungen</h2>
+              <!-- Spontaner Prompt Kasten -->
+              <div id="spontaneous-prompt-card" class="hidden p-3 rounded-2xl bg-brand-950/40 border border-brand-800/60 space-y-1">
+                <strong class="text-xs font-bold text-brand-300 block" id="spontaneous-prompt-title">Impuls</strong>
+                <p class="text-slate-300 text-xs" id="spontaneous-prompt-desc">Beschreibung...</p>
               </div>
-              <span class="text-[10.5px] text-slate-400">Härtegrad wählen</span>
             </div>
-
-            <!-- Stufen-Filter -->
-            <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
-              <button onclick="setPunishLevel('leicht')" id="btn-punish-leicht" class="py-2 rounded-xl border session-panel text-slate-300">🟢 Stufe I (Milde)</button>
-              <button onclick="setPunishLevel('mittel')" id="btn-punish-mittel" class="py-2 rounded-xl border bg-brand-700 text-white border-brand-600">🟡 Stufe II (Moderat)</button>
-              <button onclick="setPunishLevel('schwer')" id="btn-punish-schwer" class="py-2 rounded-xl border session-panel text-slate-300">🔴 Stufe III (Streng)</button>
-            </div>
-
-            <div id="punishments-list-container" class="space-y-2 text-xs"></div>
           </div>
-        </div>
 
-      </section>
+          <!-- VIEW 1: REGIEBUCH (STEPPER) -->
+          <div id="view-guide" class="space-y-3.5 hidden">
+            <!-- Phasen-Header Kachel -->
+            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30" id="guide-step-badge">Phase 1 von 4</span>
+                  <h2 class="text-sm sm:text-base font-black text-white" id="guide-step-name">1. Ankommen & Vorbereitung</h2>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono" id="guide-phase-time-allocated">ca. 10 Min.</span>
+              </div>
 
-    </div><!-- Ende #cockpit-main-workspace -->
+              <!-- 4 Stepper Tabs -->
+              <div class="grid grid-cols-4 gap-1.5">
+                <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600">
+                  1. Ankommen
+                </button>
+                <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+                  2. Sensorik
+                </button>
+                <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+                  3. Hauptakt
+                </button>
+                <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
+                  4. Aftercare
+                </button>
+              </div>
+
+              <!-- Zitat / Leitwort für den Führenden -->
+              <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-800/40 text-xs italic text-brand-200">
+                <span id="phase-prompt-quote">„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“</span>
+              </div>
+            </div>
+
+            <!-- BOTTOM-PROTOKOLL: AKTUELLE REGELN & VERHALTEN FÜR DEN SUB -->
+            <div id="guide-bottom-protocol-card" class="session-panel p-3.5 rounded-2xl border border-indigo-500/30 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs font-black text-indigo-200 flex items-center gap-1.5">
+                  <span>📜</span> <span>Aktuelles Protokoll für <span id="guide-sub-name">Partner 2</span>:</span>
+                </strong>
+                <span class="text-[9.5px] px-2 py-0.5 rounded font-bold bg-indigo-950 border border-indigo-800 text-indigo-300">Verbindlich</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed" id="guide-bottom-protocol-text">
+                Lade Haltungsregeln...
+              </p>
+            </div>
+
+            <!-- SPEZIELLE SAFEWORD-KARTE (NUR IN PHASE 1) -->
+            <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-amber-500/40 space-y-3 shadow-md bg-amber-950/10">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🛡️</span>
+                  <div>
+                    <strong class="text-xs sm:text-sm font-black text-amber-200 block">Safeword aktiv einprägen & bestätigen</strong>
+                    <span class="text-[10px] text-amber-300/80">Tippt das vereinbarte Notfallwort ein, damit es nicht vergessen wird</span>
+                  </div>
+                </div>
+                <button onclick="suggestRandomSafeword()" class="px-2.5 py-1 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
+                  <span>🎲</span> <span>Vorschlag</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <input type="text" id="guide-safeword-input" placeholder="z. B. Ananas, Kaktus, Erdbeere..." class="flex-1 px-3 py-2 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+                <button onclick="confirmSafewordInGuide()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
+                  ✓ Bestätigen
+                </button>
+              </div>
+
+              <div id="confirmed-safeword-display" class="hidden p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-700/60 flex items-center justify-between text-xs text-emerald-200">
+                <span>Gespeichertes Safeword: <strong id="confirmed-safeword-name" class="font-mono text-white underline">Ananas</strong></span>
+                <span class="text-[10px] font-bold text-emerald-400">✓ Für Session aktiv</span>
+              </div>
+            </div>
+
+            <!-- EDGING-PANEL MIT SEKUNDENVORWAHL -->
+            <div id="edging-interactive-card" class="hidden session-card p-4 rounded-3xl border-2 border-brand-500/50 space-y-3 text-xs shadow-lg bg-brand-950/20">
+              <div class="flex items-center justify-between border-b border-brand-800/60 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">⏱️</span>
+                  <div>
+                    <strong class="text-sm font-black text-brand-200 block">Edge-Counter & Orgasmus-Countdown</strong>
+                    <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt präzise an</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-brand-900 border border-brand-700 text-brand-200 shadow-sm" id="edge-count-badge">Edge 0</span>
+                  <button onclick="toggleEdgingToolPanel()" class="w-6 h-6 rounded-lg session-panel border text-slate-400 hover:text-white text-xs">✕</button>
+                </div>
+              </div>
+
+              <!-- Edge Steuerung -->
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="incrementEdgeCount()" class="py-3 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-black text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
+                  <span class="text-sm">+1</span> <span>Edge zählen</span>
+                </button>
+                <button onclick="resetEdgeCount()" class="py-3 rounded-2xl session-panel hover:border-slate-500 border text-slate-300 text-xs font-bold transition touch-pill">
+                  Zähler Reset
+                </button>
+              </div>
+
+              <!-- Countdown-Vorwahl & Trigger -->
+              <div class="p-3 rounded-2xl session-panel border border-slate-700/60 space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-[10.5px] font-bold text-slate-300">Countdown-Dauer:</span>
+                  <!-- Schnellauswahl Pills: 10s (Standard), 20s, 30s, 60s -->
+                  <div class="flex items-center gap-1 text-[10.5px] font-mono font-bold">
+                    <button onclick="setCountdownDuration(10)" id="cd-pill-10" class="px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold">10s</button>
+                    <button onclick="setCountdownDuration(20)" id="cd-pill-20" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">20s</button>
+                    <button onclick="setCountdownDuration(30)" id="cd-pill-30" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">30s</button>
+                    <button onclick="setCountdownDuration(60)" id="cd-pill-60" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">60s</button>
+                  </div>
+                </div>
+
+                <!-- Individuelle Sekunden-Eingabe mit Schnell-Reglern (+ / -) -->
+                <div class="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
+                  <span class="text-[10px] text-slate-400 font-medium pl-1">Freie Eingabe:</span>
+                  <div class="flex items-center gap-1">
+                    <button onclick="adjustCountdownDuration(-5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-5</button>
+                    <button onclick="adjustCountdownDuration(-1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-1</button>
+                    <div class="flex items-center gap-1 px-1">
+                      <input type="number" id="cd-custom-input" min="1" max="300" value="10" 
+                             onchange="setCountdownDuration(this.value)"
+                             oninput="setCountdownDuration(this.value)"
+                             class="w-12 text-center py-1 rounded-lg session-panel border border-brand-600/60 font-mono font-bold text-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+                      <span class="text-[10px] font-bold text-slate-400">Sek.</span>
+                    </div>
+                    <button onclick="adjustCountdownDuration(1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+1</button>
+                    <button onclick="adjustCountdownDuration(5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+5</button>
+                  </div>
+                </div>
+
+                <!-- Audio-Modus Wahl (1-Klick Auswahl für den Top) -->
+                <div class="space-y-1.5 pt-1 border-t border-slate-800">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-slate-300">Countdown-Begleitung:</span>
+                    <span class="text-[9.5px] text-brand-300 font-mono font-bold" id="cd-audio-mode-label">🗣️ Selbst zählen</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-1 text-[11px] font-bold">
+                    <button onclick="setCountdownAudioMode('self')" id="cd-mode-self" class="py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill">
+                      <span>🗣️</span> <span>Selbst</span>
+                    </button>
+                    <button onclick="setCountdownAudioMode('metronome')" id="cd-mode-metronome" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
+                      <span>⏱️</span> <span>Metronom</span>
+                    </button>
+                    <button onclick="setCountdownAudioMode('voice')" id="cd-mode-voice" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
+                      <span>🎙️</span> <span>Stimme</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
+                  <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
+                </button>
+
+                <div id="countdown-live-display" class="hidden text-center py-2 space-y-2">
+                  <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
+                  <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
+
+                  <!-- Play / Pause / Stop Buttons -->
+                  <div class="grid grid-cols-3 gap-1.5 pt-1.5 max-w-xs mx-auto">
+                    <button type="button" onclick="resumeOrgasmCountdown()" id="btn-cd-play" class="py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill" title="Countdown fortsetzen">
+                      <span>▶</span> <span>Play</span>
+                    </button>
+                    <button type="button" onclick="pauseOrgasmCountdown()" id="btn-cd-pause" class="py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown pausieren">
+                      <span>⏸</span> <span>Pause</span>
+                    </button>
+                    <button type="button" onclick="stopOrgasmCountdown()" id="btn-cd-stop" class="py-2 px-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown abbrechen">
+                      <span>⏹</span> <span>Stop</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FOKUS-KARTEN: WAS NUN ZU TUN IST + VORSCHAU -->
+            <div class="space-y-3">
+              <div id="active-step-focus-card" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500/60 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-brand-300 bg-brand-500/20 px-2.5 py-0.5 rounded-full border border-brand-500/30" id="focus-step-indicator">
+                    Schritt 1 von 4
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <button onclick="toggleEdgingToolPanel()" class="text-[10px] font-bold text-brand-300 hover:underline flex items-center gap-1">
+                      <span>⏱️</span> <span>Edge-Tool</span>
+                    </button>
+                    <button onclick="openIncidentModal()" class="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1">
+                      <span>⚡</span> <span>Verstoß</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="space-y-1">
+                  <h3 class="text-sm sm:text-base font-black text-white" id="focus-step-title">Lade Aktion...</h3>
+                  <p class="text-xs text-slate-300 leading-relaxed" id="focus-step-desc">Lade Beschreibung...</p>
+                </div>
+
+                <!-- Wörtliche Top-Sprechzeile -->
+                <div class="p-3 rounded-2xl bg-brand-950/50 border border-brand-800/60 space-y-1">
+                  <span class="text-[9.5px] font-bold text-brand-300 uppercase tracking-widest block">🗣️ Wörtlich zum Partner sprechen:</span>
+                  <p class="text-xs italic text-brand-100 font-medium" id="focus-step-top-quote">„...“</p>
+                </div>
+
+                <!-- Weiter-Button -->
+                <button onclick="advanceToNextStep()" class="w-full py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
+                  <span>✓ Schritt vollzogen & weiter</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              <!-- 2. Vorschau-Kachel -->
+              <div id="upcoming-step-preview-card" class="session-panel p-3.5 rounded-2xl border border-slate-700/60 opacity-80 space-y-1">
+                <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">👀 Als Nächstes kommt:</span>
+                <h4 class="text-xs font-bold text-slate-200" id="preview-step-title">Nächster Schritt</h4>
+                <p class="text-[11px] text-slate-400 leading-snug line-clamp-2" id="preview-step-desc">Vorschau lädt...</p>
+              </div>
+            </div>
+
+            <!-- Dynamischer Kasten für Phase 3 -->
+            <div id="phase-dynamic-injection" class="hidden"></div>
+
+            <!-- De-Briefing Box in Phase 4 -->
+            <div id="debriefing-box" class="hidden session-card p-4 rounded-3xl border space-y-3">
+              <h3 class="text-xs sm:text-sm font-bold text-teal-300">📝 2-Minuten De-Briefing-Tagebuch</h3>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 1 (1–10):</label>
+                  <input type="range" min="1" max="10" value="7" id="slider-intensity-a" class="w-full accent-brand-600">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 2 (1–10):</label>
+                  <input type="range" min="1" max="10" value="7" id="slider-intensity-b" class="w-full accent-brand-600">
+                </div>
+              </div>
+              <textarea id="debrief-notes" placeholder="Was war das Highlight? Was passen wir nächstes Mal an?..." class="w-full p-2.5 rounded-xl session-panel border text-xs focus:outline-none focus:border-brand-500"></textarea>
+              <button onclick="saveDeBriefing()" class="w-full py-2 bg-teal-700 hover:bg-teal-600 text-white font-bold rounded-xl text-xs shadow transition touch-pill">
+                💾 Im Tagebuch festhalten
+              </button>
+            </div>
+
+          </div>
+
+          <!-- VIEW 2: SZENEN-PLANER -->
+          <div id="view-planner" class="space-y-3.5 hidden">
+            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
+              <div class="border-b border-slate-800 pb-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Schritt 1: Session-Kalibrierung</span>
+                <h2 class="text-sm sm:text-base font-black text-white">Tagesform & Schwerpunkte für das Regiebuch</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und Intensität ist heute da? Die App passt euer Drehbuch daran an.</p>
+              </div>
+
+              <div class="space-y-3 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300 block">Gewünschte Intensität:</label>
+                    <select id="plan-intensity" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
+                      <option value="mild">🟢 Milde & Geborgen (Sensual, Nurturing)</option>
+                      <option value="moderate" selected>🟡 Moderat (Teasing, D/s, Fesseln)</option>
+                      <option value="hard">🔴 Intensiv (Disziplin, Impact, Kälte/Hitze)</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300 block">Fokus-Thema:</label>
+                    <select id="plan-focus" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
+                      <option value="all">Ausgewogene Mischung aller Matches</option>
+                      <option value="sensual">Fokus auf Entschleunigung & Berührung</option>
+                      <option value="shibari">Fokus auf Seilkunst & Shibari</option>
+                      <option value="chastity">Fokus auf Keuschhaltung & Teasing</option>
+                      <option value="impact">Fokus auf Spanking & Disziplin</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-A">Partner 1</span> Tages-Energie (1–5):</label>
+                    <input type="range" min="1" max="5" value="4" id="plan-energy-a" class="w-full accent-brand-600">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-B">Partner 2</span> Tages-Energie (1–5):</label>
+                    <input type="range" min="1" max="5" value="3" id="plan-energy-b" class="w-full accent-brand-600">
+                  </div>
+                </div>
+
+                <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                  <button onclick="generateCustomSessionPlan()" class="flex-1 py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
+                    <span>✨</span> <span>Drehbuch generieren & Phase 1 starten →</span>
+                  </button>
+                  <button onclick="switchTab('guide'); jumpToPhase(1);" class="py-2.5 px-3 rounded-2xl session-panel border text-slate-400 hover:text-white font-bold text-[11px] transition touch-pill">
+                    Standard-Ablauf sofort starten
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 3: STRAFEN-KATALOG -->
+          <div id="view-punishments" class="space-y-3.5 hidden">
+            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-rose-400">Disziplinierung</span>
+                  <h2 class="text-sm sm:text-base font-black text-white">Strafen-Katalog & Duldungen</h2>
+                </div>
+                <span class="text-[10.5px] text-slate-400">Härtegrad wählen</span>
+              </div>
+
+              <!-- Stufen-Filter -->
+              <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
+                <button onclick="setPunishLevel('leicht')" id="btn-punish-leicht" class="py-2 rounded-xl border session-panel text-slate-300">🟢 Stufe I (Milde)</button>
+                <button onclick="setPunishLevel('mittel')" id="btn-punish-mittel" class="py-2 rounded-xl border bg-brand-700 text-white border-brand-600">🟡 Stufe II (Moderat)</button>
+                <button onclick="setPunishLevel('schwer')" id="btn-punish-schwer" class="py-2 rounded-xl border session-panel text-slate-300">🔴 Stufe III (Streng)</button>
+              </div>
+
+              <div id="punishments-list-container" class="space-y-2 text-xs"></div>
+            </div>
+          </div>
+
+        </section>
+
+      </div><!-- Ende #cockpit-main-workspace -->
 
   </main>
 
@@ -1044,11 +1135,13 @@
       }
     }
 
-    function openCockpitToolsModal() {
-      document.getElementById('modal-cockpit-tools')?.classList.remove('hidden');
+    // Burger Drawer Open/Close Handlers
+    function openBurgerMenu() {
+      document.getElementById('drawer-burger-menu')?.classList.remove('hidden');
     }
-    function closeCockpitToolsModal() {
-      document.getElementById('modal-cockpit-tools')?.classList.add('hidden');
+
+    function closeBurgerMenu() {
+      document.getElementById('drawer-burger-menu')?.classList.add('hidden');
     }
 
     function toggleEdgingToolPanel() {
@@ -1057,7 +1150,6 @@
       const isHidden = card.classList.contains('hidden');
       if (isHidden) {
         card.classList.remove('hidden');
-        // Switch to guide or scroll into view
         if (activeTabId !== 'guide') {
           switchTab('guide');
         }
@@ -1148,7 +1240,6 @@
         const gain = audioCtx.createGain();
         const isFinal = count === 1;
 
-        // Angenehmer, warmer Holz-Klick / akustischer Metronom-Schlag
         osc.type = isFinal ? 'triangle' : 'sine';
         osc.frequency.setValueAtTime(isFinal ? 880 : 540, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(isFinal ? 440 : 120, audioCtx.currentTime + 0.08);
@@ -1181,9 +1272,8 @@
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'de-DE';
         utterance.rate = 1.05;
-        utterance.pitch = 1.15; // Angenehm weicher, femininer Grundton
+        utterance.pitch = 1.15;
 
-        // Gezielt nach einer deutschen Frauenstimme suchen
         const voices = window.speechSynthesis.getVoices();
         const deVoices = voices.filter(v => v.lang && v.lang.startsWith('de'));
         const femaleDeVoice = deVoices.find(v => {
@@ -1251,13 +1341,11 @@
         quoteEl.innerText = getCountdownVoiceQuote(countdownCurrentCount);
       }
 
-      // Audio-Ausgabe je nach gewähltem Modus
       if (countdownAudioMode === 'metronome') {
         playMetronomeTick(countdownCurrentCount, selectedCountdownDuration);
       } else if (countdownAudioMode === 'voice') {
         speakCountdownNumber(countdownCurrentCount);
       } else {
-        // 'self': Top zählt selbst - keine störenden Töne, nur Display & dezent vibrieren
         if (navigator.vibrate) {
           navigator.vibrate(countdownCurrentCount === 1 ? [100, 50, 100] : 30);
         }
@@ -1333,9 +1421,7 @@
       }
     }
 
-    /* 4/7/8 ZEN ATEM-RING */
     function openZenBreathingModal() {
-      closeCockpitToolsModal();
       document.getElementById('modal-zen-breathing')?.classList.remove('hidden');
       startZenBreatheLoop();
     }
@@ -1350,7 +1436,7 @@
       const text = document.getElementById('zen-breathe-text');
       if (!ring || !text) return;
 
-      let step = 0; // 0: Einatmen (4s), 1: Halten (7s), 2: Ausatmen (8s)
+      let step = 0;
 
       function cycle() {
         if (step === 0) {
@@ -1374,7 +1460,6 @@
       cycle();
     }
 
-    /* FLÜSTER-IMPULS */
     function triggerWhisperPrompt() {
       const subName = names[subPartner] || 'Partner 2';
       const prompts = [
@@ -1387,14 +1472,6 @@
       ];
 
       const p = prompts[Math.floor(Math.random() * prompts.length)];
-      
-      // Update both modal box and inline card
-      const box = document.getElementById('whisper-result-box');
-      const text = document.getElementById('whisper-text');
-      if (box && text) {
-        text.innerText = p;
-        box.classList.remove('hidden');
-      }
 
       const inlineCard = document.getElementById('inline-whisper-card');
       const inlineText = document.getElementById('inline-whisper-text');
@@ -1406,9 +1483,7 @@
       playHarmonicGong(1.2);
     }
 
-    /* NACHTTISCH-UHR TARNUNG */
     function openDiscreetBedsideClock() {
-      closeCockpitToolsModal();
       const clockEl = document.getElementById('modal-bedside-clock');
       if (!clockEl) return;
       clockEl.classList.remove('hidden');
@@ -1488,12 +1563,11 @@
 
     function generateCustomSessionPlan() {
       playHarmonicGong(1.2);
-      showToast("✨ Individuelles Regiebuch aus euren Matches zusammengestellt!");
+      showToast("✨ Individuelles Regiebuch zusammengestellt!");
       switchTab('guide');
       jumpToPhase(1);
     }
 
-    /* TIMER RESET LOGIK */
     function openTimerResetModal() {
       document.getElementById('modal-timer-reset')?.classList.remove('hidden');
     }
@@ -1513,7 +1587,6 @@
       showToast("⏱️ Timer auf Ausgangszeit zurückgesetzt!");
     }
 
-    /* TIMER CONTROLS */
     function toggleTimer() {
       if (timerInterval) {
         pauseTimer();
@@ -1582,9 +1655,9 @@
         const btn = document.getElementById(`btn-free-dur-${m}`);
         if (btn) {
           if (parseInt(m, 10) === minutes) {
-            btn.className = "py-2.5 rounded-xl bg-brand-700 border border-brand-600 text-white touch-target-48";
+            btn.className = "py-2 rounded-xl bg-brand-700 border border-brand-600 text-white touch-pill";
           } else {
-            btn.className = "py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48";
+            btn.className = "py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill";
           }
         }
       });
@@ -1620,7 +1693,6 @@
       showToast("✨ Sanfter Übergang ins Aftercare eingeleitet.");
     }
 
-    /* VORFALL- & REGELVERSTOSS-ZENTRALE */
     function openIncidentModal() {
       selectIncidentType('orgasm');
       selectIncidentSeverity('mittel');
@@ -1668,24 +1740,12 @@
             quote: `„Du bist ohne meine Erlaubnis gekommen, ${subName}. Du gehst jetzt auf die Knie und verharrst fünf Minuten vollkommen still.“`,
             action: "Knie-Abbitte (5 Min)"
           });
-          proposals.push({
-            title: "10 Kraulstriche mit Verweigerung",
-            desc: "Den Körper berühren, aber das Genital strikt ignorieren.",
-            quote: `„Dein Körper bekommt Zuwendung, aber deine Lust hat heute Pause. Spüre meine Hände, ohne Erlösung zu erwarten.“`,
-            action: "Sensuelle Verweigerung"
-          });
         } else if (selectedIncidentSeverity === 'mittel') {
           proposals.push({
             title: "15 flache Handspankings auf das Gesäß",
             desc: "Flach über den Schoß legen und 15 gezählte Streiche verabreichen.",
             quote: `„Du hast die Lustkontrolle missachtet. Lege dich quer über meine Oberschenkel und zähle jeden der 15 Hiebe laut mit.“`,
             action: "15 Handspankings mit Mitzählen"
-          });
-          proposals.push({
-            title: "Orgasmus-Verbot & Käfig-Verriegelung",
-            desc: "Den Keuschheitskäfig oder Hodenband für den Rest der Session fest anlegen.",
-            quote: `„Weil du dich nicht beherrschen konntest, übernimmt nun das Schloss deine Disziplin. Der Schlüssel bleibt bei mir.“`,
-            action: "Käfig-Arretierung"
           });
         } else {
           proposals.push({
@@ -1696,28 +1756,13 @@
           });
         }
       } else if (selectedIncidentType === 'bratting') {
-        if (selectedIncidentSeverity === 'leicht') {
-          proposals.push({
-            title: "Liebevolles Nasentippen & Kitzelkurs",
-            desc: "Den Partner an den Handgelenken fixieren und 2 Minuten durchkitzeln.",
-            quote: `„Wer so vorlaut grinst, muss gezähmt werden. Stillhalten, bis das Kichern vergangen ist!“`,
-            action: "Kitzeln bis zum Abklopfen"
-          });
-        } else {
-          proposals.push({
-            title: "Matten-Niederringen bis zur vollen Kapitulation",
-            desc: "Primal Wrestling auf der Bodenmatte, Hände pinnen.",
-            quote: `„Du forderst mich heraus? Dann zeig mir, wie lange du dagegenhalten kannst. Auf die Matte!“`,
-            action: "Primal Bändigung"
-          });
-        }
-      } else {
         proposals.push({
-          title: "Strafzeilen schreiben oder Eck-Stehen (10 Min)",
-          desc: "Mit dem Gesicht zur Wand in der Zimmerecke nachdenken.",
-          quote: `„In die Ecke, ${subName}. Gesicht zur Wand, Hände hinter den Rücken. Ich sage dir, wann du dich wieder umdrehen darfst.“`,
-          action: "Corner Time (10 Min)"
+          title: "Matten-Niederringen bis zur vollen Kapitulation",
+          desc: "Primal Wrestling auf der Bodenmatte, Hände pinnen.",
+          quote: `„Du forderst mich heraus? Dann zeig mir, wie lange du dagegenhalten kannst. Auf die Matte!“`,
+          action: "Primal Bändigung"
         });
+      } else {
         proposals.push({
           title: "Haltungs-Disziplinierung mit Paddle",
           desc: "10 dosierte Treffer mit dem Lederpaddle auf den Po.",
@@ -1762,7 +1807,6 @@
       switchTab('guide');
     }
 
-    /* SCHRITT-FÜR-SCHRITT FOKUS-KARTEN LOGIK */
     function advanceToNextStep() {
       const cfg = phaseConfig[currentPhase - 1];
       if (!cfg || !cfg.checkpoints) return;
@@ -1785,7 +1829,6 @@
       }
     }
 
-    /* REGIEBUCH PHASEN-UI */
     function renderPhaseUI() {
       const cfg = phaseConfig[currentPhase - 1];
       if (!cfg) return;
@@ -1929,21 +1972,10 @@
         list.push({ title: "Traubenzucker oder süßen Tee reichen", desc: "Glukosehaushalt nach Anstrengung auffüllen.", quote: "„Trink einen Schluck süßen Tee und iss ein Stück Traubenzucker.“" });
       }
 
-      const hasImpact = executedActions.some(a => a.category?.includes('Impact') || a.title?.includes('Spanking') || a.title?.includes('Paddle'));
-      if (hasImpact) {
-        list.push({ title: "Arnika-Balsam & sanftes Kühlen", desc: "Das gerötete Gesäß einbalsamieren und kühlen.", quote: "„Ich trage etwas Balsam auf deine Haut auf. Sie hat wundervoll geglüht.“" });
-      }
-
-      const hasPunishment = executedActions.some(a => a.isNote2 || a.category?.includes('Strafe'));
-      if (hasPunishment) {
-        list.push({ title: "Besonderes Praise Play & Entlastung", desc: "Ehrliche Dankbarkeit für das Aushalten aussprechen.", quote: "„Du hast alle Strafen so tapfer durchgestanden. Ich bin unendlich stolz auf dich.“" });
-      }
-
       list.push({ title: "24h-Check-in verbindlich vereinbaren", desc: "Rückmeldung für den nächsten Tag absprechen.", quote: "„Morgen Mittag melde ich mich kurz bei dir, um zu hören, wie es dir geht.“" });
       return list;
     }
 
-    /* NAVIGATION TABS */
     function switchTab(tabId) {
       activeTabId = tabId;
       ['free', 'guide', 'planner', 'punishments'].forEach(t => {
@@ -1966,7 +1998,6 @@
       if (tabId === 'guide') renderPhaseUI();
     }
 
-    /* SAFEWORD */
     function suggestRandomSafeword() {
       const word = commonSafewords[Math.floor(Math.random() * commonSafewords.length)];
       const input = document.getElementById('guide-safeword-input');
@@ -1991,7 +2022,6 @@
       showToast(`🛡️ Safeword "${val}" bestätigt!`);
     }
 
-    /* AMPEL-PADS */
     function triggerTrafficLight(color) {
       initAudio();
       if (color === 'green') {
@@ -2029,32 +2059,6 @@
       triggerTrafficLight(color);
     }
 
-    function updateCheckInSetting(val) {
-      checkInIntervalSetting = val;
-      showToast(`Farb-Check: ${val === 'none' ? 'Deaktiviert' : val + ' Min.'}`);
-      saveSessionSnapshot();
-    }
-
-    function detectCheckInPreferenceFromSurvey() {
-      const ansA = answers.A || {};
-      const ansB = answers.B || {};
-      const sigA = ansA['it_485_choice'];
-      const sigB = ansB['it_485_choice'];
-      const q517A = ansA['it_517_r1'] || ansA['it_517_r2'];
-      const q517B = ansB['it_517_r1'] || ansB['it_517_r2'];
-
-      if (sigA === 'eyes' || sigB === 'eyes' || (sigA && sigA !== 'traffic' && sigB && sigB !== 'traffic')) {
-        checkInIntervalSetting = 'none';
-      } else if (q517A >= 4 || q517B >= 4) {
-        checkInIntervalSetting = '10';
-      } else {
-        checkInIntervalSetting = '15';
-      }
-      const selectEl = document.getElementById('select-checkin-interval');
-      if (selectEl) selectEl.value = checkInIntervalSetting;
-    }
-
-    /* STRAFEN-KATALOG RENDERING */
     function setPunishLevel(lvl) {
       currentPunishLvl = lvl;
       ['leicht', 'mittel', 'schwer'].forEach(l => {
@@ -2158,7 +2162,6 @@
       playHarmonicGong(1.2);
     }
 
-    /* TABU MODAL */
     function openSessionTabuModal() {
       const container = document.getElementById('session-tabu-list-content');
       if (!container) return;
@@ -2203,7 +2206,6 @@
       document.getElementById('modal-session-tabus')?.classList.add('hidden');
     }
 
-    /* HARDWARE & THEMES */
     function setSubPartner(p) {
       subPartner = p;
       const bA = document.getElementById('btn-sub-A');
@@ -2226,7 +2228,6 @@
       showToast(`Unterworfener Part: ${names[p] || p}`);
     }
 
-    /* MODUS-WEICHENSTELLUNG & NUTZERFÜHRUNG */
     function selectSessionMode(mode) {
       currentSessionActiveMode = mode;
       const portal = document.getElementById('session-entry-portal');
@@ -2246,7 +2247,6 @@
       if (badge) badge.innerText = labels[mode] || 'Session aktiv';
 
       if (mode === 'guided_flow') {
-        // Nacheinander: Erst kurz den Planer für die Tagesform zeigen, von dem aus direkt das Drehbuch startet!
         switchTab('planner');
       } else {
         switchTab(mode);
@@ -2257,7 +2257,6 @@
     }
 
     function returnToModeSelection() {
-      // Falls der Timer gerade läuft, warnen wir nicht nervig, sondern halten ihn auf Wunsch an
       const portal = document.getElementById('session-entry-portal');
       const workspace = document.getElementById('cockpit-main-workspace');
 
@@ -2279,10 +2278,14 @@
 
     function toggleSound() {
       isSoundEnabled = !isSoundEnabled;
-      const icon = document.getElementById('sound-icon');
       const stat = document.getElementById('audio-status');
-      if (icon) icon.innerText = isSoundEnabled ? '🔔' : '🔕';
+      const drawerIcon = document.getElementById('drawer-sound-icon');
+      const drawerText = document.getElementById('drawer-sound-text');
+      
       if (stat) stat.innerText = isSoundEnabled ? 'Gong: Aktiv' : 'Gong: Stumm';
+      if (drawerIcon) drawerIcon.innerText = isSoundEnabled ? '🔔' : '🔕';
+      if (drawerText) drawerText.innerText = isSoundEnabled ? 'Gong: Aktiv' : 'Gong: Stumm';
+
       showToast(isSoundEnabled ? 'Audio-Gong aktiviert' : 'Audio-Gong stumm');
     }
 
@@ -2301,8 +2304,11 @@
         document.documentElement.classList.remove('dark');
         localStorage.setItem('kompass_theme', 'light');
       }
-      const icon = document.getElementById('theme-icon');
-      if (icon) icon.innerText = (newTheme === 'dark') ? '🌙' : '☀️';
+
+      const drawerIcon = document.getElementById('drawer-theme-icon');
+      const drawerText = document.getElementById('drawer-theme-text');
+      if (drawerIcon) drawerIcon.innerText = (newTheme === 'dark') ? '🌙' : '☀️';
+      if (drawerText) drawerText.innerText = (newTheme === 'dark') ? 'Nachtmodus' : 'Tagmodus';
     }
 
     function applySavedTheme() {
@@ -2312,8 +2318,10 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
-      const icon = document.getElementById('theme-icon');
-      if (icon) icon.innerText = (savedTheme === 'dark') ? '🌙' : '☀️';
+      const drawerIcon = document.getElementById('drawer-theme-icon');
+      const drawerText = document.getElementById('drawer-theme-text');
+      if (drawerIcon) drawerIcon.innerText = (savedTheme === 'dark') ? '🌙' : '☀️';
+      if (drawerText) drawerText.innerText = (savedTheme === 'dark') ? 'Nachtmodus' : 'Tagmodus';
     }
 
     function initAudio() {
@@ -2412,11 +2420,6 @@
           if (snap.countdownAudioMode) {
             setCountdownAudioMode(snap.countdownAudioMode);
           }
-          if (snap.checkInIntervalSetting) {
-            checkInIntervalSetting = snap.checkInIntervalSetting;
-            const selectEl = document.getElementById('select-checkin-interval');
-            if (selectEl) selectEl.value = checkInIntervalSetting;
-          }
           if (snap.currentSessionActiveMode) {
             selectSessionMode(snap.currentSessionActiveMode);
           }
@@ -2502,11 +2505,9 @@
       checkSiteLockscreen();
       applySavedTheme();
       loadAppData();
-      detectCheckInPreferenceFromSurvey();
       restoreSessionSnapshot();
       updateTimerDisplay();
       renderPhaseUI();
-      // Wenn noch kein aktiver Modus aus dem Snapshot wiederhergestellt wurde, bleibt das Portal offen
     });
   </script>
 </body>
