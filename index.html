@@ -30,11 +30,11 @@
               700: '#4338ca',
             },
             partnerB: {
-              50: '#fdf2f8',
-              100: '#fce7f3',
-              500: '#ec4899',
-              600: '#db2777',
-              700: '#be185d',
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
             }
           }
         }
@@ -55,7 +55,6 @@
       background: #cbd5e1;
       border-radius: 9999px;
     }
-    /* Touch Feedback */
     .touch-pill {
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -66,9 +65,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
 
-  <!-- ========================================== -->
-  <!-- 1. GLOBALER SPERRBILDSCHIRM (PASSWORT)      -->
-  <!-- ========================================== -->
+  <!-- 1. SPERRBILDSCHIRM (PASSWORT) -->
   <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 text-center space-y-5">
       <div class="w-16 h-16 bg-brand-50 border border-brand-200 text-brand-600 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner">
@@ -97,9 +94,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- 2. STICKY HEADER NAVIGATION                -->
-  <!-- ========================================== -->
+  <!-- 2. STICKY HEADER NAVIGATION -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3 sm:px-6 py-2.5">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
       
@@ -142,7 +137,7 @@
         <button onclick="openShareModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition flex items-center gap-1 touch-pill">
           <span>🔗</span> <span>Partner einladen</span>
         </button>
-        <button onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-700 text-sm transition">
+        <button onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-700 text-sm transition" title="Account & Einstellungen">
           ⚙️
         </button>
       </div>
@@ -150,9 +145,7 @@
     </div>
   </header>
 
-  <!-- ========================================== -->
-  <!-- 3. SUB-HEADER: AKTIVER NUTZER & STATUS     -->
-  <!-- ========================================== -->
+  <!-- 3. SUB-HEADER: AKTIVER NUTZER & FORTSCHRITT -->
   <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
       
@@ -163,7 +156,7 @@
           <span>🔵</span> <span id="user-display-A">Partner 1</span>
         </button>
         <button onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
-          <span>🌸</span> <span id="user-display-B">Partner 2</span>
+          <span>🟣</span> <span id="user-display-B">Partner 2</span>
         </button>
       </div>
 
@@ -178,33 +171,24 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- 4. HAUPTINHALT & SEKTIONEN                 -->
-  <!-- ========================================== -->
+  <!-- 4. HAUPTINHALT -->
   <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
 
-    <!-- ---------------------------------------- -->
-    <!-- VIEW A: FRAGEBOGEN (PAGINIERT)           -->
-    <!-- ---------------------------------------- -->
+    <!-- VIEW A: FRAGEBOGEN -->
     <section id="view-survey" class="space-y-4">
-
-      <!-- Kapitel-Schnellverzeichnis (Erscheint nach Abschluss des ersten Durchgangs) -->
       <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
         <div class="flex items-center justify-between text-xs font-bold text-slate-700">
           <span>📑 Kapitel-Schnellverzeichnis</span>
           <span class="text-[10px] text-slate-400 font-normal">Tippe auf ein Kapitel zum direkten Wechsel</span>
         </div>
-        <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]">
-          <!-- Dynamisch gerendert -->
-        </div>
+        <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]"></div>
       </div>
 
-      <!-- Kapitel-Kopfkarte mit Paginierung -->
       <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-brand-50 text-brand-700 border border-brand-200 uppercase" id="chapter-badge">
-              Kapitel 1 / 34
+              Kapitel 1 / 11
             </span>
             <span class="text-xs text-slate-400 font-bold" id="chapter-items-count">0 Praktiken</span>
           </div>
@@ -222,12 +206,8 @@
         </div>
       </div>
 
-      <!-- Fragen-Container -->
-      <div id="survey-items-container" class="space-y-3.5">
-        <!-- Dynamisch gerenderte Fragen -->
-      </div>
+      <div id="survey-items-container" class="space-y-3.5"></div>
 
-      <!-- Untere Kapitel-Navigation -->
       <div class="flex justify-between items-center pt-2">
         <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
           ← Vorheriges Kapitel
@@ -236,15 +216,10 @@
           Nächstes Kapitel →
         </button>
       </div>
-
     </section>
 
-    <!-- ---------------------------------------- -->
-    <!-- VIEW B: EINZELAUSWERTUNG (PERSÖNLICHKEIT) -->
-    <!-- ---------------------------------------- -->
+    <!-- VIEW B: PERSÖNLICHES PROFIL -->
     <section id="view-single" class="space-y-5 hidden">
-      
-      <!-- Fallback-Box: Noch keine Antworten gegeben -->
       <div id="single-empty-state" class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 text-2xl mx-auto flex items-center justify-center">
           🌱
@@ -252,7 +227,7 @@
         <div class="max-w-md mx-auto space-y-1.5">
           <h3 class="text-base font-extrabold text-slate-900">Dein Profil erwacht mit deinen Antworten</h3>
           <p class="text-xs text-slate-500 leading-relaxed">
-            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine psychologische Tiefenanalyse mit Archetypen-Radar, Stärken-Matrix und Wertekompass.
+            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine psychologische Tiefenanalyse.
           </p>
         </div>
         <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
@@ -260,10 +235,7 @@
         </button>
       </div>
 
-      <!-- Berechnete Persönlichkeitsanalyse -->
       <div id="single-content-state" class="space-y-5 hidden">
-        
-        <!-- Header Banner -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div>
             <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
@@ -279,10 +251,7 @@
           </button>
         </div>
 
-        <!-- Radar & Motivations-Matrix -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          <!-- Archetypen-Radar -->
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
             <h3 class="text-xs font-bold text-slate-800 flex items-center justify-between">
               <span>🕸️ Archetypen-Radar (9 Dimensionen)</span>
@@ -293,7 +262,6 @@
             </div>
           </div>
 
-          <!-- Psychologische Motivationssäulen -->
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3 flex flex-col justify-between">
             <div class="space-y-1">
               <h3 class="text-xs font-bold text-slate-800">📊 Die 5 psychologischen Motivations-Säulen</h3>
@@ -353,13 +321,11 @@
             </div>
 
             <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 leading-normal" id="single-interpretation-box">
-              Dein Profil zeigt eine klare Balance zwischen emotionaler Sicherheit und gezielter Reizexploration.
+              Dein Profil zeigt eine ausgewogene Balance zwischen emotionaler Sicherheit und gezielter Reizexploration.
             </div>
           </div>
-
         </div>
 
-        <!-- High-Prio 5er & Persönliche Tabus -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
             <h3 class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -375,17 +341,11 @@
             <div id="single-tabus-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
           </div>
         </div>
-
       </div>
-
     </section>
 
-    <!-- ---------------------------------------- -->
-    <!-- VIEW C: PAAR-ANALYSE & ABGLEICH          -->
-    <!-- ---------------------------------------- -->
+    <!-- VIEW C: PAAR-ANALYSE -->
     <section id="view-pair" class="space-y-5 hidden">
-
-      <!-- Gesperrt-Banner (wenn nicht beide ausgefüllt haben) -->
       <div id="pair-locked-banner" class="bg-white border border-amber-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 text-2xl mx-auto flex items-center justify-center">
           🔒
@@ -401,10 +361,7 @@
         </button>
       </div>
 
-      <!-- Freigeschaltete Paar-Auswertung -->
       <div id="pair-unlocked-content" class="space-y-5 hidden">
-        
-        <!-- Paar-KPIs -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
@@ -428,7 +385,6 @@
           </div>
         </div>
 
-        <!-- Radar Paar-Vergleich -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
           <div class="flex justify-between items-center border-b border-slate-100 pb-2">
             <div>
@@ -439,7 +395,7 @@
             </div>
             <div class="flex items-center gap-3 text-[11px] font-bold">
               <span class="text-indigo-600">🔵 Partner 1</span>
-              <span class="text-pink-600">🌸 Partner 2</span>
+              <span class="text-violet-600">🟣 Partner 2</span>
             </div>
           </div>
           <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
@@ -447,7 +403,6 @@
           </div>
         </div>
 
-        <!-- NEU: DEDIZIERTE 2ER-LISTE (WAS DEIN PARTNER DIR ZULIEBE TUN WÜRDE / STRAFHÄRTE) -->
         <div class="bg-white border border-indigo-200 rounded-2xl p-5 shadow-xs space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
             <div>
@@ -459,14 +414,11 @@
             </span>
           </div>
           <p class="text-[11px] text-slate-600 leading-relaxed">
-            Eine Bewertung mit Note 2 bedeutet: Kein eigenes inneres Begehren, aber die liebevolle Bereitschaft, es **dem Partner zuliebe** auszuprobieren – oder es im Rahmen von D/s-Sitzungen als **harte Strafe oder Pflicht** zu akzeptieren.
+            Eine Bewertung mit Note 2 bedeutet: Kein eigenes inneres Begehren, aber die Bereitschaft, es **dem Partner zuliebe** auszuprobieren – oder es im Rahmen von D/s-Sitzungen als **harte Strafe oder Pflicht** zu akzeptieren.
           </p>
-          <div id="pair-compromises-list" class="space-y-2 text-xs">
-            <!-- Dynamisch gerendert -->
-          </div>
+          <div id="pair-compromises-list" class="space-y-2 text-xs"></div>
         </div>
 
-        <!-- Matches & Bridges Grids -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
@@ -482,26 +434,20 @@
           </div>
         </div>
 
-        <!-- Detaillierte Einzel-Einsicht nach Freigabestufe -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transparenz-Abgleich</span>
               <h3 class="text-sm font-bold text-slate-900 mt-0.5">🔍 Detaillierte Praktiken-Einsicht</h3>
             </div>
-            <div class="text-[11px] text-slate-500" id="pair-transparency-badge">
-              Freigabemodus aktiv
-            </div>
+            <div class="text-[11px] text-slate-500" id="pair-transparency-badge">Freigabemodus aktiv</div>
           </div>
           <p class="text-[11px] text-slate-600 leading-relaxed" id="pair-transparency-hint">
             Hier werden alle Praktiken entsprechend eurer gegenseitigen Freigabeeinstellungen dargestellt.
           </p>
-          <div id="pair-detailed-breakdown" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs">
-            <!-- Dynamisch gerendert -->
-          </div>
+          <div id="pair-detailed-breakdown" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs"></div>
         </div>
 
-        <!-- Alltags-Würfel (Rolling Dice) -->
         <div class="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-xs space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -521,7 +467,6 @@
           </div>
         </div>
 
-        <!-- 3 Detaillierte 2-Stunden Playbooks (inkl. 2er-Kompromisse) -->
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-slate-200 pb-2">
             <div>
@@ -529,19 +474,14 @@
               <p class="text-xs text-slate-500">Exklusive Drehbücher aus euren Doppel-5ern, 4ern und liebevollen 2er-Kompromissen</p>
             </div>
           </div>
-          <div id="playbooks-container" class="space-y-3">
-            <!-- Dynamisch gerendert -->
-          </div>
+          <div id="playbooks-container" class="space-y-3"></div>
         </div>
-
       </div>
     </section>
 
   </main>
 
-  <!-- ========================================== -->
-  <!-- 5. ABSCHLUSS-MANIFEST (VERTRAUEN & SSC)    -->
-  <!-- ========================================== -->
+  <!-- 5. ABSCHLUSS-MANIFEST -->
   <footer class="bg-white border-t border-slate-200 py-6 px-4 mt-8">
     <div class="max-w-4xl mx-auto text-center space-y-3">
       <div class="inline-flex items-center gap-1 text-brand-600 text-xs font-extrabold uppercase tracking-wider bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
@@ -556,11 +496,7 @@
     </div>
   </footer>
 
-  <!-- ========================================== -->
-  <!-- 6. MODALS: ACCOUNT, SHARING & TABUS        -->
-  <!-- ========================================== -->
-
-  <!-- MODAL: ACCOUNT & FREIGABEN -->
+  <!-- 6. MODALS: ACCOUNT, TABUS, SHARING, LEXIKON -->
   <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -571,41 +507,28 @@
       </div>
 
       <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-        
-        <!-- Name anpassen -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">Dein angezeigter Name:</label>
           <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
 
-        <!-- E-Mail Adresse -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backup-Links):</label>
           <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
-          <p class="text-[10px] text-slate-400">Dient dazu, deinen Daten-Link per Mail an dich selbst zu senden, damit du ihn nie verlierst.</p>
         </div>
 
-        <!-- E-Mail Partner -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">E-Mail-Adresse deines Partners (Optional):</label>
           <input type="email" id="account-partner-email-input" onchange="updatePartnerAccountEmail(this.value)" placeholder="partner@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
 
-        <!-- Aktionen & Links -->
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
           <strong class="text-slate-900 block font-semibold text-xs">Aktionen & Sicherheit:</strong>
           <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
             <span>✉️</span> Meinen aktuellen Daten-Link an mich mailen
           </button>
-          <button onclick="openPrivacyModal()" class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-            <span>🛡️</span> Transparenz & Freigabe für Partner anpassen
-          </button>
-          <div class="pt-1 text-[10.5px] text-slate-500 leading-normal">
-            🛡️ <strong>Lokale Datenhaltung:</strong> Sämtliche Antworten bleiben zu 100 % auf diesem Endgerät gespeichert.
-          </div>
         </div>
 
-        <!-- RESET-BEREICH (MIT IN-APP BESTÄTIGUNG) -->
         <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-rose-950 text-xs flex items-center gap-1">
@@ -614,14 +537,12 @@
             <span class="text-[10px] text-rose-700">Profil & Antworten leeren</span>
           </div>
 
-          <!-- Standard-Button zum Aufrufen der Sicherheitsabfrage -->
           <div id="reset-trigger-area">
             <button onclick="showResetConfirmation()" class="w-full py-2 px-3 bg-white border border-rose-300 hover:bg-rose-100 text-rose-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
               <span>🗑️</span> Mein Profil zurücksetzen (<span id="reset-current-username">Partner 1</span>)
             </button>
           </div>
 
-          <!-- In-App Bestätigungsbox (erscheint nach Klick) -->
           <div id="reset-confirmation-box" class="hidden p-3 bg-white border border-rose-300 rounded-xl space-y-2 text-xs">
             <strong class="text-rose-950 block font-bold">Bist du sicher?</strong>
             <p class="text-slate-600 text-[11px] leading-relaxed">
@@ -648,7 +569,6 @@
     </div>
   </div>
 
-  <!-- MODAL: TABU-LISTE -->
   <div id="modal-tabus" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-rose-50 border-b border-rose-200 flex justify-between items-center">
@@ -659,7 +579,7 @@
       </div>
       <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto">
         <p class="text-[11px] text-slate-600 leading-relaxed">
-          Hier sind alle Praktiken aufgeführt, die von mindestens einem von euch mit **Note 1 (Tabu / No-Go)** bewertet wurden. Tabus sind unantastbar und werden in keinem Playbook vorgeschlagen.
+          Hier sind alle Praktiken aufgeführt, die von mindestens einem von euch mit **Note 1 (Tabu / No-Go)** bewertet wurden.
         </p>
         <div id="tabu-modal-list" class="space-y-2"></div>
       </div>
@@ -669,7 +589,6 @@
     </div>
   </div>
 
-  <!-- MODAL: PARTNER EINLADEN (SHARING) -->
   <div id="modal-share" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -680,7 +599,7 @@
       </div>
       <div class="p-5 space-y-3.5">
         <p class="text-[11px] text-slate-600 leading-relaxed">
-          Sende diesen sicheren Link an deinen Partner. Deine Antworten sind direkt im Link verschlüsselt hinterlegt – ohne Cloud und ohne Registrierung!
+          Sende diesen sicheren Link an deinen Partner. Deine Antworten sind direkt im Link verschlüsselt hinterlegt – ohne Cloud!
         </p>
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
           <input type="text" id="share-link-input" readonly class="w-full text-[11px] bg-white border border-slate-300 rounded-lg p-2 font-mono text-slate-600 select-all">
@@ -691,9 +610,6 @@
         <button onclick="sendPartnerEmailNotification()" class="w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs transition">
           ✉️ Link per E-Mail an Partner senden
         </button>
-        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[10.5px] text-amber-900 leading-normal">
-          🔒 <strong>Blind-Abgleich aktiv:</strong> Dein Partner sieht deine Kreuzchen erst dann, wenn er den Fragebogen für sich selbst ebenfalls abgeschlossen hat.
-        </div>
       </div>
       <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
         <button onclick="closeShareModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
@@ -701,7 +617,6 @@
     </div>
   </div>
 
-  <!-- MODAL: LEXIKON -->
   <div id="modal-lexikon" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -720,1489 +635,10 @@
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
 
-  <!-- ========================================== -->
-  <!-- 7. JAVASCRIPT: LOGIK, DATEN & AUSWERTUNG   -->
-  <!-- ========================================== -->
-  <script>
-    /* State */
-    let currentUser = 'A'; // 'A' oder 'B'
-    let currentChapterIndex = 0;
-    let singleRadarInstance = null;
-    let pairRadarInstance = null;
-
-    let names = { A: 'Partner 1', B: 'Partner 2' };
-    let answers = { A: {}, B: {} };
-    let notes = { A: {}, B: {} };
-    let privacy = {
-      A: { mode: 'blind', shareNotes: true, chapters: {} },
-      B: { mode: 'blind', shareNotes: true, chapters: {} }
-    };
-    let accounts = {
-      A: { email: '', partnerEmail: '', setupDone: false },
-      B: { email: '', partnerEmail: '', setupDone: false }
-    };
-
-    /* DAS GROSSE KATALOG-ARRAY MIT KÖRPERZONEN, ATTITÜDEN & TEXT-OPTIONEN */
-    const surveyChapters = [
-      {
-        id: 1,
-        title: "Körperbild, Schamgrenzen & Berührungszonen",
-        desc: "Das persönliche Fundament: Zonen der Geborgenheit, Schamgrenzen und Berührungstoleranzen.",
-        items: [
-          {
-            id: 1,
-            title: "Berührungen an den Haaren & Kopfhautmassage",
-            desc: "Sanftes Durchfahren mit den Fingern, Bürsten der Haare oder gezieltes Kraueln der Kopfhaut zur Entspannung.",
-            r1: "Partner im Haar streicheln",
-            r2: "Im Haar berührt werden"
-          },
-          {
-            id: 2,
-            title: "Nackenzone & Schlüsselbeine",
-            desc: "Zärtliche Küsse und behutsames Berühren an Kehle, Nacken und Schlüsselbein für Gänsehaut-Kicks.",
-            r1: "Nacken küssen & liebkosen",
-            r2: "Nackenküsse empfangen"
-          },
-          {
-            id: 3,
-            title: "Brüste, Brustwarzen & Dekolleté",
-            desc: "Liebevolles Streicheln, Zupfen, Saugen oder Kitzeln an Brust und Brustwarzen beider Partner.",
-            r1: "Brüste/Nippel liebkosen",
-            r2: "Berührung an Brüsten genießen"
-          },
-          {
-            id: 4,
-            title: "Bauch- & Taillenzone (Sensible Schamzone)",
-            desc: "Sanftes Berühren des Bauches; für manche eine Zone größter Geborgenheit, für andere schambelastet.",
-            r1: "Bauch zärtlich streicheln",
-            r2: "Am Bauch berührt werden"
-          },
-          {
-            id: 5,
-            title: "Rücken & Wirbelsäulen-Linie",
-            desc: "Fingerspitzen-Streichen oder Massagen entlang der Wirbelsäule vom Steißbein bis zum Nacken.",
-            r1: "Rücken liebkosen & massieren",
-            r2: "Rückenmassagen empfangen"
-          },
-          {
-            id: 6,
-            title: "Gesäß & Oberschenkel-Innenseiten",
-            desc: "Flächiges Streicheln, Kneten oder warmes Berühren der Schenkel und des Pos vor der Intimzone.",
-            r1: "Gesäß & Schenkel liebkosen",
-            r2: "Berührung empfangen"
-          },
-          {
-            id: 7,
-            title: "Füße, Fußsohlen & Zehen (Foot Worship)",
-            desc: "Massieren der Fußsohlen, Fußküsse oder Einbeziehen der Füße in erotische Knet- und Pflegerituale.",
-            r1: "Füße des Partners verwöhnen",
-            r2: "Füße verwöhnen lassen"
-          },
-          {
-            id: 8,
-            title: "Umgang mit Schamzonen & Körperkomplexen",
-            desc: "Akzeptanz und achtsamer Schutz sensibler Zonen; kein ungefragtes Entblößen oder Kritisieren von Körperstellen.",
-            type: "choice",
-            question: "Wie wünschst du dir den Umgang mit deinen Scham- & Problemzonen?",
-            options: [
-              { val: "praise", label: "💖 Liebevolles Praise & Bestärkung erwünscht" },
-              { val: "cover", label: "🛡️ Bestimmte Zonen bitte zunächst bedeckt lassen" },
-              { val: "open", label: "🌟 Völlig unbefangen & frei von Scham" },
-              { val: "tabu", label: "⛔ Bestimmte Stellen sind für Berührungen tabu" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: "Romantik, Küsse & Zärtlichkeit",
-        desc: "Liebevolle Verbundenheit: Der Herzschlag der Beziehung und Entschleunigung im Bett.",
-        items: [
-          {
-            id: 14,
-            title: "Intimer Augenkontakt (Soul Gazing)",
-            desc: "Ununterbrochenes, tiefes In-die-Augen-Schauen beim Streicheln oder Sex zur Verankerung vollkommenen Vertrauens.",
-            r1: "Augenkontakt aktiv halten",
-            r2: "Blickkontakt erwidern"
-          },
-          {
-            id: 18,
-            title: "Zärtlicher Dirty Talk & Flüstern ins Ohr",
-            desc: "Leises Zuhauchen von Kosenamen, Sehnsüchten oder erregenden Formulierungen direkt an der Ohrmuschel.",
-            r1: "Ins Ohr flüstern",
-            r2: "Stimme im Ohr lauschen"
-          },
-          {
-            id: 28,
-            title: "Sinnlicher Lippentanz & Zungenküsse",
-            desc: "Sehr langes, zartes Küssen ohne Hast, bei dem sich Lippen und Zungenspitzen spielerisch umkreisen.",
-            r1: "Küsse aktiv führen",
-            r2: "Hingebungsvoll küssen lassen"
-          }
-        ]
-      },
-      {
-        id: 3,
-        title: "Keuschhaltung & Lust-Erhaltung (Chastity)",
-        desc: "Erotische Machtabgabe über das Genital: Käfige, Schlüsselverwaltung und gesteigertes Teasing.",
-        items: [
-          {
-            id: 115,
-            title: "Keuschheitsgürtel / Käfig tragen",
-            desc: "Abschließen des Genitals in einen festen Edelstahl- oder Silikonkäfig zur vollkommenen Orgasmusabgabe.",
-            r1: "Schlüssel verwalten & Käfig prüfen",
-            r2: "Im Käfig eingeschlossen sein"
-          },
-          {
-            id: 117,
-            title: "Teasing des Keuschlings (Lust-Erhalt)",
-            desc: "Gezieltes Erregen und Necken durch das Gitter des Käfigs, um den Sub auf hoher Sehnsucht zu halten.",
-            r1: "Im Käfig heiß machen & necken",
-            r2: "Im Käfig gequält & erregt werden"
-          },
-          {
-            id: 128,
-            title: "Spontane Schloss-Inspektion im Alltag",
-            desc: "Unerwartetes Abtasten des Schlosses unter der Kleidung bei Besuchen oder unterwegs als geheimer Machtimpuls.",
-            r1: "Schloss unterwegs kontrollieren",
-            r2: "Unterwegs geprüft werden"
-          }
-        ]
-      },
-      {
-        id: 4,
-        title: "Fesselungen, Shibari & Restriktionen",
-        desc: "Körperliche Starre und ästhetische Seilkunst: Machtabgabe durch Unbeweglichkeit.",
-        items: [
-          {
-            id: 198,
-            title: "Lederhalsband mit D-Ring & Leine",
-            desc: "Tragen eines weichen Lederhalsbands als Symbol der Zugehörigkeit; Führen an der Lederleine im Raum.",
-            r1: "Halsband & Leine führen",
-            r2: "Halsband & Leine tragen"
-          },
-          {
-            id: 209,
-            title: "Leder-Armbinder (Monohandschuh)",
-            desc: "Schnüren der Arme hinter dem Rücken in einer unbeweglichen Lederhülle zur vollkommenen Starre.",
-            r1: "Armbinder schnüren",
-            r2: "Im Armbinder arretiert sein"
-          },
-          {
-            id: 217,
-            title: "Shibari (Japanische Seilkunst / Mormai)",
-            desc: "Ästhetisches Knüpfen von Brust- und Torsomustern mit geölten Juteseilen für tiefes Abgleiten in den Subspace.",
-            r1: "Als Rigger kunstvoll binden",
-            r2: "Im Seil verharren & Subspace spüren"
-          }
-        ]
-      },
-      {
-        id: 5,
-        title: "Masken, Augenbinden & Sinnesentzug",
-        desc: "Ausschalten visueller oder auditiver Reize für maximale Konzentration auf Berührungen.",
-        items: [
-          {
-            id: 241,
-            title: "Leder-Augenbinde (Blinder Gehorsam)",
-            desc: "Blickdichtes Verbinden der Augen, sodass jede Berührung unerwartet und intensiver erlebt wird.",
-            r1: "Augenbinde anlegen & lenken",
-            r2: "Blind vertrauen & empfangen"
-          },
-          {
-            id: 257,
-            title: "Noise-Cancelling-Kopfhörer (Schallisolierung)",
-            desc: "Vollständiges Ausblenden aller Umgebungsgeräusche durch Kopfhörer; Eintauchen in absolute innere Stille.",
-            r1: "Musik/Stille steuern",
-            r2: "Akustisch isoliert sein"
-          },
-          {
-            id: 260,
-            title: "Totaler Sinnesentzug (Blind & Taub)",
-            desc: "Kombination aus Augenbinde, Kopfhörern und fixierten Händen für die ultimative sensorische Schutzlosigkeit.",
-            r1: "Reize dosieren & führen",
-            r2: "Ausgeliefert abtauchen"
-          }
-        ]
-      },
-      {
-        id: 6,
-        title: "Impact Play (Schlagintimität & Spanking)",
-        desc: "Gezielter Schmerzreiz als emotionales Ventil, Wärmeerzeugung und Katharsis.",
-        items: [
-          {
-            id: 262,
-            title: "Warmes Handspanking auf das nackte Gesäß",
-            desc: "Rhythmische Schläge mit der flachen Hand zur sanften Erwärmung des Gewebes und emotionalen Entladung.",
-            r1: "Handspanking dosiert anwenden",
-            r2: "Schläge mit Hand empfangen"
-          },
-          {
-            id: 264,
-            title: "Leder-Paddle (Flächig & dumpf)",
-            desc: "Einsatz eines breiten Lederpaddles für dumpfe, nicht-spitze Reizübertragung ohne bleibende Narben.",
-            r1: "Paddle führen",
-            r2: "Hiebe mit Paddle empfangen"
-          },
-          {
-            id: 275,
-            title: "Reitgerte / Cane (Spitzer, scharfer Schmerz)",
-            desc: "Präzise gesetzte, scharfe Hiebe auf Gesäß oder Oberschenkel; fordert höchste Disziplin und Treffsicherheit.",
-            r1: "Gerte/Cane führen",
-            r2: "Scharfen Schmerz aushalten"
-          }
-        ]
-      },
-      {
-        id: 7,
-        title: "Primal Play, Ringen & Bratting",
-        desc: "Körperliches Kräftemessen, Jagdtrieb und befreiendes Kräftemessen.",
-        items: [
-          {
-            id: 303,
-            title: "Primal Wrestling (Matten-Ringen)",
-            desc: "Echtes, leidenschaftliches Ringen auf dem Boden; Kräftemessen ohne Schläge bis zur Kapitulation.",
-            r1: "Partner niederringen & bändigen",
-            r2: "Kämpfen, fliehen & kapitulieren"
-          },
-          {
-            id: 304,
-            title: "Die Jagd (Chase Play im Haus)",
-            desc: "Flucht durch die Wohnung; der dominante Part verfolgt die Beute, stellt sie und packt sie am Körper.",
-            r1: "Beute erjagen & packen",
-            r2: "Fliehen & erbeutet werden"
-          },
-          {
-            id: 311,
-            title: "Bratting (Absichtliches Frechsein & Testen)",
-            desc: "Schelmisches Provozieren, Augenrollen oder freche Sprüche, um eine liebevolle Zurechtweisung herauszufordern.",
-            r1: "Provokationen bändigen & strafen",
-            r2: "Frech provozieren & Grenzen testen"
-          }
-        ]
-      },
-      {
-        id: 8,
-        title: "Caregiver, DDLG & Regression (Geborgenheit)",
-        desc: "Rückzug aus der Erwachsenenwelt in kindliche Geborgenheit und fürsorgliche Pflege.",
-        items: [
-          {
-            id: 320,
-            title: "Gute-Nacht-Rituale & Vorlesen im Bett",
-            desc: "Den erschöpften Partner in Kuscheldecken hüllen, heißen Tee servieren und aus Büchern vorlesen.",
-            r1: "Partner einkuscheln & vorlesen",
-            r2: "Eingekuschelt zuhören & einschlafen"
-          },
-          {
-            id: 322,
-            title: "Im Arm wiegen & Trösten (Nurturing)",
-            desc: "Stummes, wiegendes Halten des Partners nach harten Arbeitstagen zur vollkommenen seelischen Entlastung.",
-            r1: "Partner im Arm sanft wiegen",
-            r2: "Gewiegt werden & Schutz spüren"
-          }
-        ]
-      },
-      {
-        id: 9,
-        title: "Aftercare & Nachsorge (Pos. 526–536)",
-        desc: "Achtsame Landung nach der Session: Wärme, Decken, Tränen auffangen und Befindlichkeitsprüfung.",
-        items: [
-          {
-            id: 526,
-            title: "Absolutes Schweigen & Ruhezeit",
-            desc: "Vereinbarte Phase ohne Worte; nur stummes Halten, Handkontakt und gleichmäßiger Atem.",
-            r1: "Ruhe wahren & schützen",
-            r2: "Wortlose Stille genießen"
-          },
-          {
-            id: 527,
-            title: "Gemeinsames Entspannungsbad nach der Session",
-            desc: "Warmes Badewasser zum behutsamen Abwaschen von Schweiß, Ölen oder Wachs als Liebesdienst.",
-            r1: "Partner waschen & pflegen",
-            r2: "Behutsam gewaschen werden"
-          },
-          {
-            id: 532,
-            title: "24-Stunden-Check-in am Folgetag",
-            desc: "Verbindliche Nachricht oder Anruf am Tag danach, um emotionalen Subdrop oder Muskelkater abzufangen.",
-            r1: "Check-in proaktiv senden",
-            r2: "Check-in empfangen & reflektieren"
-          }
-        ]
-      },
-      {
-        id: 10,
-        title: "Spezial-Kinks, Nischen & Demut (Pos. 537–595)",
-        desc: "Fortgeschrittene Praktiken: Nuru, Kerker, Queening, CFNM und intensive Sensationen.",
-        items: [
-          {
-            id: 542,
-            title: "Nuru-Massage (Algen-Gleitmassage)",
-            desc: "Body-to-Body Gleitmassage mit extrem glitschigem Nuru-Gel; beide Körper gleiten schwerelos aneinander ab.",
-            r1: "Partner gleitend massieren",
-            r2: "Glitschigen Gleitreiz empfangen"
-          },
-          {
-            id: 581,
-            title: "Anketten & Kerker-Arretierung im Wachzustand",
-            desc: "Einsperren in eine Gitterzelle, Pranger oder Anketten an die Wand als fokussiertes Spiel mit Machtlosigkeit.",
-            r1: "Partner anketten / einsperren",
-            r2: "Angekettet verharren"
-          },
-          {
-            id: 582,
-            title: "Übernachten & Schlafen im Kerker",
-            desc: "Die gesamte Nacht in der Zelle, im Käfig oder angekettet verbringen und erst morgens befreit werden.",
-            r1: "Kerker-Nachtruhe anordnen",
-            r2: "Im Kerker schlafen & aushalten"
-          }
-        ]
-      },
-      {
-        id: 11,
-        title: "Privatsphäre, Familie & Kinderschutz (Pos. 596–603)",
-        desc: "Klare ethische Leitplanken: Schutz der Kinder, Diskretion und Trennung von Alltagskrisen.",
-        items: [
-          {
-            id: 596,
-            title: "Strikte Geheimhaltung im Freundeskreis",
-            desc: "Unsere Praktiken bleiben ein absolutes Geheimnis; niemand im Umfeld erfährt davon.",
-            type: "choice",
-            question: "Welche Diskretion forderst du gegenüber Freunden & Bekannten?",
-            options: [
-              { val: "secret", label: "🔒 Absolutes Geheimnis zu 100 % Pflicht" },
-              { val: "friends", label: "👥 Ausgewählte enge Szene-Freunde einweihen erlaubt" },
-              { val: "open", label: "🌐 Vollkommen offener & entspannter Umgang" }
-            ]
-          },
-          {
-            id: 598,
-            title: "Absolute Trennung von Kink und Kindern (Kinderschutz)",
-            desc: "Striktes Verbot aller D/s-Rollen vor Kindern; alle Toys, Möbel und Käfige bleiben unzugänglich verschlossen.",
-            type: "choice",
-            question: "Welche Schutzregel gilt für Kinder im Haushalt / Umfeld?",
-            options: [
-              { val: "strict", label: "🛡️ 100 % Pflicht: Strikt weggeschlossen & unsichtbar" },
-              { val: "safe", label: "🗝️ Sicher verschlossen im privaten Schlafzimmer" },
-              { val: "none", label: "🏠 Keine Kinder im Haushalt vorhanden" }
-            ]
-          },
-          {
-            id: 602,
-            title: "Digitaler Datenschutz (Handy-PIN & Fotos)",
-            desc: "Sicherung intimer Chats, Fotos und Apps durch PIN-Sperren gegen zufällige Blicke Dritter.",
-            type: "choice",
-            question: "Wie regelt ihr Smartphone-Fotos und intime Chats?",
-            options: [
-              { val: "pin", label: "🔒 Verschlüsselter PIN-Ordner zwingend erforderlich" },
-              { val: "trust", label: "🤝 Volles Vertrauen ohne spezielle Ordnersperre" },
-              { val: "no_photos", label: "⛔ Keine intimen Fotos / Videos erlaubt" }
-            ]
-          },
-          {
-            id: 603,
-            title: "Trennung von Beziehungskrisen und D/s-Dynamiken",
-            desc: "Bei echtem Alltagsstress oder Streit pausieren alle dominanten Regeln sofort für reine partnerschaftliche Fürsorge.",
-            type: "choice",
-            question: "Was geschieht bei echtem Stress oder Streit?",
-            options: [
-              { val: "pause", label: "🛑 Sofortiger Stopp aller Spielregeln (Reine Fürsorge)" },
-              { val: "dialog", label: "💬 Kurzes De-Briefing vor Fortführung" }
-            ]
-          }
-        ]
-      }
-    ];
-
-    /* LEXIKON-DATEN */
-    const lexikonData = [
-      { term: "SSC (Safe, Sane, Consensual)", def: "Grundsatz der Kink-Szene: Alle Handlungen müssen sicher, vernünftig und zu 100 % einvernehmlich sein.", link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual" },
-      { term: "RACK (Risk-Aware Consensual Kink)", def: "Erweitertes Konzept: Beide Partner sind sich der realen Risiken bewusst und tragen die Verantwortung gemeinsam.", link: "https://de.wikipedia.org/wiki/RACK" },
-      { term: "Aftercare (Nachsorge)", def: "Liebevolle Fürsorge nach einer Session (Kuscheln, Wärmedecken, Trinken, De-Briefing) zur seelischen und körperlichen Stabilisierung.", link: "https://de.wikipedia.org/wiki/Aftercare_(BDSM)" },
-      { term: "Subdrop / Topdrop", def: "Hormoneller und emotionaler Erschöpfungszustand nach intensiven Sessions durch Abfall von Endorphinen und Adrenalin.", link: "https://de.wikipedia.org/wiki/Subdrop" },
-      { term: "Subspace", def: "Tranceähnlicher, glückseliger Flow-Zustand des submissiven Parts durch Schmerzreize, Endorphine und Hingabe.", link: "https://de.wikipedia.org/wiki/Subspace" },
-      { term: "Shibari / Kinbaku", def: "Traditionelle japanische Kunst des Seilbindens mit geölten Naturfasern (Jute/Hanf) zur Erzeugung von Druckpunkten und Mustern.", link: "https://de.wikipedia.org/wiki/Shibari" },
-      { term: "Praise Play", def: "Führung und Bestätigung des submissiven Partners durch warmes, echtes Lob und Zärtlichkeit statt Bestrafung.", link: "https://de.wikipedia.org/wiki/BDSM" },
-      { term: "Tease & Denial / Edging", def: "Gezieltes Hochtreiben der Erregung bis kurz vor den Orgasmus mit anschließendem abruptem Abbruch der Stimulation.", link: "https://de.wikipedia.org/wiki/Edging" },
-      { term: "Bratting & Brat Taming", def: "Spielerisches, freches Provozieren des Dominanten zur Herausforderung einer liebevoll-strengen Zurechtweisung.", link: "https://de.wikipedia.org/wiki/BDSM" },
-      { term: "Primal Play", def: "Instinktgetriebenes, körperbetontes Spiel mit Ringen, Beißen, Jagen und Kräftemessen ohne formelle Regeln.", link: "https://de.wikipedia.org/wiki/BDSM" },
-      { term: "Caregiver / Little", def: "Rollenverteilung zwischen fürsorglicher Elternfigur und beschütztem Partner zur seelischen Entlastung.", link: "https://de.wikipedia.org/wiki/Adult_Baby" },
-      { term: "CBT (Cock and Ball Torture)", def: "Gezielte Reizung oder Schmerzapplikation an Penis und Hoden (z. B. Abbinden, Gewichte, Schläge).", link: "https://de.wikipedia.org/wiki/Cock_and_Ball_Torture" }
-    ];
-
-    /* ========================================== */
-    /* INITIALISIERUNG & PERSISTENZ               */
-    /* ========================================== */
-    function initApp() {
-      loadFromLocalStorage();
-      checkUrlHashData();
-
-      // Passwort prüfen (Session)
-      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-        const lock = document.getElementById('site-lockscreen');
-        if (lock) lock.classList.add('hidden');
-      }
-
-      updateCurrentUserUI();
-      renderCurrentChapter();
-      renderQuickGrid();
-      updateProgressBar();
-      updateTabuBadge();
-      checkChapterQuickGridVisibility();
-    }
-
-    function verifySitePassword() {
-      const input = document.getElementById('site-pw-input');
-      const err = document.getElementById('pw-error-hint');
-      const lock = document.getElementById('site-lockscreen');
-      if (!input) return;
-
-      if (input.value.trim() === 'Bommelchen!') {
-        sessionStorage.setItem('kompass_unlocked', 'true');
-        if (lock) lock.classList.add('hidden');
-        if (err) err.classList.add('hidden');
-        showToast("Erfolgreich entsperrt!");
-      } else {
-        if (err) err.classList.remove('hidden');
-      }
-    }
-
-    function saveToLocalStorage() {
-      try {
-        localStorage.setItem('kompass_answers', JSON.stringify(answers));
-        localStorage.setItem('kompass_notes', JSON.stringify(notes));
-        localStorage.setItem('kompass_names', JSON.stringify(names));
-        localStorage.setItem('kompass_privacy', JSON.stringify(privacy));
-        localStorage.setItem('kompass_accounts', JSON.stringify(accounts));
-      } catch (e) {
-        console.error("Fehler beim Speichern:", e);
-      }
-    }
-
-    function loadFromLocalStorage() {
-      try {
-        const a = localStorage.getItem('kompass_answers');
-        const n = localStorage.getItem('kompass_notes');
-        const nm = localStorage.getItem('kompass_names');
-        const p = localStorage.getItem('kompass_privacy');
-        const ac = localStorage.getItem('kompass_accounts');
-
-        if (a) answers = JSON.parse(a);
-        if (n) notes = JSON.parse(n);
-        if (nm) names = JSON.parse(nm);
-        if (p) privacy = JSON.parse(p);
-        if (ac) accounts = JSON.parse(ac);
-      } catch (e) {
-        console.error("Fehler beim Laden:", e);
-      }
-    }
-
-    function checkUrlHashData() {
-      if (!window.location.hash.startsWith('#data=')) return;
-      try {
-        const raw = window.location.hash.replace('#data=', '');
-        const json = decodeURIComponent(escape(atob(raw)));
-        const payload = JSON.parse(json);
-
-        if (payload.answers) {
-          answers = payload.answers;
-          if (payload.names) names = payload.names;
-          if (payload.notes) notes = payload.notes;
-          if (payload.privacy) privacy = payload.privacy;
-          saveToLocalStorage();
-
-          // Automatisch auf den empfangenden Partner wechseln
-          currentUser = (payload.sender === 'A') ? 'B' : 'A';
-          showToast(`Daten von ${names[payload.sender || 'A']} erfolgreich geladen!`);
-        }
-      } catch (e) {
-        console.error("Fehler beim Dekodieren des Links:", e);
-      }
-    }
-
-    /* ========================================== */
-    /* NAVIGATION & VIEWS                         */
-    /* ========================================== */
-    function switchMainView(viewId) {
-      document.getElementById('view-survey').classList.add('hidden');
-      document.getElementById('view-single').classList.add('hidden');
-      document.getElementById('view-pair').classList.add('hidden');
-
-      const btnS = document.getElementById('nav-btn-survey');
-      const btnSi = document.getElementById('nav-btn-single');
-      const btnP = document.getElementById('nav-btn-pair');
-
-      [btnS, btnSi, btnP].forEach(b => {
-        b.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
-      });
-
-      if (viewId === 'survey') {
-        document.getElementById('view-survey').classList.remove('hidden');
-        btnS.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition";
-        renderCurrentChapter();
-      } else if (viewId === 'single') {
-        document.getElementById('view-single').classList.remove('hidden');
-        btnSi.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition";
-        renderSingleAnalysis();
-      } else if (viewId === 'pair') {
-        document.getElementById('view-pair').classList.remove('hidden');
-        btnP.className = "px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition flex items-center gap-1";
-        renderPairAnalysis();
-      }
-    }
-
-    function setCurrentUser(user) {
-      currentUser = user;
-      updateCurrentUserUI();
-      renderCurrentChapter();
-      updateProgressBar();
-      updateTabuBadge();
-      checkChapterQuickGridVisibility();
-      showToast(`Aktives Profil: ${names[user]}`);
-    }
-
-    function updateCurrentUserUI() {
-      const u = currentUser;
-      const btnA = document.getElementById('btn-user-A');
-      const btnB = document.getElementById('btn-user-B');
-      const dispA = document.getElementById('user-display-A');
-      const dispB = document.getElementById('user-display-B');
-
-      if (dispA) dispA.innerText = names.A;
-      if (dispB) dispB.innerText = names.B;
-
-      if (u === 'A') {
-        btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs";
-        btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-      } else {
-        btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-pink-700 shadow-xs";
-        btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-      }
-
-      const emptyName = document.getElementById('empty-state-username');
-      if (emptyName) emptyName.innerText = names[u];
-      const singleName = document.getElementById('single-profile-name');
-      if (singleName) singleName.innerText = names[u];
-    }
-
-    /* ========================================== */
-    /* FRAGEBOGEN-RENDERING                       */
-    /* ========================================== */
-    function renderCurrentChapter() {
-      const ch = surveyChapters[currentChapterIndex];
-      if (!ch) return;
-
-      document.getElementById('chapter-badge').innerText = `Kapitel ${currentChapterIndex + 1} / ${surveyChapters.length}`;
-      document.getElementById('chapter-title').innerText = ch.title;
-      document.getElementById('chapter-desc').innerText = ch.desc;
-      document.getElementById('chapter-items-count').innerText = `${ch.items.length} Punkte`;
-
-      const prevBtn = document.getElementById('btn-prev-chapter');
-      if (prevBtn) prevBtn.disabled = (currentChapterIndex === 0);
-
-      const nextBtn = document.getElementById('btn-next-chapter');
-      if (nextBtn) {
-        nextBtn.innerText = (currentChapterIndex === surveyChapters.length - 1) ? "Zur Analyse →" : "Weiter →";
-      }
-
-      const container = document.getElementById('survey-items-container');
-      let html = '';
-
-      ch.items.forEach(it => {
-        const keyR1 = `it_${it.id}_r1`;
-        const keyR2 = `it_${it.id}_r2`;
-        const keyChoice = `it_${it.id}_choice`;
-
-        const valR1 = answers[currentUser][keyR1];
-        const valR2 = answers[currentUser][keyR2];
-        const valChoice = answers[currentUser][keyChoice];
-        const noteVal = notes[currentUser][it.id] || '';
-
-        // Fall A: Klickbare Text-Antworten (Choice)
-        if (it.type === 'choice') {
-          html += `
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-              <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-                  <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
-                </div>
-                <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-                <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                ${it.options.map(opt => {
-                  const isChecked = (valChoice === opt.val);
-                  return `
-                    <button onclick="recordChoiceAnswer(${it.id}, '${opt.val}')" 
-                            class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
-                      ${opt.label}
-                    </button>
-                  `;
-                }).join('')}
-              </div>
-              <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-            </div>
-          `;
-        } else {
-          // Fall B: Standard 2-Zeilen-Skala (Aktiv vs. Passiv) mit Kontext-Pills
-          html += `
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-              <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-                  <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
-                </div>
-                <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-              </div>
-
-              <!-- Zeile 1: Aktiv / Geben -->
-              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                <div class="flex justify-between items-center text-xs">
-                  <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
-                  <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR1)}</span>
-                </div>
-                <div class="grid grid-cols-6 gap-1">
-                  ${[0, 1, 2, 3, 4, 5].map(sc => `
-                    <button onclick="recordScaleAnswer('${keyR1}', ${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                      ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                    </button>
-                  `).join('')}
-                </div>
-              </div>
-
-              <!-- Zeile 2: Passiv / Empfangen -->
-              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                <div class="flex justify-between items-center text-xs">
-                  <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
-                  <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR2)}</span>
-                </div>
-                <div class="grid grid-cols-6 gap-1">
-                  ${[0, 1, 2, 3, 4, 5].map(sc => `
-                    <button onclick="recordScaleAnswer('${keyR2}', ${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                      ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                    </button>
-                  `).join('')}
-                </div>
-              </div>
-
-              <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Vorwarnung')..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-            </div>
-          `;
-        }
-      });
-
-      container.innerHTML = html;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function getPillLabel(score) {
-      if (score === undefined || score === null) return "Nicht bewertet";
-      if (score === 0) return "0 (Entfällt / Desinteresse)";
-      if (score === 1) return "⛔ 1 (Absolutes Tabu / Grenze)";
-      if (score === 2) return "🎁 2 (Dem Partner zuliebe / Strafe)";
-      if (score === 3) return "💡 3 (Neugierig / Gesprächsbedarf)";
-      if (score === 4) return "✨ 4 (Reizvoll / Schöne Bereicherung)";
-      if (score === 5) return "⭐ 5 (Leidenschaft / Must-Have)";
-      return score;
-    }
-
-    function getScoreActiveStyle(sc) {
-      if (sc === 1) return 'bg-rose-600 text-white border-rose-700 shadow-xs font-black';
-      if (sc === 2) return 'bg-indigo-600 text-white border-indigo-700 shadow-xs font-black';
-      if (sc === 3) return 'bg-blue-600 text-white border-blue-700 shadow-xs font-black';
-      if (sc === 4) return 'bg-amber-600 text-white border-amber-700 shadow-xs font-black';
-      if (sc === 5) return 'bg-emerald-600 text-white border-emerald-700 shadow-xs font-black';
-      return 'bg-slate-800 text-white border-slate-900 shadow-xs font-black';
-    }
-
-    function recordScaleAnswer(key, score) {
-      answers[currentUser][key] = score;
-      saveToLocalStorage();
-      renderCurrentChapter();
-      updateProgressBar();
-      updateTabuBadge();
-      checkChapterQuickGridVisibility();
-    }
-
-    function recordChoiceAnswer(id, val) {
-      answers[currentUser][`it_${id}_choice`] = val;
-      saveToLocalStorage();
-      renderCurrentChapter();
-      updateProgressBar();
-      checkChapterQuickGridVisibility();
-    }
-
-    function recordNote(id, text) {
-      notes[currentUser][id] = text.trim();
-      saveToLocalStorage();
-    }
-
-    function prevChapter() {
-      if (currentChapterIndex > 0) {
-        currentChapterIndex--;
-        renderCurrentChapter();
-      }
-    }
-
-    function nextChapter() {
-      if (currentChapterIndex < surveyChapters.length - 1) {
-        currentChapterIndex++;
-        renderCurrentChapter();
-      } else {
-        switchMainView('single');
-      }
-    }
-
-    function jumpToChapter(idx) {
-      currentChapterIndex = idx;
-      switchMainView('survey');
-    }
-
-    function renderQuickGrid() {
-      const grid = document.getElementById('quick-grid-buttons');
-      if (!grid) return;
-      grid.innerHTML = surveyChapters.map((ch, idx) => `
-        <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
-          ${idx + 1}. ${escapeHtml(ch.title)}
-        </button>
-      `).join('');
-    }
-
-    function checkChapterQuickGridVisibility() {
-      const qg = document.getElementById('chapter-quick-grid');
-      if (!qg) return;
-      const count = Object.keys(answers[currentUser]).length;
-      if (count >= 15) {
-        qg.classList.remove('hidden');
-      } else {
-        qg.classList.add('hidden');
-      }
-    }
-
-    function updateProgressBar() {
-      let totalQuestions = 0;
-      surveyChapters.forEach(c => {
-        c.items.forEach(it => {
-          if (it.type === 'choice') totalQuestions += 1;
-          else totalQuestions += 2;
-        });
-      });
-
-      const answered = Object.keys(answers[currentUser]).length;
-      const pct = totalQuestions > 0 ? Math.min(100, Math.round((answered / totalQuestions) * 100)) : 0;
-
-      const fill = document.getElementById('progress-bar-fill');
-      const txt = document.getElementById('progress-text');
-      if (fill) fill.style.width = `${pct}%`;
-      if (txt) txt.innerText = `Fortschritt: ${pct} % (${answered}/${totalQuestions})`;
-    }
-
-    function updateTabuBadge() {
-      let count = 0;
-      const uAnswers = answers[currentUser];
-      Object.keys(uAnswers).forEach(k => {
-        if (uAnswers[k] === 1) count++;
-      });
-      const badge = document.getElementById('header-tabu-count');
-      if (badge) badge.innerText = count;
-    }
-
-    /* ========================================== */
-    /* EINZELAUSWERTUNG (PERSÖNLICHKEIT)          */
-    /* ========================================== */
-    function renderSingleAnalysis() {
-      const uAnswers = answers[currentUser];
-      const count = Object.keys(uAnswers).length;
-      const emptyBox = document.getElementById('single-empty-state');
-      const contentBox = document.getElementById('single-content-state');
-
-      // Wenn weniger als 3 Fragen beantwortet wurden: Hinweis zeigen!
-      if (count < 3) {
-        if (emptyBox) emptyBox.classList.remove('hidden');
-        if (contentBox) contentBox.classList.add('hidden');
-        return;
-      }
-
-      if (emptyBox) emptyBox.classList.add('hidden');
-      if (contentBox) contentBox.classList.remove('hidden');
-
-      // Motivations-Säulen berechnen
-      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-      let totalPoints = 0;
-
-      Object.keys(uAnswers).forEach(k => {
-        const v = uAnswers[k];
-        if (typeof v === 'number' && v > 0) {
-          totalPoints += v;
-          if (k.includes('115') || k.includes('117') || k.includes('198')) pPower += v;
-          else if (k.includes('217') || k.includes('262') || k.includes('264')) pSensation += v;
-          else if (k.includes('320') || k.includes('322') || k.includes('526')) pNurturing += v;
-          else if (k.includes('303') || k.includes('304') || k.includes('581')) pThrill += v;
-          else pVisual += v;
-        }
-      });
-
-      const maxP = Math.max(1, totalPoints);
-      setBar('power', Math.min(100, Math.round((pPower / maxP) * 220)));
-      setBar('sensation', Math.min(100, Math.round((pSensation / maxP) * 220)));
-      setBar('nurturing', Math.min(100, Math.round((pNurturing / maxP) * 220)));
-      setBar('thrill', Math.min(100, Math.round((pThrill / maxP) * 220)));
-      setBar('visual', Math.min(100, Math.round((pVisual / maxP) * 220)));
-
-      // Listen füllen
-      let high5 = [];
-      let tabus = [];
-
-      surveyChapters.forEach(ch => {
-        ch.items.forEach(it => {
-          const r1 = uAnswers[`it_${it.id}_r1`];
-          const r2 = uAnswers[`it_${it.id}_r2`];
-          if (r1 === 5) high5.push(`${it.title} (Aktiv: ${it.r1})`);
-          if (r2 === 5) high5.push(`${it.title} (Passiv: ${it.r2})`);
-          if (r1 === 1) tabus.push(`${it.title} (Aktiv abgelehnt)`);
-          if (r2 === 1) tabus.push(`${it.title} (Passiv abgelehnt)`);
-        });
-      });
-
-      const h5El = document.getElementById('single-high-prio-list');
-      if (h5El) {
-        h5El.innerHTML = high5.map(h => `<div class="p-2 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200">⭐ ${escapeHtml(h)}</div>`).join('') || '<p class="text-slate-400 italic">Noch keine 5er-Punkte.</p>';
-      }
-
-      const tbEl = document.getElementById('single-tabus-list');
-      if (tbEl) {
-        tbEl.innerHTML = tabus.map(t => `<div class="p-2 rounded-lg bg-rose-50 text-rose-900 border border-rose-200">⛔ ${escapeHtml(t)}</div>`).join('') || '<p class="text-slate-400 italic">Keine Tabus gesetzt.</p>';
-      }
-
-      renderSingleRadar();
-    }
-
-    function setBar(id, pct) {
-      const val = document.getElementById(`bar-val-${id}`);
-      const fill = document.getElementById(`bar-fill-${id}`);
-      if (val) val.innerText = `${pct} %`;
-      if (fill) fill.style.width = `${pct}%`;
-    }
-
-    function renderSingleRadar() {
-      const canvas = document.getElementById('singleRadarChart');
-      if (!canvas) return;
-
-      if (singleRadarInstance) singleRadarInstance.destroy();
-
-      singleRadarInstance = new Chart(canvas, {
-        type: 'radar',
-        data: {
-          labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
-          datasets: [{
-            label: names[currentUser],
-            data: [80, 85, 90, 75, 85, 60, 70, 95, 90],
-            backgroundColor: 'rgba(99, 102, 241, 0.2)',
-            borderColor: 'rgba(99, 102, 241, 1)',
-            borderWidth: 2,
-            pointBackgroundColor: 'rgba(99, 102, 241, 1)'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            r: {
-              angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
-              grid: { color: 'rgba(203, 213, 225, 0.5)' },
-              ticks: { display: false, max: 100, min: 0 }
-            }
-          },
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    /* ========================================== */
-    /* PAAR-ANALYSE & KOMPROMISS-LISTE            */
-    /* ========================================== */
-    function renderPairAnalysis() {
-      const hasBoth = (Object.keys(answers.A).length > 0) && (Object.keys(answers.B).length > 0);
-      const lockedBanner = document.getElementById('pair-locked-banner');
-      const unlockedContent = document.getElementById('pair-unlocked-content');
-      const lockIcon = document.getElementById('nav-pair-lock');
-
-      if (!hasBoth) {
-        if (lockedBanner) lockedBanner.classList.remove('hidden');
-        if (unlockedContent) unlockedContent.classList.add('hidden');
-        if (lockIcon) lockIcon.innerText = '🔒';
-        return;
-      }
-
-      if (lockedBanner) lockedBanner.classList.add('hidden');
-      if (unlockedContent) unlockedContent.classList.remove('hidden');
-      if (lockIcon) lockIcon.innerText = '🔓';
-
-      document.getElementById('pair-name-1').innerText = names.A;
-      document.getElementById('pair-name-2').innerText = names.B;
-
-      let matchesCount = 0;
-      let positiveMatches = 0;
-      let doppel5 = [];
-      let bridges = [];
-      let tabus = [];
-      let compromises = []; // 2er Werte ("Dem Partner zuliebe")
-      let visibleDetailItems = [];
-
-      const modeA = privacy.A?.mode || 'blind';
-      const modeB = privacy.B?.mode || 'blind';
-      const shareNotesA = privacy.A?.shareNotes !== false;
-      const shareNotesB = privacy.B?.shareNotes !== false;
-
-      surveyChapters.forEach(ch => {
-        ch.items.forEach(it => {
-          const aR1 = answers.A[`it_${it.id}_r1`];
-          const aR2 = answers.A[`it_${it.id}_r2`];
-          const bR1 = answers.B[`it_${it.id}_r1`];
-          const bR2 = answers.B[`it_${it.id}_r2`];
-          const noteA = shareNotesA ? (notes.A[it.id] || '') : '';
-          const noteB = shareNotesB ? (notes.B[it.id] || '') : '';
-
-          const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
-          if (isTabu) {
-            tabus.push({ item: it, aR1, aR2, bR1, bR2 });
-          } else {
-            // Doppel 5
-            if (aR1 === 5 && bR2 === 5) doppel5.push({ item: it, text: `${names.A} will führen (5) & ${names.B} will empfangen (5)` });
-            if (bR1 === 5 && aR2 === 5) doppel5.push({ item: it, text: `${names.B} will führen (5) & ${names.A} will empfangen (5)` });
-
-            // Brücken (4/5 trifft 2/3)
-            if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridges.push({ item: it, text: `${names.A} Wunsch (${aR1}) trifft ${names.B} Bereitschaft (${bR2})` });
-            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridges.push({ item: it, text: `${names.B} Wunsch (${bR1}) trifft ${names.A} Bereitschaft (${aR2})` });
-
-            // Dedizierte 2er-Kompromissliste ("Dem Partner zuliebe / Akzeptierte Strafhärte")
-            if (bR2 === 2 && aR1 >= 3) compromises.push({ from: names.B, to: names.A, role: it.r2, item: it, wishScore: aR1 });
-            if (aR2 === 2 && bR1 >= 3) compromises.push({ from: names.A, to: names.B, role: it.r2, item: it, wishScore: bR1 });
-
-            if (aR1 !== undefined && bR2 !== undefined) {
-              matchesCount++;
-              if (aR1 >= 3 && bR2 >= 3) positiveMatches++;
-            }
-          }
-
-          // Detaillierte Sichtbarkeit nach Freigabestufe:
-          const isMatch = (aR1 >= 3 && bR2 >= 3) || (bR1 >= 3 && aR2 >= 3);
-          const isOpenMode = (modeA === 'open' && modeB === 'open');
-          
-          if (isTabu || isMatch || isOpenMode || (aR1 >= 3) || (bR1 >= 3)) {
-            visibleDetailItems.push({
-              item: it,
-              isTabu,
-              isMatch,
-              aR1, aR2, bR1, bR2,
-              noteA, noteB
-            });
-          }
-        });
-      });
-
-      const harmonyPct = matchesCount > 0 ? Math.round((positiveMatches / matchesCount) * 100) : 0;
-      document.getElementById('kpi-harmony').innerText = `${harmonyPct} %`;
-      document.getElementById('kpi-doppel5').innerText = doppel5.length;
-      document.getElementById('kpi-bridges').innerText = bridges.length;
-      document.getElementById('kpi-tabus').innerText = tabus.length;
-
-      // 2er Kompromisse rendern
-      const compEl = document.getElementById('pair-compromises-list');
-      if (compEl) {
-        compEl.innerHTML = compromises.slice(0, 10).map(c => `
-          <div class="p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 flex items-start justify-between gap-2">
-            <div>
-              <strong class="text-indigo-950 block">${escapeHtml(c.item.title)}</strong>
-              <span class="text-[11px] text-indigo-900">${c.from} würde ${c.to} zuliebe: <em>"${escapeHtml(c.role)}"</em> (Wunsch von ${c.to}: Note ${c.wishScore})</span>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200">Note 2</span>
-          </div>
-        `).join('') || '<p class="text-slate-400 italic">Keine offenen 2er-Kompromisse erfasst.</p>';
-      }
-
-      // Doppel 5
-      const d5El = document.getElementById('pair-doppel5-list');
-      if (d5El) {
-        d5El.innerHTML = doppel5.slice(0, 8).map(d => `
-          <div class="p-2 rounded-lg bg-emerald-50 border border-emerald-200">
-            <strong class="text-emerald-950 block">${escapeHtml(d.item.title)}</strong>
-            <span class="text-[10.5px] text-emerald-800">${escapeHtml(d.text)}</span>
-          </div>
-        `).join('') || '<p class="text-slate-400 italic">Noch keine beidseitigen 5er-Matches.</p>';
-      }
-
-      // Brücken
-      const brEl = document.getElementById('pair-bridges-list');
-      if (brEl) {
-        brEl.innerHTML = bridges.slice(0, 8).map(b => `
-          <div class="p-2 rounded-lg bg-amber-50 border border-amber-200">
-            <strong class="text-amber-950 block">${escapeHtml(b.item.title)}</strong>
-            <span class="text-[10.5px] text-amber-800">${escapeHtml(b.text)}</span>
-          </div>
-        `).join('') || '<p class="text-slate-400 italic">Keine offenen Brückenpunkte.</p>';
-      }
-
-      // Detaillierter Abgleich
-      const badgeEl = document.getElementById('pair-transparency-badge');
-      const hintEl = document.getElementById('pair-transparency-hint');
-      const detailEl = document.getElementById('pair-detailed-breakdown');
-
-      if (badgeEl && hintEl && detailEl) {
-        if (modeA === 'open' && modeB === 'open') {
-          badgeEl.innerHTML = `<span class="px-2 py-0.5 rounded font-bold bg-indigo-100 text-indigo-800">100 % Offene Einsicht</span>`;
-          hintEl.innerText = "Beide Partner haben die vollständige Einsicht aktiviert: Alle vergebenen Noten und freigegebenen Notizen sind für euch beide sichtbar.";
-        } else {
-          badgeEl.innerHTML = `<span class="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800">Selektiver Abgleich aktiv</span>`;
-          hintEl.innerText = "Selektiver Blind-Match: Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen (0 oder 2) bleiben zum gegenseitigen Schutz verborgen.";
-        }
-
-        detailEl.innerHTML = visibleDetailItems.map(d => {
-          let tag = '';
-          if (d.isTabu) {
-            tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-rose-100 text-rose-800">⛔ Tabu</span>`;
-          } else if (d.isMatch) {
-            tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800">✓ Schnittmenge</span>`;
-          } else {
-            tag = `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700">Offene Bewertung</span>`;
-          }
-
-          const valTextA = (d.aR1 !== undefined || d.aR2 !== undefined) 
-            ? `${names.A}: Aktiv ${d.aR1 ?? '-'} | Passiv ${d.aR2 ?? '-'}` 
-            : `${names.A}: Noch nicht bewertet`;
-
-          const valTextB = (d.bR1 !== undefined || d.bR2 !== undefined) 
-            ? `${names.B}: Aktiv ${d.bR1 ?? '-'} | Passiv ${d.bR2 ?? '-'}` 
-            : `${names.B}: Noch nicht bewertet`;
-
-          const notesHtml = (d.noteA || d.noteB) 
-            ? `<div class="pt-1 text-[10.5px] text-slate-500 space-y-0.5">
-                ${d.noteA ? `<p><strong>Notiz ${names.A}:</strong> ${escapeHtml(d.noteA)}</p>` : ''}
-                ${d.noteB ? `<p><strong>Notiz ${names.B}:</strong> ${escapeHtml(d.noteB)}</p>` : ''}
-               </div>`
-            : '';
-
-          return `
-            <div class="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-1">
-              <div class="flex items-center justify-between gap-2">
-                <strong class="text-slate-900 text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
-                ${tag}
-              </div>
-              <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-600 pt-0.5 gap-2">
-                <span class="bg-white px-2 py-0.5 rounded border border-slate-200">${valTextA}</span>
-                <span class="bg-white px-2 py-0.5 rounded border border-slate-200">${valTextB}</span>
-              </div>
-              ${notesHtml}
-            </div>
-          `;
-        }).join('') || '<p class="text-slate-400 italic p-2 text-center">Keine passenden Übereinstimmungen gefunden.</p>';
-      }
-
-      renderPairRadar();
-      rollDailyKinkDice();
-      renderPlaybooks();
-    }
-
-    function renderPairRadar() {
-      const canvas = document.getElementById('pairRadarChart');
-      if (!canvas) return;
-
-      if (pairRadarInstance) pairRadarInstance.destroy();
-
-      pairRadarInstance = new Chart(canvas, {
-        type: 'radar',
-        data: {
-          labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
-          datasets: [
-            {
-              label: names.A,
-              data: [85, 90, 95, 80, 85, 65, 75, 90, 95],
-              backgroundColor: 'rgba(99, 102, 241, 0.2)',
-              borderColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 2
-            },
-            {
-              label: names.B,
-              data: [90, 95, 85, 85, 90, 55, 80, 100, 100],
-              backgroundColor: 'rgba(236, 72, 153, 0.2)',
-              borderColor: 'rgba(236, 72, 153, 1)',
-              borderWidth: 2
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            r: {
-              angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
-              grid: { color: 'rgba(203, 213, 225, 0.5)' },
-              ticks: { display: false, max: 100, min: 0 }
-            }
-          },
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    function rollDailyKinkDice() {
-      const positiveItems = [];
-      surveyChapters.forEach(c => {
-        c.items.forEach(it => {
-          const a = answers.A[`it_${it.id}_r1`];
-          const b = answers.B[`it_${it.id}_r2`];
-          if (a >= 3 && b >= 3) positiveItems.push(it);
-        });
-      });
-
-      const cardTitle = document.getElementById('dice-title');
-      const cardDesc = document.getElementById('dice-desc');
-      if (!cardTitle || !cardDesc) return;
-
-      if (positiveItems.length === 0) {
-        cardTitle.innerText = "Sinnlicher Lippentanz & 5-Sekunden Blickkontakt";
-        cardDesc.innerText = "Nehmt euch heute 5 Minuten Zeit, euch schweigend in die Augen zu schauen und zärtlich zu küssen.";
-        return;
-      }
-
-      const randomIt = positiveItems[Math.floor(Math.random() * positiveItems.length)];
-      cardTitle.innerText = `🎲 Heute: ${randomIt.title}`;
-      cardDesc.innerText = randomIt.desc;
-    }
-
-    function renderPlaybooks() {
-      const container = document.getElementById('playbooks-container');
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 1: Sinnliche Entschleunigung & Seidentrance (2 Std.)</h4>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Sensual & Shibari</span>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
-            <strong>Phase 1 (30 Min):</strong> Raum abdunkeln, Duftkerze entzünden. ${names.A} legt ${names.B} die Augenbinde an. 15 Minuten stummes Streicheln der Haare und Nackenzone.<br>
-            <strong>Phase 2 (60 Min):</strong> Japanisches Mormai-Harness mit geölten Juteseilen knüpfen. Nuru-Massage am Oberkörper. Edging und kontrolliertes Teasing.<br>
-            <strong>Phase 3 (30 Min Aftercare):</strong> Seile lösen, warmes Entspannungsbad, Decken und 24h-Check-in am Folgetag.
-          </p>
-        </div>
-
-        <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 2: Hof-Protokoll & Disziplinierte Keuschheit (2 Std.)</h4>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">D/s & Teasing</span>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
-            <strong>Phase 1 (25 Min):</strong> Servieren von Tee in formeller Haltung. Schlosskontrolle am Käfig.<br>
-            <strong>Phase 2 (65 Min):</strong> Knieprotokoll, gezieltes Teasing durch das Gitter. Flächiges Handspanking auf das Gesäß zur Disziplinierung mit anschließendem Praise Play.<br>
-            <strong>Phase 3 (30 Min Aftercare):</strong> Schlüsselübergabe oder Belohnung, eng umschlungenes Kuscheln im Bett.
-          </p>
-        </div>
-
-        <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Drehbuch 3: Primal-Jagd, Bändigung & Kerker-Geborgenheit (2 Std.)</h4>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Primal & Impact</span>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
-            <strong>Phase 1 (30 Min):</strong> Bratting und spielerische Flucht durch die Wohnung. Stellen der Beute auf der Bodenmatte.<br>
-            <strong>Phase 2 (55 Min):</strong> Intensives Matten-Ringen bis zur Kapitulation. Fixierung an der Kerkerwand. Dumpfe Paddle-Schläge.<br>
-            <strong>Phase 3 (35 Min Aftercare):</strong> Stillen der Schmerzen mit Kühlpads, Vorlesen im Bett und vollständige emotionale Entlastung.
-          </p>
-        </div>
-      `;
-    }
-
-    /* ========================================== */
-    /* MODAL- & SHARING-HELPER                    */
-    /* ========================================== */
-    function openAccountModal() {
-      const user = currentUser;
-      const nameEl = document.getElementById('account-active-username');
-      if (nameEl) nameEl.innerText = names[user];
-
-      const nameInput = document.getElementById('account-name-input');
-      if (nameInput) nameInput.value = names[user] || '';
-
-      const emailInput = document.getElementById('account-email-input');
-      if (emailInput) emailInput.value = accounts[user]?.email || '';
-
-      const partnerEmailInput = document.getElementById('account-partner-email-input');
-      if (partnerEmailInput) partnerEmailInput.value = accounts[user]?.partnerEmail || '';
-
-      const resetUserSpan = document.getElementById('reset-current-username');
-      if (resetUserSpan) resetUserSpan.innerText = names[user];
-      cancelResetConfirmation();
-
-      const modal = document.getElementById('modal-account');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeAccountModal() {
-      const modal = document.getElementById('modal-account');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function updateCurrentUserName(val) {
-      names[currentUser] = val.trim() || ((currentUser === 'A') ? 'Partner 1' : 'Partner 2');
-      saveToLocalStorage();
-      updateCurrentUserUI();
-      showToast(`Name aktualisiert: ${names[currentUser]}`);
-    }
-
-    function updateCurrentUserEmail(val) {
-      if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
-      accounts[currentUser].email = val.trim();
-      saveToLocalStorage();
-    }
-
-    function updatePartnerAccountEmail(val) {
-      if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
-      accounts[currentUser].partnerEmail = val.trim();
-      saveToLocalStorage();
-    }
-
-    function showResetConfirmation() {
-      const trigger = document.getElementById('reset-trigger-area');
-      const box = document.getElementById('reset-confirmation-box');
-      if (trigger) trigger.classList.add('hidden');
-      if (box) box.classList.remove('hidden');
-    }
-
-    function cancelResetConfirmation() {
-      const trigger = document.getElementById('reset-trigger-area');
-      const box = document.getElementById('reset-confirmation-box');
-      if (trigger) trigger.classList.remove('hidden');
-      if (box) box.classList.add('hidden');
-    }
-
-    function resetCurrentUserProfile() {
-      const u = currentUser;
-      answers[u] = {};
-      notes[u] = {};
-      names[u] = (u === 'A') ? 'Partner 1' : 'Partner 2';
-      if (accounts[u]) accounts[u].setupDone = false;
-      
-      saveToLocalStorage();
-      cancelResetConfirmation();
-      closeAccountModal();
-      
-      updateCurrentUserUI();
-      renderCurrentChapter();
-      updateProgressBar();
-      updateTabuBadge();
-      checkChapterQuickGridVisibility();
-      
-      showToast(`Profil ${names[u]} erfolgreich zurückgesetzt.`);
-    }
-
-    function resetAllAppData() {
-      try {
-        localStorage.removeItem('kompass_answers');
-        localStorage.removeItem('kompass_notes');
-        localStorage.removeItem('kompass_names');
-        localStorage.removeItem('kompass_privacy');
-        localStorage.removeItem('kompass_accounts');
-      } catch (e) {
-        console.error(e);
-      }
-      
-      answers = { A: {}, B: {} };
-      notes = { A: {}, B: {} };
-      names = { A: 'Partner 1', B: 'Partner 2' };
-      privacy = {
-        A: { mode: 'blind', shareNotes: true, chapters: {} },
-        B: { mode: 'blind', shareNotes: true, chapters: {} }
-      };
-      accounts = {
-        A: { email: '', partnerEmail: '', setupDone: false },
-        B: { email: '', partnerEmail: '', setupDone: false }
-      };
-
-      cancelResetConfirmation();
-      closeAccountModal();
-      
-      currentUser = 'A';
-      updateCurrentUserUI();
-      renderCurrentChapter();
-      updateProgressBar();
-      updateTabuBadge();
-      checkChapterQuickGridVisibility();
-      
-      showToast("Alle Daten & Profile wurden vollständig gelöscht.");
-      setTimeout(() => { window.location.reload(); }, 600);
-    }
-
-    function openTabuModal() {
-      const list = document.getElementById('tabu-modal-list');
-      if (!list) return;
-
-      let tabuItems = [];
-      surveyChapters.forEach(ch => {
-        ch.items.forEach(it => {
-          const aR1 = answers.A[`it_${it.id}_r1`];
-          const aR2 = answers.A[`it_${it.id}_r2`];
-          const bR1 = answers.B[`it_${it.id}_r1`];
-          const bR2 = answers.B[`it_${it.id}_r2`];
-
-          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-            let who = [];
-            if (aR1 === 1 || aR2 === 1) who.push(names.A);
-            if (bR1 === 1 || bR2 === 1) who.push(names.B);
-            tabuItems.push({ it, who: who.join(' & ') });
-          }
-        });
-      });
-
-      list.innerHTML = tabuItems.map(t => `
-        <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
-          <div class="flex justify-between items-start">
-            <strong class="text-rose-950 font-bold">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-200 text-rose-900">Limit von ${t.who}</span>
-          </div>
-          <p class="text-[11px] text-rose-800 mt-0.5">${escapeHtml(t.it.desc)}</p>
-        </div>
-      `).join('') || '<p class="text-slate-400 italic p-3 text-center">Aktuell sind keine Tabus (Note 1) hinterlegt.</p>';
-
-      const m = document.getElementById('modal-tabus');
-      if (m) m.classList.remove('hidden');
-    }
-
-    function closeTabuModal() {
-      const m = document.getElementById('modal-tabus');
-      if (m) m.classList.add('hidden');
-    }
-
-    function openShareModal() {
-      const url = getLiveShareUrl();
-      const input = document.getElementById('share-link-input');
-      if (input) input.value = url;
-      const m = document.getElementById('modal-share');
-      if (m) m.classList.remove('hidden');
-    }
-
-    function closeShareModal() {
-      const m = document.getElementById('modal-share');
-      if (m) m.classList.add('hidden');
-    }
-
-    function getLiveShareUrl() {
-      const payload = {
-        sender: currentUser,
-        answers: answers,
-        notes: notes,
-        names: names,
-        privacy: privacy,
-        ts: Date.now()
-      };
-      const json = JSON.stringify(payload);
-      const encoded = btoa(unescape(encodeURIComponent(json)));
-      const base = window.location.href.split('#')[0];
-      return `${base}#data=${encoded}`;
-    }
-
-    function copyShareLinkToClipboard() {
-      const input = document.getElementById('share-link-input');
-      if (!input) return;
-      input.select();
-      document.execCommand('copy');
-      const btn = document.getElementById('btn-copy-share-link');
-      if (btn) {
-        const orig = btn.innerText;
-        btn.innerText = "✓ Link kopiert!";
-        setTimeout(() => { btn.innerText = orig; }, 2000);
-      }
-      showToast("Link in die Zwischenablage kopiert!");
-    }
-
-    function openLexikonModal() {
-      filterLexikon('');
-      const m = document.getElementById('modal-lexikon');
-      if (m) m.classList.remove('hidden');
-    }
-
-    function closeLexikonModal() {
-      const m = document.getElementById('modal-lexikon');
-      if (m) m.classList.add('hidden');
-    }
-
-    function filterLexikon(q) {
-      const container = document.getElementById('lexikon-entries-container');
-      if (!container) return;
-      const query = (q || '').toLowerCase();
-      const filtered = lexikonData.filter(l => l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query));
-
-      container.innerHTML = filtered.map(l => `
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-          <div class="flex justify-between items-center">
-            <strong class="text-slate-900 font-bold text-xs">${escapeHtml(l.term)}</strong>
-            <a href="${l.link}" target="_blank" class="text-[10px] text-indigo-600 hover:underline">Wikipedia ↗</a>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">${escapeHtml(l.def)}</p>
-        </div>
-      `).join('') || '<p class="text-slate-400 italic text-center p-2">Kein Begriff gefunden.</p>';
-    }
-
-    function searchInLexikon(term) {
-      openLexikonModal();
-      const input = document.getElementById('lexikon-search-input');
-      if (input) {
-        input.value = term;
-        filterLexikon(term);
-      }
-    }
-
-    function sendBackupEmail() {
-      const url = getLiveShareUrl();
-      const email = accounts[currentUser]?.email || '';
-      const subject = encodeURIComponent("Sicherung: Dein persönlicher Kink-Kompass Zugangs-Link");
-      const body = encodeURIComponent(`Hallo ${names[currentUser]},\n\nhier ist dein aktueller, verschlüsselter Zugangs-Link zu deinen Bewertungen:\n\n${url}\n\nBewahre diese E-Mail auf, um deinen Stand jederzeit wieder abrufen zu können.`);
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    }
-
-    function sendPartnerEmailNotification() {
-      const url = getLiveShareUrl();
-      const email = accounts[currentUser]?.partnerEmail || '';
-      const subject = encodeURIComponent(`${names[currentUser]} hat den Kink-Kompass ausgefüllt`);
-      const body = encodeURIComponent(`Hallo,\n\n${names[currentUser]} hat den Beziehungs- und Kink-Kompass ausgefüllt und lädt dich zum unbeeinflussten Blind-Abgleich ein.\n\nHier geht es direkt zu deinem Fragebogen:\n${url}\n\nViel Spaß beim Entdecken eurer gemeinsamen Fantasien!`);
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    }
-
-    function showToast(msg) {
-      const c = document.getElementById('toast-container');
-      if (!c) return;
-      const el = document.createElement('div');
-      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-      el.innerText = msg;
-      c.appendChild(el);
-
-      setTimeout(() => {
-        el.classList.remove('translate-y-2', 'opacity-0');
-      }, 10);
-
-      setTimeout(() => {
-        el.classList.add('opacity-0');
-        setTimeout(() => { el.remove(); }, 300);
-      }, 2500);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initApp();
-    });
-  </script>
+  <!-- EXTERN EINGEBUNDENE SKRIPTE -->
+  <script src="data/questions.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
