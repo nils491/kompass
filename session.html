@@ -66,7 +66,7 @@
         <span>⚖️</span> <span>Strafen</span>
       </button>
       <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
-        <span>✨</span> <span>Synergien</span>
+        <span>✨</span> <span>Passende Reize</span>
       </button>
       <button onclick="switchTab('safety')" id="tab-safety" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
         <span>🛑</span> <span>Sicherheit</span>
@@ -232,6 +232,17 @@
 
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
+    let currentFilteredPunishments = [];
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     function initSessionApp() {
       loadStorageData();
@@ -340,27 +351,48 @@
         filtered = [...filtered, ...note2Items];
       }
 
-      container.innerHTML = filtered.map(item => `
+      currentFilteredPunishments = filtered;
+
+      container.innerHTML = filtered.map((item, idx) => `
         <div class="p-3.5 rounded-2xl border ${item.isNote2 ? 'bg-indigo-950/40 border-indigo-500/40' : 'bg-slate-900 border-slate-800'} flex items-start justify-between gap-3">
           <div>
             <div class="flex items-center gap-2 mb-1">
               <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.isNote2 ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                ${item.type}
+                ${escapeHtml(item.type)}
               </span>
               ${item.isNote2 ? '<span class="text-[10px] font-bold text-amber-400">🎁 Dem Partner zuliebe</span>' : ''}
             </div>
-            <strong class="text-xs sm:text-sm font-bold text-white block">${item.title}</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${item.desc}</p>
+            <strong class="text-xs sm:text-sm font-bold text-white block">${escapeHtml(item.title)}</strong>
+            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(item.desc)}</p>
           </div>
-          <button onclick="selectPunishment('${item.title}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap">
-            Anwenden
+          <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap">
+            Anwenden →
           </button>
         </div>
       `).join('') || '<p class="text-slate-500 text-xs text-center p-4">Keine Strafen für diese Auswahl gefunden.</p>';
     }
 
-    function selectPunishment(title) {
+    function handleSelectPunishment(idx) {
+      const item = currentFilteredPunishments[idx];
+      if (item) {
+        selectPunishment(item.title, item.type);
+      }
+    }
+
+    function selectPunishment(title, type) {
       showToast(`Ausgewählt: ${title}`);
+      
+      const select = document.getElementById('synergy-base-select');
+      if (select) {
+        if (type.includes('Impact') || type.includes('Strenge')) select.value = 'impact';
+        else if (type.includes('Restriktion')) select.value = 'shibari';
+        else if (type.includes('Sensorik') || type.includes('Temperatur')) select.value = 'deprivation';
+        else if (type.includes('Chastity')) select.value = 'chastity';
+        else if (type.includes('Dienst') || type.includes('Demut')) select.value = 'chastity';
+      }
+
+      calculateSynergies();
+      switchTab('synergy');
     }
 
     function calculateSynergies() {
