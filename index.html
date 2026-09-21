@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kink-, BDSM- & Beziehungs-Kompass (Vollständig & Interaktiv)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf4f5',
+              100: '#fbe8eb',
+              500: '#e11d48',
+              600: '#be123c',
+              700: '#9f1239',
+              900: '#4c0519',
+            },
+            partnerA: {
+              500: '#4f46e5',
+              600: '#4338ca',
+            },
+            partnerB: {
+              500: '#db2777',
+              600: '#be185d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    /* DIN A4 Druck- & PDF-Optimierung */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 8mm 10mm 8mm;
+      }
+      *, *::before, *::after {
+        box-sizing: border-box !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 7.2pt !important;
+        line-height: 1.15 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        position: static !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .avoid-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .survey-chapter {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        margin-bottom: 3.5mm !important;
+        padding: 2.5mm !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        background: #ffffff !important;
+      }
+      .print-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-gap: 2mm 3.5mm !important;
+        width: 100% !important;
+      }
+      .item-card, .item-row {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 0 !important;
+        padding: 1.5mm 2mm !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 5px !important;
+        background: #ffffff !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .scale-box {
+        border: 1px solid #475569 !important;
+        min-width: 13px !important;
+        width: 13px !important;
+        height: 13px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 5.5pt !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        border-radius: 2px !important;
+        margin: 0 0.5px !important;
+        background: #ffffff !important;
+        flex-shrink: 0 !important;
+      }
+      .scale-row-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 2px !important;
+      }
+      .scale-row-label {
+        font-size: 6.8pt !important;
+        line-height: 1.1 !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+      }
+      .scale-buttons-group {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+      }
+      .chapter-header {
+        background-color: #f8fafc !important;
+        border-left: 3.5px solid #be123c !important;
+        padding: 2px 5px !important;
+        margin-top: 1px !important;
+        margin-bottom: 2mm !important;
+        font-weight: 700 !important;
+        font-size: 8pt !important;
+      }
+      .note-line {
+        border-bottom: 0.5px dashed #94a3b8 !important;
+        display: block !important;
+        height: 8px !important;
+        margin-top: 1.5px !important;
+        width: 100% !important;
+      }
+      .note-input {
+        display: none !important;
+      }
+    }
+
+    /* Interaktive Styles (Touch & Digital) */
+    .scale-box {
+      border: 1.5px solid #cbd5e1;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      border-radius: 6px;
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+      background: white;
+    }
+    @media (min-width: 640px) {
+      .scale-box {
+        width: 23px;
+        height: 23px;
+        font-size: 10.5px;
+      }
+    }
+    .scale-btn input:checked + .scale-box {
+      background-color: #be123c !important;
+      color: #ffffff !important;
+      border-color: #9f1239 !important;
+      box-shadow: 0 1px 3px rgba(190, 18, 60, 0.4);
+    }
+    .custom-pill {
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      background: white;
+      transition: all 0.15s ease-in-out;
+      cursor: pointer;
+    }
+    .scale-btn input:checked + .custom-pill {
+      background-color: #be123c !important;
+      color: #ffffff !important;
+      border-color: #9f1239 !important;
+    }
+    .note-line {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- Interaktiver Sticky-Header -->
+  <header class="no-print sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm px-3 sm:px-4 py-2.5">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      
+      <!-- Logo -->
+      <div class="flex items-center space-x-2.5">
+        <span class="p-2 bg-brand-500 text-white rounded-xl shadow-sm">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </span>
+        <div>
+          <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight">Kink- & Beziehungs-Kompass</h1>
+          <p class="text-[10px] sm:text-xs text-slate-500">Live-Abgleich & 2h-Session-Playbooks</p>
+        </div>
+      </div>
+
+      <!-- Partner-Umschalter -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+        <button id="btn-user-a" onclick="setActiveUser('A')" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white shadow-sm transition flex items-center gap-1">
+          <span>🔵</span> <span id="label-nav-user-a">Partner 1</span>
+        </button>
+        <button id="btn-user-b" onclick="setActiveUser('B')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+          <span>🌸</span> <span id="label-nav-user-b">Partner 2</span>
+        </button>
+      </div>
+
+      <!-- Navigation: Fragebogen vs. Analyse -->
+      <div class="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold">
+        <button id="nav-btn-survey" onclick="switchMainView('survey')" class="px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition">
+          📝 Fragebogen
+        </button>
+        <button id="nav-btn-analysis" onclick="switchMainView('analysis')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+          <span>📊 Analyse & 2h-Playbooks</span>
+          <span id="nav-tabu-badge" class="hidden px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white">0</span>
+        </button>
+      </div>
+
+      <!-- Aktionen: Teilen & Drucken -->
+      <div class="flex items-center flex-wrap gap-1.5 sm:gap-2">
+        <div class="relative hidden md:block">
+          <input type="text" id="search-input" placeholder="Suchen..." onkeyup="filterItems()" class="text-xs pl-7 pr-2.5 py-1 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none w-28 sm:w-36">
+          <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+
+        <button onclick="openShareModal()" class="flex items-center gap-1.5 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-xl shadow-md transition" title="Antworten an Partner/in senden">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+          <span>Antworten teilen / senden</span>
+        </button>
+
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-xl shadow-sm transition">
+          Drucken
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-3 sm:p-6 md:p-8">
+
+    <!-- ========================================================== -->
+    <!-- PROMINENTE NAMENS- & DATUMS-KARTE GANZ OBEN                -->
+    <!-- ========================================================== -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm mb-5 avoid-break">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-3">
+        <div>
+          <span class="text-[10px] sm:text-xs font-bold text-brand-600 uppercase tracking-wider block">Intimer Paarabgleich • SSC & RACK</span>
+          <h2 class="text-base sm:text-lg font-black text-slate-900 mt-0.5">Eure Namen & Ausfüllstatus</h2>
+        </div>
+        <div class="text-right text-[11px] text-slate-500" id="survey-date-display">
+          📅 Zuletzt geändert: <span class="font-bold text-slate-800" id="last-updated-text">Noch keine Einträge</span>
+        </div>
+      </div>
+
+      <!-- Eingabefelder direkt oben -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div class="p-3 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-1.5">
+          <div class="flex justify-between items-center text-xs font-bold text-indigo-900">
+            <span class="flex items-center gap-1.5">🔵 Partner 1 (Aktiv-Primär):</span>
+            <span class="text-[10px] font-normal text-indigo-700" id="date-user-a">Unbearbeitet</span>
+          </div>
+          <input type="text" id="top-name-input-a" placeholder="Name von Partner 1 eintragen..." onchange="handleDirectNameChange('A', this.value)" class="w-full text-xs font-semibold bg-white border border-indigo-300 rounded-lg px-3 py-2 text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <div class="flex justify-between items-center text-[10.5px] text-indigo-700">
+            <span id="answered-count-a">0 Antworten erfasst</span>
+            <button onclick="setActiveUser('A')" class="underline font-bold hover:text-indigo-950">Jetzt für P1 ausfüllen ➔</button>
+          </div>
+        </div>
+
+        <div class="p-3 bg-pink-50/60 border border-pink-200 rounded-xl space-y-1.5">
+          <div class="flex justify-between items-center text-xs font-bold text-pink-900">
+            <span class="flex items-center gap-1.5">🌸 Partner 2 (Passiv-Primär):</span>
+            <span class="text-[10px] font-normal text-pink-700" id="date-user-b">Unbearbeitet</span>
+          </div>
+          <input type="text" id="top-name-input-b" placeholder="Name von Partner 2 eintragen..." onchange="handleDirectNameChange('B', this.value)" class="w-full text-xs font-semibold bg-white border border-pink-300 rounded-lg px-3 py-2 text-pink-900 focus:ring-2 focus:ring-pink-500 focus:outline-none">
+          <div class="flex justify-between items-center text-[10.5px] text-pink-700">
+            <span id="answered-count-b">0 Antworten erfasst</span>
+            <button onclick="setActiveUser('B')" class="underline font-bold hover:text-pink-950">Jetzt für P2 ausfüllen ➔</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ANSICHT 1: DER FRAGEBOGEN                                 -->
+    <!-- ========================================================== -->
+    <div id="main-view-survey" class="space-y-5">
+      
+      <!-- Vertrauens-Leitfaden & Ampelsystem -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm avoid-break">
+        <div id="status-banner" class="no-print mb-3 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 text-xs flex flex-wrap items-center justify-between gap-2">
+          <span class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
+            Du beantwortest aktuell für: <strong id="active-user-text" class="font-bold">Partner 1</strong>. Jede Eingabe wird sofort lokal gesichert.
+          </span>
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="text-indigo-700 font-semibold" id="answer-counter">0 beantwortet</span>
+            <button onclick="requestResetUserAnswers()" class="text-rose-600 hover:text-rose-800 underline font-medium">Meine Antworten löschen</button>
+          </div>
+        </div>
+
+        <div class="text-xs text-slate-600 leading-relaxed space-y-2 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80 mb-4 print-readable-text">
+          <p>
+            <strong>Über das Fundament von BDSM, Kinks und gelebter Intimität:</strong> 
+            Hinter allen Techniken, Fesselungen, Rollen und Reizen steht immer nur ein einziges Fundament: <strong>grenzenloses gegenseitiges Vertrauen und Liebe</strong>. Machtabgabe ist kein Zwang, sondern das Schenken von Kontrolle an den Menschen, bei dem man sich am sichersten fühlt.
+          </p>
+        </div>
+
+        <div class="p-3 bg-rose-50/50 border border-brand-200 rounded-xl text-xs print-readable-text">
+          <strong class="text-brand-900 font-bold block mb-1">Das Auswertungs- & Ampelsystem:</strong>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 text-[10.5px]">
+            <span class="bg-white p-1.5 rounded border border-slate-200"><strong>0:</strong> Irrelevant</span>
+            <span class="bg-white p-1.5 rounded border border-rose-300 text-rose-900 font-bold"><strong>1 (Rot):</strong> Tabu / Limit</span>
+            <span class="bg-white p-1.5 rounded border border-amber-300 text-amber-900"><strong>2 (Gelb):</strong> Partner zuliebe</span>
+            <span class="bg-white p-1.5 rounded border border-blue-300 text-blue-900"><strong>3 (Blau):</strong> Klärungsbedarf</span>
+            <span class="bg-white p-1.5 rounded border border-emerald-300 text-emerald-900"><strong>4 (Grün):</strong> Lustvoll</span>
+            <span class="bg-white p-1.5 rounded border border-purple-300 text-purple-900"><strong>5 (Lila):</strong> Absolute Prio</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamische Kapitel -->
+      <div id="survey-chapters-container" class="space-y-5"></div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ANSICHT 2: INTERAKTIVE LIVE-ANALYSE & 2H-PLAYBOOKS         -->
+    <!-- ========================================================== -->
+    <div id="main-view-analysis" class="hidden space-y-6">
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm avoid-break">
+        <div class="border-b border-slate-100 pb-3 mb-4 flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-widest block">Live-Abgleich & 2h-Playbooks</span>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
+              Auswertung für <span id="analysis-name-a" class="text-indigo-600">Partner 1</span> & <span id="analysis-name-b" class="text-pink-600">Partner 2</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Wird in Echtzeit aus euren tatsächlich abgegebenen Antworten kalkuliert.</p>
+          </div>
+          <button onclick="switchMainView('survey')" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl transition">
+            ← Zurück zum Fragebogen
+          </button>
+        </div>
+
+        <!-- KPI-Karten -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 mb-6">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
+            <div class="text-2xl font-black text-slate-900" id="analysis-harmony-score">0 %</div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Beidseitig positive Schnittmengen</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er</span>
+            <div class="text-2xl font-black text-emerald-600" id="analysis-doppel5-count">0</div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Beide mit Priorität 5 bewertet</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brücken & Dialog</span>
+            <div class="text-2xl font-black text-amber-600" id="analysis-bridges-count">0</div>
+            <p class="text-[10px] text-slate-500 mt-0.5">Wunsch (4/5) trifft Bereitschaft (2/3)</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-rose-200 bg-rose-50/40">
+            <span class="text-[10px] font-bold text-rose-500 uppercase tracking-wider block">Tabus & Limits (1)</span>
+            <div class="text-2xl font-black text-rose-600" id="analysis-tabu-count">0</div>
+            <p class="text-[10px] text-rose-700 mt-0.5">Mind. von einer Person gesetzt</p>
+          </div>
+        </div>
+
+        <!-- Radar-Vergleich (Nur aktiv, wenn Daten vorhanden sind) -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 avoid-break">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <span>📊</span> Archetypen-Radar (Echte Antwortdaten)
+            </h3>
+            <span class="text-[11px] text-slate-500">
+              🔵 <span id="radar-label-a">Partner 1</span> vs. 🌸 <span id="radar-label-b">Partner 2</span>
+            </span>
+          </div>
+          <div id="radar-empty-state" class="p-8 text-center bg-slate-50 border border-dashed border-slate-300 rounded-xl">
+            <span class="text-2xl block mb-1">🕸️</span>
+            <p class="text-xs font-bold text-slate-700">Noch keine Profil-Daten verfügbar</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Sobald mindestens einer von euch Fragen bewertet, entsteht hier euer individuelles Stärken- und Vorlieben-Profil.</p>
+          </div>
+          <div id="radar-chart-container" class="relative h-[280px] w-full hidden items-center justify-center">
+            <canvas id="analysisRadarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- DREI EXPLIZITE 2-STUNDEN PLAYBOOKS + AFTERCARE           -->
+        <!-- ======================================================== -->
+        <div class="mb-6 avoid-break">
+          <div class="border-b border-slate-200 pb-2 mb-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                <span>📖</span> 3 dynamische 2-Stunden-Sessions + Aftercare
+              </h3>
+              <p class="text-[11px] text-slate-500">Ausführliche Drehbücher mit exakter Dramaturgie (Mix aus sanften & fordernden Kinks – 100 % tabufrei).</p>
+            </div>
+            <button onclick="recalculateAndRenderAnalysis()" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-lg transition">
+              🔄 Szenarien neu würfeln
+            </button>
+          </div>
+
+          <div id="analysis-playbooks-container" class="space-y-4">
+            <!-- Dynamisch generiert -->
+          </div>
+        </div>
+
+        <!-- TABU-LISTE -->
+        <div class="mb-6 avoid-break">
+          <div class="bg-rose-50 border border-rose-300 rounded-2xl p-4">
+            <div class="flex items-center justify-between border-b border-rose-200 pb-2 mb-3">
+              <h3 class="text-sm font-bold text-rose-900 flex items-center gap-1.5">
+                <span>⛔</span> Alle erfassten Tabus & Limits (Wert = 1)
+              </h3>
+              <span class="text-xs font-mono font-bold text-rose-800 bg-rose-200/60 px-2 py-0.5 rounded" id="tabu-list-header-count">0 Tabus</span>
+            </div>
+            <p class="text-xs text-rose-800 mb-3 leading-relaxed">
+              <strong>Unverhandelbare Schutzzone:</strong> Hier sind ausnahmslos alle Praktiken aufgeführt, bei denen mindestens eine Person den Wert <strong>1 (Tabu / Limit)</strong> vergeben hat. Diese Punkte sind im gemeinsamen Spiel strikt tabu.
+            </p>
+            <div id="analysis-tabu-list" class="space-y-2">
+              <!-- Dynamisch gerendert -->
+            </div>
+          </div>
+        </div>
+
+        <!-- DOPPEL-5ER MATCHES -->
+        <div class="mb-6 avoid-break">
+          <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+            <span>⭐</span> Doppel-5er Matches (Beidseitige Prio 5)
+          </h3>
+          <div id="analysis-doppel5-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Dynamisch gerendert -->
+          </div>
+        </div>
+
+        <!-- BRÜCKENBAU-MATRIX -->
+        <div class="mb-6 avoid-break">
+          <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+            <span>🌉</span> Brückenbau-Potenziale (Wunsch 4/5 trifft Bereitschaft 2/3)
+          </h3>
+          <div id="analysis-bridges-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Dynamisch gerendert -->
+          </div>
+        </div>
+
+        <!-- KAPITEL-TIEFENMATRIX -->
+        <div class="avoid-break">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-slate-900">Vollständige Zählung aller Kapitel</h3>
+            <span class="text-xs text-slate-500" id="total-practices-counter">0 Praktiken im Katalog</span>
+          </div>
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 border-b border-slate-200 text-[10.5px] uppercase">
+                  <th class="py-2 px-3">Kapitel</th>
+                  <th class="py-2 px-3">Enthaltene Praktiken</th>
+                  <th class="py-2 px-3">Beantwortet</th>
+                  <th class="py-2 px-3">Harmonie-Match</th>
+                  <th class="py-2 px-3">Status</th>
+                </tr>
+              </thead>
+              <tbody id="analysis-chapters-table" class="divide-y divide-slate-200 text-slate-700">
+                <!-- Dynamisch gerendert -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-box mt-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm text-xs text-slate-600 avoid-break print-readable-text">
+      <h3 class="font-bold text-slate-900 text-sm mb-1.5 flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+        Abschließende Hinweise für euren gemeinsamen Weg
+      </h3>
+      <p class="leading-relaxed mb-2">
+        Dieser Bogen ist kein starrer Vertrag, sondern eine Einladung zum Dialog. Wünsche und Grenzen verändern sich über die Zeit. Nach intensiven Sessions ist eine achtsame Nachsorge (<strong>Aftercare</strong> – Kuscheln, Trinken, Decken, emotionales Feedback und Zeit) unverzichtbar.
+      </p>
+    </footer>
+  </main>
+
+  <!-- ========================================================== -->
+  <!-- MODAL: ANTWORTEN TEILEN & SENDEN (ABSICHERUNG FÜRS HANDY) -->
+  <!-- ========================================================== -->
+  <div id="modal-share" class="no-print fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+      <div class="border-b border-slate-100 pb-2.5 flex items-start justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <span>📲</span> Antworten an Partner/in senden
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Sende deine Antworten ganz einfach per WhatsApp, Telegram oder SMS an dein Gegenüber.</p>
+        </div>
+        <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600 text-lg leading-none font-bold">&times;</button>
+      </div>
+
+      <!-- Variante A: Direkter Web-Link (falls online gehostet) -->
+      <div class="space-y-1.5" id="web-link-section">
+        <label class="block text-xs font-bold text-slate-700">Option 1: Klickbarer Link (Web)</label>
+        <div class="flex gap-1.5">
+          <input type="text" id="share-link-input" readonly class="w-full text-xs font-mono bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-700 focus:outline-none select-all">
+          <button onclick="copyShareLinkFromInput()" id="btn-copy-share-modal" class="px-3.5 py-2 bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
+            Kopieren
+          </button>
+        </div>
+        <p class="text-[10.5px] text-slate-500" id="link-hint-text">Funktioniert sofort, wenn diese Datei auf einem Webserver liegt.</p>
+      </div>
+
+      <!-- Variante B: Der WhatsApp-Übertragungs-Code (100% Sicher für lokale Dateien) -->
+      <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-2">
+        <div class="flex justify-between items-center text-xs font-bold text-indigo-950">
+          <span>Option 2: Übertragungs-Code per WhatsApp senden</span>
+          <button onclick="copyDataCode()" class="text-[11px] text-indigo-600 underline hover:text-indigo-800 font-bold">Code kopieren</button>
+        </div>
+        <p class="text-[11px] text-indigo-800 leading-snug">
+          Wenn du die Datei lokal auf dem Computer geöffnet hast, kopiere diesen Code und sende ihn deinem Partner. Dein Partner öffnet die Datei auf seinem Handy und fügt den Code unten ein:
+        </p>
+        <textarea id="share-code-textarea" rows="3" readonly class="w-full text-[10px] font-mono bg-white border border-indigo-200 rounded-lg p-2 text-indigo-900 focus:outline-none select-all"></textarea>
+      </div>
+
+      <!-- Partner Importfeld -->
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+        <label class="block text-xs font-bold text-slate-800">Code vom Partner empfangen & laden:</label>
+        <div class="flex gap-2">
+          <input type="text" id="manual-import-input" placeholder="Hier empfangenen Code einfügen..." class="w-full text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <button onclick="importManualCode()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg whitespace-nowrap transition">
+            Laden ➔
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeShareModal()" class="px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="no-print fixed bottom-4 right-4 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
+    <span id="toast-icon">✓</span>
+    <span id="toast-message">Mitteilung</span>
+  </div>
+
+  <!-- ========================================================== -->
+  <!-- JAVASCRIPT: DATENMODELL, 2H-PLAYBOOKS & DYNAMISCHE LOGIK   -->
+  <!-- ========================================================== -->
+  <script>
+    // Vollständiger Fragenkatalog aller 35 Kapitel
+    const allChapters = [
+      {
+        id: 0,
+        title: "0. Körperbild, Scham, Trauma & Psychische Sicherheitsgrenzen",
+        desc: "Persönliche Schamzonen, emotionale Wunden, Vorerfahrungen und psychologische Rahmenbedingungen zur Gewährleistung emotionaler Sicherheit.",
+        isCustom: true,
+        items: [
+          { title: "Lieblingszonen des eigenen Körpers", desc: "Dies bezeichnet die anatomischen Bereiche, an denen du dich besonders attraktiv fühlst und die du gerne im Fokus der Aufmerksamkeit siehst. Sie werden während des Vorspiels oder der Vereinigung gezielt durch Streicheln, Küssen und visuelle Bewunderung zelebriert. Für die meisten Menschen schafft diese Hervorhebung ein starkes Gefühl des Begehrtwerdens und stärkt das erotische Selbstvertrauen ungemein.", customOptions: ["Brüste/Brust", "Gesäß", "Oberschenkel", "Taille/Bauch", "Hals/Nacken", "Füße/Beine", "Rücken", "Genitalbereich"], prompt: "Zonen ankreuzen, die im Fokus stehen dürfen:" },
+          { title: "Körperliche Unsicherheiten & Schamzonen", desc: "Hierunter fallen Körperstellen, die mit Selbstzweifeln, Unbehagen oder Schamgefühlen behaftet sind. Im intimen Raum erfordern diese Zonen besondere Achtsamkeit, indem sie entweder geschont oder nur nach ausdrücklicher Absprache sanft berührt werden. Fans achtsamer Intimität schätzen hierbei die Entlastung, da kein Druck entsteht, perfekt wirken zu müssen, was erst die nötige mentale Entspannung ermöglicht.", customOptions: ["Bauch/Taille", "Gesäß/Hüfte", "Brustform", "Genitaloptik", "Dehnungsstreifen/Narben", "Körperbehaarung", "Füße", "Gesamtes Gewicht"], prompt: "Zonen ankreuzen, die geschont oder vorsichtig behandelt werden sollen:" },
+          { title: "Bedarf an verbaler Bestätigung & Komplimenten", desc: "Dies beschreibt das Bedürfnis nach aktiven verbalen Liebes- und Bewunderungsbekundungen während erotischer Momente. Die Worte können von zärtlichen Zunickungen bis hin zu begeistertem Lob über das Aussehen oder Verhalten reichen. Für viele Menschen ist dies der entscheidende Schlüssel, um kreisende Selbstzweifel abzuschalten und sich vollkommen im Lustempfinden zu verlieren.", customPills: ["Unwichtig / Stört mich eher", "Gelegentlich schön", "Sehr wichtig / Brauche ich für Sicherheit", "Absoluter Turn-On"] },
+          { title: "Lichtverhältnisse & Nacktheit", desc: "Die Beleuchtung steuert maßgeblich das Gefühl von Schutz versus erotischer Entblößung im Raum. Während manche Partner sanftes Kerzenlicht oder Dunkelheit bevorzugen, um Scham abzubauen, entfaltet volles Tageslicht oder der Blick in einen Spiegel für Schau- und Zeigelustige einen gewaltigen Erregungskick. Es entscheidet darüber, wie verletzlich oder selbstsicher man sich im nackten Zustand fühlt.", customPills: ["Nur Dunkelheit / Kerzenschein", "Gedämpftes Licht", "Helles Licht vollkommen okay", "Tageslicht / Spiegel bevorzugt"] },
+          { title: "Klaustrophobie & Enge-Trigger", desc: "Diese Dimension erfasst Panik- oder Stressreaktionen bei physischer Einengung, wie etwa durch geschlossene Masken, schwere Decken oder vollständige Fixierungen. Im BDSM wird Enge oft bewusst zur Reizüberflutung genutzt, kann jedoch bei entsprechender Veranlagung Flashbacks oder echte Atemnot triggern. Die genaue Klärung schützt davor, dass aus lustvollem Ausgeliefertsein ungewollt echter psychischer Horror wird.", customPills: ["Starke Panik bei Enge / Absolutes Tabu", "Leichte Beklemmung", "Keine Engeangst vorhanden", "Enge/Fixierung erregt mich"] },
+          { title: "Gefühl von Hilflosigkeit (Trigger vs. Subspace)", desc: "Hierbei geht es um die emotionale Reaktion, wenn man sich den Handlungen des Partners ohne eigene Fluchtmöglichkeit anheimstellt. Für Trauma-Betroffene kann dies Panik und Abwehr auslösen, während devote Personen gerade hierin die ultimative seelische Erlösung und das Eintauchen in den tiefen Subspace finden. Es markiert die haarscharfe Grenze zwischen heilsamer Hingabe und traumatischer Ohnmacht.", customPills: ["Löst Angst/Abwehr aus", "Nur bei sehr hoher Kontrolle", "Entlastend & Beruhigend", "Führt in tiefen Subspace/Trance"] },
+          { title: "Post-Sex-Vulnerabilität & Rückzugsangst", desc: "Dieser Zustand beschreibt das plötzliche Auftreten von Niedergeschlagenheit, Tränen oder Verlassenheitsängsten direkt nach dem Orgasmus oder nach dem Ende einer intensiven Szene. Hervorgerufen wird dies durch den abrupten Abfall von Endorphinen und Dopamin im Nervensystem. Menschen mit hoher Vulnerabilität benötigen eine verlässliche, warme Nachsorge im Arm des Partners, um sich nicht einsam oder benutzt zu fühlen.", customPills: ["Sehr hohe Vulnerabilität (Aftercare zwingend)", "Brauche 10-15 Min. Nähe", "Eher Bedürfnis nach Ruhe", "Völlig unkritisch"] }
+        ]
+      },
+      {
+        id: 1,
+        title: "1. Romantik, Zärtlichkeit & Emotionale Intimität",
+        desc: "Sanfte Annäherung, Geborgenheit, Herzverbindung und zärtliche Gesten als unverzichtbares Fundament.",
+        items: [
+          { title: "Zärtliches Streicheln & Kuscheln", desc: "Sanfte Hände und Fingerspitzen berühren langsam die Haut des Partners, ohne dass ein Zwang zu Erregung oder Penetration besteht. Dies dient der mentalen Erdung und dem behutsamen Herantasten vor einer Session. Liebhaber genießen das Gefühl absoluter Geborgenheit und die Ausschüttung von beruhigendem Oxytocin.", r1: "Aktiv liebkosen & streicheln", r2: "Gestreichelt werden & genießen", intensity: "soft", categoryDim: "romance" },
+          { title: "Intimer Augenkontakt", desc: "Das bewusste, ununterbrochene Halten des Blickkontakts während des Liebesspiels oder beim Streicheln aus nächster Nähe. Es erfordert Mut zur Verletzlichkeit, da man dem Partner gestattet, ungefiltert in die eigene Seele zu blicken. Fans empfinden diesen Blick als erotischen Brandbeschleuniger, der Lust mit tiefer emotionaler Verschmelzung auflädt.", r1: "Aktiv den Blick halten", r2: "Den Blick erwidern & standhalten", intensity: "soft", categoryDim: "romance" },
+          { title: "Sanftes Halten im Arm", desc: "Ein Partner umschließt den anderen im Liegen fest und schützend, sodass Körperwärme und Herzschlag direkt spürbar werden. Diese Haltung dient als seelischer Ruheanker vor oder nach aufwühlenden Erfahrungen. Der besondere Reiz liegt im Gefühl, die Last der Welt für einen Moment komplett abtreten zu können.", r1: "Im Arm halten & beschützen", r2: "Gehalten werden & loslassen", intensity: "soft", categoryDim: "romance" },
+          { title: "Liebevolle Worte & Komplimente", desc: "Aufrichtige Worte der Wertschätzung, Bewunderung und emotionalen Verbundenheit werden laut ausgesprochen. Dies geschieht oft in ruhigen Momenten, um dem Partner die Zuneigung auch kognitiv zu spiegeln. Der Kick entsteht dadurch, dass das Gehirn die Schmeicheleien direkt in gesteigertes Begehren und Entspannung übersetzt.", r1: "Aktiv aussprechen", r2: "Wertschätzung empfangen", intensity: "soft", categoryDim: "romance" },
+          { title: "Flüster-Erotik & Zärtlicher Dirty Talk", desc: "Leise, intime Worte, sanfte Anzüglichkeiten oder rhythmisches Atmen werden direkt an die empfindliche Ohrmuschel gehaucht. Die akustische Nähe erzeugt einen ASMR-artigen Schauer, der über die Nackennerven durch den gesamten Körper wandert. Begeisterte schätzen die prickelnde Kombination aus stimmlicher Autorität und Verbundenheit.", r1: "Ins Ohr flüstern", r2: "Zugeflüstert bekommen & lauschen", intensity: "soft", categoryDim: "romance" }
+        ]
+      },
+      {
+        id: 2,
+        title: "2. Küsse, Lippen & Sinnliche Zuwendung",
+        desc: "Vom flüchtigen Hauchkuss bis zur fordernden Lippenübernahme.",
+        items: [
+          { title: "Sanfte Hauchküsse", desc: "Die Lippen berühren kaum merklich die Augenlider, Schläfen, Wangen oder Lippen des Partners wie ein zarter Lufthauch. Diese Küsse werden vor allem zu Beginn eingesetzt, um Nervenenden behutsam aufzuwecken. Der Reiz liegt in der unschuldigen Verspieltheit und Vorfreude.", r1: "Aktiv sanft küssen", r2: "Küsse empfangen", intensity: "soft", categoryDim: "romance" },
+          { title: "Sinnlicher Lippentanz (Slow Kissing)", desc: "Ein extrem entschleunigtes, ausgiebiges Erkunden der Lippen ohne jede Eile oder sofortigen Übergang zu weiteren Handlungen. Beide Partner konzentrieren sich vollkommen auf Feuchtigkeit, Textur und Wärme der Münder. Viele erleben dies als meditative Form der Erotik, die den Leistungsdruck vollkommen nimmt.", r1: "Lippen erkunden & führen", r2: "Hingebungsvoll erwidern", intensity: "soft", categoryDim: "romance" },
+          { title: "Küsse am ganzen Körper", desc: "Die Lippen wandern langsam von Schlüsselbein und Hals über Rippenbögen bis hinab zu Bauch und Innenschenkeln. Dies dient als weiträumige Kartierung des Körpers, bei der jede empfindliche Stelle gewürdigt wird. Fans lieben das prickelnde Ausgeliefertsein und das Erraten des nächsten Kusses.", r1: "Körper küssen & wandern", r2: "Küsse am Körper genießen", intensity: "soft", categoryDim: "romance" },
+          { title: "Leidenschaftliches Zungenküssen", desc: "Tiefe, fordernde Küsse, bei denen Zungen und Münder intensiv ineinandergreifen und Speichel ausgetauscht wird. Sie begleiten vor allem Höhepunkte des Vorspiels und die Vereinigung. Der Kick liegt in der unzensierten körperlichen Nähe und dem Schmecken des Partners.", r1: "Leidenschaftlich küssen", r2: "Kuss intensiv erwidern", intensity: "soft", categoryDim: "romance" },
+          { title: "Sanftes Knabbern an Lippe oder Ohr", desc: "Die Zähne fassen behutsam die Unterlippe oder das Ohrläppchen und üben dosierten Zug aus. Dieser Reiz wird eingesetzt, um die Grenze zwischen Schmerz und wohliger Erregung spielerisch anzutasten. Liebhaber empfinden diesen plötzlichen sensorischen Impuls als elektrisierenden Wachmacher.", r1: "Behutsam anknabbern", r2: "Knabbern spüren & genießen", intensity: "medium", categoryDim: "romance" },
+          { title: "Nackengriff beim Küssen (Hair Pulling / Scruffing)", desc: "Eine Hand greift fest und kontrollierend in das Kopfhaar oder den Nacken, um den Kopf sanft nach hinten zu neigen und die Kehle freizulegen. Dies geschieht oft mitten in einem Kuss, um Dominanz und körperliche Führung zu demonstrieren. Der Reiz liegt für den Führenden in der spürbaren Macht und für den Empfangenden in der erregenden Hilflosigkeit.", r1: "Nackengriff führen & lenken", r2: "Halt im Nacken annehmen & Hals darbieten", intensity: "medium", categoryDim: "ds" },
+          { title: "Dominakuss / Masterkuss", desc: "Der dominante Part fixiert fest das Kinn des Partners und nimmt dessen Lippen mit fordernder Intensität vollkommen ein. Der passive Part darf den Kuss nicht aktiv steuern, sondern muss ihn reglos oder demütig empfangen. Fans dieser Geste berauscht die unmissverständliche Besitzanzeige, die durch den Mundraum besiegelt wird.", r1: "Kinn fixieren & fordernd küssen", r2: "Lippen überlassen & empfangen", intensity: "medium", categoryDim: "ds" }
+        ]
+      },
+      {
+        id: 3,
+        title: "3. Tantra, Slow Sex & Achtsames Vorspiel",
+        desc: "Entschleunigte Körperarbeit, energetische Verbindung und Reizaufbau über Zeit.",
+        items: [
+          { title: "Synchrone Atmung (Atem-Harmonisierung)", desc: "Beide Partner liegen Brust an Brust und passen ihre Ein- und Ausatmung bewusst an denselben Rhythmus an. Dies beruhigt das vegetative Nervensystem und synchronisiert die Herzfrequenzen beider Körper. Praktizierende beschreiben das Erlebnis als Auflösung individueller Grenzen zu einem gemeinsamen Organismus.", r1: "Atmung führen", r2: "Sich im Takt anpassen", intensity: "soft", categoryDim: "tantra" },
+          { title: "Ganztägiges Vorspiel (Slow Teasing)", desc: "Über viele Stunden hinweg werden erotische Andeutungen, vielsagende Blicke und diskrete Textnachrichten im Alltag ausgetauscht. Es findet keine sofortige Entladung statt, sodass sich die Erregung über den Tag im Kopf anstaut. Der gewaltige Reiz liegt in der quälenden Vorfreude und der Gewissheit des bevorstehenden gemeinsamen Abends.", r1: "Spannung aufbauen & senden", r2: "Spannung empfangen & vorfreuen", intensity: "soft", categoryDim: "tantra" },
+          { title: "Ganzkörper-Entspannungsmassage", desc: "Warme Öle werden mit langen, flächigen Streichbewegungen über Rücken, Beine und Schultern verteilt, ohne dass Genitalien berührt werden. Es dient der vollkommenen Muskelentspannung und dem Abstreifen von Alltagsstress. Fans schätzen, dass jede Erwartungshaltung entfällt und der Körper bedingungslos verwöhnt wird.", r1: "Partner achtsam massieren", r2: "Massage empfangen & entspannen", intensity: "soft", categoryDim: "tantra" },
+          { title: "Tantrische Federberührungen", desc: "Mit echten Vogelfedern, Seidentüchern oder hauchzarten Fingerspitzen wird über die empfindlichsten Hautzonen gestrichen. Die Reize sind so minimal, dass sie intensive Gänsehaut und Nervenzuckungen auslösen. Der Kick entsteht aus der extremen Fokussierung der taktilen Sinne, wenn das Gehirn nach mehr Berührung verlangt.", r1: "Federleicht streichen", r2: "Prickeln auf der Haut spüren", intensity: "soft", categoryDim: "tantra" },
+          { title: "Nuru-Massage (Body-to-Body Algenmassage)", desc: "Beide Partner sind vollkommen nackt und werden mit warmem, extrem gleitfähigem Algen-Gel übergossen. Die Körper gleiten reibungslos und schwerelos übereinander, sodass Haut auf Haut ohne jeden Widerstand verschmilzt. Liebhaber fasziniert das surreale Gefühl der Schwerelosigkeit und die ununterbrochene Ganzkörperberührung.", r1: "Gleitend massieren", r2: "Körpergleiten empfangen", intensity: "medium", categoryDim: "tantra" },
+          { title: "Cock Warming / Soft Insertion (Stille Vereinigung)", desc: "Das Glied wird im schlaffen oder halberigierten Zustand behutsam eingeführt, um minutenlang reglos die feuchte Körperwärme zu teilen. Diese Praxis wird oft am frühen Morgen oder zum Ausklang intimer Stunden genutzt. Der Kick liegt in der unzerstörbaren Gemütlichkeit und dem zärtlichen Einssein zweier Körper.", r1: "Einführen & reglos verweilen", r2: "Aufnehmen & Körperwärme spüren", intensity: "soft", categoryDim: "tantra" }
+        ]
+      },
+      {
+        id: 4,
+        title: "4. Stellungen & Erotische Variationen",
+        desc: "Klassische und fordernde Positionen im Wechselspiel von Nähe und Führung.",
+        items: [
+          { title: "Klassische Missionarsstellung", desc: "Gesicht an Gesicht liegend, ermöglicht diese Haltung maximalen Augenkontakt, zärtliche Küsse und enge Umarmungen. Sie ist der Inbegriff romantischer Verbundenheit. Der Kick liegt in der vollständigen Transparenz der Gefühle, da man jede Regung des Partners unmittelbar sieht.", r1: "Oben / Führend", r2: "Unten / Empfangend", intensity: "soft", categoryDim: "romance" },
+          { title: "Löffelchen-Stellung (Spooning)", desc: "Beide Partner liegen seitlich hintereinander geschmiegt; die Vereinigung erfolgt ruhig von hinten. Diese Position eignet sich perfekt für verschlafene Sonntage oder nach langen Tagen. Liebhaber schätzen das wärmende Gefühl des Umschlungenwerdens.", r1: "Hinterer / Führender Part", r2: "Vorderer / Aufnehmender Part", intensity: "soft", categoryDim: "romance" },
+          { title: "Lotos-Stellung / Sitzender Sex", desc: "Ein Partner sitzt im Schneidersitz, während der andere auf dessen Schoß gleitet und Arme und Beine um den Oberkörper schlingt. Die Körper sind aufrecht und maximal eng aneinandergepresst. Begeisterte lieben die tiefe emotionale und spirituelle Intensität dieses direkten Herz-an-Herz-Kontakts.", r1: "Sitzend tragen & führen", r2: "Im Schoß sitzen & umklammern", intensity: "soft", categoryDim: "romance" },
+          { title: "Von hinten (Doggy Style)", desc: "Auf allen Vieren kniend, empfängt der passive Part die Penetration von hinten, während der aktive Part das Becken fest greift. Dies erlaubt tiefe Stöße und gewährt freien Zugriff auf Gesäß und Rücken für Spanks. Liebhaber fasziniert der animalische, ungefilterte Charakter.", r1: "Von hinten führen & Becken halten", r2: "Darbieten & aufnehmen", intensity: "medium", categoryDim: "primal" },
+          { title: "Spiegel-Sex mit Blickkontakt", desc: "Die Vereinigung findet unmittelbar vor einem großen Spiegel statt, wobei sich beide Partner ausschließlich über das Spiegelbild in die Augen schauen. Dies erzeugt eine voyeuristische Distanz, die das eigene Tun wie einen privaten Erotikfilm wirken lässt. Der Kick entsteht aus der visuellen Überhöhung.", r1: "Blick im Spiegel fordern & führen", r2: "Blick im Spiegel erwidern", intensity: "medium", categoryDim: "ds" }
+        ]
+      },
+      {
+        id: 5,
+        title: "5. Orgasmuskontrolle, Edging & Keuschhaltung",
+        desc: "Verzögerung, Verweigerung, Ruinieren, Freigabe und Verwahrung des Höhepunkts.",
+        items: [
+          { title: "Sensuelles Tease & Denial", desc: "Das quälend langsame Streicheln und Küssen des gesamten Körpers, während die Genitalien peinlich genau ausgespart oder nur gestreift werden. Wenn Verlangen auflodert, zieht sich der aktive Part lächelnd zurück. Fans lieben die fast schmerzhafte mentale Erregung.", r1: "Reize verweigern & necken", r2: "Verlangen aushalten", intensity: "medium", categoryDim: "chastity" },
+          { title: "Edging (Stoppen kurz vor dem Orgasmus)", desc: "Das wiederholte Heranführen des Partners an den Point of No Return mit abruptem Berührungsstopp im letzten Moment. Der Körper zittert vor Lust, muss sich jedoch wieder beruhigen. Der Kick liegt in der massiven Endorphinausschüttung und der Potenzierung des späteren Orgasmus.", r1: "Partner edgen & stoppen", r2: "Ge-edgt werden & aushalten", intensity: "medium", categoryDim: "chastity" },
+          { title: "Orgasmus auf Countdown-Kommando", desc: "Der Orgasmus darf erst exakt bei der Zahl Eins eines laut gesprochenen Countdowns des dominanten Partners ausgelöst werden. Der Zählende variiert Tempo und Pausen nach Belieben. Der Kick ist die absolute Unterordnung der körperlichen Reflexe unter den Willen des anderen.", r1: "Countdown zählen & freigeben", r2: "Strikt auf Zählkommando kommen", intensity: "hard", categoryDim: "chastity" },
+          { title: "Teasing des Keuschlings im Käfig (Lust-Erhalt)", desc: "Kontinuierliches Erregen und Berühren des verschlossenen Genitals im Keuschheitskäfig ohne Öffnung. Dies verhindert Abstumpfung und hält den Keuschling mental auf den Top fixiert. Für Submissive ist dies eine quälend süße Erinnerung an die Macht des Tops.", r1: "Im Käfig intensiv necken & erregen", r2: "Im Käfig gequält & heiß gehalten werden", intensity: "hard", categoryDim: "chastity" },
+          { title: "Vollständiger Orgasmus-Entzug (Denial)", desc: "Eine intensive Session endet für den submissiven Part ganz bewusst ohne eigenen Orgasmus; die Stimulation wird einfach beendet und das Spiel geschlossen. Er muss die unbefriedigte Erregung mitnehmen. Für Devote ist dies eine tiefgreifende Lektion in Selbstdisziplin und purer Dienstbarkeit.", r1: "Orgasmus verwehren & beenden", r2: "Ohne Höhepunkt ruhen & dienen", intensity: "hard", categoryDim: "chastity" }
+        ]
+      },
+      {
+        id: 6,
+        title: "6. Fesselungen, Shibari & Restriktion",
+        desc: "Vom sanften Seidentuch über kunstvolle Seilmuster bis zu starren Arretierungen.",
+        items: [
+          { title: "Sanfte Handgelenksfesselung mit Seidentüchern", desc: "Behutsames Verbinden der Handgelenke am Bettpfosten mit weichen Seidentüchern. Es dient als sanfter Einstieg in das Loslassen von Kontrolle ohne Druckstellen. Für Einsteiger schenkt es die wohlige Gewissheit, sich für kurze Zeit ganz den Berührungen des Partners überlassen zu dürfen.", r1: "Behutsam mit Seide binden", r2: "In Seidentüchern geborgen daliegen", intensity: "soft", categoryDim: "shibari" },
+          { title: "Lederfesseln mit D-Ringen", desc: "Gepolsterte Lederfesseln an Hand- und Fußgelenken, die mit Karabinern arretiert werden. Sie verleihen dem Spiel sofortige Festigkeit und Sicherheit. Der Reiz liegt in der unentrinnbaren Verbindlichkeit und dem haptischen Duft des schweren Leders.", r1: "Lederfesseln arretieren & führen", r2: "In Leder fixiert daliegen", intensity: "medium", categoryDim: "shibari" },
+          { title: "Shibari (Japanische Seilkunst / Mormai-Harness)", desc: "Das Binden traditioneller, geometrischer Seilmuster mit geöltem Juteseil um Brust und Oberkörper. Neben der optischen Schönheit erzeugt der gleichmäßige Seildruck eine tranceartige Entspannung (Subspace). Fans lieben das Zusammenspiel aus handwerklicher Präzision und erotischer Skulptur.", r1: "Als Rigger Seilmuster knüpfen", r2: "Im Seil verharren & Subspace spüren", intensity: "hard", categoryDim: "shibari" },
+          { title: "Leder-Armbinder (Monohandschuh)", desc: "Eine eng geschnürte Lederhülle, die beide Arme hinter dem Rücken unbeweglich zusammenpresst. Jede Abwehrbewegung wird unmöglich gemacht, während die Brust betont hervortritt. Der Kick entsteht aus der absoluten Bewegungslosigkeit und dem Ausgeliefertsein.", r1: "Armbinder schnüren & fixieren", r2: "Im Armbinder bewegungslos verharren", intensity: "hard", categoryDim: "shibari" },
+          { title: "Hand-Hals-Pranger (Tragbar)", desc: "Ein massives Holz- oder Metallbrett, das Handgelenke starr neben dem Hals arretiert. Es zwingt den Körper in eine gebeugte Präsentationshaltung. Liebhaber berauscht die historische Schau- und Strafoptik.", r1: "In Pranger schließen & vorführen", r2: "Im Pranger arretiert stehen", intensity: "hard", categoryDim: "shibari" }
+        ]
+      },
+      {
+        id: 7,
+        title: "7. Sinnesentzug, Masken & Trance",
+        desc: "Ausschalten visueller und auditiver Reize zur radikalen Steigerung des Tastsinns.",
+        items: [
+          { title: "Samtgefütterte Augenbinde", desc: "Das vollständige Ausschalten des Sehsinns durch eine weiche Augenmaske. Wenn die Augen geschlossen sind, verstärken sich Tast-, Hör- und Geruchssinn um ein Vielfaches. Der Kick liegt in der prickelnden Vorfreude, da man Berührungen erst im Moment des Hautkontakts spürt.", r1: "Augenbinde anlegen & leiten", r2: "Blind vertrauen & Reize spüren", intensity: "soft", categoryDim: "sensory" },
+          { title: "Noise-Cancelling-Kopfhörer mit Soundscapes", desc: "Ausschalten der akustischen Umwelt durch moderne Kopfhörer mit beruhigenden Frequenzen oder erotischen Soundtracks. Der Submissive wird akustisch komplett isoliert. Es erleichtert das meditative Abtauchen in den Subspace enorm.", r1: "Kopfhörer aufsetzen & Sound dirigieren", r2: "Isoliert in Klangwelt versinken", intensity: "medium", categoryDim: "sensory" },
+          { title: "Totaler Sinnesentzug (Blind + Taub)", desc: "Gleichzeitiges Anlegen von blicksicherer Augenbinde und geräuschunterdrückenden Kopfhörern. Jede Orientierung im Raum geht verloren; der Körper spürt nur noch die Hände des Tops. Es gilt als ultimativer Vertrauensbeweis und tiefe sensorische Trance.", r1: "Reize dosieren & führen", r2: "Vollkommen ausgeliefert genießen", intensity: "hard", categoryDim: "sensory" }
+        ]
+      },
+      {
+        id: 8,
+        title: "8. Dominanz, Praise Play & Alltagsprotokolle",
+        desc: "Führung, verbale Disziplinierung, Kniehaltungen und stärkendes Lob.",
+        items: [
+          { title: "Praise Play & Verbale Bestätigung", desc: "Das Führen durch warme, stärkende und liebevolle Worte ('Braves Mädchen / Guter Junge'). Der dominante Part schenkt dem Partner tiefe Anerkennung für seinen Gehorsam. Submissive blühen durch dieses Lob emotional auf und fühlen sich vollkommen gesehen.", r1: "Mit warmen Worten loben & bestätigen", r2: "Gelobt werden & emotional aufblühen", intensity: "soft", categoryDim: "ds" },
+          { title: "Leine am Halsband führen", desc: "Das Führen des Partners an einer Lederleine durch die Wohnung. Es ist die physische Verlängerung des Willens des Tops. Der Reiz liegt in der wortlosen Lenkung und dem spürbaren Band zwischen beiden Körpern.", r1: "Leine führen & Richtung vorgeben", r2: "An Leine geführt werden & folgen", intensity: "medium", categoryDim: "ds" },
+          { title: "Servieren auf Knien", desc: "Das formelle Reichen von Speisen, Getränken oder Gegenständen ausschließlich in aufrechter Kniehaltung. Der Diener senkt dabei demütig den Blick. Fans schätzen die Manifestation der Hierarchie in einer eleganten Geste.", r1: "Knieservieren anordnen & empfangen", r2: "Auf Knien dienen & verharren", intensity: "medium", categoryDim: "ds" },
+          { title: "Geheimer Kleider-Code im Alltag", desc: "Der dominante Part bestimmt morgens diskret, welches Wäschestück (Dessous, Käfig, Harness) der andere unter der normalen Kleidung tragen muss. Dies schafft ein unsichtbares, aufregendes Geheimnis mitten im Alltag.", r1: "Wäschecode vorgeben", r2: "Vorgegebene Wäsche tragen", intensity: "medium", categoryDim: "ds" }
+        ]
+      },
+      {
+        id: 9,
+        title: "9. Primal Play, Bratting & Körperliches Ringen",
+        desc: "Animalisches Kräftemessen, Jagdinstinkte, Provokation und Bändigung.",
+        items: [
+          { title: "Primal Wrestling (Matten-Ringen)", desc: "Freies, spielerisches Ringen auf dem Boden ohne Regeln des BDSM, sondern mit reiner Muskelkraft. Beide Partner kämpfen intensiv, bis der Stärkere den anderen am Boden festpinnt. Es dient dem Abbau von Alltagsfrust und entfesselt rohe, erotische Leidenschaft.", r1: "Partner niederringen & bändigen", r2: "Kämpfen, Widerstand leisten & kapitulieren", intensity: "medium", categoryDim: "primal" },
+          { title: "Die Jagd (Chase Play)", desc: "Ein Partner ergreift spielerisch die Flucht durch die Wohnung, während der andere als Jäger die Verfolgung aufnimmt. Der Flucht-Part spürt einen aufregenden Adrenalinkick, während der Jäger den Triumph des Stellens und Packens genießt.", r1: "Flüchtende Beute jagen & packen", r2: "Fliehen, Adrenalin spüren & erbeutet werden", intensity: "medium", categoryDim: "primal" },
+          { title: "Bratting (Absichtliches Frechsein)", desc: "Schelmisches Provozieren des Tops durch freche Bemerkungen, Augenrollen oder absichtlichen Ungehorsam. Der 'Brat' testet Grenzen aus, um die dominante Aufmerksamkeit und Strenge des Partners zu erzwingen.", r1: "Provokation annehmen & strafen", r2: "Frech provozieren & Grenzen testen", intensity: "medium", categoryDim: "primal" },
+          { title: "Brat Taming (Körperliches Bändigen)", desc: "Das unnachgiebige, feste Festhalten des zappelnden Brats, bis dessen Widerstand bricht und er sich schnurrend oder erleichtert in die Arme des Tops schmiegt. Es bringt die Erlösung nach der Provokation.", r1: "Zappelnden Partner bändigen & fixieren", r2: "Gebändigt werden & erleichtert aufgeben", intensity: "hard", categoryDim: "primal" }
+        ]
+      },
+      {
+        id: 10,
+        title: "10. Impact Play (Schlagintimität) & Reiztools",
+        desc: "Vom wärmenden Handspanking über Lederpaddles bis zu sensorischen Reizen.",
+        items: [
+          { title: "Warmes Handspanking", desc: "Rhythmische Schläge mit der flachen, warmen Hand auf die Pobacken zur allmählichen Durchblutung und Erwärmung der Haut. Es dient dem Abbau von Hemmungen und schüttet Endorphine aus. Der Empfangende spürt eine wohltuende Hitze, die den Kopf frei macht.", r1: "Mit Hand rhythmisch spanken", r2: "Handspanking empfangen & erwärmen", intensity: "soft", categoryDim: "impact" },
+          { title: "Flächiges Leder-Paddle", desc: "Dumpfe, großflächige Schläge mit einem breiten Lederpaddle auf Gesäß und Oberschenkel. Der Ton ist dumpf und der Schmerz verteilt sich gleichmäßig, ohne Striemen zu hinterlassen. Fans schätzen die emotionale Katharsis und Tiefenentspannung.", r1: "Lederpaddle führen", r2: "Paddle-Hiebe ertragen", intensity: "medium", categoryDim: "impact" },
+          { title: "Eis- & Wachstropfen (Temperatur-Spiel)", desc: "Gezieltes Tropfen von speziellem Niedrigtemperatur-Wachs oder das langsame Streichen von Eiswürfeln über erhitzte Haut. Der extreme Wechsel zwischen Kälte und wohliger Hitze verwirrt die Nervenenden und erzeugt elektrisierende Gänsehautschauer.", r1: "Wachs/Eis dosiert führen", r2: "Temperaturwechsel auf Haut spüren", intensity: "medium", categoryDim: "sensory" },
+          { title: "Wäscheklammern-Reiz (Clothespin Play)", desc: "Anbringen von Holz- oder Plastikwäscheklammern an Hautfalten oder Brustwarzen, die nach einiger Zeit abrupt abgerissen werden. Der pulsierende Druck weicht einem stechenden Schreckreiz, der intensive Adrenalinschübe freisetzt.", r1: "Klammern setzen & abziehen", r2: "Klammerdruck ertragen & Schock spüren", intensity: "hard", categoryDim: "impact" }
+        ]
+      },
+      {
+        id: 11,
+        title: "11. Caregiver, Little & Nurturing (DDLG)",
+        desc: "Bedingungslose Fürsorge, kindliche Regression und elterliches Umsorgtwerden.",
+        items: [
+          { title: "Gute-Nacht-Rituale & Vorlesen", desc: "Der Caregiver deckt den erschöpften Partner liebevoll mit Decken ein, reicht ein wärmendes Getränk und liest Geschichten vor. Jede Verantwortung des Tages darf komplett abgegeben werden. Für das 'Little' ist dies pure seelische Erlösung.", r1: "Partner zudecken & vorlesen", r2: "Eingekuschelt zuhören & geborgen sein", intensity: "soft", categoryDim: "care" },
+          { title: "Entspannungs-Bad nach Stresstagen", desc: "Wortloses Setzen des Partners in ein warmes Schaumbad, Waschen der Haare und sanftes Abtrocknen mit vorgewärmten Tüchern. Es geschieht ohne sexuellen Druck als reines Geschenk der Zuneigung.", r1: "Partner behutsam waschen & pflegen", r2: "Gewaschen werden & versorgt sein", intensity: "soft", categoryDim: "care" },
+          { title: "Im Arm wiegen & Trösten (Nurturing)", desc: "Fester, beschützender Halt, bei dem der Partner wie ein kleines Kind gewiegt und getröstet wird, während er weinen oder zur Ruhe kommen darf. Es heilt emotionale Erschöpfung nach Überforderung im Alltag.", r1: "Im Arm wiegen & trösten", r2: "Gewiegt werden & Schutz annehmen", intensity: "soft", categoryDim: "care" }
+        ]
+      },
+      {
+        id: 12,
+        title: "12. Aftercare, Nachsorge & Kinderschutz",
+        desc: "Sichere Landung nach Sessions, emotionale Geborgenheit und strikte Trennung von Familie.",
+        items: [
+          { title: "Stilles Kuscheln in Decken (Aftercare)", desc: "Unmittelbar nach dem Ende einer intensiven Session wird der Partner in Decken gehüllt, mit warmem Tee versorgt und mindestens 30 Minuten wortlos gehalten. Dies verhindert den 'Subdrop' und vertieft die seelische Bindung ungemein.", r1: "Partner wärmen & im Arm halten", r2: "In Decken gekuschelt erden", intensity: "soft", categoryDim: "care" },
+          { title: "24-Stunden-Check-in am Folgetag", desc: "Eine aufmerksame Nachricht oder ein Anruf am Tag nach der Session, um zu fragen, wie der Körper sich anfühlt und ob emotionale Nachwehen bestehen. Es zeigt verlässliche Fürsorge über den Spielmoment hinaus.", r1: "Check-in senden & nachfragen", r2: "Check-in empfangen & rückmelden", intensity: "soft", categoryDim: "care" },
+          { title: "Absolute Trennung von Kink und Kindern", desc: "Strikte Vereinbarung, dass alle Toys, Möbel, Fesseln und Keuschheitskäfige vor Kindern zu 100 % unsichtbar und weggeschlossen bleiben. In Gegenwart von Kindern gelten keinerlei D/s-Rollen.", r1: "Ausrüstung wegschließen & sichern", r2: "Schutzraum für Familie wahren", intensity: "soft", categoryDim: "care" },
+          { title: "Digitaler Datenschutz (Handy & Fotos)", desc: "Intime Fotos, BDSM-Chats und Profile werden durch PINs, versteckte Ordner und Codewörter vor neugierigen Blicken von Freunden oder Familie geschützt.", r1: "Handys sperren & sichern", r2: "Datenschutz im Alltag einhalten", intensity: "soft", categoryDim: "care" }
+        ]
+      }
+    ];
+
+    // State Variables
+    let names = { A: "Partner 1", B: "Partner 2" };
+    let currentUser = 'A';
+    let currentMainView = 'survey';
+    let answers = { A: {}, B: {} };
+    let timestamps = { A: null, B: null };
+    let radarChartInstance = null;
+
+    // Initialisierung beim Laden
+    function initApp() {
+      loadStateFromStorage();
+      checkUrlHashForData();
+      updateDynamicNamesUI();
+      renderChapters();
+      updateDateDisplay();
+      updateAnswerCounter();
+    }
+
+    function updateDynamicNamesUI() {
+      document.getElementById('label-nav-user-a').innerText = names.A;
+      document.getElementById('label-nav-user-b').innerText = names.B;
+      document.getElementById('top-name-input-a').value = names.A;
+      document.getElementById('top-name-input-b').value = names.B;
+      document.getElementById('analysis-name-a').innerText = names.A;
+      document.getElementById('analysis-name-b').innerText = names.B;
+      document.getElementById('radar-label-a').innerText = names.A;
+      document.getElementById('radar-label-b').innerText = names.B;
+      
+      const activeName = currentUser === 'A' ? names.A : names.B;
+      document.getElementById('active-user-text').innerText = activeName;
+    }
+
+    function handleDirectNameChange(partner, val) {
+      const trimmed = val.trim();
+      if (trimmed) {
+        names[partner] = trimmed;
+        saveStateToStorage();
+        updateDynamicNamesUI();
+        renderChapters();
+        showToast(`Name für ${partner === 'A' ? 'Partner 1' : 'Partner 2'} aktualisiert!`);
+      }
+    }
+
+    function setActiveUser(user) {
+      currentUser = user;
+      const btnA = document.getElementById('btn-user-a');
+      const btnB = document.getElementById('btn-user-b');
+
+      if (currentUser === 'A') {
+        btnA.className = "px-2.5 py-1 rounded-lg bg-indigo-600 text-white shadow-sm transition flex items-center gap-1";
+        btnB.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+      } else {
+        btnB.className = "px-2.5 py-1 rounded-lg bg-pink-600 text-white shadow-sm transition flex items-center gap-1";
+        btnA.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+      }
+
+      updateDynamicNamesUI();
+      updateAllInputsForCurrentUser();
+      updateAnswerCounter();
+    }
+
+    function switchMainView(view) {
+      currentMainView = view;
+      const surveyEl = document.getElementById('main-view-survey');
+      const analysisEl = document.getElementById('main-view-analysis');
+      const btnSurvey = document.getElementById('nav-btn-survey');
+      const btnAnalysis = document.getElementById('nav-btn-analysis');
+
+      if (view === 'survey') {
+        surveyEl.classList.remove('hidden');
+        analysisEl.classList.add('hidden');
+        btnSurvey.className = "px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition";
+        btnAnalysis.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+      } else {
+        surveyEl.classList.add('hidden');
+        analysisEl.classList.remove('hidden');
+        btnAnalysis.className = "px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition flex items-center gap-1";
+        btnSurvey.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        recalculateAndRenderAnalysis();
+      }
+    }
+
+    // Speichern & Ändern mit Zeitstempel
+    function saveAnswer(key, val) {
+      if (!answers[currentUser]) answers[currentUser] = {};
+      answers[currentUser][key] = val;
+      
+      const now = new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      timestamps[currentUser] = now;
+
+      updateDateDisplay();
+      updateAnswerCounter();
+      saveStateToStorage();
+      
+      if (currentMainView === 'analysis') {
+        recalculateAndRenderAnalysis();
+      }
+    }
+
+    function updateDateDisplay() {
+      const dateA = timestamps.A || 'Unbearbeitet';
+      const dateB = timestamps.B || 'Unbearbeitet';
+      document.getElementById('date-user-a').innerText = dateA;
+      document.getElementById('date-user-b').innerText = dateB;
+
+      const lastChange = timestamps[currentUser] || timestamps.A || timestamps.B || 'Noch keine Einträge';
+      document.getElementById('last-updated-text').innerText = lastChange;
+    }
+
+    function updateAnswerCounter() {
+      const countA = Object.keys(answers['A'] || {}).length;
+      const countB = Object.keys(answers['B'] || {}).length;
+      const activeCount = currentUser === 'A' ? countA : countB;
+      document.getElementById('answer-counter').innerText = `${activeCount} beantwortet`;
+      document.getElementById('answered-count-a').innerText = `${countA} Antworten erfasst`;
+      document.getElementById('answered-count-b').innerText = `${countB} Antworten erfasst`;
+
+      let tabuCount = 0;
+      ['A', 'B'].forEach(u => {
+        Object.entries(answers[u] || {}).forEach(([k, v]) => {
+          if (v === 1 && !k.startsWith('note_')) tabuCount++;
+        });
+      });
+      const badge = document.getElementById('nav-tabu-badge');
+      if (tabuCount > 0) {
+        badge.innerText = tabuCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function saveStateToStorage() {
+      try {
+        localStorage.setItem('kink_survey_names_v4', JSON.stringify(names));
+        localStorage.setItem('kink_survey_answers_v4', JSON.stringify(answers));
+        localStorage.setItem('kink_survey_times_v4', JSON.stringify(timestamps));
+      } catch (e) {}
+    }
+
+    function loadStateFromStorage() {
+      try {
+        const storedNames = localStorage.getItem('kink_survey_names_v4');
+        if (storedNames) names = Object.assign(names, JSON.parse(storedNames));
+        const storedAnswers = localStorage.getItem('kink_survey_answers_v4');
+        if (storedAnswers) answers = Object.assign(answers, JSON.parse(storedAnswers));
+        const storedTimes = localStorage.getItem('kink_survey_times_v4');
+        if (storedTimes) timestamps = Object.assign(timestamps, JSON.parse(storedTimes));
+      } catch (e) {}
+    }
+
+    // ==========================================================
+    // 100% AUSFALLSICHERE LINK- & CODE-SHARING ENGINE          
+    // ==========================================================
+    function openShareModal() {
+      saveStateToStorage();
+      
+      const payload = {
+        names: names,
+        answers: answers,
+        timestamps: timestamps
+      };
+      
+      const jsonStr = JSON.stringify(payload);
+      const encoded = btoa(encodeURIComponent(jsonStr));
+      
+      // Prüfen, ob eine echte Web-URL vorliegt (http/https)
+      const isWebUrl = window.location.protocol.startsWith('http');
+      const webSection = document.getElementById('web-link-section');
+      const hintText = document.getElementById('link-hint-text');
+
+      if (isWebUrl) {
+        const baseUrl = window.location.href.split('#')[0];
+        const fullShareUrl = baseUrl + '#data=' + encoded;
+        document.getElementById('share-link-input').value = fullShareUrl;
+        hintText.innerText = "✓ Klickbarer Weblink bereit. Kann direkt versendet werden.";
+        hintText.className = "text-[10.5px] text-emerald-600 font-semibold";
+      } else {
+        document.getElementById('share-link-input').value = "Datei liegt lokal (nutze Option 2 per WhatsApp)";
+        hintText.innerText = "⚠️ Datei läuft lokal auf deinem Gerät. Sende Option 2 (Code) per WhatsApp!";
+        hintText.className = "text-[10.5px] text-amber-700 font-semibold";
+      }
+
+      document.getElementById('share-code-textarea').value = encoded;
+      document.getElementById('modal-share').classList.remove('hidden');
+    }
+
+    function closeShareModal() {
+      document.getElementById('modal-share').classList.add('hidden');
+    }
+
+    function copyShareLinkFromInput() {
+      const input = document.getElementById('share-link-input');
+      if (input.value.startsWith('http')) {
+        navigator.clipboard.writeText(input.value);
+        showToast("Weblink kopiert!");
+      } else {
+        copyDataCode();
+      }
+    }
+
+    function copyDataCode() {
+      const ta = document.getElementById('share-code-textarea');
+      ta.select();
+      navigator.clipboard.writeText(ta.value);
+      showToast("WhatsApp-Code in die Zwischenablage kopiert!");
+    }
+
+    function importManualCode() {
+      const code = document.getElementById('manual-import-input').value.trim();
+      if (!code) return;
+      try {
+        const decoded = decodeURIComponent(atob(code));
+        const parsed = JSON.parse(decoded);
+        if (parsed.names) names = Object.assign(names, parsed.names);
+        if (parsed.answers) answers = Object.assign(answers, parsed.answers);
+        if (parsed.timestamps) timestamps = Object.assign(timestamps, parsed.timestamps);
+        
+        // Partnerwechsel für das empfangende Handy
+        currentUser = (currentUser === 'A') ? 'B' : 'A';
+
+        saveStateToStorage();
+        updateDynamicNamesUI();
+        updateDateDisplay();
+        renderChapters();
+        recalculateAndRenderAnalysis();
+        closeShareModal();
+        showToast(`Erfolgreich geladen! Du füllst nun für ${currentUser === 'A' ? names.A : names.B} aus.`);
+      } catch (e) {
+        showToast("Fehlerhafter Code. Bitte prüfe den Text.");
+      }
+    }
+
+    function checkUrlHashForData() {
+      if (window.location.hash.includes('#data=')) {
+        try {
+          const encoded = window.location.hash.replace('#data=', '');
+          const decoded = decodeURIComponent(atob(encoded));
+          const parsed = JSON.parse(decoded);
+          if (parsed.names) names = Object.assign(names, parsed.names);
+          if (parsed.answers) answers = Object.assign(answers, parsed.answers);
+          if (parsed.timestamps) timestamps = Object.assign(timestamps, parsed.timestamps);
+          
+          currentUser = 'B'; // Automatischer Wechsel für den Partner
+          saveStateToStorage();
+          showToast(`Daten von ${names.A} erfolgreich geladen!`);
+        } catch (e) {}
+      }
+    }
+
+    function requestResetUserAnswers() {
+      const activeName = currentUser === 'A' ? names.A : names.B;
+      if (confirm(`Möchtest du wirklich alle Antworten von ${activeName} zurücksetzen?`)) {
+        answers[currentUser] = {};
+        timestamps[currentUser] = null;
+        saveStateToStorage();
+        updateAllInputsForCurrentUser();
+        updateDateDisplay();
+        updateAnswerCounter();
+        showToast(`Antworten von ${activeName} wurden gelöscht.`);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3200);
+    }
+
+    // ==========================================================
+    // RENDERING FRAGEBOGEN                                      
+    // ==========================================================
+    function renderChapters() {
+      const container = document.getElementById('survey-chapters-container');
+      let html = '';
+      let globalCounter = 0;
+
+      allChapters.forEach(ch => {
+        html += `
+          <section class="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 shadow-sm avoid-break survey-chapter" data-title="${ch.title}">
+            <div class="chapter-header border-b border-slate-100 pb-1.5 mb-2.5">
+              <h2 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-700 text-[11px] flex items-center justify-center font-bold flex-shrink-0">${ch.id}</span>
+                ${ch.title}
+              </h2>
+              <p class="text-[10.5px] sm:text-[11px] text-slate-500 mt-0.5 leading-tight">${ch.desc}</p>
+            </div>
+            <div class="print-grid space-y-3 print:space-y-0.5">
+        `;
+
+        ch.items.forEach(it => {
+          globalCounter++;
+          const currentId = globalCounter;
+
+          if (ch.isCustom) {
+            html += `
+              <div class="item-row item-card p-3 print:p-1 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition avoid-break" data-search="${it.title.toLowerCase()} ${it.desc.toLowerCase()}">
+                <div class="mb-1.5 print:mb-0">
+                  <span class="font-bold text-xs text-slate-900">${currentId}. ${it.title}</span>
+                  <p class="text-[11px] text-slate-600 leading-relaxed mt-1 print:text-[8pt]">${it.desc}</p>
+                </div>
+            `;
+
+            if (it.customOptions) {
+              html += `<div class="mt-2 bg-white p-2.5 rounded-xl border border-slate-200 text-xs"><span class="text-slate-600 block text-[10px] font-semibold uppercase mb-1.5">${it.prompt}</span><div class="flex flex-wrap gap-1.5">`;
+              it.customOptions.forEach((opt, idx) => {
+                const optName = `ch0_it_${currentId}_opt_${idx}`;
+                html += `<label class="scale-btn cursor-pointer"><input type="checkbox" onchange="saveAnswer('${optName}', this.checked)" id="${optName}" class="sr-only"><span class="custom-pill">${opt}</span></label>`;
+              });
+              html += `</div></div>`;
+            } else if (it.customPills) {
+              html += `<div class="mt-2 bg-white p-2 rounded-xl border border-slate-200 text-xs"><div class="flex flex-wrap gap-1">`;
+              it.customPills.forEach((pill, idx) => {
+                const pillName = `ch0_it_${currentId}`;
+                html += `<label class="scale-btn cursor-pointer"><input type="radio" name="${pillName}" value="${idx}" onchange="saveAnswer('${pillName}', ${idx})" class="sr-only"><span class="custom-pill">${pill}</span></label>`;
+              });
+              html += `</div></div>`;
+            }
+
+            html += `<input type="text" placeholder="Persönliche Notiz / Was ist dir wichtig:" onchange="saveAnswer('note_${currentId}', this.value)" id="note_${currentId}" class="note-input mt-2 w-full text-[10.5px] bg-white border border-slate-200 rounded-lg px-2 py-1 focus:outline-none text-slate-700"><span class="note-line"></span></div>`;
+          } else {
+            const nameR1 = `it_${currentId}_r1`;
+            const nameR2 = `it_${currentId}_r2`;
+
+            html += `
+              <div class="item-row item-card p-3 print:p-1 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition avoid-break" data-search="${it.title.toLowerCase()} ${it.desc.toLowerCase()}">
+                <div class="mb-1.5 print:mb-0">
+                  <span class="font-bold text-xs text-slate-900">${currentId}. ${it.title}</span>
+                  <p class="text-[11px] text-slate-600 leading-relaxed mt-1 print:text-[8pt]">${it.desc}</p>
+                </div>
+
+                <div class="space-y-1.5 print:space-y-0.5 text-xs mt-2">
+                  <div class="scale-row-container flex flex-wrap items-center justify-between gap-1.5 bg-white p-1.5 rounded-xl border border-slate-200/80">
+                    <span class="scale-row-label text-slate-700 font-semibold text-[11px] leading-tight">🔵 Aktiv: ${it.r1}</span>
+                    <div class="scale-buttons-group flex items-center gap-0.5">${renderScaleInputs(nameR1)}</div>
+                  </div>
+                  <div class="scale-row-container flex flex-wrap items-center justify-between gap-1.5 bg-white p-1.5 rounded-xl border border-slate-200/80">
+                    <span class="scale-row-label text-slate-700 font-semibold text-[11px] leading-tight">🌸 Passiv: ${it.r2}</span>
+                    <div class="scale-buttons-group flex items-center gap-0.5">${renderScaleInputs(nameR2)}</div>
+                  </div>
+                </div>
+                <input type="text" placeholder="Bedingung / Notiz / Wie am liebsten:" onchange="saveAnswer('note_${currentId}', this.value)" id="note_${currentId}" class="note-input mt-2 w-full text-[10.5px] bg-white border border-slate-200 rounded-lg px-2 py-1 focus:outline-none text-slate-700">
+                <span class="note-line"></span>
+              </div>
+            `;
+          }
+        });
+
+        html += `</div></section>`;
+      });
+
+      container.innerHTML = html;
+      updateAllInputsForCurrentUser();
+    }
+
+    function renderScaleInputs(name) {
+      let btns = '';
+      for (let v = 0; v <= 5; v++) {
+        btns += `
+          <label class="scale-btn cursor-pointer">
+            <input type="radio" name="${name}" value="${v}" onchange="saveAnswer('${name}', ${v})" class="sr-only">
+            <span class="scale-box ${v === 0 ? 'text-slate-400' : (v === 1 ? 'border-rose-300 text-rose-700 font-black' : '')}">${v}</span>
+          </label>
+        `;
+      }
+      return btns;
+    }
+
+    function updateAllInputsForCurrentUser() {
+      const userAnswers = answers[currentUser] || {};
+      
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        const val = userAnswers[radio.name];
+        radio.checked = (val !== undefined && parseInt(radio.value) === parseInt(val));
+      });
+
+      document.querySelectorAll('input[type="checkbox"]').forEach(box => {
+        box.checked = !!userAnswers[box.id];
+      });
+
+      document.querySelectorAll('input[type="text"].note-input').forEach(input => {
+        input.value = userAnswers[input.id] || '';
+      });
+    }
+
+    function filterItems() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      const items = document.querySelectorAll('.item-card');
+      items.forEach(el => {
+        const text = el.getAttribute('data-search') || '';
+        el.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    // ==========================================================
+    // ANALYSE & DYNAMISCHE 2-STUNDEN PLAYBOOKS                  
+    // ==========================================================
+    function recalculateAndRenderAnalysis() {
+      const answersA = answers.A || {};
+      const answersB = answers.B || {};
+
+      let totalMatches = 0;
+      let positiveMatches = 0;
+      let doppel5List = [];
+      let bridgesList = [];
+      let tabuList = [];
+      let approvedSoftKinks = [];
+      let approvedHardKinks = [];
+
+      let dimScoresA = { romance: [], tantra: [], chastity: [], shibari: [], sensory: [], ds: [], primal: [], impact: [], care: [] };
+      let dimScoresB = { romance: [], tantra: [], chastity: [], shibari: [], sensory: [], ds: [], primal: [], impact: [], care: [] };
+
+      let globalCounter = 0;
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          globalCounter++;
+          const currentId = globalCounter;
+
+          if (!ch.isCustom) {
+            const scoreA_akt = answersA[`it_${currentId}_r1`];
+            const scoreB_pas = answersB[`it_${currentId}_r2`];
+            const scoreB_akt = answersB[`it_${currentId}_r1`];
+            const scoreA_pas = answersA[`it_${currentId}_r2`];
+
+            const noteA = answersA[`note_${currentId}`] || '';
+            const noteB = answersB[`note_${currentId}`] || '';
+
+            // Radar-Dimensionen sammeln (wenn beantwortet)
+            if (it.categoryDim) {
+              if (scoreA_akt !== undefined) dimScoresA[it.categoryDim].push(scoreA_akt);
+              if (scoreB_pas !== undefined) dimScoresB[it.categoryDim].push(scoreB_pas);
+            }
+
+            // 1. TABU-PRÜFUNG
+            const isTabu = (scoreA_akt === 1 || scoreA_pas === 1 || scoreB_akt === 1 || scoreB_pas === 1);
+            if (isTabu) {
+              let who = [];
+              let details = [];
+              if (scoreA_akt === 1) { who.push(names.A); details.push(`${names.A} lehnt aktiv ausführen ab (1)`); }
+              if (scoreA_pas === 1) { who.push(names.A); details.push(`${names.A} lehnt passiv empfangen ab (1)`); }
+              if (scoreB_akt === 1) { who.push(names.B); details.push(`${names.B} lehnt aktiv ausführen ab (1)`); }
+              if (scoreB_pas === 1) { who.push(names.B); details.push(`${names.B} lehnt passiv empfangen ab (1)`); }
+
+              tabuList.push({
+                id: currentId,
+                title: it.title,
+                category: ch.title,
+                desc: it.desc,
+                who: [...new Set(who)].join(' & '),
+                details: details.join(' • '),
+                noteA, noteB
+              });
+            } else {
+              // Relevante Kinks für Playbooks sammeln (nur wenn KEIN Tabu)
+              if ((scoreA_akt >= 4 && scoreB_pas >= 3) || (scoreB_akt >= 4 && scoreA_pas >= 3)) {
+                if (it.intensity === 'hard' || it.intensity === 'extreme') {
+                  approvedHardKinks.push({ id: currentId, title: it.title, desc: it.desc, r1: it.r1, r2: it.r2 });
+                } else {
+                  approvedSoftKinks.push({ id: currentId, title: it.title, desc: it.desc, r1: it.r1, r2: it.r2 });
+                }
+              }
+            }
+
+            // 2. DOPPEL-5ER
+            if (!isTabu) {
+              if (scoreA_akt === 5 && scoreB_pas === 5) {
+                doppel5List.push({
+                  id: currentId,
+                  title: it.title,
+                  category: ch.title,
+                  desc: it.desc,
+                  dynamic: `${names.A} will aktiv führen (5) & ${names.B} will passiv empfangen (5)`,
+                  noteA, noteB
+                });
+              }
+              if (scoreB_akt === 5 && scoreA_pas === 5) {
+                doppel5List.push({
+                  id: currentId,
+                  title: `${it.title} (Invers)`,
+                  category: ch.title,
+                  desc: it.desc,
+                  dynamic: `${names.B} will aktiv führen (5) & ${names.A} will passiv empfangen (5)`,
+                  noteA, noteB
+                });
+              }
+            }
+
+            // 3. BRÜCKEN
+            if (!isTabu) {
+              if ((scoreA_akt >= 4 && (scoreB_pas === 2 || scoreB_pas === 3)) || (scoreB_pas >= 4 && (scoreA_akt === 2 || scoreA_akt === 3))) {
+                bridgesList.push({
+                  id: currentId,
+                  title: it.title,
+                  category: ch.title,
+                  desc: it.desc,
+                  status: `${names.A} Aktiv (${scoreA_akt || '-'}) vs. ${names.B} Passiv (${scoreB_pas || '-'})`,
+                  noteA, noteB
+                });
+              }
+            }
+
+            // Harmonie-Statistik
+            if (scoreA_akt !== undefined && scoreB_pas !== undefined) {
+              totalMatches++;
+              if (scoreA_akt >= 3 && scoreB_pas >= 3) positiveMatches++;
+            }
+          }
+        });
+      });
+
+      // KPI-Werte aktualisieren
+      const harmonyPercent = totalMatches > 0 ? Math.round((positiveMatches / totalMatches) * 100) : 0;
+      document.getElementById('analysis-harmony-score').innerText = `${harmonyPercent} %`;
+      document.getElementById('analysis-doppel5-count').innerText = doppel5List.length;
+      document.getElementById('analysis-bridges-count').innerText = bridgesList.length;
+      document.getElementById('analysis-tabu-count').innerText = tabuList.length;
+      document.getElementById('tabu-list-header-count').innerText = `${tabuList.length} Tabus erfasst`;
+
+      // 3 EXPLIZITE 2-STUNDEN PLAYBOOKS GENERIEREN
+      renderExplicitTwoHourPlaybooks(approvedSoftKinks, approvedHardKinks, doppel5List);
+
+      // TABU-LISTE RENDERN
+      const tabuContainer = document.getElementById('analysis-tabu-list');
+      if (tabuList.length === 0) {
+        tabuContainer.innerHTML = `<div class="p-3 bg-white rounded-xl text-xs text-slate-500 italic">Bisher wurden keine Tabus (Wert 1) gesetzt.</div>`;
+      } else {
+        let tHtml = '';
+        tabuList.forEach(t => {
+          tHtml += `
+            <div class="bg-white p-3 rounded-xl border border-rose-200 shadow-sm space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-xs text-rose-900">${t.id}. ${t.title}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-200">Tabu von ${t.who}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600">${t.desc}</p>
+              <div class="text-[10.5px] text-rose-700 font-medium">⚠️ Grenze: ${t.details}</div>
+              ${t.noteA ? `<div class="text-[10px] text-slate-500 italic">Notiz ${names.A}: „${t.noteA}“</div>` : ''}
+              ${t.noteB ? `<div class="text-[10px] text-slate-500 italic">Notiz ${names.B}: „${t.noteB}“</div>` : ''}
+            </div>
+          `;
+        });
+        tabuContainer.innerHTML = tHtml;
+      }
+
+      // DOPPEL-5ER RENDERN
+      const d5Container = document.getElementById('analysis-doppel5-list');
+      if (doppel5List.length === 0) {
+        d5Container.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 italic col-span-2">Noch keine beidseitigen 5er-Matches vorhanden. Füllt beide den Bogen aus, um Volltreffer zu sehen.</div>`;
+      } else {
+        let dHtml = '';
+        doppel5List.forEach(d => {
+          dHtml += `
+            <div class="bg-slate-50 p-3 rounded-xl border border-emerald-200 space-y-1">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-bold text-xs text-slate-900">${d.id}. ${d.title}</span>
+                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800">⭐ Volltreffer (5 & 5)</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600 leading-tight">${d.desc}</p>
+              <div class="text-[10.5px] text-emerald-700 font-semibold pt-0.5">${d.dynamic}</div>
+            </div>
+          `;
+        });
+        d5Container.innerHTML = dHtml;
+      }
+
+      // BRÜCKEN RENDERN
+      const brContainer = document.getElementById('analysis-bridges-list');
+      if (bridgesList.length === 0) {
+        brContainer.innerHTML = `<div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 italic col-span-2">Keine offenen Verhandlungspunkte vorhanden.</div>`;
+      } else {
+        let bHtml = '';
+        bridgesList.forEach(b => {
+          bHtml += `
+            <div class="bg-slate-50 p-3 rounded-xl border border-amber-200 space-y-1">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-bold text-xs text-slate-900">${b.id}. ${b.title}</span>
+                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-amber-100 text-amber-800">Klärungsbedarf</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600 leading-tight">${b.desc}</p>
+              <div class="text-[10.5px] text-amber-700 font-semibold pt-0.5">${b.status}</div>
+            </div>
+          `;
+        });
+        brContainer.innerHTML = bHtml;
+      }
+
+      // KAPITEL-TABELLE DURCHZÄHLEN
+      renderChaptersSummaryTable();
+
+      // RADAR-CHART AUS ECHTEN WERTEN
+      updateRadarChartFromRealData(dimScoresA, dimScoresB);
+    }
+
+    // ==========================================================
+    // 3 EXPLIZITE 2-STUNDEN PLAYBOOKS + AFTERCARE               
+    // ==========================================================
+    function renderExplicitTwoHourPlaybooks(softKinks, hardKinks, d5List) {
+      const container = document.getElementById('analysis-playbooks-container');
+      
+      const defaultSoft = [
+        { title: "Zärtliches Streicheln & Kuscheln", desc: "Sanfter Reizaufbau ohne Leistungsdruck" },
+        { title: "Intimer Augenkontakt & Lippentanz", desc: "Entschleunigte Küsse und Blickverankerung" },
+        { title: "Samtgefütterte Augenbinde & Tastsinn", desc: "Visuelle Führung und taktile Reizverstärkung" }
+      ];
+      const defaultHard = [
+        { title: "Countdown-Orgasmus & Edging", desc: "Zweimal stoppen und Entladung erst auf Zählung" },
+        { title: "Flächiges Lederpaddle & Spanking", desc: "Wärmende Hiebe zur emotionalen Katharsis" },
+        { title: "Shibari-Korsett & Handfesselung", desc: "Halt und Hingabe im Seil" }
+      ];
+
+      const poolSoft = softKinks.length > 0 ? softKinks : defaultSoft;
+      const poolHard = hardKinks.length > 0 ? hardKinks : defaultHard;
+
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+      const s1 = pick(poolSoft);
+      const h1 = pick(poolHard);
+      const s2 = pick(poolSoft);
+      const h2 = pick(poolHard);
+      const s3 = pick(poolSoft);
+      const h3 = pick(poolHard);
+
+      const playbooks = [
+        {
+          num: 1,
+          title: "Session I: Die Vertrauens-Trance & Fesselungs-Hingabe",
+          theme: "Sinnliche Entschleunigung trifft auf absolute Machtabgabe",
+          totalTime: "Gesamtdauer: ca. 2 Std. 15 Min. (inkl. 45 Min. Aftercare)",
+          phase1: `Phase 1 (0:00 - 0:30 Std.) – Ankommen & Erdung: ${names.A} bereitet das Schlafzimmer mit warmem, gedämpftem Licht und leiser Musik vor. Ihr beginnt mit ${s1.title}. ${names.B} darf für 20 Minuten vollkommen loslassen und tief durchatmen. Keinerlei Erwartung an Sex oder Erregung.`,
+          phase2: `Phase 2 (0:30 - 1:30 Std.) – Die Hauptszene & Hingabe: ${names.A} übernimmt die vollständige Führung und legt die Seidentücher oder Fesseln an. ${h1.title} wird behutsam integriert. ${names.B} wird mehrfach an die Grenze der Erregung geführt (Edging), während ${names.A} über Berührungen und Tempo bestimmt. Die Entladung erfolgt kontrolliert nach einem intensiven Höhepunkt.`,
+          phase3: `Phase 3 (1:30 - 2:15 Std.) – Tiefe Nachsorge (Aftercare): Die Fesseln werden behutsam gelöst. ${names.A} hüllt ${names.B} sofort in eine warme Decke, reicht ein Glas Wasser oder Tee und hält ${names.B} für mindestens 30 Minuten wortlos im Arm. Danach 10 Minuten De-Briefing: Was fühlte sich magisch an?`
+        },
+        {
+          num: 2,
+          title: "Session II: Das Hof-Protokoll & Das Lob der Disziplin",
+          theme: "Machtspiel, formelle Hierarchie & stärkendes Praise Play",
+          totalTime: "Gesamtdauer: ca. 2 Std. 00 Min. (inkl. 40 Min. Aftercare)",
+          phase1: `Phase 1 (0:00 - 0:25 Std.) – Rollenübernahme & Demut: ${names.B} legt alle Alltagskleidung ab und begibt sich in eine Kniehaltung. ${names.A} tritt förmlich heran, umgreift das Kinn und gibt über ${s2.title} den Tonfall für den Abend vor. Ein geheimes Codewort wird vereinbart.`,
+          phase2: `Phase 2 (0:25 - 1:20 Std.) – Forderung, Reiz & Erlösung: ${names.A} fordert Gehorsam ein. ${h2.title} kommt als verbindliches Disziplinelement zum Einsatz (z. B. Spanking oder Teasing). Jedes Aushalten wird von ${names.A} mit aufrichtigem Praise Play („Braves Mädchen / Guter Junge“) belohnt. Der Orgasmus wird quälend hinausgezögert, bis ${names.A} die Erlaubnis erteilt.`,
+          phase3: `Phase 3 (1:20 - 2:00 Std.) – Liebevolles Auffangen: Sobald die Szene beendet ist, bricht die Hierarchie komplett zusammen. ${names.A} streicht ${names.B} die Haare aus der Stirn, küsst die geröteten Zonen und bestätigt: „Du hast das wunderschön gemacht.“ Gemeinsames Ruhen im Bett bis zur vollkommenen Entspannung.`
+        },
+        {
+          num: 3,
+          title: "Session III: Primal-Ekstase & Reine Bändigung",
+          theme: "Körperkraft, spielerischer Widerstand & befreiende Kapitulation",
+          totalTime: "Gesamtdauer: ca. 2 Std. 10 Min. (inkl. 40 Min. Aftercare)",
+          phase1: `Phase 1 (0:00 - 0:30 Std.) – Provokation & Die Jagd: ${names.B} testet frech Grenzen aus (Bratting), verweigert spielerisch den ersten Kuss und flieht durch den Raum. ${names.A} nimmt die Verfolgung auf, packt ${names.B} an der Hüfte und drückt den Partner auf die Matte.`,
+          phase2: `Phase 2 (0:30 - 1:30 Std.) – Mattenkampf & Bändigung: Beide ringen intensiv miteinander. ${h3.title} bricht den letzten Widerstand. ${names.B} darf selig kapitulieren und spürt die Überlegenheit des Partners. Danach folgt eine leidenschaftliche, ungefilterte Vereinigung im Stil von ${s3.title}.`,
+          phase3: `Phase 3 (1:30 - 2:10 Std.) – Nachsorge nach Erschöpfung: Beide Körper glänzen vor Schweiß. ${names.A} wäscht ${names.B} mit einem warmen Tuch das Gesicht ab. Eingekuschelt unter schweren Decken wird gemeinsam Traubenzucker oder Schokolade geteilt, um den Blutzuckerspiegel nach dem Ringen sanft zu stabilisieren.`
+        }
+      ];
+
+      let pHtml = '';
+      playbooks.forEach(p => {
+        pHtml += `
+          <div class="p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600">Szenario ${p.num}</span>
+                <h4 class="text-sm sm:text-base font-bold text-slate-900">${p.title}</h4>
+                <p class="text-[11px] text-slate-500">${p.theme}</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">${p.totalTime}</span>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-700 leading-relaxed">
+              <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                <strong class="text-indigo-900 block mb-0.5">🕯️ ${p.phase1.split('–')[0]}</strong>
+                <p class="text-slate-600">${p.phase1.split('–')[1]}</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-rose-200 bg-rose-50/20">
+                <strong class="text-brand-900 block mb-0.5">🔥 ${p.phase2.split('–')[0]}</strong>
+                <p class="text-slate-600">${p.phase2.split('–')[1]}</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/20">
+                <strong class="text-emerald-900 block mb-0.5">🌿 ${p.phase3.split('–')[0]}</strong>
+                <p class="text-slate-600">${p.phase3.split('–')[1]}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = pHtml;
+    }
+
+    // ==========================================================
+    // KAPITEL-TABELLE RENDERN & ZÄHLEN                          
+    // ==========================================================
+    function renderChaptersSummaryTable() {
+      const tbody = document.getElementById('analysis-chapters-table');
+      let html = '';
+      let totalPracticesSum = 0;
+
+      allChapters.forEach(ch => {
+        let answeredInCh = 0;
+        let positiveInCh = 0;
+        let totalItemsInCh = ch.items.length;
+        totalPracticesSum += totalItemsInCh;
+
+        ch.items.forEach((it, idx) => {
+          const id = idx + 1;
+          const a1 = answers.A ? answers.A[`it_${id}_r1`] : undefined;
+          const b2 = answers.B ? answers.B[`it_${id}_r2`] : undefined;
+          if (a1 !== undefined || b2 !== undefined) answeredInCh++;
+          if (a1 >= 3 && b2 >= 3) positiveInCh++;
+        });
+
+        const matchPct = answeredInCh > 0 ? Math.round((positiveInCh / answeredInCh) * 100) : 0;
+        const statusLabel = matchPct >= 70 ? 'Spitzen-Match' : (matchPct >= 40 ? 'Potenzial' : (answeredInCh === 0 ? 'Noch offen' : 'In Abklärung'));
+        const badgeColor = matchPct >= 70 ? 'bg-emerald-100 text-emerald-800' : (answeredInCh === 0 ? 'bg-slate-100 text-slate-500' : 'bg-amber-100 text-amber-800');
+
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-2.5 px-3 font-semibold text-slate-800">${ch.title}</td>
+            <td class="py-2.5 px-3 text-slate-500">${totalItemsInCh} Praktiken</td>
+            <td class="py-2.5 px-3 font-mono text-slate-700">${answeredInCh} / ${totalItemsInCh}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-indigo-600">${answeredInCh > 0 ? matchPct + ' %' : '-'}</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${badgeColor}">${statusLabel}</span></td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      document.getElementById('total-practices-counter').innerText = `${totalPracticesSum} Praktiken erfasst`;
+    }
+
+    // ==========================================================
+    // RADAR-CHART: NUR AUS ECHTEN WERTEN (KEINE DUMMY-WERTE)     
+    // ==========================================================
+    function updateRadarChartFromRealData(scoresA, scoresB) {
+      const calcAveragePct = (arr) => {
+        if (!arr || arr.length === 0) return 0;
+        const sum = arr.reduce((acc, v) => acc + v, 0);
+        return Math.round((sum / (arr.length * 5)) * 100);
+      };
+
+      const keys = ['romance', 'tantra', 'chastity', 'shibari', 'sensory', 'ds', 'primal', 'impact', 'care'];
+      const labels = ['Romantik & Nähe', 'Tantra & Slow Sex', 'Keuschheit & Edging', 'Fesselung & Shibari', 'Sinnesentzug', 'Dominanz & D/s', 'Primal Play', 'Impact & Schmerz', 'Caregiver & Fürsorge'];
+
+      const dataA = keys.map(k => calcAveragePct(scoresA[k]));
+      const dataB = keys.map(k => calcAveragePct(scoresB[k]));
+
+      const hasAnyData = dataA.some(v => v > 0) || dataB.some(v => v > 0);
+
+      const emptyEl = document.getElementById('radar-empty-state');
+      const chartContainer = document.getElementById('radar-chart-container');
+
+      if (!hasAnyData) {
+        emptyEl.classList.remove('hidden');
+        chartContainer.classList.add('hidden');
+        return;
+      } else {
+        emptyEl.classList.add('hidden');
+        chartContainer.classList.remove('hidden');
+        chartContainer.classList.add('flex');
+      }
+
+      const ctx = document.getElementById('analysisRadarChart').getContext('2d');
+      if (radarChartInstance) {
+        radarChartInstance.destroy();
+      }
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: `${names.A} (Aktiv)`,
+              data: dataA,
+              backgroundColor: 'rgba(79, 70, 229, 0.25)',
+              borderColor: 'rgba(79, 70, 229, 1)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(79, 70, 229, 1)'
+            },
+            {
+              label: `${names.B} (Passiv)`,
+              data: dataB,
+              backgroundColor: 'rgba(219, 39, 119, 0.25)',
+              borderColor: 'rgba(219, 39, 119, 1)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(219, 39, 119, 1)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
+              grid: { color: 'rgba(226, 232, 240, 0.8)' },
+              pointLabels: {
+                color: '#334155',
+                font: { size: 9.5, weight: '600' }
+              },
+              ticks: { display: false, max: 100, min: 0 }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+  </script>
+</body>
+</html>
