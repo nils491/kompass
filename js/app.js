@@ -72,17 +72,6 @@ function updateThemeUI(theme) {
   if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
   if (label) label.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
 }
-  } else {
-    checkOnboardingStatus();
-  }
-
-  updateCurrentUserUI();
-  renderCurrentChapter();
-  renderQuickGrid();
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-}
 
 function verifySitePassword() {
   const input = document.getElementById('site-pw-input');
@@ -594,6 +583,9 @@ function renderSingleRadar() {
   if (!canvas) return;
 
   if (singleRadarInstance) singleRadarInstance.destroy();
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
+  const labelColor = isDark ? '#cbd5e1' : '#334155';
 
   singleRadarInstance = new Chart(canvas, {
     type: 'radar',
@@ -602,10 +594,10 @@ function renderSingleRadar() {
       datasets: [{
         label: names[currentUser],
         data: [80, 85, 90, 75, 85, 60, 70, 95, 90],
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        borderColor: 'rgba(99, 102, 241, 1)',
+        backgroundColor: 'rgba(225, 29, 72, 0.2)',
+        borderColor: 'rgba(225, 29, 72, 1)',
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+        pointBackgroundColor: 'rgba(225, 29, 72, 1)'
       }]
     },
     options: {
@@ -613,8 +605,9 @@ function renderSingleRadar() {
       maintainAspectRatio: false,
       scales: {
         r: {
-          angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
-          grid: { color: 'rgba(203, 213, 225, 0.5)' },
+          angleLines: { color: gridColor },
+          grid: { color: gridColor },
+          pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
           ticks: { display: false, max: 100, min: 0 }
         }
       },
@@ -803,6 +796,9 @@ function renderPairRadar() {
   if (!canvas) return;
 
   if (pairRadarInstance) pairRadarInstance.destroy();
+  const isDark = document.documentElement.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
+  const labelColor = isDark ? '#cbd5e1' : '#334155';
 
   pairRadarInstance = new Chart(canvas, {
     type: 'radar',
@@ -819,8 +815,8 @@ function renderPairRadar() {
         {
           label: names.B,
           data: [90, 95, 85, 85, 90, 55, 80, 100, 100],
-          backgroundColor: 'rgba(139, 92, 246, 0.2)',
-          borderColor: 'rgba(139, 92, 246, 1)',
+          backgroundColor: 'rgba(168, 85, 247, 0.2)',
+          borderColor: 'rgba(168, 85, 247, 1)',
           borderWidth: 2
         }
       ]
@@ -830,8 +826,9 @@ function renderPairRadar() {
       maintainAspectRatio: false,
       scales: {
         r: {
-          angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
-          grid: { color: 'rgba(203, 213, 225, 0.5)' },
+          angleLines: { color: gridColor },
+          grid: { color: gridColor },
+          pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
           ticks: { display: false, max: 100, min: 0 }
         }
       },
