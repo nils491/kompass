@@ -174,7 +174,12 @@
     </div>
   </div>
 
-  <!-- AKTIVES FARB-CHECK-IN OVERLAY (Wird im Intervall sanft eingeblendet) -->
+  <!-- DISKRETER PRIVATSPHÄRE-BLACKOUT (Bei Klopfen an der Tür) -->
+  <div id="quick-blackout-curtain" onclick="toggleQuickBlackout()" class="hidden fixed inset-0 z-[120] bg-black flex flex-col items-center justify-center cursor-pointer">
+    <span class="text-xs text-neutral-800 font-mono">Tippen zum Enttarnen</span>
+  </div>
+
+  <!-- AKTIVES FARB-CHECK-IN OVERLAY -->
   <div id="active-checkin-overlay" class="hidden fixed inset-0 z-[95] bg-black/85 backdrop-blur-md p-4 sm:p-6 flex flex-col justify-center items-center animate-fade-in">
     <div class="max-w-md w-full session-card p-5 sm:p-6 rounded-3xl border border-brand-500/30 space-y-4 shadow-2xl text-center">
       <div class="space-y-1">
@@ -185,7 +190,6 @@
         <p class="text-xs text-slate-400" id="checkin-prompt-hint">Kurze Bestätigung der Farb-Ampel für ein sicheres Miteinander:</p>
       </div>
 
-      <!-- Große 48px+ Touch-Tasten für blinde Bedienung -->
       <div class="grid grid-cols-3 gap-2.5 pt-1">
         <button onclick="submitActiveCheckIn('green')" class="py-4 px-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex flex-col items-center justify-center gap-1 shadow-lg transition touch-target-48 touch-pill">
           <span class="text-2xl">🟢</span>
@@ -233,8 +237,11 @@
         </div>
       </div>
 
-      <!-- Quick Controls: Audio-Mute, OLED-Mode, Theme & Return -->
+      <!-- Quick Controls: Blackout, Audio, OLED, Theme, Kompass -->
       <div class="flex items-center space-x-1.5">
+        <button onclick="toggleQuickBlackout()" class="p-2 rounded-xl session-panel border text-xs font-bold transition text-slate-400 hover:text-white" title="Diskreter Sofort-Blackout (Tarnung)">
+          <span>👁️‍🗨️</span>
+        </button>
         <button onclick="toggleAudioSound()" id="btn-audio-toggle" class="p-2 rounded-xl session-panel border text-xs font-bold transition" title="Klangschalen-Gong ein/ausschalten">
           <span id="audio-icon">🔔</span>
         </button>
@@ -254,24 +261,24 @@
   <!-- HAUPTBEREICH -->
   <main class="max-w-4xl mx-auto p-3 sm:p-5 w-full flex-1 space-y-4">
 
-    <!-- HAUPT-TABS (Großzügige 48px Touch-Targets) -->
+    <!-- HAUPT-TABS -->
     <div class="grid grid-cols-4 gap-1.5 p-1 session-panel rounded-2xl border text-xs font-bold">
       <button onclick="switchTab('guide')" id="tab-guide" class="py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>📖</span> <span class="truncate">Regiebuch</span>
       </button>
+      <button onclick="switchTab('config')" id="tab-config" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
+        <span>✨</span> <span class="truncate">Szenen-Planer</span>
+      </button>
       <button onclick="switchTab('punish')" id="tab-punish" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>⚖️</span> <span class="truncate">Strafen</span>
-      </button>
-      <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>✨</span> <span class="truncate">Reize</span>
       </button>
       <button onclick="switchTab('safety')" id="tab-safety" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>🛑</span> <span class="truncate">Ampel & Timer</span>
       </button>
     </div>
 
-    <!-- KOMPAKTE PERSISTENTE SESSION-ZEITLEISTE (Mit Screen Wake Lock Indicator) -->
-    <div class="session-card p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2.5">
+    <!-- KOMPAKTE PERSISTENTE SESSION-ZEITLEISTE (Mit sanftem Beenden) -->
+    <div class="session-card p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2.5 shadow-sm">
       <div class="flex items-center gap-2.5">
         <button onclick="toggleTimer()" id="mini-timer-btn" class="w-10 h-10 rounded-xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-sm font-black transition touch-pill">
           ▶
@@ -285,7 +292,7 @@
         </div>
       </div>
 
-      <!-- Schnelle Dauer-Wahl & Verlängerung -->
+      <!-- Schnelle Dauer-Wahl, Verlängerung & Sanftes Beenden -->
       <div class="flex items-center gap-1.5 text-xs font-bold">
         <button onclick="startTimer(45)" id="btn-dur-45" class="px-2.5 py-2 rounded-xl session-panel border text-white touch-target-48 flex items-center justify-center">45m</button>
         <button onclick="startTimer(75)" id="btn-dur-75" class="px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">75m</button>
@@ -297,10 +304,13 @@
         <button onclick="extendTimer(30)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">
           +30m
         </button>
+        <button onclick="finishSessionGently()" class="px-3 py-2 rounded-xl bg-teal-950/70 hover:bg-teal-900 border border-teal-700 text-teal-300 font-bold transition touch-pill flex items-center gap-1" title="Session friedlich beenden & direkt ins Kuscheln / Aftercare wechseln">
+          <span>✨</span> <span class="hidden sm:inline">Sanft beenden</span>
+        </button>
       </div>
     </div>
 
-    <!-- KONFIGURATION: FARB-CHECK-IN INTERVALL (Aus Fragebogen synchronisiert) -->
+    <!-- KONFIGURATION: FARB-CHECK-IN INTERVALL -->
     <div class="session-panel p-2.5 sm:p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2">
         <span class="text-base">🚦</span>
@@ -380,7 +390,7 @@
           <div class="space-y-2" id="phase-checkpoints-container"></div>
 
           <!-- Dynamisch eingebettete Matches/Strafen in Phase 3 -->
-          <div id="phase-dynamic-injection" class="hidden pt-1"></div>
+          <div id="phase-dynamic-injection" class="hidden pt-1 space-y-2"></div>
 
           <!-- PHASE 4: 2-MINUTEN DE-BRIEFING TRACKER (Erscheint in Aftercare) -->
           <div id="debriefing-box" class="hidden p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3 text-xs">
@@ -431,7 +441,10 @@
           </button>
           
           <div class="flex items-center gap-1.5">
-            <button onclick="quickInjectPunishment()" id="btn-guide-quick-punish" class="hidden px-3.5 py-2.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-xs font-bold transition touch-target-48">
+            <button onclick="triggerQuickImpulse()" id="btn-guide-impulse" class="hidden px-3.5 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 border border-amber-800 text-amber-200 text-xs font-bold transition touch-target-48">
+              🎲 Reiz-Impuls
+            </button>
+            <button onclick="switchTab('punish')" id="btn-guide-quick-punish" class="hidden px-3.5 py-2.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-xs font-bold transition touch-target-48">
               ⚖️ Strafe einweben
             </button>
             <button onclick="nextPhase()" id="btn-guide-next" class="px-5 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white text-xs font-bold transition shadow-sm touch-pill touch-target-48">
@@ -444,7 +457,93 @@
 
     </section>
 
-    <!-- VIEW 2: STRAFEN-ZENTRALE -->
+    <!-- VIEW 2: DYNAMISCHER SZENEN-PLANER (KI & MATCH-BASIERT) -->
+    <section id="view-config" class="space-y-3.5 hidden">
+      <div class="session-card p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm">
+        <div class="border-b border-slate-800 pb-2.5 flex justify-between items-start">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
+              Echtzeit-Regiebuch Generator
+            </span>
+            <h2 class="text-base sm:text-lg font-black text-white mt-1">Wie soll eure Session heute aussehen?</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Keine starren Vorlagen: Erstellt jedes Mal ein dynamisches Drehbuch aus euren echten Noten.</p>
+          </div>
+        </div>
+
+        <!-- Parameter 1: Intensität & Härtegrad -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 block">1. Gewünschter Härtegrad / Tonalität:</label>
+          <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+            <button onclick="setConfigIntensity('soft')" id="btn-cfg-soft" class="p-2.5 rounded-xl border transition text-center session-panel text-slate-300">
+              🌸 Sanft & Sinnlich
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Tantra, Decken, Nähe</span>
+            </button>
+            <button onclick="setConfigIntensity('moderate')" id="btn-cfg-moderate" class="p-2.5 rounded-xl border transition text-center bg-brand-950/60 border-brand-700 text-brand-200">
+              ⚖️ Moderat & D/s
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Führung, Seile, Teasing</span>
+            </button>
+            <button onclick="setConfigIntensity('intense')" id="btn-cfg-intense" class="p-2.5 rounded-xl border transition text-center session-panel text-slate-300">
+              🔥 Intensiv & Disziplin
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Impact, Kerker, Note 2</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Parameter 2: Energielevel beider Partner -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 block">2. Tages-Energielevel beider Partner (1 = erschöpft, 5 = voller Energie):</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="p-2.5 rounded-xl session-panel border space-y-1">
+              <div class="flex justify-between text-[11px] font-bold text-indigo-300">
+                <span id="cfg-label-energyA">Partner 1:</span>
+                <span id="cfg-val-energyA">Stufe 4 / 5</span>
+              </div>
+              <input type="range" min="1" max="5" value="4" oninput="updateConfigEnergy('A', this.value)" class="w-full accent-indigo-500">
+            </div>
+            <div class="p-2.5 rounded-xl session-panel border space-y-1">
+              <div class="flex justify-between text-[11px] font-bold text-purple-300">
+                <span id="cfg-label-energyB">Partner 2:</span>
+                <span id="cfg-val-energyB">Stufe 3 / 5</span>
+              </div>
+              <input type="range" min="1" max="5" value="3" oninput="updateConfigEnergy('B', this.value)" class="w-full accent-purple-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Parameter 3: Fokus-Praktik -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 block">3. Reiz-Schwerpunkt für Phase 3:</label>
+          <select id="cfg-focus-select" class="w-full session-panel border text-xs font-semibold rounded-xl p-3 focus:outline-none focus:border-brand-600">
+            <option value="auto">✨ Automatisch den besten gemeinsamen Match wählen</option>
+            <option value="deprivation">🙈 Sinnesentzug & Blindheit (Augenbinde, Kopfhörer)</option>
+            <option value="shibari">🪢 Fesselung & Bewegungslosigkeit (Shibari/Leder)</option>
+            <option value="chastity">🗝️ Keuschhaltung & Teasing-Erhalt</option>
+            <option value="impact">💥 Handspanking & Paddle-Reize</option>
+            <option value="nuru">💧 Nuru-Gleitmassage & Berührung</option>
+            <option value="primal">🐾 Primal Play & Niederringen</option>
+            <option value="nurturing">🧸 Caregiver & Geborgenheit</option>
+          </select>
+        </div>
+
+        <!-- Action Buttons: KI-Generierung oder Sofort-Algorithmus -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-slate-800">
+          <button onclick="generatePlaybookWithAI()" id="btn-generate-ai" class="py-3 px-4 rounded-xl bg-gradient-to-r from-brand-700 to-indigo-700 hover:from-brand-600 hover:to-indigo-600 text-white font-extrabold text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
+            <span>✨</span> <span>Mit Gemini KI generieren</span>
+          </button>
+          <button onclick="generatePlaybookLocal()" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition touch-pill flex items-center justify-center gap-1.5">
+            <span>⚡</span> <span>Lokaler Sofort-Abgleich</span>
+          </button>
+        </div>
+
+        <!-- KI Status / Hint -->
+        <div id="cfg-generation-status" class="hidden p-3 rounded-xl bg-slate-900 border border-slate-700 text-[11px] text-slate-300 flex items-center gap-2">
+          <span class="animate-spin text-base">⏳</span>
+          <span id="cfg-status-text">Erstelle individuelles Regiebuch aus euren gemeinsamen Noten...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: STRAFEN-ZENTRALE -->
     <section id="view-punish" class="space-y-3 hidden">
       <div class="p-4 session-card rounded-2xl border space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -479,30 +578,7 @@
       <div class="space-y-2" id="punish-results-container"></div>
     </section>
 
-    <!-- VIEW 3: PASSENDE REIZE -->
-    <section id="view-synergy" class="space-y-3 hidden">
-      <div class="p-4 session-card rounded-2xl border space-y-2.5">
-        <div>
-          <h2 class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <span>✨</span> Wähle den Basiskink eurer Session:
-          </h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">Berechnet harmonische Verstärker aus euren echten Noten 4 & 5.</p>
-        </div>
-
-        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full session-panel border text-xs font-semibold rounded-xl p-3 focus:outline-none focus:border-brand-600">
-          <option value="deprivation">🙈 Sinnesentzug & Blindheit (Augenbinde/Kopfhörer)</option>
-          <option value="shibari">🪢 Fesselung & Bewegungslosigkeit (Shibari/Leder)</option>
-          <option value="chastity">🗝️ Keuschhaltung & Teasing</option>
-          <option value="impact">💥 Handspanking & Paddle-Reize</option>
-          <option value="nuru">💧 Nuru-Gleitmassage & Berührung</option>
-          <option value="primal">🐾 Primal Play & Niederringen</option>
-        </select>
-      </div>
-
-      <div class="space-y-2" id="synergy-results-container"></div>
-    </section>
-
-    <!-- VIEW 4: SICHERHEIT & TIMER (Riesige Notfall-Ampel 48px+) -->
+    <!-- VIEW 4: SICHERHEIT & TIMER -->
     <section id="view-safety" class="space-y-3 hidden">
       <div class="space-y-2">
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Großfläche für blinde Bedienung):</span>
@@ -560,7 +636,7 @@
     let isSoundEnabled = true;
     let audioCtx = null;
 
-    let checkInIntervalSetting = '15'; // '0', '10', '15', '20', 'phase'
+    let checkInIntervalSetting = '15';
     let lastCheckInElapsed = 0;
 
     let executedActions = [];
@@ -568,7 +644,11 @@
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let currentFilteredPunishments = [];
 
-    const phaseConfig = [
+    let configIntensity = 'moderate';
+    let configEnergyA = 4;
+    let configEnergyB = 3;
+
+    let phaseConfig = [
       {
         step: 1,
         title: "Vorbereitung, Raum & Safeword-Check",
@@ -589,7 +669,7 @@
         timePct: 0.25,
         quote: "„Schließe die Augen. Du musst jetzt nichts mehr sehen oder kontrollieren.“",
         checkpoints: [
-          "Augenbinde (Pos. 241) oder Seidentuch behutsam anlegen",
+          "Augenbinde oder Seidentuch behutsam anlegen",
           "10 Minuten stummes Kraulen von Kopfhaut und Nackenzone",
           "Erste Shibari-Fesseln oder Armmanschetten schmerzfrei anlegen",
           "Puls- und Durchblutungsprüfung an den Fingerspitzen"
@@ -604,23 +684,17 @@
         checkpoints: [
           "Geplante Praktik oder Strafe aus den Matches vollziehen",
           "3-faches Edging an der Lustschwelle mit Pause",
-          "Freigabe oder Orgasmus-Countdown (Pos. 103)",
+          "Freigabe oder Orgasmus-Countdown",
           "Befreiende Umarmung unmittelbar nach dem Höhepunkt"
         ]
       },
       {
         step: 4,
-        title: "Landung & 4-Stufen-Aftercare",
+        title: "Landung & Maßgeschneiderte Nachsorge",
         category: "Phase 4: Nachsorge & Geborgenheit",
         timePct: 0.20,
         quote: "„Du hast das wundervoll gemacht. Ich halte dich ganz fest.“",
-        checkpoints: [
-          "Alle Seile und Fesseln vollständig lösen",
-          "Dicke Wärmedecken und Wollsocken anlegen gegen Hormonabfall",
-          "Traubenzucker oder warmen Tee anreichen",
-          "Arnika-Balsam auf gerötete Hautstellen auftragen",
-          "Verbindlichen 24h-Check-in für morgen zur Mittagszeit vereinbaren"
-        ]
+        checkpoints: []
       }
     ];
 
@@ -642,7 +716,6 @@
       detectCheckInPreferenceFromSurvey();
       renderPhaseUI();
       renderPunishments();
-      calculateSynergies();
       renderPastDebriefings();
     }
 
@@ -700,7 +773,7 @@
       } else {
         document.documentElement.classList.add('oled', 'dark');
         localStorage.setItem('kompass_oled', 'true');
-        showToast("🖤 OLED True-Black (Pitch Black) aktiviert");
+        showToast("🖤 OLED True-Black aktiviert");
       }
     }
 
@@ -711,21 +784,30 @@
       if (text) text.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
     }
 
+    function toggleQuickBlackout() {
+      const b = document.getElementById('quick-blackout-curtain');
+      if (!b) return;
+      b.classList.toggle('hidden');
+    }
+
     function updateNamesDisplay() {
       const disp = document.getElementById('active-pair-display');
       const bA = document.getElementById('btn-sub-A');
       const bB = document.getElementById('btn-sub-B');
       const dNA = document.getElementById('debrief-name-A');
       const dNB = document.getElementById('debrief-name-B');
+      const lEA = document.getElementById('cfg-label-energyA');
+      const lEB = document.getElementById('cfg-label-energyB');
 
       if (disp) disp.innerText = `${names.A} & ${names.B}`;
       if (bA) bA.innerText = names.A;
       if (bB) bB.innerText = names.B;
       if (dNA) dNA.innerText = `${names.A}:`;
       if (dNB) dNB.innerText = `${names.B}:`;
+      if (lEA) lEA.innerText = `${names.A}:`;
+      if (lEB) lEB.innerText = `${names.B}:`;
     }
 
-    /* SCREEN WAKE LOCK API */
     async function requestWakeLock() {
       try {
         if ('wakeLock' in navigator) {
@@ -761,11 +843,9 @@
       }
     }
 
-    /* WEB AUDIO API: SYNTHETISCHER KLANGSCHALEN-GONG (432 Hz) */
     function playHarmonicGong(pitchMultiplier = 1) {
       if (!isSoundEnabled) return;
 
-      // Haptik über Vibration API
       if ('vibrate' in navigator) {
         try { navigator.vibrate([180, 80, 180]); } catch (e) {}
       }
@@ -781,7 +861,6 @@
         const now = audioCtx.currentTime;
         const baseFreq = 432 * pitchMultiplier;
 
-        // Obertöne einer Klangschale: Fundamental, Terz, Quint
         const harmonics = [1, 2.02, 3.01];
         const gains = [0.4, 0.2, 0.1];
 
@@ -819,7 +898,6 @@
       }
     }
 
-    /* SESSION PERSISTENCE (sessionStorage Snapshot) */
     function saveSessionSnapshot() {
       const snap = {
         timerRemaining,
@@ -830,6 +908,8 @@
         currentPunishLvl,
         checkInIntervalSetting,
         lastCheckInElapsed,
+        executedActions,
+        phaseConfig,
         targetEndTime: timerInterval ? (Date.now() + timerRemaining * 1000) : null,
         ts: Date.now()
       };
@@ -848,6 +928,8 @@
         currentPunishLvl = snap.currentPunishLvl || 'mittel';
         checkInIntervalSetting = snap.checkInIntervalSetting || '15';
         lastCheckInElapsed = snap.lastCheckInElapsed || 0;
+        executedActions = snap.executedActions || [];
+        if (snap.phaseConfig) phaseConfig = snap.phaseConfig;
 
         const sel = document.getElementById('checkin-interval-select');
         if (sel) sel.value = checkInIntervalSetting;
@@ -877,15 +959,10 @@
         return;
       }
 
-      // 1. Pos. 485: Bevorzugtes Signal ('traffic', 'hand', 'drop', 'eyes')
       const choiceA = answers.A ? answers.A['it_485_choice'] : undefined;
       const choiceB = answers.B ? answers.B['it_485_choice'] : undefined;
-
-      // 2. Pos. 517: Regelmäßiges 10-Minuten-Nachfragen (Skala 0-5)
       const askA = answers.A ? (answers.A['it_517_r1'] || answers.A['it_517_r2']) : undefined;
-      const askB = answers.B ? (answers.B['it_517_r1'] || answers.B['it_517_r2']) : undefined;
-
-      // 3. Pos. 478: Ampelsystem (Note 1 = Tabu)
+      const askB = answers.B ? (answers.B['it_517_r2'] || answers.B['it_517_r1']) : undefined;
       const ampelA = answers.A ? answers.A['it_478_r1'] : undefined;
       const ampelB = answers.B ? answers.B['it_478_r2'] : undefined;
 
@@ -914,7 +991,6 @@
         reasonText = "Aus Fragebogen (Pos. 517): Regelmäßiges Check-in hoch bewertet.";
       }
 
-      // Nur setzen, falls nicht bereits in sessionStorage überschrieben
       const rawSnap = sessionStorage.getItem('kompass_session_active');
       if (!rawSnap) {
         checkInIntervalSetting = detectedVal;
@@ -968,7 +1044,14 @@
       }
     }
 
-    /* EMERGENCY ROT LANTERN PROTOCOL */
+    function finishSessionGently() {
+      pauseTimer();
+      releaseWakeLock();
+      playHarmonicGong(0.9);
+      jumpToPhase(4);
+      showToast("✨ Session friedlich beendet. Gleitet nun ganz sanft ins Aftercare über.");
+    }
+
     function triggerTrafficLight(color) {
       if (color === 'red') {
         pauseTimer();
@@ -990,7 +1073,7 @@
     }
 
     function switchTab(tabId) {
-      ['guide', 'punish', 'synergy', 'safety'].forEach(t => {
+      ['guide', 'config', 'punish', 'safety'].forEach(t => {
         document.getElementById(`view-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tab-${t}`);
         if (btn) btn.className = "py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
@@ -1003,7 +1086,51 @@
       }
     }
 
-    /* STEP-BY-STEP LEITSYSTEM */
+    function computeDynamicAftercareCheckpoints() {
+      const list = [
+        "Alle Fesseln, Manschetten und Klammern vollständig lösen",
+        "Wärmedecken & Wollsocken überstreifen gegen Hormonabfall"
+      ];
+
+      const elapsedMin = Math.round(sessionElapsedSeconds / 60);
+      if (elapsedMin >= 40 || sessionTotalMinutes >= 60) {
+        list.push("🍬 Kreislauf & Glukose: Traubenzucker, warmen Tee oder süßen Kakao anreichen");
+      }
+
+      let hadImpact = false;
+      let hadRopes = false;
+      let hadSensory = false;
+      let hadNote2 = false;
+
+      executedActions.forEach(act => {
+        const cat = (act.category || '').toLowerCase();
+        const tit = (act.title || '').toLowerCase();
+        if (cat.includes('impact') || cat.includes('schlag') || tit.includes('spanking') || tit.includes('paddle')) hadImpact = true;
+        if (cat.includes('shibari') || cat.includes('fessel') || tit.includes('seil')) hadRopes = true;
+        if (cat.includes('sinnesentzug') || tit.includes('augenbinde') || tit.includes('blind')) hadSensory = true;
+        if (act.isNote2) hadNote2 = true;
+      });
+
+      if (hadImpact) {
+        list.push("🩹 Hautpflege: Arnika-Balsam sanft auf das gerötete Gesäß tupfen & kühlen");
+      }
+      if (hadRopes) {
+        list.push("🤲 Gelenk-Entlastung: Handgelenke und Knöchel kreisend lockern & Fingerwärme prüfen");
+      }
+      if (hadSensory) {
+        list.push("🕯️ Re-Orientierung: Raumlicht nur stufenweise hochdimmen, beruhigende Stimme nutzen");
+      }
+      if (hadNote2) {
+        list.push(`💖 Besonderes Praise Play: Ehrliche Dankbarkeit für das Aushalten der Notenstrafen aussprechen`);
+      }
+      if (configEnergyB <= 2 || configEnergyA <= 2) {
+        list.push("🛋️ Verlängerte Ruhezeit: Mindestens 20 Minuten wortloses Halten & Kuscheln");
+      }
+
+      list.push("Verbindlichen 24h-Check-in für morgen zur Mittagszeit vereinbaren");
+      return list;
+    }
+
     function renderPhaseUI() {
       const cfg = phaseConfig[currentPhase - 1];
       if (!cfg) return;
@@ -1041,7 +1168,8 @@
 
       const cpContainer = document.getElementById('phase-checkpoints-container');
       if (cpContainer) {
-        cpContainer.innerHTML = cfg.checkpoints.map(cp => `
+        const activeCheckpoints = (currentPhase === 4) ? computeDynamicAftercareCheckpoints() : cfg.checkpoints;
+        cpContainer.innerHTML = activeCheckpoints.map(cp => `
           <label class="flex items-start gap-3 p-3 rounded-2xl session-panel border border-slate-700/60 hover:border-slate-500 cursor-pointer text-xs">
             <input type="checkbox" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
             <span class="text-slate-300 leading-relaxed">${escapeHtml(cp)}</span>
@@ -1051,32 +1179,38 @@
 
       const injectBox = document.getElementById('phase-dynamic-injection');
       const punishBtn = document.getElementById('btn-guide-quick-punish');
+      const impulseBtn = document.getElementById('btn-guide-impulse');
       const debriefBox = document.getElementById('debriefing-box');
 
       if (currentPhase === 3) {
         if (injectBox) {
           injectBox.classList.remove('hidden');
+          const executedHtml = executedActions.length > 0 
+            ? executedActions.map(a => `<span class="px-2 py-1 rounded bg-brand-900/60 border border-brand-700 text-[10.5px] text-brand-200">✓ ${escapeHtml(a.title)}</span>`).join(' ')
+            : '<span class="text-[11px] text-slate-400 italic">Noch keine Strafe eingewoben.</span>';
+
           injectBox.innerHTML = `
             <div class="p-3 rounded-2xl bg-brand-950/40 border border-brand-800/50 space-y-1.5 text-xs">
               <div class="flex justify-between items-center">
-                <strong class="text-brand-300 font-bold">✨ Verknüpfte Aktionen für Phase 3:</strong>
-                <span class="text-[10px] text-slate-400">Aus euren Matches</span>
+                <strong class="text-brand-300 font-bold">✨ Aktive Aktionen für Phase 3:</strong>
+                <button onclick="switchTab('config')" class="text-[10px] text-brand-400 hover:underline">Szenen-Planer ↗</button>
               </div>
-              <p class="text-[11px] text-slate-400 leading-relaxed">
-                Tippe unten auf <strong>„⚖️ Strafe einweben“</strong>, um eine Disziplinierung direkt in diesen Schritt zu übernehmen, oder wähle Reize aus euren Doppel-5ern.
-              </p>
+              <div class="flex flex-wrap gap-1.5 pt-1">${executedHtml}</div>
             </div>
           `;
         }
         if (punishBtn) punishBtn.classList.remove('hidden');
+        if (impulseBtn) impulseBtn.classList.remove('hidden');
         if (debriefBox) debriefBox.classList.add('hidden');
       } else if (currentPhase === 4) {
         if (injectBox) injectBox.classList.add('hidden');
         if (punishBtn) punishBtn.classList.add('hidden');
+        if (impulseBtn) impulseBtn.classList.add('hidden');
         if (debriefBox) debriefBox.classList.remove('hidden');
       } else {
         if (injectBox) injectBox.classList.add('hidden');
         if (punishBtn) punishBtn.classList.add('hidden');
+        if (impulseBtn) impulseBtn.classList.add('hidden');
         if (debriefBox) debriefBox.classList.add('hidden');
       }
 
@@ -1108,18 +1242,267 @@
         }
         renderPhaseUI();
       } else {
-        pauseTimer();
-        releaseWakeLock();
-        playHarmonicGong(0.9);
-        showToast("Session erfolgreich abgeschlossen! Genießt eure Ruhezeit.");
+        finishSessionGently();
       }
     }
 
-    function quickInjectPunishment() {
-      switchTab('punish');
+    function triggerQuickImpulse() {
+      const dom = getDomPartner();
+      const sub = subPartner;
+      const allChapters = window.surveyChapters || [];
+      const positiveMatches = [];
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          if (isItemTabu(it.id)) return;
+          const scoreDom = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
+          const scoreSub = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
+          if ((scoreDom >= 4 && scoreSub >= 4) || (scoreDom === 5 && scoreSub === 5)) {
+            positiveMatches.push(it);
+          }
+        });
+      });
+
+      if (positiveMatches.length === 0) {
+        showToast("🎲 Impuls: 3 Minuten stummes Kraulen mit warmem Atem.");
+        return;
+      }
+
+      const chosen = positiveMatches[Math.floor(Math.random() * positiveMatches.length)];
+      playHarmonicGong(1.0);
+      showToast(`🎲 Nächster Impuls: ${chosen.title}`);
+
+      executedActions.push({
+        id: chosen.id,
+        title: chosen.title,
+        category: "Doppel-5er Impuls",
+        isNote2: false,
+        sub: subPartner,
+        dom: getDomPartner(),
+        timestamp: Date.now()
+      });
+      renderPhaseUI();
     }
 
-    /* DE-BRIEFING TAGEBUCH */
+    function setConfigIntensity(lvl) {
+      configIntensity = lvl;
+      ['soft', 'moderate', 'intense'].forEach(l => {
+        const btn = document.getElementById(`btn-cfg-${l}`);
+        if (btn) btn.className = "p-2.5 rounded-xl border transition text-center session-panel text-slate-300";
+      });
+      const activeBtn = document.getElementById(`btn-cfg-${lvl}`);
+      if (activeBtn) activeBtn.className = "p-2.5 rounded-xl border transition text-center bg-brand-950/60 border-brand-700 text-brand-200";
+    }
+
+    function updateConfigEnergy(user, val) {
+      if (user === 'A') {
+        configEnergyA = parseInt(val, 10);
+        const el = document.getElementById('cfg-val-energyA');
+        if (el) el.innerText = `Stufe ${val} / 5`;
+      } else {
+        configEnergyB = parseInt(val, 10);
+        const el = document.getElementById('cfg-val-energyB');
+        if (el) el.innerText = `Stufe ${val} / 5`;
+      }
+    }
+
+    async function generatePlaybookWithAI() {
+      const statusBox = document.getElementById('cfg-generation-status');
+      const statusText = document.getElementById('cfg-status-text');
+      const generateBtn = document.getElementById('btn-generate-ai');
+
+      if (statusBox) statusBox.classList.remove('hidden');
+      if (statusText) statusText.innerText = "Analysiere eure echten Fragebogendaten & frage Gemini KI an...";
+      if (generateBtn) generateBtn.disabled = true;
+
+      const dom = getDomPartner();
+      const sub = subPartner;
+      const allChapters = window.surveyChapters || [];
+
+      const doppel5List = [];
+      const note2List = [];
+      const tabooList = [];
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          const a1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const a2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
+          const b1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
+          const b2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
+
+          if (a1 === 1 || a2 === 1 || b1 === 1 || b2 === 1) {
+            tabooList.push(it.title);
+            return;
+          }
+
+          const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
+          const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
+
+          if (domScore >= 4 && subScore >= 4) {
+            doppel5List.push({ id: it.id, title: it.title, desc: it.desc });
+          } else if (subScore === 2 && domScore >= 3) {
+            note2List.push({ id: it.id, title: it.title, desc: it.desc });
+          }
+        });
+      });
+
+      const focusChoice = document.getElementById('cfg-focus-select')?.value || 'auto';
+
+      const promptData = {
+        domName: names[dom],
+        subName: names[sub],
+        sessionDuration: sessionTotalMinutes,
+        intensity: configIntensity,
+        energyDom: configEnergyA,
+        energySub: configEnergyB,
+        focusPreference: focusChoice,
+        matches: doppel5List.slice(0, 15),
+        toleratedDisciplines: note2List.slice(0, 10),
+        absoluteTaboos: tabooList.slice(0, 20)
+      };
+
+      const systemPrompt = `Du bist ein professioneller, feinfühliger BDSM- und Beziehungs-Regisseur.
+Erstelle ein interaktives 4-Phasen-Regiebuch für das Paar auf Basis ihrer echten Übereinstimmungen.
+REGELN:
+1. Absoluter Respekt vor Tabus: Die 'absoluteTaboos' dürfen unter KEINEN Umständen vorkommen!
+2. Beziehe das Energielevel ein (wenn jemand Stufe 1-2 hat, betone Entlastung und Caregiver).
+3. Verwende ehrliche, natürliche deutsche Sprache ohne Amtsdeutsch.
+4. Gib das Ergebnis zwingend als valides JSON-Array mit genau 4 Objekten (für Phase 1 bis 4) aus:
+[
+  {
+    "step": 1,
+    "title": "Titel der Phase",
+    "category": "Phase 1: Ankommen & Sicherheit",
+    "timePct": 0.20,
+    "quote": "🗣️ Wörtlicher Satz für den Führenden",
+    "checkpoints": ["Schritt 1", "Schritt 2", "Schritt 3", "Schritt 4"]
+  },
+  ...
+]`;
+
+      const userQuery = `Erstelle das Regiebuch anhand dieser Parameter:\n${JSON.stringify(promptData)}`;
+
+      try {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: userQuery }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        };
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("API-Aufruf fehlgeschlagen");
+        const resJson = await response.json();
+        const candidateText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (candidateText) {
+          const parsedPhases = JSON.parse(candidateText);
+          if (Array.isArray(parsedPhases) && parsedPhases.length === 4) {
+            phaseConfig = parsedPhases;
+            renderPhaseUI();
+            showToast("✨ KI-Regiebuch erfolgreich aus euren Matches generiert!");
+            switchTab('guide');
+            return;
+          }
+        }
+        throw new Error("Ungültiges KI-Format");
+      } catch (err) {
+        console.warn("KI-Generierung fehlgeschlagen, nutze algorithmischen Fallback:", err);
+        generatePlaybookLocal();
+        showToast("⚡ Lokales Regiebuch aus euren realen Matches erstellt!");
+        switchTab('guide');
+      } finally {
+        if (statusBox) statusBox.classList.add('hidden');
+        if (generateBtn) generateBtn.disabled = false;
+      }
+    }
+
+    function generatePlaybookLocal() {
+      const dom = getDomPartner();
+      const sub = subPartner;
+      const allChapters = window.surveyChapters || [];
+      const doppel5 = [];
+      const note2 = [];
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          if (isItemTabu(it.id)) return;
+          const sDom = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
+          const sSub = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
+          if (sDom >= 4 && sSub >= 4) doppel5.push(it);
+          else if (sSub === 2 && sDom >= 3) note2.push(it);
+        });
+      });
+
+      const m1 = doppel5[0]?.title || "Achtsamer Blickkontakt & Streicheln";
+      const m2 = doppel5[1]?.title || "Sinnesentzug & Seidentrance";
+      const m3 = (configIntensity === 'intense' && note2.length > 0) ? note2[0].title : (doppel5[2]?.title || "Edging & Lust-Countdown");
+
+      phaseConfig = [
+        {
+          step: 1,
+          title: "Vorbereitung & Safeword-Bestätigung",
+          category: "Phase 1: Ankommen & Sicherheit",
+          timePct: 0.20,
+          quote: `„Wir haben alle Zeit der Welt, ${names[sub]}. Lass allen Stress draußen.“`,
+          checkpoints: [
+            "Raum auf 23 °C wärmen & Licht dimmen",
+            "Safeword & Handdrück-Signal (2x / 3x) abstimmen",
+            "Seilschneider & Trinkflasche bereitlegen",
+            "Partner behutsam auf weiche Decke betten"
+          ]
+        },
+        {
+          step: 2,
+          title: `Sensorik & ${m2}`,
+          category: "Phase 2: Entschleunigung & Einstieg",
+          timePct: 0.25,
+          quote: `„Schließe die Augen. Du musst jetzt nichts mehr kontrollieren.“`,
+          checkpoints: [
+            `Erste Reize: ${m2} behutsam vorbereiten`,
+            "10 Minuten stummes Kraulen der Kopfhaut",
+            "Puls & Fingerdurchblutung prüfen"
+          ]
+        },
+        {
+          step: 3,
+          title: `Hauptakt: ${m3}`,
+          category: "Phase 3: Dynamik & Höhepunkte",
+          timePct: 0.35,
+          quote: `„Du gehörst heute ganz mir. Spüre jeden Reiz.“`,
+          checkpoints: [
+            `Praktik vollziehen: ${m3}`,
+            "3-faches Edging an der Lustschwelle",
+            "Freigabe oder Orgasmus-Countdown (Pos. 103)",
+            "Befreiende Umarmung nach dem Höhepunkt"
+          ]
+        },
+        {
+          step: 4,
+          title: "Landung & Maßgeschneiderter Aftercare",
+          category: "Phase 4: Nachsorge & Geborgenheit",
+          timePct: 0.20,
+          quote: "„Du warst wundervoll. Ich halte dich ganz fest.“",
+          checkpoints: []
+        }
+      ];
+
+      renderPhaseUI();
+      saveSessionSnapshot();
+    }
+
     function updateDebriefVal(user, val) {
       const el = document.getElementById(`debrief-val-${user}`);
       if (el) el.innerText = `${val} / 10`;
@@ -1174,7 +1557,6 @@
       } catch (e) {}
     }
 
-    /* STRAFEN-LOGIK */
     function setPunishedSub(user) {
       subPartner = user;
       const bA = document.getElementById('btn-sub-A');
@@ -1187,7 +1569,6 @@
         bA.className = "px-3 py-1.5 rounded-lg text-slate-400 transition";
       }
       renderPunishments();
-      calculateSynergies();
       saveSessionSnapshot();
     }
 
@@ -1324,124 +1705,11 @@
         timestamp: Date.now()
       });
 
-      showToast(`Ausgewählt: ${entry.item.title}`);
-      
-      const select = document.getElementById('synergy-base-select');
-      const cat = entry.category.toLowerCase();
-      if (select) {
-        if (cat.includes('impact') || cat.includes('schlag')) select.value = 'impact';
-        else if (cat.includes('shibari') || cat.includes('fessel')) select.value = 'shibari';
-        else if (cat.includes('sinnesentzug') || cat.includes('masken')) select.value = 'deprivation';
-        else if (cat.includes('keuschheit')) select.value = 'chastity';
-        else if (cat.includes('dienen') || cat.includes('zucht') || cat.includes('dominanz')) select.value = 'chastity';
-        else if (cat.includes('primal')) select.value = 'primal';
-      }
-
-      calculateSynergies();
-      switchTab('synergy');
+      showToast(`Eingewoben: ${entry.item.title}`);
+      renderPhaseUI();
+      switchTab('guide');
     }
 
-    function calculateSynergies() {
-      const base = document.getElementById('synergy-base-select')?.value || 'deprivation';
-      const container = document.getElementById('synergy-results-container');
-      if (!container) return;
-
-      const dom = getDomPartner();
-      const sub = subPartner;
-      const allChapters = window.surveyChapters || [];
-
-      const targetChapterMap = {
-        deprivation: [15, 2, 3],
-        shibari: [13, 14, 15, 7],
-        chastity: [7, 8, 21, 22],
-        impact: [16, 13, 30],
-        nuru: [31, 3, 15],
-        primal: [18, 16, 24]
-      };
-
-      const allowedChapters = targetChapterMap[base] || [1, 2, 3];
-      let matches = [];
-
-      allChapters.forEach(ch => {
-        if (!allowedChapters.includes(ch.id)) return;
-
-        ch.items.forEach(it => {
-          if (it.type === 'choice') return;
-          if (isItemTabu(it.id)) return;
-
-          const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
-          const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
-
-          if (domScore === undefined && subScore === undefined) return;
-
-          let badgeText = '';
-          let badgeClass = '';
-
-          if (domScore === 5 && subScore === 5) {
-            badgeText = '⭐ Echter Doppel-5er';
-            badgeClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-          } else if (domScore >= 4 && subScore >= 4) {
-            badgeText = `✨ Beide begeistert (${domScore} & ${subScore})`;
-            badgeClass = 'text-teal-400 bg-teal-500/10 border-teal-500/20';
-          } else if (domScore >= 4 && subScore === 3) {
-            badgeText = `💡 ${escapeHtml(names[sub])} neugierig (3)`;
-            badgeClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
-          } else if (subScore === 2 && domScore >= 3) {
-            badgeText = `🎁 Liebesdienst (2)`;
-            badgeClass = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-          }
-
-          if (badgeText) {
-            matches.push({
-              item: it,
-              domScore: domScore ?? '-',
-              subScore: subScore ?? '-',
-              badgeText,
-              badgeClass,
-              prio: (domScore === 5 && subScore === 5) ? 10 : ((domScore >= 4 && subScore >= 4) ? 8 : 5)
-            });
-          }
-        });
-      });
-
-      matches.sort((a, b) => b.prio - a.prio);
-
-      if (matches.length === 0) {
-        container.innerHTML = `
-          <div class="p-5 session-card rounded-2xl border text-center space-y-2">
-            <span class="text-2xl block">ℹ️</span>
-            <strong class="text-xs block">Keine gemeinsamen Treffer hinterlegt</strong>
-            <p class="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
-              Füllt die entsprechenden Kapitel im Kompass aus, um gemeinsame Vorlieben freizuschalten.
-            </p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = matches.slice(0, 8).map(m => `
-        <div class="p-3 session-card rounded-2xl border flex items-start gap-2.5">
-          <span class="text-lg text-brand-500">✨</span>
-          <div class="flex-1">
-            <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
-              <strong class="text-xs font-bold">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${m.badgeClass}">${m.badgeText}</span>
-            </div>
-            <p class="text-[11px] text-slate-400 leading-relaxed">${escapeHtml(m.item.desc)}</p>
-            <div class="flex items-center gap-2 mt-2 text-[10.5px]">
-              <span class="px-2 py-0.5 rounded session-panel border">
-                ${escapeHtml(names[dom])}: Note ${m.domScore}
-              </span>
-              <span class="px-2 py-0.5 rounded session-panel border">
-                ${escapeHtml(names[sub])}: Note ${m.subScore}
-              </span>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    /* TIMER-STEUERUNG MIT PERSISTENZ & GONG */
     function startTimer(min) {
       sessionTotalMinutes = min;
       timerRemaining = min * 60;
@@ -1494,7 +1762,6 @@
           timerRemaining--;
           updateTimerDisplay();
 
-          // 1. Aktive Farb-Check-in Abfrage prüfen
           if (['10', '15', '20'].includes(checkInIntervalSetting)) {
             const intervalSec = parseInt(checkInIntervalSetting, 10) * 60;
             if (sessionElapsedSeconds > 0 && (sessionElapsedSeconds - lastCheckInElapsed) >= intervalSec) {
@@ -1503,16 +1770,12 @@
             }
           }
 
-          // 2. Regelmäßiger Zirkulations-Check alle 15 Minuten (falls Check-in auf 0 oder phase steht)
           if (checkInIntervalSetting === '0' && sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
             playHarmonicGong(1.0);
             showToast("⏰ 15-MINUTEN-CHECK: Finger und Fesseln kurz abtasten!");
           }
         } else {
-          pauseTimer();
-          releaseWakeLock();
-          playHarmonicGong(0.9);
-          showToast("⏰ SESSION-ZEIT ERREICHT! Gleitet nun sanft in den Aftercare über.");
+          finishSessionGently();
         }
       }, 1000);
 
