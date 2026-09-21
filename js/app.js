@@ -20,9 +20,13 @@ function initApp() {
   loadFromLocalStorage();
   checkUrlHashData();
 
-  if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-    const lock = document.getElementById('site-lockscreen');
-    if (lock) lock.classList.add('hidden');
+  const lock = document.getElementById('site-lockscreen');
+  if (lock) {
+    if (sessionStorage.getItem('kompass_unlocked') === 'true') {
+      lock.classList.add('hidden');
+      checkOnboardingStatus();
+    }
+  } else {
     checkOnboardingStatus();
   }
 
@@ -246,11 +250,12 @@ function updateCurrentUserUI() {
 }
 
 function renderCurrentChapter() {
-  if (!window.surveyChapters || window.surveyChapters.length === 0) return;
-  const ch = surveyChapters[currentChapterIndex];
+  const chapters = window.surveyChapters || [];
+  if (chapters.length === 0) return;
+  const ch = chapters[currentChapterIndex];
   if (!ch) return;
 
-  document.getElementById('chapter-badge').innerText = `Kapitel ${currentChapterIndex + 1} / ${surveyChapters.length}`;
+  document.getElementById('chapter-badge').innerText = `Kapitel ${currentChapterIndex + 1} / ${chapters.length}`;
   document.getElementById('chapter-title').innerText = ch.title;
   document.getElementById('chapter-desc').innerText = ch.desc;
   document.getElementById('chapter-items-count').innerText = `${ch.items.length} Punkte`;
@@ -260,7 +265,7 @@ function renderCurrentChapter() {
 
   const nextBtn = document.getElementById('btn-next-chapter');
   if (nextBtn) {
-    nextBtn.innerText = (currentChapterIndex === surveyChapters.length - 1) ? "Zur Analyse →" : "Weiter →";
+    nextBtn.innerText = (currentChapterIndex === chapters.length - 1) ? "Zur Analyse →" : "Weiter →";
   }
 
   const container = document.getElementById('survey-items-container');
@@ -400,7 +405,8 @@ function prevChapter() {
 }
 
 function nextChapter() {
-  if (currentChapterIndex < surveyChapters.length - 1) {
+  const chapters = window.surveyChapters || [];
+  if (currentChapterIndex < chapters.length - 1) {
     currentChapterIndex++;
     renderCurrentChapter();
   } else {
@@ -415,8 +421,9 @@ function jumpToChapter(idx) {
 
 function renderQuickGrid() {
   const grid = document.getElementById('quick-grid-buttons');
-  if (!grid || !window.surveyChapters) return;
-  grid.innerHTML = surveyChapters.map((ch, idx) => `
+  const chapters = window.surveyChapters || [];
+  if (!grid || chapters.length === 0) return;
+  grid.innerHTML = chapters.map((ch, idx) => `
     <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
       ${idx + 1}. ${escapeHtml(ch.title)}
     </button>
@@ -435,9 +442,10 @@ function checkChapterQuickGridVisibility() {
 }
 
 function updateProgressBar() {
-  if (!window.surveyChapters) return;
+  const chapters = window.surveyChapters || [];
+  if (chapters.length === 0) return;
   let totalQuestions = 0;
-  surveyChapters.forEach(c => {
+  chapters.forEach(c => {
     c.items.forEach(it => {
       if (it.type === 'choice') totalQuestions += 1;
       else totalQuestions += 2;
@@ -503,7 +511,8 @@ function renderSingleAnalysis() {
   let high5 = [];
   let tabus = [];
 
-  surveyChapters.forEach(ch => {
+  const chapters = window.surveyChapters || [];
+  chapters.forEach(ch => {
     ch.items.forEach(it => {
       const r1 = uAnswers[`it_${it.id}_r1`];
       const r2 = uAnswers[`it_${it.id}_r2`];
@@ -601,7 +610,8 @@ function renderPairAnalysis() {
   const shareNotesA = privacy.A?.shareNotes !== false;
   const shareNotesB = privacy.B?.shareNotes !== false;
 
-  surveyChapters.forEach(ch => {
+  const chapters = window.surveyChapters || [];
+  chapters.forEach(ch => {
     ch.items.forEach(it => {
       const aR1 = answers.A[`it_${it.id}_r1`];
       const aR2 = answers.A[`it_${it.id}_r2`];
@@ -786,7 +796,8 @@ function renderPairRadar() {
 
 function rollDailyKinkDice() {
   const positiveItems = [];
-  surveyChapters.forEach(c => {
+  const chapters = window.surveyChapters || [];
+  chapters.forEach(c => {
     c.items.forEach(it => {
       const a = answers.A[`it_${it.id}_r1`];
       const b = answers.B[`it_${it.id}_r2`];
@@ -974,7 +985,8 @@ function openTabuModal() {
   if (!list) return;
 
   let tabuItems = [];
-  surveyChapters.forEach(ch => {
+  const chapters = window.surveyChapters || [];
+  chapters.forEach(ch => {
     ch.items.forEach(it => {
       const aR1 = answers.A[`it_${it.id}_r1`];
       const aR2 = answers.A[`it_${it.id}_r2`];
