@@ -174,6 +174,47 @@
     </div>
   </div>
 
+  <!-- AKTIVES FARB-CHECK-IN OVERLAY (Wird im Intervall sanft eingeblendet) -->
+  <div id="active-checkin-overlay" class="hidden fixed inset-0 z-[95] bg-black/85 backdrop-blur-md p-4 sm:p-6 flex flex-col justify-center items-center animate-fade-in">
+    <div class="max-w-md w-full session-card p-5 sm:p-6 rounded-3xl border border-brand-500/30 space-y-4 shadow-2xl text-center">
+      <div class="space-y-1">
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-brand-500/20 text-brand-300 border border-brand-500/30">
+          Sicherheits-Check-in
+        </span>
+        <h3 class="text-base sm:text-lg font-black text-white">Wie ist euer aktueller Status?</h3>
+        <p class="text-xs text-slate-400" id="checkin-prompt-hint">Kurze Bestätigung der Farb-Ampel für ein sicheres Miteinander:</p>
+      </div>
+
+      <!-- Große 48px+ Touch-Tasten für blinde Bedienung -->
+      <div class="grid grid-cols-3 gap-2.5 pt-1">
+        <button onclick="submitActiveCheckIn('green')" class="py-4 px-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex flex-col items-center justify-center gap-1 shadow-lg transition touch-target-48 touch-pill">
+          <span class="text-2xl">🟢</span>
+          <span class="text-xs font-black">GRÜN</span>
+          <span class="text-[9px] opacity-80">Alles super</span>
+        </button>
+        <button onclick="submitActiveCheckIn('yellow')" class="py-4 px-2 rounded-2xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white flex flex-col items-center justify-center gap-1 shadow-lg transition touch-target-48 touch-pill">
+          <span class="text-2xl">🟡</span>
+          <span class="text-xs font-black">GELB</span>
+          <span class="text-[9px] opacity-80">Sanfter / Pause</span>
+        </button>
+        <button onclick="submitActiveCheckIn('red')" class="py-4 px-2 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white flex flex-col items-center justify-center gap-1 shadow-lg pulse-glow transition touch-target-48 touch-pill">
+          <span class="text-2xl">🔴</span>
+          <span class="text-xs font-black">ROT</span>
+          <span class="text-[9px] opacity-90">Sofort-Stopp</span>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+        <button onclick="dismissActiveCheckIn()" class="text-slate-400 hover:text-slate-200 transition py-1.5 px-2">
+          ✕ Später / Jetzt überspringen
+        </button>
+        <button onclick="triggerTrafficLight('yellow'); dismissActiveCheckIn();" class="text-amber-400 hover:underline py-1.5 px-2 font-bold">
+          Pause anfordern ⏸
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- HEADER -->
   <header class="border-b session-card/90 backdrop-blur-md px-3 sm:px-4 py-2.5 sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
@@ -255,6 +296,30 @@
         </button>
         <button onclick="extendTimer(30)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">
           +30m
+        </button>
+      </div>
+    </div>
+
+    <!-- KONFIGURATION: FARB-CHECK-IN INTERVALL (Aus Fragebogen synchronisiert) -->
+    <div class="session-panel p-2.5 sm:p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🚦</span>
+        <div>
+          <span class="font-bold text-white block text-[11px] sm:text-xs">Aktive Ampel-Abfragen (Farb-Check-ins)</span>
+          <span class="text-[10px] text-slate-400" id="checkin-source-hint">Lade Profil-Präferenzen...</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <select id="checkin-interval-select" onchange="updateCheckInInterval(this.value)" class="session-card border border-slate-700 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-slate-200 focus:outline-none focus:border-brand-500">
+          <option value="0">❌ Deaktiviert (Nur Safeword)</option>
+          <option value="10">⏱️ Alle 10 Min.</option>
+          <option value="15" selected>⏱️ Alle 15 Min.</option>
+          <option value="20">⏱️ Alle 20 Min.</option>
+          <option value="phase">📑 Nur bei Phasenwechsel</option>
+        </select>
+        <button onclick="triggerManualCheckIn()" class="px-2.5 py-1.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-[11px] font-bold transition touch-pill" title="Jetzt sofort Farbe abfragen">
+          Jetzt abfragen
         </button>
       </div>
     </div>
@@ -495,6 +560,9 @@
     let isSoundEnabled = true;
     let audioCtx = null;
 
+    let checkInIntervalSetting = '15'; // '0', '10', '15', '20', 'phase'
+    let lastCheckInElapsed = 0;
+
     let executedActions = [];
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
@@ -571,6 +639,7 @@
       applySavedTheme();
       restoreSessionSnapshot();
       updateNamesDisplay();
+      detectCheckInPreferenceFromSurvey();
       renderPhaseUI();
       renderPunishments();
       calculateSynergies();
@@ -759,6 +828,8 @@
         currentPhase,
         subPartner,
         currentPunishLvl,
+        checkInIntervalSetting,
+        lastCheckInElapsed,
         targetEndTime: timerInterval ? (Date.now() + timerRemaining * 1000) : null,
         ts: Date.now()
       };
@@ -775,6 +846,11 @@
         currentPhase = snap.currentPhase || 1;
         subPartner = snap.subPartner || 'B';
         currentPunishLvl = snap.currentPunishLvl || 'mittel';
+        checkInIntervalSetting = snap.checkInIntervalSetting || '15';
+        lastCheckInElapsed = snap.lastCheckInElapsed || 0;
+
+        const sel = document.getElementById('checkin-interval-select');
+        if (sel) sel.value = checkInIntervalSetting;
 
         if (snap.targetEndTime && snap.targetEndTime > Date.now()) {
           const remainingSec = Math.round((snap.targetEndTime - Date.now()) / 1000);
@@ -789,6 +865,106 @@
         updateTimerDisplay();
       } catch (e) {
         console.warn('Session-Snapshot konnte nicht wiederhergestellt werden', e);
+      }
+    }
+
+    /* AUTOMATISCHE PRÄFERENZ-ERKENNUNG AUS DEM FRAGEBOGEN */
+    function detectCheckInPreferenceFromSurvey() {
+      const hint = document.getElementById('checkin-source-hint');
+      const sel = document.getElementById('checkin-interval-select');
+      if (!answers || (!answers.A && !answers.B)) {
+        if (hint) hint.innerText = "Standard: Alle 15 Minuten aktiv.";
+        return;
+      }
+
+      // 1. Pos. 485: Bevorzugtes Signal ('traffic', 'hand', 'drop', 'eyes')
+      const choiceA = answers.A ? answers.A['it_485_choice'] : undefined;
+      const choiceB = answers.B ? answers.B['it_485_choice'] : undefined;
+
+      // 2. Pos. 517: Regelmäßiges 10-Minuten-Nachfragen (Skala 0-5)
+      const askA = answers.A ? (answers.A['it_517_r1'] || answers.A['it_517_r2']) : undefined;
+      const askB = answers.B ? (answers.B['it_517_r1'] || answers.B['it_517_r2']) : undefined;
+
+      // 3. Pos. 478: Ampelsystem (Note 1 = Tabu)
+      const ampelA = answers.A ? answers.A['it_478_r1'] : undefined;
+      const ampelB = answers.B ? answers.B['it_478_r2'] : undefined;
+
+      let detectedVal = '15';
+      let reasonText = "Standard: Alle 15 Min.";
+
+      if (ampelA === 1 || ampelB === 1) {
+        detectedVal = '0';
+        reasonText = "Ampel als Tabu (Note 1) bewertet: Nur Safeword.";
+      } else if (choiceA === 'traffic' || choiceB === 'traffic') {
+        if (askA >= 4 || askB >= 4) {
+          detectedVal = '10';
+          reasonText = "Aus Fragebogen (Pos. 485 & 517): 10-Minuten Ampel-Check gewünscht.";
+        } else {
+          detectedVal = '15';
+          reasonText = "Aus Fragebogen (Pos. 485): Ampel-Check-in bevorzugt (15 Min).";
+        }
+      } else if (choiceA === 'eyes' || choiceB === 'eyes') {
+        detectedVal = '0';
+        reasonText = "Aus Fragebogen (Pos. 485): Vorliebe für intuitiven Blickkontakt / reines Safeword.";
+      } else if (choiceA === 'hand' || choiceB === 'hand') {
+        detectedVal = 'phase';
+        reasonText = "Aus Fragebogen (Pos. 485): Bevorzugt Handdrücken – Ampel nur bei Phasenwechsel.";
+      } else if (askA >= 4 || askB >= 4) {
+        detectedVal = '10';
+        reasonText = "Aus Fragebogen (Pos. 517): Regelmäßiges Check-in hoch bewertet.";
+      }
+
+      // Nur setzen, falls nicht bereits in sessionStorage überschrieben
+      const rawSnap = sessionStorage.getItem('kompass_session_active');
+      if (!rawSnap) {
+        checkInIntervalSetting = detectedVal;
+        if (sel) sel.value = detectedVal;
+      }
+      if (hint) hint.innerText = reasonText;
+    }
+
+    function updateCheckInInterval(val) {
+      checkInIntervalSetting = val;
+      lastCheckInElapsed = sessionElapsedSeconds;
+      saveSessionSnapshot();
+
+      if (val === '0') {
+        showToast("Ampel-Abfragen deaktiviert (Session läuft nur mit Safeword)");
+      } else if (val === 'phase') {
+        showToast("Ampel-Abfrage erfolgt nur bei Phasenwechsel");
+      } else {
+        showToast(`Ampel-Check-in alle ${val} Minuten aktiviert`);
+      }
+    }
+
+    function triggerManualCheckIn() {
+      openActiveCheckInModal("Manuell angefordert:");
+    }
+
+    function openActiveCheckInModal(customHint) {
+      playHarmonicGong(1.2);
+      const overlay = document.getElementById('active-checkin-overlay');
+      const hint = document.getElementById('checkin-prompt-hint');
+      if (hint && customHint) {
+        hint.innerText = customHint;
+      }
+      if (overlay) overlay.classList.remove('hidden');
+    }
+
+    function dismissActiveCheckIn() {
+      document.getElementById('active-checkin-overlay')?.classList.add('hidden');
+      lastCheckInElapsed = sessionElapsedSeconds;
+    }
+
+    function submitActiveCheckIn(color) {
+      dismissActiveCheckIn();
+      if (color === 'green') {
+        playHarmonicGong(1.0);
+        showToast("🟢 GRÜN bestätigt: Weiterhin alles im grünen Bereich.");
+      } else if (color === 'yellow') {
+        triggerTrafficLight('yellow');
+      } else if (color === 'red') {
+        triggerTrafficLight('red');
       }
     }
 
@@ -917,20 +1093,19 @@
     function jumpToPhase(phaseNum) {
       currentPhase = phaseNum;
       playHarmonicGong(1.1);
-      renderPhaseUI();
-    }
-
-    function prevPhase() {
-      if (currentPhase > 1) {
-        currentPhase--;
-        renderPhaseUI();
+      if (checkInIntervalSetting === 'phase' && phaseNum > 1 && phaseNum <= 4) {
+        openActiveCheckInModal(`Phasenwechsel zu Phase ${phaseNum}: Kurzer Ampel-Check-in`);
       }
+      renderPhaseUI();
     }
 
     function nextPhase() {
       if (currentPhase < 4) {
         currentPhase++;
         playHarmonicGong(1.1);
+        if (checkInIntervalSetting === 'phase') {
+          openActiveCheckInModal(`Phasenwechsel zu Phase ${currentPhase}: Kurzer Ampel-Check-in`);
+        }
         renderPhaseUI();
       } else {
         pauseTimer();
@@ -1319,8 +1494,17 @@
           timerRemaining--;
           updateTimerDisplay();
 
-          // Alle 15 Minuten: Gong & Zirkulations-Check
-          if (sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
+          // 1. Aktive Farb-Check-in Abfrage prüfen
+          if (['10', '15', '20'].includes(checkInIntervalSetting)) {
+            const intervalSec = parseInt(checkInIntervalSetting, 10) * 60;
+            if (sessionElapsedSeconds > 0 && (sessionElapsedSeconds - lastCheckInElapsed) >= intervalSec) {
+              lastCheckInElapsed = sessionElapsedSeconds;
+              openActiveCheckInModal(`Planmäßiger ${checkInIntervalSetting}-Minuten Ampel-Check:`);
+            }
+          }
+
+          // 2. Regelmäßiger Zirkulations-Check alle 15 Minuten (falls Check-in auf 0 oder phase steht)
+          if (checkInIntervalSetting === '0' && sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
             playHarmonicGong(1.0);
             showToast("⏰ 15-MINUTEN-CHECK: Finger und Fesseln kurz abtasten!");
           }
