@@ -35,10 +35,10 @@
             obsidian: {
               950: '#000000',
               900: '#05070c',
-              850: '#0f1523',
-              800: '#141c2e',
-              700: '#1e293b',
-              600: '#334155'
+              850: '#0a0e17',
+              800: '#0f1523',
+              700: '#141c2e',
+              600: '#1e293b'
             }
           }
         }
@@ -46,14 +46,22 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      padding-left: env(safe-area-inset-left, 0px);
-      padding-right: env(safe-area-inset-right, 0px);
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
     }
 
     html.dark body {
@@ -61,14 +69,18 @@
       color: #f8fafc !important;
     }
     html.dark .theme-card {
-      background-color: #0f1523 !important;
-      border-color: #1e293b !important;
+      background-color: #0c101a !important;
+      border-color: #1a2336 !important;
       color: #f8fafc !important;
     }
     html.dark .theme-panel {
-      background-color: #141c2e !important;
-      border-color: #24334f !important;
+      background-color: #111726 !important;
+      border-color: #1f2b42 !important;
       color: #e2e8f0 !important;
+    }
+    html.dark .theme-subtle {
+      background-color: #070a12 !important;
+      border-color: #161e30 !important;
     }
 
     html:not(.dark) body {
@@ -82,8 +94,12 @@
     }
     html:not(.dark) .theme-panel {
       background-color: #f1f5f9 !important;
-      border-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
       color: #1e293b !important;
+    }
+    html:not(.dark) .theme-subtle {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
     }
 
     .touch-pill {
@@ -95,18 +111,45 @@
 
     @media print {
       .no-print { display: none !important; }
-      body { background: #ffffff !important; color: #000000 !important; }
+      body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
       .theme-card, .theme-panel { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #000000 !important; }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- SPERRBILDSCHIRM (PASSWORT) -->
+  <div id="site-lockscreen" class="fixed inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-2xl shadow-inner">
+        🔒
+      </div>
+      <div class="space-y-1.5">
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Paar-Analyse gesperrt</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Bitte gib das vereinbarte Zugangspasswort ein, um die detaillierte Paar- und Selbstanalyse zu öffnen.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
+               onkeydown="if(event.key==='Enter') verifySitePassword()"
+               class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill">
+          Entsperren & Fortfahren
+        </button>
+        <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
+      </div>
+      <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
+        🛡️ <strong>100 % Lokale Sicherheit:</strong> Auswertung verbleibt vollständig auf deinem Endgerät.
+      </div>
+    </div>
+  </div>
+
   <!-- HEADER -->
   <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
       
-      <!-- Brand -->
+      <!-- Brand & Titel -->
       <div class="flex items-center space-x-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
@@ -117,32 +160,34 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none">Paar- & Tiefenanalyse</h1>
-          <span class="text-[10px] text-slate-400 font-medium block mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Paar- & Tiefenanalyse</h1>
+            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">Live</span>
+          </div>
+          <span class="text-[9.5px] sm:text-[10px] text-slate-400 font-medium block mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
         </div>
       </div>
 
       <!-- Quick Nav Buttons -->
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1">
-          <span id="theme-icon">🌙</span> <span class="hidden md:inline" id="theme-label">Nacht</span>
+        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Hell/Dunkel umschalten">
+          <span id="theme-icon">🌙</span> <span class="hidden md:inline text-[11px]" id="theme-label">Nacht</span>
         </button>
-        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
-          <span>🕯️</span> <span class="hidden sm:inline">Session-Begleiter</span>
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit öffnen">
+          <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
         </a>
-        <a href="index.html" class="px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1">
-          ← <span class="hidden sm:inline">Fragebogen</span>
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Zurück zum Fragebogen">
+          <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
         </a>
       </div>
 
     </div>
   </header>
-
   <!-- HAUPTINHALT -->
-  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
+  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
     <!-- TOP-LEVEL TABS: PAARANALYSE VS. TIEFEN-SELBSTPROFIL -->
-    <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto">
+    <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
       <button onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
         <span>👥</span> <span>Paar-Synergie & Matches</span>
       </button>
@@ -162,7 +207,7 @@
         <div class="max-w-md mx-auto space-y-1.5">
           <h3 class="text-base font-extrabold text-white">Paar-Analyse ist noch geschützt</h3>
           <p class="text-xs text-slate-400 leading-relaxed">
-            Nach dem fairen Blind-Prinzip wird die Paar-Gegenüberstellung erst freigeschaltet, wenn **beide Partner** ihre Bewertungen abgegeben haben.
+            Nach dem fairen Blind-Prinzip wird die Paar-Gegenüberstellung erst freigeschaltet, wenn <strong>beide Partner</strong> ihre Bewertungen abgegeben haben.
           </p>
         </div>
         <a href="index.html" class="inline-block px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
@@ -175,32 +220,31 @@
         
         <!-- 4 Haupt-KPIs -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5">
+          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
             <span class="text-2xl font-black text-white" id="kpi-harmony">0 %</span>
             <span class="text-[10px] text-slate-400 block">Gemeinsame Basis</span>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5">
+          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er Volltreffer</span>
             <span class="text-2xl font-black text-emerald-400" id="kpi-doppel5">0</span>
             <span class="text-[10px] text-emerald-400/80 block">Beidseitige Must-Haves</span>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5">
+          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
             <span class="text-2xl font-black text-amber-400" id="kpi-bridges">0</span>
             <span class="text-[10px] text-amber-400/80 block">Wunsch trifft Neugier</span>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5">
+          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Absolute Tabus</span>
             <span class="text-2xl font-black text-rose-400" id="kpi-tabus">0</span>
             <span class="text-[10px] text-rose-400/80 block">Schutzschranken (Note 1)</span>
           </div>
         </div>
-
         <!-- Paar-Radar & Beziehungs-Dynamik -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           
-          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2">
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
               <div>
                 <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
@@ -219,7 +263,7 @@
           </div>
 
           <!-- Psychologisches Synergie-Gutachten -->
-          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between">
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between shadow-xs">
             <div class="space-y-1.5">
               <span class="text-[10px] font-black uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
                 Beziehungs-Dynamik
@@ -234,26 +278,25 @@
             <div class="space-y-2 pt-2 border-t border-slate-800 text-xs">
               <strong class="text-slate-300 font-bold block text-[11px]">Die 4 Beziehungs-Zonen eurer Partnerschaft:</strong>
               <div class="grid grid-cols-2 gap-2 text-[10.5px]">
-                <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">
-                  <strong>🟢 Komfort-Zone:</strong> Sichere Spielwiese für sofortige Sessions.
+                <div class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">
+                  <strong class="block font-bold">🟢 Komfort-Zone:</strong> Sichere Spielwiese für sofortige Sessions.
                 </div>
-                <div class="p-2 rounded-xl bg-amber-950/40 border border-amber-800/50 text-amber-200">
-                  <strong>🟡 Wachstums-Zone:</strong> Großes Potenzial durch behutsames Herantasten.
+                <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-800/50 text-amber-200">
+                  <strong class="block font-bold">🟡 Wachstums-Zone:</strong> Großes Potenzial durch behutsames Herantasten.
                 </div>
-                <div class="p-2 rounded-xl bg-indigo-950/40 border border-indigo-800/50 text-indigo-200">
-                  <strong>🎁 Duldungs-Zone:</strong> Liebesdienste & akzeptierte Strafhärte (Note 2).
+                <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-800/50 text-indigo-200">
+                  <strong class="block font-bold">🎁 Duldungs-Zone:</strong> Liebesdienste & akzeptierte Strafhärte (Note 2).
                 </div>
-                <div class="p-2 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200">
-                  <strong>⛔ Schutz-Zone:</strong> Absolute No-Gos, die vollkommen heilig bleiben.
+                <div class="p-2.5 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200">
+                  <strong class="block font-bold">⛔ Schutz-Zone:</strong> Absolute No-Gos, die vollkommen heilig bleiben.
                 </div>
               </div>
             </div>
           </div>
 
         </div>
-
         <!-- GESPRÄCHS-LEITFADEN FÜR BRÜCKENBAU -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-3">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Psychologischer Gesprächs-Katalysator</span>
@@ -268,7 +311,7 @@
         </div>
 
         <!-- DOPPEL-5ER VOLLTREFFER -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Beidseitige Leidenschaft</span>
@@ -280,7 +323,7 @@
         </div>
 
         <!-- LIEBESDIENSTE & NOTE-2 DULDUNGEN -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-indigo-500/30 space-y-3">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-indigo-500/30 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-indigo-500/20 pb-2">
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider text-indigo-400">Besondere Großzügigkeit</span>
@@ -292,7 +335,7 @@
         </div>
 
         <!-- TRANSPARENTE DETAILÜBERSICHT MIT SUCHE & FILTER -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lückenloser Transparenz-Abgleich</span>
@@ -308,12 +351,11 @@
       </div>
 
     </section>
-
     <!-- VIEW 2: SELBSTPROFIL & ARCHETYPEN-TIEFENANALYSE -->
     <section id="view-self-analysis" class="space-y-5 hidden">
       
       <!-- Nutzer-Auswahl für das Selbstprofil -->
-      <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2">
+      <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
         <div class="flex items-center gap-2">
           <span class="text-xs text-slate-400 font-bold">Analysiere Persönlichkeit von:</span>
           <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border text-xs font-bold">
@@ -327,7 +369,7 @@
       <!-- Archetypen-Radar & Die 5 Säulen -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
           <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
             <span>🕸️ Persönliches Archetypen-Radar</span>
             <span class="text-[10px] text-slate-400 font-normal">9 Erotische Achsen</span>
@@ -337,7 +379,7 @@
           </div>
         </div>
 
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between">
+        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between shadow-xs">
           <div class="space-y-1">
             <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
             <p class="text-[11px] text-slate-400">Verteilung deiner inneren Triebfedern:</p>
@@ -404,14 +446,14 @@
 
       <!-- Highlights & Tabus der Person -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="theme-card p-4 rounded-2xl border border-emerald-500/30 space-y-2">
+        <div class="theme-card p-4 rounded-2xl border border-emerald-500/30 space-y-2 shadow-xs">
           <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
             <span>⭐</span> Persönliche Spitzen (Note 5)
           </h3>
           <div id="self-highs-container" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
         </div>
 
-        <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2">
+        <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2 shadow-xs">
           <h3 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
             <span>⛔</span> Persönliche Tabus & Grenzen (Note 1)
           </h3>
@@ -434,7 +476,6 @@
   <!-- FRAGENKATALOGE -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
-
   <script>
     let activeAnalysisTab = 'pair';
     let selfUser = 'A';
@@ -447,6 +488,34 @@
     let selfRadarChartInstance = null;
     let cachedDetailItems = [];
 
+    function verifySitePassword() {
+      const input = document.getElementById('site-pw-input');
+      const err = document.getElementById('pw-error-hint');
+      const lock = document.getElementById('site-lockscreen');
+      if (!input) return;
+
+      if (input.value.trim() === 'Bommelchen!') {
+        sessionStorage.setItem('kompass_unlocked', 'true');
+        if (lock) lock.classList.add('hidden');
+        if (err) err.classList.add('hidden');
+        showToast("Erfolgreich entsperrt!");
+        initAnalysisApp();
+      } else {
+        if (err) err.classList.remove('hidden');
+      }
+    }
+
+    function checkSiteLockscreen() {
+      const lock = document.getElementById('site-lockscreen');
+      if (!lock) return true;
+      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
+        lock.classList.add('hidden');
+        return true;
+      } else {
+        lock.classList.remove('hidden');
+        return false;
+      }
+    }
     function initAnalysisApp() {
       loadStorageData();
       applySavedTheme();
@@ -550,7 +619,6 @@
       }
       renderSelfAnalysis();
     }
-
     /* PAAR-SYNERGIE AUSWERTUNG */
     function renderPairAnalysis() {
       const hasA = answers.A && Object.keys(answers.A).length > 0;
@@ -578,7 +646,7 @@
       let allDetailList = [];
 
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
           const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
           const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
@@ -590,7 +658,7 @@
           if (isTabu) {
             tabusList.push({ item: it, chapter: ch, aR1, aR2, bR1, bR2 });
           } else {
-            // Doppel-5er Komplementär
+            // Doppel-5er Komplementär (Aktiv trifft Passiv)
             if (aR1 === 5 && bR2 === 5) {
               doppel5List.push({ item: it, leader: names.A, receiver: names.B, roleLead: it.r1, roleRecv: it.r2 });
             }
@@ -598,7 +666,7 @@
               doppel5List.push({ item: it, leader: names.B, receiver: names.A, roleLead: it.r1, roleRecv: it.r2 });
             }
 
-            // Brückenbau (Wunsch 4/5 trifft 2/3)
+            // Brückenbau (Wunsch 4/5 trifft Bereitschaft 2/3)
             if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) {
               bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
             }
@@ -654,7 +722,6 @@
       renderDetailListUI(allDetailList);
       renderPairRadar();
     }
-
     function renderBridgesUI(list) {
       const c = document.getElementById('bridges-interactive-container');
       if (!c) return;
@@ -664,16 +731,16 @@
         return;
       }
 
-      c.innerHTML = list.slice(0, 8).map(b => `
-        <div class="p-3.5 rounded-2xl theme-panel border border-amber-500/30 space-y-2">
+      c.innerHTML = list.slice(0, 10).map(b => `
+        <div class="p-3.5 rounded-2xl theme-panel border border-amber-500/30 space-y-2 shadow-xs">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs sm:text-sm text-white">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Wunsch (${b.wishScore}) trifft Duldung (${b.partnerScore})
+              Wunsch (${b.wishScore}) trifft Bereitschaft (${b.partnerScore})
             </span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(b.item.desc)}</p>
-          <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/60 text-[11px] space-y-1">
+          <div class="p-2.5 rounded-xl theme-subtle border border-slate-700/60 text-[11px] space-y-1">
             <span class="text-amber-300 font-bold block">💡 Gesprächs-Impuls für ${escapeHtml(b.wishUser)}:</span>
             <p class="text-slate-300 italic">„Ich wünsche mir '${escapeHtml(b.roleWish)}'. Ich weiß, dass du '${escapeHtml(b.rolePartner)}' noch zurückhaltend siehst. Welche Bedingungen oder Sicherheiten bräuchtest du, damit wir uns ganz vorsichtig herantasten?“</p>
           </div>
@@ -690,8 +757,8 @@
         return;
       }
 
-      c.innerHTML = list.slice(0, 10).map(d => `
-        <div class="p-3 rounded-2xl theme-panel border border-emerald-500/30 space-y-1.5 shadow-sm">
+      c.innerHTML = list.slice(0, 12).map(d => `
+        <div class="p-3 rounded-2xl theme-panel border border-emerald-500/30 space-y-1.5 shadow-xs">
           <div class="flex items-center justify-between">
             <strong class="text-xs text-emerald-200">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
             <span class="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">⭐ 5 & 5</span>
@@ -714,8 +781,8 @@
         return;
       }
 
-      c.innerHTML = list.slice(0, 6).map(n => `
-        <div class="p-3 rounded-2xl theme-panel border border-indigo-500/30 flex items-start justify-between gap-3">
+      c.innerHTML = list.slice(0, 8).map(n => `
+        <div class="p-3 rounded-2xl theme-panel border border-indigo-500/30 flex items-start justify-between gap-3 shadow-xs">
           <div class="space-y-1">
             <strong class="text-xs text-white block">${n.item.id}. ${escapeHtml(n.item.title)}</strong>
             <p class="text-[11px] text-indigo-300">
@@ -761,8 +828,8 @@
     function filterDetailItems(q) {
       const query = (q || '').toLowerCase();
       const filtered = cachedDetailItems.filter(d => 
-        d.item.title.toLowerCase().includes(query) || 
-        d.item.desc.toLowerCase().includes(query) ||
+        (d.item.title || '').toLowerCase().includes(query) || 
+        (d.item.desc || '').toLowerCase().includes(query) ||
         String(d.item.id).includes(query)
       );
       renderDetailListUI(filtered);
@@ -777,7 +844,6 @@
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
       const labelColor = isDark ? '#cbd5e1' : '#334155';
 
-      // Mathematisch exakte Berechnung aus den echten Antworten beider Partner (Keine Dummy-Werte!)
       const dimensions = [
         { label: 'Körperzonen', chapters: [1, 12] },
         { label: 'Romantik', chapters: [2, 3] },
@@ -855,7 +921,6 @@
         }
       });
     }
-
     /* TIEFEN-SELBSTPROFIL AUSWERTUNG */
     function renderSelfAnalysis() {
       const uAnswers = answers[selfUser] || {};
@@ -876,12 +941,12 @@
       const statEl = document.getElementById('self-answered-stat');
       if (statEl) statEl.innerText = `${count} von ${totalQuestions || 635} Fragen bewertet`;
 
-      // 5 Säulen dynamisch berechnen anhand relevanter Kapitel
+      // 5 Säulen dynamisch berechnen
       let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
       let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
 
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           const v1 = uAnswers[`it_${it.id}_r1`];
           const v2 = uAnswers[`it_${it.id}_r2`];
           const addScore = (val) => {
@@ -907,7 +972,7 @@
       let highs = [];
       let tabus = [];
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           const r1 = uAnswers[`it_${it.id}_r1`];
           const r2 = uAnswers[`it_${it.id}_r2`];
           if (r1 === 5) highs.push(`${it.title} (Aktiv: ${it.r1})`);
@@ -1021,7 +1086,6 @@
         }
       });
     }
-
     function showToast(msg) {
       const t = document.getElementById('toast');
       if (!t) return;
@@ -1042,7 +1106,12 @@
         .replace(/'/g, '&#39;');
     }
 
-    window.addEventListener('DOMContentLoaded', initAnalysisApp);
+    window.addEventListener('DOMContentLoaded', () => {
+      const isUnlocked = checkSiteLockscreen();
+      if (isUnlocked) {
+        initAnalysisApp();
+      }
+    });
   </script>
 </body>
 </html>
