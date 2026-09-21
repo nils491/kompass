@@ -2,7 +2,7 @@
 <html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Session-Begleiter & Interaktives Regiebuch</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -50,8 +50,19 @@
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
     }
     
+    /* iOS Safari Auto-Zoom Fix bei Inputs & Selects */
+    @media screen and (max-width: 640px) {
+      select, input[type="text"], textarea {
+        font-size: 16px !important;
+      }
+    }
+
     html.dark body {
       background-color: #05070c !important;
       color: #f8fafc !important;
@@ -114,19 +125,8 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
   <!-- NOTFALL-OVERLAY BEI ROT (Display wird zur sanften Notbeleuchtung) -->
-  <div id="emergency-overlay" class="hidden fixed inset-0 z-[100] bg-[#fffbf2] text-slate-900 p-6 flex flex-col justify-between overflow-y-auto animate-fade-in">
-    <div class="space-y-4 max-w-xl mx-auto w-full pt-4">
-      <div class="flex items-center justify-between border-b-2 border-red-600 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-3xl">🛑</span>
-          <div>
-            <h2 class="text-xl sm:text-2xl font-black text-red-700 tracking-tight leading-none">ROT: SOFORT-STOPP</h2>
-            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Session abgebrochen • Notfall-Licht aktiv</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl space-y-2">
+  <div id="emergency-overlay" class="hidden fixed inset-0 z-[100] bg-[#fffbf2] text-slate-900 p-4 sm:p-6 flex flex-col justify-between overflow-y-auto animate-fade-in pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
+    <div class="space-y-4 max-w-xl mx-auto w-full pt-2">
         <strong class="text-sm text-amber-950 block">💡 Dein Bildschirm dient jetzt als Notfall-Lampe:</strong>
         <p class="text-xs text-amber-900 leading-relaxed">
           Nutze das sanfte Licht, um Sicherheits-Cutter, Schlüssel oder Knoten sofort zu finden.
@@ -174,9 +174,37 @@
     </div>
   </div>
 
-  <!-- DISKRETER PRIVATSPHÄRE-BLACKOUT (Bei Klopfen an der Tür) -->
+  <!-- DISKRETER PRIVATSPHÄRE-BLACKOUT -->
   <div id="quick-blackout-curtain" onclick="toggleQuickBlackout()" class="hidden fixed inset-0 z-[120] bg-black flex flex-col items-center justify-center cursor-pointer">
     <span class="text-xs text-neutral-800 font-mono">Tippen zum Enttarnen</span>
+  </div>
+
+  <!-- MODAL: GEMEINSAME TABU-LISTE (HARD LIMITS NOTE 1) -->
+  <div id="modal-session-tabus" class="hidden fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+    <div class="max-w-lg w-full session-card p-5 rounded-3xl border border-rose-500/40 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-rose-500/30 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⛔</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-rose-300">Gemeinsame Tabu- & No-Go-Liste</h3>
+            <span class="text-[10.5px] text-slate-400">Absolute Schutzgrenzen (Note 1 im Fragebogen)</span>
+          </div>
+        </div>
+        <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Diese Praktiken wurden von mindestens einem von euch mit <strong>Note 1</strong> bewertet und sind für jede Session streng ausgeschlossen:
+      </p>
+
+      <div id="session-tabus-list-container" class="space-y-2 max-h-[55vh] overflow-y-auto pr-1 text-xs"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition">
+          Verstanden & Schließen
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- AKTIVES FARB-CHECK-IN OVERLAY -->
@@ -228,7 +256,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
             <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
             <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+            <circle cx="12" cy="1.5" fill="#f43f5e" />
           </svg>
         </div>
         <div>
@@ -237,8 +265,11 @@
         </div>
       </div>
 
-      <!-- Quick Controls: Blackout, Audio, OLED, Theme, Kompass -->
+      <!-- Quick Controls: Tabus, Blackout, Audio, OLED, Theme, Kompass -->
       <div class="flex items-center space-x-1.5">
+        <button onclick="openSessionTabuModal()" class="px-2.5 py-1.5 bg-rose-950/50 hover:bg-rose-900/70 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/60 flex items-center gap-1 transition" title="Gemeinsame Tabus & Grenzen anzeigen">
+          <span>⛔</span> <span class="hidden sm:inline">Tabus</span> (<span id="session-tabu-count">0</span>)
+        </button>
         <button onclick="toggleQuickBlackout()" class="p-2 rounded-xl session-panel border text-xs font-bold transition text-slate-400 hover:text-white" title="Diskreter Sofort-Blackout (Tarnung)">
           <span>👁️‍🗨️</span>
         </button>
@@ -261,9 +292,12 @@
   <!-- HAUPTBEREICH -->
   <main class="max-w-4xl mx-auto p-3 sm:p-5 w-full flex-1 space-y-4">
 
-    <!-- HAUPT-TABS -->
+    <!-- AUFGERÄUMTE HAUPT-TABS (Freier Flow als Standard) -->
     <div class="grid grid-cols-4 gap-1.5 p-1 session-panel rounded-2xl border text-xs font-bold">
-      <button onclick="switchTab('guide')" id="tab-guide" class="py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
+      <button onclick="switchTab('free')" id="tab-free" class="py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
+        <span>🕯️</span> <span class="truncate">Freier Flow</span>
+      </button>
+      <button onclick="switchTab('guide')" id="tab-guide" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>📖</span> <span class="truncate">Regiebuch</span>
       </button>
       <button onclick="switchTab('config')" id="tab-config" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
@@ -272,185 +306,241 @@
       <button onclick="switchTab('punish')" id="tab-punish" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>⚖️</span> <span class="truncate">Strafen</span>
       </button>
-      <button onclick="switchTab('safety')" id="tab-safety" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
-        <span>🛑</span> <span class="truncate">Ampel & Timer</span>
+    </div>
+
+    <!-- VIEW 0: FREIER FLOW (ALL-IN-ONE SCHLAFZIMMER-ZENTRALE) -->
+    <section id="view-free" class="space-y-3.5">
+      
+      <!-- HAUPT-TIMER & SCHNELLE STEUERUNG -->
+      <div class="session-card p-4 rounded-3xl border shadow-sm space-y-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <button onclick="toggleTimer()" id="free-timer-toggle-btn" class="w-12 h-12 rounded-2xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-lg font-black transition shadow-lg touch-pill">
+              ▶
+            </button>
+            <div>
+              <span class="text-3xl sm:text-4xl font-mono font-black text-brand-400 leading-none block" id="free-timer-display">45:00</span>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-xs text-slate-400" id="free-timer-elapsed-info">Verstrichen: 0 Min.</span>
+                <span id="free-wake-lock-status" class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700">Display: Auto</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schnelle Dauer-Wahl & Verlängerungen -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+            <button onclick="startTimer(45)" id="btn-free-dur-45" class="px-3 py-2 rounded-xl bg-brand-700 text-white border border-brand-600 touch-target-48 flex items-center justify-center">45m</button>
+            <button onclick="startTimer(75)" id="btn-free-dur-75" class="px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">75m</button>
+            <button onclick="startTimer(120)" id="btn-free-dur-120" class="px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">120m</button>
+            <div class="w-px h-6 bg-slate-700 mx-0.5"></div>
+            <button onclick="extendTimer(15)" class="px-3 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="15 Min. verlängern">+15m</button>
+            <button onclick="extendTimer(30)" class="px-3 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">+30m</button>
+            <button onclick="finishSessionGently()" class="px-3.5 py-2 rounded-xl bg-teal-950/70 hover:bg-teal-900 border border-teal-700 text-teal-300 font-bold transition touch-pill flex items-center gap-1.5" title="Friedlich beenden & direkt ins Aftercare">
+              <span>✨</span> <span>Sanft beenden</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- DIGITALE GROSSFLÄCHEN-AMPEL (Sofortige Bedienung ohne Tab-Wechsel) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Farb-Ampel & Sicherheits-Stopp:</span>
+            <span class="text-[10.5px] text-slate-400" id="free-checkin-preference-note">Präferenz: Lade...</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2.5 h-24 sm:h-28">
+            <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48 touch-pill">
+              <span class="text-2xl sm:text-3xl">🟢</span>
+              <span>GRÜN</span>
+              <span class="text-[9.5px] font-normal opacity-85">Alles super</span>
+            </button>
+            <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48 touch-pill">
+              <span class="text-2xl sm:text-3xl">🟡</span>
+              <span>GELB</span>
+              <span class="text-[9.5px] font-normal opacity-85">Pause / Sanfter</span>
+            </button>
+            <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition touch-target-48 touch-pill">
+              <span class="text-2xl sm:text-3xl">🔴</span>
+              <span>ROT</span>
+              <span class="text-[9.5px] font-normal opacity-95">NOTFALL-STOPP</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AMPEL-CHECK-IN EINSTELLUNGEN & SCHNELLWECHSEL -->
+        <div class="session-panel p-2.5 sm:p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🚦</span>
+  <!-- HEADER (Mobile & Tablet optimiert) -->
+  <header class="border-b session-card/90 backdrop-blur-md px-2.5 sm:px-4 py-2 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+      <div class="flex items-center space-x-2 min-w-0">
+        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg shadow-brand-950/40 p-1.5 flex-shrink-0">
+          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
+            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
+            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-xs sm:text-sm font-black tracking-tight leading-tight truncate">Session-Begleiter</h1>
+          <span class="text-[9.5px] sm:text-[10px] text-slate-400 block truncate" id="active-pair-display">Lade Profile...</span>
+        </div>
+      </div>
+
+      <!-- Quick Controls: Tabus, Blackout, Audio, OLED, Theme, Kompass -->
+      <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+        <button onclick="openTabuModal()" class="px-2 py-1.5 sm:px-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-bold text-[11px] transition flex items-center gap-1" title="Gemeinsame Tabus (Note 1)">
+          <span>⛔</span> <span id="header-tabu-badge" class="font-mono font-black">0</span>
+        </button>
+        <button onclick="toggleQuickBlackout()" class="p-1.5 sm:p-2 rounded-xl session-panel border text-xs font-bold transition text-slate-400 hover:text-white" title="Diskreter Sofort-Blackout (Tarnung)">
+          <span>👁️‍🗨️</span>
+        </button>
+        <button onclick="toggleAudioSound()" id="btn-audio-toggle" class="p-1.5 sm:p-2 rounded-xl session-panel border text-xs font-bold transition" title="Klangschalen-Gong ein/ausschalten">
+          <span id="audio-icon">🔔</span>
+        </button>
+        <button onclick="toggleOledMode()" id="btn-oled-toggle" class="p-1.5 sm:p-2 rounded-xl session-panel border text-xs font-bold transition hidden xs:inline-flex" title="OLED True Black (Pitch Black)">
+          <span>🖤</span>
+        </button>
+        <button onclick="toggleGlobalTheme()" id="btn-theme-toggle" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl session-panel border text-[11px] font-bold transition flex items-center gap-1" title="Design umschalten">
+          <span id="session-theme-icon">🌙</span> <span class="hidden md:inline" id="session-theme-text">Nacht</span>
+        </button>
+        <a href="index.html" class="px-2 sm:px-3 py-1.5 rounded-xl session-panel hover:border-brand-700 border text-xs font-bold transition flex items-center gap-1">
+          ← <span class="hidden sm:inline">Kompass</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HAUPTBEREICH -->
+  <main class="max-w-4xl mx-auto p-2.5 sm:p-5 w-full flex-1 space-y-3.5 pb-8">
+
+    <!-- HAUPT-TABS (Optimiert für Smartphone & Tablet) -->
+    <div class="grid grid-cols-4 gap-1 p-1 session-panel rounded-2xl border text-[11px] sm:text-xs font-bold">
+      <button onclick="switchTab('free')" id="tab-free" class="py-2 sm:py-2.5 px-1 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48">
+        <span class="text-sm sm:text-base">🕯️</span> <span class="truncate">Freier Flow</span>
+      </button>
+      <button onclick="switchTab('guide')" id="tab-guide" class="py-2 sm:py-2.5 px-1 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48">
+        <span class="text-sm sm:text-base">📖</span> <span class="truncate">Regiebuch</span>
+      </button>
+      <button onclick="switchTab('config')" id="tab-config" class="py-2 sm:py-2.5 px-1 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48">
+        <span class="text-sm sm:text-base">✨</span> <span class="truncate">Szenen-Plan</span>
+      </button>
+      <button onclick="switchTab('punish')" id="tab-punish" class="py-2 sm:py-2.5 px-1 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 touch-target-48">
+        <span class="text-sm sm:text-base">⚖️</span> <span class="truncate">Strafen</span>
       </button>
     </div>
 
-    <!-- KOMPAKTE PERSISTENTE SESSION-ZEITLEISTE (Mit sanftem Beenden) -->
-    <div class="session-card p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2.5 shadow-sm">
-      <div class="flex items-center gap-2.5">
-        <button onclick="toggleTimer()" id="mini-timer-btn" class="w-10 h-10 rounded-xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-sm font-black transition touch-pill">
-          ▶
-        </button>
-        <div>
-          <span class="text-xl sm:text-2xl font-mono font-black text-brand-400 leading-none block" id="timer-display">45:00</span>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-[10px] text-slate-400" id="timer-elapsed-info">Verstrichen: 0 Min.</span>
-            <span id="wake-lock-status" class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700">Display: Auto</span>
+    <!-- VIEW 0: FREIER FLOW (Zentrale für freie Sessions ohne Playbook-Zwang) -->
+    <section id="view-free" class="space-y-3">
+
+      <!-- Großer zentraler Timer & Zeitleiste -->
+      <div class="session-card p-4 sm:p-6 rounded-3xl border space-y-4 shadow-lg text-center">
+        <div class="space-y-1">
+          <span class="text-[10px] font-black uppercase tracking-widest text-brand-400 bg-brand-500/10 px-2.5 py-0.5 rounded-full border border-brand-500/20">
+            Aktive Session
+          </span>
+          <div class="flex items-center justify-center gap-3 pt-1">
+            <span class="text-5xl sm:text-7xl font-mono font-black text-white tracking-tight" id="timer-display-main">45:00</span>
+          </div>
+          <div class="flex items-center justify-center gap-2 pt-1 text-xs text-slate-400">
+            <span id="timer-elapsed-info-main">Verstrichen: 0 Min.</span>
+            <span>•</span>
+            <span id="wake-lock-status-main" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-800 text-slate-300 border border-slate-700">Display: Auto</span>
+          </div>
+        </div>
+
+        <!-- Timer Controls: Start/Pause, Dauern, Verlängerung & Sanftes Beenden -->
+        <div class="space-y-2.5 max-w-lg mx-auto w-full">
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="toggleTimer()" id="main-timer-toggle-btn" class="col-span-4 py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white text-sm sm:text-base font-black transition shadow-lg touch-pill flex items-center justify-center gap-2">
+              <span id="main-play-icon">▶</span> <span id="main-play-text">Session starten</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
+            <button onclick="startTimer(45)" id="btn-main-dur-45" class="py-2.5 rounded-xl bg-brand-700 border border-brand-600 text-white touch-target-48">45 Min.</button>
+            <button onclick="startTimer(75)" id="btn-main-dur-75" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">75 Min.</button>
+            <button onclick="startTimer(120)" id="btn-main-dur-120" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white touch-target-48">120 Min.</button>
+          </div>
+
+          <div class="flex items-center justify-between gap-1.5 pt-1 text-xs font-bold">
+            <button onclick="extendTimer(15)" class="flex-1 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="15 Min. verlängern">
+              +15m
+            </button>
+            <button onclick="extendTimer(30)" class="flex-1 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">
+              +30m
+            </button>
+            <button onclick="finishSessionGently()" class="flex-[1.4] py-2 rounded-xl bg-teal-950/70 hover:bg-teal-900 border border-teal-700 text-teal-300 font-bold transition touch-pill flex items-center justify-center gap-1" title="Friedlicher Übergang ins Aftercare">
+              <span>✨</span> <span>Sanft beenden</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Schnelle Dauer-Wahl, Verlängerung & Sanftes Beenden -->
-      <div class="flex items-center gap-1.5 text-xs font-bold">
-        <button onclick="startTimer(45)" id="btn-dur-45" class="px-2.5 py-2 rounded-xl session-panel border text-white touch-target-48 flex items-center justify-center">45m</button>
-        <button onclick="startTimer(75)" id="btn-dur-75" class="px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">75m</button>
-        <button onclick="startTimer(120)" id="btn-dur-120" class="px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">120m</button>
-        <div class="w-px h-6 bg-slate-700 mx-0.5"></div>
-        <button onclick="extendTimer(15)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="15 Min. verlängern">
-          +15m
-        </button>
-        <button onclick="extendTimer(30)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">
-          +30m
-        </button>
-        <button onclick="finishSessionGently()" class="px-3 py-2 rounded-xl bg-teal-950/70 hover:bg-teal-900 border border-teal-700 text-teal-300 font-bold transition touch-pill flex items-center gap-1" title="Session friedlich beenden & direkt ins Kuscheln / Aftercare wechseln">
-          <span>✨</span> <span class="hidden sm:inline">Sanft beenden</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- KONFIGURATION: FARB-CHECK-IN INTERVALL -->
-    <div class="session-panel p-2.5 sm:p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs">
-      <div class="flex items-center gap-2">
-        <span class="text-base">🚦</span>
-        <div>
-          <span class="font-bold text-white block text-[11px] sm:text-xs">Aktive Ampel-Abfragen (Farb-Check-ins)</span>
-          <span class="text-[10px] text-slate-400" id="checkin-source-hint">Lade Profil-Präferenzen...</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-1.5">
-        <select id="checkin-interval-select" onchange="updateCheckInInterval(this.value)" class="session-card border border-slate-700 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-slate-200 focus:outline-none focus:border-brand-500">
-          <option value="0">❌ Deaktiviert (Nur Safeword)</option>
-          <option value="10">⏱️ Alle 10 Min.</option>
-          <option value="15" selected>⏱️ Alle 15 Min.</option>
-          <option value="20">⏱️ Alle 20 Min.</option>
-          <option value="phase">📑 Nur bei Phasenwechsel</option>
-        </select>
-        <button onclick="triggerManualCheckIn()" class="px-2.5 py-1.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-[11px] font-bold transition touch-pill" title="Jetzt sofort Farbe abfragen">
-          Jetzt abfragen
-        </button>
-      </div>
-    </div>
-
-    <!-- VIEW 1: INTERAKTIVES SCHRITT-FÜR-SCHRITT REGIEBUCH -->
-    <section id="view-guide" class="space-y-3">
-      
-      <!-- Stepper / Paginierungs-Kopf -->
-      <div class="session-card p-3 rounded-2xl border space-y-2.5">
+      <!-- Großes Ampelsystem für blinde Bedienung (Blind Touch) -->
+      <div class="session-card p-3.5 sm:p-4 rounded-3xl border space-y-2 shadow-sm">
         <div class="flex items-center justify-between text-xs">
-          <div class="flex items-center gap-1.5">
-            <span class="px-2 py-0.5 rounded text-[10px] font-black bg-brand-500/20 text-brand-300 border border-brand-500/30 uppercase tracking-wider" id="guide-step-badge">
-              Schritt 1 von 4
-            </span>
-            <strong class="text-slate-200 font-bold" id="guide-step-name">Vorbereitung & Safeword-Check</strong>
-          </div>
-          <span class="text-[11px] font-mono text-slate-400" id="guide-phase-time-allocated">ca. 9 Min.</span>
+          <strong class="text-white font-bold flex items-center gap-1.5">
+            <span>🚦</span> Sicherheits-Ampel (Großtasten)
+          </strong>
+          <span class="text-[10px] text-slate-400">Sofort erreichbar</span>
         </div>
 
-        <!-- 4-Phasen Stepper Leiste -->
-        <div class="grid grid-cols-4 gap-1.5">
-          <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600">
-            1. Ankommen
+        <div class="grid grid-cols-3 gap-2 sm:gap-2.5 h-28 sm:h-32">
+          <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-white shadow-lg transition touch-target-48 touch-pill">
+            <span class="text-2xl sm:text-3xl">🟢</span>
+            <span class="text-xs sm:text-sm font-black mt-0.5">GRÜN</span>
+            <span class="text-[9px] font-normal opacity-85">Alles super</span>
           </button>
-          <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
-            2. Sensorik
+          <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-white shadow-lg transition touch-target-48 touch-pill">
+            <span class="text-2xl sm:text-3xl">🟡</span>
+            <span class="text-xs sm:text-sm font-black mt-0.5">GELB</span>
+            <span class="text-[9px] font-normal opacity-85">Pause / Sanfter</span>
           </button>
-          <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
-            3. Hauptakt
-          </button>
-          <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
-            4. Aftercare
+          <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-white shadow-lg pulse-glow transition touch-target-48 touch-pill">
+            <span class="text-2xl sm:text-3xl">🔴</span>
+            <span class="text-xs sm:text-sm font-black mt-0.5">ROT</span>
+            <span class="text-[9px] font-normal opacity-95">NOTFALL-STOPP</span>
           </button>
         </div>
       </div>
 
-      <!-- SCHRITT-INHALTE -->
-      <div id="guide-card-content" class="session-card p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm min-h-[320px] flex flex-col justify-between">
+      <!-- Ampel-Check-in Steuerung & Schnelle Aktionen -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         
-        <div class="space-y-3.5">
-          <div class="flex justify-between items-start gap-2 border-b border-slate-800 pb-2.5">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="phase-category-tag">Phase 1</span>
-              <h2 class="text-base sm:text-lg font-extrabold text-white mt-0.5" id="phase-title">Raumklima, Ruhe & Safeword-Vereinbarung</h2>
-            </div>
-            <span class="text-xs px-2.5 py-1 rounded-xl session-panel text-slate-300 font-mono font-bold" id="phase-calc-time">9 Min.</span>
-          </div>
-
-          <!-- Dialog- & Regie-Hinweis -->
-          <div class="p-3 bg-brand-950/30 border border-brand-800/40 rounded-xl text-xs space-y-1">
-            <strong class="text-brand-300 text-[11px] block">🗣️ Regie-Impuls für den Führenden:</strong>
-            <p class="text-slate-300 italic" id="phase-prompt-quote">
-              „Wir haben heute alle Zeit der Welt. Atme tief durch und lass alle Gedanken an den Tag draußen vor der Tür.“
-            </p>
-          </div>
-
-          <!-- Interaktive Checkliste -->
-          <div class="space-y-2" id="phase-checkpoints-container"></div>
-
-          <!-- Dynamisch eingebettete Matches/Strafen in Phase 3 -->
-          <div id="phase-dynamic-injection" class="hidden pt-1 space-y-2"></div>
-
-          <!-- PHASE 4: 2-MINUTEN DE-BRIEFING TRACKER (Erscheint in Aftercare) -->
-          <div id="debriefing-box" class="hidden p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3 text-xs">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs sm:text-sm font-bold flex items-center gap-1.5">
-                <span>📝</span> 2-Minuten De-Briefing & Session-Tagebuch
-              </strong>
-              <span class="text-[10px] font-bold text-indigo-300 bg-indigo-900/60 px-2 py-0.5 rounded">Lokal gespeichert</span>
-            </div>
-
-            <p class="text-slate-300 text-[11px] leading-relaxed">
-              Nehmt euch 2 Minuten im Kuschelnest: Wie intensiv war es heute für euch beide?
-            </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-1">
-                <div class="flex justify-between font-bold text-indigo-300 text-[11px]">
-                  <span id="debrief-name-A">Partner 1:</span>
-                  <span id="debrief-val-A">7 / 10</span>
-                </div>
-                <input type="range" min="1" max="10" value="7" oninput="updateDebriefVal('A', this.value)" class="w-full accent-indigo-500">
-              </div>
-
-              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-1">
-                <div class="flex justify-between font-bold text-purple-300 text-[11px]">
-                  <span id="debrief-name-B">Partner 2:</span>
-                  <span id="debrief-val-B">8 / 10</span>
-                </div>
-                <input type="range" min="1" max="10" value="8" oninput="updateDebriefVal('B', this.value)" class="w-full accent-purple-500">
-              </div>
-            </div>
-
-            <textarea id="debrief-notes-input" placeholder="Kurze Randnotiz (z. B. 'Die Juteseile am Rücken waren magisch, nächstes Mal noch sanfter anfangen')..." class="w-full p-2.5 rounded-xl session-panel border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500 h-16 resize-none"></textarea>
-
-            <button onclick="saveSessionDebriefing()" class="w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs transition touch-pill">
-              💾 Eintrag ins Paar-Tagebuch speichern
+        <!-- Check-in Intervall -->
+        <div class="session-panel p-3 rounded-2xl border space-y-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white font-bold flex items-center gap-1 text-[11px] sm:text-xs">
+              <span>⏱️</span> Ampel-Abfragen
+            </strong>
+            <button onclick="triggerManualCheckIn()" class="text-[10.5px] text-brand-400 hover:underline font-bold">
+              Jetzt abfragen ↗
             </button>
-
-            <!-- Bisherige Einträge -->
-            <div id="past-debriefings-list" class="space-y-1.5 pt-1 text-[11px]"></div>
           </div>
+          <select id="checkin-interval-select" onchange="updateCheckInInterval(this.value)" class="w-full session-card border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:border-brand-500">
+            <option value="0">❌ Deaktiviert (Nur Safeword)</option>
+            <option value="10">⏱️ Alle 10 Min. abfragen</option>
+            <option value="15" selected>⏱️ Alle 15 Min. abfragen</option>
+            <option value="20">⏱️ Alle 20 Min. abfragen</option>
+            <option value="phase">📑 Nur bei Phasenwechsel</option>
+          </select>
+          <span class="text-[9.5px] text-slate-400 block" id="checkin-source-hint">Lade Profil-Präferenzen...</span>
         </div>
 
-        <!-- Paginierungs-Tasten unten -->
-        <div class="flex justify-between items-center pt-3 border-t border-slate-800 mt-2">
-          <button onclick="prevPhase()" id="btn-guide-prev" class="px-4 py-2.5 rounded-xl session-panel hover:border-slate-500 border text-xs font-bold transition disabled:opacity-30 disabled:pointer-events-none touch-target-48">
-            ← Vorheriger Schritt
-          </button>
-          
-          <div class="flex items-center gap-1.5">
-            <button onclick="triggerQuickImpulse()" id="btn-guide-impulse" class="hidden px-3.5 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 border border-amber-800 text-amber-200 text-xs font-bold transition touch-target-48">
-              🎲 Reiz-Impuls
+        <!-- Spontane Reize & Strafen -->
+        <div class="session-panel p-3 rounded-2xl border space-y-1.5 text-xs flex flex-col justify-between">
+          <strong class="text-white font-bold block text-[11px] sm:text-xs">⚡ Spontane Impulse aus euren Matches:</strong>
+          <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+            <button onclick="triggerQuickImpulse()" class="py-2 px-2 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-800 text-amber-200 text-[11px] font-bold transition touch-pill flex items-center justify-center gap-1">
+              <span>🎲</span> <span>Reiz-Impuls</span>
             </button>
-            <button onclick="switchTab('punish')" id="btn-guide-quick-punish" class="hidden px-3.5 py-2.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-xs font-bold transition touch-target-48">
-              ⚖️ Strafe einweben
-            </button>
-            <button onclick="nextPhase()" id="btn-guide-next" class="px-5 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white text-xs font-bold transition shadow-sm touch-pill touch-target-48">
-              Nächster Schritt →
+            <button onclick="switchTab('punish')" class="py-2 px-2 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 text-[11px] font-bold transition touch-pill flex items-center justify-center gap-1">
+              <span>⚖️</span> <span>Strafe wählen</span>
             </button>
           </div>
+          <span class="text-[9.5px] text-slate-400 block truncate">Zieht live geprüfte Doppel-5er oder Note-2 Duldungen heran.</span>
         </div>
 
       </div>
@@ -578,44 +668,11 @@
       <div class="space-y-2" id="punish-results-container"></div>
     </section>
 
-    <!-- VIEW 4: SICHERHEIT & TIMER -->
-    <section id="view-safety" class="space-y-3 hidden">
-      <div class="space-y-2">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Großfläche für blinde Bedienung):</span>
-        <div class="grid grid-cols-3 gap-2.5 h-28">
-          <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48">
-            <span class="text-3xl">🟢</span>
-            <span>GRÜN</span>
-            <span class="text-[9.5px] font-normal opacity-85">Alles bestens</span>
-          </button>
-          <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48">
-            <span class="text-3xl">🟡</span>
-            <span>GELB</span>
-            <span class="text-[9.5px] font-normal opacity-85">Pause / Sanfter</span>
-          </button>
-          <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition touch-target-48">
-            <span class="text-3xl">🔴</span>
-            <span>ROT</span>
-            <span class="text-[9.5px] font-normal opacity-95">NOTFALL-STOPP</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="p-4 session-card rounded-2xl border space-y-3">
-        <strong class="text-xs font-bold block">Sicherheits-Leitplanken bei Fesseln & Knebeln:</strong>
-        <div class="text-[11px] text-slate-300 space-y-1.5 leading-relaxed">
-          <p>• <strong>Handdrück-Code:</strong> 2× fest drücken = Weiter. 3× schnell drücken = Pause/Sanfter. Hand loslassen = Sofortstopp.</p>
-          <p>• <strong>Drop-Tuch:</strong> Bei Knebelung hält der Passive ein Tuch in der Faust. Fällt es zu Boden, bricht die Session sofort ab.</p>
-          <p>• <strong>15-Minuten-Check:</strong> Bei jedem Gongton Fingerfarbe und Temperatur prüfen.</p>
-        </div>
-      </div>
-    </section>
-
   </main>
 
   <!-- FOOTER -->
   <footer class="border-t session-card px-4 py-2.5 text-center text-[10px] text-slate-500">
-    🔒 Synchronisiert mit dem lokalen Beziehungs-Kompass. Screen-Lock & Gong aktiv.
+    🔒 Synchronisiert mit dem lokalen Beziehungs-Kompass. Screen-Lock, Gong & Tabu-Schutz aktiv.
   </footer>
 
   <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
@@ -624,6 +681,7 @@
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
 
+  <!-- JAVASCRIPT-LOGIK -->
   <script>
     let subPartner = 'B';
     let currentPunishLvl = 'mittel';
@@ -632,6 +690,7 @@
     let sessionTotalMinutes = 45;
     let sessionElapsedSeconds = 0;
     let currentPhase = 1;
+    let activeTabId = 'free';
     let wakeLockInstance = null;
     let isSoundEnabled = true;
     let audioCtx = null;
@@ -714,9 +773,11 @@
       restoreSessionSnapshot();
       updateNamesDisplay();
       detectCheckInPreferenceFromSurvey();
+      updateSessionTabuBadge();
       renderPhaseUI();
       renderPunishments();
       renderPastDebriefings();
+      updateTimerDisplay();
     }
 
     function loadStorageData() {
@@ -808,6 +869,79 @@
       if (lEB) lEB.innerText = `${names.B}:`;
     }
 
+    /* GEMEINSAME TABUS: MODAL & ANZEIGE */
+    function getSharedTaboosList() {
+      const allChapters = window.surveyChapters || [];
+      const tabooItems = [];
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
+          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
+          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
+
+          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
+            let who = [];
+            if (aR1 === 1 || aR2 === 1) who.push(names.A);
+            if (bR1 === 1 || bR2 === 1) who.push(names.B);
+            tabooItems.push({
+              item: it,
+              category: ch.title.split('(')[0].trim(),
+              who: who.join(' & ')
+            });
+          }
+        });
+      });
+
+      return tabooItems;
+    }
+
+    function updateSessionTabuBadge() {
+      const taboos = getSharedTaboosList();
+      const badge = document.getElementById('session-tabu-count');
+      if (badge) badge.innerText = taboos.length;
+    }
+
+    function openSessionTabuModal() {
+      const taboos = getSharedTaboosList();
+      const container = document.getElementById('session-tabus-list-container');
+      const modal = document.getElementById('modal-session-tabus');
+
+      if (container) {
+        if (taboos.length === 0) {
+          container.innerHTML = `
+            <div class="p-4 rounded-2xl session-panel border text-center space-y-1">
+              <span class="text-xl">✨</span>
+              <strong class="text-xs text-white block">Keine absoluten Tabus (Note 1) hinterlegt</strong>
+              <p class="text-[11px] text-slate-400">Beide Partner haben bisher keine Praktiken mit Note 1 blockiert.</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = taboos.map(t => `
+            <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900/50 space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <strong class="text-xs text-rose-200">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+                <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-rose-900/60 text-rose-200 border border-rose-700">
+                  Limit von ${escapeHtml(t.who)}
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(t.item.desc)}</p>
+              <span class="text-[10px] text-slate-400 block pt-0.5 font-semibold">Kategorie: ${escapeHtml(t.category)}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSessionTabuModal() {
+      document.getElementById('modal-session-tabus')?.classList.add('hidden');
+    }
+
+    /* SCREEN WAKE LOCK */
     async function requestWakeLock() {
       try {
         if ('wakeLock' in navigator) {
@@ -832,17 +966,19 @@
     }
 
     function updateWakeLockUI(isActive) {
-      const el = document.getElementById('wake-lock-status');
-      if (!el) return;
-      if (isActive) {
-        el.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
-        el.innerText = "📱 Display: Dauerhaft an";
-      } else {
-        el.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700";
-        el.innerText = "📱 Display: Auto";
+      const elFree = document.getElementById('free-wake-lock-status');
+      if (elFree) {
+        if (isActive) {
+          elFree.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+          elFree.innerText = "📱 Display: Dauerhaft an";
+        } else {
+          elFree.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700";
+          elFree.innerText = "📱 Display: Auto";
+        }
       }
     }
 
+    /* WEB AUDIO SYNTHESIS: 432-HZ KLANGSCHALEN-GONG */
     function playHarmonicGong(pitchMultiplier = 1) {
       if (!isSoundEnabled) return;
 
@@ -860,7 +996,6 @@
 
         const now = audioCtx.currentTime;
         const baseFreq = 432 * pitchMultiplier;
-
         const harmonics = [1, 2.02, 3.01];
         const gains = [0.4, 0.2, 0.1];
 
@@ -898,12 +1033,14 @@
       }
     }
 
+    /* SESSION PERSISTENCE VIA SESSIONSTORAGE */
     function saveSessionSnapshot() {
       const snap = {
         timerRemaining,
         sessionTotalMinutes,
         sessionElapsedSeconds,
         currentPhase,
+        activeTabId,
         subPartner,
         currentPunishLvl,
         checkInIntervalSetting,
@@ -924,6 +1061,7 @@
 
         sessionTotalMinutes = snap.sessionTotalMinutes || 45;
         currentPhase = snap.currentPhase || 1;
+        activeTabId = snap.activeTabId || 'free';
         subPartner = snap.subPartner || 'B';
         currentPunishLvl = snap.currentPunishLvl || 'mittel';
         checkInIntervalSetting = snap.checkInIntervalSetting || '15';
@@ -931,8 +1069,8 @@
         executedActions = snap.executedActions || [];
         if (snap.phaseConfig) phaseConfig = snap.phaseConfig;
 
-        const sel = document.getElementById('checkin-interval-select');
-        if (sel) sel.value = checkInIntervalSetting;
+        const selFree = document.getElementById('free-checkin-select');
+        if (selFree) selFree.value = checkInIntervalSetting;
 
         if (snap.targetEndTime && snap.targetEndTime > Date.now()) {
           const remainingSec = Math.round((snap.targetEndTime - Date.now()) / 1000);
@@ -944,18 +1082,21 @@
           sessionElapsedSeconds = snap.sessionElapsedSeconds || 0;
         }
 
-        updateTimerDisplay();
+        switchTab(activeTabId);
       } catch (e) {
         console.warn('Session-Snapshot konnte nicht wiederhergestellt werden', e);
       }
     }
 
-    /* AUTOMATISCHE PRÄFERENZ-ERKENNUNG AUS DEM FRAGEBOGEN */
+    /* FRAGEBOGEN-KOPPLUNG: AMPEL & CHECK-IN */
     function detectCheckInPreferenceFromSurvey() {
-      const hint = document.getElementById('checkin-source-hint');
-      const sel = document.getElementById('checkin-interval-select');
+      const hintFree = document.getElementById('free-checkin-reason-hint');
+      const noteFree = document.getElementById('free-checkin-preference-note');
+      const selFree = document.getElementById('free-checkin-select');
+
       if (!answers || (!answers.A && !answers.B)) {
-        if (hint) hint.innerText = "Standard: Alle 15 Minuten aktiv.";
+        if (hintFree) hintFree.innerText = "Standard: Alle 15 Minuten aktiv.";
+        if (noteFree) noteFree.innerText = "Präferenz: Standard (15m)";
         return;
       }
 
@@ -968,40 +1109,51 @@
 
       let detectedVal = '15';
       let reasonText = "Standard: Alle 15 Min.";
+      let shortNote = "Präferenz: 15 Min. Intervall";
 
       if (ampelA === 1 || ampelB === 1) {
         detectedVal = '0';
-        reasonText = "Ampel als Tabu (Note 1) bewertet: Nur Safeword.";
+        reasonText = "Ampel als Tabu (Note 1) bewertet: Nur Safeword aktiv.";
+        shortNote = "Präferenz: Nur Safeword (Ampel Tabu)";
       } else if (choiceA === 'traffic' || choiceB === 'traffic') {
         if (askA >= 4 || askB >= 4) {
           detectedVal = '10';
           reasonText = "Aus Fragebogen (Pos. 485 & 517): 10-Minuten Ampel-Check gewünscht.";
+          shortNote = "Präferenz: 10 Min. Ampel-Check";
         } else {
           detectedVal = '15';
           reasonText = "Aus Fragebogen (Pos. 485): Ampel-Check-in bevorzugt (15 Min).";
+          shortNote = "Präferenz: 15 Min. Ampel-Check";
         }
       } else if (choiceA === 'eyes' || choiceB === 'eyes') {
         detectedVal = '0';
-        reasonText = "Aus Fragebogen (Pos. 485): Vorliebe für intuitiven Blickkontakt / reines Safeword.";
+        reasonText = "Aus Fragebogen (Pos. 485): Blickkontakt / reines Safeword gewünscht.";
+        shortNote = "Präferenz: Reines Safeword";
       } else if (choiceA === 'hand' || choiceB === 'hand') {
         detectedVal = 'phase';
         reasonText = "Aus Fragebogen (Pos. 485): Bevorzugt Handdrücken – Ampel nur bei Phasenwechsel.";
+        shortNote = "Präferenz: Handdrücken / Phasen";
       } else if (askA >= 4 || askB >= 4) {
         detectedVal = '10';
         reasonText = "Aus Fragebogen (Pos. 517): Regelmäßiges Check-in hoch bewertet.";
+        shortNote = "Präferenz: 10 Min. Intervall";
       }
 
       const rawSnap = sessionStorage.getItem('kompass_session_active');
       if (!rawSnap) {
         checkInIntervalSetting = detectedVal;
-        if (sel) sel.value = detectedVal;
+        if (selFree) selFree.value = detectedVal;
       }
-      if (hint) hint.innerText = reasonText;
+      if (hintFree) hintFree.innerText = reasonText;
+      if (noteFree) noteFree.innerText = shortNote;
     }
 
     function updateCheckInInterval(val) {
       checkInIntervalSetting = val;
       lastCheckInElapsed = sessionElapsedSeconds;
+      const selFree = document.getElementById('free-checkin-select');
+      if (selFree) selFree.value = val;
+
       saveSessionSnapshot();
 
       if (val === '0') {
@@ -1044,11 +1196,13 @@
       }
     }
 
+    /* SESSION-BEENDIGUNG & AMPEL */
     function finishSessionGently() {
       pauseTimer();
       releaseWakeLock();
       playHarmonicGong(0.9);
       jumpToPhase(4);
+      switchTab('guide');
       showToast("✨ Session friedlich beendet. Gleitet nun ganz sanft ins Aftercare über.");
     }
 
@@ -1069,11 +1223,14 @@
     function dismissEmergency() {
       document.getElementById('emergency-overlay')?.classList.add('hidden');
       jumpToPhase(4);
+      switchTab('guide');
       showToast("Direkt in Phase 4 (Aftercare) gewechselt. Nehmt euch alle Zeit.");
     }
 
+    /* TAB-NAVIGATION */
     function switchTab(tabId) {
-      ['guide', 'config', 'punish', 'safety'].forEach(t => {
+      activeTabId = tabId;
+      ['free', 'guide', 'config', 'punish'].forEach(t => {
         document.getElementById(`view-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tab-${t}`);
         if (btn) btn.className = "py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
@@ -1084,8 +1241,11 @@
       if (activeBtn) {
         activeBtn.className = "py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
       }
+
+      saveSessionSnapshot();
     }
 
+    /* DYNAMISCHER AFTERCARE GENERATOR */
     function computeDynamicAftercareCheckpoints() {
       const list = [
         "Alle Fesseln, Manschetten und Klammern vollständig lösen",
@@ -1131,6 +1291,7 @@
       return list;
     }
 
+    /* REGIEBUCH PHASEN-UI */
     function renderPhaseUI() {
       const cfg = phaseConfig[currentPhase - 1];
       if (!cfg) return;
@@ -1285,6 +1446,7 @@
       renderPhaseUI();
     }
 
+    /* SZENEN-PLANER EINSTELLUNGEN & KI GENERIERUNG */
     function setConfigIntensity(lvl) {
       configIntensity = lvl;
       ['soft', 'moderate', 'intense'].forEach(l => {
@@ -1503,6 +1665,7 @@ REGELN:
       saveSessionSnapshot();
     }
 
+    /* DE-BRIEFING TAGEBUCH */
     function updateDebriefVal(user, val) {
       const el = document.getElementById(`debrief-val-${user}`);
       if (el) el.innerText = `${val} / 10`;
@@ -1557,6 +1720,7 @@ REGELN:
       } catch (e) {}
     }
 
+    /* STRAFEN-ZENTRALE */
     function setPunishedSub(user) {
       subPartner = user;
       const bA = document.getElementById('btn-sub-A');
@@ -1707,9 +1871,10 @@ REGELN:
 
       showToast(`Eingewoben: ${entry.item.title}`);
       renderPhaseUI();
-      switchTab('guide');
+      switchTab('free');
     }
 
+    /* TIMER ENGINE & INTERVALL-STEUERUNG */
     function startTimer(min) {
       sessionTotalMinutes = min;
       timerRemaining = min * 60;
@@ -1718,12 +1883,12 @@ REGELN:
       renderPhaseUI();
 
       [45, 75, 120].forEach(d => {
-        const btn = document.getElementById(`btn-dur-${d}`);
-        if (btn) {
+        const btnFree = document.getElementById(`btn-free-dur-${d}`);
+        if (btnFree) {
           if (d === min) {
-            btn.className = "px-2.5 py-2 rounded-xl bg-brand-700 border border-brand-600 text-white font-bold touch-target-48 flex items-center justify-center";
+            btnFree.className = "px-3 py-2 rounded-xl bg-brand-700 border border-brand-600 text-white font-bold touch-target-48 flex items-center justify-center";
           } else {
-            btn.className = "px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center";
+            btnFree.className = "px-3 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center";
           }
         }
       });
@@ -1753,8 +1918,8 @@ REGELN:
       if (timerInterval) clearInterval(timerInterval);
       requestWakeLock();
 
-      const btn = document.getElementById('mini-timer-btn');
-      if (btn) btn.innerText = "⏸";
+      const btnFree = document.getElementById('free-timer-toggle-btn');
+      if (btnFree) btnFree.innerText = "⏸";
 
       timerInterval = setInterval(() => {
         sessionElapsedSeconds++;
@@ -1787,8 +1952,8 @@ REGELN:
         clearInterval(timerInterval);
         timerInterval = null;
       }
-      const btn = document.getElementById('mini-timer-btn');
-      if (btn) btn.innerText = "▶";
+      const btnFree = document.getElementById('free-timer-toggle-btn');
+      if (btnFree) btnFree.innerText = "▶";
       releaseWakeLock();
       saveSessionSnapshot();
     }
@@ -1796,12 +1961,14 @@ REGELN:
     function updateTimerDisplay() {
       const m = Math.floor(timerRemaining / 60);
       const s = timerRemaining % 60;
-      const el = document.getElementById('timer-display');
-      if (el) el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+      const elFree = document.getElementById('free-timer-display');
+      if (elFree) elFree.innerText = timeStr;
 
       const elapsedMin = Math.floor(sessionElapsedSeconds / 60);
-      const elInfo = document.getElementById('timer-elapsed-info');
-      if (elInfo) elInfo.innerText = `Verstrichen: ${elapsedMin} Min.`;
+      const elInfoFree = document.getElementById('free-timer-elapsed-info');
+      if (elInfoFree) elInfoFree.innerText = `Verstrichen: ${elapsedMin} Min.`;
     }
 
     function showToast(msg) {
