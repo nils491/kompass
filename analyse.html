@@ -943,6 +943,13 @@
       renderSelfRadar();
     }
 
+    function setSelfBar(id, pct) {
+      const val = document.getElementById(`self-bar-val-${id}`);
+      const fill = document.getElementById(`self-bar-fill-${id}`);
+      if (val) val.innerText = `${pct} %`;
+      if (fill) fill.style.width = `${pct}%`;
+    }
+
     function renderSelfRadar() {
       const canvas = document.getElementById('selfRadarCanvas');
       if (!canvas) return;
