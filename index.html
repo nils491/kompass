@@ -65,9 +65,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
 
-  <!-- ========================================== -->
-  <!-- 1. GLOBALER SPERRBILDSCHIRM (PASSWORT)      -->
-  <!-- ========================================== -->
   <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 text-center space-y-5">
       <div class="w-16 h-16 bg-brand-50 border border-brand-200 text-brand-600 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner">
@@ -80,11 +77,9 @@
         </p>
       </div>
       <div class="space-y-3">
-        <div class="relative">
-          <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
-                 onkeydown="if(event.key==='Enter') verifySitePassword()"
-                 class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold tracking-wider focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-        </div>
+        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
+               onkeydown="if(event.key==='Enter') verifySitePassword()"
+               class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold tracking-wider focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
         <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md shadow-brand-600/20 transition touch-pill">
           Entsperren & Fortfahren
         </button>
@@ -96,13 +91,9 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- 2. STICKY HEADER NAVIGATION                -->
-  <!-- ========================================== -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3 sm:px-6 py-2.5">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
       
-      <!-- Brand & SSC Badge -->
       <div class="flex items-center space-x-2.5">
         <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-500 text-white flex items-center justify-center font-black text-sm shadow-xs">
           🧭
@@ -116,7 +107,6 @@
         </div>
       </div>
 
-      <!-- Navigation Views -->
       <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold overflow-x-auto">
         <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition">
           📝 Fragebogen
@@ -130,9 +120,8 @@
         </button>
       </nav>
 
-      <!-- Action Buttons -->
       <div class="flex items-center gap-1.5">
-        <a href="session.html" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/30 flex items-center gap-1 transition" title="In-Scene Begleiter & Strafen">
+        <a href="session.html" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-800 font-bold rounded-xl text-xs border border-rose-300 flex items-center gap-1 transition" title="In-Scene Begleiter & Strafen">
           <span>🕯️</span> <span class="hidden md:inline">Session-Begleiter</span>
         </a>
         <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200 flex items-center gap-1 transition">
@@ -144,21 +133,17 @@
         <button onclick="openShareModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition flex items-center gap-1 touch-pill">
           <span>🔗</span> <span>Partner einladen</span>
         </button>
-        <button onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-700 text-sm transition" title="Account & Einstellungen">
-          ⚙️
+        <button onclick="openAccountModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 text-xs font-bold transition flex items-center gap-1.5" title="Account & Einstellungen">
+          <span>👤</span> <span class="hidden md:inline">Account & E-Mail</span>
         </button>
       </div>
 
     </div>
   </header>
 
-  <!-- ========================================== -->
-  <!-- 3. SUB-HEADER: AKTIVER NUTZER & STATUS     -->
-  <!-- ========================================== -->
   <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
       
-      <!-- User Switching Pill -->
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
         <span class="text-[10.5px] font-bold text-slate-500 pl-2">Du füllst aus für:</span>
         <button onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs">
@@ -169,7 +154,6 @@
         </button>
       </div>
 
-      <!-- Live Progress Bar -->
       <div class="flex items-center gap-2.5 flex-1 max-w-xs sm:max-w-md justify-end">
         <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 %</span>
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
@@ -180,15 +164,10 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- 4. HAUPTINHALT & SEKTIONEN                 -->
-  <!-- ========================================== -->
   <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
 
     <!-- VIEW A: FRAGEBOGEN -->
     <section id="view-survey" class="space-y-4">
-
-      <!-- Schnellverzeichnis (erst nach Abschluss aktiv) -->
       <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
         <div class="flex items-center justify-between text-xs font-bold text-slate-700">
           <span>📑 Kapitel-Schnellverzeichnis</span>
@@ -197,17 +176,16 @@
         <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]"></div>
       </div>
 
-      <!-- Kapitel-Kopfkarte -->
       <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-brand-50 text-brand-700 border border-brand-200 uppercase" id="chapter-badge">
-              Kapitel 1 / 11
+              Kapitel 1
             </span>
             <span class="text-xs text-slate-400 font-bold" id="chapter-items-count">0 Praktiken</span>
           </div>
-          <h2 class="text-base sm:text-lg font-black text-slate-900 mt-1" id="chapter-title">Körperbild, Schamgrenzen & Berührungszonen</h2>
-          <p class="text-xs text-slate-500 mt-0.5 leading-relaxed" id="chapter-desc">Das persönliche Fundament: Zonen der Geborgenheit, Schamgrenzen und Berührungstoleranzen.</p>
+          <h2 class="text-base sm:text-lg font-black text-slate-900 mt-1" id="chapter-title">Lade Kapitel...</h2>
+          <p class="text-xs text-slate-500 mt-0.5 leading-relaxed" id="chapter-desc">Beschreibung lädt...</p>
         </div>
 
         <div class="flex items-center gap-1.5 self-end sm:self-center">
@@ -220,10 +198,8 @@
         </div>
       </div>
 
-      <!-- Fragen-Container -->
       <div id="survey-items-container" class="space-y-3.5"></div>
 
-      <!-- Untere Navigation -->
       <div class="flex justify-between items-center pt-2">
         <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
           ← Vorheriges Kapitel
@@ -232,13 +208,9 @@
           Nächstes Kapitel →
         </button>
       </div>
-
     </section>
 
-    <!-- VIEW B: PERSÖNLICHES PROFIL -->
     <section id="view-single" class="space-y-5 hidden">
-      
-      <!-- Fallback-Box: Noch keine Antworten gegeben -->
       <div id="single-empty-state" class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 text-2xl mx-auto flex items-center justify-center">
           🌱
@@ -246,7 +218,7 @@
         <div class="max-w-md mx-auto space-y-1.5">
           <h3 class="text-base font-extrabold text-slate-900">Dein Profil erwacht mit deinen Antworten</h3>
           <p class="text-xs text-slate-500 leading-relaxed">
-            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine psychologische Tiefenanalyse mit Archetypen-Radar, Stärken-Matrix und Wertekompass.
+            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine Tiefenanalyse.
           </p>
         </div>
         <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
@@ -254,9 +226,7 @@
         </button>
       </div>
 
-      <!-- Berechnete Persönlichkeitsanalyse -->
       <div id="single-content-state" class="space-y-5 hidden">
-        
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div>
             <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
@@ -273,11 +243,10 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
             <h3 class="text-xs font-bold text-slate-800 flex items-center justify-between">
-              <span>🕸️ Archetypen-Radar (9 Dimensionen)</span>
-              <span class="text-[10px] text-slate-400 font-normal">Aktiv vs. Passiv</span>
+              <span>🕸️ Archetypen-Radar</span>
+              <span class="text-[10px] text-slate-400 font-normal">Dimensionen</span>
             </h3>
             <div class="relative h-64 w-full flex items-center justify-center">
               <canvas id="singleRadarChart"></canvas>
@@ -286,8 +255,8 @@
 
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3 flex flex-col justify-between">
             <div class="space-y-1">
-              <h3 class="text-xs font-bold text-slate-800">📊 Die 5 psychologischen Motivations-Säulen</h3>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Verteilung deiner erotischen Antriebe nach wissenschaftlichen Modellen:</p>
+              <h3 class="text-xs font-bold text-slate-800">📊 Die 5 Motivations-Säulen</h3>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Verteilung deiner Antriebe:</p>
             </div>
             
             <div class="space-y-2.5 text-xs">
@@ -303,7 +272,7 @@
 
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
+                  <span>Sensorik & Schmerz (Impact, Shibari, Temperatur)</span>
                   <span id="bar-val-sensation">0 %</span>
                 </div>
                 <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
@@ -323,7 +292,7 @@
 
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Tabubruch & Mentaler Nervenkitzel (CNC, Verhör, Fear)</span>
+                  <span>Tabubruch & Nervenkitzel (CNC, Verhör, Fear)</span>
                   <span id="bar-val-thrill">0 %</span>
                 </div>
                 <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
@@ -346,7 +315,6 @@
               Dein Profil zeigt eine ausgewogene Balance zwischen emotionaler Sicherheit und gezielter Reizexploration.
             </div>
           </div>
-
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -364,15 +332,10 @@
             <div id="single-tabus-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
           </div>
         </div>
-
       </div>
-
     </section>
 
-    <!-- VIEW C: PAAR-ANALYSE -->
     <section id="view-pair" class="space-y-5 hidden">
-
-      <!-- Gesperrt-Banner -->
       <div id="pair-locked-banner" class="bg-white border border-amber-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 text-2xl mx-auto flex items-center justify-center">
           🔒
@@ -388,9 +351,7 @@
         </button>
       </div>
 
-      <!-- Freigeschaltete Paar-Auswertung -->
       <div id="pair-unlocked-content" class="space-y-5 hidden">
-        
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
@@ -418,13 +379,13 @@
           <div class="flex justify-between items-center border-b border-slate-100 pb-2">
             <div>
               <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <span>⚡</span> Paar-Synergie im Archetypen-Radar
+                <span>⚡</span> Paar-Synergie im Radar
               </h3>
               <p class="text-[10.5px] text-slate-500">Gegenüberstellung von <span id="pair-name-1">Partner 1</span> und <span id="pair-name-2">Partner 2</span></p>
             </div>
             <div class="flex items-center gap-3 text-[11px] font-bold">
               <span class="text-indigo-600">🔵 Partner 1</span>
-              <span class="text-violet-600">🟣 Partner 2</span>
+              <span class="text-purple-600">🟣 Partner 2</span>
             </div>
           </div>
           <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
@@ -432,7 +393,6 @@
           </div>
         </div>
 
-        <!-- 2ER-LISTE: KOMPROMISSE & AKZEPTIERTE STRAFHÄRTE -->
         <div class="bg-white border border-indigo-200 rounded-2xl p-5 shadow-xs space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
             <div>
@@ -444,7 +404,7 @@
             </span>
           </div>
           <p class="text-[11px] text-slate-600 leading-relaxed">
-            Eine Bewertung mit Note 2 bedeutet: Kein eigenes inneres Begehren, aber die Bereitschaft, es **dem Partner zuliebe** auszuprobieren – oder es im Rahmen von D/s-Sitzungen als **harte Strafe oder Pflicht** zu akzeptieren.
+            Eine Bewertung mit Note 2 bedeutet: Kein eigenes inneres Begehren, aber die Bereitschaft, es **dem Partner zuliebe** auszuprobieren – oder es als **harte Strafe oder Pflicht** zu akzeptieren.
           </p>
           <div id="pair-compromises-list" class="space-y-2 text-xs"></div>
         </div>
@@ -484,7 +444,7 @@
               <span class="text-2xl">🎲</span>
               <div>
                 <h3 class="text-sm font-bold text-amber-950">Rolling-Dice: Euer Alltags-Kink für heute</h3>
-                <p class="text-[11px] text-amber-800">Kleine, intime Reize ohne Zeitdruck aus euren gemeinsamen Vorlieben</p>
+                <p class="text-[11px] text-amber-800">Kleine, intime Reize ohne Zeitdruck aus euren Matches</p>
               </div>
             </div>
             <button onclick="rollDailyKinkDice()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
@@ -501,20 +461,16 @@
           <div class="flex items-center justify-between border-b border-slate-200 pb-2">
             <div>
               <h3 class="text-sm font-bold text-slate-900">📖 3 Maßgeschneiderte 2-Stunden Session-Playbooks</h3>
-              <p class="text-xs text-slate-500">Exklusive Drehbücher aus euren Doppel-5ern, 4ern und liebevollen 2er-Kompromissen</p>
+              <p class="text-xs text-slate-500">Exklusive Drehbücher aus euren Doppel-5ern, 4ern und 2er-Kompromissen</p>
             </div>
           </div>
           <div id="playbooks-container" class="space-y-3"></div>
         </div>
-
       </div>
     </section>
 
   </main>
 
-  <!-- ========================================== -->
-  <!-- 5. ABSCHLUSS-MANIFEST (VERTRAUEN & SSC)    -->
-  <!-- ========================================== -->
   <footer class="bg-white border-t border-slate-200 py-6 px-4 mt-8">
     <div class="max-w-4xl mx-auto text-center space-y-3">
       <div class="inline-flex items-center gap-1 text-brand-600 text-xs font-extrabold uppercase tracking-wider bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
@@ -529,11 +485,82 @@
     </div>
   </footer>
 
-  <!-- ========================================== -->
-  <!-- 6. MODALS: ACCOUNT, SHARING, TABUS, LEXIKON -->
-  <!-- ========================================== -->
+  <!-- MODAL: ERSTNUTZER-ONBOARDING -->
+  <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
+      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 border-b border-slate-200 flex justify-between items-center">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600">Willkommen im Kompass</span>
+          <h3 class="text-base font-extrabold text-slate-900 mt-0.5">Kurzes Setup für <span id="onboarding-user-title">Partner 1</span></h3>
+        </div>
+        <span class="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[10px] text-slate-600" id="onboarding-step-indicator">Schritt 1 von 3</span>
+      </div>
 
-  <!-- MODAL: ACCOUNT -->
+      <div class="p-6 space-y-5">
+        <div id="onboarding-step-1" class="space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">1. Wie möchtest du genannt werden?</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Dein Name wird für die Gegenüberstellung in den Auswertungen und den personalisierten 2-Stunden-Playbooks verwendet.
+            </p>
+          </div>
+          <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+
+        <div id="onboarding-step-2" class="hidden space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Wähle sachlich, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
+            </p>
+          </div>
+          <div class="space-y-2">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="onboarding-privacy" value="blind" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-900 block font-bold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
+                <span class="text-[11px] text-slate-500 block leading-normal">
+                  Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen bleiben verborgen.
+                </span>
+              </div>
+            </label>
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="radio" name="onboarding-privacy" value="open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-900 block font-bold">Vollständiger Abgleich (Offene Einsicht)</strong>
+                <span class="text-[11px] text-slate-500 block leading-normal">
+                  Alle vergebenen Noten von 0 bis 5 sind in der Detailübersicht vollständig für den Partner einsehbar.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div id="onboarding-step-3" class="hidden space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
+            <p class="text-slate-500 leading-relaxed">
+              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen, um ihn nie zu verlieren.
+            </p>
+          </div>
+          <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <p class="text-[10.5px] text-slate-400 italic">Kann jederzeit im Account nachträglich ergänzt oder gelöscht werden.</p>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-100">
+          ← Zurück
+        </button>
+        <div class="flex-1"></div>
+        <button id="onboarding-btn-next" onclick="nextOnboardingStep()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs touch-pill">
+          Weiter →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCOUNT & E-MAIL -->
   <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -566,7 +593,6 @@
           </button>
         </div>
 
-        <!-- RESET-BEREICH -->
         <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-rose-950 text-xs flex items-center gap-1">
@@ -607,7 +633,7 @@
     </div>
   </div>
 
-  <!-- MODAL: TABUS -->
+  <!-- MODAL: TABU-LISTE -->
   <div id="modal-tabus" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-rose-50 border-b border-rose-200 flex justify-between items-center">
@@ -678,7 +704,6 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
 
-  <!-- Externe modulare Skripte einbinden (In 2 Teilen für 100 % Stabilität) -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="js/app.js"></script>
