@@ -777,24 +777,66 @@
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
       const labelColor = isDark ? '#cbd5e1' : '#334155';
 
+      // Mathematisch exakte Berechnung aus den echten Antworten beider Partner (Keine Dummy-Werte!)
+      const dimensions = [
+        { label: 'Körperzonen', chapters: [1, 12] },
+        { label: 'Romantik', chapters: [2, 3] },
+        { label: 'Keuschheit', chapters: [7, 8] },
+        { label: 'Shibari', chapters: [13, 14] },
+        { label: 'Sinnesentzug', chapters: [15] },
+        { label: 'Impact', chapters: [16] },
+        { label: 'Primal', chapters: [18] },
+        { label: 'Caregiver', chapters: [19] },
+        { label: 'Aftercare', chapters: [30] }
+      ];
+
+      const allChapters = window.surveyChapters || [];
+
+      function calculateDimensionScores(partnerKey) {
+        const pAnswers = answers[partnerKey] || {};
+        return dimensions.map(dim => {
+          let earned = 0;
+          let possible = 0;
+          dim.chapters.forEach(cId => {
+            const ch = allChapters.find(c => c.id === cId);
+            if (ch && ch.items) {
+              ch.items.forEach(it => {
+                if (it.type !== 'choice') {
+                  const s1 = pAnswers[`it_${it.id}_r1`];
+                  const s2 = pAnswers[`it_${it.id}_r2`];
+                  if (typeof s1 === 'number') { earned += s1; possible += 5; }
+                  if (typeof s2 === 'number') { earned += s2; possible += 5; }
+                }
+              });
+            }
+          });
+          return possible > 0 ? Math.round((earned / possible) * 100) : 0;
+        });
+      }
+
+      const scoresA = calculateDimensionScores('A');
+      const scoresB = calculateDimensionScores('B');
+
       pairRadarChartInstance = new Chart(canvas, {
         type: 'radar',
         data: {
-          labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
+          labels: dimensions.map(d => d.label),
           datasets: [
             {
               label: names.A,
-              data: [85, 90, 95, 80, 85, 65, 75, 90, 95],
-              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              data: scoresA,
+              backgroundColor: 'rgba(99, 102, 241, 0.25)',
               borderColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 2
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(99, 102, 241, 1)'
             },
             {
               label: names.B,
-              data: [90, 95, 85, 85, 90, 55, 80, 100, 100],
-              backgroundColor: 'rgba(168, 85, 247, 0.2)',
+              data: scoresB,
+              backgroundColor: 'rgba(168, 85, 247, 0.25)',
               borderColor: 'rgba(168, 85, 247, 1)',
-              borderWidth: 2
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(168, 85, 247, 1)'
             }
           ]
         },
@@ -817,36 +859,53 @@
     /* TIEFEN-SELBSTPROFIL AUSWERTUNG */
     function renderSelfAnalysis() {
       const uAnswers = answers[selfUser] || {};
-      const count = Object.keys(uAnswers).length;
-
-      const statEl = document.getElementById('self-answered-stat');
-      if (statEl) statEl.innerText = `${count} von 635 Fragen bewertet`;
-
-      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-      let totalPoints = 0;
-
-      Object.keys(uAnswers).forEach(k => {
-        const v = uAnswers[k];
-        if (typeof v === 'number' && v > 0) {
-          totalPoints += v;
-          if (k.includes('115') || k.includes('117') || k.includes('198')) pPower += v;
-          else if (k.includes('217') || k.includes('262') || k.includes('264')) pSensation += v;
-          else if (k.includes('320') || k.includes('322') || k.includes('526')) pNurturing += v;
-          else if (k.includes('303') || k.includes('304') || k.includes('581')) pThrill += v;
-          else pVisual += v;
+      const allChapters = window.surveyChapters || [];
+      let totalQuestions = 0;
+      allChapters.forEach(c => {
+        if (c.items) {
+          c.items.forEach(it => {
+            if (it.type === 'choice') totalQuestions += 1;
+            else totalQuestions += 2;
+          });
         }
       });
 
-      const maxP = Math.max(1, totalPoints);
-      setSelfBar('power', Math.min(100, Math.round((pPower / maxP) * 220)));
-      setSelfBar('sensation', Math.min(100, Math.round((pSensation / maxP) * 220)));
-      setSelfBar('nurturing', Math.min(100, Math.round((pNurturing / maxP) * 220)));
-      setSelfBar('thrill', Math.min(100, Math.round((pThrill / maxP) * 220)));
-      setSelfBar('visual', Math.min(100, Math.round((pVisual / maxP) * 220)));
+      const answeredKeys = Object.keys(uAnswers).filter(k => typeof uAnswers[k] === 'number' || typeof uAnswers[k] === 'string');
+      const count = answeredKeys.length;
+
+      const statEl = document.getElementById('self-answered-stat');
+      if (statEl) statEl.innerText = `${count} von ${totalQuestions || 635} Fragen bewertet`;
+
+      // 5 Säulen dynamisch berechnen anhand relevanter Kapitel
+      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
+      let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          const v1 = uAnswers[`it_${it.id}_r1`];
+          const v2 = uAnswers[`it_${it.id}_r2`];
+          const addScore = (val) => {
+            if (typeof val === 'number') {
+              if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
+              else if ([13, 16, 17].includes(ch.id)) { pSensation += val; countSensation += 5; }
+              else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
+              else if ([24, 25, 31].includes(ch.id)) { pThrill += val; countThrill += 5; }
+              else if ([9, 10, 11].includes(ch.id)) { pVisual += val; countVisual += 5; }
+            }
+          };
+          addScore(v1);
+          addScore(v2);
+        });
+      });
+
+      setSelfBar('power', countPower > 0 ? Math.round((pPower / countPower) * 100) : 0);
+      setSelfBar('sensation', countSensation > 0 ? Math.round((pSensation / countSensation) * 100) : 0);
+      setSelfBar('nurturing', countNurturing > 0 ? Math.round((pNurturing / countNurturing) * 100) : 0);
+      setSelfBar('thrill', countThrill > 0 ? Math.round((pThrill / countThrill) * 100) : 0);
+      setSelfBar('visual', countVisual > 0 ? Math.round((pVisual / countVisual) * 100) : 0);
 
       let highs = [];
       let tabus = [];
-      const allChapters = window.surveyChapters || [];
       allChapters.forEach(ch => {
         ch.items.forEach(it => {
           const r1 = uAnswers[`it_${it.id}_r1`];
@@ -874,17 +933,14 @@
 
       const box = document.getElementById('self-interpretation-box');
       if (box) {
-        box.innerText = `Das Profil von ${names[selfUser]} zeigt eine ausgeprägte Neigung zu emotionaler Geborgenheit, getragen von präzisen sensorischen Reizen und klar abgestimmten Schutzgrenzen.`;
+        if (count === 0) {
+          box.innerText = `Für ${names[selfUser]} liegen noch keine Bewertungen vor. Beantworte die ersten Kapitel im Fragebogen, um dein Profil zu berechnen.`;
+        } else {
+          box.innerText = `Das Profil von ${names[selfUser]} basiert auf ${count} abgegebenen Bewertungen. Die Schwerpunkte spiegeln deine realen Antworten wider.`;
+        }
       }
 
       renderSelfRadar();
-    }
-
-    function setSelfBar(id, val) {
-      const vEl = document.getElementById(`self-bar-val-${id}`);
-      const fEl = document.getElementById(`self-bar-fill-${id}`);
-      if (vEl) vEl.innerText = `${val} %`;
-      if (fEl) fEl.style.width = `${val}%`;
     }
 
     function renderSelfRadar() {
@@ -896,14 +952,48 @@
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
       const labelColor = isDark ? '#cbd5e1' : '#334155';
 
+      const dimensions = [
+        { label: 'Körperzonen', chapters: [1, 12] },
+        { label: 'Romantik', chapters: [2, 3] },
+        { label: 'Keuschheit', chapters: [7, 8] },
+        { label: 'Shibari', chapters: [13, 14] },
+        { label: 'Sinnesentzug', chapters: [15] },
+        { label: 'Impact', chapters: [16] },
+        { label: 'Primal', chapters: [18] },
+        { label: 'Caregiver', chapters: [19] },
+        { label: 'Aftercare', chapters: [30] }
+      ];
+
+      const allChapters = window.surveyChapters || [];
+      const uAnswers = answers[selfUser] || {};
+
+      const selfScores = dimensions.map(dim => {
+        let earned = 0;
+        let possible = 0;
+        dim.chapters.forEach(cId => {
+          const ch = allChapters.find(c => c.id === cId);
+          if (ch && ch.items) {
+            ch.items.forEach(it => {
+              if (it.type !== 'choice') {
+                const s1 = uAnswers[`it_${it.id}_r1`];
+                const s2 = uAnswers[`it_${it.id}_r2`];
+                if (typeof s1 === 'number') { earned += s1; possible += 5; }
+                if (typeof s2 === 'number') { earned += s2; possible += 5; }
+              }
+            });
+          }
+        });
+        return possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      });
+
       selfRadarChartInstance = new Chart(canvas, {
         type: 'radar',
         data: {
-          labels: ['Körperzonen', 'Romantik', 'Keuschheit', 'Shibari', 'Sinnesentzug', 'Impact', 'Primal', 'Caregiver', 'Aftercare'],
+          labels: dimensions.map(d => d.label),
           datasets: [{
             label: names[selfUser],
-            data: [80, 85, 90, 75, 85, 60, 70, 95, 90],
-            backgroundColor: 'rgba(225, 29, 72, 0.2)',
+            data: selfScores,
+            backgroundColor: 'rgba(225, 29, 72, 0.25)',
             borderColor: 'rgba(225, 29, 72, 1)',
             borderWidth: 2,
             pointBackgroundColor: 'rgba(225, 29, 72, 1)'
