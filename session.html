@@ -6,6 +6,15 @@
   <title>Session-Begleiter & Interaktives Regiebuch</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -23,8 +32,8 @@
               950: '#4c0519',
             },
             obsidian: {
-              950: '#05070c',
-              900: '#090d16',
+              950: '#000000',
+              900: '#05070c',
               850: '#0f1523',
               800: '#141c2e',
               700: '#1e293b',
@@ -47,43 +56,52 @@
       background-color: #05070c !important;
       color: #f8fafc !important;
     }
+    html.oled body {
+      background-color: #000000 !important;
+      color: #fed7aa !important;
+    }
     html.dark .session-card {
       background-color: #0f1523 !important;
       border-color: #1e293b !important;
       color: #f8fafc !important;
+    }
+    html.oled .session-card {
+      background-color: #050505 !important;
+      border-color: #271b12 !important;
+      color: #ffedd5 !important;
     }
     html.dark .session-panel {
       background-color: #141c2e !important;
       border-color: #24334f !important;
       color: #e2e8f0 !important;
     }
+    html.oled .session-panel {
+      background-color: #0c0a09 !important;
+      border-color: #292524 !important;
+      color: #fdba74 !important;
+    }
 
-    html:not(.dark) body {
+    html:not(.dark):not(.oled) body {
       background-color: #f8fafc !important;
       color: #0f172a !important;
     }
-    html:not(.dark) .session-card {
+    html:not(.dark):not(.oled) .session-card {
       background-color: #ffffff !important;
       border-color: #e2e8f0 !important;
       color: #0f172a !important;
     }
-    html:not(.dark) .session-panel {
+    html:not(.dark):not(.oled) .session-panel {
       background-color: #f1f5f9 !important;
       border-color: #e2e8f0 !important;
       color: #1e293b !important;
     }
-    html:not(.dark) .text-slate-300 {
-      color: #334155 !important;
-    }
-    html:not(.dark) .text-slate-400 {
-      color: #475569 !important;
-    }
-    html:not(.dark) .text-white {
-      color: #0f172a !important;
-    }
 
     .pulse-glow {
       box-shadow: 0 0 25px rgba(225, 29, 72, 0.45);
+    }
+    .touch-target-48 {
+      min-height: 48px;
+      min-width: 48px;
     }
     .touch-pill {
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,9 +113,70 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- NOTFALL-OVERLAY BEI ROT (Display wird zur sanften Notbeleuchtung) -->
+  <div id="emergency-overlay" class="hidden fixed inset-0 z-[100] bg-[#fffbf2] text-slate-900 p-6 flex flex-col justify-between overflow-y-auto animate-fade-in">
+    <div class="space-y-4 max-w-xl mx-auto w-full pt-4">
+      <div class="flex items-center justify-between border-b-2 border-red-600 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-3xl">🛑</span>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-red-700 tracking-tight leading-none">ROT: SOFORT-STOPP</h2>
+            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Session abgebrochen • Notfall-Licht aktiv</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl space-y-2">
+        <strong class="text-sm text-amber-950 block">💡 Dein Bildschirm dient jetzt als Notfall-Lampe:</strong>
+        <p class="text-xs text-amber-900 leading-relaxed">
+          Nutze das sanfte Licht, um Sicherheits-Cutter, Schlüssel oder Knoten sofort zu finden.
+        </p>
+      </div>
+
+      <!-- 3 Klare Anweisungen -->
+      <div class="space-y-3">
+        <div class="p-4 bg-white border border-slate-300 rounded-2xl shadow-sm flex items-start gap-3">
+          <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0">1</span>
+          <div>
+            <strong class="text-sm text-slate-900 block font-bold">Atmung & Beruhigung</strong>
+            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+              Partner sofort aufrichten oder in die stabile Seitenlage bringen. Hand halten: <em>„Ich bin hier, alles ist gut. Wir haben sofort gestoppt.“</em>
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-300 rounded-2xl shadow-sm flex items-start gap-3">
+          <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0">2</span>
+          <div>
+            <strong class="text-sm text-slate-900 block font-bold">Fesseln & Knebel sofort trennen</strong>
+            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+              Greife zum Seilschneider oder Schlüssel auf dem Nachttisch. Trenne Seile durch, statt Knoten mühsam aufzupuddeln.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-300 rounded-2xl shadow-sm flex items-start gap-3">
+          <span class="w-8 h-8 rounded-xl bg-red-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0">3</span>
+          <div>
+            <strong class="text-sm text-slate-900 block font-bold">Wärme & Geborgenheit</strong>
+            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+              Dicke Decken überwerfen, Wasser anreichen, Körperkontakt halten. Keine Diskussionen oder Vorwürfe.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-xl mx-auto w-full pt-6 pb-2">
+      <button onclick="dismissEmergency()" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm rounded-2xl shadow-lg touch-pill text-center">
+        ✓ Partner ist versorgt & sicher (Notfallmodus beenden)
+      </button>
+    </div>
+  </div>
+
   <!-- HEADER -->
-  <header class="border-b session-card/90 backdrop-blur-md px-4 py-3 sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+  <header class="border-b session-card/90 backdrop-blur-md px-3 sm:px-4 py-2.5 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center space-x-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg shadow-brand-950/40 p-1.5 flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
@@ -113,12 +192,19 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-2">
+      <!-- Quick Controls: Audio-Mute, OLED-Mode, Theme & Return -->
+      <div class="flex items-center space-x-1.5">
+        <button onclick="toggleAudioSound()" id="btn-audio-toggle" class="p-2 rounded-xl session-panel border text-xs font-bold transition" title="Klangschalen-Gong ein/ausschalten">
+          <span id="audio-icon">🔔</span>
+        </button>
+        <button onclick="toggleOledMode()" id="btn-oled-toggle" class="p-2 rounded-xl session-panel border text-xs font-bold transition" title="OLED True Black (Pitch Black)">
+          <span>🖤</span>
+        </button>
         <button onclick="toggleGlobalTheme()" id="btn-theme-toggle" class="px-2.5 py-1.5 rounded-xl session-panel border text-[11px] font-bold transition flex items-center gap-1">
           <span id="session-theme-icon">🌙</span> <span class="hidden sm:inline" id="session-theme-text">Nacht</span>
         </button>
         <a href="index.html" class="px-3 py-1.5 rounded-xl session-panel hover:border-brand-700 border text-xs font-bold transition flex items-center gap-1">
-          ← <span class="hidden sm:inline">Zum</span> Kompass
+          ← <span class="hidden sm:inline">Kompass</span>
         </a>
       </div>
     </div>
@@ -127,45 +213,47 @@
   <!-- HAUPTBEREICH -->
   <main class="max-w-4xl mx-auto p-3 sm:p-5 w-full flex-1 space-y-4">
 
-    <!-- HAUPT-TABS -->
-    <div class="grid grid-cols-4 gap-1 p-1 session-panel rounded-2xl border text-xs font-bold">
-      <button onclick="switchTab('guide')" id="tab-guide" class="py-2 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+    <!-- HAUPT-TABS (Großzügige 48px Touch-Targets) -->
+    <div class="grid grid-cols-4 gap-1.5 p-1 session-panel rounded-2xl border text-xs font-bold">
+      <button onclick="switchTab('guide')" id="tab-guide" class="py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>📖</span> <span class="truncate">Regiebuch</span>
       </button>
-      <button onclick="switchTab('punish')" id="tab-punish" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+      <button onclick="switchTab('punish')" id="tab-punish" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>⚖️</span> <span class="truncate">Strafen</span>
       </button>
-      <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+      <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>✨</span> <span class="truncate">Reize</span>
       </button>
-      <button onclick="switchTab('safety')" id="tab-safety" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+      <button onclick="switchTab('safety')" id="tab-safety" class="py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48">
         <span>🛑</span> <span class="truncate">Ampel & Timer</span>
       </button>
     </div>
 
-    <!-- KOMPAKTE SESSION-ZEITLEISTE (Immer sichtbar) -->
+    <!-- KOMPAKTE PERSISTENTE SESSION-ZEITLEISTE (Mit Screen Wake Lock Indicator) -->
     <div class="session-card p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2.5">
-      <div class="flex items-center gap-2">
-        <button onclick="toggleTimer()" id="mini-timer-btn" class="w-8 h-8 rounded-xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-xs font-black transition">
+      <div class="flex items-center gap-2.5">
+        <button onclick="toggleTimer()" id="mini-timer-btn" class="w-10 h-10 rounded-xl bg-brand-700 hover:bg-brand-600 text-white flex items-center justify-center text-sm font-black transition touch-pill">
           ▶
         </button>
         <div>
-          <span class="text-lg font-mono font-black text-brand-400 leading-none block" id="timer-display">45:00</span>
-          <span class="text-[9.5px] text-slate-400" id="timer-elapsed-info">Verstrichen: 0 Min.</span>
+          <span class="text-xl sm:text-2xl font-mono font-black text-brand-400 leading-none block" id="timer-display">45:00</span>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-[10px] text-slate-400" id="timer-elapsed-info">Verstrichen: 0 Min.</span>
+            <span id="wake-lock-status" class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700">Display: Auto</span>
+          </div>
         </div>
       </div>
 
       <!-- Schnelle Dauer-Wahl & Verlängerung -->
-      <div class="flex items-center gap-1 text-[11px] font-bold">
-        <span class="text-slate-400 text-[10px] hidden sm:inline mr-1">Dauer:</span>
-        <button onclick="startTimer(45)" id="btn-dur-45" class="px-2 py-1 rounded-lg session-panel border text-white">45m</button>
-        <button onclick="startTimer(75)" id="btn-dur-75" class="px-2 py-1 rounded-lg session-panel border text-slate-400 hover:text-white">75m</button>
-        <button onclick="startTimer(120)" id="btn-dur-120" class="px-2 py-1 rounded-lg session-panel border text-slate-400 hover:text-white">120m</button>
-        <div class="w-px h-4 bg-slate-700 mx-1"></div>
-        <button onclick="extendTimer(15)" class="px-2 py-1 rounded-lg bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition" title="15 Min. verlängern">
+      <div class="flex items-center gap-1.5 text-xs font-bold">
+        <button onclick="startTimer(45)" id="btn-dur-45" class="px-2.5 py-2 rounded-xl session-panel border text-white touch-target-48 flex items-center justify-center">45m</button>
+        <button onclick="startTimer(75)" id="btn-dur-75" class="px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">75m</button>
+        <button onclick="startTimer(120)" id="btn-dur-120" class="px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center">120m</button>
+        <div class="w-px h-6 bg-slate-700 mx-0.5"></div>
+        <button onclick="extendTimer(15)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="15 Min. verlängern">
           +15m
         </button>
-        <button onclick="extendTimer(30)" class="px-2 py-1 rounded-lg bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition" title="30 Min. verlängern">
+        <button onclick="extendTimer(30)" class="px-2.5 py-2 rounded-xl bg-brand-950/70 border border-brand-800 text-brand-200 hover:bg-brand-900 transition touch-pill" title="30 Min. verlängern">
           +30m
         </button>
       </div>
@@ -183,36 +271,36 @@
             </span>
             <strong class="text-slate-200 font-bold" id="guide-step-name">Vorbereitung & Safeword-Check</strong>
           </div>
-          <span class="text-[11px] font-mono text-slate-400" id="guide-phase-time-allocated">ca. 10 Min.</span>
+          <span class="text-[11px] font-mono text-slate-400" id="guide-phase-time-allocated">ca. 9 Min.</span>
         </div>
 
         <!-- 4-Phasen Stepper Leiste -->
         <div class="grid grid-cols-4 gap-1.5">
-          <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-1.5 rounded-lg border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600">
+          <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600">
             1. Ankommen
           </button>
-          <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-1.5 rounded-lg border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
+          <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
             2. Sensorik
           </button>
-          <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-1.5 rounded-lg border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
+          <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
             3. Hauptakt
           </button>
-          <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-1.5 rounded-lg border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
+          <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700">
             4. Aftercare
           </button>
         </div>
       </div>
 
       <!-- SCHRITT-INHALTE -->
-      <div id="guide-card-content" class="session-card p-4 rounded-2xl border space-y-4 shadow-sm min-h-[320px] flex flex-col justify-between">
+      <div id="guide-card-content" class="session-card p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm min-h-[320px] flex flex-col justify-between">
         
         <div class="space-y-3.5">
           <div class="flex justify-between items-start gap-2 border-b border-slate-800 pb-2.5">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="phase-category-tag">Phase 1</span>
-              <h2 class="text-sm sm:text-base font-extrabold text-white mt-0.5" id="phase-title">Raumklima, Ruhe & Safeword-Vereinbarung</h2>
+              <h2 class="text-base sm:text-lg font-extrabold text-white mt-0.5" id="phase-title">Raumklima, Ruhe & Safeword-Vereinbarung</h2>
             </div>
-            <span class="text-xs px-2 py-0.5 rounded session-panel text-slate-300 font-mono font-bold" id="phase-calc-time">10 Min.</span>
+            <span class="text-xs px-2.5 py-1 rounded-xl session-panel text-slate-300 font-mono font-bold" id="phase-calc-time">9 Min.</span>
           </div>
 
           <!-- Dialog- & Regie-Hinweis -->
@@ -224,27 +312,64 @@
           </div>
 
           <!-- Interaktive Checkliste -->
-          <div class="space-y-1.5" id="phase-checkpoints-container">
-            <!-- Dynamisch generiert -->
-          </div>
+          <div class="space-y-2" id="phase-checkpoints-container"></div>
 
-          <!-- Dynamisch eingebettete Matches/Strafen je nach Phase -->
-          <div id="phase-dynamic-injection" class="hidden pt-1">
-            <!-- Wird in Phase 3 mit echten Matches / Strafen befüllt -->
+          <!-- Dynamisch eingebettete Matches/Strafen in Phase 3 -->
+          <div id="phase-dynamic-injection" class="hidden pt-1"></div>
+
+          <!-- PHASE 4: 2-MINUTEN DE-BRIEFING TRACKER (Erscheint in Aftercare) -->
+          <div id="debriefing-box" class="hidden p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3 text-xs">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                <span>📝</span> 2-Minuten De-Briefing & Session-Tagebuch
+              </strong>
+              <span class="text-[10px] font-bold text-indigo-300 bg-indigo-900/60 px-2 py-0.5 rounded">Lokal gespeichert</span>
+            </div>
+
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              Nehmt euch 2 Minuten im Kuschelnest: Wie intensiv war es heute für euch beide?
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-1">
+                <div class="flex justify-between font-bold text-indigo-300 text-[11px]">
+                  <span id="debrief-name-A">Partner 1:</span>
+                  <span id="debrief-val-A">7 / 10</span>
+                </div>
+                <input type="range" min="1" max="10" value="7" oninput="updateDebriefVal('A', this.value)" class="w-full accent-indigo-500">
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-1">
+                <div class="flex justify-between font-bold text-purple-300 text-[11px]">
+                  <span id="debrief-name-B">Partner 2:</span>
+                  <span id="debrief-val-B">8 / 10</span>
+                </div>
+                <input type="range" min="1" max="10" value="8" oninput="updateDebriefVal('B', this.value)" class="w-full accent-purple-500">
+              </div>
+            </div>
+
+            <textarea id="debrief-notes-input" placeholder="Kurze Randnotiz (z. B. 'Die Juteseile am Rücken waren magisch, nächstes Mal noch sanfter anfangen')..." class="w-full p-2.5 rounded-xl session-panel border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-500 h-16 resize-none"></textarea>
+
+            <button onclick="saveSessionDebriefing()" class="w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs transition touch-pill">
+              💾 Eintrag ins Paar-Tagebuch speichern
+            </button>
+
+            <!-- Bisherige Einträge -->
+            <div id="past-debriefings-list" class="space-y-1.5 pt-1 text-[11px]"></div>
           </div>
         </div>
 
         <!-- Paginierungs-Tasten unten -->
         <div class="flex justify-between items-center pt-3 border-t border-slate-800 mt-2">
-          <button onclick="prevPhase()" id="btn-guide-prev" class="px-4 py-2 rounded-xl session-panel hover:border-slate-500 border text-xs font-bold transition disabled:opacity-30 disabled:pointer-events-none">
+          <button onclick="prevPhase()" id="btn-guide-prev" class="px-4 py-2.5 rounded-xl session-panel hover:border-slate-500 border text-xs font-bold transition disabled:opacity-30 disabled:pointer-events-none touch-target-48">
             ← Vorheriger Schritt
           </button>
           
           <div class="flex items-center gap-1.5">
-            <button onclick="quickInjectPunishment()" id="btn-guide-quick-punish" class="hidden px-3 py-2 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-xs font-bold transition">
+            <button onclick="quickInjectPunishment()" id="btn-guide-quick-punish" class="hidden px-3.5 py-2.5 rounded-xl bg-brand-950 hover:bg-brand-900 border border-brand-800 text-brand-200 text-xs font-bold transition touch-target-48">
               ⚖️ Strafe einweben
             </button>
-            <button onclick="nextPhase()" id="btn-guide-next" class="px-5 py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white text-xs font-bold transition shadow-sm touch-pill">
+            <button onclick="nextPhase()" id="btn-guide-next" class="px-5 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white text-xs font-bold transition shadow-sm touch-pill touch-target-48">
               Nächster Schritt →
             </button>
           </div>
@@ -262,8 +387,8 @@
             <span>🎯</span> <span>Wer soll diszipliniert / bestraft werden?</span>
           </label>
           <div class="flex items-center gap-1 session-panel p-1 rounded-xl border text-xs font-bold">
-            <button onclick="setPunishedSub('A')" id="btn-sub-A" class="px-2.5 py-1 rounded-lg text-slate-400 transition">Partner 1</button>
-            <button onclick="setPunishedSub('B')" id="btn-sub-B" class="px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 2</button>
+            <button onclick="setPunishedSub('A')" id="btn-sub-A" class="px-3 py-1.5 rounded-lg text-slate-400 transition">Partner 1</button>
+            <button onclick="setPunishedSub('B')" id="btn-sub-B" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 2</button>
           </div>
         </div>
 
@@ -299,7 +424,7 @@
           <p class="text-[11px] text-slate-400 mt-0.5">Berechnet harmonische Verstärker aus euren echten Noten 4 & 5.</p>
         </div>
 
-        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full session-panel border text-xs font-semibold rounded-xl p-2.5 focus:outline-none focus:border-brand-600">
+        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full session-panel border text-xs font-semibold rounded-xl p-3 focus:outline-none focus:border-brand-600">
           <option value="deprivation">🙈 Sinnesentzug & Blindheit (Augenbinde/Kopfhörer)</option>
           <option value="shibari">🪢 Fesselung & Bewegungslosigkeit (Shibari/Leder)</option>
           <option value="chastity">🗝️ Keuschhaltung & Teasing</option>
@@ -312,25 +437,25 @@
       <div class="space-y-2" id="synergy-results-container"></div>
     </section>
 
-    <!-- VIEW 4: SICHERHEIT & TIMER -->
+    <!-- VIEW 4: SICHERHEIT & TIMER (Riesige Notfall-Ampel 48px+) -->
     <section id="view-safety" class="space-y-3 hidden">
       <div class="space-y-2">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Großfläche):</span>
-        <div class="grid grid-cols-3 gap-2 h-24">
-          <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
-            <span class="text-2xl">🟢</span>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Großfläche für blinde Bedienung):</span>
+        <div class="grid grid-cols-3 gap-2.5 h-28">
+          <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48">
+            <span class="text-3xl">🟢</span>
             <span>GRÜN</span>
-            <span class="text-[9px] font-normal opacity-85">Alles bestens</span>
+            <span class="text-[9.5px] font-normal opacity-85">Alles bestens</span>
           </button>
-          <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
-            <span class="text-2xl">🟡</span>
+          <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition touch-target-48">
+            <span class="text-3xl">🟡</span>
             <span>GELB</span>
-            <span class="text-[9px] font-normal opacity-85">Grenze / Pause</span>
+            <span class="text-[9.5px] font-normal opacity-85">Pause / Sanfter</span>
           </button>
-          <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition">
-            <span class="text-2xl">🔴</span>
+          <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition touch-target-48">
+            <span class="text-3xl">🔴</span>
             <span>ROT</span>
-            <span class="text-[9px] font-normal opacity-85">SOFORT STOPP</span>
+            <span class="text-[9.5px] font-normal opacity-95">NOTFALL-STOPP</span>
           </button>
         </div>
       </div>
@@ -340,7 +465,7 @@
         <div class="text-[11px] text-slate-300 space-y-1.5 leading-relaxed">
           <p>• <strong>Handdrück-Code:</strong> 2× fest drücken = Weiter. 3× schnell drücken = Pause/Sanfter. Hand loslassen = Sofortstopp.</p>
           <p>• <strong>Drop-Tuch:</strong> Bei Knebelung hält der Passive ein Tuch in der Faust. Fällt es zu Boden, bricht die Session sofort ab.</p>
-          <p>• <strong>15-Minuten-Check:</strong> Nach jedem Intervall Fingerfarbe und Temperatur prüfen.</p>
+          <p>• <strong>15-Minuten-Check:</strong> Bei jedem Gongton Fingerfarbe und Temperatur prüfen.</p>
         </div>
       </div>
     </section>
@@ -349,7 +474,7 @@
 
   <!-- FOOTER -->
   <footer class="border-t session-card px-4 py-2.5 text-center text-[10px] text-slate-500">
-    🔒 Synchronisiert mit dem lokalen Beziehungs-Kompass. 100 % geräteintern.
+    🔒 Synchronisiert mit dem lokalen Beziehungs-Kompass. Screen-Lock & Gong aktiv.
   </footer>
 
   <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
@@ -366,13 +491,15 @@
     let sessionTotalMinutes = 45;
     let sessionElapsedSeconds = 0;
     let currentPhase = 1;
+    let wakeLockInstance = null;
+    let isSoundEnabled = true;
+    let audioCtx = null;
 
     let executedActions = [];
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let currentFilteredPunishments = [];
 
-    // Phasen-Definitionen mit prozentualer Zeitzuteilung
     const phaseConfig = [
       {
         step: 1,
@@ -442,10 +569,12 @@
     function initSessionApp() {
       loadStorageData();
       applySavedTheme();
+      restoreSessionSnapshot();
       updateNamesDisplay();
       renderPhaseUI();
       renderPunishments();
       calculateSynergies();
+      renderPastDebriefings();
     }
 
     function loadStorageData() {
@@ -459,19 +588,27 @@
       }
     }
 
+    /* THEME & OLED PURE BLACK MANAGEMENT */
     function applySavedTheme() {
       const saved = localStorage.getItem('kompass_theme') || 'dark';
-      if (saved === 'dark') {
+      const oled = localStorage.getItem('kompass_oled') === 'true';
+
+      if (oled) {
+        document.documentElement.classList.add('oled', 'dark');
+      } else if (saved === 'dark') {
         document.documentElement.classList.add('dark');
-        updateThemeUI('dark');
+        document.documentElement.classList.remove('oled');
       } else {
-        document.documentElement.classList.remove('dark');
-        updateThemeUI('light');
+        document.documentElement.classList.remove('dark', 'oled');
       }
+      updateThemeUI(saved);
     }
 
     function toggleGlobalTheme() {
       const isDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.remove('oled');
+      localStorage.setItem('kompass_oled', 'false');
+
       if (isDark) {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('kompass_theme', 'light');
@@ -482,6 +619,19 @@
         localStorage.setItem('kompass_theme', 'dark');
         updateThemeUI('dark');
         showToast("Nacht-Design aktiviert");
+      }
+    }
+
+    function toggleOledMode() {
+      const isOled = document.documentElement.classList.contains('oled');
+      if (isOled) {
+        document.documentElement.classList.remove('oled');
+        localStorage.setItem('kompass_oled', 'false');
+        showToast("Standard Nacht-Design");
+      } else {
+        document.documentElement.classList.add('oled', 'dark');
+        localStorage.setItem('kompass_oled', 'true');
+        showToast("🖤 OLED True-Black (Pitch Black) aktiviert");
       }
     }
 
@@ -496,22 +646,184 @@
       const disp = document.getElementById('active-pair-display');
       const bA = document.getElementById('btn-sub-A');
       const bB = document.getElementById('btn-sub-B');
+      const dNA = document.getElementById('debrief-name-A');
+      const dNB = document.getElementById('debrief-name-B');
+
       if (disp) disp.innerText = `${names.A} & ${names.B}`;
       if (bA) bA.innerText = names.A;
       if (bB) bB.innerText = names.B;
+      if (dNA) dNA.innerText = `${names.A}:`;
+      if (dNB) dNB.innerText = `${names.B}:`;
+    }
+
+    /* SCREEN WAKE LOCK API */
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockInstance = await navigator.wakeLock.request('screen');
+          updateWakeLockUI(true);
+          wakeLockInstance.addEventListener('release', () => {
+            updateWakeLockUI(false);
+          });
+        }
+      } catch (err) {
+        console.warn('Wake Lock konnte nicht aktiviert werden:', err);
+        updateWakeLockUI(false);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLockInstance) {
+        wakeLockInstance.release();
+        wakeLockInstance = null;
+        updateWakeLockUI(false);
+      }
+    }
+
+    function updateWakeLockUI(isActive) {
+      const el = document.getElementById('wake-lock-status');
+      if (!el) return;
+      if (isActive) {
+        el.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        el.innerText = "📱 Display: Dauerhaft an";
+      } else {
+        el.className = "text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-slate-800 text-slate-400 border border-slate-700";
+        el.innerText = "📱 Display: Auto";
+      }
+    }
+
+    /* WEB AUDIO API: SYNTHETISCHER KLANGSCHALEN-GONG (432 Hz) */
+    function playHarmonicGong(pitchMultiplier = 1) {
+      if (!isSoundEnabled) return;
+
+      // Haptik über Vibration API
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([180, 80, 180]); } catch (e) {}
+      }
+
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+        const baseFreq = 432 * pitchMultiplier;
+
+        // Obertöne einer Klangschale: Fundamental, Terz, Quint
+        const harmonics = [1, 2.02, 3.01];
+        const gains = [0.4, 0.2, 0.1];
+
+        harmonics.forEach((h, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(baseFreq * h, now);
+
+          gainNode.gain.setValueAtTime(0.001, now);
+          gainNode.gain.exponentialRampToValueAtTime(gains[idx], now + 0.05);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+
+          osc.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 4.0);
+        });
+      } catch (err) {
+        console.warn('Audio synthesis failed:', err);
+      }
+    }
+
+    function toggleAudioSound() {
+      isSoundEnabled = !isSoundEnabled;
+      const icon = document.getElementById('audio-icon');
+      if (icon) icon.innerText = isSoundEnabled ? '🔔' : '🔕';
+      if (isSoundEnabled) {
+        playHarmonicGong(1);
+        showToast("Klangschalen-Gong aktiviert");
+      } else {
+        showToast("Klangschalen-Gong stummgeschaltet");
+      }
+    }
+
+    /* SESSION PERSISTENCE (sessionStorage Snapshot) */
+    function saveSessionSnapshot() {
+      const snap = {
+        timerRemaining,
+        sessionTotalMinutes,
+        sessionElapsedSeconds,
+        currentPhase,
+        subPartner,
+        currentPunishLvl,
+        targetEndTime: timerInterval ? (Date.now() + timerRemaining * 1000) : null,
+        ts: Date.now()
+      };
+      sessionStorage.setItem('kompass_session_active', JSON.stringify(snap));
+    }
+
+    function restoreSessionSnapshot() {
+      try {
+        const raw = sessionStorage.getItem('kompass_session_active');
+        if (!raw) return;
+        const snap = JSON.parse(raw);
+
+        sessionTotalMinutes = snap.sessionTotalMinutes || 45;
+        currentPhase = snap.currentPhase || 1;
+        subPartner = snap.subPartner || 'B';
+        currentPunishLvl = snap.currentPunishLvl || 'mittel';
+
+        if (snap.targetEndTime && snap.targetEndTime > Date.now()) {
+          const remainingSec = Math.round((snap.targetEndTime - Date.now()) / 1000);
+          timerRemaining = Math.max(0, remainingSec);
+          sessionElapsedSeconds = (snap.sessionTotalMinutes * 60) - timerRemaining;
+          startLiveTimer();
+        } else {
+          timerRemaining = snap.timerRemaining || (sessionTotalMinutes * 60);
+          sessionElapsedSeconds = snap.sessionElapsedSeconds || 0;
+        }
+
+        updateTimerDisplay();
+      } catch (e) {
+        console.warn('Session-Snapshot konnte nicht wiederhergestellt werden', e);
+      }
+    }
+
+    /* EMERGENCY ROT LANTERN PROTOCOL */
+    function triggerTrafficLight(color) {
+      if (color === 'red') {
+        pauseTimer();
+        releaseWakeLock();
+        playHarmonicGong(0.8);
+        document.getElementById('emergency-overlay')?.classList.remove('hidden');
+      } else if (color === 'yellow') {
+        playHarmonicGong(1.2);
+        showToast("🟡 GELB: Tempo drosseln, nachfragen, Druck rausnehmen.");
+      } else {
+        showToast("🟢 GRÜN: Alles bestens.");
+      }
+    }
+
+    function dismissEmergency() {
+      document.getElementById('emergency-overlay')?.classList.add('hidden');
+      jumpToPhase(4);
+      showToast("Direkt in Phase 4 (Aftercare) gewechselt. Nehmt euch alle Zeit.");
     }
 
     function switchTab(tabId) {
       ['guide', 'punish', 'synergy', 'safety'].forEach(t => {
         document.getElementById(`view-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tab-${t}`);
-        if (btn) btn.className = "py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1";
+        if (btn) btn.className = "py-2.5 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
       });
 
       document.getElementById(`view-${tabId}`)?.classList.remove('hidden');
       const activeBtn = document.getElementById(`tab-${tabId}`);
       if (activeBtn) {
-        activeBtn.className = "py-2 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1";
+        activeBtn.className = "py-2.5 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1 touch-target-48";
       }
     }
 
@@ -535,43 +847,41 @@
       if (catTag) catTag.innerText = cfg.category;
       if (title) title.innerText = cfg.title;
       if (quote) quote.innerText = cfg.quote;
-      if (calcTime) calcTime.innerText = `ca. ${minutesAllocated} Min.`;
+      if (calcTime) calcTime.innerText = `${minutesAllocated} Min.`;
       if (allocTime) allocTime.innerText = `ca. ${minutesAllocated} Min.`;
 
-      // Stepper Leiste oben aktualisieren
       [1, 2, 3, 4].forEach(s => {
         const tab = document.getElementById(`stepper-tab-${s}`);
         if (tab) {
           if (s === currentPhase) {
-            tab.className = "py-1.5 rounded-lg border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600 shadow-xs";
+            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition bg-brand-700 text-white border-brand-600 shadow-xs";
           } else if (s < currentPhase) {
-            tab.className = "py-1.5 rounded-lg border text-center text-[10px] font-bold transition session-panel text-brand-300 border-brand-800/60";
+            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-brand-300 border-brand-800/60";
           } else {
-            tab.className = "py-1.5 rounded-lg border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700";
+            tab.className = "py-2 rounded-xl border text-center text-[10px] font-bold transition session-panel text-slate-400 border-slate-700";
           }
         }
       });
 
-      // Checkpoints rendern
       const cpContainer = document.getElementById('phase-checkpoints-container');
       if (cpContainer) {
-        cpContainer.innerHTML = cfg.checkpoints.map((cp, idx) => `
-          <label class="flex items-start gap-2.5 p-2 rounded-xl session-panel border border-slate-700/60 hover:border-slate-500 cursor-pointer text-xs">
-            <input type="checkbox" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500">
-            <span class="text-slate-300">${escapeHtml(cp)}</span>
+        cpContainer.innerHTML = cfg.checkpoints.map(cp => `
+          <label class="flex items-start gap-3 p-3 rounded-2xl session-panel border border-slate-700/60 hover:border-slate-500 cursor-pointer text-xs">
+            <input type="checkbox" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
+            <span class="text-slate-300 leading-relaxed">${escapeHtml(cp)}</span>
           </label>
         `).join('');
       }
 
-      // Spezifische Einbettung in Phase 3 (Strafen & Matches)
       const injectBox = document.getElementById('phase-dynamic-injection');
       const punishBtn = document.getElementById('btn-guide-quick-punish');
-      if (injectBox) {
-        if (currentPhase === 3) {
+      const debriefBox = document.getElementById('debriefing-box');
+
+      if (currentPhase === 3) {
+        if (injectBox) {
           injectBox.classList.remove('hidden');
-          if (punishBtn) punishBtn.classList.remove('hidden');
           injectBox.innerHTML = `
-            <div class="p-2.5 rounded-xl bg-brand-950/40 border border-brand-800/50 space-y-1.5 text-xs">
+            <div class="p-3 rounded-2xl bg-brand-950/40 border border-brand-800/50 space-y-1.5 text-xs">
               <div class="flex justify-between items-center">
                 <strong class="text-brand-300 font-bold">✨ Verknüpfte Aktionen für Phase 3:</strong>
                 <span class="text-[10px] text-slate-400">Aus euren Matches</span>
@@ -581,23 +891,32 @@
               </p>
             </div>
           `;
-        } else {
-          injectBox.classList.add('hidden');
-          if (punishBtn) punishBtn.classList.add('hidden');
         }
+        if (punishBtn) punishBtn.classList.remove('hidden');
+        if (debriefBox) debriefBox.classList.add('hidden');
+      } else if (currentPhase === 4) {
+        if (injectBox) injectBox.classList.add('hidden');
+        if (punishBtn) punishBtn.classList.add('hidden');
+        if (debriefBox) debriefBox.classList.remove('hidden');
+      } else {
+        if (injectBox) injectBox.classList.add('hidden');
+        if (punishBtn) punishBtn.classList.add('hidden');
+        if (debriefBox) debriefBox.classList.add('hidden');
       }
 
-      // Vor/Zurück Tasten anpassen
       const prevBtn = document.getElementById('btn-guide-prev');
       const nextBtn = document.getElementById('btn-guide-next');
       if (prevBtn) prevBtn.disabled = (currentPhase === 1);
       if (nextBtn) {
-        nextBtn.innerText = (currentPhase === 4) ? "Session abschließen ✨" : "Nächster Schritt →";
+        nextBtn.innerText = (currentPhase === 4) ? "Session beenden & Kuscheln ✨" : "Nächster Schritt →";
       }
+
+      saveSessionSnapshot();
     }
 
     function jumpToPhase(phaseNum) {
       currentPhase = phaseNum;
+      playHarmonicGong(1.1);
       renderPhaseUI();
     }
 
@@ -611,8 +930,12 @@
     function nextPhase() {
       if (currentPhase < 4) {
         currentPhase++;
+        playHarmonicGong(1.1);
         renderPhaseUI();
       } else {
+        pauseTimer();
+        releaseWakeLock();
+        playHarmonicGong(0.9);
         showToast("Session erfolgreich abgeschlossen! Genießt eure Ruhezeit.");
       }
     }
@@ -621,20 +944,76 @@
       switchTab('punish');
     }
 
+    /* DE-BRIEFING TAGEBUCH */
+    function updateDebriefVal(user, val) {
+      const el = document.getElementById(`debrief-val-${user}`);
+      if (el) el.innerText = `${val} / 10`;
+    }
+
+    function saveSessionDebriefing() {
+      const valA = document.getElementById('debrief-val-A')?.innerText || '7 / 10';
+      const valB = document.getElementById('debrief-val-B')?.innerText || '8 / 10';
+      const notesText = document.getElementById('debrief-notes-input')?.value.trim() || '';
+
+      const entry = {
+        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        intensityA: valA,
+        intensityB: valB,
+        notes: notesText,
+        duration: sessionTotalMinutes
+      };
+
+      try {
+        const past = JSON.parse(localStorage.getItem('kompass_diary') || '[]');
+        past.unshift(entry);
+        localStorage.setItem('kompass_diary', JSON.stringify(past.slice(0, 15)));
+        renderPastDebriefings();
+        showToast("✓ Eintrag im Session-Tagebuch gespeichert!");
+        if (document.getElementById('debrief-notes-input')) {
+          document.getElementById('debrief-notes-input').value = '';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderPastDebriefings() {
+      const c = document.getElementById('past-debriefings-list');
+      if (!c) return;
+
+      try {
+        const past = JSON.parse(localStorage.getItem('kompass_diary') || '[]');
+        if (past.length === 0) {
+          c.innerHTML = '<p class="text-slate-500 italic text-center py-1">Noch keine Tagebucheinträge vorhanden.</p>';
+          return;
+        }
+        c.innerHTML = past.slice(0, 3).map(p => `
+          <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/60 text-[10.5px] space-y-1">
+            <div class="flex justify-between items-center text-slate-400 font-bold">
+              <span>📅 ${escapeHtml(p.date)} (${p.duration} Min.)</span>
+              <span class="text-indigo-300">${names.A}: ${p.intensityA} | ${names.B}: ${p.intensityB}</span>
+            </div>
+            ${p.notes ? `<p class="text-slate-300 italic">„${escapeHtml(p.notes)}“</p>` : ''}
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
     /* STRAFEN-LOGIK */
     function setPunishedSub(user) {
       subPartner = user;
       const bA = document.getElementById('btn-sub-A');
       const bB = document.getElementById('btn-sub-B');
       if (user === 'A') {
-        bA.className = "px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs";
-        bB.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
+        bA.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs";
+        bB.className = "px-3 py-1.5 rounded-lg text-slate-400 transition";
       } else {
-        bB.className = "px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs";
-        bA.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
+        bB.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs";
+        bA.className = "px-3 py-1.5 rounded-lg text-slate-400 transition";
       }
       renderPunishments();
       calculateSynergies();
+      saveSessionSnapshot();
     }
 
     function setPunishLevel(lvl) {
@@ -646,6 +1025,7 @@
       const act = document.getElementById(`btn-lvl-${lvl}`);
       if (act) act.className = "p-2.5 rounded-xl border transition text-center bg-brand-950/60 border-brand-700 text-brand-200";
       renderPunishments();
+      saveSessionSnapshot();
     }
 
     function getDomPartner() {
@@ -747,7 +1127,7 @@
                 </span>
               </div>
             </div>
-            <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs transition self-center whitespace-nowrap touch-pill">
+            <button onclick="handleSelectPunishment(${idx})" class="px-3 py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs transition self-center whitespace-nowrap touch-pill touch-target-48 flex items-center justify-center">
               Anwenden →
             </button>
           </div>
@@ -886,20 +1266,11 @@
       `).join('');
     }
 
-    function triggerTrafficLight(color) {
-      if (color === 'red') {
-        showToast("🔴 ROT: Session SOFORT unterbrechen & Partner lösen!");
-      } else if (color === 'yellow') {
-        showToast("🟡 GELB: Tempo drosseln, nachfragen, Druck rausnehmen.");
-      } else {
-        showToast("🟢 GRÜN: Alles bestens.");
-      }
-    }
-
-    /* TIMER */
+    /* TIMER-STEUERUNG MIT PERSISTENZ & GONG */
     function startTimer(min) {
       sessionTotalMinutes = min;
       timerRemaining = min * 60;
+      sessionElapsedSeconds = 0;
       updateTimerDisplay();
       renderPhaseUI();
 
@@ -907,14 +1278,15 @@
         const btn = document.getElementById(`btn-dur-${d}`);
         if (btn) {
           if (d === min) {
-            btn.className = "px-2 py-1 rounded-lg bg-brand-700 border border-brand-600 text-white font-bold";
+            btn.className = "px-2.5 py-2 rounded-xl bg-brand-700 border border-brand-600 text-white font-bold touch-target-48 flex items-center justify-center";
           } else {
-            btn.className = "px-2 py-1 rounded-lg session-panel border text-slate-400 hover:text-white";
+            btn.className = "px-2.5 py-2 rounded-xl session-panel border text-slate-400 hover:text-white touch-target-48 flex items-center justify-center";
           }
         }
       });
 
-      showToast(`Session-Dauer auf ${min} Minuten eingestellt.`);
+      startLiveTimer();
+      showToast(`Session auf ${min} Minuten eingestellt.`);
     }
 
     function extendTimer(extraMin) {
@@ -922,33 +1294,56 @@
       sessionTotalMinutes += extraMin;
       updateTimerDisplay();
       renderPhaseUI();
+      saveSessionSnapshot();
       showToast(`Session um +${extraMin} Min. verlängert!`);
     }
 
     function toggleTimer() {
+      if (timerInterval) {
+        pauseTimer();
+      } else {
+        startLiveTimer();
+      }
+    }
+
+    function startLiveTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      requestWakeLock();
+
       const btn = document.getElementById('mini-timer-btn');
+      if (btn) btn.innerText = "⏸";
+
+      timerInterval = setInterval(() => {
+        sessionElapsedSeconds++;
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+
+          // Alle 15 Minuten: Gong & Zirkulations-Check
+          if (sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
+            playHarmonicGong(1.0);
+            showToast("⏰ 15-MINUTEN-CHECK: Finger und Fesseln kurz abtasten!");
+          }
+        } else {
+          pauseTimer();
+          releaseWakeLock();
+          playHarmonicGong(0.9);
+          showToast("⏰ SESSION-ZEIT ERREICHT! Gleitet nun sanft in den Aftercare über.");
+        }
+      }, 1000);
+
+      saveSessionSnapshot();
+    }
+
+    function pauseTimer() {
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
-        if (btn) btn.innerText = "▶";
-      } else {
-        timerInterval = setInterval(() => {
-          sessionElapsedSeconds++;
-          if (timerRemaining > 0) {
-            timerRemaining--;
-            updateTimerDisplay();
-
-            if (sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
-              showToast("⏰ 15-MINUTEN-CHECK: Finger und Fesseln kurz abtasten!");
-            }
-          } else {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            showToast("⏰ SESSION-ZEIT ERREICHT! Gleitet nun sanft in den Aftercare über.");
-          }
-        }, 1000);
-        if (btn) btn.innerText = "⏸";
       }
+      const btn = document.getElementById('mini-timer-btn');
+      if (btn) btn.innerText = "▶";
+      releaseWakeLock();
+      saveSessionSnapshot();
     }
 
     function updateTimerDisplay() {
