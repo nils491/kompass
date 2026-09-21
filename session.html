@@ -224,6 +224,10 @@
 
   <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
 
+  <!-- Reale Fragenkataloge einbinden für echten Datenabgleich -->
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+
   <script>
     let subPartner = 'B';
     let currentPunishLvl = 'mittel';
@@ -299,6 +303,7 @@
         bA.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
       }
       renderPunishments();
+      calculateSynergies();
     }
 
     function setPunishLevel(lvl) {
@@ -312,83 +317,145 @@
       renderPunishments();
     }
 
+    function getDomPartner() {
+      return subPartner === 'A' ? 'B' : 'A';
+    }
+
+    function isItemTabu(itemId) {
+      const a1 = answers.A ? answers.A[`it_${itemId}_r1`] : undefined;
+      const a2 = answers.A ? answers.A[`it_${itemId}_r2`] : undefined;
+      const b1 = answers.B ? answers.B[`it_${itemId}_r1`] : undefined;
+      const b2 = answers.B ? answers.B[`it_${itemId}_r2`] : undefined;
+      return (a1 === 1 || a2 === 1 || b1 === 1 || b2 === 1);
+    }
+
     function renderPunishments() {
       const container = document.getElementById('punish-results-container');
       if (!container) return;
 
-      const subAnswers = answers[subPartner] || {};
-      const pool = [
-        { lvl: 'leicht', title: 'Strafzeilen schreiben oder Fehlerprotokoll', desc: '15 Zeilen mit Füller über den begangenen Regelverstoß verfassen.', type: 'Demut' },
-        { lvl: 'leicht', title: '15 Minuten formale Kniehaltung (Nadu)', desc: 'Ruhiges Knien auf der Matte mit geradem Rücken vor dem Partner.', type: 'Haltung' },
-        { lvl: 'leicht', title: 'Schuh- & Fußpflege als Wiedergutmachung', desc: 'Sorgfältiges Bürsten und Küssen der Schuhe/Füße auf Knien.', type: 'Dienst' },
-        { lvl: 'leicht', title: 'Redeverbot für die nächsten 30 Minuten', desc: 'Sprechen nur nach vorherigem zweimaligen Klopfen und Erlaubnis.', type: 'Protokoll' },
+      const dom = getDomPartner();
+      const sub = subPartner;
+      const allChapters = window.surveyChapters || [];
+      let candidates = [];
 
-        { lvl: 'mittel', title: 'Warmes Handspanking (20 gezielte Schläge)', desc: 'Rhythmisches Versohlen des nackten Gesäßes zur körperlichen Erwärmung.', type: 'Impact' },
-        { lvl: 'mittel', title: 'Leder-Armbinder oder Handfesseln hinter dem Rücken', desc: 'Vollständiges Fixieren der Arme für die nächsten 45 Minuten.', type: 'Restriktion' },
-        { lvl: 'mittel', title: 'Kitzelfolter unter Armfixierung', desc: '3 Minuten ununterbrochenes Kitzeln an Rippen und Fußsohlen.', type: 'Sensorik' },
-        { lvl: 'mittel', title: 'Spontane Käfig-Inspektion mit Schlüsselentzug', desc: 'Keuschheitsprüfung mit Verweigerung jeglicher Entlastung.', type: 'Chastity' },
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          if (isItemTabu(it.id)) return; // 100 % Ausschluss aller Tabus (Note 1)
 
-        { lvl: 'schwer', title: 'Dumpfe Leder-Paddle-Disziplinierung', desc: '10 nachdrückliche Hiebe mit dem breiten Lederpaddle.', type: 'Strenge' },
-        { lvl: 'schwer', title: 'Kerker- oder Wand-Arretierung', desc: 'Fixierung an den Wandösen für mindestens 30 Minuten in der Kälte.', type: 'Härte' },
-        { lvl: 'schwer', title: 'Eiswürfel-Schmelzen auf sensiblen Zonen', desc: 'Langsames Abtropfen von Eis am Bauchnabel und Oberschenkeln.', type: 'Temperatur' }
-      ];
+          const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
+          const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
 
-      let filtered = pool.filter(p => p.lvl === currentPunishLvl);
-      let note2Items = [];
-      Object.keys(subAnswers).forEach(k => {
-        if (subAnswers[k] === 2) {
-          note2Items.push({
-            lvl: 'schwer',
-            title: `Akzeptierte Strafhärte: Position ${k.replace('it_', '').replace('_r1', '').replace('_r2', '')}`,
-            desc: `Dieser Punkt wurde von ${names[subPartner]} mit Note 2 als Liebesdienst oder Strafe akzeptiert.`,
-            isNote2: true,
-            type: 'Note-2 Duldung'
-          });
-        }
+          // Note 2: Explizite Duldung / als Strafe akzeptiert
+          const isNote2 = (subScore === 2);
+
+          // Zuordnung zu Härtegraden basierend auf Kapitel-Kontext
+          let assignedLvl = null;
+
+          // Stufe I (Leicht): Kapitel 21 (Dominanz/Haltung), 22 (Dienen), 23 (Zucht/Protokoll)
+          if ([21, 22, 23].includes(ch.id)) {
+            assignedLvl = 'leicht';
+          }
+          // Stufe II (Moderat): Kapitel 15 (Sinnesentzug), 16 (Spanking moderate), 18 (Bratting), 8 (Teasing)
+          else if ([8, 15, 16, 18].includes(ch.id)) {
+            assignedLvl = 'mittel';
+          }
+          // Stufe III (Streng): Kapitel 31 (Kerker/Bastinado/Eis), Kapitel 34 (Haltestrafen)
+          else if ([31, 34].includes(ch.id)) {
+            assignedLvl = 'schwer';
+          }
+
+          // Note-2 Duldungen gehören IMMER zu "Stufe III: Streng"
+          if (isNote2) {
+            assignedLvl = 'schwer';
+          }
+
+          if (assignedLvl === currentPunishLvl) {
+            // Nur aufnehmen, wenn tatsächlich Bewertungen vorliegen oder echtes Interesse da ist
+            if (isNote2 || (domScore >= 3 && subScore >= 2) || (domScore >= 4 && subScore >= 0)) {
+              candidates.push({
+                item: it,
+                chapter: ch,
+                domScore: domScore ?? '-',
+                subScore: subScore ?? '-',
+                isNote2: isNote2,
+                category: ch.title.split('(')[0].trim()
+              });
+            }
+          }
+        });
       });
 
-      if (currentPunishLvl === 'schwer' && note2Items.length > 0) {
-        filtered = [...filtered, ...note2Items];
+      // Sortieren: Note-2 Duldungen und hohe Doppel-Scores zuerst
+      candidates.sort((a, b) => {
+        if (a.isNote2 && !b.isNote2) return -1;
+        if (!a.isNote2 && b.isNote2) return 1;
+        const totalA = (Number(a.domScore) || 0) + (Number(a.subScore) || 0);
+        const totalB = (Number(b.domScore) || 0) + (Number(b.subScore) || 0);
+        return totalB - totalA;
+      });
+
+      currentFilteredPunishments = candidates;
+
+      if (candidates.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 text-center space-y-2">
+            <span class="text-2xl block">📋</span>
+            <strong class="text-white text-xs block">Keine bewerteten Positionen für diese Stufe gefunden</strong>
+            <p class="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
+              Für diesen Härtegrad liegen bei <strong>${escapeHtml(names[sub])}</strong> aktuell keine freigegebenen Antworten (z. B. Note 2 als Strafe oder übereinstimmende Noten 3–5) vor. Tabus (Note 1) werden automatisch herausgefiltert.
+            </p>
+          </div>
+        `;
+        return;
       }
 
-      currentFilteredPunishments = filtered;
-
-      container.innerHTML = filtered.map((item, idx) => `
-        <div class="p-3.5 rounded-2xl border ${item.isNote2 ? 'bg-indigo-950/40 border-indigo-500/40' : 'bg-slate-900 border-slate-800'} flex items-start justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.isNote2 ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                ${escapeHtml(item.type)}
-              </span>
-              ${item.isNote2 ? '<span class="text-[10px] font-bold text-amber-400">🎁 Dem Partner zuliebe</span>' : ''}
+      container.innerHTML = candidates.slice(0, 15).map((entry, idx) => {
+        const it = entry.item;
+        return `
+          <div class="p-3.5 rounded-2xl border ${entry.isNote2 ? 'bg-indigo-950/40 border-indigo-500/40' : 'bg-slate-900 border-slate-800'} flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${entry.isNote2 ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                  ${escapeHtml(entry.category)}
+                </span>
+                ${entry.isNote2 ? '<span class="text-[10px] font-bold text-amber-400">🎁 Dem Partner zuliebe / als Strafe akzeptiert (Note 2)</span>' : ''}
+              </div>
+              <strong class="text-xs sm:text-sm font-bold text-white block">${it.id}. ${escapeHtml(it.title)}</strong>
+              <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
+              
+              <div class="flex items-center gap-2 mt-2 text-[10.5px]">
+                <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                  ${escapeHtml(names[dom])} (Aktiv): <strong>Note ${entry.domScore}</strong>
+                </span>
+                <span class="px-2 py-0.5 rounded ${entry.isNote2 ? 'bg-indigo-950 text-indigo-300 border border-indigo-700/50 font-bold' : 'bg-slate-950 text-slate-300 border border-slate-800'}">
+                  ${escapeHtml(names[sub])} (Passiv): <strong>Note ${entry.subScore}</strong>
+                </span>
+              </div>
             </div>
-            <strong class="text-xs sm:text-sm font-bold text-white block">${escapeHtml(item.title)}</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(item.desc)}</p>
+            <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap touch-pill">
+              Anwenden →
+            </button>
           </div>
-          <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap">
-            Anwenden →
-          </button>
-        </div>
-      `).join('') || '<p class="text-slate-500 text-xs text-center p-4">Keine Strafen für diese Auswahl gefunden.</p>';
+        `;
+      }).join('');
     }
 
     function handleSelectPunishment(idx) {
-      const item = currentFilteredPunishments[idx];
-      if (item) {
-        selectPunishment(item.title, item.type);
-      }
-    }
+      const entry = currentFilteredPunishments[idx];
+      if (!entry) return;
 
-    function selectPunishment(title, type) {
-      showToast(`Ausgewählt: ${title}`);
+      showToast(`Ausgewählt: ${entry.item.title}`);
       
       const select = document.getElementById('synergy-base-select');
+      const cat = entry.category.toLowerCase();
       if (select) {
-        if (type.includes('Impact') || type.includes('Strenge')) select.value = 'impact';
-        else if (type.includes('Restriktion')) select.value = 'shibari';
-        else if (type.includes('Sensorik') || type.includes('Temperatur')) select.value = 'deprivation';
-        else if (type.includes('Chastity')) select.value = 'chastity';
-        else if (type.includes('Dienst') || type.includes('Demut')) select.value = 'chastity';
+        if (cat.includes('impact') || cat.includes('schlag')) select.value = 'impact';
+        else if (cat.includes('shibari') || cat.includes('fessel')) select.value = 'shibari';
+        else if (cat.includes('sinnesentzug') || cat.includes('masken')) select.value = 'deprivation';
+        else if (cat.includes('keuschheit')) select.value = 'chastity';
+        else if (cat.includes('dienen') || cat.includes('zucht') || cat.includes('dominanz')) select.value = 'chastity';
+        else if (cat.includes('primal')) select.value = 'primal';
       }
 
       calculateSynergies();
@@ -400,46 +467,103 @@
       const container = document.getElementById('synergy-results-container');
       if (!container) return;
 
-      const recommendations = {
-        deprivation: [
-          { icon: '🪢', title: 'Sanfte Shibari-Armfesselung', desc: 'Verstärkt die Schutzlosigkeit der Augenbinde um ein Vielfaches.', match: 'Doppel-5er Match' },
-          { icon: '🧊', title: 'Eiswürfel & Feder-Sensorik', desc: 'Unerwartete Berührungen am Nacken erzeugen massive Gänsehaut.', match: 'Partner mag Note 4' },
-          { icon: '👂', title: 'Zärtlicher Dirty Talk direkt am Ohr', desc: 'Akustischer Fokus durch Wegfall des Sehens.', match: 'Gemeinsame Leidenschaft' }
-        ],
-        shibari: [
-          { icon: '🙈', title: 'Leder-Augenbinde', desc: 'Nimmt dem Sub die Kontrolle über Raum und Haltung.', match: 'Doppel-5er Match' },
-          { icon: '⏳', title: 'Gezieltes Teasing & Edging', desc: 'Quälende Lust ohne Möglichkeit, sich mit den Händen zu wehren.', match: 'Volltreffer' },
-          { icon: '🍵', title: 'Warme Decken & stummes Halten danach', desc: 'Verhindert den Abfall in den Subdrop.', match: 'Essentieller Aftercare' }
-        ],
-        chastity: [
-          { icon: '👑', title: 'Formelle Knie- & Demutshaltung', desc: 'Unterstreicht das Machtgefälle vor der Schlosskontrolle.', match: 'Sehr reizvoll' },
-          { icon: '💥', title: 'Flächiges Handspanking auf den Po', desc: 'Disziplinierende Wärme vor dem Teasen.', match: 'Harmonie-Match' },
-          { icon: '💖', title: 'Warmes Praise Play bei Gehorsam', desc: 'Echtes Lob nach geduldigem Aushalten.', match: 'Doppel-5er Match' }
-        ],
-        impact: [
-          { icon: '🪢', title: 'Fixierung am Bett oder Pranger', desc: 'Sorgt für ruhiges Stillhalten und präzise Treffer.', match: 'Empfohlen' },
-          { icon: '🧊', title: 'Kühlpads & Arnika im Anschluss', desc: 'Sofortige Linderung und liebevolles Beruhigen.', match: 'Aftercare-Pflicht' }
-        ],
-        nuru: [
-          { icon: '🕯️', title: 'Warmer Raum & gedimmtes Kerzenlicht', desc: 'Schafft eine geschützte, zeitlose Oase.', match: 'Sensual Basis' },
-          { icon: '🙈', title: 'Seidentuch über den Augen', desc: 'Fokussiert das Bewusstsein auf das gleitende Hautgefühl.', match: 'Volltreffer' }
-        ],
-        primal: [
-          { icon: '🤼', title: 'Bodenmatte & weiche Kissen', desc: 'Schützt Knie und Gelenke beim leidenschaftlichen Ringen.', match: 'Sicherheit' },
-          { icon: '🐾', title: 'Spielerisches Bratting zum Start', desc: 'Freches Provozieren fordert die Verfolgung heraus.', match: 'Lieblingsdynamik' }
-        ]
+      const dom = getDomPartner();
+      const sub = subPartner;
+      const allChapters = window.surveyChapters || [];
+
+      // Kapitel-IDs je nach gewähltem Basiskink
+      const targetChapterMap = {
+        deprivation: [15, 2, 3], // Sinnesentzug, Romantik, Tantra
+        shibari: [13, 14, 15, 7], // Halsbänder, Shibari, Möbel, Edging
+        chastity: [7, 8, 21, 22], // Edging, Keuschheit, Dominanz, Dienen
+        impact: [16, 13, 30], // Impact, Fesseln, Aftercare
+        nuru: [31, 3, 15], // Spezial/Nuru, Tantra, Sinnesentzug
+        primal: [18, 16, 24] // Primal, Impact, CNC
       };
 
-      const hits = recommendations[base] || [];
-      container.innerHTML = hits.map(h => `
+      const allowedChapters = targetChapterMap[base] || [1, 2, 3];
+      let matches = [];
+
+      allChapters.forEach(ch => {
+        if (!allowedChapters.includes(ch.id)) return;
+
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          if (isItemTabu(it.id)) return; // Tabus strikt ignorieren
+
+          const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
+          const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
+
+          if (domScore === undefined && subScore === undefined) return;
+
+          let badgeText = '';
+          let badgeClass = '';
+
+          if (domScore === 5 && subScore === 5) {
+            badgeText = '⭐ Echter Doppel-5er Volltreffer';
+            badgeClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+          } else if (domScore >= 4 && subScore >= 4) {
+            badgeText = `✨ Beide begeistert (Note ${domScore} & ${subScore})`;
+            badgeClass = 'text-teal-400 bg-teal-500/10 border-teal-500/20';
+          } else if (domScore >= 4 && subScore === 3) {
+            badgeText = `💡 ${escapeHtml(names[sub])} ist neugierig (Note 3)`;
+            badgeClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+          } else if (subScore === 2 && domScore >= 3) {
+            badgeText = `🎁 Liebesdienst von ${escapeHtml(names[sub])} (Note 2)`;
+            badgeClass = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+          } else if (domScore >= 4) {
+            badgeText = `Wunsch von ${escapeHtml(names[dom])} (Note ${domScore})`;
+            badgeClass = 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20';
+          } else if (subScore >= 4) {
+            badgeText = `Wunsch von ${escapeHtml(names[sub])} (Note ${subScore})`;
+            badgeClass = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+          }
+
+          if (badgeText) {
+            matches.push({
+              item: it,
+              domScore: domScore ?? '-',
+              subScore: subScore ?? '-',
+              badgeText,
+              badgeClass,
+              prio: (domScore === 5 && subScore === 5) ? 10 : ((domScore >= 4 && subScore >= 4) ? 8 : ((subScore === 2) ? 6 : 4))
+            });
+          }
+        });
+      });
+
+      matches.sort((a, b) => b.prio - a.prio);
+
+      if (matches.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 text-center space-y-2">
+            <span class="text-2xl block">ℹ️</span>
+            <strong class="text-white text-xs block">Noch keine passenden Übereinstimmungen erfasst</strong>
+            <p class="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
+              In diesem Themenbereich liegen noch keine gemeinsamen Bewertungen (Noten 3–5 oder Note-2-Duldungen) in eurem Fragebogen vor. Füllt die entsprechenden Kapitel aus, um echte Vorschläge zu sehen.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = matches.slice(0, 10).map(m => `
         <div class="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 flex items-start gap-3">
-          <span class="text-2xl">${h.icon}</span>
+          <span class="text-2xl">✨</span>
           <div class="flex-1">
-            <div class="flex justify-between items-center mb-0.5">
-              <strong class="text-xs font-bold text-white">${h.title}</strong>
-              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${h.match}</span>
+            <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+              <strong class="text-xs font-bold text-white">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${m.badgeClass}">${m.badgeText}</span>
             </div>
-            <p class="text-[11px] text-slate-400">${h.desc}</p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${escapeHtml(m.item.desc)}</p>
+            <div class="flex items-center gap-2 mt-2 text-[10.5px]">
+              <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                ${escapeHtml(names[dom])}: Note ${m.domScore}
+              </span>
+              <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                ${escapeHtml(names[sub])}: Note ${m.subScore}
+              </span>
+            </div>
           </div>
         </div>
       `).join('');
