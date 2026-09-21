@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Session-Begleiter & Strafen-Zentrale</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#e11d48',
+              600: '#be123c',
+              700: '#9f1239',
+              900: '#4c0519',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .pulse-glow {
+      box-shadow: 0 0 25px rgba(225, 29, 72, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+  <!-- 1. HEADER MIT WECHSEL-LINK & AKTUELLEM PROFIL -->
+  <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md px-4 py-3 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="w-7 h-7 rounded-lg bg-rose-600/20 border border-rose-500/40 text-rose-400 flex items-center justify-center text-sm font-black">
+          🕯️
+        </span>
+        <div>
+          <h1 class="text-xs sm:text-sm font-black tracking-tight text-white">In-Scene Begleiter</h1>
+          <span class="text-[10px] text-slate-500 block -mt-0.5" id="active-pair-display">Lade Profile...</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleZenMode()" id="btn-zen" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-400 hover:text-white transition">
+          🌙 Zen-Dimmer
+        </button>
+        <a href="index.html" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition">
+          ← Zum Kompass
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. HAUPTBEREICH: TOOLS IN TABS -->
+  <main class="max-w-4xl mx-auto p-4 sm:p-6 w-full flex-1 space-y-6">
+
+    <!-- REITER-NAVIGATION -->
+    <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs font-bold">
+      <button onclick="switchTab('punish')" id="tab-punish" class="py-2 rounded-xl transition bg-rose-600 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+        <span>⚖️</span> <span>Strafen</span>
+      </button>
+      <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+        <span>✨</span> <span>Synergien</span>
+      </button>
+      <button onclick="switchTab('safety')" id="tab-safety" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+        <span>🛑</span> <span>Sicherheit</span>
+      </button>
+      <button onclick="switchTab('aftercare')" id="tab-aftercare" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
+        <span>🍵</span> <span>Aftercare</span>
+      </button>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODUL 1: STRAFEN-KONFIGURATOR                  -->
+    <!-- ============================================== -->
+    <section id="view-punish" class="space-y-4">
+      
+      <!-- Steuerung: Wer straft wen & Härtegrad -->
+      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span>🎯</span> <span>Wer soll diszipliniert / bestraft werden?</span>
+          </label>
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+            <button onclick="setPunishedSub('A')" id="btn-sub-A" class="px-2.5 py-1 rounded-lg text-slate-400 transition">Partner 1</button>
+            <button onclick="setPunishedSub('B')" id="btn-sub-B" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs">Partner 2</button>
+          </div>
+        </div>
+
+        <!-- Härtegrad-Filter -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Gewünschter Härtegrad:</span>
+          <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+            <button onclick="setPunishLevel('leicht')" id="btn-lvl-leicht" class="p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300">
+              🟢 Stufe I: Leicht
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Demut, Protokoll, Posen</span>
+            </button>
+            <button onclick="setPunishLevel('mittel')" id="btn-lvl-mittel" class="p-2.5 rounded-xl border transition text-center bg-rose-950/40 border-rose-600 text-rose-300">
+              🟡 Stufe II: Moderat
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Impact, Restriktion, Entzug</span>
+            </button>
+            <button onclick="setPunishLevel('schwer')" id="btn-lvl-schwer" class="p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300">
+              🔴 Stufe III: Streng
+              <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Duldungen (Note 2) & Limits</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trefferliste für Strafen -->
+      <div class="space-y-2" id="punish-results-container">
+        <!-- Live gerendert per JS -->
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- MODUL 2: KINK-SYNERGIE-ENGINE („Was passt dazu?“) -->
+    <!-- ============================================== -->
+    <section id="view-synergy" class="space-y-4 hidden">
+      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+        <div>
+          <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <span>✨</span> Wähle einen Basiskink eurer Session:
+          </h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">Die Engine berechnet harmonische Verstärker aus euren Doppel-5ern und 4ern.</p>
+        </div>
+
+        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full bg-slate-950 border border-slate-800 text-xs font-semibold rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-rose-500">
+          <option value="deprivation">🙈 Sinnesentzug & Blindheit (Augenbinde/Kopfhörer)</option>
+          <option value="shibari">🪢 Fesselung & Bewegungslosigkeit (Shibari/Leder)</option>
+          <option value="chastity">🗝️ Keuschhaltung & Teasing</option>
+          <option value="impact">💥 Handspanking & Paddle-Reize</option>
+          <option value="nuru">💧 Nuru-Gleitmassage & Berührung</option>
+          <option value="primal">🐾 Primal Play & Niederringen</option>
+        </select>
+      </div>
+
+      <div class="space-y-2" id="synergy-results-container">
+        <!-- Live berechnete Verstärker -->
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- MODUL 3: SICHERHEIT, TIMER & AMPELSYSTEM      -->
+    <!-- ============================================== -->
+    <section id="view-safety" class="space-y-4 hidden">
+      
+      <!-- Großflächen-Ampel (Safeword-Ersatz) -->
+      <div class="space-y-2">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Tippen zur Bestätigung):</span>
+        <div class="grid grid-cols-3 gap-2 h-24">
+          <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
+            <span class="text-2xl">🟢</span>
+            <span>GRÜN</span>
+            <span class="text-[9px] font-normal opacity-80">Alles bestens</span>
+          </button>
+          <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
+            <span class="text-2xl">🟡</span>
+            <span>GELB</span>
+            <span class="text-[9px] font-normal opacity-80">Grenze nah / Tempo raus</span>
+          </button>
+          <button onclick="triggerTrafficLight('red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition">
+            <span class="text-2xl">🔴</span>
+            <span>ROT</span>
+            <span class="text-[9px] font-normal opacity-80">SOFORT STOPP</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Fessel- & Sicherheits-Timer (Nervencheck) -->
+      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <strong class="text-xs font-bold text-white block">Sicherheits-Timer (Shibari- & Nervenprüfung)</strong>
+            <span class="text-[10.5px] text-slate-400">Erinnert rechtzeitig an Blutzirkulation und Extremitäten.</span>
+          </div>
+          <span class="text-xl font-mono font-bold text-rose-400" id="timer-display">20:00</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+          <button onclick="startTimer(15)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">15 Min</button>
+          <button onclick="startTimer(20)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">20 Min</button>
+          <button onclick="startTimer(30)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">30 Min</button>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="toggleTimer()" id="btn-timer-toggle" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 rounded-xl font-bold text-xs transition">
+            ▶ Timer starten
+          </button>
+          <button onclick="resetTimer()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-xs transition">
+            ↺ Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Stumme Nonverbale Notfall-Gesten -->
+      <div class="p-3.5 bg-slate-900/40 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
+        <strong class="text-rose-400 block">Sicherheits-Leitplanke bei Knebel oder Trance:</strong>
+        <p>• <strong>Handdrück-Signal:</strong> 2× festes Händedrücken = Grün / Weiter. 3× schnelles Drücken = Gelb / Pause. Stillstand / Loslassen = Sofortiger Abbruch.</p>
+        <p>• <strong>Drop-Gegenstand:</strong> Ein Tuch oder Glöckchen in der geschlossenen Hand – fällt es zu Boden, wird die Session sofort angehalten.</p>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- MODUL 4: AFTERCARE & PROTOKOLL                 -->
+    <!-- ============================================== -->
+    <section id="view-aftercare" class="space-y-3 hidden">
+      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-2.5">
+        <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+          <span>🍵</span> Die 4-Stufen-Landung (Nachsorge-Checkliste)
+        </h2>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          Nach intensiven Reizen sinkt der Adrenalin- und Endorphinspiegel drastisch (Gefahr von Subdrop oder Topdrop).
+        </p>
+
+        <div class="space-y-2 text-xs pt-1">
+          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
+            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
+            <span><strong>Wärme & Hülle:</strong> Dicke Decken, warme Socken, Entspannungstee.</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
+            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
+            <span><strong>Körperkontrolle:</strong> Fesselabdrücke mit Arnika/Creme versorgen, Kühlpads auflegen.</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
+            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
+            <span><strong>Wortlose Geborgenheit:</strong> 15 Minuten stummes Halten ohne Analyse oder Kritik.</span>
+          </label>
+          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
+            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
+            <span><strong>Folgetag-Check:</strong> Fester Reminder für ein kurzes Telefonat / Nachricht morgen.</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 3. FOOTER -->
+  <footer class="border-t border-slate-900 px-4 py-2.5 text-center text-[10px] text-slate-600">
+    🔒 Alle Daten synchronisiert mit dem lokalen Beziehungs-Kompass.
+  </footer>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+  <!-- JAVASCRIPT-LOGIK -->
+  <script>
+    let subPartner = 'B';
+    let currentPunishLvl = 'mittel';
+    let timerInterval = null;
+    let timerRemaining = 1200; // 20 Minuten
+
+    let answers = { A: {}, B: {} };
+    let names = { A: 'Partner 1', B: 'Partner 2' };
+
+    function initSessionApp() {
+      loadStorageData();
+      updateNamesDisplay();
+      renderPunishments();
+      calculateSynergies();
+    }
+
+    function loadStorageData() {
+      try {
+        const a = localStorage.getItem('kompass_answers');
+        const n = localStorage.getItem('kompass_names');
+        if (a) answers = JSON.parse(a);
+        if (n) names = JSON.parse(n);
+      } catch (e) {
+        console.error("Speicher konnte nicht geladen werden", e);
+      }
+    }
+
+    function updateNamesDisplay() {
+      const disp = document.getElementById('active-pair-display');
+      const bA = document.getElementById('btn-sub-A');
+      const bB = document.getElementById('btn-sub-B');
+      if (disp) disp.innerText = `${names.A} & ${names.B}`;
+      if (bA) bA.innerText = names.A;
+      if (bB) bB.innerText = names.B;
+    }
+
+    function switchTab(tabId) {
+      ['punish', 'synergy', 'safety', 'aftercare'].forEach(t => {
+        document.getElementById(`view-${t}`)?.classList.add('hidden');
+        const btn = document.getElementById(`tab-${t}`);
+        if (btn) {
+          btn.className = "py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1";
+        }
+      });
+
+      document.getElementById(`view-${tabId}`)?.classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = "py-2 rounded-xl transition bg-rose-600 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1";
+      }
+    }
+
+    function setPunishedSub(user) {
+      subPartner = user;
+      const bA = document.getElementById('btn-sub-A');
+      const bB = document.getElementById('btn-sub-B');
+      if (user === 'A') {
+        bA.className = "px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs";
+        bB.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
+      } else {
+        bB.className = "px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs";
+        bA.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
+      }
+      renderPunishments();
+    }
+
+    function setPunishLevel(lvl) {
+      currentPunishLvl = lvl;
+      ['leicht', 'mittel', 'schwer'].forEach(l => {
+        const btn = document.getElementById(`btn-lvl-${l}`);
+        if (btn) btn.className = "p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300";
+      });
+      const act = document.getElementById(`btn-lvl-${lvl}`);
+      if (act) act.className = "p-2.5 rounded-xl border transition text-center bg-rose-950/40 border-rose-600 text-rose-300";
+      renderPunishments();
+    }
+
+    // Bestrafungs-Katalog mit 2er-Duldungs-Erkennung
+    function renderPunishments() {
+      const container = document.getElementById('punish-results-container');
+      if (!container) return;
+
+      const subAnswers = answers[subPartner] || {};
+      const items = [];
+
+      // Basis-Bestrafungspool nach Härtegraden geordnet
+      const pool = [
+        // LEICHT (Stufe I)
+        { lvl: 'leicht', title: 'Strafzeilen schreiben oder Fehlerprotokoll', desc: '15 Zeilen mit Füller über den begangenen Regelverstoß verfassen.', type: 'Demut' },
+        { lvl: 'leicht', title: '15 Minuten formale Kniehaltung (Nadu)', desc: 'Ruhiges Knien auf der Matte mit geradem Rücken vor dem Partner.', type: 'Haltung' },
+        { lvl: 'leicht', title: 'Schuh- & Fußpflege als Wiedergutmachung', desc: 'Sorgfältiges Bürsten und Küssen der Schuhe/Füße auf Knien.', type: 'Dienst' },
+        { lvl: 'leicht', title: 'Redeverbot für die nächsten 30 Minuten', desc: 'Sprechen nur nach vorherigem zweimaligen Klopfen und Erlaubnis.', type: 'Protokoll' },
+
+        // MITTEL (Stufe II)
+        { lvl: 'mittel', title: 'Warmes Handspanking (20 gezielte Schläge)', desc: 'Rhythmisches Versohlen des nackten Gesäßes zur körperlichen Erwärmung.', type: 'Impact' },
+        { lvl: 'mittel', title: 'Leder-Armbinder oder Handfesseln hinter dem Rücken', desc: 'Vollständiges Fixieren der Arme für die nächsten 45 Minuten.', type: 'Restriktion' },
+        { lvl: 'mittel', title: 'Kitzelfolter unter Armfixierung', desc: '3 Minuten ununterbrochenes Kitzeln an Rippen und Fußsohlen.', type: 'Sensorik' },
+        { lvl: 'mittel', title: 'Spontane Käfig-Inspektion mit Schlüsselentzug', desc: 'Keuschheitsprüfung mit Verweigerung jeglicher Entlastung.', type: 'Chastity' },
+
+        // SCHWER (Stufe III)
+        { lvl: 'schwer', title: 'Dumpfe Leder-Paddle-Disziplinierung', desc: '10 nachdrückliche Hiebe mit dem breiten Lederpaddle.', type: 'Strenge' },
+        { lvl: 'schwer', title: 'Kerker- oder Wand-Arretierung', desc: 'Fixierung an den Wandösen für mindestens 30 Minuten in der Kälte.', type: 'Härte' },
+        { lvl: 'schwer', title: 'Eiswürfel-Schmelzen auf sensiblen Zonen', desc: 'Langsames Abtropfen von Eis am Bauchnabel und Oberschenkeln.', type: 'Temperatur' }
+      ];
+
+      // Filtern nach gewähltem Härtegrad
+      let filtered = pool.filter(p => p.lvl === currentPunishLvl);
+
+      // Ergänzung: Suche nach Praktiken, die Partner B mit Note 2 bewertet hat
+      // (Note 2 = "Dem Partner zuliebe / als Strafe akzeptiert")
+      let note2Items = [];
+      Object.keys(subAnswers).forEach(k => {
+        if (subAnswers[k] === 2) {
+          note2Items.push({
+            lvl: 'schwer',
+            title: `Akzeptierte Strafhärte: Position ${k.replace('it_', '').replace('_r1', '').replace('_r2', '')}`,
+            desc: `Dieser Punkt wurde von ${names[subPartner]} mit Note 2 als Liebesdienst oder Strafe akzeptiert.`,
+            isNote2: true,
+            type: 'Note-2 Duldung'
+          });
+        }
+      });
+
+      if (currentPunishLvl === 'schwer' && note2Items.length > 0) {
+        filtered = [...filtered, ...note2Items];
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div class="p-3.5 rounded-2xl border ${item.isNote2 ? 'bg-indigo-950/40 border-indigo-500/40' : 'bg-slate-900 border-slate-800'} flex items-start justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.isNote2 ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                ${item.type}
+              </span>
+              ${item.isNote2 ? '<span class="text-[10px] font-bold text-amber-400">🎁 Dem Partner zuliebe</span>' : ''}
+            </div>
+            <strong class="text-xs sm:text-sm font-bold text-white block">${item.title}</strong>
+            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${item.desc}</p>
+          </div>
+          <button onclick="selectPunishment('${item.title}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap">
+            Anwenden
+          </button>
+        </div>
+      `).join('') || '<p class="text-slate-500 text-xs text-center p-4">Keine Strafen für diese Auswahl gefunden.</p>';
+    }
+
+    function selectPunishment(title) {
+      showToast(`Ausgewählt: ${title}`);
+    }
+
+    // Synergie-Berechnung
+    function calculateSynergies() {
+      const base = document.getElementById('synergy-base-select')?.value || 'deprivation';
+      const container = document.getElementById('synergy-results-container');
+      if (!container) return;
+
+      const recommendations = {
+        deprivation: [
+          { icon: '🪢', title: 'Sanfte Shibari-Armfesselung', desc: 'Verstärkt die Schutzlosigkeit der Augenbinde um ein Vielfaches.', match: 'Doppel-5er Match' },
+          { icon: '🧊', title: 'Eiswürfel & Feder-Sensorik', desc: 'Unerwartete Berührungen am Nacken erzeugen massive Gänsehaut.', match: 'Partner mag Note 4' },
+          { icon: '👂', title: 'Zärtlicher Dirty Talk direkt am Ohr', desc: 'Akustischer Fokus durch Wegfall des Sehens.', match: 'Gemeinsame Leidenschaft' }
+        ],
+        shibari: [
+          { icon: '🙈', title: 'Leder-Augenbinde', desc: 'Nimmt dem Sub die Kontrolle über Raum und Haltung.', match: 'Doppel-5er Match' },
+          { icon: '⏳', title: 'Gezieltes Teasing & Edging', desc: 'Quälende Lust ohne Möglichkeit, sich mit den Händen zu wehren.', match: 'Volltreffer' },
+          { icon: '🍵', title: 'Warme Decken & stummes Halten danach', desc: 'Verhindert den Abfall in den Subdrop.', match: 'Essentieller Aftercare' }
+        ],
+        chastity: [
+          { icon: '👑', title: 'Formelle Knie- & Demutshaltung', desc: 'Unterstreicht das Machtgefälle vor der Schlosskontrolle.', match: 'Sehr reizvoll' },
+          { icon: '💥', title: 'Flächiges Handspanking auf den Po', desc: 'Disziplinierende Wärme vor dem Teasen.', match: 'Harmonie-Match' },
+          { icon: '💖', title: 'Warmes Praise Play bei Gehorsam', desc: 'Echtes Lob nach geduldigem Aushalten.', match: 'Doppel-5er Match' }
+        ],
+        impact: [
+          { icon: '🪢', title: 'Fixierung am Bett oder Pranger', desc: 'Sorgt für ruhiges Stillhalten und präzise Treffer.', match: 'Empfohlen' },
+          { icon: '🧊', title: 'Kühlpads & Arnika im Anschluss', desc: 'Sofortige Linderung und liebevolles Beruhigen.', match: 'Aftercare-Pflicht' }
+        ],
+        nuru: [
+          { icon: '🕯️', title: 'Warmer Raum & gedimmtes Kerzenlicht', desc: 'Schafft eine geschützte, zeitlose Oase.', match: 'Sensual Basis' },
+          { icon: '🙈', title: 'Seidentuch über den Augen', desc: 'Fokussiert das Bewusstsein auf das gleitende Hautgefühl.', match: 'Volltreffer' }
+        ],
+        primal: [
+          { icon: '🤼', title: 'Bodenmatte & weiche Kissen', desc: 'Schützt Knie und Gelenke beim leidenschaftlichen Ringen.', match: 'Sicherheit' },
+          { icon: '🐾', title: 'Spielerisches Bratting zum Start', desc: 'Freches Provozieren fordert die Verfolgung heraus.', match: 'Lieblingsdynamik' }
+        ]
+      };
+
+      const hits = recommendations[base] || [];
+      container.innerHTML = hits.map(h => `
+        <div class="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 flex items-start gap-3">
+          <span class="text-2xl">${h.icon}</span>
+          <div class="flex-1">
+            <div class="flex justify-between items-center mb-0.5">
+              <strong class="text-xs font-bold text-white">${h.title}</strong>
+              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${h.match}</span>
+            </div>
+            <p class="text-[11px] text-slate-400">${h.desc}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Ampel-Trigger
+    function triggerTrafficLight(color) {
+      if (color === 'red') {
+        alert("🔴 ROT AUSGELÖST: Session SOFORT unterbrechen, Partner lösen, tief durchatmen!");
+      } else if (color === 'yellow') {
+        showToast("🟡 GELB: Tempo verringern, Nachfragen, Reiz reduzieren.");
+      } else {
+        showToast("🟢 GRÜN: Alles im grünen Bereich.");
+      }
+    }
+
+    // Timer-Logik
+    function startTimer(min) {
+      timerRemaining = min * 60;
+      updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer-toggle');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        if (btn) btn.innerText = "▶ Fortsetzen";
+      } else {
+        timerInterval = setInterval(() => {
+          if (timerRemaining > 0) {
+            timerRemaining--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alert("⏰ SICHERHEITS-TIMER: 20 Minuten erreicht! Blutzirkulation und Fesseln prüfen!");
+          }
+        }, 1000);
+        if (btn) btn.innerText = "⏸ Pausieren";
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemaining = 1200;
+      updateTimerDisplay();
+      const btn = document.getElementById('btn-timer-toggle');
+      if (btn) btn.innerText = "▶ Timer starten";
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      const el = document.getElementById('timer-display');
+      if (el) el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function toggleZenMode() {
+      document.body.classList.toggle('bg-black');
+      showToast("Zen-Modus umgeschaltet");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.innerText = msg;
+      t.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    window.addEventListener('DOMContentLoaded', initSessionApp);
+  </script>
+</body>
+</html>
