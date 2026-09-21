@@ -12,10 +12,23 @@
         extend: {
           colors: {
             brand: {
-              500: '#e11d48',
-              600: '#be123c',
-              700: '#9f1239',
-              900: '#4c0519',
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              950: '#4c0519',
+            },
+            noir: {
+              950: '#05070c',
+              900: '#090d16',
+              850: '#101624',
+              800: '#161f33',
+              700: '#23304b',
+              600: '#38496d',
             }
           }
         }
@@ -29,30 +42,63 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
+    
+    /* Dark Theme (Standard für Session) */
+    html.dark body {
+      background-color: #05070c !important;
+      color: #f8fafc !important;
+    }
+    html.dark .session-card {
+      background-color: #0f1523 !important;
+      border-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+    html.dark .session-panel {
+      background-color: #141c2e !important;
+      border-color: #24334f !important;
+      color: #e2e8f0 !important;
+    }
+    
+    /* Light Theme (Clean Neutral Slate & Wine) */
+    html:not(.dark) body {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .session-card {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .session-panel {
+      background-color: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #1e293b !important;
+    }
+
     .pulse-glow {
-      box-shadow: 0 0 25px rgba(225, 29, 72, 0.4);
+      box-shadow: 0 0 25px rgba(225, 29, 72, 0.45);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md px-4 py-3 sticky top-0 z-40">
+  <header class="border-b session-card/90 backdrop-blur-md px-4 py-3 sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <span class="w-7 h-7 rounded-lg bg-rose-600/20 border border-rose-500/40 text-rose-400 flex items-center justify-center text-sm font-black">
+      <div class="flex items-center space-x-2.5">
+        <span class="w-8 h-8 rounded-xl bg-brand-950 border border-brand-800 text-brand-400 flex items-center justify-center text-sm font-black shadow-inner">
           🕯️
         </span>
         <div>
-          <h1 class="text-xs sm:text-sm font-black tracking-tight text-white">In-Scene Begleiter</h1>
-          <span class="text-[10px] text-slate-500 block -mt-0.5" id="active-pair-display">Lade Profile...</span>
+          <h1 class="text-xs sm:text-sm font-black tracking-tight">In-Scene Begleiter</h1>
+          <span class="text-[10px] text-slate-400 block -mt-0.5" id="active-pair-display">Lade Profile...</span>
         </div>
       </div>
 
       <div class="flex items-center space-x-2">
-        <button onclick="toggleZenMode()" id="btn-zen" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-400 hover:text-white transition">
-          🌙 Zen-Dimmer
+        <button onclick="toggleGlobalTheme()" id="btn-theme-toggle" class="px-2.5 py-1.5 rounded-xl session-panel border text-[11px] font-bold transition flex items-center gap-1">
+          <span id="session-theme-icon">🌙</span> <span class="hidden sm:inline" id="session-theme-text">Nacht</span>
         </button>
-        <a href="index.html" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition">
+        <a href="index.html" class="px-3 py-1.5 rounded-xl session-panel hover:border-brand-700 border text-xs font-bold transition">
           ← Zum Kompass
         </a>
       </div>
@@ -61,45 +107,46 @@
 
   <main class="max-w-4xl mx-auto p-4 sm:p-6 w-full flex-1 space-y-6">
 
-    <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs font-bold">
-      <button onclick="switchTab('punish')" id="tab-punish" class="py-2 rounded-xl transition bg-rose-600 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1">
+    <div class="grid grid-cols-4 gap-1.5 p-1 session-panel rounded-2xl border text-xs font-bold">
+      <button onclick="switchTab('punish')" id="tab-punish" class="py-2 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1">
         <span>⚖️</span> <span>Strafen</span>
       </button>
       <button onclick="switchTab('synergy')" id="tab-synergy" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
         <span>✨</span> <span>Passende Reize</span>
       </button>
       <button onclick="switchTab('safety')" id="tab-safety" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
-        <span>🛑</span> <span>Sicherheit</span>
+        <span>🛑</span> <span>Sicherheit & Timer</span>
       </button>
       <button onclick="switchTab('aftercare')" id="tab-aftercare" class="py-2 rounded-xl transition text-slate-400 hover:text-white flex flex-col sm:flex-row items-center justify-center gap-1">
-        <span>🍵</span> <span>Aftercare</span>
+        <span>🍵</span> <span>Dynamischer Aftercare</span>
       </button>
     </div>
 
+    <!-- VIEW: STRAFEN -->
     <section id="view-punish" class="space-y-4">
-      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+      <div class="p-4 session-card rounded-2xl border space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <label class="text-xs font-bold flex items-center gap-1.5">
             <span>🎯</span> <span>Wer soll diszipliniert / bestraft werden?</span>
           </label>
-          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+          <div class="flex items-center gap-1 session-panel p-1 rounded-xl border text-xs font-bold">
             <button onclick="setPunishedSub('A')" id="btn-sub-A" class="px-2.5 py-1 rounded-lg text-slate-400 transition">Partner 1</button>
-            <button onclick="setPunishedSub('B')" id="btn-sub-B" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs">Partner 2</button>
+            <button onclick="setPunishedSub('B')" id="btn-sub-B" class="px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 2</button>
           </div>
         </div>
 
         <div>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Gewünschter Härtegrad:</span>
           <div class="grid grid-cols-3 gap-2 text-xs font-bold">
-            <button onclick="setPunishLevel('leicht')" id="btn-lvl-leicht" class="p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300">
+            <button onclick="setPunishLevel('leicht')" id="btn-lvl-leicht" class="p-2.5 rounded-xl border transition text-center session-panel text-slate-300">
               🟢 Stufe I: Leicht
               <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Demut, Protokoll, Posen</span>
             </button>
-            <button onclick="setPunishLevel('mittel')" id="btn-lvl-mittel" class="p-2.5 rounded-xl border transition text-center bg-rose-950/40 border-rose-600 text-rose-300">
+            <button onclick="setPunishLevel('mittel')" id="btn-lvl-mittel" class="p-2.5 rounded-xl border transition text-center bg-brand-950/60 border-brand-700 text-brand-200">
               🟡 Stufe II: Moderat
               <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Impact, Restriktion, Entzug</span>
             </button>
-            <button onclick="setPunishLevel('schwer')" id="btn-lvl-schwer" class="p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300">
+            <button onclick="setPunishLevel('schwer')" id="btn-lvl-schwer" class="p-2.5 rounded-xl border transition text-center session-panel text-slate-300">
               🔴 Stufe III: Streng
               <span class="block text-[9.5px] font-normal text-slate-400 mt-0.5">Duldungen (Note 2) & Limits</span>
             </button>
@@ -110,16 +157,17 @@
       <div class="space-y-2" id="punish-results-container"></div>
     </section>
 
+    <!-- VIEW: PASSENDE REIZE -->
     <section id="view-synergy" class="space-y-4 hidden">
-      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+      <div class="p-4 session-card rounded-2xl border space-y-3">
         <div>
-          <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+          <h2 class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
             <span>✨</span> Wähle einen Basiskink eurer Session:
           </h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">Die Engine berechnet harmonische Verstärker aus euren Doppel-5ern und 4ern.</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Die Engine berechnet harmonische Verstärker aus euren echten Noten 4 & 5.</p>
         </div>
 
-        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full bg-slate-950 border border-slate-800 text-xs font-semibold rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-rose-500">
+        <select id="synergy-base-select" onchange="calculateSynergies()" class="w-full session-panel border text-xs font-semibold rounded-xl p-2.5 focus:outline-none focus:border-brand-600">
           <option value="deprivation">🙈 Sinnesentzug & Blindheit (Augenbinde/Kopfhörer)</option>
           <option value="shibari">🪢 Fesselung & Bewegungslosigkeit (Shibari/Leder)</option>
           <option value="chastity">🗝️ Keuschhaltung & Teasing</option>
@@ -132,99 +180,127 @@
       <div class="space-y-2" id="synergy-results-container"></div>
     </section>
 
+    <!-- VIEW: SICHERHEIT & TIMER -->
     <section id="view-safety" class="space-y-4 hidden">
+      <!-- Ampelsystem -->
       <div class="space-y-2">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Tippen zur Bestätigung):</span>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Digitales Ampelsystem (Tippen zur Signalisierung):</span>
         <div class="grid grid-cols-3 gap-2 h-24">
           <button onclick="triggerTrafficLight('green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
             <span class="text-2xl">🟢</span>
             <span>GRÜN</span>
-            <span class="text-[9px] font-normal opacity-80">Alles bestens</span>
+            <span class="text-[9px] font-normal opacity-85">Alles bestens</span>
           </button>
           <button onclick="triggerTrafficLight('yellow')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg transition">
             <span class="text-2xl">🟡</span>
             <span>GELB</span>
-            <span class="text-[9px] font-normal opacity-80">Grenze nah / Tempo raus</span>
+            <span class="text-[9px] font-normal opacity-85">Grenze nah / Tempo raus</span>
           </button>
-          <button onclick="triggerTrafficLight('red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition">
+          <button onclick="triggerTrafficLight('red')" class="bg-brand-700 hover:bg-brand-600 active:scale-95 rounded-2xl flex flex-col items-center justify-center font-black text-xs text-white shadow-lg pulse-glow transition">
             <span class="text-2xl">🔴</span>
             <span>ROT</span>
-            <span class="text-[9px] font-normal opacity-80">SOFORT STOPP</span>
+            <span class="text-[9px] font-normal opacity-85">SOFORT STOPP</span>
           </button>
         </div>
       </div>
 
-      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+      <!-- Realistische Session-Timer mit Verlängerungs-Buttons -->
+      <div class="p-4 session-card rounded-2xl border space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <strong class="text-xs font-bold text-white block">Sicherheits-Timer (Shibari- & Nervenprüfung)</strong>
-            <span class="text-[10.5px] text-slate-400">Erinnert rechtzeitig an Blutzirkulation und Extremitäten.</span>
+            <strong class="text-xs font-bold block">Session-Timer & Zirkulationsprüfung</strong>
+            <span class="text-[10.5px] text-slate-400">Gleichmäßige Zeitführung für ungestörte Immersion.</span>
           </div>
-          <span class="text-xl font-mono font-bold text-rose-400" id="timer-display">20:00</span>
+          <div class="text-right">
+            <span class="text-2xl font-mono font-black text-brand-400 block" id="timer-display">45:00</span>
+            <span class="text-[9.5px] text-slate-400" id="timer-elapsed-info">Verstrichen: 0 Min.</span>
+          </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-xs font-bold">
-          <button onclick="startTimer(15)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">15 Min</button>
-          <button onclick="startTimer(20)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">20 Min</button>
-          <button onclick="startTimer(30)" class="py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition">30 Min</button>
+        <!-- Realistische Dauer-Wahl (45, 75, 120 Min) -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Geplante Session-Dauer:</span>
+          <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+            <button onclick="startTimer(45)" class="py-2 session-panel hover:border-brand-700 rounded-xl border transition">45 Min. (Kompakt)</button>
+            <button onclick="startTimer(75)" class="py-2 session-panel hover:border-brand-700 rounded-xl border transition">75 Min. (Standard)</button>
+            <button onclick="startTimer(120)" class="py-2 session-panel hover:border-brand-700 rounded-xl border transition">120 Min. (Ausgiebig)</button>
+          </div>
         </div>
 
-        <div class="flex gap-2">
-          <button onclick="toggleTimer()" id="btn-timer-toggle" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 rounded-xl font-bold text-xs transition">
+        <!-- Session Verlängern Buttons -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Session spontan verlängern:</span>
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+            <button onclick="extendTimer(15)" class="py-2 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 rounded-xl transition flex items-center justify-center gap-1">
+              <span>⏳</span> <span>+ 15 Min. verlängern</span>
+            </button>
+            <button onclick="extendTimer(30)" class="py-2 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 rounded-xl transition flex items-center justify-center gap-1">
+              <span>⏳</span> <span>+ 30 Min. verlängern</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Steuerung -->
+        <div class="flex gap-2 pt-1">
+          <button onclick="toggleTimer()" id="btn-timer-toggle" class="flex-1 py-2.5 bg-brand-700 hover:bg-brand-600 text-white rounded-xl font-bold text-xs transition shadow-sm">
             ▶ Timer starten
           </button>
-          <button onclick="resetTimer()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-xs transition">
+          <button onclick="resetTimer()" class="px-4 py-2.5 session-panel hover:border-slate-500 rounded-xl font-bold text-xs transition">
             ↺ Reset
           </button>
         </div>
       </div>
 
-      <div class="p-3.5 bg-slate-900/40 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
-        <strong class="text-rose-400 block">Sicherheits-Leitplanke bei Knebel oder Trance:</strong>
-        <p>• <strong>Handdrück-Signal:</strong> 2× festes Händedrücken = Grün / Weiter. 3× schnelles Drücken = Gelb / Pause. Stillstand / Loslassen = Sofortiger Abbruch.</p>
-        <p>• <strong>Drop-Gegenstand:</strong> Ein Tuch oder Glöckchen in der geschlossenen Hand – fällt es zu Boden, wird die Session sofort angehalten.</p>
+      <!-- Sicherheits-Leitplanken -->
+      <div class="p-3.5 session-panel rounded-xl border text-[11px] space-y-1 leading-relaxed">
+        <strong class="text-brand-400 block">Sicherheits-Leitplanke bei Knebel oder Trance:</strong>
+        <p>• <strong>Handdrück-Signal:</strong> 2× fest drücken = Grün / Weiter. 3× schnell drücken = Gelb / Pause. Loslassen = Notstopp.</p>
+        <p>• <strong>Drop-Gegenstand:</strong> Ein Tuch oder Glöckchen in der geschlossenen Hand – fällt es zu Boden, bricht die Session sofort ab.</p>
       </div>
     </section>
 
-    <section id="view-aftercare" class="space-y-3 hidden">
-      <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-2.5">
-        <h2 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-          <span>🍵</span> Die 4-Stufen-Landung (Nachsorge-Checkliste)
-        </h2>
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          Nach intensiven Reizen sinkt der Hormonspiegel drastisch (Gefahr von Subdrop oder Topdrop).
-        </p>
+    <!-- VIEW: DYNAMISCHER AFTERCARE -->
+    <section id="view-aftercare" class="space-y-4 hidden">
+      <div class="p-4 session-card rounded-2xl border space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <span>🍵</span> Dynamische Nachsorge-Zentrale
+            </h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">Automatisch abgestimmt auf eure tatsächliche Session-Dauer und die vollzogenen Praktiken.</p>
+          </div>
+          <button onclick="generateDynamicAftercare()" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs transition touch-pill">
+            🔄 Nachsorge neu berechnen
+          </button>
+        </div>
 
-        <div class="space-y-2 text-xs pt-1">
-          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
-            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
-            <span><strong>Wärme & Hülle:</strong> Dicke Decken, warme Socken, Entspannungstee.</span>
-          </label>
-          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
-            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
-            <span><strong>Körperkontrolle:</strong> Fesselabdrücke mit Arnika versorgen, Kühlpads auflegen.</span>
-          </label>
-          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
-            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
-            <span><strong>Wortlose Geborgenheit:</strong> 15 Minuten stummes Halten ohne Kritik oder Analyse.</span>
-          </label>
-          <label class="flex items-center gap-2.5 p-2 bg-slate-950 rounded-xl border border-slate-800/80 cursor-pointer">
-            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-0">
-            <span><strong>Folgetag-Check:</strong> Fester Reminder für ein kurzes Telefonat / Nachricht morgen.</span>
-          </label>
+        <!-- Aktiver Session-Status -->
+        <div class="p-3 session-panel rounded-xl border flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse"></span>
+            <span>Verstrichene Zeit: <strong id="aftercare-time-display">0 Min.</strong></span>
+          </div>
+          <div class="text-[11px] text-slate-400">
+            Dokumentierte Aktionen in dieser Session: <strong id="aftercare-actions-count" class="text-white">0</strong>
+          </div>
+        </div>
+
+        <!-- Dynamisch generierte Empfehlungen -->
+        <div id="dynamic-aftercare-list" class="space-y-2.5 text-xs">
+          <!-- Wird live per JavaScript befüllt -->
         </div>
       </div>
     </section>
 
   </main>
 
-  <footer class="border-t border-slate-900 px-4 py-2.5 text-center text-[10px] text-slate-600">
+  <footer class="border-t session-card px-4 py-3 text-center text-[10px] text-slate-500">
     🔒 Alle Daten synchronisiert mit dem lokalen Beziehungs-Kompass.
   </footer>
 
-  <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
 
-  <!-- Reale Fragenkataloge einbinden für echten Datenabgleich -->
+  <!-- Fragenkataloge einbinden -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
 
@@ -232,7 +308,11 @@
     let subPartner = 'B';
     let currentPunishLvl = 'mittel';
     let timerInterval = null;
-    let timerRemaining = 1200;
+    let timerRemaining = 45 * 60;
+    let sessionTotalMinutes = 45;
+    let sessionElapsedSeconds = 0;
+
+    let executedActions = []; // Protokolliert in dieser Session angewendete Aktionen/Strafen
 
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
@@ -250,9 +330,11 @@
 
     function initSessionApp() {
       loadStorageData();
+      applySavedTheme();
       updateNamesDisplay();
       renderPunishments();
       calculateSynergies();
+      generateDynamicAftercare();
     }
 
     function loadStorageData() {
@@ -264,6 +346,40 @@
       } catch (e) {
         console.error("Speicher konnte nicht geladen werden", e);
       }
+    }
+
+    /* THEME MANAGEMENT (Global Dark/Light Sync) */
+    function applySavedTheme() {
+      const saved = localStorage.getItem('kompass_theme') || 'dark';
+      if (saved === 'dark') {
+        document.documentElement.classList.add('dark');
+        updateThemeUI('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        updateThemeUI('light');
+      }
+    }
+
+    function toggleGlobalTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('kompass_theme', 'light');
+        updateThemeUI('light');
+        showToast("Helles Design aktiviert");
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('kompass_theme', 'dark');
+        updateThemeUI('dark');
+        showToast("Nacht-Design aktiviert");
+      }
+    }
+
+    function updateThemeUI(theme) {
+      const icon = document.getElementById('session-theme-icon');
+      const text = document.getElementById('session-theme-text');
+      if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
+      if (text) text.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
     }
 
     function updateNamesDisplay() {
@@ -287,7 +403,11 @@
       document.getElementById(`view-${tabId}`)?.classList.remove('hidden');
       const activeBtn = document.getElementById(`tab-${tabId}`);
       if (activeBtn) {
-        activeBtn.className = "py-2 rounded-xl transition bg-rose-600 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1";
+        activeBtn.className = "py-2 rounded-xl transition bg-brand-700 text-white shadow-sm flex flex-col sm:flex-row items-center justify-center gap-1";
+      }
+
+      if (tabId === 'aftercare') {
+        generateDynamicAftercare();
       }
     }
 
@@ -296,10 +416,10 @@
       const bA = document.getElementById('btn-sub-A');
       const bB = document.getElementById('btn-sub-B');
       if (user === 'A') {
-        bA.className = "px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs";
+        bA.className = "px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs";
         bB.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
       } else {
-        bB.className = "px-2.5 py-1 rounded-lg bg-rose-600 text-white transition shadow-xs";
+        bB.className = "px-2.5 py-1 rounded-lg bg-brand-700 text-white transition shadow-xs";
         bA.className = "px-2.5 py-1 rounded-lg text-slate-400 transition";
       }
       renderPunishments();
@@ -310,10 +430,10 @@
       currentPunishLvl = lvl;
       ['leicht', 'mittel', 'schwer'].forEach(l => {
         const btn = document.getElementById(`btn-lvl-${l}`);
-        if (btn) btn.className = "p-2.5 rounded-xl border transition text-center bg-slate-800/80 border-slate-700 text-slate-300";
+        if (btn) btn.className = "p-2.5 rounded-xl border transition text-center session-panel text-slate-300";
       });
       const act = document.getElementById(`btn-lvl-${lvl}`);
-      if (act) act.className = "p-2.5 rounded-xl border transition text-center bg-rose-950/40 border-rose-600 text-rose-300";
+      if (act) act.className = "p-2.5 rounded-xl border transition text-center bg-brand-950/60 border-brand-700 text-brand-200";
       renderPunishments();
     }
 
@@ -341,37 +461,21 @@
       allChapters.forEach(ch => {
         ch.items.forEach(it => {
           if (it.type === 'choice') return;
-          if (isItemTabu(it.id)) return; // 100 % Ausschluss aller Tabus (Note 1)
+          if (isItemTabu(it.id)) return; // 100 % Ausschluss aller Tabus
 
           const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
           const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
 
-          // Note 2: Explizite Duldung / als Strafe akzeptiert
           const isNote2 = (subScore === 2);
-
-          // Zuordnung zu Härtegraden basierend auf Kapitel-Kontext
           let assignedLvl = null;
 
-          // Stufe I (Leicht): Kapitel 21 (Dominanz/Haltung), 22 (Dienen), 23 (Zucht/Protokoll)
-          if ([21, 22, 23].includes(ch.id)) {
-            assignedLvl = 'leicht';
-          }
-          // Stufe II (Moderat): Kapitel 15 (Sinnesentzug), 16 (Spanking moderate), 18 (Bratting), 8 (Teasing)
-          else if ([8, 15, 16, 18].includes(ch.id)) {
-            assignedLvl = 'mittel';
-          }
-          // Stufe III (Streng): Kapitel 31 (Kerker/Bastinado/Eis), Kapitel 34 (Haltestrafen)
-          else if ([31, 34].includes(ch.id)) {
-            assignedLvl = 'schwer';
-          }
+          if ([21, 22, 23].includes(ch.id)) assignedLvl = 'leicht';
+          else if ([8, 15, 16, 18].includes(ch.id)) assignedLvl = 'mittel';
+          else if ([31, 34].includes(ch.id)) assignedLvl = 'schwer';
 
-          // Note-2 Duldungen gehören IMMER zu "Stufe III: Streng"
-          if (isNote2) {
-            assignedLvl = 'schwer';
-          }
+          if (isNote2) assignedLvl = 'schwer';
 
           if (assignedLvl === currentPunishLvl) {
-            // Nur aufnehmen, wenn tatsächlich Bewertungen vorliegen oder echtes Interesse da ist
             if (isNote2 || (domScore >= 3 && subScore >= 2) || (domScore >= 4 && subScore >= 0)) {
               candidates.push({
                 item: it,
@@ -386,7 +490,6 @@
         });
       });
 
-      // Sortieren: Note-2 Duldungen und hohe Doppel-Scores zuerst
       candidates.sort((a, b) => {
         if (a.isNote2 && !b.isNote2) return -1;
         if (!a.isNote2 && b.isNote2) return 1;
@@ -399,11 +502,11 @@
 
       if (candidates.length === 0) {
         container.innerHTML = `
-          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 text-center space-y-2">
+          <div class="p-6 session-card rounded-2xl border text-center space-y-2">
             <span class="text-2xl block">📋</span>
-            <strong class="text-white text-xs block">Keine bewerteten Positionen für diese Stufe gefunden</strong>
+            <strong class="text-xs block">Keine bewerteten Positionen für diese Stufe gefunden</strong>
             <p class="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
-              Für diesen Härtegrad liegen bei <strong>${escapeHtml(names[sub])}</strong> aktuell keine freigegebenen Antworten (z. B. Note 2 als Strafe oder übereinstimmende Noten 3–5) vor. Tabus (Note 1) werden automatisch herausgefiltert.
+              Für diesen Härtegrad liegen bei <strong>${escapeHtml(names[sub])}</strong> aktuell keine freigegebenen Antworten vor.
             </p>
           </div>
         `;
@@ -413,27 +516,27 @@
       container.innerHTML = candidates.slice(0, 15).map((entry, idx) => {
         const it = entry.item;
         return `
-          <div class="p-3.5 rounded-2xl border ${entry.isNote2 ? 'bg-indigo-950/40 border-indigo-500/40' : 'bg-slate-900 border-slate-800'} flex items-start justify-between gap-3">
+          <div class="p-3.5 rounded-2xl border ${entry.isNote2 ? 'bg-brand-950/40 border-brand-800' : 'session-card'} flex items-start justify-between gap-3">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${entry.isNote2 ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${entry.isNote2 ? 'bg-brand-900/60 text-brand-200 border border-brand-700' : 'session-panel text-slate-300 border'}">
                   ${escapeHtml(entry.category)}
                 </span>
                 ${entry.isNote2 ? '<span class="text-[10px] font-bold text-amber-400">🎁 Dem Partner zuliebe / als Strafe akzeptiert (Note 2)</span>' : ''}
               </div>
-              <strong class="text-xs sm:text-sm font-bold text-white block">${it.id}. ${escapeHtml(it.title)}</strong>
+              <strong class="text-xs sm:text-sm font-bold block">${it.id}. ${escapeHtml(it.title)}</strong>
               <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
               
               <div class="flex items-center gap-2 mt-2 text-[10.5px]">
-                <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                <span class="px-2 py-0.5 rounded session-panel border">
                   ${escapeHtml(names[dom])} (Aktiv): <strong>Note ${entry.domScore}</strong>
                 </span>
-                <span class="px-2 py-0.5 rounded ${entry.isNote2 ? 'bg-indigo-950 text-indigo-300 border border-indigo-700/50 font-bold' : 'bg-slate-950 text-slate-300 border border-slate-800'}">
+                <span class="px-2 py-0.5 rounded ${entry.isNote2 ? 'bg-brand-950 text-brand-200 border border-brand-800 font-bold' : 'session-panel border'}">
                   ${escapeHtml(names[sub])} (Passiv): <strong>Note ${entry.subScore}</strong>
                 </span>
               </div>
             </div>
-            <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs transition self-center whitespace-nowrap touch-pill">
+            <button onclick="handleSelectPunishment(${idx})" class="px-3 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs transition self-center whitespace-nowrap touch-pill">
               Anwenden →
             </button>
           </div>
@@ -445,7 +548,18 @@
       const entry = currentFilteredPunishments[idx];
       if (!entry) return;
 
-      showToast(`Ausgewählt: ${entry.item.title}`);
+      // Aktion für dynamischen Aftercare protokollieren
+      executedActions.push({
+        id: entry.item.id,
+        title: entry.item.title,
+        category: entry.category,
+        isNote2: entry.isNote2,
+        sub: subPartner,
+        dom: getDomPartner(),
+        timestamp: Date.now()
+      });
+
+      showToast(`Ausgewählt & dokumentiert: ${entry.item.title}`);
       
       const select = document.getElementById('synergy-base-select');
       const cat = entry.category.toLowerCase();
@@ -471,14 +585,13 @@
       const sub = subPartner;
       const allChapters = window.surveyChapters || [];
 
-      // Kapitel-IDs je nach gewähltem Basiskink
       const targetChapterMap = {
-        deprivation: [15, 2, 3], // Sinnesentzug, Romantik, Tantra
-        shibari: [13, 14, 15, 7], // Halsbänder, Shibari, Möbel, Edging
-        chastity: [7, 8, 21, 22], // Edging, Keuschheit, Dominanz, Dienen
-        impact: [16, 13, 30], // Impact, Fesseln, Aftercare
-        nuru: [31, 3, 15], // Spezial/Nuru, Tantra, Sinnesentzug
-        primal: [18, 16, 24] // Primal, Impact, CNC
+        deprivation: [15, 2, 3],
+        shibari: [13, 14, 15, 7],
+        chastity: [7, 8, 21, 22],
+        impact: [16, 13, 30],
+        nuru: [31, 3, 15],
+        primal: [18, 16, 24]
       };
 
       const allowedChapters = targetChapterMap[base] || [1, 2, 3];
@@ -489,7 +602,7 @@
 
         ch.items.forEach(it => {
           if (it.type === 'choice') return;
-          if (isItemTabu(it.id)) return; // Tabus strikt ignorieren
+          if (isItemTabu(it.id)) return;
 
           const domScore = answers[dom] ? answers[dom][`it_${it.id}_r1`] : undefined;
           const subScore = answers[sub] ? answers[sub][`it_${it.id}_r2`] : undefined;
@@ -511,12 +624,6 @@
           } else if (subScore === 2 && domScore >= 3) {
             badgeText = `🎁 Liebesdienst von ${escapeHtml(names[sub])} (Note 2)`;
             badgeClass = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-          } else if (domScore >= 4) {
-            badgeText = `Wunsch von ${escapeHtml(names[dom])} (Note ${domScore})`;
-            badgeClass = 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20';
-          } else if (subScore >= 4) {
-            badgeText = `Wunsch von ${escapeHtml(names[sub])} (Note ${subScore})`;
-            badgeClass = 'text-purple-400 bg-purple-500/10 border-purple-500/20';
           }
 
           if (badgeText) {
@@ -526,7 +633,7 @@
               subScore: subScore ?? '-',
               badgeText,
               badgeClass,
-              prio: (domScore === 5 && subScore === 5) ? 10 : ((domScore >= 4 && subScore >= 4) ? 8 : ((subScore === 2) ? 6 : 4))
+              prio: (domScore === 5 && subScore === 5) ? 10 : ((domScore >= 4 && subScore >= 4) ? 8 : 5)
             });
           }
         });
@@ -536,11 +643,11 @@
 
       if (matches.length === 0) {
         container.innerHTML = `
-          <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 text-center space-y-2">
+          <div class="p-6 session-card rounded-2xl border text-center space-y-2">
             <span class="text-2xl block">ℹ️</span>
-            <strong class="text-white text-xs block">Noch keine passenden Übereinstimmungen erfasst</strong>
+            <strong class="text-xs block">Noch keine passenden Übereinstimmungen erfasst</strong>
             <p class="text-[11px] text-slate-400 max-w-md mx-auto leading-relaxed">
-              In diesem Themenbereich liegen noch keine gemeinsamen Bewertungen (Noten 3–5 oder Note-2-Duldungen) in eurem Fragebogen vor. Füllt die entsprechenden Kapitel aus, um echte Vorschläge zu sehen.
+              Füllt die entsprechenden Kapitel im Kompass aus, um gemeinsame Vorlieben zu entdecken.
             </p>
           </div>
         `;
@@ -548,19 +655,19 @@
       }
 
       container.innerHTML = matches.slice(0, 10).map(m => `
-        <div class="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 flex items-start gap-3">
-          <span class="text-2xl">✨</span>
+        <div class="p-3.5 session-card rounded-2xl border flex items-start gap-3">
+          <span class="text-xl text-brand-500">✨</span>
           <div class="flex-1">
             <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
-              <strong class="text-xs font-bold text-white">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
+              <strong class="text-xs font-bold">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${m.badgeClass}">${m.badgeText}</span>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">${escapeHtml(m.item.desc)}</p>
             <div class="flex items-center gap-2 mt-2 text-[10.5px]">
-              <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+              <span class="px-2 py-0.5 rounded session-panel border">
                 ${escapeHtml(names[dom])}: Note ${m.domScore}
               </span>
-              <span class="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+              <span class="px-2 py-0.5 rounded session-panel border">
                 ${escapeHtml(names[sub])}: Note ${m.subScore}
               </span>
             </div>
@@ -573,15 +680,24 @@
       if (color === 'red') {
         showToast("🔴 ROT AUSGELÖST: Session SOFORT unterbrechen, Partner lösen, tief durchatmen!");
       } else if (color === 'yellow') {
-        showToast("🟡 GELB: Tempo verringern, Nachfragen, Reiz reduzieren.");
+        showToast("🟡 GELB: Tempo verringern, nachfragen, Druck rausnehmen.");
       } else {
-        showToast("🟢 GRÜN: Alles im grünen Bereich.");
+        showToast("🟢 GRÜN: Alles bestens.");
       }
     }
 
     function startTimer(min) {
+      sessionTotalMinutes = min;
       timerRemaining = min * 60;
       updateTimerDisplay();
+      showToast(`Session-Dauer auf ${min} Minuten eingestellt.`);
+    }
+
+    function extendTimer(extraMin) {
+      timerRemaining += extraMin * 60;
+      sessionTotalMinutes += extraMin;
+      updateTimerDisplay();
+      showToast(`Session um +${extraMin} Minuten verlängert!`);
     }
 
     function toggleTimer() {
@@ -592,13 +708,19 @@
         if (btn) btn.innerText = "▶ Fortsetzen";
       } else {
         timerInterval = setInterval(() => {
+          sessionElapsedSeconds++;
           if (timerRemaining > 0) {
             timerRemaining--;
             updateTimerDisplay();
+
+            // Zirkulationsprüfung alle 15 Minuten
+            if (sessionElapsedSeconds > 0 && sessionElapsedSeconds % 900 === 0) {
+              showToast("⏰ ZIRKULATIONS-CHECK: 15 Minuten vergangen! Finger, Zehen und Fesseln kurz abtasten!");
+            }
           } else {
             clearInterval(timerInterval);
             timerInterval = null;
-            showToast("⏰ SICHERHEITS-TIMER: Zeit erreicht! Blutzirkulation und Fesseln prüfen!");
+            showToast("⏰ SESSION-ZEIT ERREICHT! Geleitet sanft in die Landungs- & Aftercare-Phase über.");
           }
         }, 1000);
         if (btn) btn.innerText = "⏸ Pausieren";
@@ -608,7 +730,8 @@
     function resetTimer() {
       clearInterval(timerInterval);
       timerInterval = null;
-      timerRemaining = 1200;
+      timerRemaining = sessionTotalMinutes * 60;
+      sessionElapsedSeconds = 0;
       updateTimerDisplay();
       const btn = document.getElementById('btn-timer-toggle');
       if (btn) btn.innerText = "▶ Timer starten";
@@ -619,11 +742,101 @@
       const s = timerRemaining % 60;
       const el = document.getElementById('timer-display');
       if (el) el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+      const elapsedMin = Math.floor(sessionElapsedSeconds / 60);
+      const elInfo = document.getElementById('timer-elapsed-info');
+      if (elInfo) elInfo.innerText = `Verstrichen: ${elapsedMin} Min.`;
+
+      const elAfter = document.getElementById('aftercare-time-display');
+      if (elAfter) elAfter.innerText = `${elapsedMin} Min.`;
     }
 
-    function toggleZenMode() {
-      document.body.classList.toggle('bg-black');
-      showToast("Zen-Modus umgeschaltet");
+    function generateDynamicAftercare() {
+      const listContainer = document.getElementById('dynamic-aftercare-list');
+      const actionCountEl = document.getElementById('aftercare-actions-count');
+      if (!listContainer) return;
+
+      if (actionCountEl) actionCountEl.innerText = executedActions.length;
+
+      const elapsedMin = Math.floor(sessionElapsedSeconds / 60);
+      let recommendations = [];
+
+      // 1. DAUER-BASIERTE NACHSORGE
+      if (elapsedMin >= 60) {
+        recommendations.push({
+          icon: "🍫",
+          title: "Glukose- & Kreislauf-Kick (Session über 60 Min.)",
+          desc: "Bei langen Sessions sinkt der Blutzuckerspiegel rapide (Gefahr von Schüttelfrost und Subdrop). Jetzt Traubenzucker, warmen Kakao oder Schokolade reichen!",
+          prio: "high"
+        });
+      }
+
+      recommendations.push({
+        icon: "🛌",
+        title: "Wärme-Hülle & Decken-Kokon",
+        desc: "Durch den plötzlichen Adrenalin- und Endorphinabfall friert der Körper rasch. Dicke Wolldecken und warme Socken bereitlegen und stumm im Arm halten.",
+        prio: "medium"
+      });
+
+      // 2. STRAFEN- & HÄRTEGRAD-SPEZIFISCH
+      const hasNote2 = executedActions.some(a => a.isNote2);
+      if (hasNote2) {
+        recommendations.push({
+          icon: "💖",
+          title: "Praise Play & Dankbarkeit (Note-2 Duldungen vollzogen)",
+          desc: `${names[subPartner]} hat heute Dinge dem Partner zuliebe oder als Strafe erduldet. Jetzt braucht er/sie unbedingte Bestätigung: 'Danke für dein Vertrauen, du hast das wundervoll gemacht.'`,
+          prio: "high"
+        });
+      }
+
+      // 3. PRAKTIKEN-SPEZIFISCH
+      const hasSpanking = executedActions.some(a => a.title.toLowerCase().includes('spank') || a.title.toLowerCase().includes('schlag') || a.category.toLowerCase().includes('impact'));
+      if (hasSpanking) {
+        recommendations.push({
+          icon: "🧴",
+          title: "Hautpflege & Kühlen (Nach Spanking)",
+          desc: "Das Gesäß brennt nach. Arnika-Balsam sanft mit den Händen auftragen oder kühle Hände ruhig auflegen, um die Entzündungswärme abzuleiten.",
+          prio: "medium"
+        });
+      }
+
+      const hasBondage = executedActions.some(a => a.title.toLowerCase().includes('fessel') || a.title.toLowerCase().includes('shibari') || a.category.toLowerCase().includes('shibari'));
+      if (hasBondage) {
+        recommendations.push({
+          icon: "🤲",
+          title: "Gelenke & Durchblutung lockern (Nach Fesseln)",
+          desc: "Handgelenke und Fußknöchel behutsam kreisen lassen. Finger sanft massieren, bis die wohlige Wärme vollkommen zurückgekehrt ist.",
+          prio: "high"
+        });
+      }
+
+      const hasDeprivation = executedActions.some(a => a.title.toLowerCase().includes('augenbinde') || a.title.toLowerCase().includes('maske') || a.title.toLowerCase().includes('kopfhörer'));
+      if (hasDeprivation) {
+        recommendations.push({
+          icon: "🕯️",
+          title: "Sanfte Re-Orientierung (Nach Sinnesentzug)",
+          desc: "Das Licht nur ganz langsam hochdimmen. Mit leiser, ruhiger Stimme sprechen und durch sanftes Kopfkraulen wieder im Hier und Jetzt erden.",
+          prio: "medium"
+        });
+      }
+
+      // 4. VERBINDLICHER 24H-CHECK-IN
+      recommendations.push({
+        icon: "📱",
+        title: "Verbindlicher 24-Stunden-Check-in morgen",
+        desc: `Feste Vereinbarung: Morgen zur Mittagszeit eine kurze Nachricht senden ('Wie fühlt sich dein Körper heute an?'), um ein verzögertes emotionales Tief abzufangen.`,
+        prio: "medium"
+      });
+
+      listContainer.innerHTML = recommendations.map(r => `
+        <div class="p-3 rounded-xl border ${r.prio === 'high' ? 'bg-brand-950/40 border-brand-800' : 'session-panel border'} flex items-start gap-2.5">
+          <span class="text-xl">${r.icon}</span>
+          <div class="flex-1">
+            <strong class="block text-xs ${r.prio === 'high' ? 'text-brand-300' : ''}">${r.title}</strong>
+            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${r.desc}</p>
+          </div>
+        </div>
+      `).join('');
     }
 
     function showToast(msg) {
