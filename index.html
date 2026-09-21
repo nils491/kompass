@@ -13,28 +13,23 @@
         extend: {
           colors: {
             brand: {
-              50: '#fdf2f4',
-              100: '#fce7ea',
-              200: '#fad2d8',
-              500: '#e11d48',
-              600: '#be123c',
-              700: '#9f1239',
-              800: '#831432',
-              900: '#4c0519',
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              950: '#4c0519',
             },
-            partnerA: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            },
-            partnerB: {
-              50: '#f5f3ff',
-              100: '#ede9fe',
-              500: '#8b5cf6',
-              600: '#7c3aed',
-              700: '#6d28d9',
+            noir: {
+              950: '#05070c',
+              900: '#090d16',
+              850: '#101624',
+              800: '#161f33',
+              700: '#23304b',
+              600: '#38496d',
             }
           }
         }
@@ -46,47 +41,48 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      background-color: #090d16;
-      color: #f1f5f9;
     }
-    /* Mystischer, geschmackvoller Dark-Modus */
-    .bg-white {
-      background-color: #0f172a !important;
+    
+    /* Dark Theme (Standard: Obsidian / Anthrazit / Weiß / Weinrot) */
+    html.dark body {
+      background-color: #05070c !important;
+      color: #f8fafc !important;
+    }
+    html.dark .theme-card {
+      background-color: #0f1523 !important;
       border-color: #1e293b !important;
-      color: #f1f5f9 !important;
+      color: #f8fafc !important;
     }
-    .bg-slate-50 {
+    html.dark .theme-panel {
       background-color: #141c2e !important;
-      border-color: #1e293b !important;
-      color: #cbd5e1 !important;
-    }
-    .bg-slate-100 {
-      background-color: #1a243b !important;
-      border-color: #334155 !important;
+      border-color: #24334f !important;
       color: #e2e8f0 !important;
     }
-    .text-slate-900, .text-slate-800, .text-slate-700 {
-      color: #f8fafc !important;
+    html.dark .theme-subtle {
+      background-color: #090d16 !important;
+      border-color: #1a2438 !important;
     }
-    .text-slate-600, .text-slate-500 {
-      color: #94a3b8 !important;
+
+    /* Light Theme (Clean Neutral Slate & Wine) */
+    html:not(.dark) body {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
     }
-    .border-slate-200, .border-slate-300 {
-      border-color: #1e293b !important;
+    html:not(.dark) .theme-card {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
     }
-    input, select {
-      background-color: #0b1120 !important;
-      color: #f8fafc !important;
-      border-color: #334155 !important;
+    html:not(.dark) .theme-panel {
+      background-color: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #1e293b !important;
     }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+    html:not(.dark) .theme-subtle {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 9999px;
-    }
+
     .touch-pill {
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -95,27 +91,29 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-brand-500 selection:text-white flex flex-col">
+<body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
 
-  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xs px-3 sm:px-6 py-2.5">
+  <!-- HEADER NAVIGATION -->
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
       
       <!-- Brand -->
       <div class="flex items-center space-x-2.5">
-        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-500 text-white flex items-center justify-center font-black text-sm shadow-xs">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-700 to-rose-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-brand-950/30">
           🧭
         </span>
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-none">Kink- & Paar-Kompass</h1>
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700 uppercase">SSC</span>
+            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Kink- & Paar-Kompass</h1>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
           </div>
           <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Selbsterkenntnis & Beziehungs-Dynamik</span>
         </div>
       </div>
 
-      <nav class="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700 text-xs font-bold overflow-x-auto">
-        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-slate-950 text-white shadow-xs transition">
+      <!-- Navigation Views -->
+      <nav class="flex items-center theme-panel p-1 rounded-xl border text-xs font-bold overflow-x-auto">
+        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
           📝 Fragebogen
         </button>
         <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
@@ -127,21 +125,27 @@
         </button>
       </nav>
 
+      <!-- Action Buttons & Theme Switcher -->
       <div class="flex items-center gap-1.5">
-        <a href="session.html" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/30 flex items-center gap-1 transition" title="In-Scene Begleiter & Strafen">
+        <!-- Global Theme Switcher Button -->
+        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2.5 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten (Hell / Dunkel)">
+          <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
+        </button>
+
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800/80 flex items-center gap-1 transition" title="In-Scene Begleiter & Strafen">
           <span>🕯️</span> <span class="hidden md:inline">Session-Begleiter</span>
         </a>
-        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/40 flex items-center gap-1 transition">
+        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800/50 flex items-center gap-1 transition">
           <span>⛔</span> <span class="hidden sm:inline">Tabus</span> (<span id="header-tabu-count">0</span>)
         </button>
-        <button onclick="openLexikonModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs border border-slate-700 flex items-center gap-1 transition">
+        <button onclick="openLexikonModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition flex items-center gap-1">
           <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
         </button>
-        <button onclick="openShareModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition flex items-center gap-1 touch-pill">
+        <button onclick="openShareModal()" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
           <span>🔗</span> <span>Partner einladen</span>
         </button>
-        <button onclick="openAccountModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-300 text-xs font-bold transition flex items-center gap-1.5" title="Account & Einstellungen">
-          <span>👤</span> <span class="hidden md:inline">Account & E-Mail</span>
+        <button onclick="openAccountModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Account & Einstellungen">
+          <span>⚙️</span> <span class="hidden md:inline">Account & E-Mail</span>
         </button>
       </div>
 
