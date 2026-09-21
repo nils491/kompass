@@ -798,6 +798,25 @@
                 </div>
               </div>
 
+              <!-- Audio-Modus Wahl (1-Klick Auswahl für den Top) -->
+              <div class="space-y-1.5 pt-1 border-t border-slate-800">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-slate-300">Countdown-Begleitung:</span>
+                  <span class="text-[9.5px] text-brand-300 font-mono font-bold" id="cd-audio-mode-label">🗣️ Selbst zählen</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 text-[11px] font-bold">
+                  <button onclick="setCountdownAudioMode('self')" id="cd-mode-self" class="py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill">
+                    <span>🗣️</span> <span>Selbst</span>
+                  </button>
+                  <button onclick="setCountdownAudioMode('metronome')" id="cd-mode-metronome" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
+                    <span>⏱️</span> <span>Metronom</span>
+                  </button>
+                  <button onclick="setCountdownAudioMode('voice')" id="cd-mode-voice" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
+                    <span>🎙️</span> <span>Stimme</span>
+                  </button>
+                </div>
+              </div>
+
               <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
                 <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
               </button>
@@ -983,6 +1002,7 @@
     let edgeCount = 0;
     let countdownTimer = null;
     let selectedCountdownDuration = 10;
+    let countdownAudioMode = 'self'; // 'self', 'metronome', 'voice'
 
     let zenBreatheInterval = null;
     let bedsideClockInterval = null;
@@ -1090,6 +1110,94 @@
       if (btnText) btnText.innerText = `Countdown starten (${selectedCountdownDuration}s Freigabe)`;
     }
 
+    function setCountdownAudioMode(mode) {
+      countdownAudioMode = mode;
+      const modes = ['self', 'metronome', 'voice'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`cd-mode-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.className = "py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill font-bold shadow-xs";
+          } else {
+            btn.className = "py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill font-bold";
+          }
+        }
+      });
+
+      const label = document.getElementById('cd-audio-mode-label');
+      if (label) {
+        if (mode === 'self') label.innerText = '🗣️ Selbst zählen';
+        else if (mode === 'metronome') label.innerText = '⏱️ Metronom-Takt';
+        else if (mode === 'voice') label.innerText = '🎙️ Weibliche Stimme';
+      }
+
+      saveSessionSnapshot();
+      showToast(mode === 'self' ? 'Modus: Selbst zählen' : (mode === 'metronome' ? 'Modus: Metronom-Takt' : 'Modus: Weibliche Stimme'));
+    }
+
+    function playMetronomeTick(count, total) {
+      if (!isSoundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const isFinal = count === 1;
+
+        // Angenehmer, warmer Holz-Klick / akustischer Metronom-Schlag
+        osc.type = isFinal ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(isFinal ? 880 : 540, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(isFinal ? 440 : 120, audioCtx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(isFinal ? 0.35 : 0.22, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.09);
+
+        if (navigator.vibrate) {
+          navigator.vibrate(isFinal ? [120, 60, 120] : 45);
+        }
+      } catch (e) {
+        console.error("Metronom-Fehler:", e);
+      }
+    }
+
+    function speakCountdownNumber(count) {
+      if (!('speechSynthesis' in window) || !isSoundEnabled) return;
+      try {
+        window.speechSynthesis.cancel();
+        let text = String(count);
+        if (count === 1) {
+          text = "Eins! Jetzt darfst du!";
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'de-DE';
+        utterance.rate = 1.05;
+        utterance.pitch = 1.15; // Angenehm weicher, femininer Grundton
+
+        // Gezielt nach einer deutschen Frauenstimme suchen
+        const voices = window.speechSynthesis.getVoices();
+        const deVoices = voices.filter(v => v.lang && v.lang.startsWith('de'));
+        const femaleDeVoice = deVoices.find(v => {
+          const n = v.name.toLowerCase();
+          return n.includes('female') || n.includes('frauen') || n.includes('helena') || 
+                 n.includes('anna') || n.includes('katja') || n.includes('marlene') || 
+                 n.includes('petra') || n.includes('google deutsch') || n.includes('hedda');
+        }) || deVoices[0];
+
+        if (femaleDeVoice) {
+          utterance.voice = femaleDeVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn("SpeechSynthesis nicht verfügbar:", e);
+      }
+    }
+
     function getCountdownVoiceQuote(count) {
       if (count >= 25) return "„Ganz ruhig durchatmen... halte die Spannung, ich zähle dich herunter.“";
       if (count >= 20) return "„Zwanzig... Spüre das Beben in deinem Körper, aber halte still!“";
@@ -1109,6 +1217,8 @@
 
     function startOrgasmCountdown() {
       if (countdownTimer) clearInterval(countdownTimer);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
       const btn = document.getElementById('btn-start-countdown');
       const disp = document.getElementById('countdown-live-display');
       const numEl = document.getElementById('countdown-number');
@@ -1125,10 +1235,17 @@
           quoteEl.innerText = getCountdownVoiceQuote(currentCount);
         }
         
-        // Tonhöhe steigt harmonisch mit jedem Schritt bis zum Finale
-        const progress = Math.max(0, selectedCountdownDuration - currentCount);
-        const pitchRatio = Math.min(0.6, (progress / Math.max(1, selectedCountdownDuration)) * 0.6);
-        playHarmonicGong(1.0 + pitchRatio);
+        // Audio-Ausgabe je nach gewähltem Modus
+        if (countdownAudioMode === 'metronome') {
+          playMetronomeTick(currentCount, selectedCountdownDuration);
+        } else if (countdownAudioMode === 'voice') {
+          speakCountdownNumber(currentCount);
+        } else {
+          // 'self': Top zählt selbst - keine störenden Töne, nur Display & dezent vibrieren
+          if (navigator.vibrate) {
+            navigator.vibrate(currentCount === 1 ? [100, 50, 100] : 30);
+          }
+        }
 
         if (currentCount <= 1) {
           clearInterval(countdownTimer);
@@ -2141,6 +2258,7 @@
         checkInIntervalSetting,
         edgeCount,
         selectedCountdownDuration,
+        countdownAudioMode,
         timestamp: Date.now()
       };
       sessionStorage.setItem('session_snapshot', JSON.stringify(snap));
@@ -2169,6 +2287,9 @@
           }
           if (snap.selectedCountdownDuration) {
             setCountdownDuration(snap.selectedCountdownDuration);
+          }
+          if (snap.countdownAudioMode) {
+            setCountdownAudioMode(snap.countdownAudioMode);
           }
           if (snap.checkInIntervalSetting) {
             checkInIntervalSetting = snap.checkInIntervalSetting;
