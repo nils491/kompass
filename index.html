@@ -2,12 +2,11 @@
 <html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Kink- & Beziehungs-Kompass (Master-Version)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Sofortiges Auslesen des gespeicherten Designs zur Vermeidung von Flimmern
     (function() {
       const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
       if (savedTheme === 'dark') {
@@ -51,9 +50,12 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
     }
     
-    /* Dark Theme (Obsidian / Anthrazit / Weiß / Weinrot) */
     html.dark body {
       background-color: #05070c !important;
       color: #f8fafc !important;
@@ -73,7 +75,6 @@
       border-color: #1a2438 !important;
     }
 
-    /* Globale Dark-Mode Mappings für dynamische Karten */
     html.dark .bg-white {
       background-color: #0f1523 !important;
       color: #f8fafc !important;
@@ -111,7 +112,6 @@
       border-color: #1e293b !important;
     }
 
-    /* Light Theme (Clean Neutral Slate & Wine) */
     html:not(.dark) body {
       background-color: #f8fafc !important;
       color: #0f172a !important;
@@ -153,12 +153,12 @@
 <body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
 
   <!-- HEADER NAVIGATION -->
-  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
       
-      <!-- Brand mit edlem Vektor-Logo -->
+      <!-- Brand -->
       <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg shadow-brand-950/40 p-1.5 flex-shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
             <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
@@ -183,39 +183,37 @@
         <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
           👤 Mein Profil
         </button>
-        <button onclick="switchMainView('pair')" id="nav-btn-pair" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
-          <span>👥 Paar-Analyse</span>
-          <span id="nav-pair-lock" class="text-[10px]">🔒</span>
-        </button>
+        <a href="analyse.html" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1 font-bold">
+          <span>📊 Paar-Analyse ↗</span>
+        </a>
       </nav>
 
-      <!-- Action Buttons & Theme Switcher -->
-      <div class="flex items-center gap-1.5">
-        <!-- Global Theme Switcher Button -->
-        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2.5 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten (Hell / Dunkel)">
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2 py-1.5 sm:px-2.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten">
           <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
         </button>
-
-        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800/80 flex items-center gap-1 transition" title="In-Scene Begleiter & Strafen">
-          <span>🕯️</span> <span class="hidden md:inline">Session-Begleiter</span>
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
+          <span>🕯️</span> <span class="hidden md:inline">Session</span>
         </a>
-        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800/50 flex items-center gap-1 transition">
-          <span>⛔</span> <span class="hidden sm:inline">Tabus</span> (<span id="header-tabu-count">0</span>)
+        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
+          <span>⛔</span> (<span id="header-tabu-count">0</span>)
         </button>
-        <button onclick="openLexikonModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition flex items-center gap-1">
+        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
           <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
         </button>
-        <button onclick="openShareModal()" class="px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
-          <span>🔗</span> <span>Partner einladen</span>
+        <button onclick="openShareModal()" class="px-2.5 sm:px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
+          <span>🔗</span> <span class="hidden xs:inline">Teilen</span>
         </button>
-        <button onclick="openAccountModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Account & Einstellungen">
-          <span>⚙️</span> <span class="hidden md:inline">Account & E-Mail</span>
+        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
+          <span>⚙️</span>
         </button>
       </div>
 
     </div>
   </header>
 
+  <!-- SUB-HEADER: NUTZER & FORTSCHRITT -->
   <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
       
@@ -239,6 +237,7 @@
     </div>
   </div>
 
+  <!-- HAUPTBEREICH -->
   <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
 
     <!-- VIEW A: FRAGEBOGEN -->
@@ -285,6 +284,7 @@
       </div>
     </section>
 
+    <!-- VIEW B: MEIN PROFIL -->
     <section id="view-single" class="space-y-5 hidden">
       <div id="single-empty-state" class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
         <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 text-2xl mx-auto flex items-center justify-center">
@@ -312,9 +312,11 @@
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">Basierend auf deinen bisherigen Bewertungen und Vorlieben.</p>
           </div>
-          <button onclick="switchMainView('survey')" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
-            ✏️ Antworten nachjustieren
-          </button>
+          <div class="flex items-center gap-2">
+            <a href="analyse.html" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition">
+              Zur großen Paaranalyse ↗
+            </a>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -410,140 +412,16 @@
       </div>
     </section>
 
-    <section id="view-pair" class="space-y-5 hidden">
-      <div id="pair-locked-banner" class="bg-white border border-amber-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
-        <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 text-2xl mx-auto flex items-center justify-center">
-          🔒
-        </div>
-        <div class="max-w-md mx-auto space-y-1.5">
-          <h3 class="text-base font-extrabold text-slate-900">Paar-Analyse ist noch geschützt</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            Nach dem fairen Blind-Prinzip wird der gemeinsame Abgleich erst freigeschaltet, wenn **beide Partner** ihren Bogen ausgefüllt haben. Lade deinen Partner ein oder wechsle oben auf das zweite Profil!
-          </p>
-        </div>
-        <button onclick="openShareModal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-          🔗 Partner-Einladungslink generieren
-        </button>
-      </div>
-
-      <div id="pair-unlocked-content" class="space-y-5 hidden">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
-            <span class="text-2xl font-black text-slate-900" id="kpi-harmony">0 %</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">Gemeinsame Basis</span>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er</span>
-            <span class="text-2xl font-black text-emerald-600" id="kpi-doppel5">0</span>
-            <span class="text-[10px] text-emerald-700 block mt-0.5">Gemeinsame Spitzen</span>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau</span>
-            <span class="text-2xl font-black text-amber-600" id="kpi-bridges">0</span>
-            <span class="text-[10px] text-amber-700 block mt-0.5">Wunsch trifft Duldung</span>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tabus / Limits</span>
-            <span class="text-2xl font-black text-rose-600" id="kpi-tabus">0</span>
-            <span class="text-[10px] text-rose-700 block mt-0.5">Absolute Schranken</span>
-          </div>
-        </div>
-
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
-          <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-            <div>
-              <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <span>⚡</span> Paar-Synergie im Radar
-              </h3>
-              <p class="text-[10.5px] text-slate-500">Gegenüberstellung von <span id="pair-name-1">Partner 1</span> und <span id="pair-name-2">Partner 2</span></p>
-            </div>
-            <div class="flex items-center gap-3 text-[11px] font-bold">
-              <span class="text-indigo-600">🔵 Partner 1</span>
-              <span class="text-purple-600">🟣 Partner 2</span>
-            </div>
-          </div>
-          <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-            <canvas id="pairRadarChart"></canvas>
-          </div>
-        </div>
-
-        <div class="bg-white border border-indigo-200 rounded-2xl p-5 shadow-xs space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Freigeschaltete Kompromiss-Bereitschaft</span>
-              <h3 class="text-sm font-bold text-slate-900 mt-0.5">🎁 Was dein Partner dir zuliebe tun würde (Note 2)</h3>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10.5px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Liebesdienste & Akzeptierte Strafhärte
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
-            Eine Bewertung mit Note 2 bedeutet: Kein eigenes inneres Begehren, aber die Bereitschaft, es **dem Partner zuliebe** auszuprobieren – oder es als **harte Strafe oder Pflicht** zu akzeptieren.
-          </p>
-          <div id="pair-compromises-list" class="space-y-2 text-xs"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
-              <span>⭐</span> Doppel-5er Volltreffer
-            </h3>
-            <div id="pair-doppel5-list" class="space-y-1.5 text-xs"></div>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
-              <span>🌉</span> Brückenbau-Potenziale
-            </h3>
-            <div id="pair-bridges-list" class="space-y-1.5 text-xs"></div>
-          </div>
-        </div>
-
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transparenz-Abgleich</span>
-              <h3 class="text-sm font-bold text-slate-900 mt-0.5">🔍 Detaillierte Praktiken-Einsicht</h3>
-            </div>
-            <div class="text-[11px] text-slate-500" id="pair-transparency-badge">Freigabemodus aktiv</div>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed" id="pair-transparency-hint">
-            Hier werden alle Praktiken entsprechend eurer gegenseitigen Freigabeeinstellungen dargestellt.
-          </p>
-          <div id="pair-detailed-breakdown" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs"></div>
-        </div>
-
-        <div class="bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">🎲</span>
-              <div>
-                <h3 class="text-sm font-bold text-amber-950">Rolling-Dice: Euer Alltags-Kink für heute</h3>
-                <p class="text-[11px] text-amber-800">Kleine, intime Reize ohne Zeitdruck aus euren Matches</p>
-              </div>
-            </div>
-            <button onclick="rollDailyKinkDice()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-              🎲 Neu würfeln
-            </button>
-          </div>
-          <div id="dice-result-card" class="bg-white p-3.5 rounded-xl border border-amber-200 space-y-1 text-xs">
-            <strong class="text-amber-950 block text-xs" id="dice-title">Noch kein Kink gewürfelt</strong>
-            <p class="text-slate-600 text-[11px]" id="dice-desc">Tippe auf 'Neu würfeln', um eine spontane Anregung aus euren Matches zu erhalten.</p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
   </main>
 
+  <!-- FOOTER -->
   <footer class="bg-white border-t border-slate-200 py-6 px-4 mt-8">
     <div class="max-w-4xl mx-auto text-center space-y-3">
       <div class="inline-flex items-center gap-1 text-brand-600 text-xs font-extrabold uppercase tracking-wider bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
         <span>✨</span> Das Fundament: Vertrauen, Liebe & Freiwilligkeit
       </div>
       <p class="text-xs text-slate-600 leading-relaxed max-w-2xl mx-auto">
-        Kink und BDSM sind keine Leistungssportarten und kein Zwang. Jede Session, jede Fessel und jede Rollenverteilung beruht auf dem unantastbaren Fundament gegenseitiger Wertschätzung und <strong>absoluter Freiwilligkeit (SSC: Safe, Sane, Consensual)</strong>. Grenzen sind wertvolle Schutzräume, die Liebe und Vertrauen erst möglich machen.
+        Kink und BDSM sind keine Leistungssportarten und kein Zwang. Jede Session, jede Fessel und jede Rollenverteilung beruht auf dem unantastbaren Fundament gegenseitiger Wertschätzung und <strong>absoluter Freiwilligkeit (SSC: Safe, Sane, Consensual)</strong>.
       </p>
       <div class="text-[11px] text-slate-400">
         🛡️ Alle Antworten bleiben zu 100 % auf diesem Endgerät gespeichert. Keine Cloud, kein Tracking.
@@ -551,7 +429,8 @@
     </div>
   </footer>
 
-  <!-- MODAL: ERSTNUTZER-ONBOARDING -->
+  <!-- MODALS -->
+  <!-- MODAL: ONBOARDING -->
   <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 border-b border-slate-200 flex justify-between items-center">
@@ -567,7 +446,7 @@
           <div class="space-y-1">
             <strong class="text-slate-900 text-sm block">1. Wie möchtest du genannt werden?</strong>
             <p class="text-slate-500 leading-relaxed">
-              Dein Name wird für die Gegenüberstellung in den Auswertungen und im interaktiven Session-Begleiter verwendet.
+              Dein Name wird für die Auswertungen und den Session-Begleiter verwendet.
             </p>
           </div>
           <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
@@ -577,7 +456,7 @@
           <div class="space-y-1">
             <strong class="text-slate-900 text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
             <p class="text-slate-500 leading-relaxed">
-              Wähle sachlich, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
+              Wähle, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
             </p>
           </div>
           <div class="space-y-2">
@@ -606,11 +485,10 @@
           <div class="space-y-1">
             <strong class="text-slate-900 text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
             <p class="text-slate-500 leading-relaxed">
-              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen, um ihn nie zu verlieren.
+              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen.
             </p>
           </div>
           <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-          <p class="text-[10.5px] text-slate-400 italic">Kann jederzeit im Account nachträglich ergänzt oder gelöscht werden.</p>
         </div>
       </div>
 
@@ -626,7 +504,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ACCOUNT & E-MAIL -->
+  <!-- MODAL: ACCOUNT -->
   <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -643,13 +521,8 @@
         </div>
 
         <div class="space-y-1.5">
-          <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backup-Links):</label>
+          <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backups):</label>
           <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="font-bold text-slate-700 block">E-Mail-Adresse deines Partners (Optional):</label>
-          <input type="email" id="account-partner-email-input" onchange="updatePartnerAccountEmail(this.value)" placeholder="partner@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
 
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
@@ -665,42 +538,24 @@
             <strong class="font-bold text-white text-xs">Als App auf dem Smartphone speichern:</strong>
           </div>
           <div class="space-y-1.5 text-[11px] leading-relaxed text-slate-300">
-            <p>• <strong>iPhone (Safari):</strong> Unten auf das Teilen-Symbol <span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 font-mono text-[10px]">⎋ / ↥</span> tippen $\rightarrow$ etwas nach unten scrollen $\rightarrow$ <strong>„Zum Home-Bildschirm“</strong> wählen.</p>
-            <p>• <strong>Android (Chrome):</strong> Oben rechts auf die <strong>drei Punkte</strong> tippen $\rightarrow$ <strong>„App installieren“</strong> oder <strong>„Zum Startbildschirm hinzufügen“</strong> wählen.</p>
+            <p>• <strong>iPhone (Safari):</strong> Teilen-Symbol <span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 font-mono text-[10px]">⎋</span> tippen $\rightarrow$ <strong>„Zum Home-Bildschirm“</strong>.</p>
+            <p>• <strong>Android (Chrome):</strong> Drei Punkte $\rightarrow$ <strong>„App installieren“</strong>.</p>
           </div>
-          <span class="text-[10px] text-indigo-300 block font-medium">✨ Startet danach ohne störende Browserleisten im Vollbild.</span>
         </div>
 
         <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-950 text-xs flex items-center gap-1">
-              <span>⚠️</span> Daten zurücksetzen
-            </span>
-            <span class="text-[10px] text-rose-700">Profil & Antworten leeren</span>
-          </div>
-
           <div id="reset-trigger-area">
             <button onclick="showResetConfirmation()" class="w-full py-2 px-3 bg-white border border-rose-300 hover:bg-rose-100 text-rose-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
               <span>🗑️</span> Mein Profil zurücksetzen (<span id="reset-current-username">Partner 1</span>)
             </button>
           </div>
-
           <div id="reset-confirmation-box" class="hidden p-3 bg-white border border-rose-300 rounded-xl space-y-2 text-xs">
             <strong class="text-rose-950 block font-bold">Bist du sicher?</strong>
-            <p class="text-slate-600 text-[11px] leading-relaxed">
-              Möchtest du alle Antworten, Notizen und den Namen dieses Profils unwiderruflich löschen?
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
-              <button onclick="resetCurrentUserProfile()" class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs transition">
-                Ja, dieses Profil leeren
-              </button>
-              <button onclick="cancelResetConfirmation()" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">
-                Abbrechen
-              </button>
+            <p class="text-slate-600 text-[11px]">Alle Antworten und Notizen dieses Profils werden gelöscht.</p>
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button onclick="resetCurrentUserProfile()" class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs transition">Ja, leeren</button>
+              <button onclick="cancelResetConfirmation()" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">Abbrechen</button>
             </div>
-            <button onclick="resetAllAppData()" class="w-full mt-1 py-1.5 text-center text-[10.5px] text-rose-600 hover:underline font-semibold">
-              Komplette App auf Werkseinstellung (Alle Profile & Daten löschen)
-            </button>
           </div>
         </div>
       </div>
@@ -716,16 +571,11 @@
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-rose-50 border-b border-rose-200 flex justify-between items-center">
         <h3 class="font-extrabold text-rose-950 text-sm flex items-center gap-1.5">
-          <span>⛔</span> Die Rote Tabu- & No-Go-Liste (Absolute Schranken)
+          <span>⛔</span> Die Rote Tabu- & No-Go-Liste (Note 1)
         </h3>
         <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white border border-rose-200 text-rose-700 font-bold hover:bg-rose-100 flex items-center justify-center">✕</button>
       </div>
-      <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto">
-        <p class="text-[11px] text-slate-600 leading-relaxed">
-          Hier sind alle Praktiken aufgeführt, die von mindestens einem von euch mit **Note 1 (Tabu / No-Go)** bewertet wurden.
-        </p>
-        <div id="tabu-modal-list" class="space-y-2"></div>
-      </div>
+      <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto" id="tabu-modal-list"></div>
       <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
         <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Schließen</button>
       </div>
@@ -743,7 +593,7 @@
       </div>
       <div class="p-5 space-y-3.5">
         <p class="text-[11px] text-slate-600 leading-relaxed">
-          Sende diesen sicheren Link an deinen Partner. Deine Antworten sind direkt im Link verschlüsselt hinterlegt – ohne Cloud!
+          Sende diesen Link an deinen Partner. Deine Antworten sind direkt verschlüsselt im Link hinterlegt – ohne Cloud!
         </p>
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
           <input type="text" id="share-link-input" readonly class="w-full text-[11px] bg-white border border-slate-300 rounded-lg p-2 font-mono text-slate-600 select-all">
@@ -751,9 +601,6 @@
             📋 Link in Zwischenablage kopieren
           </button>
         </div>
-        <button onclick="sendPartnerEmailNotification()" class="w-full py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs transition">
-          ✉️ Link per E-Mail an Partner senden
-        </button>
       </div>
       <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
         <button onclick="closeShareModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
@@ -771,7 +618,7 @@
         <button onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
       </div>
       <div class="p-4 border-b border-slate-100">
-        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Shibari, Praise, CBT)..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none">
+        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none">
       </div>
       <div class="p-4 space-y-2 max-h-[60vh] overflow-y-auto" id="lexikon-entries-container"></div>
       <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
@@ -782,6 +629,7 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
 
+  <!-- SKRIPTE -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="js/app.js"></script>
