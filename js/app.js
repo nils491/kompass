@@ -230,6 +230,19 @@ function switchMainView(viewId) {
   const vSingle = document.getElementById('view-single');
   const vPair = document.getElementById('view-pair');
 
+  const uAnswers = answers[currentUser] || {};
+  const currentCount = Object.keys(uAnswers).length;
+
+  if (viewId === 'single' && currentCount < 5) {
+    const modal = document.getElementById('modal-gating-incomplete');
+    const title = document.getElementById('gating-modal-title');
+    const desc = document.getElementById('gating-modal-desc');
+    if (title) title.innerText = "Persönliches Profil noch gesperrt";
+    if (desc) desc.innerText = "Bitte bewerte zuerst die ersten Punkte im Fragebogen, damit dein Profil und deine Archetypen berechnet werden können.";
+    if (modal) modal.classList.remove('hidden');
+    return;
+  }
+
   if (vSurvey) vSurvey.classList.add('hidden');
   if (vSingle) vSingle.classList.add('hidden');
   if (vPair) vPair.classList.add('hidden');
@@ -798,22 +811,32 @@ function openTabuModal() {
       const bR2 = answers.B?.[`it_${it.id}_r2`];
 
       if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-        let who = [];
-        if (aR1 === 1 || aR2 === 1) who.push(names.A || 'Partner 1');
-        if (bR1 === 1 || bR2 === 1) who.push(names.B || 'Partner 2');
-        tabuItems.push({ it, who: who.join(' & ') });
+        let roles = [];
+        if (aR1 === 1) roles.push({ who: names.A || 'Partner 1', type: 'Top (Aktiv / Ausführung)', text: it.r1 });
+        if (aR2 === 1) roles.push({ who: names.A || 'Partner 1', type: 'Bottom (Passiv / Empfangen)', text: it.r2 });
+        if (bR1 === 1) roles.push({ who: names.B || 'Partner 2', type: 'Top (Aktiv / Ausführung)', text: it.r1 });
+        if (bR2 === 1) roles.push({ who: names.B || 'Partner 2', type: 'Bottom (Passiv / Empfangen)', text: it.r2 });
+
+        tabuItems.push({ it, roles });
       }
     });
   });
 
   list.innerHTML = tabuItems.length > 0
     ? tabuItems.map(t => `
-        <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
+        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 space-y-1.5">
           <div class="flex justify-between items-start">
-            <strong class="text-rose-950 font-bold">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-200 text-rose-900">Limit von ${escapeHtml(t.who)}</span>
+            <strong class="text-rose-950 dark:text-rose-200 font-bold text-xs">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
+            <span class="text-[9.5px] font-bold text-rose-700 dark:text-rose-400">Absolute Grenze</span>
           </div>
-          <p class="text-[11px] text-rose-800 mt-0.5">${escapeHtml(t.it.desc)}</p>
+          <p class="text-[10.5px] text-slate-600 dark:text-slate-300">${escapeHtml(t.it.desc)}</p>
+          <div class="flex flex-wrap gap-1 pt-1 border-t border-rose-200/60 dark:border-rose-900/40">
+            ${t.roles.map(r => `
+              <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold ${r.type.includes('Top') ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border dark:border-indigo-700/60' : 'bg-pink-100 text-pink-900 dark:bg-pink-950/80 dark:text-pink-300 dark:border dark:border-pink-700/60'}">
+                ⛔ ${escapeHtml(r.who)} als ${escapeHtml(r.type)}: „${escapeHtml(r.text)}“
+              </span>
+            `).join('')}
+          </div>
         </div>
       `).join('')
     : '<p class="text-slate-400 italic p-3 text-center">Aktuell sind keine Tabus (Note 1) hinterlegt.</p>';
