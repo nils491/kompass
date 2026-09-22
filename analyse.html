@@ -186,6 +186,31 @@
   <!-- HAUPTINHALT -->
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
+    <!-- SPERRBILDSCHIRM BEI UNVOLLSTÄNDIGEM FRAGEBOGEN -->
+    <div id="gate-analyse-incomplete" class="hidden theme-card rounded-3xl p-8 text-center space-y-5 border border-rose-500/30 shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-3xl mx-auto flex items-center justify-center shadow-inner">
+        🔒
+      </div>
+      <div class="max-w-md mx-auto space-y-2">
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Auswertung noch nicht verfügbar</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Die Paar- und Tiefenanalyse basiert auf euren persönlichen Bewertungen. Da der Fragebogen noch nicht ausgefüllt wurde, liegen noch keine Daten für eine verlässliche Auswertung vor.
+        </p>
+      </div>
+      <div class="p-4 theme-panel rounded-2xl border border-slate-700 text-xs text-slate-300 max-w-md mx-auto text-left space-y-1">
+        <strong class="text-white block font-bold">So schaltest du die Analyse frei:</strong>
+        <p>1. Wechsle zurück zum Fragebogen.</p>
+        <p>2. Bewerte die ersten Kapitel nach deinen Vorlieben.</p>
+        <p>3. Anschließend werden eure Synergien und Tabus hier live berechnet.</p>
+      </div>
+      <a href="index.html" class="inline-block px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
+        Jetzt zum Fragebogen wechseln →
+      </a>
+    </div>
+
+    <!-- ANZEIGEBEREICH WENN DATEN VORHANDEN -->
+    <div id="analyse-workspace-container" class="space-y-5">
+
     <!-- TOP-LEVEL TABS: PAARANALYSE VS. TIEFEN-SELBSTPROFIL -->
     <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
       <button onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
@@ -454,14 +479,19 @@
         </div>
 
         <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2 shadow-xs">
-          <h3 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-            <span>⛔</span> Persönliche Tabus & Grenzen (Note 1)
-          </h3>
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⛔</span> Persönliche Tabus & Grenzen (Note 1)
+            </h3>
+            <span class="text-[9px] text-slate-400 font-bold">Top vs. Bottom</span>
+          </div>
           <div id="self-tabus-container" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
     </section>
+
+    </div><!-- Ende #analyse-workspace-container -->
 
   </main>
 
@@ -498,27 +528,27 @@
         sessionStorage.setItem('kompass_unlocked', 'true');
         if (lock) lock.classList.add('hidden');
         if (err) err.classList.add('hidden');
-        showToast("Erfolgreich entsperrt!");
-        initAnalysisApp();
+    function checkSurveyDataGate() {
+      const countA = Object.keys(answers.A || {}).length;
+      const countB = Object.keys(answers.B || {}).length;
+      const gate = document.getElementById('gate-analyse-incomplete');
+      const container = document.getElementById('analyse-workspace-container');
+
+      if (countA < 5 && countB < 5) {
+        if (gate) gate.classList.remove('hidden');
+        if (container) container.classList.add('hidden');
+        return false;
       } else {
-        if (err) err.classList.remove('hidden');
+        if (gate) gate.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
+        return true;
       }
     }
 
-    function checkSiteLockscreen() {
-      const lock = document.getElementById('site-lockscreen');
-      if (!lock) return true;
-      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-        lock.classList.add('hidden');
-        return true;
-      } else {
-        lock.classList.remove('hidden');
-        return false;
-      }
-    }
     function initAnalysisApp() {
       loadStorageData();
       applySavedTheme();
+      if (!checkSurveyDataGate()) return;
       updateNamesDisplay();
       renderPairAnalysis();
       renderSelfAnalysis();
@@ -656,7 +686,12 @@
           const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
 
           if (isTabu) {
-            tabusList.push({ item: it, chapter: ch, aR1, aR2, bR1, bR2 });
+            let reasons = [];
+            if (aR1 === 1) reasons.push(`${names.A} als Top (Aktiv: ${it.r1})`);
+            if (aR2 === 1) reasons.push(`${names.A} als Bottom (Passiv: ${it.r2})`);
+            if (bR1 === 1) reasons.push(`${names.B} als Top (Aktiv: ${it.r1})`);
+            if (bR2 === 1) reasons.push(`${names.B} als Bottom (Passiv: ${it.r2})`);
+            tabusList.push({ item: it, chapter: ch, reasons, aR1, aR2, bR1, bR2 });
           } else {
             // Doppel-5er Komplementär (Aktiv trifft Passiv)
             if (aR1 === 5 && bR2 === 5) {
@@ -810,8 +845,18 @@
           tag = `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold theme-panel border border-slate-700 text-slate-400">Offen</span>`;
         }
 
+        let tabuDetailText = '';
+        if (d.isTabu) {
+          let tReasons = [];
+          if (d.aR1 === 1) tReasons.push(`⛔ ${names.A} als Top (Ausführung)`);
+          if (d.aR2 === 1) tReasons.push(`⛔ ${names.A} als Bottom (Empfangen)`);
+          if (d.bR1 === 1) tReasons.push(`⛔ ${names.B} als Top (Ausführung)`);
+          if (d.bR2 === 1) tReasons.push(`⛔ ${names.B} als Bottom (Empfangen)`);
+          tabuDetailText = `<div class="text-[10px] text-rose-300 pt-1 font-semibold">${tReasons.join(' • ')}</div>`;
+        }
+
         return `
-          <div class="p-2.5 rounded-xl theme-panel border border-slate-800 space-y-1">
+          <div class="p-2.5 rounded-xl theme-panel border ${d.isTabu ? 'border-rose-900/60 bg-rose-950/20' : 'border-slate-800'} space-y-1">
             <div class="flex items-center justify-between gap-2">
               <strong class="text-white text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
               ${tag}
@@ -820,6 +865,7 @@
               <span>${escapeHtml(names.A)}: Aktiv ${d.aR1 ?? '-'} | Passiv ${d.aR2 ?? '-'}</span>
               <span>${escapeHtml(names.B)}: Aktiv ${d.bR1 ?? '-'} | Passiv ${d.bR2 ?? '-'}</span>
             </div>
+            ${tabuDetailText}
           </div>
         `;
       }).join('');
@@ -975,24 +1021,34 @@
         (ch.items || []).forEach(it => {
           const r1 = uAnswers[`it_${it.id}_r1`];
           const r2 = uAnswers[`it_${it.id}_r2`];
-          if (r1 === 5) highs.push(`${it.title} (Aktiv: ${it.r1})`);
-          if (r2 === 5) highs.push(`${it.title} (Passiv: ${it.r2})`);
-          if (r1 === 1) tabus.push(`${it.title} (Aktiv abgelehnt)`);
-          if (r2 === 1) tabus.push(`${it.title} (Passiv abgelehnt)`);
+          if (r1 === 5) highs.push({ title: it.title, role: it.r1, type: 'Top (Aktiv / Ausführen)' });
+          if (r2 === 5) highs.push({ title: it.title, role: it.r2, type: 'Bottom (Passiv / Empfangen)' });
+          if (r1 === 1) tabus.push({ title: it.title, role: it.r1, type: 'Als Top (Aktiv abgelehnt)' });
+          if (r2 === 1) tabus.push({ title: it.title, role: it.r2, type: 'Als Bottom (Passiv abgelehnt)' });
         });
       });
 
       const hEl = document.getElementById('self-highs-container');
       if (hEl) {
         hEl.innerHTML = highs.length > 0 
-          ? highs.map(h => `<div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">⭐ ${escapeHtml(h)}</div>`).join('')
+          ? highs.map(h => `
+              <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200 flex justify-between items-center">
+                <span>⭐ <strong>${escapeHtml(h.title)}</strong> <em class="text-[10px] text-emerald-300 block">„${escapeHtml(h.role)}“</em></span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-900/60 text-emerald-300">${h.type}</span>
+              </div>
+            `).join('')
           : '<p class="text-slate-400 italic">Noch keine 5er vergeben.</p>';
       }
 
       const tEl = document.getElementById('self-tabus-container');
       if (tEl) {
         tEl.innerHTML = tabus.length > 0
-          ? tabus.map(t => `<div class="p-2 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200">⛔ ${escapeHtml(t)}</div>`).join('')
+          ? tabus.map(t => `
+              <div class="p-2 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200 flex justify-between items-center">
+                <span>⛔ <strong>${escapeHtml(t.title)}</strong> <em class="text-[10px] text-rose-300 block">„${escapeHtml(t.role)}“</em></span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${t.type.includes('Top') ? 'bg-indigo-900/60 text-indigo-300 border border-indigo-700/50' : 'bg-pink-900/60 text-pink-300 border border-pink-700/50'}">${t.type}</span>
+              </div>
+            `).join('')
           : '<p class="text-slate-400 italic">Keine Tabus gesetzt.</p>';
       }
 
