@@ -35,7 +35,7 @@ function initApp() {
   }
 
   updateCurrentUserUI();
-  renderCurrentChapter();
+  renderCurrentChapter(false);
   renderQuickGrid();
   updateProgressBar();
   updateTabuBadge();
@@ -258,7 +258,7 @@ function switchMainView(viewId) {
   if (viewId === 'survey') {
     if (vSurvey) vSurvey.classList.remove('hidden');
     if (btnS) btnS.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition";
-    renderCurrentChapter();
+    renderCurrentChapter(false);
   } else if (viewId === 'single') {
     if (vSingle) vSingle.classList.remove('hidden');
     if (btnSi) btnSi.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition";
@@ -276,7 +276,7 @@ function switchMainView(viewId) {
 function setCurrentUser(user) {
   currentUser = user;
   updateCurrentUserUI();
-  renderCurrentChapter();
+  renderCurrentChapter(false);
   updateProgressBar();
   updateTabuBadge();
   checkChapterQuickGridVisibility();
@@ -308,7 +308,7 @@ function updateCurrentUserUI() {
   if (singleName) singleName.innerText = names[u] || 'Partner 1';
 }
 
-function renderCurrentChapter() {
+function renderCurrentChapter(shouldScroll = false) {
   const chapters = window.surveyChapters || [];
   if (chapters.length === 0) return;
   if (currentChapterIndex >= chapters.length) currentChapterIndex = 0;
@@ -354,16 +354,16 @@ function renderCurrentChapter() {
             <div>
               <div class="flex items-center justify-between gap-2">
                 <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-                <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
+                <button type="button" onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
               <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 choice-buttons-group">
               ${(it.options || []).map(opt => {
                 const isChecked = (valChoice === opt.val);
                 return `
-                  <button onclick="recordChoiceAnswer(${it.id}, '${opt.val}')" 
+                  <button type="button" onclick="recordChoiceAnswer(${it.id}, '${opt.val}', this)" data-val="${opt.val}"
                           class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
                     ${opt.label}
                   </button>
@@ -379,33 +379,33 @@ function renderCurrentChapter() {
             <div>
               <div class="flex items-center justify-between gap-2">
                 <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-                <button onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
+                <button type="button" onclick="searchInLexikon('${escapeHtml(it.title)}')" class="text-[10px] text-slate-400 hover:text-slate-600">📖 Lexikon</button>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
             </div>
 
-            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR1}">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
-                <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR1)}</span>
+                <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR1)}</span>
               </div>
-              <div class="grid grid-cols-6 gap-1">
+              <div class="grid grid-cols-6 gap-1 scale-buttons-row">
                 ${[0, 1, 2, 3, 4, 5].map(sc => `
-                  <button onclick="recordScaleAnswer('${keyR1}',${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                  <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
                     ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
                   </button>
                 `).join('')}
               </div>
             </div>
 
-            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR2}">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
-                <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR2)}</span>
+                <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR2)}</span>
               </div>
-              <div class="grid grid-cols-6 gap-1">
+              <div class="grid grid-cols-6 gap-1 scale-buttons-row">
                 ${[0, 1, 2, 3, 4, 5].map(sc => `
-                  <button onclick="recordScaleAnswer('${keyR2}',${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                  <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
                     ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
                   </button>
                 `).join('')}
@@ -420,7 +420,9 @@ function renderCurrentChapter() {
   }
 
   container.innerHTML = html;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (shouldScroll) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 function getPillLabel(score) {
@@ -443,21 +445,53 @@ function getScoreActiveStyle(sc) {
   return 'bg-slate-800 text-white border-slate-900 shadow-xs font-black';
 }
 
-function recordScaleAnswer(key, score) {
+function recordScaleAnswer(key, score, btnEl) {
   if (!answers[currentUser]) answers[currentUser] = {};
   answers[currentUser][key] = score;
   saveToLocalStorage();
-  renderCurrentChapter();
+
+  // Schnelle In-Place DOM-Aktualisierung ohne Seiten-Rebuild & ohne Springen
+  if (btnEl && btnEl.parentElement) {
+    const buttons = btnEl.parentElement.querySelectorAll('button');
+    buttons.forEach(b => {
+      const sc = parseInt(b.getAttribute('data-score'), 10);
+      if (sc === score) {
+        b.className = `py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${getScoreActiveStyle(sc)}`;
+      } else {
+        b.className = 'py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill bg-white border-slate-200 text-slate-600 hover:bg-slate-100';
+      }
+    });
+    const label = btnEl.closest('[data-scale-key]')?.querySelector('.scale-label');
+    if (label) label.innerText = getPillLabel(score);
+  } else {
+    renderCurrentChapter(false);
+  }
+
   updateProgressBar();
   updateTabuBadge();
   checkChapterQuickGridVisibility();
 }
 
-function recordChoiceAnswer(id, val) {
+function recordChoiceAnswer(id, val, btnEl) {
   if (!answers[currentUser]) answers[currentUser] = {};
   answers[currentUser][`it_${id}_choice`] = val;
   saveToLocalStorage();
-  renderCurrentChapter();
+
+  // Schnelle In-Place DOM-Aktualisierung ohne Seiten-Rebuild & ohne Springen
+  if (btnEl && btnEl.parentElement) {
+    const buttons = btnEl.parentElement.querySelectorAll('button');
+    buttons.forEach(b => {
+      const isChecked = (b.getAttribute('data-val') === val);
+      if (isChecked) {
+        b.className = 'p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs';
+      } else {
+        b.className = 'p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100';
+      }
+    });
+  } else {
+    renderCurrentChapter(false);
+  }
+
   updateProgressBar();
   checkChapterQuickGridVisibility();
 }
@@ -471,7 +505,7 @@ function recordNote(id, text) {
 function prevChapter() {
   if (currentChapterIndex > 0) {
     currentChapterIndex--;
-    renderCurrentChapter();
+    renderCurrentChapter(true);
   }
 }
 
@@ -479,7 +513,7 @@ function nextChapter() {
   const chapters = window.surveyChapters || [];
   if (currentChapterIndex < chapters.length - 1) {
     currentChapterIndex++;
-    renderCurrentChapter();
+    renderCurrentChapter(true);
   } else {
     switchMainView('single');
   }
@@ -488,6 +522,7 @@ function nextChapter() {
 function jumpToChapter(idx) {
   currentChapterIndex = idx;
   switchMainView('survey');
+  renderCurrentChapter(true);
 }
 
 function renderQuickGrid() {
@@ -495,7 +530,7 @@ function renderQuickGrid() {
   const chapters = window.surveyChapters || [];
   if (!grid || chapters.length === 0) return;
   grid.innerHTML = chapters.map((ch, idx) => `
-    <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
+    <button type="button" onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
       ${idx + 1}. ${escapeHtml(ch.title)}
     </button>
   `).join('');
@@ -558,32 +593,37 @@ function renderSingleAnalysis() {
   if (contentBox) contentBox.classList.remove('hidden');
 
   let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-  let totalPoints = 0;
+  let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
 
-  Object.keys(uAnswers).forEach(k => {
-    const v = uAnswers[k];
-    if (typeof v === 'number' && v > 0) {
-      totalPoints += v;
-      if (k.includes('115') || k.includes('117') || k.includes('198') || k.includes('336')) pPower += v;
-      else if (k.includes('217') || k.includes('262') || k.includes('264') || k.includes('287')) pSensation += v;
-      else if (k.includes('319') || k.includes('320') || k.includes('322') || k.includes('526')) pNurturing += v;
-      else if (k.includes('303') || k.includes('304') || k.includes('386') || k.includes('581')) pThrill += v;
-      else pVisual += v;
-    }
+  const allChapters = window.surveyChapters || [];
+  allChapters.forEach(ch => {
+    (ch.items || []).forEach(it => {
+      const v1 = uAnswers[`it_${it.id}_r1`];
+      const v2 = uAnswers[`it_${it.id}_r2`];
+      const addScore = (val) => {
+        if (typeof val === 'number') {
+          if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
+          else if ([13, 16, 17].includes(ch.id)) { pSensation += val; countSensation += 5; }
+          else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
+          else if ([24, 25, 31].includes(ch.id)) { pThrill += val; countThrill += 5; }
+          else if ([9, 10, 11].includes(ch.id)) { pVisual += val; countVisual += 5; }
+        }
+      };
+      addScore(v1);
+      addScore(v2);
+    });
   });
 
-  const maxP = Math.max(1, totalPoints);
-  setBar('power', Math.min(100, Math.round((pPower / maxP) * 220)));
-  setBar('sensation', Math.min(100, Math.round((pSensation / maxP) * 220)));
-  setBar('nurturing', Math.min(100, Math.round((pNurturing / maxP) * 220)));
-  setBar('thrill', Math.min(100, Math.round((pThrill / maxP) * 220)));
-  setBar('visual', Math.min(100, Math.round((pVisual / maxP) * 220)));
+  setBar('power', countPower > 0 ? Math.round((pPower / countPower) * 100) : 0);
+  setBar('sensation', countSensation > 0 ? Math.round((pSensation / countSensation) * 100) : 0);
+  setBar('nurturing', countNurturing > 0 ? Math.round((pNurturing / countNurturing) * 100) : 0);
+  setBar('thrill', countThrill > 0 ? Math.round((pThrill / countThrill) * 100) : 0);
+  setBar('visual', countVisual > 0 ? Math.round((pVisual / countVisual) * 100) : 0);
 
   let high5 = [];
   let tabus = [];
 
-  const chapters = window.surveyChapters || [];
-  chapters.forEach(ch => {
+  allChapters.forEach(ch => {
     (ch.items || []).forEach(it => {
       const r1 = uAnswers[`it_${it.id}_r1`];
       const r2 = uAnswers[`it_${it.id}_r2`];
@@ -658,7 +698,7 @@ function renderSingleRadar() {
         });
       }
     });
-    return possible > 0 ? Math.round((earned / possible) * 100) : 50;
+    return possible > 0 ? Math.round((earned / possible) * 100) : 0;
   });
 
   singleRadarInstance = new Chart(canvas, {
@@ -753,7 +793,7 @@ function resetCurrentUserProfile() {
   closeAccountModal();
   
   updateCurrentUserUI();
-  renderCurrentChapter();
+  renderCurrentChapter(false);
   updateProgressBar();
   updateTabuBadge();
   checkChapterQuickGridVisibility();
@@ -792,7 +832,7 @@ function generateRandomTestData() {
   saveToLocalStorage();
   updateProgressBar();
   updateTabuBadge();
-  renderCurrentChapter();
+  renderCurrentChapter(false);
   closeAccountModal();
   showToast("🎲 Zufällige Testdaten erfolgreich generiert!");
 }
