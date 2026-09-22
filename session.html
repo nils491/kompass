@@ -142,6 +142,30 @@
     </div>
   </div>
 
+  <!-- SPERRBILDSCHIRM (FRAGEBOGEN NOCH NICHT AUSGEFÜLLT) -->
+  <div id="gate-survey-incomplete" class="hidden fixed inset-0 z-[148] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-rose-500/40 text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center text-3xl shadow-inner">
+        🛑
+      </div>
+      <div class="space-y-2">
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Fragebogen noch nicht ausgefüllt</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Der Session-Begleiter schützt euch im Schlafzimmer aktiv vor Grenzüberschreitungen. Um die Session, den Timer und die Werkzeuge zu nutzen, müssen eure Schutzgrenzen und Tabus zuerst im Fragebogen erfasst werden!
+        </p>
+      </div>
+      <div class="p-3.5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-[11px] text-rose-200 text-left space-y-1.5">
+        <strong class="block font-bold text-rose-300">🛡️ Warum ist das unerlässlich?</strong>
+        <p>• Trennung von Top-Tabus (Aktiv) und Bottom-Tabus (Passiv)</p>
+        <p>• Schutz vor No-Gos bei der heutigen Rollenverteilung</p>
+        <p>• Passgenaue Disziplinierungen statt unpassender Strafen</p>
+      </div>
+      <a href="index.html" class="block w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill text-center">
+        Jetzt zum Fragebogen wechseln →
+      </a>
+    </div>
+  </div>
+
   <!-- KOMPAKTER HEADER (AUFGERÄUMT FÜR SMARTPHONES) -->
   <header class="sticky top-0 z-40 session-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
@@ -328,14 +352,14 @@
         <div class="flex items-center gap-2">
           <span class="text-2xl">⛔</span>
           <div>
-            <h3 class="text-sm sm:text-base font-black text-rose-300">Gemeinsame Tabu- & No-Go-Liste</h3>
-            <span class="text-[10px] text-slate-400">Absolute Schutzgrenzen (Note 1) beider Partner</span>
+            <h3 class="text-sm sm:text-base font-black text-rose-300">Tabus nach Rolle & Paardynamik</h3>
+            <span class="text-[10px] text-slate-400">Differenziert nach Top- (Aktiv) und Bottom-Grenzen (Passiv)</span>
           </div>
         </div>
         <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs" id="session-tabu-list-content">
+      <div class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs" id="session-tabu-list-content">
         <p class="text-slate-400 italic text-center py-4">Lade Tabu-Liste...</p>
       </div>
 
@@ -2167,43 +2191,142 @@
       if (!container) return;
 
       const allChapters = window.surveyChapters || [];
-      let tabus = [];
+      const domPartner = getDomPartner();
+      const domName = names[domPartner] || (domPartner === 'A' ? 'Partner 1' : 'Partner 2');
+      const subName = names[subPartner] || (subPartner === 'A' ? 'Partner 1' : 'Partner 2');
+
+      let acuteTabus = [];
+      let generalTabus = [];
 
       allChapters.forEach(ch => {
         ch.items.forEach(it => {
-          const aR1 = answers.A[`it_${it.id}_r1`];
-          const aR2 = answers.A[`it_${it.id}_r2`];
-          const bR1 = answers.B[`it_${it.id}_r1`];
-          const bR2 = answers.B[`it_${it.id}_r2`];
+          if (it.type === 'choice') return;
 
-          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-            let who = [];
-            if (aR1 === 1 || aR2 === 1) who.push(names.A || 'Partner 1');
-            if (bR1 === 1 || bR2 === 1) who.push(names.B || 'Partner 2');
-            tabus.push({ it, who: who.join(' & ') });
+          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
+          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
+          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
+
+          // 1. Akute Schutzgrenzen für heutige Rollenverteilung:
+          // Dom ist Top: Ablehnung von r1 durch Dom ist akut verboten!
+          const domR1 = (domPartner === 'A') ? aR1 : bR1;
+          // Sub ist Bottom: Ablehnung von r2 durch Sub ist akut verboten!
+          const subR2 = (subPartner === 'A') ? aR2 : bR2;
+
+          let isAcute = false;
+          let acuteReasons = [];
+          if (domR1 === 1) {
+            isAcute = true;
+            acuteReasons.push(`Top ${domName} lehnt Ausführung ab (${it.r1})`);
+          }
+          if (subR2 === 1) {
+            isAcute = true;
+            acuteReasons.push(`Bottom ${subName} lehnt Empfangen ab (${it.r2})`);
+          }
+
+          if (isAcute) {
+            acuteTabus.push({ it, ch, reasons: acuteReasons });
+          }
+
+          // 2. Allgemeine Erfassung nach Rollen
+          let roleHits = [];
+          if (aR1 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Top (Aktiv)', roleText: it.r1 });
+          if (aR2 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Bottom (Passiv)', roleText: it.r2 });
+          if (bR1 === 1) roleHits.push({ who: names.B || 'Partner 2', roleType: 'Top (Aktiv)', roleText: it.r1 });
+          if (bR2 === 1) roleHits.push({ who: names.B || 'Partner 2', roleType: 'Bottom (Passiv)', roleText: it.r2 });
+
+          if (roleHits.length > 0) {
+            generalTabus.push({ it, ch, roleHits });
           }
         });
       });
 
-      if (tabus.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 italic text-center py-4">Keine Tabus (Note 1) hinterlegt.</p>';
-      } else {
-        container.innerHTML = tabus.map(t => `
-          <div class="p-2.5 rounded-xl bg-rose-950/30 border border-rose-800/50 space-y-1">
-            <div class="flex justify-between items-start">
-              <strong class="text-rose-200 font-bold text-xs">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-              <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-rose-900/60 text-rose-300">Grenze von ${escapeHtml(t.who)}</span>
-            </div>
-            <p class="text-[10.5px] text-slate-300">${escapeHtml(t.it.desc)}</p>
-          </div>
-        `).join('');
-      }
+      let html = '';
 
+      // Sektion 1: Akut wirksam heute
+      html += `
+        <div class="p-3 rounded-2xl bg-rose-950/60 border border-rose-700/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs font-black text-rose-200 flex items-center gap-1.5">
+              <span>⚡</span> <span>HEUTE AKUT VERBOTEN (Dynamik: ${domName} ➔ ${subName})</span>
+            </strong>
+            <span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-rose-800 text-white">${acuteTabus.length} No-Gos</span>
+          </div>
+          <p class="text-[10px] text-rose-300 leading-tight">
+            Diese Praktiken dürfen heute keinesfalls vorkommen, weil entweder Top ${domName} sie nicht ausführen oder Bottom ${subName} sie nicht empfangen möchte.
+          </p>
+          <div class="space-y-1.5 pt-1">
+            ${acuteTabus.length > 0 ? acuteTabus.map(t => `
+              <div class="p-2 rounded-xl bg-slate-900/90 border border-rose-800/60 text-[11px] space-y-0.5">
+                <div class="flex justify-between items-center">
+                  <strong class="text-white">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
+                  <span class="text-[9px] font-bold text-rose-400 bg-rose-950 px-1.5 py-0.5 rounded border border-rose-800">Akut</span>
+                </div>
+                <div class="text-[10px] text-rose-300">${t.reasons.map(r => `• ${escapeHtml(r)}`).join('<br>')}</div>
+              </div>
+            `).join('') : '<p class="text-slate-400 italic text-[11px]">Keine akuten No-Gos für diese Rollenverteilung hinterlegt.</p>'}
+          </div>
+        </div>
+      `;
+
+      // Sektion 2: Alle hinterlegten Tabus nach Rolle
+      html += `
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            Alle hinterlegten Tabus beider Partner (nach Rollen aufgeschlüsselt)
+          </span>
+          <div class="space-y-1.5">
+            ${generalTabus.length > 0 ? generalTabus.map(t => `
+              <div class="p-2.5 rounded-xl session-panel border border-slate-700/60 space-y-1">
+                <div class="flex justify-between items-center">
+                  <strong class="text-slate-200 text-xs">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
+                  <span class="text-[9.5px] text-slate-400 font-medium">${escapeHtml(t.ch.title)}</span>
+                </div>
+                <div class="flex flex-wrap gap-1 pt-0.5">
+                  ${t.roleHits.map(h => `
+                    <span class="px-2 py-0.5 rounded-lg text-[9.5px] font-bold ${h.roleType.includes('Top') ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60' : 'bg-pink-950/80 text-pink-300 border border-pink-700/60'}">
+                      ⛔ ${escapeHtml(h.who)} als ${escapeHtml(h.roleType)}: „${escapeHtml(h.roleText)}“
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('') : '<p class="text-slate-400 italic text-center py-2">Keine Tabus hinterlegt.</p>'}
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
       document.getElementById('modal-session-tabus')?.classList.remove('hidden');
     }
 
     function closeSessionTabuModal() {
       document.getElementById('modal-session-tabus')?.classList.add('hidden');
+    }
+
+    function updateTabuCounts() {
+      const allChapters = window.surveyChapters || [];
+      const domPartner = getDomPartner();
+      let acuteCount = 0;
+      let totalCount = 0;
+
+      allChapters.forEach(ch => {
+        ch.items.forEach(it => {
+          if (it.type === 'choice') return;
+          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
+          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
+          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
+
+          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) totalCount++;
+
+          const domR1 = (domPartner === 'A') ? aR1 : bR1;
+          const subR2 = (subPartner === 'A') ? aR2 : bR2;
+          if (domR1 === 1 || subR2 === 1) acuteCount++;
+        });
+      });
+
+      const cntEl = document.getElementById('header-tabu-count');
+      if (cntEl) cntEl.innerText = `${acuteCount} akut / ${totalCount}`;
     }
 
     function setSubPartner(p) {
@@ -2224,6 +2347,7 @@
         if (pB) pB.className = "px-3 py-1.5 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition touch-pill";
         if (pA) pA.className = "px-3 py-1.5 rounded-xl font-bold session-panel border text-slate-400 transition touch-pill";
       }
+      updateTabuCounts();
       renderPhaseUI();
       showToast(`Unterworfener Part: ${names[p] || p}`);
     }
@@ -2456,6 +2580,18 @@
         if (a) answers = JSON.parse(a);
         if (nm) names = JSON.parse(nm);
 
+        const countA = Object.keys(answers.A || {}).length;
+        const countB = Object.keys(answers.B || {}).length;
+        const gate = document.getElementById('gate-survey-incomplete');
+
+        // Gating-Prüfung: Wurde der Fragebogen überhaupt ausgefüllt?
+        if (countA < 5 && countB < 5) {
+          if (gate) gate.classList.remove('hidden');
+          return;
+        } else {
+          if (gate) gate.classList.add('hidden');
+        }
+
         const subA = document.getElementById('sub-name-A');
         const subB = document.getElementById('sub-name-B');
         if (subA) subA.innerText = names.A || 'Partner 1';
@@ -2464,18 +2600,7 @@
         document.querySelectorAll('.portal-sub-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
         document.querySelectorAll('.portal-sub-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
 
-        let count = 0;
-        const allChapters = window.surveyChapters || [];
-        allChapters.forEach(ch => {
-          ch.items.forEach(it => {
-            if (answers.A[`it_${it.id}_r1`] === 1 || answers.A[`it_${it.id}_r2`] === 1 ||
-                answers.B[`it_${it.id}_r1`] === 1 || answers.B[`it_${it.id}_r2`] === 1) {
-              count++;
-            }
-          });
-        });
-        const cntEl = document.getElementById('header-tabu-count');
-        if (cntEl) cntEl.innerText = count;
+        updateTabuCounts();
       } catch (e) {
         console.error("Ladefehler:", e);
       }
