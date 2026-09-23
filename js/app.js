@@ -29,50 +29,67 @@ let accounts = {
 
 // 5 Kernbereiche des Konsens- & Sicherheits-Konfigurators
 const safetyOptionsDefinition = {
-  safeword: {
-    title: "1. Primäres Safeword-System",
-    desc: "Wie signalisiert ihr im Normalfall eine Überschreitung der Belastungsgrenze?",
+  equipment: {
+    title: "1. Notfall-Werkzeuge & Ausrüstungs-Standard",
+    desc: "Liegt bei jeder Fessel- oder Seilsession ein Sicherheits-Cutter bereit und wie wird Spielzeug gelagert?",
     options: [
-      { val: "traffic", label: "🚦 Klassische Ampel (Grün = Weiter, Gelb = Sanfter, Rot = Sofort-Stopp)" },
-      { val: "code_word", label: "🌵 Festes Code-Wort (z. B. 'Kaktus' oder 'Halt')" },
-      { val: "tactile_hand", label: "🤝 Taktiler Handdruck (2x = Gut, 3x = Sanfter, Hand loslassen = Stopp)" }
+      { val: "cutter_mandatory", label: "✂️ Sicherheits-Cutter Pflicht: Liegt bei jeder Fesselung/Seilsession sichtbar in Griffweite des Tops" },
+      { val: "cutter_shibari", label: "🪢 Cutter nur bei komplexem Shibari (bei Klett reicht Handzug)" },
+      { val: "safe_storage", label: "🔐 Kinderschutz & Truhe: Spielzeug & Fesseln in abschließbarer Box mit Zahlenschloss" },
+      { val: "digital_lock", label: "📱 Digitale Diskretion: Fotos nur im geschützten PIN-Tresor, keine Cloud-Galerien" }
     ]
   },
-  gag_signal: {
-    title: "2. Notfall-Signal bei Knebelung / Mundverschluss",
-    desc: "Wie bleibt der Bottom handlungs- und sprechfähig, wenn der Mund verschlossen ist?",
+  safeword: {
+    title: "2. Not-Signale & Safeword-System",
+    desc: "Wie signalisiert ihr im Normalfall eine Überschreitung der Belastungsgrenze?",
     options: [
-      { val: "drop_cloth", label: "🪨 Drop-Tuch: Tuch in der Faust; fällt es zu Boden, bricht alles sofort ab" },
-      { val: "closed_fist", label: "✊ Hand-Signal: 3 Sekunden feste Faust oder 3x Klopfen auf den Boden" },
-      { val: "bell_rattle", label: "🔔 Akustischer Signalgeber: Glöckchen oder Rassel in der Hand" }
+      { val: "traffic", label: "🚦 Klassische Ampel (Grün = Weiter, Gelb = Sanfter/Pause, Rot = Sofort-Stopp)" },
+      { val: "code_word", label: "🌵 Festes Code-Wort (z. B. 'Kaktus' oder 'Halt')" },
+      { val: "tactile_hand", label: "🤝 Taktiler Handdruck (2x = Gut, 3x = Sanfter, Hand loslassen = Not-Halt)" },
+      { val: "drop_cloth", label: "🪨 Drop-Tuch bei Knebelung: Tuch in der Faust; fällt es zu Boden, bricht alles sofort ab" },
+      { val: "tap_out", label: "✊ Tap-Out: Dreimaliges Klopfen auf den Boden oder Partner beendet alles" }
+    ]
+  },
+  vital_checks: {
+    title: "3. Physische Sicherheit & Vital-Checks",
+    desc: "Wie kontrolliert ihr Blutzirkulation, Nerven und Körperempfinden bei Fixierungen?",
+    options: [
+      { val: "check_15min", label: "⏱️ Verbindlicher 15-Minuten-Check: Finger-Temperatur, Hautfarbe und Puls prüfen" },
+      { val: "tingle_stop", label: "⚡ Sofortiges Lösen: Beim kleinsten Kribbeln oder Kältegefühl sofort Knoten lockern" },
+      { val: "pain_split", label: "🩺 Klare Schmerz-Trennung: Dumpfer Gewebereiz erlaubt, Gelenk- & Stechschmerz führt zu Sofort-Halt" },
+      { val: "breath_safety", label: "🫁 Strikter Verzicht auf Erstickungsspiele: Niemals Kehlkopf oder Nase/Mund komplett verschließen" }
+    ]
+  },
+  environment: {
+    title: "4. Schlafzimmer-Umgebung & Vorbereitung",
+    desc: "Welche Rahmenbedingungen gelten für Raum, Substanzen und Kreislauf?",
+    options: [
+      { val: "sober_strict", label: "🛡️ 100 % Nüchternheit: Keinerlei Alkohol oder Drogen vor und während BDSM-Sessions" },
+      { val: "bedside_care", label: "🥤 Notfall-Versorgung am Bett: Trinkflasche mit Strohhalm & Traubenzucker griffbereit" },
+      { val: "preheat_room", label: "🌡️ Wärmeschutz: Raum vorheizen & dicke Decken bereithalten (Verharren kühlt rasch aus)" },
+      { val: "flight_mode", label: "📵 Digitale Ruhe: Flugmodus / Stummschaltung aller Telefone während der Session" }
     ]
   },
   disobedience: {
-    title: "3. Umgang mit Regelverstößen & Frechheit",
-    desc: "Wie soll mit Ungehorsam, Vorlautheit oder Regelverletzungen umgegangen werden?",
+    title: "5. D/s-Rahmen & Umgang mit Ungehorsam",
+    desc: "Wie soll mit Vorlautheit, Regelverletzungen oder Streit umgegangen werden?",
     options: [
-      { val: "spanking", label: "✋ Körperliche Zucht: Handspanking oder Versohlen über den Knien" },
-      { val: "formal_corner", label: "🧘 Formale Besinnung: In der Ecke stehen, Knie-Abbitte, Strafzeilen schreiben" },
+      { val: "spanking", label: "✋ Körperliche Zucht: Handspanking oder Versohlen über den Knien mit Mitzählen" },
+      { val: "formal_corner", label: "🧘 Formale Besinnung: In der Ecke stehen (Corner Time), Knie-Abbitte, Strafzeilen" },
       { val: "chores_ban", label: "🧹 Praktische Wiedergutmachung: Hausarbeit, Handy-Verbot für den Abend" },
-      { val: "talk_only", label: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch ohne Disziplinierung" }
+      { val: "talk_only", label: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch ohne Disziplinierung" },
+      { val: "dispute_halt", label: "🛑 Alltagsfrieden: Echter Alltagsstreit stoppt sofort alle D/s-Rollen" }
     ]
   },
   aftercare: {
-    title: "4. Bevorzugter Aftercare-Schwerpunkt",
-    desc: "Was braucht der Bottom nach dem Absinken von Endorphin & Adrenalin am dringendsten?",
+    title: "6. Aftercare & Nachsorge-Protokoll",
+    desc: "Was braucht ihr nach dem Absinken von Endorphin & Adrenalin, um nicht in den Subdrop zu fallen?",
     options: [
       { val: "warmth", label: "🛌 Körperwärme & Stille: Dicke Decken, heißer Tee, stummes Halten im Arm" },
-      { val: "praise_words", label: "💖 Verbaler Zuspruch & De-Briefing: Lob ('Praise'), Schutzworte & Stolz" },
-      { val: "bath_care", label: "🛁 Pflege-Ritual: Warmes Entspannungsbad, behutsames Einbalsamieren der Haut" }
-    ]
-  },
-  privacy: {
-    title: "5. Privatsphäre & Diskretion",
-    desc: "Wie vertraulich soll eure Kink-Dynamik nach außen behandelt werden?",
-    options: [
-      { val: "secret", label: "🔒 Absolutes Geheimnis: 100 % privat, niemand im Umfeld darf davon wissen" },
-      { val: "scene_friends", label: "👥 Szene-Freunde: Ausgewählte vertraute Kontakte dürfen Bescheid wissen" },
-      { val: "relaxed", label: "🌐 Entspannter Umgang: Keine Geheimniskrämerei bei privaten Fragen" }
+      { val: "praise_words", label: "💖 Verbaler Zuspruch & De-Briefing: Lob ('Good girl/boy'), Schutzworte & Stolz" },
+      { val: "bath_care", label: "🛁 Pflege-Ritual: Warmes Entspannungsbad, behutsames Einbalsamieren der beanspruchten Haut" },
+      { val: "offline_landing", label: "⏳ Mindestens 20 Minuten Smartphone-Verbot nach der Session (gemeinsames Landen)" },
+      { val: "checkin_24h", label: "📱 Verbindlicher 24h-Check-in am nächsten Tag per Kurznachricht oder Telefonat" }
     ]
   }
 };
@@ -917,13 +934,16 @@ function renderCustomKinkCardHtml(cKink) {
 function renderSafetyConfiguratorUI() {
   const currentCfg = safetyConfig[currentUser] || {};
   let out = `
-    <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-200 text-xs space-y-4 mb-4 shadow-xs">
-      <div class="border-b border-teal-200/80 pb-2.5">
-        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-teal-600 text-white uppercase tracking-wider">Konsens- & Sicherheits-Konfigurator</span>
-        <h3 class="text-sm sm:text-base font-extrabold text-teal-950 mt-1">Eure gemeinsame Sicherheits-Architektur</h3>
-        <p class="text-[11px] text-teal-900/80 leading-relaxed mt-0.5">
-          Sicherheitsmechanismen und Fürsorge sind keine 0–5-Vorlieben. Wähle hier mit einem Klick deine bevorzugte Methode in den 5 Schlüsselbereichen. Das System ermittelt automatisch euren harmonischen Kodex.
-        </p>
+    <div id="safety-configurator-card" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-indigo-50 dark:from-teal-950/40 dark:to-indigo-950/40 border border-teal-200 dark:border-teal-800/80 text-xs space-y-4 mb-4 shadow-xs">
+      <div class="border-b border-teal-200/80 dark:border-teal-800 pb-2.5 flex items-center justify-between">
+        <div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-teal-600 text-white uppercase tracking-wider">Konsens- & Sicherheits-Konfigurator</span>
+          <h3 class="text-sm sm:text-base font-extrabold text-teal-950 dark:text-teal-200 mt-1">Eure 6 verbindlichen Sicherheits-Module</h3>
+          <p class="text-[11px] text-teal-900/80 dark:text-teal-300 leading-relaxed mt-0.5">
+            Cutter, Safewords, Vital-Checks und Aftercare sind keine 0–5-Vorlieben. Wähle hier mit einem Klick eure Standards. Das System generiert daraus euren gemeinsamen Ehrenkodex.
+          </p>
+        </div>
+        <span class="text-2xl">🛡️</span>
       </div>
 
       <div class="space-y-3.5">
@@ -933,16 +953,16 @@ function renderSafetyConfiguratorUI() {
     const area = safetyOptionsDefinition[areaKey];
     const userVal = currentCfg[areaKey];
     out += `
-      <div class="p-3 bg-white rounded-xl border border-teal-100 space-y-2">
+      <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-teal-100 dark:border-teal-900/60 space-y-2">
         <div>
-          <strong class="text-xs font-bold text-slate-900 block">${area.title}</strong>
-          <span class="text-[10.5px] text-slate-500">${area.desc}</span>
+          <strong class="text-xs font-bold text-slate-900 dark:text-white block">${area.title}</strong>
+          <span class="text-[10.5px] text-slate-500 dark:text-slate-400">${area.desc}</span>
         </div>
         <div class="grid grid-cols-1 gap-1.5">
           ${area.options.map(opt => {
             const isSelected = (userVal === opt.val);
             return `
-              <button type="button" onclick="recordSafetyChoice('${areaKey}', '${opt.val}')" class="p-2 rounded-lg border text-left text-xs transition touch-pill ${isSelected ? 'bg-teal-50 border-teal-600 text-teal-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
+              <button type="button" onclick="recordSafetyChoice('${areaKey}', '${opt.val}')" class="p-2 rounded-lg border text-left text-xs transition touch-pill ${isSelected ? 'bg-teal-50 dark:bg-teal-950/80 border-teal-600 dark:border-teal-500 text-teal-950 dark:text-teal-200 font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}">
                 ${opt.label}
               </button>
             `;
