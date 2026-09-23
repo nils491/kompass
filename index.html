@@ -495,19 +495,20 @@
 
   <!-- MODAL: ONBOARDING MIT ANATOMIE-AUSWAHL -->
   <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
-      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs max-h-[90vh] flex flex-col justify-between">
+      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
         <div>
           <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400">Willkommen im Kompass</span>
           <h3 class="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">Setup für <span id="onboarding-user-title">Partner 1</span></h3>
         </div>
         <div class="flex items-center gap-2">
-          <span class="px-2 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-[10px] text-slate-600 dark:text-slate-300" id="onboarding-step-indicator">Schritt 1 von 3</span>
+          <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-[10px] text-slate-600 dark:text-slate-300" id="onboarding-step-indicator">Schritt 1 von 4</span>
           <button type="button" onclick="closeOnboardingModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold" title="Schließen & direkt starten">✕</button>
         </div>
       </div>
 
-      <div class="p-6 space-y-5">
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        <!-- SCHRITT 1: NAME & ANATOMIE -->
         <div id="onboarding-step-1" class="space-y-4">
           <div class="space-y-1">
             <strong class="text-slate-900 dark:text-white text-sm block">1. Name & Geschlechtsorgane</strong>
@@ -536,11 +537,85 @@
           </div>
         </div>
 
-        <div id="onboarding-step-2" class="hidden space-y-3">
+        <!-- SCHRITT 2: ANLEITUNG & BEWERTUNGSSKALA (DAS 6-STUFEN-SYSTEM) -->
+        <div id="onboarding-step-2" class="hidden space-y-4">
           <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
+            <strong class="text-slate-900 dark:text-white text-sm block">2. Anleitung: Wie bewerte ich richtig?</strong>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
+              Jede Praktik hat zwei getrennte Zeilen: <strong>Aktiv (Was ich tun/führen will)</strong> und <strong>Passiv (Was ich empfangen/erdulden will)</strong>. Jede Note hat eine klare Bedeutung und steuert die Auswertung:
+            </p>
+          </div>
+
+          <!-- Skalen-Karten mit Konsequenz-Erklärung -->
+          <div class="space-y-2">
+            <div class="p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/60 dark:bg-rose-950/30 space-y-0.5">
+              <strong class="text-rose-950 dark:text-rose-200 font-extrabold text-xs block">⛔ Note 1: Absolutes Tabu & Grenze</strong>
+              <p class="text-[10.5px] text-rose-800 dark:text-rose-300 leading-normal">
+                Das möchte ich unter keinen Umständen erleben – weder aktiv tun noch passiv ertragen.
+              </p>
+              <span class="text-[10px] font-bold text-rose-700 dark:text-rose-400 block">Wozu es führt: Die Praktik wird sofort in die rote Tabuliste aufgenommen, blockiert jede Session-Idee und wird in der Paar-Analyse als striktes No-Go geschützt.</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/30 space-y-0.5">
+              <strong class="text-indigo-950 dark:text-indigo-200 font-extrabold text-xs block">🎁 Note 2: Dem Partner zuliebe / Akzeptierte Strafe</strong>
+              <p class="text-[10.5px] text-indigo-800 dark:text-indigo-300 leading-normal">
+                Kein eigenes inneres Verlangen, aber ich bin bereit, es dem Partner zuliebe zu tun/dulden, oder im BDSM als Strafe und Pflicht zu akzeptieren.
+              </p>
+              <span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 block">Wozu es führt: Erscheint in der Paaranalyse als wertvoller „Liebesdienst“ und fließt im Session-Begleiter als maßgeschneiderte Disziplinierungs-Option ein.</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30 space-y-0.5">
+              <strong class="text-blue-950 dark:text-blue-200 font-extrabold text-xs block">💡 Note 3: Neugierig / Gesprächsbedarf</strong>
+              <p class="text-[10.5px] text-blue-800 dark:text-blue-300 leading-normal">
+                Ich bin prinzipiell neugierig oder offen, brauche aber vorher ein gemeinsames Gespräch über Bedingungen, Tempo und Sicherheit.
+              </p>
+              <span class="text-[10px] font-bold text-blue-700 dark:text-blue-400 block">Wozu es führt: Bildet mit einem hohen Wunsch des Partners eine „Brückenbau-Chance“ mit konkretem Gesprächsleitfaden.</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/60 dark:bg-amber-950/30 space-y-0.5">
+              <strong class="text-amber-950 dark:text-amber-200 font-extrabold text-xs block">✨ Note 4: Reizvoll / Schöne Bereicherung</strong>
+              <p class="text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
+                Macht mich an und bereichert unser Liebesleben sehr gern regelmäßig ohne große Hürden.
+              </p>
+              <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 block">Wozu es führt: Wird als starkes Interesse gewertet und generiert gemeinsame Playbooks und Szenenbausteine.</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/60 dark:bg-emerald-950/30 space-y-0.5">
+              <strong class="text-emerald-950 dark:text-emerald-200 font-extrabold text-xs block">⭐ Note 5: Leidenschaft / Must-Have</strong>
+              <p class="text-[10.5px] text-emerald-800 dark:text-emerald-300 leading-normal">
+                Absoluter Favorit, tiefe Leidenschaft oder ein unverzichtbarer Kern meiner sexuellen Erfüllung.
+              </p>
+              <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block">Wozu es führt: Trifft es auf eine 5 des Partners, entsteht ein „Doppel-5er Volltreffer“ mit höchster Priorität für eure Sessions.</span>
+            </div>
+
+            <div class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
+              <strong class="text-slate-800 dark:text-slate-200 font-extrabold text-xs block">0: Entfällt / Neutrales Desinteresse</strong>
+              <p class="text-[10.5px] text-slate-600 dark:text-slate-400 leading-normal">
+                Reizt mich nicht, stößt mich aber auch nicht ab; einfach kein Thema für mich.
+              </p>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block">Wozu es führt: Wird im Blind-Match neutral ignoriert und belastet die Auswertung nicht.</span>
+            </div>
+
+            <!-- SCHAM-BUTTON ERKLÄRUNG -->
+            <div class="p-3 rounded-2xl border border-purple-300 dark:border-purple-800/80 bg-purple-50 dark:bg-purple-950/40 space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">❤️‍🔥</span>
+                <strong class="text-purple-950 dark:text-purple-200 font-extrabold text-xs">Der „Hemmschwelle / Schäme mich“-Button</strong>
+              </div>
+              <p class="text-[10.5px] text-purple-900 dark:text-purple-300 leading-relaxed">
+                Manche Wünsche (z. B. Keuschheit, Pegging, Blas-Training, DDLG) reizen dich vielleicht sehr (Note 3–5), aber es ist dir peinlich, offen dazu zu stehen. Aktiviere dafür einfach diesen Button.
+              </p>
+              <span class="text-[10px] font-bold text-purple-700 dark:text-purple-400 block">Wozu es führt: Dein Partner sieht in der Analyse einen geschützten Hinweis („Mit besonderem Feingefühl & ohne jede Bewertung ansprechen“), sodass verletzliche Fantasien niemals ins Lächerliche gezogen werden.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHRITT 3: DATENFREIGABE AN DEN PARTNER -->
+        <div id="onboarding-step-3" class="hidden space-y-3">
+          <div class="space-y-1">
+            <strong class="text-slate-900 dark:text-white text-sm block">3. Deine Transparenz gegenüber deinem Partner</strong>
             <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Wähle, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
+              Wähle, wie deine Antworten in der Paar-Analyse für deinen Partner sichtbar sein sollen:
             </p>
           </div>
           <div class="space-y-2">
@@ -565,18 +640,20 @@
           </div>
         </div>
 
-        <div id="onboarding-step-3" class="hidden space-y-3">
+        <!-- SCHRITT 4: E-MAIL BACKUP (OPTIONAL) -->
+        <div id="onboarding-step-4" class="hidden space-y-3">
           <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
+            <strong class="text-slate-900 dark:text-white text-sm block">4. E-Mail-Sicherung (Vollkommen optional)</strong>
             <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen.
+              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen, um deine Daten jederzeit wieder aufrufen zu können.
             </p>
           </div>
           <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <p class="text-[10px] text-slate-400 italic">Du kannst dies auch später jederzeit in den Account-Einstellungen anpassen.</p>
         </div>
       </div>
 
-      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
         <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-100">
           ← Zurück
         </button>
