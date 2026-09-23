@@ -190,7 +190,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
             <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
             <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
+            <circle cx="12" cy="1.5" fill="#f43f5e" />
           </svg>
         </div>
         <div>
@@ -198,7 +198,7 @@
             <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Intim- & Paar-Kompass</h1>
             <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
           </div>
-          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Beziehungs-Dynamik</span>
+          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Hetero-Dynamik</span>
         </div>
       </div>
 
@@ -223,16 +223,16 @@
         <a href="session.html" onclick="return handleProtectedNavigation(event, 'session.html')" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
           <span>🕯️</span> <span class="hidden md:inline">Session</span>
         </a>
-        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
+        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition" title="Tabu-Liste einsehen">
           <span>⛔</span> (<span id="header-tabu-count">0</span>)
         </button>
-        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
+        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="A–Z Lexikon">
           <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
         </button>
         <button onclick="openShareModal()" class="px-2.5 sm:px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
           <span>🔗</span> <span class="hidden xs:inline">Teilen</span>
         </button>
-        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition">
+        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="Account, Anatomie & Einstellungen">
           <span>⚙️</span>
         </button>
       </div>
@@ -247,15 +247,15 @@
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
         <span class="text-[10.5px] font-bold text-slate-500 pl-2">Du füllst aus für:</span>
         <button onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs">
-          <span>🔵</span> <span id="user-display-A">Partner 1</span>
+          <span>🔵</span> <span id="user-display-A">Partner 1 (♂️)</span>
         </button>
         <button onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
-          <span>🟣</span> <span id="user-display-B">Partner 2</span>
+          <span>🟣</span> <span id="user-display-B">Partner 2 (♀️)</span>
         </button>
       </div>
 
       <div class="flex items-center gap-2.5 flex-1 max-w-xs sm:max-w-md justify-end">
-        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 %</span>
+        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 % (0/635 Praktiken bewertet)</span>
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
           <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
         </div>
@@ -265,10 +265,12 @@
   </div>
 
   <!-- HAUPTBEREICH -->
-  <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-6">
+  <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
     <!-- VIEW A: FRAGEBOGEN -->
     <section id="view-survey" class="space-y-4">
+      
+      <!-- SCHNELLVERZEICHNIS -->
       <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
         <div class="flex items-center justify-between text-xs font-bold text-slate-700">
           <span>📑 Kapitel-Schnellverzeichnis</span>
@@ -277,6 +279,31 @@
         <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]"></div>
       </div>
 
+      <!-- FILTER- & SUCHLEISTE -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <div class="flex flex-wrap items-center gap-1.5" id="survey-filter-buttons">
+          <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition">
+            Alle
+          </button>
+          <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition">
+            ⏳ Unbeantwortet
+          </button>
+          <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-emerald-700 hover:bg-emerald-50 border border-slate-200 transition">
+            ⭐ 4–5 Favoriten
+          </button>
+          <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-rose-700 hover:bg-rose-50 border border-slate-200 transition">
+            ⛔ Tabus (1)
+          </button>
+          <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-purple-700 hover:bg-purple-50 border border-slate-200 transition">
+            🙈 Hemmschwelle / Peinlich
+          </button>
+        </div>
+        <div class="flex-1 min-w-[180px] max-w-xs">
+          <input type="text" id="survey-search-input" onkeyup="handleSurveySearch(this.value)" placeholder="Kapitel durchsuchen..." class="w-full text-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
+        </div>
+      </div>
+
+      <!-- KAPITEL-KOPFZEILE -->
       <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
@@ -299,8 +326,10 @@
         </div>
       </div>
 
+      <!-- FRAGEN-CONTAINER -->
       <div id="survey-items-container" class="space-y-3.5"></div>
 
+      <!-- UNTERE NAVIGATION -->
       <div class="flex justify-between items-center pt-2">
         <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
           ← Vorheriges Kapitel
@@ -435,6 +464,12 @@
             </h3>
             <div id="single-tabus-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
   <!-- MODAL: GATING / SCHUTZ VOR UNVOLLSTÄNDIGEM AUSFÜLLEN -->
   <div id="modal-gating-incomplete" class="hidden fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border border-amber-500/40 text-xs">
@@ -458,50 +493,71 @@
     </div>
   </div>
 
-  <!-- MODAL: ONBOARDING -->
+  <!-- MODAL: ONBOARDING MIT ANATOMIE-AUSWAHL -->
   <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
-      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 border-b border-slate-200 flex justify-between items-center">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
+      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
         <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600">Willkommen im Kompass</span>
-          <h3 class="text-base font-extrabold text-slate-900 mt-0.5">Kurzes Setup für <span id="onboarding-user-title">Partner 1</span></h3>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400">Willkommen im Kompass</span>
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">Setup für <span id="onboarding-user-title">Partner 1</span></h3>
         </div>
-        <span class="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[10px] text-slate-600" id="onboarding-step-indicator">Schritt 1 von 3</span>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-[10px] text-slate-600 dark:text-slate-300" id="onboarding-step-indicator">Schritt 1 von 3</span>
+          <button type="button" onclick="closeOnboardingModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold" title="Schließen & direkt starten">✕</button>
+        </div>
       </div>
 
       <div class="p-6 space-y-5">
-        <div id="onboarding-step-1" class="space-y-3">
+        <div id="onboarding-step-1" class="space-y-4">
           <div class="space-y-1">
-            <strong class="text-slate-900 text-sm block">1. Wie möchtest du genannt werden?</strong>
-            <p class="text-slate-500 leading-relaxed">
-              Dein Name wird für die Auswertungen und den Session-Begleiter verwendet.
+            <strong class="text-slate-900 dark:text-white text-sm block">1. Name & Geschlechtsorgane</strong>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
+              Gib deinen Namen an und wähle deine körperliche Anatomie, damit sich alle Fragen dynamisch an eure heterosexuelle Paardynamik anpassen.
             </p>
           </div>
-          <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+
+          <!-- ANATOMIE-AUSWAHL -->
+          <div class="space-y-2 pt-1">
+            <span class="block text-slate-700 dark:text-slate-300 font-bold text-[11px]">Deine Geschlechtsorgane:</span>
+            <div class="flex gap-2">
+              <button type="button" onclick="selectOnboardingAnatomy('penis')" id="onboarding-anat-penis" class="flex-1 p-3 rounded-2xl border bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs text-left touch-pill">
+                <span class="text-lg block">🍆</span>
+                <strong class="block text-xs mt-0.5">Penis & Hoden</strong>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Männliche Rolle im hetero Paar</span>
+              </button>
+              <button type="button" onclick="selectOnboardingAnatomy('vulva')" id="onboarding-anat-vulva" class="flex-1 p-3 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700 text-left touch-pill hover:bg-slate-100">
+                <span class="text-lg block">🌸</span>
+                <strong class="block text-xs mt-0.5">Vulva & Vagina</strong>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Weibliche Rolle im hetero Paar</span>
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-400 italic">Dein Partner wird für den Abgleich automatisch als das komplementäre Geschlecht eingestellt.</p>
+          </div>
         </div>
 
         <div id="onboarding-step-2" class="hidden space-y-3">
           <div class="space-y-1">
-            <strong class="text-slate-900 text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
-            <p class="text-slate-500 leading-relaxed">
+            <strong class="text-slate-900 dark:text-white text-sm block">2. Deine Transparenz gegenüber deinem Partner</strong>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
               Wähle, wie deine Antworten in der Paar-Analyse dargestellt werden sollen:
             </p>
           </div>
           <div class="space-y-2">
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
               <input type="radio" name="onboarding-privacy" value="blind" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
-                <strong class="text-slate-900 block font-bold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
-                <span class="text-[11px] text-slate-500 block leading-normal">
+                <strong class="text-slate-900 dark:text-white block font-bold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block leading-normal">
                   Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen bleiben verborgen.
                 </span>
               </div>
             </label>
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
               <input type="radio" name="onboarding-privacy" value="open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
-                <strong class="text-slate-900 block font-bold">Vollständiger Abgleich (Offene Einsicht)</strong>
-                <span class="text-[11px] text-slate-500 block leading-normal">
+                <strong class="text-slate-900 dark:text-white block font-bold">Vollständiger Abgleich (Offene Einsicht)</strong>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block leading-normal">
                   Alle vergebenen Noten von 0 bis 5 sind in der Detailübersicht vollständig für den Partner einsehbar.
                 </span>
               </div>
@@ -511,20 +567,22 @@
 
         <div id="onboarding-step-3" class="hidden space-y-3">
           <div class="space-y-1">
-            <strong class="text-slate-900 text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
-            <p class="text-slate-500 leading-relaxed">
+            <strong class="text-slate-900 dark:text-white text-sm block">3. E-Mail-Sicherung (Vollkommen optional)</strong>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
               Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen.
             </p>
           </div>
-          <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
       </div>
 
-      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-100">
+      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-100">
           ← Zurück
         </button>
-        <div class="flex-1"></div>
+        <button type="button" onclick="closeOnboardingModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-semibold">
+          Überspringen & direkt starten
+        </button>
         <button id="onboarding-btn-next" onclick="nextOnboardingStep()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs touch-pill">
           Weiter →
         </button>
@@ -532,22 +590,91 @@
     </div>
   </div>
 
-  <!-- MODAL: ACCOUNT -->
+  <!-- MODAL: ACCOUNT & ANATOMIE-VERWALTUNG -->
   <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
         <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-          <span>⚙️</span> Account & Datenverwaltung (<span id="account-active-username">Partner 1</span>)
+          <span>⚙️</span> Account & Einstellungen (<span id="account-active-username">Partner 1</span>)
         </h3>
         <button onclick="closeAccountModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
       </div>
 
       <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <!-- Name -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">Dein angezeigter Name:</label>
           <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
 
+        <!-- HETERO-ANATOMIE-STEUERUNG -->
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-1.5 border-b border-slate-200 pb-1.5">
+            <span class="text-sm">🚻</span>
+            <strong class="text-slate-900 font-bold text-xs">Hetero-Dynamik & Geschlechtsorgane:</strong>
+          </div>
+          
+          <div class="space-y-2">
+            <div>
+              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Deine Geschlechtsorgane:</span>
+              <div class="flex gap-2">
+                <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-2 px-3 rounded-xl border bg-brand-50 border-brand-500 text-brand-950 font-bold text-xs shadow-xs touch-pill">
+                  🍆 Penis & Hoden (Mann)
+                </button>
+                <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
+                  🌸 Vulva & Vagina (Frau)
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-1 border-t border-slate-200/80">
+              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Geschlechtsorgane deines Partners:</span>
+              <div class="flex gap-2">
+                <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
+                  🍆 Penis & Hoden (Mann)
+                </button>
+                <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-indigo-50 border-indigo-500 text-indigo-950 font-bold text-xs shadow-xs touch-pill">
+                  🌸 Vulva & Vagina (Frau)
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-tight">Steuert die Formulierung der Rollen (z. B. Blowjob, Keuschheit, Pegging, Reizwäsche).</p>
+        </div>
+
+        <!-- RECHTE- & PRIVATSPHÄRE-VERWALTUNG -->
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+          <div class="flex items-center gap-1.5 border-b border-slate-200 pb-1.5">
+            <span class="text-sm">🛡️</span>
+            <strong class="text-slate-900 font-bold text-xs">Transparenz- & Rechte-Steuerung:</strong>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="radio" name="account-privacy-mode" value="blind" onchange="updatePrivacyMode(this.value)" id="account-priv-blind" class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-800 block text-[11px] font-bold">Selektiver Blind-Match (Empfohlen)</strong>
+                <span class="text-[10px] text-slate-500 block leading-tight">Partner sieht nur Schnittmengen (3–5) und deine Tabus (1). Einseitige 0er/2er bleiben verborgen.</span>
+              </div>
+            </label>
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="radio" name="account-privacy-mode" value="open" onchange="updatePrivacyMode(this.value)" id="account-priv-open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <strong class="text-slate-800 block text-[11px] font-bold">Vollständig offene Einsicht</strong>
+                <span class="text-[10px] text-slate-500 block leading-tight">Partner darf alle deine vergebenen Noten von 0 bis 5 vollständig einsehen.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="pt-2 border-t border-slate-200">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="account-share-notes" onchange="updateShareNotes(this.checked)" class="rounded text-brand-600 focus:ring-brand-500">
+              <span class="text-[11px] text-slate-700 font-semibold">Persönliche Notizen & Bedingungen mit Partner teilen</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- E-Mail Backup -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backups):</label>
           <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
@@ -599,16 +726,21 @@
 
   <!-- MODAL: TABU-LISTE -->
   <div id="modal-tabus" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
-      <div class="p-4 bg-rose-50 border-b border-rose-200 flex justify-between items-center">
-        <h3 class="font-extrabold text-rose-950 text-sm flex items-center gap-1.5">
-          <span>⛔</span> Die Rote Tabu- & No-Go-Liste (Note 1)
-        </h3>
-        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white border border-rose-200 text-rose-700 font-bold hover:bg-rose-100 flex items-center justify-center">✕</button>
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
+      <div class="p-4 bg-rose-50 dark:bg-rose-950/40 border-b border-rose-200 dark:border-rose-900/60 flex justify-between items-center">
+        <div>
+          <h3 class="font-extrabold text-rose-950 dark:text-rose-200 text-sm flex items-center gap-1.5">
+            <span>⛔</span> Die Zweigeteilte Tabu- & Schutz-Charta (Note 1)
+          </h3>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
+            Messer-scharf getrennt: Was der Top nicht antun/leiten will vs. Was der Bottom am Körper nicht erträgt
+          </span>
+        </div>
+        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 font-bold hover:bg-rose-100 flex items-center justify-center">✕</button>
       </div>
-      <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto" id="tabu-modal-list"></div>
-      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
-        <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Schließen</button>
+      <div class="p-5 space-y-3 max-h-[75vh] overflow-y-auto" id="tabu-modal-list"></div>
+      <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
+        <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs">Schließen</button>
       </div>
     </div>
   </div>
@@ -639,34 +771,33 @@
     </div>
   </div>
 
-  <!-- MODAL: LEXIKON -->
-  <div id="modal-lexikon" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+  <!-- MODAL: LEXIKON (IMMER ZUGÄNGLICH) -->
+  <div id="modal-lexikon" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs flex flex-col max-h-[85vh]">
+      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <h3 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
           <span>📖</span> A–Z BDSM-, Kink- & Begriffs-Lexikon
         </h3>
-        <button onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
+        <button type="button" onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
-      <div class="p-4 border-b border-slate-100">
-        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none">
+      <div class="p-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Shibari, Praise, Edging, Safeword)..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
       </div>
-      <div class="p-4 space-y-2 max-h-[60vh] overflow-y-auto" id="lexikon-entries-container"></div>
-      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
-        <button onclick="closeLexikonModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Schließen</button>
+      <div class="p-4 space-y-2 overflow-y-auto flex-1" id="lexikon-entries-container"></div>
+      <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
+        <button type="button" onclick="closeLexikonModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs">Schließen</button>
       </div>
     </div>
   </div>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
 
-  <!-- OPTIONALE EXTERNE DATEIEN (FÜR GITHUB) -->
+  <!-- SKRIPTE -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="js/app.js"></script>
 
   <script>
-    // Gating Navigation Handler
     function handleProtectedNavigation(event, targetUrl) {
       const answersA = Object.keys(answers.A || {}).length;
       const answersB = Object.keys(answers.B || {}).length;
