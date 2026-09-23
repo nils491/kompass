@@ -128,7 +128,7 @@
         <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
           📝 Fragebogen
         </button>
-        <button onclick="openSafetyConfiguratorDirectly()" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-300 hover:text-white transition flex items-center gap-1 font-bold">
+        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-300 hover:text-white transition flex items-center gap-1 font-bold">
           <span>🛡️ Sicherheits-Kodex</span>
         </button>
         <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
@@ -250,8 +250,39 @@
         <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
           ← Vorheriges Kapitel
         </button>
-        <button onclick="nextChapter()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
+        <button onclick="nextChapter()" id="btn-next-chapter-bottom" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
           Nächstes Kapitel →
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW SAFETY: KONSENS- & SICHERHEITS-KONFIGURATOR (AUTOMATISCHER SCHRITT NACH DEM FRAGEBOGEN) -->
+    <section id="view-safety" class="space-y-4 hidden">
+      <div class="bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800">
+            Schritt 2: Verbindliche Vereinbarungen
+          </span>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-1">
+            Euer Sicherheits- & Konsens-Kodex
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+            Klasse, der Kink-Fragebogen ist ausgefüllt! Nun legt ihr die 6 verbindlichen Sicherheits-Module fest (Cutter, Safewords, Vital-Checks, Aftercare etc.). Diese Vereinbarungen fließen nicht als 0–5-Vorlieben in die Kink-Matches ein, sondern bilden das geschützte Fundament für eure gemeinsamen Sessions.
+          </p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-300 flex items-center justify-center text-2xl flex-shrink-0">
+          🛡️
+        </div>
+      </div>
+
+      <div id="safety-configurator-full-container"></div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="switchMainView('survey')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
+          ← Zurück zum Fragebogen
+        </button>
+        <button onclick="switchMainView('single')" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
+          ✓ Sicherheits-Kodex bestätigen & Zu Mein Profil →
         </button>
       </div>
     </section>
@@ -703,14 +734,8 @@
 
   <script>
     function openSafetyConfiguratorDirectly() {
-      switchMainView('survey');
-      // Springe zu Kapitel 29 oder scrolle direkt zum Sicherheits-Konfigurator
-      jumpToChapter(28); // Kapitel 29
-      setTimeout(() => {
-        const el = document.getElementById('safety-configurator-card');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-      showToast("🛡️ Sicherheits- & Konsens-Konfigurator geöffnet");
+      switchMainView('safety');
+      showToast("🛡️ Sicherheits- & Konsens-Kodex geöffnet");
     }
 
     function handleProtectedNavigation(event, targetUrl) {
