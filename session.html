@@ -107,10 +107,6 @@
     .touch-pill:active {
       transform: scale(0.96);
     }
-
-    .touch-target-48 {
-      min-height: 48px;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -151,13 +147,13 @@
       <div class="space-y-2">
         <h2 class="text-xl font-extrabold text-white tracking-tight">Fragebogen noch nicht ausgefüllt</h2>
         <p class="text-xs text-slate-300 leading-relaxed">
-          Der Session-Begleiter schützt euch im Schlafzimmer aktiv vor Grenzüberschreitungen. Um die Session, den Timer und die Werkzeuge zu nutzen, müssen eure Schutzgrenzen und Tabus zuerst im Fragebogen erfasst werden!
+          Der Session-Begleiter schützt euch im Schlafzimmer aktiv vor Grenzüberschreitungen. Um die Session, den Timer und die Werkzeuge zu nutzen, müssen eure Schutzgrenzen, Tabus und Sicherheitsregeln im Fragebogen erfasst werden!
         </p>
       </div>
       <div class="p-3.5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-[11px] text-rose-200 text-left space-y-1.5">
         <strong class="block font-bold text-rose-300">🛡️ Warum ist das unerlässlich?</strong>
+        <p>• Euer verbindlicher Sicherheits-Kodex (Safeword & Knebel-Signal)</p>
         <p>• Trennung von Top-Tabus (Aktiv) und Bottom-Tabus (Passiv)</p>
-        <p>• Schutz vor No-Gos bei der heutigen Rollenverteilung</p>
         <p>• Passgenaue Disziplinierungen statt unpassender Strafen</p>
       </div>
       <a href="index.html" class="block w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill text-center">
@@ -166,7 +162,7 @@
     </div>
   </div>
 
-  <!-- KOMPAKTER HEADER (AUFGERÄUMT FÜR SMARTPHONES) -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 session-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2 shadow-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
       
@@ -189,19 +185,19 @@
         </div>
       </div>
 
-      <!-- Action Buttons (Mobil: Nur Tabu & Burger-Menü) -->
+      <!-- Action Buttons -->
       <div class="flex items-center gap-1.5">
+        <!-- Schnelltaste Sicherheits-Kodex -->
+        <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-2 bg-teal-950/40 hover:bg-teal-900/60 text-teal-300 font-bold rounded-xl text-xs border border-teal-800/80 flex items-center gap-1 transition touch-pill" title="Unser Sicherheits-Kodex">
+          <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
+        </button>
+
         <!-- Schnelltaste Tabus -->
         <button onclick="openSessionTabuModal()" class="px-2.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/80 flex items-center gap-1 transition touch-pill" title="Gemeinsame Tabus (Note 1)">
           <span>⛔</span> <span class="hidden sm:inline text-[11px]">Tabus</span> (<span id="header-tabu-count">0</span>)
         </button>
 
-        <!-- Desktop Quick Tools -->
-        <button onclick="openBurgerMenu()" class="hidden md:flex px-2.5 py-2 bg-brand-950/60 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs items-center gap-1.5 transition touch-pill" title="Schlafzimmer-Menü & Werkzeuge">
-          <span>🛠️</span> <span class="text-[11px]">Werkzeuge</span>
-        </button>
-
-        <!-- Burger Menü Button (Großes Touch-Target für Smartphones) -->
+        <!-- Burger Menü Button -->
         <button onclick="openBurgerMenu()" id="btn-burger-open" class="w-10 h-10 rounded-xl session-panel hover:border-brand-500 border text-slate-200 hover:text-white font-black text-lg flex items-center justify-center transition touch-pill" title="Menü & Werkzeuge öffnen" aria-label="Menü">
           ☰
         </button>
@@ -210,11 +206,10 @@
     </div>
   </header>
 
-  <!-- SLIDE-OVER DRAWER (BURGER-MENÜ VON RECHTS) -->
+  <!-- SLIDE-OVER DRAWER (BURGER-MENÜ) -->
   <div id="drawer-burger-menu" class="hidden fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex justify-end">
     <div class="max-w-xs sm:max-w-sm w-full h-full session-card border-l p-5 space-y-5 overflow-y-auto flex flex-col justify-between shadow-2xl">
       
-      <!-- Drawer Header -->
       <div class="space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <div class="flex items-center gap-2">
@@ -225,6 +220,19 @@
             </div>
           </div>
           <button onclick="closeBurgerMenu()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center text-sm">✕</button>
+        </div>
+
+        <!-- Sicherheits-Kodex Schnelltaste im Drawer -->
+        <div class="p-3 rounded-2xl bg-teal-950/40 border border-teal-800/80 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <strong class="text-xs font-bold text-teal-200 flex items-center gap-1.5">
+              <span>📜</span> Euer Sicherheits-Kodex
+            </strong>
+            <button onclick="openSessionSafetyCodexModal(); closeBurgerMenu();" class="text-[10px] text-teal-300 underline font-bold">Öffnen ↗</button>
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-tight">
+            Eure im Konfigurator vereinbarten Safewords, Notfallgesten und Aftercare-Schwerpunkte.
+          </p>
         </div>
 
         <!-- 4 Schlafzimmer-Werkzeuge -->
@@ -265,7 +273,7 @@
           </div>
         </div>
 
-        <!-- Ambiente & Tarnung -->
+        <!-- Ambiente & Schalter -->
         <div class="space-y-2 pt-2 border-t border-slate-800">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ambiente & Schalter</span>
           <div class="grid grid-cols-2 gap-2 text-xs">
@@ -291,7 +299,7 @@
           </div>
         </div>
 
-        <!-- Navigation zu anderen Teilen -->
+        <!-- Verknüpfte Bereiche -->
         <div class="space-y-2 pt-2 border-t border-slate-800">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Verknüpfte Bereiche</span>
           <div class="grid grid-cols-2 gap-2 text-xs font-bold">
@@ -305,13 +313,38 @@
         </div>
       </div>
 
-      <!-- Drawer Footer -->
       <div class="pt-3 border-t border-slate-800 text-center">
         <button onclick="closeBurgerMenu()" class="w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-pill">
           Schließen & Zurück zur Session
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL: SICHERHEITS- & KONSENS-KODEX -->
+  <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[125] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="max-w-lg w-full session-card p-5 sm:p-6 rounded-3xl border border-teal-500/40 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-teal-500/30 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📜</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-teal-300">Unser verbindlicher Sicherheits-Kodex</h3>
+            <span class="text-[10px] text-slate-400">Eure gemeinsamen Absprachen aus dem Konfigurator</span>
+          </div>
+        </div>
+        <button onclick="closeSessionSafetyCodexModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div id="session-safety-codex-content" class="space-y-2 text-xs">
+        <p class="text-slate-400 italic text-center py-4">Lade Sicherheits-Kodex...</p>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeSessionSafetyCodexModal()" class="px-4 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white font-bold text-xs transition touch-pill">
+          Schließen
+        </button>
+      </div>
     </div>
   </div>
 
@@ -402,7 +435,7 @@
           <span class="text-2xl">⚖️</span>
           <div>
             <h3 class="text-sm sm:text-base font-black text-rose-300">Vorfall & Regelverstoß disziplinieren</h3>
-            <span class="text-[10px] text-slate-400">Passgenaue Maßregelung aus euren Vorlieben & Duldungen</span>
+            <span class="text-[10px] text-slate-400" id="incident-sub-discipline-hint">Gemäß eurem Sicherheits-Kodex</span>
           </div>
         </div>
         <button onclick="closeIncidentModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
@@ -507,24 +540,23 @@
     <span class="text-slate-800 text-[10px] font-mono select-none">Tippen zum Enttarnen</span>
   </div>
 
-  <!-- HAUPTBEREICH: RESPONSIVE COCKPIT-ARCHITEKTUR -->
+  <!-- HAUPTBEREICH -->
   <main class="max-w-7xl mx-auto p-3 sm:p-5 flex-1 w-full space-y-4">
     
-    <!-- STUFE 1: RUHIGES ENTSCHEIDUNGS-PORTAL (EINSTIEG OHNE OVERLOAD) -->
+    <!-- STUFE 1: ENTSCHEIDUNGS-PORTAL -->
     <div id="session-entry-portal" class="max-w-2xl mx-auto py-4 sm:py-8 space-y-6">
       
-      <!-- Begrüßung & Rollen-Kalibrierung -->
       <div class="text-center space-y-2">
         <span class="px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800/80 inline-block shadow-inner">
           Schlafzimmer-Zentrale
         </span>
         <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wie soll eure Session heute aussehen?</h2>
         <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-          Wählt eure Dynamik für heute Abend. Keine Reizüberflutung – das Cockpit passt sich eurer Entscheidung an.
+          Wählt eure Dynamik für heute Abend. Das Cockpit schützt euch und passt sich euren Absprachen an.
         </p>
       </div>
 
-      <!-- Schnelle Rollen-Zuweisung vorab -->
+      <!-- Rollen-Zuweisung vorab -->
       <div class="session-card p-3 sm:p-4 rounded-2xl border flex items-center justify-between gap-3 shadow-sm text-xs">
         <span class="text-slate-400 font-bold text-[11px] flex items-center gap-1.5">
           <span>👑</span> <span>Unterworfener Part heute:</span>
@@ -539,7 +571,16 @@
         </div>
       </div>
 
-      <!-- Die 2 echten Grundwege als großzügige Touch-Karten -->
+      <!-- Schneller Sicherheits-Status im Portal -->
+      <div class="p-3 bg-teal-950/30 border border-teal-800/50 rounded-2xl flex items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📜</span>
+          <span class="text-teal-200 text-[11px]">Sicherheits-Kodex geladen: <strong id="portal-safeword-summary" class="text-white">Ampelsystem & Drop-Tuch</strong></span>
+        </div>
+        <button onclick="openSessionSafetyCodexModal()" class="text-[10px] text-teal-300 font-bold underline">Prüfen ↗</button>
+      </div>
+
+      <!-- Die 2 Grundwege -->
       <div class="grid grid-cols-1 gap-4">
         
         <!-- Weg 1: Freier Flow -->
@@ -553,7 +594,7 @@
               <span class="text-[10px] font-bold text-brand-300 bg-brand-950 px-2 py-0.5 rounded-full border border-brand-800">Spontan</span>
             </div>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Ihr spielt frei und intuitiv ohne festen Leitfaden. Das Steuerpult hält diskret den Timer, die blinde Notfall-Ampel, den Edge-Counter und Sofort-Disziplinierung bereit.
+              Ihr spielt frei und intuitiv ohne festen Leitfaden. Das Steuerpult hält diskret den Timer, die Notfall-Ampel, den Edge-Counter und Sofort-Disziplinierung bereit.
             </p>
             <span class="text-[10.5px] font-bold text-brand-400 pt-1 block">Direkt ins freie Cockpit →</span>
           </div>
@@ -578,7 +619,6 @@
 
       </div>
 
-      <!-- Diskreter Shortcut zum Strafenkatalog -->
       <div class="text-center pt-1">
         <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-slate-400 hover:text-white transition underline decoration-slate-600 underline-offset-4">
           ⚖️ Oder nur den Strafenkatalog & Duldungen durchstöbern
@@ -590,10 +630,9 @@
     <!-- STUFE 2: VOLLSTÄNDIGER ARBEITSBEREICH MIT TIMER & COCKPIT -->
     <div id="cockpit-main-workspace" class="hidden space-y-4">
       
-      <!-- SUB-BAR: ROLLENWAHL, MODUS-WECHSLER & STATUS -->
+      <!-- SUB-BAR -->
       <div class="session-card px-3 sm:px-5 py-2.5 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
         <div class="flex items-center gap-2">
-          <!-- Button zurück zum Einstiegsportal -->
           <button onclick="returnToModeSelection()" class="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-[11px] flex items-center gap-1 transition touch-pill" title="Anderen Modus wählen">
             <span>←</span> <span>Modus wechseln</span>
           </button>
@@ -610,8 +649,10 @@
         </div>
 
         <div class="flex items-center gap-2 text-[10px] text-slate-400">
+          <button onclick="openSessionSafetyCodexModal()" class="px-2 py-0.5 rounded session-panel border font-bold text-teal-300 hover:text-teal-200">
+            📜 Kodex: <span id="sub-safeword-indicator">Ampel</span>
+          </button>
           <span id="active-mode-badge" class="px-2 py-0.5 rounded session-panel border font-bold text-brand-300">Modus: Freier Flow</span>
-          <span id="wake-lock-status" class="px-2 py-0.5 rounded session-panel border hidden sm:inline">Display: Dauerhaft an</span>
           <span id="audio-status" class="px-2 py-0.5 rounded session-panel border">Gong: Aktiv</span>
         </div>
       </div>
@@ -707,7 +748,7 @@
         <!-- RECHTE SPALTE: DIE BÜHNE (4 HAUPT-TABS) -->
         <section class="lg:col-span-7 space-y-3.5">
           
-          <!-- Tab Navigation (4 Reiter) -->
+          <!-- Tab Navigation -->
           <nav class="grid grid-cols-4 gap-1 p-1 session-card rounded-2xl border text-xs font-bold shadow-xs">
             <button onclick="switchTab('free')" id="tab-btn-free" class="py-2.5 rounded-xl bg-brand-700 text-white shadow transition flex flex-col sm:flex-row items-center justify-center gap-1">
               <span>🕯️</span> <span class="text-[11px] truncate">Freier Flow</span>
@@ -723,7 +764,7 @@
             </button>
           </nav>
 
-          <!-- VIEW 0: FREIER FLOW (DEFAULT) -->
+          <!-- VIEW 0: FREIER FLOW -->
           <div id="view-free" class="space-y-3.5">
             <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
               <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -735,7 +776,7 @@
               </div>
 
               <p class="text-xs text-slate-300 leading-relaxed">
-                Ihr spielt frei nach eurer Intuition. Das linke Steuerpult hält die Zeit, den automatischen Farb-Check und die Safeword-Wächter im Blick.
+                Ihr spielt frei nach eurer Intuition. Das linke Steuerpult hält die Zeit, den Farb-Check und die Safeword-Wächter im Blick.
               </p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -751,7 +792,7 @@
                   <span class="text-lg">⚖️</span>
                   <div class="text-left">
                     <span>Vorfall disziplinieren</span>
-                    <span class="block text-[9.5px] font-normal text-slate-400">Verstoß sofort maßregeln</span>
+                    <span class="block text-[9.5px] font-normal text-slate-400">Verstoß gemäß Kodex maßregeln</span>
                   </div>
                 </button>
               </div>
@@ -764,7 +805,7 @@
             </div>
           </div>
 
-          <!-- VIEW 1: REGIEBUCH (STEPPER) -->
+          <!-- VIEW 1: REGIEBUCH -->
           <div id="view-guide" class="space-y-3.5 hidden">
             <!-- Phasen-Header Kachel -->
             <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
@@ -792,13 +833,12 @@
                 </button>
               </div>
 
-              <!-- Zitat / Leitwort für den Führenden -->
               <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-800/40 text-xs italic text-brand-200">
                 <span id="phase-prompt-quote">„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“</span>
               </div>
             </div>
 
-            <!-- BOTTOM-PROTOKOLL: AKTUELLE REGELN & VERHALTEN FÜR DEN SUB -->
+            <!-- BOTTOM-PROTOKOLL -->
             <div id="guide-bottom-protocol-card" class="session-panel p-3.5 rounded-2xl border border-indigo-500/30 space-y-1.5">
               <div class="flex items-center justify-between">
                 <strong class="text-xs font-black text-indigo-200 flex items-center gap-1.5">
@@ -811,42 +851,50 @@
               </p>
             </div>
 
-            <!-- SPEZIELLE SAFEWORD-KARTE (NUR IN PHASE 1) -->
-            <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-amber-500/40 space-y-3 shadow-md bg-amber-950/10">
+            <!-- EINGEBAUTER SICHERHEITS-KODEX IN PHASE 1 -->
+            <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-teal-500/40 space-y-3 shadow-md bg-teal-950/10">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-xl">🛡️</span>
                   <div>
-                    <strong class="text-xs sm:text-sm font-black text-amber-200 block">Safeword aktiv einprägen & bestätigen</strong>
-                    <span class="text-[10px] text-amber-300/80">Tippt das vereinbarte Notfallwort ein, damit es nicht vergessen wird</span>
+                    <strong class="text-xs sm:text-sm font-black text-teal-200 block">Euer vereinbarter Sicherheits-Kodex</strong>
+                    <span class="text-[10px] text-teal-300/80">Automatisch aus dem Konfigurator übernommen</span>
                   </div>
                 </div>
-                <button onclick="suggestRandomSafeword()" class="px-2.5 py-1 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
-                  <span>🎲</span> <span>Vorschlag</span>
+                <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1 rounded-xl bg-teal-900/60 hover:bg-teal-800 border border-teal-700 text-teal-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
+                  <span>📜</span> <span>Alle 5 Bereiche</span>
                 </button>
               </div>
 
-              <div class="flex items-center gap-2">
-                <input type="text" id="guide-safeword-input" placeholder="z. B. Ananas, Kaktus, Erdbeere..." class="flex-1 px-3 py-2 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
-                <button onclick="confirmSafewordInGuide()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
-                  ✓ Bestätigen
-                </button>
+              <!-- Live-Status der 2 Schlüssel-Signale in Phase 1 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-teal-800/60 space-y-0.5">
+                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">1. Safeword-System:</span>
+                  <strong class="text-teal-200 block text-xs" id="phase1-safeword-display">🚦 Ampelsystem (Grün/Gelb/Rot)</strong>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-teal-800/60 space-y-0.5">
+                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">2. Knebel-Notfallsignal:</span>
+                  <strong class="text-teal-200 block text-xs" id="phase1-gag-display">🪨 Drop-Tuch in der Hand</strong>
+                </div>
               </div>
 
-              <div id="confirmed-safeword-display" class="hidden p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-700/60 flex items-center justify-between text-xs text-emerald-200">
-                <span>Gespeichertes Safeword: <strong id="confirmed-safeword-name" class="font-mono text-white underline">Ananas</strong></span>
-                <span class="text-[10px] font-bold text-emerald-400">✓ Für Session aktiv</span>
+              <div class="flex items-center gap-2 pt-1 border-t border-teal-900/60">
+                <span class="text-[10.5px] text-slate-400">Individuelles Code-Wort verfeinern:</span>
+                <input type="text" id="guide-safeword-input" placeholder="z. B. Kaktus..." class="flex-1 px-3 py-1.5 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-teal-500">
+                <button onclick="confirmSafewordInGuide()" class="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
+                  ✓ Speichern
+                </button>
               </div>
             </div>
 
-            <!-- EDGING-PANEL MIT SEKUNDENVORWAHL -->
+            <!-- EDGING-PANEL -->
             <div id="edging-interactive-card" class="hidden session-card p-4 rounded-3xl border-2 border-brand-500/50 space-y-3 text-xs shadow-lg bg-brand-950/20">
               <div class="flex items-center justify-between border-b border-brand-800/60 pb-2">
                 <div class="flex items-center gap-2">
                   <span class="text-xl">⏱️</span>
                   <div>
                     <strong class="text-sm font-black text-brand-200 block">Edge-Counter & Orgasmus-Countdown</strong>
-                    <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt präzise an</span>
+                    <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt an</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -855,7 +903,6 @@
                 </div>
               </div>
 
-              <!-- Edge Steuerung -->
               <div class="grid grid-cols-2 gap-2">
                 <button onclick="incrementEdgeCount()" class="py-3 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-black text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
                   <span class="text-sm">+1</span> <span>Edge zählen</span>
@@ -865,11 +912,10 @@
                 </button>
               </div>
 
-              <!-- Countdown-Vorwahl & Trigger -->
+              <!-- Countdown-Vorwahl -->
               <div class="p-3 rounded-2xl session-panel border border-slate-700/60 space-y-2.5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                   <span class="text-[10.5px] font-bold text-slate-300">Countdown-Dauer:</span>
-                  <!-- Schnellauswahl Pills: 10s (Standard), 20s, 30s, 60s -->
                   <div class="flex items-center gap-1 text-[10.5px] font-mono font-bold">
                     <button onclick="setCountdownDuration(10)" id="cd-pill-10" class="px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold">10s</button>
                     <button onclick="setCountdownDuration(20)" id="cd-pill-20" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">20s</button>
@@ -878,7 +924,6 @@
                   </div>
                 </div>
 
-                <!-- Individuelle Sekunden-Eingabe mit Schnell-Reglern (+ / -) -->
                 <div class="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
                   <span class="text-[10px] text-slate-400 font-medium pl-1">Freie Eingabe:</span>
                   <div class="flex items-center gap-1">
@@ -896,7 +941,6 @@
                   </div>
                 </div>
 
-                <!-- Audio-Modus Wahl (1-Klick Auswahl für den Top) -->
                 <div class="space-y-1.5 pt-1 border-t border-slate-800">
                   <div class="flex items-center justify-between">
                     <span class="text-[10px] font-bold text-slate-300">Countdown-Begleitung:</span>
@@ -923,7 +967,6 @@
                   <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
                   <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
 
-                  <!-- Play / Pause / Stop Buttons -->
                   <div class="grid grid-cols-3 gap-1.5 pt-1.5 max-w-xs mx-auto">
                     <button type="button" onclick="resumeOrgasmCountdown()" id="btn-cd-play" class="py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill" title="Countdown fortsetzen">
                       <span>▶</span> <span>Play</span>
@@ -939,7 +982,7 @@
               </div>
             </div>
 
-            <!-- FOKUS-KARTEN: WAS NUN ZU TUN IST + VORSCHAU -->
+            <!-- FOKUS-KARTEN -->
             <div class="space-y-3">
               <div id="active-step-focus-card" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500/60 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
@@ -961,20 +1004,18 @@
                   <p class="text-xs text-slate-300 leading-relaxed" id="focus-step-desc">Lade Beschreibung...</p>
                 </div>
 
-                <!-- Wörtliche Top-Sprechzeile -->
                 <div class="p-3 rounded-2xl bg-brand-950/50 border border-brand-800/60 space-y-1">
                   <span class="text-[9.5px] font-bold text-brand-300 uppercase tracking-widest block">🗣️ Wörtlich zum Partner sprechen:</span>
                   <p class="text-xs italic text-brand-100 font-medium" id="focus-step-top-quote">„...“</p>
                 </div>
 
-                <!-- Weiter-Button -->
                 <button onclick="advanceToNextStep()" class="w-full py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
                   <span>✓ Schritt vollzogen & weiter</span>
                   <span>→</span>
                 </button>
               </div>
 
-              <!-- 2. Vorschau-Kachel -->
+              <!-- Vorschau-Kachel -->
               <div id="upcoming-step-preview-card" class="session-panel p-3.5 rounded-2xl border border-slate-700/60 opacity-80 space-y-1">
                 <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">👀 Als Nächstes kommt:</span>
                 <h4 class="text-xs font-bold text-slate-200" id="preview-step-title">Nächster Schritt</h4>
@@ -987,7 +1028,10 @@
 
             <!-- De-Briefing Box in Phase 4 -->
             <div id="debriefing-box" class="hidden session-card p-4 rounded-3xl border space-y-3">
-              <h3 class="text-xs sm:text-sm font-bold text-teal-300">📝 2-Minuten De-Briefing-Tagebuch</h3>
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-xs sm:text-sm font-bold text-teal-300">📝 2-Minuten De-Briefing & Aftercare-Abschluss</h3>
+                <span class="text-[10px] text-teal-400 bg-teal-950 px-2 py-0.5 rounded border border-teal-800" id="debrief-aftercare-badge">Fokus: Körperwärme</span>
+              </div>
               <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 1 (1–10):</label>
@@ -1071,7 +1115,6 @@
                 <span class="text-[10.5px] text-slate-400">Härtegrad wählen</span>
               </div>
 
-              <!-- Stufen-Filter -->
               <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
                 <button onclick="setPunishLevel('leicht')" id="btn-punish-leicht" class="py-2 rounded-xl border session-panel text-slate-300">🟢 Stufe I (Milde)</button>
                 <button onclick="setPunishLevel('mittel')" id="btn-punish-mittel" class="py-2 rounded-xl border bg-brand-700 text-white border-brand-600">🟡 Stufe II (Moderat)</button>
@@ -1084,7 +1127,9 @@
 
         </section>
 
-      </div><!-- Ende #cockpit-main-workspace -->
+      </div>
+
+    </div>
 
   </main>
 
@@ -1113,25 +1158,57 @@
     let selectedIncidentSeverity = 'mittel';
 
     let checkInIntervalSetting = '15';
-    let lastCheckInElapsed = 0;
-    let currentSessionActiveMode = null; // 'free', 'planner', 'guide', 'punishments'
+    let currentSessionActiveMode = null;
 
-    // Edge Counter & Countdown State
     let edgeCount = 0;
     let countdownTimer = null;
     let selectedCountdownDuration = 10;
     let countdownCurrentCount = 10;
     let isCountdownPaused = false;
-    let countdownAudioMode = 'self'; // 'self', 'metronome', 'voice'
+    let countdownAudioMode = 'self';
 
     let zenBreatheInterval = null;
     let bedsideClockInterval = null;
 
     let executedActions = [];
-    let completedCheckpoints = {};
     let customSafeword = '';
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
+    let safetyConfig = { A: {}, B: {} };
+
+    const safetyLabelsMap = {
+      safeword: {
+        title: "Safeword-System",
+        traffic: "🚦 Klassische Ampel (Grün = Weiter, Gelb = Sanfter, Rot = Sofort-Stopp)",
+        code_word: "🌵 Festes Code-Wort ('Kaktus' / 'Halt')",
+        tactile_hand: "🤝 Taktiler Handdruck (2x = Gut, 3x = Sanfter, Loslassen = Stopp)"
+      },
+      gag_signal: {
+        title: "Knebel-Signal",
+        drop_cloth: "🪨 Drop-Tuch in der Hand (Fällt es, stoppt alles)",
+        closed_fist: "✊ Feste Faust für 3 Sekunden oder 3x Klopfen",
+        bell_rattle: "🔔 Akustischer Signalgeber (Glöckchen in der Hand)"
+      },
+      disobedience: {
+        title: "Umgang mit Ungehorsam",
+        spanking: "✋ Körperliche Zucht: Handspanking über den Knien",
+        formal_corner: "🧘 Formale Besinnung: Ecke stehen & Knie-Abbitte",
+        chores_ban: "🧹 Praktische Wiedergutmachung: Hausarbeit / Handy-Verbot",
+        talk_only: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch"
+      },
+      aftercare: {
+        title: "Aftercare-Schwerpunkt",
+        warmth: "🛌 Körperwärme & Stille: Dicke Decken, Tee & Halten",
+        praise_words: "💖 Verbaler Zuspruch: Lob ('Praise'), Schutzworte & Stolz",
+        bath_care: "🛁 Pflege-Ritual: Warmes Bad & sanftes Einbalsamieren"
+      },
+      privacy: {
+        title: "Privatsphäre & Diskretion",
+        secret: "🔒 Absolutes Geheimnis: 100 % privat",
+        scene_friends: "👥 Szene-Freunde: Vertraute Kontakte dürfen wissen",
+        relaxed: "🌐 Entspannter Umgang: Keine Geheimniskrämerei"
+      }
+    };
 
     function verifySitePassword() {
       const input = document.getElementById('site-pw-input');
@@ -1159,13 +1236,78 @@
       }
     }
 
-    // Burger Drawer Open/Close Handlers
     function openBurgerMenu() {
       document.getElementById('drawer-burger-menu')?.classList.remove('hidden');
     }
 
     function closeBurgerMenu() {
       document.getElementById('drawer-burger-menu')?.classList.add('hidden');
+    }
+
+    function openSessionSafetyCodexModal() {
+      renderSafetyCodexContent();
+      document.getElementById('modal-session-safety-codex')?.classList.remove('hidden');
+    }
+
+    function closeSessionSafetyCodexModal() {
+      document.getElementById('modal-session-safety-codex')?.classList.add('hidden');
+    }
+
+    function renderSafetyCodexContent() {
+      const c = document.getElementById('session-safety-codex-content');
+      if (!c) return;
+
+      const cfgA = safetyConfig.A || {};
+      const cfgB = safetyConfig.B || {};
+      const nameA = names.A || 'Partner 1';
+      const nameB = names.B || 'Partner 2';
+
+      let html = '';
+      Object.keys(safetyLabelsMap).forEach(k => {
+        const item = safetyLabelsMap[k];
+        const valA = cfgA[k] || 'traffic';
+        const valB = cfgB[k] || 'traffic';
+        const isMatch = (valA === valB);
+
+        html += `
+          <div class="p-3 rounded-2xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/30 border border-amber-800/40'} space-y-1">
+            <div class="flex justify-between items-center">
+              <strong class="text-white text-xs font-bold">${item.title}</strong>
+              <span class="text-[9.5px] font-black px-1.5 py-0.2 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-300'}">
+                ${isMatch ? '✓ Vereinbart' : '⚠️ Abstimmung'}
+              </span>
+            </div>
+            <p class="text-[11px] text-teal-100 font-semibold">${item[valA] || valA}</p>
+            ${!isMatch ? `<p class="text-[10px] text-amber-300">${escapeHtml(nameB)} bevorzugt: ${item[valB] || valB}</p>` : ''}
+          </div>
+        `;
+      });
+
+      c.innerHTML = html;
+    }
+
+    function updateSafetyCodexUI() {
+      const cfgA = safetyConfig.A || {};
+      const cfgB = safetyConfig.B || {};
+      const swA = cfgA.safeword || 'traffic';
+      const gagA = cfgA.gag_signal || 'drop_cloth';
+      const afA = cfgA.aftercare || 'warmth';
+
+      const swText = safetyLabelsMap.safeword[swA] || swA;
+      const gagText = safetyLabelsMap.gag_signal[gagA] || gagA;
+      const afText = safetyLabelsMap.aftercare[afA] || afA;
+
+      const p1Sw = document.getElementById('phase1-safeword-display');
+      const p1Gag = document.getElementById('phase1-gag-display');
+      const portSum = document.getElementById('portal-safeword-summary');
+      const subInd = document.getElementById('sub-safeword-indicator');
+      const afBadge = document.getElementById('debrief-aftercare-badge');
+
+      if (p1Sw) p1Sw.innerText = swText;
+      if (p1Gag) p1Gag.innerText = gagText;
+      if (portSum) portSum.innerText = `${swA === 'traffic' ? 'Ampel' : 'Code-Wort'} & ${gagA === 'drop_cloth' ? 'Drop-Tuch' : 'Geste'}`;
+      if (subInd) subInd.innerText = swA === 'traffic' ? 'Ampel' : (swA === 'code_word' ? 'Code-Wort' : 'Handdruck');
+      if (afBadge) afBadge.innerText = `Fokus: ${afA === 'warmth' ? 'Körperwärme' : (afA === 'praise_words' ? 'Praise Play' : 'Pflege-Ritual')}`;
     }
 
     function toggleEdgingToolPanel() {
@@ -1289,9 +1431,7 @@
       try {
         window.speechSynthesis.cancel();
         let text = String(count);
-        if (count === 1) {
-          text = "Eins! Jetzt darfst du!";
-        }
+        if (count === 1) text = "Eins! Jetzt darfst du!";
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'de-DE';
@@ -1307,10 +1447,7 @@
                  n.includes('petra') || n.includes('google deutsch') || n.includes('hedda');
         }) || deVoices[0];
 
-        if (femaleDeVoice) {
-          utterance.voice = femaleDeVoice;
-        }
-
+        if (femaleDeVoice) utterance.voice = femaleDeVoice;
         window.speechSynthesis.speak(utterance);
       } catch (e) {
         console.warn("SpeechSynthesis nicht verfügbar:", e);
@@ -1361,9 +1498,7 @@
       const disp = document.getElementById('countdown-live-display');
 
       if (numEl) numEl.innerText = countdownCurrentCount;
-      if (quoteEl) {
-        quoteEl.innerText = getCountdownVoiceQuote(countdownCurrentCount);
-      }
+      if (quoteEl) quoteEl.innerText = getCountdownVoiceQuote(countdownCurrentCount);
 
       if (countdownAudioMode === 'metronome') {
         playMetronomeTick(countdownCurrentCount, selectedCountdownDuration);
@@ -1528,10 +1663,6 @@
       if (bedsideClockInterval) clearInterval(bedsideClockInterval);
     }
 
-    const commonSafewords = [
-      "Ananas", "Kaktus", "Erdbeere", "Ampel", "Stoppschild", "Himmelblau", "Murmel", "Zitrone"
-    ];
-
     const phaseConfig = [
       {
         step: 1,
@@ -1540,7 +1671,7 @@
         quote: "„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“",
         checkpoints: [
           { title: "Raum vorbereiten & Decken wärmen", desc: "Raum abdunkeln, Kissen bereitlegen und Temperatur prüfen.", quote: "„Kuschel dich erst einmal ein. Spüre, wie der Raum zur Ruhe kommt.“" },
-          { title: "Safeword aktiv bestätigen", desc: "Das vereinbarte Notfallwort laut aussprechen und verankern.", quote: "„Unser Safeword steht fest. Du kannst dich vollkommen fallenlassen.“" },
+          { title: "Sicherheits-Kodex & Safeword aktiv bestätigen", desc: "Ampelsystem, Knebel-Notsignal und Codewort verankern.", quote: "„Unser Sicherheits-Kodex steht fest. Du kannst dich vollkommen fallenlassen.“" },
           { title: "Tagesform & Energie abfragen", desc: "Kurzer Check-in: Wie geht es Körper und Seele heute?", quote: "„Erzähl mir kurz, wie dein Tag war. Ich passe das Tempo genau an dich an.“" },
           { title: "Haltung einnehmen & erste Berührung", desc: "Den Partner sanft in die vereinbarte Ausgangsposition bringen.", quote: "„Schließe die Augen. Ab jetzt musst du nichts mehr kontrollieren.“" }
         ]
@@ -1754,9 +1885,27 @@
       if (!container) return;
 
       const subName = names[subPartner] || 'Partner 2';
+      const domCfg = safetyConfig[getDomPartner()] || {};
+      const subCfg = safetyConfig[subPartner] || {};
+      const disChoice = domCfg.disobedience || subCfg.disobedience || 'spanking';
+
       let proposals = [];
 
-      if (selectedIncidentType === 'orgasm') {
+      if (disChoice === 'talk_only') {
+        proposals.push({
+          title: "Achtsame Klärung im Gespräch (Euer Kodex)",
+          desc: "Innehalten, tief durchatmen und die Erregung gemeinsam ohne Bestrafung besprechen.",
+          quote: `„Wir haben vereinbart, keine Zucht anzuwenden. Sag mir ehrlich, ${subName}, wie wir den Rhythmus wieder angleichen können.“`,
+          action: "Gespräch & Innehalten"
+        });
+      } else if (disChoice === 'formal_corner') {
+        proposals.push({
+          title: "Formale Besinnung: 5 Minuten in der Ecke stehen",
+          desc: "Mit dem Gesicht zur Wand stillstehen und zur Ruhe kommen.",
+          quote: `„Du gehst jetzt zur Besinnung in die Ecke, ${subName}. Finde dort deine Ruhe wieder.“`,
+          action: "Formale Besinnung (5 Min)"
+        });
+      } else if (selectedIncidentType === 'orgasm') {
         if (selectedIncidentSeverity === 'leicht') {
           proposals.push({
             title: "5 Minuten unbewegliche Abbitte auf Knien",
@@ -1788,10 +1937,10 @@
         });
       } else {
         proposals.push({
-          title: "Haltungs-Disziplinierung mit Paddle",
-          desc: "10 dosierte Treffer mit dem Lederpaddle auf den Po.",
-          quote: `„Jede unruhige Bewegung hat Konsequenzen. Spüre die Härte des Paddles und finde deine Haltung wieder.“`,
-          action: "10 Paddle-Treffer"
+          title: "Haltungs-Disziplinierung mit Hand oder Paddle",
+          desc: "10 dosierte Treffer mit der flachen Hand auf den Po.",
+          quote: `„Jede unruhige Bewegung hat Konsequenzen. Finde jetzt deine Haltung wieder.“`,
+          action: "10 Disziplinierungs-Klapse"
         });
       }
 
@@ -1987,10 +2136,21 @@
     }
 
     function computeDynamicAftercareCheckpoints() {
+      const cfgA = safetyConfig.A || {};
+      const afFocus = cfgA.aftercare || 'warmth';
+
       let list = [
         { title: "Fesseln & Klammern vollständig lösen", desc: "Alle Fixierungen lösen und Gelenke sanft kreisen.", quote: "„Du bist vollkommen frei. Atme tief durch und bleib liegen.“" },
         { title: "Wärmedecken & Wollsocken bereitstellen", desc: "Den Körper warm einpacken gegen Hormonabfall.", quote: "„Kuschel dich fest ein. Ich halte dich warm.“" }
       ];
+
+      if (afFocus === 'praise_words') {
+        list.push({ title: "Verbales Praise Play & Stolz aussprechen", desc: "Den Partner mit warmen Schutzworten loben und Bestätigung schenken.", quote: "„Du hast das so unglaublich mutig und wunderbar gemacht. Ich bin stolz auf dich.“" });
+      } else if (afFocus === 'bath_care') {
+        list.push({ title: "Pflege-Ritual & Einbalsamieren", desc: "Beanspruchte Hautstellen sanft mit Öl oder Lotion massieren.", quote: "„Ich pflege deine Haut jetzt ganz behutsam. Spüre, wie alles zur Ruhe kommt.“" });
+      } else {
+        list.push({ title: "Körperwärme & wortloses Halten", desc: "Mindestens 15 Minuten stumm im Arm halten und gleichmäßig atmen.", quote: "„Kein Reden jetzt. Schließe die Augen und spüre meinen Herzschlag.“" });
+      }
 
       if (sessionTotalMinutes >= 45 || sessionElapsedSeconds >= 45 * 60) {
         list.push({ title: "Traubenzucker oder süßen Tee reichen", desc: "Glukosehaushalt nach Anstrengung auffüllen.", quote: "„Trink einen Schluck süßen Tee und iss ein Stück Traubenzucker.“" });
@@ -2022,13 +2182,6 @@
       if (tabId === 'guide') renderPhaseUI();
     }
 
-    function suggestRandomSafeword() {
-      const word = commonSafewords[Math.floor(Math.random() * commonSafewords.length)];
-      const input = document.getElementById('guide-safeword-input');
-      if (input) input.value = word;
-      showToast(`🎲 Vorschlag: ${word}`);
-    }
-
     function confirmSafewordInGuide() {
       const input = document.getElementById('guide-safeword-input');
       const val = input ? input.value.trim() : '';
@@ -2037,10 +2190,8 @@
         return;
       }
       customSafeword = val;
-      const display = document.getElementById('confirmed-safeword-display');
-      const nameEl = document.getElementById('confirmed-safeword-name');
-      if (display) display.classList.remove('hidden');
-      if (nameEl) nameEl.innerText = val;
+      const p1Sw = document.getElementById('phase1-safeword-display');
+      if (p1Sw) p1Sw.innerText = `🌵 Code-Wort: '${val}'`;
       playHarmonicGong(1.2);
       saveSessionSnapshot();
       showToast(`🛡️ Safeword "${val}" bestätigt!`);
@@ -2107,7 +2258,7 @@
       let list = [];
 
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
           const r1Key = `it_${it.id}_r1`;
           const r2Key = `it_${it.id}_r2`;
@@ -2162,9 +2313,9 @@
       const allChapters = window.surveyChapters || [];
       let positive = [];
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
-          const a = answers.A[`it_${it.id}_r1`];
-          const b = answers.B[`it_${it.id}_r2`];
+        (ch.items || []).forEach(it => {
+          const a = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const b = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
           if (a >= 4 && b >= 4) positive.push(it);
         });
       });
@@ -2199,7 +2350,7 @@
       let generalTabus = [];
 
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
 
           const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
@@ -2207,10 +2358,7 @@
           const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
           const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
 
-          // 1. Akute Schutzgrenzen für heutige Rollenverteilung:
-          // Dom ist Top: Ablehnung von r1 durch Dom ist akut verboten!
           const domR1 = (domPartner === 'A') ? aR1 : bR1;
-          // Sub ist Bottom: Ablehnung von r2 durch Sub ist akut verboten!
           const subR2 = (subPartner === 'A') ? aR2 : bR2;
 
           let isAcute = false;
@@ -2228,7 +2376,6 @@
             acuteTabus.push({ it, ch, reasons: acuteReasons });
           }
 
-          // 2. Allgemeine Erfassung nach Rollen
           let roleHits = [];
           if (aR1 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Top (Aktiv)', roleText: it.r1 });
           if (aR2 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Bottom (Passiv)', roleText: it.r2 });
@@ -2243,17 +2390,16 @@
 
       let html = '';
 
-      // Sektion 1: Akut wirksam heute
       html += `
         <div class="p-3 rounded-2xl bg-rose-950/60 border border-rose-700/80 space-y-2">
           <div class="flex items-center justify-between">
             <strong class="text-xs font-black text-rose-200 flex items-center gap-1.5">
-              <span>⚡</span> <span>HEUTE AKUT VERBOTEN (Dynamik: ${domName} ➔ ${subName})</span>
+              <span>⚡</span> <span>HEUTE AKUT VERBOTEN (Dynamik: ${escapeHtml(domName)} ➔ ${escapeHtml(subName)})</span>
             </strong>
             <span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-rose-800 text-white">${acuteTabus.length} No-Gos</span>
           </div>
           <p class="text-[10px] text-rose-300 leading-tight">
-            Diese Praktiken dürfen heute keinesfalls vorkommen, weil entweder Top ${domName} sie nicht ausführen oder Bottom ${subName} sie nicht empfangen möchte.
+            Diese Praktiken dürfen heute keinesfalls vorkommen, weil entweder Top ${escapeHtml(domName)} sie nicht ausführen oder Bottom ${escapeHtml(subName)} sie nicht empfangen möchte.
           </p>
           <div class="space-y-1.5 pt-1">
             ${acuteTabus.length > 0 ? acuteTabus.map(t => `
@@ -2269,7 +2415,6 @@
         </div>
       `;
 
-      // Sektion 2: Alle hinterlegten Tabus nach Rolle
       html += `
         <div class="space-y-2 pt-2 border-t border-slate-800">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -2310,7 +2455,7 @@
       let totalCount = 0;
 
       allChapters.forEach(ch => {
-        ch.items.forEach(it => {
+        (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
           const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
           const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
@@ -2577,14 +2722,16 @@
       try {
         const a = localStorage.getItem('kompass_answers');
         const nm = localStorage.getItem('kompass_names');
+        const sc = localStorage.getItem('kompass_safety_config');
+
         if (a) answers = JSON.parse(a);
         if (nm) names = JSON.parse(nm);
+        if (sc) safetyConfig = JSON.parse(sc);
 
         const countA = Object.keys(answers.A || {}).length;
         const countB = Object.keys(answers.B || {}).length;
         const gate = document.getElementById('gate-survey-incomplete');
 
-        // Gating-Prüfung: Wurde der Fragebogen überhaupt ausgefüllt?
         if (countA < 5 && countB < 5) {
           if (gate) gate.classList.remove('hidden');
           return;
@@ -2600,6 +2747,7 @@
         document.querySelectorAll('.portal-sub-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
         document.querySelectorAll('.portal-sub-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
 
+        updateSafetyCodexUI();
         updateTabuCounts();
       } catch (e) {
         console.error("Ladefehler:", e);
