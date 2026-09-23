@@ -1,4 +1,4 @@
-// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass
+// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass (Hardened & Error-Safe)
 
 let currentUser = 'A';
 let currentChapterIndex = 0;
@@ -67,6 +67,19 @@ let safetyConfig = {
     checkin_24h: 'checkin_mandatory'
   }
 };
+
+window.lexikonData = window.lexikonData || [
+  { term: "Shibari", def: "Traditionelle japanische Seilfesselkunst mit Schwerpunkt auf Ästhetik, Linienführung und achtsamer Verbindung.", link: "https://de.wikipedia.org/wiki/Shibari" },
+  { term: "Subspace", def: "Neurobiologischer Trancezustand des Loslassens durch Endorphinausschüttung und transiente Hypofrontalität.", link: "https://de.wikipedia.org/wiki/BDSM#Subspace" },
+  { term: "Topspace", def: "Zustand fokussierter Flow-Konzentration und hoher empathischer Aufmerksamkeit beim führenden Part.", link: "https://de.wikipedia.org/wiki/BDSM" },
+  { term: "SSC", def: "Safe, Sane, Consensual – Ethischer Grundsatz für Sicherheit, geistige Klarheit und Freiwilligkeit.", link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual" },
+  { term: "RACK", def: "Risk-Aware Consensual Kink – Einvernehmliches Ausleben von Risiken unter voller Transparenz.", link: "https://de.wikipedia.org/wiki/BDSM" },
+  { term: "Aftercare", def: "Fürsorgliche Phase nach der Session zum Auffangen des Hormonabfalls (Körperwärme, Tee, Geborgenheit).", link: "https://de.wikipedia.org/wiki/Aftercare_(BDSM)" },
+  { term: "Edging", def: "Heranführen an die Schwelle des Orgasmus mit anschließendem bewussten Abstoppen zur Luststeigerung.", link: "https://de.wikipedia.org/wiki/Edging" },
+  { term: "Praise Play", def: "Erotische Bestätigung und verbale Zuwendung ('Braves Mädchen / Guter Junge') als Belohnung.", link: "https://de.wikipedia.org/wiki/BDSM" },
+  { term: "Chastity", def: "Freiwillige Keuschhaltung und Abgabe der Orgasmuskontrolle durch Käfige oder Zeittresore.", link: "https://de.wikipedia.org/wiki/Keuschheitsg%C3%BCrtel" },
+  { term: "CNC", def: "Consensual Non-Consent – Einvernehmlich inszenierte Überwältigungsspiele unter strikten Safewords.", link: "https://de.wikipedia.org/wiki/BDSM" }
+];
 
 const safetyModulesData = [
   {
@@ -271,9 +284,60 @@ const safetyModulesData = [
   }
 ];
 
+function ensureDataIntegrity() {
+  if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+  if (!answers.A || typeof answers.A !== 'object') answers.A = {};
+  if (!answers.B || typeof answers.B !== 'object') answers.B = {};
+
+  if (!notes || typeof notes !== 'object') notes = { A: {}, B: {} };
+  if (!notes.A || typeof notes.A !== 'object') notes.A = {};
+  if (!notes.B || typeof notes.B !== 'object') notes.B = {};
+
+  if (!shameFlags || typeof shameFlags !== 'object') shameFlags = { A: {}, B: {} };
+  if (!shameFlags.A || typeof shameFlags.A !== 'object') shameFlags.A = {};
+  if (!shameFlags.B || typeof shameFlags.B !== 'object') shameFlags.B = {};
+
+  if (!chapterReflections || typeof chapterReflections !== 'object') chapterReflections = { A: {}, B: {} };
+  if (!chapterReflections.A || typeof chapterReflections.A !== 'object') chapterReflections.A = {};
+  if (!chapterReflections.B || typeof chapterReflections.B !== 'object') chapterReflections.B = {};
+
+  if (!customKinks || !Array.isArray(customKinks)) customKinks = [];
+
+  if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+  if (!names.A) names.A = 'Partner 1';
+  if (!names.B) names.B = 'Partner 2';
+
+  if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
+  if (!anatomy.A) anatomy.A = 'penis';
+  if (!anatomy.B) anatomy.B = 'vulva';
+
+  if (!privacy || typeof privacy !== 'object') {
+    privacy = {
+      A: { mode: 'blind', shareNotes: true },
+      B: { mode: 'blind', shareNotes: true }
+    };
+  }
+  if (!privacy.A) privacy.A = { mode: 'blind', shareNotes: true };
+  if (!privacy.B) privacy.B = { mode: 'blind', shareNotes: true };
+
+  if (!accounts || typeof accounts !== 'object') {
+    accounts = {
+      A: { email: '', partnerEmail: '', setupDone: false },
+      B: { email: '', partnerEmail: '', setupDone: false }
+    };
+  }
+  if (!accounts.A) accounts.A = { email: '', partnerEmail: '', setupDone: false };
+  if (!accounts.B) accounts.B = { email: '', partnerEmail: '', setupDone: false };
+
+  if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
+  if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
+  if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
+}
+
 function initApp() {
   loadFromLocalStorage();
   checkUrlHashData();
+  ensureDataIntegrity();
 
   if (sessionStorage.getItem('kompass_unlocked') === 'true') {
     const lock = document.getElementById('site-lockscreen');
@@ -307,6 +371,7 @@ function verifySitePassword() {
 
 function saveToLocalStorage() {
   try {
+    ensureDataIntegrity();
     localStorage.setItem('kompass_answers', JSON.stringify(answers));
     localStorage.setItem('kompass_notes', JSON.stringify(notes));
     localStorage.setItem('kompass_shame', JSON.stringify(shameFlags));
@@ -348,6 +413,7 @@ function loadFromLocalStorage() {
   } catch (e) {
     console.error("Fehler beim Laden:", e);
   }
+  ensureDataIntegrity();
 }
 
 function checkUrlHashData() {
@@ -366,6 +432,7 @@ function checkUrlHashData() {
       if (payload.privacy) privacy = payload.privacy;
       if (payload.safetyConfig) safetyConfig = payload.safetyConfig;
       if (payload.customKinks) customKinks = payload.customKinks;
+      ensureDataIntegrity();
       saveToLocalStorage();
 
       currentUser = (payload.sender === 'A') ? 'B' : 'A';
@@ -412,23 +479,25 @@ function switchMainView(viewId) {
 
 function setCurrentUser(user) {
   currentUser = user;
+  ensureDataIntegrity();
   updateCurrentUserUI();
   renderCurrentChapter();
   updateProgressBar();
   updateTabuBadge();
   checkOnboardingStatus();
-  showToast(`Aktives Profil: ${names[user]}`);
+  showToast(`Aktives Profil: ${names[user] || user}`);
 }
 
 function updateCurrentUserUI() {
+  ensureDataIntegrity();
   const u = currentUser;
   const btnA = document.getElementById('btn-user-A');
   const btnB = document.getElementById('btn-user-B');
   const dispA = document.getElementById('user-display-A');
   const dispB = document.getElementById('user-display-B');
 
-  const anatIconA = anatomy.A === 'penis' ? '♂️' : '♀️';
-  const anatIconB = anatomy.B === 'penis' ? '♂️' : '♀️';
+  const anatIconA = (anatomy.A === 'penis') ? '♂️' : '♀️';
+  const anatIconB = (anatomy.B === 'penis') ? '♂️' : '♀️';
 
   if (dispA) dispA.innerText = `${names.A} (${anatIconA})`;
   if (dispB) dispB.innerText = `${names.B} (${anatIconB})`;
@@ -574,6 +643,7 @@ function handleSurveySearch(query) {
 }
 
 function renderCurrentChapter() {
+  ensureDataIntegrity();
   if (!window.surveyChapters || window.surveyChapters.length === 0) return;
   const ch = surveyChapters[currentChapterIndex];
   if (!ch) return;
@@ -584,8 +654,8 @@ function renderCurrentChapter() {
   const count = document.getElementById('chapter-items-count');
 
   if (badge) badge.innerText = `Kapitel ${currentChapterIndex + 1} / ${surveyChapters.length}`;
-  if (title) title.innerText = ch.title;
-  if (desc) desc.innerText = ch.desc;
+  if (title) title.innerText = ch.title || '';
+  if (desc) desc.innerText = ch.desc || '';
   if (count) count.innerText = `${(ch.items || []).length} Praktiken`;
 
   const prevBtn = document.getElementById('btn-prev-chapter');
@@ -602,15 +672,19 @@ function renderCurrentChapter() {
   const container = document.getElementById('survey-items-container');
   if (!container) return;
 
+  const uAnswers = (answers && answers[currentUser]) || {};
+  const uShame = (shameFlags && shameFlags[currentUser]) || {};
+  const uNotes = (notes && notes[currentUser]) || {};
+
   let filteredItems = (ch.items || []).filter(it => {
     const keyR1 = `it_${it.id}_r1`;
     const keyR2 = `it_${it.id}_r2`;
     const keyChoice = `it_${it.id}_choice`;
 
-    const valR1 = answers[currentUser][keyR1];
-    const valR2 = answers[currentUser][keyR2];
-    const valChoice = answers[currentUser][keyChoice];
-    const isShame = shameFlags[currentUser][it.id];
+    const valR1 = uAnswers[keyR1];
+    const valR2 = uAnswers[keyR2];
+    const valChoice = uAnswers[keyChoice];
+    const isShame = !!uShame[it.id];
 
     if (surveySearchQuery) {
       const matchTitle = (it.title || '').toLowerCase().includes(surveySearchQuery);
@@ -623,7 +697,7 @@ function renderCurrentChapter() {
       return valR1 === undefined || valR2 === undefined;
     }
     if (activeSurveyFilter === 'high') {
-      return valR1 >= 4 || valR2 >= 4;
+      return (valR1 !== undefined && valR1 >= 4) || (valR2 !== undefined && valR2 >= 4);
     }
     if (activeSurveyFilter === 'tabu') {
       return valR1 === 1 || valR2 === 1;
@@ -649,11 +723,11 @@ function renderCurrentChapter() {
       const keyR2 = `it_${it.id}_r2`;
       const keyChoice = `it_${it.id}_choice`;
 
-      const valR1 = answers[currentUser][keyR1];
-      const valR2 = answers[currentUser][keyR2];
-      const valChoice = answers[currentUser][keyChoice];
-      const noteVal = notes[currentUser][it.id] || '';
-      const isShame = shameFlags[currentUser][it.id] || false;
+      const valR1 = uAnswers[keyR1];
+      const valR2 = uAnswers[keyR2];
+      const valChoice = uAnswers[keyChoice];
+      const noteVal = uNotes[it.id] || '';
+      const isShame = !!uShame[it.id];
 
       const adaptedR1 = adaptRoleTextToAnatomy(it.r1, 'active');
       const adaptedR2 = adaptRoleTextToAnatomy(it.r2, 'passive');
@@ -705,7 +779,6 @@ function renderCurrentChapter() {
               </button>
             </div>
 
-            <!-- Zeile 1: Aktiv -->
             <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-slate-800">${escapeHtml(adaptedR1)}:</span>
@@ -720,7 +793,6 @@ function renderCurrentChapter() {
               </div>
             </div>
 
-            <!-- Zeile 2: Passiv -->
             <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-slate-800">${escapeHtml(adaptedR2)}:</span>
@@ -747,8 +819,7 @@ function renderCurrentChapter() {
     });
   }
 
-  // Reflexionsfeld & eigene Kinks am Fuß des Kapitels
-  const currentRefl = chapterReflections[currentUser][ch.id] || '';
+  const currentRefl = (chapterReflections[currentUser] && chapterReflections[currentUser][ch.id]) || '';
   html += `
     <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2 mt-4">
       <div class="flex items-center justify-between">
@@ -777,9 +848,6 @@ function renderCurrentChapter() {
 function adaptRoleTextToAnatomy(text, roleType) {
   if (!text) return '';
   const myAnat = anatomy[currentUser] || (currentUser === 'A' ? 'penis' : 'vulva');
-  const partnerUser = (currentUser === 'A') ? 'B' : 'A';
-  const partnerAnat = anatomy[partnerUser] || (partnerUser === 'A' ? 'penis' : 'vulva');
-
   let res = text;
   if (myAnat === 'penis') {
     res = res.replace(/Schamlippen\/Glied/g, "Glied").replace(/Klitoris\/Eichel/g, "Eichel");
@@ -790,6 +858,8 @@ function adaptRoleTextToAnatomy(text, roleType) {
 }
 
 function recordScaleAnswer(key, score) {
+  ensureDataIntegrity();
+  if (!answers[currentUser]) answers[currentUser] = {};
   answers[currentUser][key] = score;
   saveToLocalStorage();
   updateProgressBar();
@@ -798,6 +868,8 @@ function recordScaleAnswer(key, score) {
 }
 
 function recordChoiceAnswer(id, val) {
+  ensureDataIntegrity();
+  if (!answers[currentUser]) answers[currentUser] = {};
   answers[currentUser][`it_${id}_choice`] = val;
   saveToLocalStorage();
   updateProgressBar();
@@ -805,11 +877,15 @@ function recordChoiceAnswer(id, val) {
 }
 
 function recordNote(id, text) {
-  notes[currentUser][id] = text.trim();
+  ensureDataIntegrity();
+  if (!notes[currentUser]) notes[currentUser] = {};
+  notes[currentUser][id] = (text || '').trim();
   saveToLocalStorage();
 }
 
 function toggleShameFlag(id) {
+  ensureDataIntegrity();
+  if (!shameFlags[currentUser]) shameFlags[currentUser] = {};
   shameFlags[currentUser][id] = !shameFlags[currentUser][id];
   saveToLocalStorage();
   renderCurrentChapter();
@@ -817,8 +893,9 @@ function toggleShameFlag(id) {
 }
 
 function recordChapterReflection(chId, text) {
+  ensureDataIntegrity();
   if (!chapterReflections[currentUser]) chapterReflections[currentUser] = {};
-  chapterReflections[currentUser][chId] = text.trim();
+  chapterReflections[currentUser][chId] = (text || '').trim();
   saveToLocalStorage();
 }
 
@@ -890,7 +967,7 @@ function updateProgressBar() {
     });
   });
 
-  const answered = Object.keys(answers[currentUser] || {}).length;
+  const answered = Object.keys((answers && answers[currentUser]) || {}).length;
   const pct = totalQuestions > 0 ? Math.min(100, Math.round((answered / totalQuestions) * 100)) : 0;
 
   const fill = document.getElementById('progress-bar-fill');
@@ -901,7 +978,7 @@ function updateProgressBar() {
 
 function updateTabuBadge() {
   let count = 0;
-  const uAnswers = answers[currentUser] || {};
+  const uAnswers = (answers && answers[currentUser]) || {};
   Object.keys(uAnswers).forEach(k => {
     if (uAnswers[k] === 1) count++;
   });
@@ -913,7 +990,7 @@ function renderSafetyConfiguratorUI() {
   const container = document.getElementById('safety-configurator-full-container');
   if (!container) return;
 
-  const cfg = safetyConfig[currentUser] || {};
+  const cfg = (safetyConfig && safetyConfig[currentUser]) || {};
   let html = '<div class="space-y-4">';
 
   safetyModulesData.forEach(mod => {
@@ -957,6 +1034,7 @@ function renderSafetyConfiguratorUI() {
 }
 
 function selectSafetyOption(key, val) {
+  ensureDataIntegrity();
   if (!safetyConfig[currentUser]) safetyConfig[currentUser] = {};
   safetyConfig[currentUser][key] = val;
   saveToLocalStorage();
@@ -973,7 +1051,7 @@ function openTabuModal() {
   let bottomTabus = [];
 
   ['A', 'B'].forEach(u => {
-    const uAnswers = answers[u] || {};
+    const uAnswers = (answers && answers[u]) || {};
     const uName = names[u] || (u === 'A' ? 'Partner 1' : 'Partner 2');
 
     allChapters.forEach(ch => {
@@ -1019,7 +1097,7 @@ function openTabuModal() {
           <strong class="text-xs font-bold text-rose-950 dark:text-rose-200 flex items-center gap-1.5">
             <span>🛡️</span> Schutz- & Belastungsgrenzen (Bottom / Passiv)
           </strong>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200">${bottomTabus.length}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200">${bottomTabus.length}</span>
         </div>
         <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight">
           Was Körper und Geist des Partners keinesfalls empfangen wollen (Schutz-Schranken).
@@ -1095,15 +1173,16 @@ function openLexikonForItem(itemId) {
 
 function filterLexikon(q, append = false) {
   const container = document.getElementById('lexikon-entries-container');
-  if (!container || !window.lexikonData) return;
+  if (!container) return;
+  const list = window.lexikonData || [];
   const query = (q || '').toLowerCase();
-  const filtered = lexikonData.filter(l => l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query));
+  const filtered = list.filter(l => (l.term && l.term.toLowerCase().includes(query)) || (l.def && l.def.toLowerCase().includes(query)));
 
   const listHtml = filtered.map(l => `
     <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1">
       <div class="flex justify-between items-center">
         <strong class="text-slate-900 dark:text-white font-bold text-xs">${escapeHtml(l.term)}</strong>
-        <a href="${l.link}" target="_blank" class="text-[10px] text-brand-600 hover:underline">Info ↗</a>
+        ${l.link ? `<a href="${l.link}" target="_blank" class="text-[10px] text-brand-600 hover:underline">Info ↗</a>` : ''}
       </div>
       <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(l.def)}</p>
     </div>
@@ -1130,6 +1209,7 @@ function closeShareModal() {
 }
 
 function getLiveShareUrl() {
+  ensureDataIntegrity();
   const payload = {
     sender: currentUser,
     answers,
@@ -1164,6 +1244,7 @@ function copyShareLinkToClipboard() {
 }
 
 function openAccountModal() {
+  ensureDataIntegrity();
   const u = currentUser;
   const nameEl = document.getElementById('account-active-username');
   if (nameEl) nameEl.innerText = names[u];
@@ -1203,6 +1284,7 @@ function closeAccountModal() {
 }
 
 function selectAccountAnatomy(target, anat) {
+  ensureDataIntegrity();
   const u = currentUser;
   const pUser = (u === 'A') ? 'B' : 'A';
 
@@ -1240,19 +1322,22 @@ function selectAccountAnatomy(target, anat) {
 }
 
 function updateCurrentUserName(val) {
-  names[currentUser] = val.trim() || ((currentUser === 'A') ? 'Partner 1' : 'Partner 2');
+  ensureDataIntegrity();
+  names[currentUser] = (val || '').trim() || ((currentUser === 'A') ? 'Partner 1' : 'Partner 2');
   saveToLocalStorage();
   updateCurrentUserUI();
   showToast(`Name aktualisiert: ${names[currentUser]}`);
 }
 
 function updateCurrentUserEmail(val) {
+  ensureDataIntegrity();
   if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
-  accounts[currentUser].email = val.trim();
+  accounts[currentUser].email = (val || '').trim();
   saveToLocalStorage();
 }
 
 function updatePrivacyMode(mode) {
+  ensureDataIntegrity();
   if (!privacy[currentUser]) privacy[currentUser] = { mode: 'blind', shareNotes: true };
   privacy[currentUser].mode = mode;
   saveToLocalStorage();
@@ -1260,6 +1345,7 @@ function updatePrivacyMode(mode) {
 }
 
 function updateShareNotes(checked) {
+  ensureDataIntegrity();
   if (!privacy[currentUser]) privacy[currentUser] = { mode: 'blind', shareNotes: true };
   privacy[currentUser].shareNotes = checked;
   saveToLocalStorage();
@@ -1296,6 +1382,7 @@ function resetCurrentUserProfile() {
 }
 
 function generateRandomTestData() {
+  ensureDataIntegrity();
   const u = currentUser;
   (window.surveyChapters || []).forEach(ch => {
     (ch.items || []).forEach(it => {
@@ -1329,7 +1416,8 @@ function sendBackupEmail() {
 }
 
 function renderSingleAnalysis() {
-  const uAnswers = answers[currentUser] || {};
+  ensureDataIntegrity();
+  const uAnswers = (answers && answers[currentUser]) || {};
   const count = Object.keys(uAnswers).length;
   const emptyBox = document.getElementById('single-empty-state');
   const contentBox = document.getElementById('single-content-state');
@@ -1387,18 +1475,17 @@ function renderSingleAnalysis() {
     pctPower, pctSensation, pctNurturing, pctThrill, pctVisual,
     avgTop: cTop > 0 ? (totalTop / cTop) : 0,
     avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
-    shameCount: Object.keys(shameFlags[currentUser] || {}).length
+    shameCount: Object.keys((shameFlags && shameFlags[currentUser]) || {}).length
   });
 
-  // Highlights & Tabus
   let high5 = [];
   let tabus = [];
   (window.surveyChapters || []).forEach(ch => {
     (ch.items || []).forEach(it => {
       const r1 = uAnswers[`it_${it.id}_r1`];
       const r2 = uAnswers[`it_${it.id}_r2`];
-      if (r1 === 5) high5.push(`${it.title} (Aktiv: ${it.r1})`);
-      if (r2 === 5) high5.push(`${it.title} (Passiv: ${it.r2})`);
+      if (r1 === 5) high5.push(`${it.title} (Aktiv: ${it.r1 || 'Ausführen'})`);
+      if (r2 === 5) high5.push(`${it.title} (Passiv: ${it.r2 || 'Empfangen'})`);
       if (r1 === 1) tabus.push(`${it.title} (Aktiv abgelehnt)`);
       if (r2 === 1) tabus.push(`${it.title} (Passiv abgelehnt)`);
     });
@@ -1458,9 +1545,11 @@ function renderScientificGutachten(metrics) {
 
 function renderSingleRadar() {
   const canvas = document.getElementById('singleRadarChart');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
 
-  if (singleRadarInstance) singleRadarInstance.destroy();
+  if (singleRadarInstance) {
+    try { singleRadarInstance.destroy(); } catch (e) { console.warn(e); }
+  }
 
   const isDark = document.documentElement.classList.contains('dark');
   const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
@@ -1479,7 +1568,7 @@ function renderSingleRadar() {
   ];
 
   const allChapters = window.surveyChapters || [];
-  const uAnswers = answers[currentUser] || {};
+  const uAnswers = (answers && answers[currentUser]) || {};
 
   const scores = dimensions.map(dim => {
     let earned = 0, possible = 0;
@@ -1499,33 +1588,37 @@ function renderSingleRadar() {
     return possible > 0 ? Math.round((earned / possible) * 100) : 0;
   });
 
-  singleRadarInstance = new Chart(canvas, {
-    type: 'radar',
-    data: {
-      labels: dimensions.map(d => d.label),
-      datasets: [{
-        label: names[currentUser],
-        data: scores,
-        backgroundColor: 'rgba(225, 29, 72, 0.25)',
-        borderColor: 'rgba(225, 29, 72, 1)',
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(225, 29, 72, 1)'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          angleLines: { color: gridColor },
-          grid: { color: gridColor },
-          pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
-          ticks: { display: false, max: 100, min: 0 }
-        }
+  try {
+    singleRadarInstance = new Chart(canvas, {
+      type: 'radar',
+      data: {
+        labels: dimensions.map(d => d.label),
+        datasets: [{
+          label: names[currentUser] || 'Profil',
+          data: scores,
+          backgroundColor: 'rgba(225, 29, 72, 0.25)',
+          borderColor: 'rgba(225, 29, 72, 1)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(225, 29, 72, 1)'
+        }]
       },
-      plugins: { legend: { display: false } }
-    }
-  });
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            angleLines: { color: gridColor },
+            grid: { color: gridColor },
+            pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
+            ticks: { display: false, max: 100, min: 0 }
+          }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  } catch (e) {
+    console.warn("Chart creation error:", e);
+  }
 }
 
 function toggleGlobalTheme() {
@@ -1555,7 +1648,7 @@ function getPillLabel(score) {
   if (score === 3) return "💡 3 (Neugierig / Gesprächsbedarf)";
   if (score === 4) return "✨ 4 (Reizvoll / Bereicherung)";
   if (score === 5) return "⭐ 5 (Leidenschaft / Must-Have)";
-  return score;
+  return String(score);
 }
 
 function getScoreActiveStyle(sc) {
@@ -1583,7 +1676,7 @@ function showToast(msg) {
 }
 
 function escapeHtml(str) {
-  if (!str) return '';
+  if (str === undefined || str === null) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
