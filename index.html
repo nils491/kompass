@@ -56,98 +56,27 @@
       padding-right: env(safe-area-inset-right, 0px);
     }
     
-    html.dark body {
-      background-color: #05070c !important;
-      color: #f8fafc !important;
-    }
-    html.dark .theme-card {
-      background-color: #0f1523 !important;
-      border-color: #1e293b !important;
-      color: #f8fafc !important;
-    }
-    html.dark .theme-panel {
-      background-color: #141c2e !important;
-      border-color: #24334f !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .theme-subtle {
-      background-color: #090d16 !important;
-      border-color: #1a2438 !important;
-    }
+    html.dark body { background-color: #05070c !important; color: #f8fafc !important; }
+    html.dark .theme-card { background-color: #0f1523 !important; border-color: #1e293b !important; color: #f8fafc !important; }
+    html.dark .theme-panel { background-color: #141c2e !important; border-color: #24334f !important; color: #e2e8f0 !important; }
+    html.dark .bg-white { background-color: #0f1523 !important; color: #f8fafc !important; }
+    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 { background-color: #141c2e !important; color: #e2e8f0 !important; }
+    html.dark .bg-slate-100 { background-color: #1a2438 !important; color: #f8fafc !important; }
+    html.dark .border-slate-200, html.dark .border-slate-300 { border-color: #1e293b !important; }
+    html.dark .text-slate-900, html.dark .text-slate-800 { color: #f8fafc !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-600, html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark input[type="text"], html.dark input[type="email"], html.dark textarea { background-color: #141c2e !important; border-color: #24334f !important; color: #f8fafc !important; }
 
-    html.dark .bg-white {
-      background-color: #0f1523 !important;
-      color: #f8fafc !important;
-    }
-    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 {
-      background-color: #141c2e !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .bg-slate-100 {
-      background-color: #1a2438 !important;
-      color: #f8fafc !important;
-    }
-    html.dark .border-slate-200, html.dark .border-slate-300, html.dark .border-slate-100 {
-      border-color: #1e293b !important;
-    }
-    html.dark .text-slate-900, html.dark .text-slate-800 {
-      color: #f8fafc !important;
-    }
-    html.dark .text-slate-700 {
-      color: #cbd5e1 !important;
-    }
-    html.dark .text-slate-600, html.dark .text-slate-500 {
-      color: #94a3b8 !important;
-    }
-    html.dark input[type="text"], html.dark input[type="email"], html.dark select {
-      background-color: #141c2e !important;
-      border-color: #24334f !important;
-      color: #f8fafc !important;
-    }
-    html.dark input::placeholder {
-      color: #64748b !important;
-    }
-    html.dark footer {
-      background-color: #090d16 !important;
-      border-color: #1e293b !important;
-    }
+    html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
+    html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
+    html:not(.dark) .bg-white { background-color: #ffffff !important; color: #0f172a !important; }
+    html:not(.dark) .bg-slate-50 { background-color: #f8fafc !important; color: #334155 !important; }
+    html:not(.dark) .border-slate-200 { border-color: #e2e8f0 !important; }
 
-    html:not(.dark) body {
-      background-color: #f8fafc !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .theme-card {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .theme-panel {
-      background-color: #f1f5f9 !important;
-      border-color: #e2e8f0 !important;
-      color: #1e293b !important;
-    }
-    html:not(.dark) .theme-subtle {
-      background-color: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-    }
-    html:not(.dark) .bg-white {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .bg-slate-50 {
-      background-color: #f8fafc !important;
-      color: #334155 !important;
-    }
-    html:not(.dark) .border-slate-200 {
-      border-color: #e2e8f0 !important;
-    }
-
-    .touch-pill {
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .touch-pill:active {
-      transform: scale(0.96);
-    }
+    .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+    .touch-pill:active { transform: scale(0.96); }
   </style>
 </head>
 <body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
@@ -161,20 +90,15 @@
       <div class="space-y-1.5">
         <h2 class="text-xl font-extrabold text-white tracking-tight">Privater Beziehungs-Kompass</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Diese Seite enthält vertrauliche Intimbereiche. Bitte gib das vereinbarte Zugangspasswort ein.
+          Diese Seite enthält vertrauliche Intimbereiche. Bitte gib das Zugangspasswort ein.
         </p>
       </div>
       <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
-               onkeydown="if(event.key==='Enter') verifySitePassword()"
-               class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." onkeydown="if(event.key==='Enter') verifySitePassword()" class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
         <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill">
           Entsperren & Fortfahren
         </button>
         <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-      <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
-        🛡️ <strong>100 % Lokaler Datenschutz:</strong> Keine Cloud, keine Server.
       </div>
     </div>
   </div>
@@ -182,8 +106,6 @@
   <!-- HEADER NAVIGATION -->
   <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      
-      <!-- Brand & Compass Logo -->
       <div class="flex items-center space-x-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
@@ -202,7 +124,6 @@
         </div>
       </div>
 
-      <!-- Navigation Views -->
       <nav class="flex items-center theme-panel p-1 rounded-xl border text-xs font-bold overflow-x-auto">
         <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
           📝 Fragebogen
@@ -215,7 +136,6 @@
         </a>
       </nav>
 
-      <!-- Action Buttons -->
       <div class="flex items-center gap-1 sm:gap-1.5">
         <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2 py-1.5 sm:px-2.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten">
           <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
@@ -236,14 +156,12 @@
           <span>⚙️</span>
         </button>
       </div>
-
     </div>
   </header>
 
   <!-- SUB-HEADER: NUTZER & FORTSCHRITT -->
   <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
-      
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
         <span class="text-[10.5px] font-bold text-slate-500 pl-2">Du füllst aus für:</span>
         <button onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs">
@@ -255,22 +173,17 @@
       </div>
 
       <div class="flex items-center gap-2.5 flex-1 max-w-xs sm:max-w-md justify-end">
-        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 % (0/635 Praktiken bewertet)</span>
+        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 %</span>
         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
           <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
         </div>
       </div>
-
     </div>
   </div>
 
   <!-- HAUPTBEREICH -->
   <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
-
-    <!-- VIEW A: FRAGEBOGEN -->
     <section id="view-survey" class="space-y-4">
-      
-      <!-- SCHNELLVERZEICHNIS -->
       <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
         <div class="flex items-center justify-between text-xs font-bold text-slate-700">
           <span>📑 Kapitel-Schnellverzeichnis</span>
@@ -295,7 +208,7 @@
             ⛔ Tabus (1)
           </button>
           <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-purple-700 hover:bg-purple-50 border border-slate-200 transition">
-            🙈 Hemmschwelle / Peinlich
+            🙈 Hemmschwelle
           </button>
         </div>
         <div class="flex-1 min-w-[180px] max-w-xs">
@@ -349,7 +262,7 @@
         <div class="max-w-md mx-auto space-y-1.5">
           <h3 class="text-base font-extrabold text-slate-900">Dein Profil erwacht mit deinen Antworten</h3>
           <p class="text-xs text-slate-500 leading-relaxed">
-            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet. Sobald du die ersten Kapitel bewertest, entsteht hier deine Tiefenanalyse.
+            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet.
           </p>
         </div>
         <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
@@ -361,25 +274,23 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
           <div>
             <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-              Psychologisches Profil
+              Wissenschaftliches Profil
             </span>
             <h2 class="text-lg font-extrabold text-slate-900 mt-1">
               Persönlichkeitsanalyse von <span id="single-profile-name" class="text-indigo-600">Partner 1</span>
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Basierend auf deinen bisherigen Bewertungen und Vorlieben.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Gestützt auf die Studien aus dem wissenschaftlichen Repository.</p>
           </div>
-          <div class="flex items-center gap-2">
-            <a href="analyse.html" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition">
-              Zur großen Paaranalyse ↗
-            </a>
-          </div>
+          <a href="analyse.html" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition">
+            Zur großen Paaranalyse ↗
+          </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
             <h3 class="text-xs font-bold text-slate-800 flex items-center justify-between">
               <span>🕸️ Archetypen-Radar</span>
-              <span class="text-[10px] text-slate-400 font-normal">Dimensionen</span>
+              <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
             </h3>
             <div class="relative h-64 w-full flex items-center justify-center">
               <canvas id="singleRadarChart"></canvas>
@@ -444,10 +355,13 @@
               </div>
             </div>
 
-            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 leading-normal" id="single-interpretation-box">
-              Dein Profil zeigt eine ausgewogene Balance zwischen emotionaler Sicherheit und gezielter Reizexploration.
-            </div>
+            <div class="text-[10px] text-slate-400 italic">Echtzeit-Berechnung aus deinen Antworten</div>
           </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">🔬 Tiefenpsychologisches Psychogramm</h3>
+          <div id="single-interpretation-box" class="text-xs text-slate-600 leading-relaxed"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -467,10 +381,9 @@
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- MODAL: GATING / SCHUTZ VOR UNVOLLSTÄNDIGEM AUSFÜLLEN -->
+  <!-- MODAL: GATING -->
   <div id="modal-gating-incomplete" class="hidden fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border border-amber-500/40 text-xs">
       <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-2xl mx-auto flex items-center justify-center shadow-inner">
@@ -482,18 +395,13 @@
           Um dein Profil, die Paar-Analyse oder den Session-Begleiter freizuschalten, musst du zuerst mindestens einige Punkte im Fragebogen bewerten.
         </p>
       </div>
-      <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl text-left text-amber-900 dark:text-amber-200 text-[11px] space-y-1">
-        <strong class="block font-bold">🛡️ Warum ist das wichtig?</strong>
-        <p>• Eure Grenzen & No-Gos müssen lückenlos bekannt sein</p>
-        <p>• Top- und Bottom-Vorlieben müssen feststehen</p>
-      </div>
       <button onclick="closeGatingModal()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xs transition touch-pill">
         Zurück zum Fragebogen →
       </button>
     </div>
   </div>
 
-  <!-- MODAL: ONBOARDING MIT ANATOMIE-AUSWAHL -->
+  <!-- MODAL: ONBOARDING -->
   <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs max-h-[90vh] flex flex-col justify-between">
       <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
@@ -503,158 +411,103 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-[10px] text-slate-600 dark:text-slate-300" id="onboarding-step-indicator">Schritt 1 von 4</span>
-          <button type="button" onclick="closeOnboardingModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold" title="Schließen & direkt starten">✕</button>
+          <button type="button" onclick="closeOnboardingModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold">✕</button>
         </div>
       </div>
 
       <div class="p-6 space-y-5 overflow-y-auto flex-1">
-        <!-- SCHRITT 1: NAME & ANATOMIE -->
         <div id="onboarding-step-1" class="space-y-4">
           <div class="space-y-1">
             <strong class="text-slate-900 dark:text-white text-sm block">1. Name & Geschlechtsorgane</strong>
             <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Gib deinen Namen an und wähle deine körperliche Anatomie, damit sich alle Fragen dynamisch an eure heterosexuelle Paardynamik anpassen.
+              Wähle deine körperliche Anatomie, damit sich alle Fragen dynamisch an eure heterosexuelle Dynamik anpassen.
             </p>
           </div>
           <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
 
-          <!-- ANATOMIE-AUSWAHL -->
           <div class="space-y-2 pt-1">
             <span class="block text-slate-700 dark:text-slate-300 font-bold text-[11px]">Deine Geschlechtsorgane:</span>
             <div class="flex gap-2">
               <button type="button" onclick="selectOnboardingAnatomy('penis')" id="onboarding-anat-penis" class="flex-1 p-3 rounded-2xl border bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs text-left touch-pill">
                 <span class="text-lg block">🍆</span>
                 <strong class="block text-xs mt-0.5">Penis & Hoden</strong>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Männliche Rolle im hetero Paar</span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Männliche Rolle</span>
               </button>
               <button type="button" onclick="selectOnboardingAnatomy('vulva')" id="onboarding-anat-vulva" class="flex-1 p-3 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700 text-left touch-pill hover:bg-slate-100">
                 <span class="text-lg block">🌸</span>
                 <strong class="block text-xs mt-0.5">Vulva & Vagina</strong>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Weibliche Rolle im hetero Paar</span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Weibliche Rolle</span>
               </button>
             </div>
-            <p class="text-[10px] text-slate-400 italic">Dein Partner wird für den Abgleich automatisch als das komplementäre Geschlecht eingestellt.</p>
           </div>
         </div>
 
-        <!-- SCHRITT 2: ANLEITUNG & BEWERTUNGSSKALA (DAS 6-STUFEN-SYSTEM) -->
         <div id="onboarding-step-2" class="hidden space-y-4">
           <div class="space-y-1">
             <strong class="text-slate-900 dark:text-white text-sm block">2. Anleitung: Wie bewerte ich richtig?</strong>
             <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
-              Jede Praktik hat zwei getrennte Zeilen: <strong>Aktiv (Was ich tun/führen will)</strong> und <strong>Passiv (Was ich empfangen/erdulden will)</strong>. Jede Note hat eine klare Bedeutung und steuert die Auswertung:
+              Jede Praktik hat zwei Zeilen: <strong>Aktiv (Ausführen)</strong> und <strong>Passiv (Empfangen)</strong>.
             </p>
           </div>
-
-          <!-- Skalen-Karten mit Konsequenz-Erklärung -->
-          <div class="space-y-2">
-            <div class="p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/60 dark:bg-rose-950/30 space-y-0.5">
-              <strong class="text-rose-950 dark:text-rose-200 font-extrabold text-xs block">⛔ Note 1: Absolutes Tabu & Grenze</strong>
-              <p class="text-[10.5px] text-rose-800 dark:text-rose-300 leading-normal">
-                Das möchte ich unter keinen Umständen erleben – weder aktiv tun noch passiv ertragen.
-              </p>
-              <span class="text-[10px] font-bold text-rose-700 dark:text-rose-400 block">Wozu es führt: Die Praktik wird sofort in die rote Tabuliste aufgenommen, blockiert jede Session-Idee und wird in der Paar-Analyse als striktes No-Go geschützt.</span>
+          <div class="space-y-2 text-[10.5px]">
+            <div class="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60">
+              <strong class="text-rose-950 dark:text-rose-200 font-bold block">⛔ Note 1: Absolutes Tabu & Grenze</strong>
+              Keinesfalls tun oder empfangen. Landet sofort in der roten Schutzcharta.
             </div>
-
-            <div class="p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/30 space-y-0.5">
-              <strong class="text-indigo-950 dark:text-indigo-200 font-extrabold text-xs block">🎁 Note 2: Dem Partner zuliebe / Akzeptierte Strafe</strong>
-              <p class="text-[10.5px] text-indigo-800 dark:text-indigo-300 leading-normal">
-                Kein eigenes inneres Verlangen, aber ich bin bereit, es dem Partner zuliebe zu tun/dulden, oder im BDSM als Strafe und Pflicht zu akzeptieren.
-              </p>
-              <span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 block">Wozu es führt: Erscheint in der Paaranalyse als wertvoller „Liebesdienst“ und fließt im Session-Begleiter als maßgeschneiderte Disziplinierungs-Option ein.</span>
+            <div class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60">
+              <strong class="text-indigo-950 dark:text-indigo-200 font-bold block">🎁 Note 2: Dem Partner zuliebe / Strafe</strong>
+              Kein eigenes Verlangen, aber dem Partner zuliebe oder als D/s-Strafe akzeptiert.
             </div>
-
-            <div class="p-2.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30 space-y-0.5">
-              <strong class="text-blue-950 dark:text-blue-200 font-extrabold text-xs block">💡 Note 3: Neugierig / Gesprächsbedarf</strong>
-              <p class="text-[10.5px] text-blue-800 dark:text-blue-300 leading-normal">
-                Ich bin prinzipiell neugierig oder offen, brauche aber vorher ein gemeinsames Gespräch über Bedingungen, Tempo und Sicherheit.
-              </p>
-              <span class="text-[10px] font-bold text-blue-700 dark:text-blue-400 block">Wozu es führt: Bildet mit einem hohen Wunsch des Partners eine „Brückenbau-Chance“ mit konkretem Gesprächsleitfaden.</span>
+            <div class="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60">
+              <strong class="text-blue-950 dark:text-blue-200 font-bold block">💡 Note 3: Neugierig / Gesprächsbedarf</strong>
+              Offen dafür, erfordert aber vorheriges Absprechen von Bedingungen.
             </div>
-
-            <div class="p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/60 dark:bg-amber-950/30 space-y-0.5">
-              <strong class="text-amber-950 dark:text-amber-200 font-extrabold text-xs block">✨ Note 4: Reizvoll / Schöne Bereicherung</strong>
-              <p class="text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
-                Macht mich an und bereichert unser Liebesleben sehr gern regelmäßig ohne große Hürden.
-              </p>
-              <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 block">Wozu es führt: Wird als starkes Interesse gewertet und generiert gemeinsame Playbooks und Szenenbausteine.</span>
+            <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60">
+              <strong class="text-amber-950 dark:text-amber-200 font-bold block">✨ Note 4: Reizvoll / Bereicherung</strong>
+              Macht mich an und bereichert unser Liebesleben gern regelmäßig.
             </div>
-
-            <div class="p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/60 dark:bg-emerald-950/30 space-y-0.5">
-              <strong class="text-emerald-950 dark:text-emerald-200 font-extrabold text-xs block">⭐ Note 5: Leidenschaft / Must-Have</strong>
-              <p class="text-[10.5px] text-emerald-800 dark:text-emerald-300 leading-normal">
-                Absoluter Favorit, tiefe Leidenschaft oder ein unverzichtbarer Kern meiner sexuellen Erfüllung.
-              </p>
-              <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block">Wozu es führt: Trifft es auf eine 5 des Partners, entsteht ein „Doppel-5er Volltreffer“ mit höchster Priorität für eure Sessions.</span>
-            </div>
-
-            <div class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 space-y-0.5">
-              <strong class="text-slate-800 dark:text-slate-200 font-extrabold text-xs block">0: Entfällt / Neutrales Desinteresse</strong>
-              <p class="text-[10.5px] text-slate-600 dark:text-slate-400 leading-normal">
-                Reizt mich nicht, stößt mich aber auch nicht ab; einfach kein Thema für mich.
-              </p>
-              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block">Wozu es führt: Wird im Blind-Match neutral ignoriert und belastet die Auswertung nicht.</span>
-            </div>
-
-            <!-- SCHAM-BUTTON ERKLÄRUNG -->
-            <div class="p-3 rounded-2xl border border-purple-300 dark:border-purple-800/80 bg-purple-50 dark:bg-purple-950/40 space-y-1">
-              <div class="flex items-center gap-1.5">
-                <span class="text-base">❤️‍🔥</span>
-                <strong class="text-purple-950 dark:text-purple-200 font-extrabold text-xs">Der „Hemmschwelle / Schäme mich“-Button</strong>
-              </div>
-              <p class="text-[10.5px] text-purple-900 dark:text-purple-300 leading-relaxed">
-                Manche Wünsche (z. B. Keuschheit, Pegging, Blas-Training, DDLG) reizen dich vielleicht sehr (Note 3–5), aber es ist dir peinlich, offen dazu zu stehen. Aktiviere dafür einfach diesen Button.
-              </p>
-              <span class="text-[10px] font-bold text-purple-700 dark:text-purple-400 block">Wozu es führt: Dein Partner sieht in der Analyse einen geschützten Hinweis („Mit besonderem Feingefühl & ohne jede Bewertung ansprechen“), sodass verletzliche Fantasien niemals ins Lächerliche gezogen werden.</span>
+            <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60">
+              <strong class="text-emerald-950 dark:text-emerald-200 font-bold block">⭐ Note 5: Leidenschaft / Must-Have</strong>
+              Absolute Lieblingspraktik. Trifft es auf eine 5 des Partners, entsteht ein Doppel-5er.
             </div>
           </div>
         </div>
 
-        <!-- SCHRITT 3: DATENFREIGABE AN DEN PARTNER -->
         <div id="onboarding-step-3" class="hidden space-y-3">
           <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">3. Deine Transparenz gegenüber deinem Partner</strong>
-            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Wähle, wie deine Antworten in der Paar-Analyse für deinen Partner sichtbar sein sollen:
-            </p>
+            <strong class="text-slate-900 dark:text-white text-sm block">3. Datenfreigabe an den Partner</strong>
           </div>
           <div class="space-y-2">
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
               <input type="radio" name="onboarding-privacy" value="blind" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
-                <strong class="text-slate-900 dark:text-white block font-bold">Selektiver Abgleich (Blind-Match & Schutzgrenzen)</strong>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block leading-normal">
-                  Sichtbar sind gemeinsame Schnittmengen (Noten 3–5) sowie alle Tabus (Note 1). Einseitig niedrige Bewertungen bleiben verborgen.
-                </span>
+                <strong class="text-slate-900 dark:text-white block font-bold">Selektiver Blind-Match (Empfohlen)</strong>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Sichtbar sind gemeinsame Schnittmengen (3–5) und Tabus (1). Einseitige Noten bleiben verborgen.</span>
               </div>
             </label>
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
               <input type="radio" name="onboarding-privacy" value="open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
-                <strong class="text-slate-900 dark:text-white block font-bold">Vollständiger Abgleich (Offene Einsicht)</strong>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block leading-normal">
-                  Alle vergebenen Noten von 0 bis 5 sind in der Detailübersicht vollständig für den Partner einsehbar.
-                </span>
+                <strong class="text-slate-900 dark:text-white block font-bold">Vollständig offene Einsicht</strong>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Alle vergebenen Noten von 0 bis 5 sind gegenseitig vollständig einsehbar.</span>
               </div>
             </label>
           </div>
         </div>
 
-        <!-- SCHRITT 4: E-MAIL BACKUP (OPTIONAL) -->
         <div id="onboarding-step-4" class="hidden space-y-3">
           <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">4. E-Mail-Sicherung (Vollkommen optional)</strong>
+            <strong class="text-slate-900 dark:text-white text-sm block">4. E-Mail-Sicherung (Optional)</strong>
             <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Da keine Cloud existiert, kannst du dir deinen verschlüsselten Zugangslink per Mail zusenden lassen, um deine Daten jederzeit wieder aufrufen zu können.
+              Lass dir deinen Zugangs-Link zuschicken, um ihn niemals zu verlieren.
             </p>
           </div>
           <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-          <p class="text-[10px] text-slate-400 italic">Du kannst dies auch später jederzeit in den Account-Einstellungen anpassen.</p>
         </div>
       </div>
 
       <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
-        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-100">
+        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs">
           ← Zurück
         </button>
         <button type="button" onclick="closeOnboardingModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-semibold">
@@ -667,7 +520,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ACCOUNT & ANATOMIE-VERWALTUNG -->
+  <!-- MODAL: ACCOUNT -->
   <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -676,106 +529,77 @@
         </h3>
         <button onclick="closeAccountModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
       </div>
-
       <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-        <!-- Name -->
         <div class="space-y-1.5">
           <label class="font-bold text-slate-700 block">Dein angezeigter Name:</label>
           <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
-
-        <!-- HETERO-ANATOMIE-STEUERUNG -->
         <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-          <div class="flex items-center gap-1.5 border-b border-slate-200 pb-1.5">
-            <span class="text-sm">🚻</span>
-            <strong class="text-slate-900 font-bold text-xs">Hetero-Dynamik & Geschlechtsorgane:</strong>
-          </div>
-          
+          <strong class="text-slate-900 font-bold text-xs block">Geschlechtsorgane & Hetero-Dynamik:</strong>
           <div class="space-y-2">
             <div>
-              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Deine Geschlechtsorgane:</span>
+              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Deine Organe:</span>
               <div class="flex gap-2">
                 <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-2 px-3 rounded-xl border bg-brand-50 border-brand-500 text-brand-950 font-bold text-xs shadow-xs touch-pill">
-                  🍆 Penis & Hoden (Mann)
+                  🍆 Penis (Mann)
                 </button>
                 <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
-                  🌸 Vulva & Vagina (Frau)
+                  🌸 Vulva (Frau)
                 </button>
               </div>
             </div>
-
             <div class="pt-1 border-t border-slate-200/80">
-              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Geschlechtsorgane deines Partners:</span>
+              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Organe des Partners:</span>
               <div class="flex gap-2">
                 <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
-                  🍆 Penis & Hoden (Mann)
+                  🍆 Penis (Mann)
                 </button>
                 <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-indigo-50 border-indigo-500 text-indigo-950 font-bold text-xs shadow-xs touch-pill">
-                  🌸 Vulva & Vagina (Frau)
+                  🌸 Vulva (Frau)
                 </button>
               </div>
             </div>
           </div>
-          <p class="text-[10px] text-slate-500 leading-tight">Steuert die Formulierung der Rollen (z. B. Blowjob, Keuschheit, Pegging, Reizwäsche).</p>
         </div>
 
-        <!-- RECHTE- & PRIVATSPHÄRE-VERWALTUNG -->
         <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-          <div class="flex items-center gap-1.5 border-b border-slate-200 pb-1.5">
-            <span class="text-sm">🛡️</span>
-            <strong class="text-slate-900 font-bold text-xs">Transparenz- & Rechte-Steuerung:</strong>
-          </div>
-          
+          <strong class="text-slate-900 font-bold text-xs block">Rechte & Freigabe:</strong>
           <div class="space-y-2">
             <label class="flex items-start gap-2.5 cursor-pointer">
               <input type="radio" name="account-privacy-mode" value="blind" onchange="updatePrivacyMode(this.value)" id="account-priv-blind" class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
-                <strong class="text-slate-800 block text-[11px] font-bold">Selektiver Blind-Match (Empfohlen)</strong>
-                <span class="text-[10px] text-slate-500 block leading-tight">Partner sieht nur Schnittmengen (3–5) und deine Tabus (1). Einseitige 0er/2er bleiben verborgen.</span>
+                <strong class="text-slate-800 block text-[11px] font-bold">Selektiver Blind-Match</strong>
+                <span class="text-[10px] text-slate-500 block">Schnittmengen (3–5) und Tabus (1) sichtbar.</span>
               </div>
             </label>
             <label class="flex items-start gap-2.5 cursor-pointer">
               <input type="radio" name="account-privacy-mode" value="open" onchange="updatePrivacyMode(this.value)" id="account-priv-open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
               <div>
                 <strong class="text-slate-800 block text-[11px] font-bold">Vollständig offene Einsicht</strong>
-                <span class="text-[10px] text-slate-500 block leading-tight">Partner darf alle deine vergebenen Noten von 0 bis 5 vollständig einsehen.</span>
+                <span class="text-[10px] text-slate-500 block">Alle vergebenen Noten von 0 bis 5 für Partner sichtbar.</span>
               </div>
             </label>
           </div>
-
           <div class="pt-2 border-t border-slate-200">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" id="account-share-notes" onchange="updateShareNotes(this.checked)" class="rounded text-brand-600 focus:ring-brand-500">
-              <span class="text-[11px] text-slate-700 font-semibold">Persönliche Notizen & Bedingungen mit Partner teilen</span>
+              <span class="text-[11px] text-slate-700 font-semibold">Persönliche Notizen teilen</span>
             </label>
           </div>
         </div>
 
-        <!-- E-Mail Backup -->
         <div class="space-y-1.5">
-          <label class="font-bold text-slate-700 block">Deine E-Mail-Adresse (Optional für Backups):</label>
+          <label class="font-bold text-slate-700 block">E-Mail für Backups:</label>
           <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
         </div>
 
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-          <strong class="text-slate-900 block font-semibold text-xs">Aktionen & Sicherheit:</strong>
           <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-            <span>✉️</span> Meinen aktuellen Daten-Link an mich mailen
+            <span>✉️</span> Meinen aktuellen Daten-Link mailen
           </button>
-          <button onclick="generateRandomTestData()" class="w-full py-2 px-3 bg-indigo-50/80 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-            <span>🎲</span> Testdaten einspielen (Zufallsantworten für Partner 1 & 2)
+          <button onclick="generateRandomTestData()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
+            <span>🎲</span> Zufällige Testdaten einspielen
           </button>
-        </div>
-
-        <div class="p-3.5 bg-gradient-to-tr from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 rounded-2xl space-y-2.5 text-slate-200">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📲</span>
-            <strong class="font-bold text-white text-xs">Als App auf dem Smartphone speichern:</strong>
-          </div>
-          <div class="space-y-1.5 text-[11px] leading-relaxed text-slate-300">
-            <p>• <strong>iPhone (Safari):</strong> Teilen-Symbol <span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 font-mono text-[10px]">⎋</span> tippen &rarr; <strong>„Zum Home-Bildschirm“</strong>.</p>
-            <p>• <strong>Android (Chrome):</strong> Drei Punkte &rarr; <strong>„App installieren“</strong>.</p>
-          </div>
         </div>
 
         <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
@@ -794,7 +618,6 @@
           </div>
         </div>
       </div>
-
       <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
         <button onclick="closeAccountModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
       </div>
@@ -810,10 +633,10 @@
             <span>⛔</span> Die Zweigeteilte Tabu- & Schutz-Charta (Note 1)
           </h3>
           <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
-            Messer-scharf getrennt: Was der Top nicht antun/leiten will vs. Was der Bottom am Körper nicht erträgt
+            Top-Ausführungsgrenzen vs. Bottom-Schutzgrenzen
           </span>
         </div>
-        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 font-bold hover:bg-rose-100 flex items-center justify-center">✕</button>
+        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-rose-200 text-rose-700 font-bold flex items-center justify-center">✕</button>
       </div>
       <div class="p-5 space-y-3 max-h-[75vh] overflow-y-auto" id="tabu-modal-list"></div>
       <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
@@ -833,7 +656,7 @@
       </div>
       <div class="p-5 space-y-3.5">
         <p class="text-[11px] text-slate-600 leading-relaxed">
-          Sende diesen Link an deinen Partner. Deine Antworten sind direkt verschlüsselt im Link hinterlegt – ohne Cloud!
+          Sende diesen Link an deinen Partner. Deine Antworten sind direkt im Link hinterlegt – ohne Cloud!
         </p>
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
           <input type="text" id="share-link-input" readonly class="w-full text-[11px] bg-white border border-slate-300 rounded-lg p-2 font-mono text-slate-600 select-all">
@@ -848,17 +671,17 @@
     </div>
   </div>
 
-  <!-- MODAL: LEXIKON (IMMER ZUGÄNGLICH) -->
+  <!-- MODAL: LEXIKON -->
   <div id="modal-lexikon" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs flex flex-col max-h-[85vh]">
       <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
         <h3 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
           <span>📖</span> A–Z BDSM-, Kink- & Begriffs-Lexikon
         </h3>
-        <button type="button" onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold flex items-center justify-center">✕</button>
+        <button type="button" onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 text-slate-500 hover:text-slate-900 font-bold flex items-center justify-center">✕</button>
       </div>
-      <div class="p-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Shibari, Praise, Edging, Safeword)..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+      <div class="p-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50">
+        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
       </div>
       <div class="p-4 space-y-2 overflow-y-auto flex-1" id="lexikon-entries-container"></div>
       <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
@@ -870,6 +693,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
 
   <!-- SKRIPTE -->
+  <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="js/app.js"></script>
@@ -887,7 +711,7 @@
         const desc = document.getElementById('gating-modal-desc');
 
         if (title) title.innerText = targetUrl.includes('session') ? "Session-Begleiter noch gesperrt" : "Paar-Analyse noch gesperrt";
-        if (desc) desc.innerText = `Bevor du ${targetUrl.includes('session') ? 'den Schlafzimmer-Begleiter' : 'die Paar-Analyse'} öffnen kannst, fülle bitte zuerst den Fragebogen aus, damit eure Schutzgrenzen erfasst sind.`;
+        if (desc) desc.innerText = `Bevor du ${targetUrl.includes('session') ? 'den Schlafzimmer-Begleiter' : 'die Paar-Analyse'} öffnen kannst, fülle bitte zuerst mindestens 5 Praktiken im Fragebogen aus.`;
 
         if (m) m.classList.remove('hidden');
         return false;
