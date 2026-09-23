@@ -128,6 +128,9 @@
         <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
           📝 Fragebogen
         </button>
+        <button onclick="openSafetyConfiguratorDirectly()" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-300 hover:text-white transition flex items-center gap-1 font-bold">
+          <span>🛡️ Sicherheits-Kodex</span>
+        </button>
         <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
           👤 Mein Profil
         </button>
@@ -699,6 +702,17 @@
   <script src="js/app.js"></script>
 
   <script>
+    function openSafetyConfiguratorDirectly() {
+      switchMainView('survey');
+      // Springe zu Kapitel 29 oder scrolle direkt zum Sicherheits-Konfigurator
+      jumpToChapter(28); // Kapitel 29
+      setTimeout(() => {
+        const el = document.getElementById('safety-configurator-card');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      showToast("🛡️ Sicherheits- & Konsens-Konfigurator geöffnet");
+    }
+
     function handleProtectedNavigation(event, targetUrl) {
       const answersA = Object.keys(answers.A || {}).length;
       const answersB = Object.keys(answers.B || {}).length;
