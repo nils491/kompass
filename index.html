@@ -78,6 +78,24 @@
     .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
     .touch-pill:active { transform: scale(0.96); }
   </style>
+  <script>
+    function verifySitePassword() {
+      const input = document.getElementById('site-pw-input');
+      const err = document.getElementById('pw-error-hint');
+      const lock = document.getElementById('site-lockscreen');
+      if (!input) return;
+
+      if (input.value.trim() === 'Bommelchen!') {
+        sessionStorage.setItem('kompass_unlocked', 'true');
+        if (lock) lock.classList.add('hidden');
+        if (err) err.classList.add('hidden');
+        if (typeof showToast === 'function') showToast("Erfolgreich entsperrt!");
+        if (typeof checkOnboardingStatus === 'function') checkOnboardingStatus();
+      } else {
+        if (err) err.classList.remove('hidden');
+      }
+    }
+  </script>
 </head>
 <body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
 
@@ -128,7 +146,7 @@
         <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
           📝 Fragebogen
         </button>
-        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-300 hover:text-white transition flex items-center gap-1 font-bold">
+        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1 font-bold">
           <span>🛡️ Sicherheits-Kodex</span>
         </button>
         <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
@@ -256,7 +274,7 @@
       </div>
     </section>
 
-    <!-- VIEW SAFETY: KONSENS- & SICHERHEITS-KONFIGURATOR (AUTOMATISCHER SCHRITT NACH DEM FRAGEBOGEN) -->
+    <!-- VIEW SAFETY: KONSENS- & SICHERHEITS-KONFIGURATOR (SCHRITT 2 NACH DEM FRAGEBOGEN) -->
     <section id="view-safety" class="space-y-4 hidden">
       <div class="bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div>
