@@ -21,7 +21,7 @@ let accounts = {
   B: { email: '', partnerEmail: '', setupDone: false }
 };
 
-// Umfassende A-Z BDSM- & Kink-Lexikondaten (immer verfügbar)
+// Umfassende A-Z BDSM- & Kink-Lexikondaten
 const defaultLexikonData = [
   { term: "SSC (Safe, Sane, Consensual)", def: "Grundsatz der Kink-Szene: Alle Handlungen müssen sicher, vernünftig und zu 100 % einvernehmlich sein.", link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual" },
   { term: "RACK (Risk-Aware Consensual Kink)", def: "Erweitertes Konzept: Beide Partner sind sich der realen Risiken bewusst und tragen die Verantwortung gemeinsam.", link: "https://de.wikipedia.org/wiki/RACK" },
@@ -47,9 +47,7 @@ const defaultLexikonData = [
   { term: "Free-Use", def: "Vereinbarung, bei der ein Partner im Schlafzimmer jederzeit ohne gesonderte Nachfrage intim berührt werden darf.", link: "https://de.wikipedia.org/wiki/BDSM" }
 ];
 
-// DYNAMISCHE HETERO-ANPASSUNGEN (Anatomie-spezifische Texte)
 const dynamicHeteoCatalog = {
-  // Kapitel 6: Oralverkehr & Ejakulation
   63: {
     penis: { r1: "Sie ausgiebig mit Lippen & Zunge lecken (Cunnilingus)", r2: "Sie lecken & dabei ihr Tempo / Reiten spüren" },
     vulva: { r1: "Ihn mein Becken lecken lassen & sein Tempo diktieren", r2: "Cunnilingus von ihm empfangen & mich fallenlassen" }
@@ -90,14 +88,10 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Ihren Blick von oben beim Blowjob erwidern", r2: "Ihre Augen mustern, während sie mich im Mund hat" },
     vulva: { r1: "Ihm beim Blasen tief in die Augen blicken", r2: "Seinen fordernden Blick von oben standhalten" }
   },
-
-  // Kapitel 7: Orgasmussteuerung
   91: {
     penis: { r1: "Sie anleiten, meine Prostata sanft von innen zu massieren", r2: "Einen Prostata-Orgasmus von ihr empfangen" },
     vulva: { r1: "Seine Prostata mit Finger oder Toy massieren & zum Kommen bringen", r2: "Ihn bei der inneren Prostata-Massage leiten & begleiten" }
   },
-
-  // Kapitel 8: Keuschhaltung (Mann)
   106: {
     penis: { r1: "Ihr den Schlüssel übergeben & mich verschließen lassen", r2: "Den Keuschheitskäfig an meinem Glied tragen & spüren" },
     vulva: { r1: "Ihn im Keuschheitskäfig verschließen & den Schlüssel hüten", r2: "Ihn keusch halten & seinen Käfig mustern" }
@@ -130,8 +124,6 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Sie bitten, mich im Käfig zum Höhepunkt zu treiben", r2: "Den ruinierten Orgasmus im Käfig aushalten müssen" },
     vulva: { r1: "Ihn durch das Käfiggitter zum ruinierten Orgasmus zwingen", r2: "Sein Zucken im verschlossenen Käfig beobachten" }
   },
-
-  // Kapitel 9: Reizwäsche & Garderobe (Frau)
   131: {
     penis: { r1: "Sie in feinen Spitzen-Dessous bewundern & entkleiden", r2: "Ihre Spitzenwäsche auf ihrer Haut berühren & küssen" },
     vulva: { r1: "Ihn in Spitzenwäsche verführen & mich präsentieren", r2: "Feine Spitzen-Dessous tragen & mich begehrt fühlen" }
@@ -148,8 +140,6 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Ihr Korsett am Rücken fest schnüren & ihre Taille formen", r2: "Ihre aufrechte Haltung im geschnürten Korsett bewundern" },
     vulva: { r1: "Ihn mein Korsett fest schnüren lassen & Haltung zeigen", r2: "Fest geschnürt werden & seine Hände an meiner Taille spüren" }
   },
-
-  // Kapitel 10: Erotische Kleidung & Fetisch (Mann)
   146: {
     penis: { r1: "Den sportlichen Jockstrap für sie tragen & meinen Po präsentieren", r2: "Mich von ihr im Jockstrap mustern & anfassen lassen" },
     vulva: { r1: "Ihn im Jockstrap mustern & fest in seinen Po greifen", r2: "Seinen durchtrainierten Körper im Jockstrap bewundern" }
@@ -166,8 +156,6 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Vollkommen nackt vor der elegant bekleideten Partnerin dienen", r2: "Als nackter Mann vor ihr stehen & ihre Anweisungen ausführen" },
     vulva: { r1: "Vollständig bekleidet den nackten Mann führen & dominieren (CFNM)", r2: "Mich vom nackten Partner bedienen lassen, während ich bekleidet bin" }
   },
-
-  // Kapitel 17: CBT & Hodenreize (Mann)
   287: {
     penis: { r1: "Ihr meine Hoden hinhalten & in ihre Hände legen", r2: "Ihre warmen Hände an meinen Hoden genießen" },
     vulva: { r1: "Seine Hoden in die Hand nehmen, wiegen & leicht kneten", r2: "Seine Hoden sanft umfassen & seine Reaktionen spüren" }
@@ -188,8 +176,6 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Ihr erlauben, meine Hoden sanft nach unten zu dehnen", r2: "Das wohltuende Ziehen spüren, wenn sie meine Hoden dehnt" },
     vulva: { r1: "Beide Hoden greifen & mit mäßiger Kraft nach unten dehnen", r2: "Seine Hoden in den Händen halten & den Zug dosieren" }
   },
-
-  // Kapitel 27: Analerotik, Prostata & Pegging
   440: {
     penis: { r1: "Sie anleiten, meine Prostata von innen zu massieren", r2: "Ihren Finger an meiner Prostata spüren & loslassen" },
     vulva: { r1: "Seine Prostata vorsichtig mit gekrümmtem Finger massieren", r2: "Ihn bei der inneren Prostata-Massage begleiten & spüren" }
@@ -198,8 +184,6 @@ const dynamicHeteoCatalog = {
     penis: { r1: "Sie bitten, mich mit dem Strap-on zu lieben", r2: "Als Mann von ihr mit dem Strap-on genommen werden (Pegging)" },
     vulva: { r1: "Ihn aktiv mit dem Strap-on anal nehmen & führen (Pegging)", r2: "Den Strap-on umschnallen & die Kontrolle über sein Becken haben" }
   },
-
-  // Kapitel 31 & 35: Spezial-Kinks
   543: {
     penis: { r1: "Unter ihrem Gesäß liegen & sie mit Hingabe lecken", r2: "Ihr Becken auf meinem Gesicht spüren & den Rhythmus annehmen" },
     vulva: { r1: "Mich rittlings auf sein Gesicht setzen & sein Lecken steuern (Queening)", r2: "Sein Gesicht als lebendigen Thron nutzen & mich lecken lassen" }
@@ -218,7 +202,6 @@ const dynamicHeteoCatalog = {
   }
 };
 
-// Hilfsfunktion: Liefert dynamisch angepassten Item-Text basierend auf Anatomie
 function getDynamicItem(item, userKey) {
   const userAnat = anatomy[userKey] || (userKey === 'A' ? 'penis' : 'vulva');
   const dyn = dynamicHeteoCatalog[item.id];
@@ -374,24 +357,29 @@ function updateOnboardingStepUI() {
   const s1 = document.getElementById('onboarding-step-1');
   const s2 = document.getElementById('onboarding-step-2');
   const s3 = document.getElementById('onboarding-step-3');
+  const s4 = document.getElementById('onboarding-step-4');
   const prevBtn = document.getElementById('onboarding-btn-prev');
   const nextBtn = document.getElementById('onboarding-btn-next');
   const ind = document.getElementById('onboarding-step-indicator');
 
-  if (ind) ind.innerText = `Schritt ${onboardingStep} von 3`;
+  if (ind) ind.innerText = `Schritt ${onboardingStep} von 4`;
 
-  [s1, s2, s3].forEach(s => { if (s) s.classList.add('hidden'); });
+  [s1, s2, s3, s4].forEach(s => { if (s) s.classList.add('hidden'); });
 
   if (onboardingStep === 1) {
     if (s1) s1.classList.remove('hidden');
     if (prevBtn) prevBtn.classList.add('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
+    if (nextBtn) nextBtn.innerText = "Weiter zur Anleitung →";
   } else if (onboardingStep === 2) {
     if (s2) s2.classList.remove('hidden');
     if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
+    if (nextBtn) nextBtn.innerText = "Weiter zur Datenfreigabe →";
   } else if (onboardingStep === 3) {
     if (s3) s3.classList.remove('hidden');
+    if (prevBtn) prevBtn.classList.remove('hidden');
+    if (nextBtn) nextBtn.innerText = "Weiter zur Sicherung →";
+  } else if (onboardingStep === 4) {
+    if (s4) s4.classList.remove('hidden');
     if (prevBtn) prevBtn.classList.remove('hidden');
     if (nextBtn) nextBtn.innerText = "Fertig & Starten ✨";
   }
@@ -415,12 +403,15 @@ function nextOnboardingStep() {
     onboardingStep = 2;
     updateOnboardingStepUI();
   } else if (onboardingStep === 2) {
-    const sel = document.querySelector('input[name="onboarding-privacy"]:checked')?.value || 'blind';
-    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true, chapters: {} };
-    privacy[u].mode = sel;
     onboardingStep = 3;
     updateOnboardingStepUI();
   } else if (onboardingStep === 3) {
+    const sel = document.querySelector('input[name="onboarding-privacy"]:checked')?.value || 'blind';
+    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true, chapters: {} };
+    privacy[u].mode = sel;
+    onboardingStep = 4;
+    updateOnboardingStepUI();
+  } else if (onboardingStep === 4) {
     const email = document.getElementById('onboarding-email-input')?.value.trim() || '';
     if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
     accounts[u].email = email;
@@ -433,7 +424,6 @@ function nextOnboardingStep() {
 
 function setAnatomy(userKey, type) {
   anatomy[userKey] = type;
-  // Automatische Komplementär-Einstellung für den Partner in einer heterosexuellen Beziehung
   const otherUser = userKey === 'A' ? 'B' : 'A';
   anatomy[otherUser] = type === 'penis' ? 'vulva' : 'penis';
   saveToLocalStorage();
@@ -577,7 +567,6 @@ function updateCurrentUserUI() {
   if (singleName) singleName.innerText = `${names[u] || 'Partner 1'} (${anatomy[u] === 'penis' ? '♂️ Mann' : '♀️ Frau'})`;
 }
 
-// FILTER-STEUERUNG
 function setSurveyFilter(filterType) {
   currentFilter = filterType;
   const filters = ['all', 'unanswered', 'high', 'tabu', 'shame'];
@@ -630,17 +619,14 @@ function renderCurrentChapter(shouldScroll = false) {
   const uAnswers = answers[currentUser] || {};
   const uShame = shameFlags[currentUser] || {};
 
-  // Filtern der Items
   const items = (ch.items || []).filter(rawIt => {
     const it = getDynamicItem(rawIt, currentUser);
 
-    // 1. Textsuche
     if (searchQuery) {
       const matchText = `${it.id} ${it.title} ${it.desc} ${it.r1 || ''} ${it.r2 || ''}`.toLowerCase();
       if (!matchText.includes(searchQuery)) return false;
     }
 
-    // 2. Filter-Status
     if (currentFilter === 'all') return true;
 
     const r1 = uAnswers[`it_${it.id}_r1`];
@@ -811,7 +797,6 @@ function recordScaleAnswer(key, score, btnEl) {
   answers[currentUser][key] = score;
   saveToLocalStorage();
 
-  // In-Place DOM-Aktualisierung
   if (btnEl && btnEl.parentElement) {
     const buttons = btnEl.parentElement.querySelectorAll('button');
     buttons.forEach(b => {
@@ -1103,7 +1088,6 @@ function renderSingleRadar() {
   });
 }
 
-// ACCOUNT & RECHTEVERWALTUNG
 function openAccountModal() {
   const user = currentUser;
   const nameEl = document.getElementById('account-active-username');
@@ -1115,10 +1099,8 @@ function openAccountModal() {
   const emailInput = document.getElementById('account-email-input');
   if (emailInput) emailInput.value = accounts[user]?.email || '';
 
-  // Anatomie Buttons im Account aktualisieren
   updateAccountAnatomyUI();
 
-  // Rechteverwaltung synchronisieren
   const curPrivacy = privacy[user]?.mode || 'blind';
   const rBlind = document.getElementById('account-priv-blind');
   const rOpen = document.getElementById('account-priv-open');
@@ -1298,8 +1280,8 @@ function openTabuModal() {
   const list = document.getElementById('tabu-modal-list');
   if (!list) return;
 
-  let executeTabus = []; // Spalte 1: Was man nicht TUN/AUSFÜHREN will (Top / Aktiv)
-  let receiveTabus = []; // Spalte 2: Was man nicht ERTRAGEN/EMPFANGEN will (Bottom / Passiv)
+  let executeTabus = [];
+  let receiveTabus = [];
 
   const chapters = window.surveyChapters || [];
   chapters.forEach(ch => {
@@ -1312,7 +1294,6 @@ function openTabuModal() {
       const bR1 = answers.B?.[`it_${rawIt.id}_r1`];
       const bR2 = answers.B?.[`it_${rawIt.id}_r2`];
 
-      // 1. Ausführungs-Tabus (Aktiv / Top - Note 1 bei r1)
       if (aR1 === 1 || bR1 === 1) {
         let parties = [];
         if (aR1 === 1) parties.push({ who: names.A || 'Partner 1', anat: anatomy.A === 'penis' ? '♂️' : '♀️', text: itA.r1 });
@@ -1320,7 +1301,6 @@ function openTabuModal() {
         executeTabus.push({ it: rawIt, parties });
       }
 
-      // 2. Schutz- & Empfangs-Tabus (Passiv / Bottom - Note 1 bei r2)
       if (aR2 === 1 || bR2 === 1) {
         let parties = [];
         if (aR2 === 1) parties.push({ who: names.A || 'Partner 1', anat: anatomy.A === 'penis' ? '♂️' : '♀️', text: itA.r2 });
@@ -1343,8 +1323,6 @@ function openTabuModal() {
   } else {
     list.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        <!-- SPALTE 1: AUSFÜHRUNGS-GRENZEN (AKTIV / TOP) -->
         <div class="space-y-2.5 bg-indigo-950/20 border border-indigo-900/50 p-3.5 rounded-2xl">
           <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
             <div>
@@ -1375,7 +1353,6 @@ function openTabuModal() {
           </div>
         </div>
 
-        <!-- SPALTE 2: SCHUTZ- & BELASTUNGS-GRENZEN (PASSIV / BOTTOM) -->
         <div class="space-y-2.5 bg-rose-950/20 border border-rose-900/50 p-3.5 rounded-2xl">
           <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
             <div>
@@ -1405,7 +1382,6 @@ function openTabuModal() {
             `).join('') : '<p class="text-slate-400 italic text-xs py-4 text-center">Keine Schutz-Limits hinterlegt.</p>'}
           </div>
         </div>
-
       </div>
     `;
   }
@@ -1463,16 +1439,17 @@ function copyShareLinkToClipboard() {
   showToast("Link in die Zwischenablage kopiert!");
 }
 
-// Lexikon-Steuerung
 function openLexikonModal() {
   const input = document.getElementById('lexikon-search-input');
   if (input) input.value = '';
+  window.activeLexikonItemContext = null;
   filterLexikon('');
   const m = document.getElementById('modal-lexikon');
   if (m) m.classList.remove('hidden');
 }
 
 function closeLexikonModal() {
+  window.activeLexikonItemContext = null;
   const m = document.getElementById('modal-lexikon');
   if (m) m.classList.add('hidden');
 }
@@ -1485,75 +1462,25 @@ function openLexikonForItem(itemId) {
   for (const ch of chapters) {
     const it = (ch.items || []).find(i => i.id === itemId);
     if (it) {
-      foundItem = it;
+      foundItem = getDynamicItem(it, currentUser);
       foundChapter = ch;
       break;
     }
   }
 
-  openLexikonModal();
-
-  if (!foundItem) return;
-
-  const titleText = (foundItem.title || '').toLowerCase();
-  const descText = (foundItem.desc || '').toLowerCase();
-  const chText = (foundChapter?.title || '').toLowerCase();
-  const fullContext = `${titleText} ${descText} ${chText}`;
-
-  const keywords = [
-    { tag: "shibari", term: "Shibari / Kinbaku" },
-    { tag: "fessel", term: "Shibari / Kinbaku" },
-    { tag: "seil", term: "Shibari / Kinbaku" },
-    { tag: "edging", term: "Tease & Denial / Edging" },
-    { tag: "tease", term: "Tease & Denial / Edging" },
-    { tag: "orgasmus", term: "Tease & Denial / Edging" },
-    { tag: "keusch", term: "Keuschhaltung (Chastity)" },
-    { tag: "käfig", term: "Keuschhaltung (Chastity)" },
-    { tag: "praise", term: "Praise Play" },
-    { tag: "lob", term: "Praise Play" },
-    { tag: "spanking", term: "Impact Play & Spanking" },
-    { tag: "paddle", term: "Impact Play & Spanking" },
-    { tag: "schlag", term: "Impact Play & Spanking" },
-    { tag: "primal", term: "Primal Play" },
-    { tag: "ringen", term: "Primal Play" },
-    { tag: "brat", term: "Bratting & Brat Taming" },
-    { tag: "caregiver", term: "Caregiver / Little (DDLG / CGL)" },
-    { tag: "little", term: "Caregiver / Little (DDLG / CGL)" },
-    { tag: "ddlg", term: "Caregiver / Little (DDLG / CGL)" },
-    { tag: "aftercare", term: "Aftercare (Nachsorge)" },
-    { tag: "subdrop", term: "Subdrop / Topdrop" },
-    { tag: "subspace", term: "Subspace" },
-    { tag: "cbt", term: "CBT (Cock and Ball Torture)" },
-    { tag: "hoden", term: "CBT (Cock and Ball Torture)" },
-    { tag: "facesitting", term: "Queening / Facesitting" },
-    { tag: "queening", term: "Queening / Facesitting" },
-    { tag: "cfnm", term: "CFNM (Clothed Female, Naked Male)" },
-    { tag: "nuru", term: "Nuru-Massage" },
-    { tag: "pegging", term: "Pegging" },
-    { tag: "cnc", term: "CNC (Consensual Non-Consent)" },
-    { tag: "free-use", term: "Free-Use" },
-    { tag: "augenbinde", term: "Sinnesentzug (Sensory Deprivation)" },
-    { tag: "sinnesentzug", term: "Sinnesentzug (Sensory Deprivation)" },
-    { tag: "safeword", term: "Safeword & Ampelsystem" },
-    { tag: "ampel", term: "Safeword & Ampelsystem" }
-  ];
-
-  let matchedTerm = null;
-  for (const kw of keywords) {
-    if (fullContext.includes(kw.tag)) {
-      matchedTerm = kw.term;
-      break;
-    }
-  }
+  window.activeLexikonItemContext = foundItem ? { item: foundItem, chapter: foundChapter } : null;
 
   const input = document.getElementById('lexikon-search-input');
-  if (matchedTerm) {
-    if (input) input.value = matchedTerm;
-    filterLexikon(matchedTerm);
+  if (foundItem) {
+    if (input) input.value = foundItem.title;
+    filterLexikon(foundItem.title);
   } else {
     if (input) input.value = '';
     filterLexikon('');
   }
+
+  const m = document.getElementById('modal-lexikon');
+  if (m) m.classList.remove('hidden');
 }
 
 function filterLexikon(q) {
@@ -1563,11 +1490,51 @@ function filterLexikon(q) {
   const allEntries = getLexikonList();
   const query = (q || '').trim().toLowerCase();
 
-  const filtered = query.length === 0
-    ? allEntries
-    : allEntries.filter(l => l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query));
+  let itemContextHtml = '';
+  if (window.activeLexikonItemContext) {
+    const ctx = window.activeLexikonItemContext;
+    const it = ctx.item;
+    const ch = ctx.chapter;
 
-  container.innerHTML = filtered.length > 0
+    itemContextHtml = `
+      <div class="p-3.5 rounded-2xl bg-brand-50 dark:bg-brand-950/60 border border-brand-300 dark:border-brand-800/80 space-y-2 shadow-xs mb-3">
+        <div class="flex items-center justify-between border-b border-brand-200 dark:border-brand-900/60 pb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">📌</span>
+            <strong class="text-xs font-black text-brand-950 dark:text-brand-200">Erklärung zu Frage #${it.id}</strong>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            Kapitel ${ch?.id || ''}: ${escapeHtml(ch?.title || '')}
+          </span>
+        </div>
+        <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+          ${it.id}. ${escapeHtml(it.title)}
+        </h4>
+        <p class="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+          ${escapeHtml(it.desc)}
+        </p>
+        ${it.r1 && it.r2 ? `
+          <div class="p-2 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-brand-200 dark:border-brand-900/40 text-[10.5px] space-y-1">
+            <span class="text-brand-900 dark:text-brand-300 font-bold block">Rollenunterscheidung:</span>
+            <p><strong>Aktiv / Top:</strong> „${escapeHtml(it.r1)}“</p>
+            <p><strong>Passiv / Bottom:</strong> „${escapeHtml(it.r2)}“</p>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  let filtered = allEntries;
+  if (query.length > 0) {
+    const terms = query.split(/[\s,()\/]+/).filter(t => t.length > 2);
+    filtered = allEntries.filter(l => {
+      const matchFull = l.term.toLowerCase().includes(query) || l.def.toLowerCase().includes(query);
+      if (matchFull) return true;
+      return terms.some(t => l.term.toLowerCase().includes(t) || l.def.toLowerCase().includes(t));
+    });
+  }
+
+  const entriesHtml = filtered.length > 0
     ? filtered.map(l => `
         <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 space-y-1">
           <div class="flex justify-between items-center gap-2">
@@ -1578,13 +1545,15 @@ function filterLexikon(q) {
         </div>
       `).join('')
     : `
-        <div class="text-center py-6 space-y-2">
-          <p class="text-slate-400 italic text-xs">Kein direkter Treffer für „${escapeHtml(q)}“.</p>
-          <button type="button" onclick="openLexikonModal()" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300">
+        <div class="text-center py-4 space-y-2">
+          <p class="text-slate-400 italic text-xs">Kein weiterer allgemeiner A–Z Begriff für „${escapeHtml(q)}“ gefunden.</p>
+          <button type="button" onclick="window.activeLexikonItemContext = null; filterLexikon(''); document.getElementById('lexikon-search-input').value='';" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300">
             Alle A–Z Begriffe anzeigen
           </button>
         </div>
       `;
+
+  container.innerHTML = itemContextHtml + entriesHtml;
 }
 
 function sendBackupEmail() {
