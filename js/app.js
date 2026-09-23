@@ -580,6 +580,7 @@ function checkUrlHashData() {
 function switchMainView(viewId) {
   const vSurvey = document.getElementById('view-survey');
   const vSingle = document.getElementById('view-single');
+  const vSafety = document.getElementById('view-safety');
 
   const uAnswers = answers[currentUser] || {};
   const currentCount = Object.keys(uAnswers).length;
@@ -596,11 +597,13 @@ function switchMainView(viewId) {
 
   if (vSurvey) vSurvey.classList.add('hidden');
   if (vSingle) vSingle.classList.add('hidden');
+  if (vSafety) vSafety.classList.add('hidden');
 
   const btnS = document.getElementById('nav-btn-survey');
   const btnSi = document.getElementById('nav-btn-single');
+  const btnSa = document.getElementById('nav-btn-safety');
 
-  [btnS, btnSi].filter(Boolean).forEach(b => {
+  [btnS, btnSi, btnSa].filter(Boolean).forEach(b => {
     b.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1";
   });
 
@@ -612,172 +615,10 @@ function switchMainView(viewId) {
     if (vSingle) vSingle.classList.remove('hidden');
     if (btnSi) btnSi.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition";
     renderSingleAnalysis();
-  }
-}
-
-function setCurrentUser(user) {
-  currentUser = user;
-  updateCurrentUserUI();
-  renderCurrentChapter(false);
-  updateProgressBar();
-  updateTabuBadge();
-  checkChapterQuickGridVisibility();
-  checkOnboardingStatus();
-  showToast(`Aktives Profil: ${names[user]}`);
-}
-
-function updateCurrentUserUI() {
-  const u = currentUser;
-  const btnA = document.getElementById('btn-user-A');
-  const btnB = document.getElementById('btn-user-B');
-  const dispA = document.getElementById('user-display-A');
-  const dispB = document.getElementById('user-display-B');
-
-  const anatA = anatomy.A === 'penis' ? '♂️' : '♀️';
-  const anatB = anatomy.B === 'penis' ? '♂️' : '♀️';
-
-  if (dispA) dispA.innerText = `${names.A || 'Partner 1'} (${anatA})`;
-  if (dispB) dispB.innerText = `${names.B || 'Partner 2'} (${anatB})`;
-
-  if (u === 'A') {
-    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs";
-    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-  } else {
-    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-purple-700 shadow-xs";
-    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
-  }
-
-  const emptyName = document.getElementById('empty-state-username');
-  if (emptyName) emptyName.innerText = names[u] || 'Partner 1';
-  const singleName = document.getElementById('single-profile-name');
-  if (singleName) singleName.innerText = `${names[u] || 'Partner 1'} (${anatomy[u] === 'penis' ? '♂️ Mann' : '♀️ Frau'})`;
-}
-
-function setSurveyFilter(filterType) {
-  currentFilter = filterType;
-  const filters = ['all', 'unanswered', 'high', 'tabu', 'shame'];
-  filters.forEach(f => {
-    const btn = document.getElementById(`filter-btn-${f}`);
-    if (btn) {
-      if (f === filterType) {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition";
-      } else {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition";
-      }
-    }
-  });
-  renderCurrentChapter(false);
-}
-
-function handleSurveySearch(q) {
-  searchQuery = (q || '').trim().toLowerCase();
-  renderCurrentChapter(false);
-}
-
-function renderCurrentChapter(shouldScroll = false) {
-  const chapters = window.surveyChapters || [];
-  if (chapters.length === 0) return;
-  if (currentChapterIndex >= chapters.length) currentChapterIndex = 0;
-  const ch = chapters[currentChapterIndex];
-  if (!ch) return;
-
-  const badge = document.getElementById('chapter-badge');
-  const title = document.getElementById('chapter-title');
-  const desc = document.getElementById('chapter-desc');
-  const countEl = document.getElementById('chapter-items-count');
-
-  if (badge) badge.innerText = `Kapitel ${currentChapterIndex + 1} / ${chapters.length}`;
-  if (title) title.innerText = ch.title;
-  if (desc) desc.innerText = ch.desc;
-
-  const prevBtn = document.getElementById('btn-prev-chapter');
-  if (prevBtn) prevBtn.disabled = (currentChapterIndex === 0);
-
-  const nextBtn = document.getElementById('btn-next-chapter');
-  if (nextBtn) {
-    nextBtn.innerText = (currentChapterIndex === chapters.length - 1) ? "Zur Analyse →" : "Weiter →";
-  }
-
-  const container = document.getElementById('survey-items-container');
-  if (!container) return;
-
-  const uAnswers = answers[currentUser] || {};
-  const uShame = shameFlags[currentUser] || {};
-
-  // Custom Kinks für dieses Kapitel filtern
-  const chapterCustoms = customKinks.filter(k => k.chapterId === ch.id || (!k.chapterId && currentChapterIndex === chapters.length - 1));
-
-  const regularItems = (ch.items || []).filter(rawIt => {
-    const it = getDynamicItem(rawIt, currentUser);
-
-    if (searchQuery) {
-      const matchText = `${it.id} ${it.title} ${it.desc} ${it.r1 || ''} ${it.r2 || ''}`.toLowerCase();
-      if (!matchText.includes(searchQuery)) return false;
-    }
-
-    if (currentFilter === 'all') return true;
-
-    const r1 = uAnswers[`it_${it.id}_r1`];
-    const r2 = uAnswers[`it_${it.id}_r2`];
-    const choice = uAnswers[`it_${it.id}_choice`];
-    const isAnswered = it.type === 'choice' ? (choice !== undefined) : (r1 !== undefined || r2 !== undefined);
-
-    if (currentFilter === 'unanswered') return !isAnswered;
-    if (currentFilter === 'high') return (r1 >= 4 || r2 >= 4);
-    if (currentFilter === 'tabu') return (r1 === 1 || r2 === 1);
-    if (currentFilter === 'shame') return !!uShame[it.id];
-
-    return true;
-  });
-
-  if (countEl) countEl.innerText = `${regularItems.length + chapterCustoms.length} Praktiken`;
-
-  let html = '';
-
-  // Prüfen, ob dieses Kapitel der Konsens- & Sicherheits-Konfigurator ist (z. B. Kapitel 29 oder nach Logistik-Auslagerung)
-  if (ch.id === 29) {
-    html += renderSafetyConfiguratorUI();
-  }
-
-  regularItems.forEach(rawIt => {
-    const it = getDynamicItem(rawIt, currentUser);
-    html += renderItemCardHtml(it);
-  });
-
-  // Hinzugefügte eigene Kinks für dieses Kapitel rendern
-  chapterCustoms.forEach(cKink => {
-    html += renderCustomKinkCardHtml(cKink);
-  });
-
-  // Am Kapitelende: Dezente Reflexionsbox & unaufdringliche Karte für eigene Kinks
-  html += `
-    <div class="pt-2 space-y-3">
-      <!-- 1. Einklappbare, optionale Gedanken-Reflexion -->
-      <details class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs text-xs">
-        <summary class="font-bold text-slate-700 cursor-pointer flex items-center justify-between">
-          <span class="flex items-center gap-1.5">
-            <span>💬</span> Persönliche Notiz zu Kapitel ${ch.id} notieren (optional)
-          </span>
-          <span class="text-[10px] text-slate-400 font-normal">Klicken zum Öffnen</span>
-        </summary>
-        <div class="mt-2.5 space-y-1.5">
-          <p class="text-[11px] text-slate-500">Halte hier Gedanken, frühere Erfahrungen oder Bedingungen fest, die dir bei diesem Themenbereich wichtig sind:</p>
-          <textarea rows="2" onchange="recordChapterReflection(${ch.id}, this.value)" placeholder="Deine Gedanken zu ${escapeHtml(ch.title)}..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">${escapeHtml(chapterReflections[currentUser]?.[ch.id] || '')}</textarea>
-        </div>
-      </details>
-
-      <!-- 2. Dezente Karte für eigene Kinks -->
-      <div class="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-3 text-center space-y-2">
-        <span class="text-[11px] text-slate-500 block">Fehlt dir in diesem Kapitel eine persönliche Vorliebe oder Fantasie?</span>
-        <button type="button" onclick="openAddCustomKinkModal(${ch.id})" class="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-xs transition touch-pill">
-          ➕ Einen eigenen Kink zu Kapitel ${ch.id} hinzufügen
-        </button>
-      </div>
-    </div>
-  `;
-
-  container.innerHTML = html;
-  if (shouldScroll) {
+  } else if (viewId === 'safety') {
+    if (vSafety) vSafety.classList.remove('hidden');
+    if (btnSa) btnSa.className = "px-3 py-1.5 rounded-lg bg-teal-700 text-white shadow-sm transition flex items-center gap-1 font-bold";
+    renderSafetyViewContent();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -919,68 +760,70 @@ function renderCustomKinkCardHtml(cKink) {
           <span class="font-bold text-slate-800">${escapeHtml(cKink.r2 || 'Passiv / Bottom empfangen')}:</span>
           <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR2)}</span>
         </div>
-        <div class="grid grid-cols-6 gap-1 scale-buttons-row">
-          ${[0, 1, 2, 3, 4, 5].map(sc => `
-            <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}">
-              ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-}
+  const prevBtn = document.getElementById('btn-prev-chapter');
+  if (prevBtn) prevBtn.disabled = (currentChapterIndex === 0);
 
-function renderSafetyConfiguratorUI() {
-  const currentCfg = safetyConfig[currentUser] || {};
-  let out = `
-    <div id="safety-configurator-card" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-indigo-50 dark:from-teal-950/40 dark:to-indigo-950/40 border border-teal-200 dark:border-teal-800/80 text-xs space-y-4 mb-4 shadow-xs">
-      <div class="border-b border-teal-200/80 dark:border-teal-800 pb-2.5 flex items-center justify-between">
-        <div>
-          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-teal-600 text-white uppercase tracking-wider">Konsens- & Sicherheits-Konfigurator</span>
-          <h3 class="text-sm sm:text-base font-extrabold text-teal-950 dark:text-teal-200 mt-1">Eure 6 verbindlichen Sicherheits-Module</h3>
-          <p class="text-[11px] text-teal-900/80 dark:text-teal-300 leading-relaxed mt-0.5">
-            Cutter, Safewords, Vital-Checks und Aftercare sind keine 0–5-Vorlieben. Wähle hier mit einem Klick eure Standards. Das System generiert daraus euren gemeinsamen Ehrenkodex.
-          </p>
-        </div>
-        <span class="text-2xl">🛡️</span>
-      </div>
+  const isLastChapter = (currentChapterIndex === chapters.length - 1);
+  const nextBtn = document.getElementById('btn-next-chapter');
+  const nextBtnBottom = document.getElementById('btn-next-chapter-bottom');
+  const nextLabel = isLastChapter ? "Weiter zum Sicherheits-Kodex 🛡️ →" : "Weiter →";
+  const nextBottomLabel = isLastChapter ? "Weiter zum Sicherheits-Kodex 🛡️ →" : "Nächstes Kapitel →";
 
-      <div class="space-y-3.5">
-  `;
+  if (nextBtn) nextBtn.innerText = nextLabel;
+  if (nextBtnBottom) nextBtnBottom.innerText = nextBottomLabel;
 
-  Object.keys(safetyOptionsDefinition).forEach(areaKey => {
-    const area = safetyOptionsDefinition[areaKey];
-    const userVal = currentCfg[areaKey];
-    out += `
-      <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-teal-100 dark:border-teal-900/60 space-y-2">
-        <div>
-          <strong class="text-xs font-bold text-slate-900 dark:text-white block">${area.title}</strong>
-          <span class="text-[10.5px] text-slate-500 dark:text-slate-400">${area.desc}</span>
-        </div>
-        <div class="grid grid-cols-1 gap-1.5">
-          ${area.options.map(opt => {
-            const isSelected = (userVal === opt.val);
-            return `
-              <button type="button" onclick="recordSafetyChoice('${areaKey}', '${opt.val}')" class="p-2 rounded-lg border text-left text-xs transition touch-pill ${isSelected ? 'bg-teal-50 dark:bg-teal-950/80 border-teal-600 dark:border-teal-500 text-teal-950 dark:text-teal-200 font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}">
-                ${opt.label}
-              </button>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
+  const container = document.getElementById('survey-items-container');
+  if (!container) return;
+
+  const uAnswers = answers[currentUser] || {};
+  const uShame = shameFlags[currentUser] || {};
+
+  // Custom Kinks für dieses Kapitel filtern
+  const chapterCustoms = customKinks.filter(k => k.chapterId === ch.id || (!k.chapterId && currentChapterIndex === chapters.length - 1));
+
+  const regularItems = (ch.items || []).filter(rawIt => {
+    const it = getDynamicItem(rawIt, currentUser);
+
+    if (searchQuery) {
+      const matchText = `${it.id} ${it.title} ${it.desc} ${it.r1 || ''} ${it.r2 || ''}`.toLowerCase();
+      if (!matchText.includes(searchQuery)) return false;
+    }
+
+    if (currentFilter === 'all') return true;
+
+    const r1 = uAnswers[`it_${it.id}_r1`];
+    const r2 = uAnswers[`it_${it.id}_r2`];
+    const choice = uAnswers[`it_${it.id}_choice`];
+    const isAnswered = it.type === 'choice' ? (choice !== undefined) : (r1 !== undefined || r2 !== undefined);
+
+    if (currentFilter === 'unanswered') return !isAnswered;
+    if (currentFilter === 'high') return (r1 >= 4 || r2 >= 4);
+    if (currentFilter === 'tabu') return (r1 === 1 || r2 === 1);
+    if (currentFilter === 'shame') return !!uShame[it.id];
+
+    return true;
   });
 
-  out += `</div></div>`;
-  return out;
+  if (countEl) countEl.innerText = `${regularItems.length + chapterCustoms.length} Praktiken`;
+
+  let html = '';
+
+  regularItems.forEach(rawIt => {
+    const it = getDynamicItem(rawIt, currentUser);
+    html += renderItemCardHtml(it);
+  });
+function renderSafetyViewContent() {
+  const container = document.getElementById('safety-configurator-full-container');
+  if (container) {
+    container.innerHTML = renderSafetyConfiguratorUI();
+  }
 }
 
 function recordSafetyChoice(areaKey, val) {
   if (!safetyConfig[currentUser]) safetyConfig[currentUser] = {};
   safetyConfig[currentUser][areaKey] = val;
   saveToLocalStorage();
-  renderCurrentChapter(false);
+  renderSafetyViewContent();
   showToast("Sicherheits-Einstellung gespeichert!");
 }
 
@@ -1131,7 +974,9 @@ function nextChapter() {
     currentChapterIndex++;
     renderCurrentChapter(true);
   } else {
-    switchMainView('single');
+    // Ende des Fragebogens erreicht: Automatisch zum Sicherheits-Kodex leiten
+    switchMainView('safety');
+    showToast("🛡️ Fragebogen beendet! Jetzt den Sicherheits-Kodex festlegen.");
   }
 }
 
