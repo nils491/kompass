@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Paar- & Beziehungsanalyse Dashboard</title>
+  <title>Wissenschaftliche Paar- & Tiefenanalyse</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -31,14 +31,6 @@
               800: '#9f1239',
               900: '#881337',
               950: '#4c0519',
-            },
-            obsidian: {
-              950: '#000000',
-              900: '#05070c',
-              850: '#0a0e17',
-              800: '#0f1523',
-              700: '#141c2e',
-              600: '#1e293b'
             }
           }
         }
@@ -47,73 +39,18 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-    
-    :root {
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
-    }
-
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
-      padding-left: var(--safe-left);
-      padding-right: var(--safe-right);
     }
-
-    html.dark body {
-      background-color: #05070c !important;
-      color: #f8fafc !important;
-    }
-    html.dark .theme-card {
-      background-color: #0c101a !important;
-      border-color: #1a2336 !important;
-      color: #f8fafc !important;
-    }
-    html.dark .theme-panel {
-      background-color: #111726 !important;
-      border-color: #1f2b42 !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark .theme-subtle {
-      background-color: #070a12 !important;
-      border-color: #161e30 !important;
-    }
-
-    html:not(.dark) body {
-      background-color: #f8fafc !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .theme-card {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .theme-panel {
-      background-color: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
-      color: #1e293b !important;
-    }
-    html:not(.dark) .theme-subtle {
-      background-color: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    .touch-pill {
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .touch-pill:active {
-      transform: scale(0.97);
-    }
-
-    @media print {
-      .no-print { display: none !important; }
-      body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-      .theme-card, .theme-panel { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #000000 !important; }
-    }
+    html.dark body { background-color: #05070c !important; color: #f8fafc !important; }
+    html.dark .theme-card { background-color: #0c101a !important; border-color: #1a2336 !important; color: #f8fafc !important; }
+    html.dark .theme-panel { background-color: #111726 !important; border-color: #1f2b42 !important; color: #e2e8f0 !important; }
+    html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
+    html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
+    .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+    .touch-pill:active { transform: scale(0.97); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -127,20 +64,15 @@
       <div class="space-y-1.5">
         <h2 class="text-xl font-extrabold text-white tracking-tight">Paar-Analyse gesperrt</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Bitte gib das vereinbarte Zugangspasswort ein, um die detaillierte Paar- und Selbstanalyse zu öffnen.
+          Bitte gib das Zugangspasswort ein, um die detaillierte psychologische Paaranalyse zu öffnen.
         </p>
       </div>
       <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
-               onkeydown="if(event.key==='Enter') verifySitePassword()"
-               class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." onkeydown="if(event.key==='Enter') verifySitePassword()" class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
         <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill">
           Entsperren & Fortfahren
         </button>
         <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-      <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
-        🛡️ <strong>100 % Lokale Sicherheit:</strong> Auswertung verbleibt vollständig auf deinem Endgerät.
       </div>
     </div>
   </div>
@@ -148,41 +80,33 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-      
-      <!-- Brand & Titel -->
       <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="12" r="1.5" fill="#f43f5e" />
-          </svg>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-sm">
+          📊
         </div>
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Paar- & Tiefenanalyse</h1>
-            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">Live</span>
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Wissenschaftliche Paar-Analyse</h1>
+            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">35+ Studien</span>
           </div>
           <span class="text-[9.5px] sm:text-[10px] text-slate-400 font-medium block mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
         </div>
       </div>
 
-      <!-- Quick Nav Buttons -->
       <div class="flex items-center gap-1.5">
-        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Hell/Dunkel umschalten">
+        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
           <span id="theme-icon">🌙</span> <span class="hidden md:inline text-[11px]" id="theme-label">Nacht</span>
         </button>
-        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit öffnen">
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill">
           <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
         </a>
-        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Zurück zum Fragebogen">
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
           <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
         </a>
       </div>
-
     </div>
   </header>
+
   <!-- HAUPTINHALT -->
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
@@ -194,14 +118,8 @@
       <div class="max-w-md mx-auto space-y-2">
         <h2 class="text-xl font-extrabold text-white tracking-tight">Auswertung noch nicht verfügbar</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Die Paar- und Tiefenanalyse basiert auf euren persönlichen Bewertungen. Da der Fragebogen noch nicht ausgefüllt wurde, liegen noch keine Daten für eine verlässliche Auswertung vor.
+          Die Paar- und Tiefenanalyse basiert auf euren persönlichen Bewertungen. Bitte füllt zuerst die ersten Kapitel im Fragebogen aus.
         </p>
-      </div>
-      <div class="p-4 theme-panel rounded-2xl border border-slate-700 text-xs text-slate-300 max-w-md mx-auto text-left space-y-1">
-        <strong class="text-white block font-bold">So schaltest du die Analyse frei:</strong>
-        <p>1. Wechsle zurück zum Fragebogen.</p>
-        <p>2. Bewerte die ersten Kapitel nach deinen Vorlieben.</p>
-        <p>3. Anschließend werden eure Synergien und Tabus hier live berechnet.</p>
       </div>
       <a href="index.html" class="inline-block px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
         Jetzt zum Fragebogen wechseln →
@@ -211,312 +129,242 @@
     <!-- ANZEIGEBEREICH WENN DATEN VORHANDEN -->
     <div id="analyse-workspace-container" class="space-y-5">
 
-    <!-- TOP-LEVEL TABS: PAARANALYSE VS. TIEFEN-SELBSTPROFIL -->
-    <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
-      <button onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
-        <span>👥</span> <span>Paar-Synergie & Matches</span>
-      </button>
-      <button onclick="switchAnalysisTab('self')" id="tab-self" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
-        <span>👤</span> <span>Persönlichkeits-Profil</span>
-      </button>
-    </div>
+      <!-- TOP-LEVEL TABS -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
+        <button onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
+          <span>👥</span> <span>Paar-Synergie & Matches</span>
+        </button>
+        <button onclick="switchAnalysisTab('self')" id="tab-self" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>🧠</span> <span>Psychologische Individualanalyse</span>
+        </button>
+      </div>
 
-    <!-- VIEW 1: PAAR-SYNERGIE -->
-    <section id="view-pair-analysis" class="space-y-5">
-      
-      <!-- Lock-Banner wenn noch nicht beide ausgefüllt haben -->
-      <div id="pair-locked-banner" class="hidden theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
-        <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-2xl mx-auto flex items-center justify-center">
-          🔒
-        </div>
-        <div class="max-w-md mx-auto space-y-1.5">
+      <!-- VIEW 1: PAAR-SYNERGIE -->
+      <section id="view-pair-analysis" class="space-y-5">
+        <div id="pair-locked-banner" class="hidden theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-2xl mx-auto flex items-center justify-center">
+            🔒
+          </div>
           <h3 class="text-base font-extrabold text-white">Paar-Analyse ist noch geschützt</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Nach dem fairen Blind-Prinzip wird die Paar-Gegenüberstellung erst freigeschaltet, wenn <strong>beide Partner</strong> ihre Bewertungen abgegeben haben.
+          <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+            Die gemeinsame Gegenüberstellung wird freigeschaltet, sobald <strong>beide Partner</strong> ihre Bewertungen abgegeben haben.
           </p>
+          <a href="index.html" class="inline-block px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
+            Zum Fragebogen zurückkehren →
+          </a>
         </div>
-        <a href="index.html" class="inline-block px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
-          Zum Fragebogen zurückkehren →
-        </a>
-      </div>
 
-      <!-- Freigeschalteter Inhalt -->
-      <div id="pair-unlocked-content" class="space-y-5">
-        
-        <!-- 4 Haupt-KPIs -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
-            <span class="text-2xl font-black text-white" id="kpi-harmony">0 %</span>
-            <span class="text-[10px] text-slate-400 block">Gemeinsame Basis</span>
+        <div id="pair-unlocked-content" class="space-y-5">
+          <!-- 4 Haupt-KPIs -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
+              <span class="text-2xl font-black text-white" id="kpi-harmony">0 %</span>
+              <span class="text-[10px] text-slate-400 block">Gemeinsame Basis</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er Volltreffer</span>
+              <span class="text-2xl font-black text-emerald-400" id="kpi-doppel5">0</span>
+              <span class="text-[10px] text-emerald-400/80 block">Beidseitige Leidenschaft</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
+              <span class="text-2xl font-black text-amber-400" id="kpi-bridges">0</span>
+              <span class="text-[10px] text-amber-400/80 block">Wunsch trifft Neugier</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Absolute Tabus</span>
+              <span class="text-2xl font-black text-rose-400" id="kpi-tabus">0</span>
+              <span class="text-[10px] text-rose-400/80 block">Top- & Bottom-Schranken</span>
+            </div>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er Volltreffer</span>
-            <span class="text-2xl font-black text-emerald-400" id="kpi-doppel5">0</span>
-            <span class="text-[10px] text-emerald-400/80 block">Beidseitige Must-Haves</span>
+
+          <!-- UNSER VERBINDLICHER SICHERHEITS-KODEX -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-teal-500/40 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-teal-500/20 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📜</span>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-teal-300">Unser verbindlicher Konsens- & Sicherheits-Kodex</h3>
+                  <p class="text-[10px] text-slate-400">Das Fundament eurer gemeinsamen Sessions (Nicht als 0–5 bewertet, sondern fest vereinbart)</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/40">Vereinbart</span>
+            </div>
+            <div id="safety-codex-display" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs"></div>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
-            <span class="text-2xl font-black text-amber-400" id="kpi-bridges">0</span>
-            <span class="text-[10px] text-amber-400/80 block">Wunsch trifft Neugier</span>
+
+          <!-- Radar & Paar-Psychologie -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                    <span>⚡</span> Paar-Synergie im Radar
+                  </h3>
+                  <p class="text-[10.5px] text-slate-400">Vergleich der 9 erotischen Hauptdimensionen</p>
+                </div>
+                <div class="flex items-center gap-2.5 text-[11px] font-bold">
+                  <span class="text-indigo-400" id="legend-name-A">🔵 Partner 1</span>
+                  <span class="text-purple-400" id="legend-name-B">🟣 Partner 2</span>
+                </div>
+              </div>
+              <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+                <canvas id="pairRadarCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Wissenschaftliches Paar-Gutachten -->
+            <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs">
+              <div class="border-b border-slate-800 pb-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Wissenschaftliches Gutachten</span>
+                <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">Neuro-psychologische Komplementarität</h3>
+              </div>
+              <div id="pair-scientific-gutachten" class="space-y-2 text-xs leading-relaxed text-slate-300 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
           </div>
-          <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Absolute Tabus</span>
-            <span class="text-2xl font-black text-rose-400" id="kpi-tabus">0</span>
-            <span class="text-[10px] text-rose-400/80 block">Schutzschranken (Note 1)</span>
-          </div>
-        </div>
-        <!-- Paar-Radar & Beziehungs-Dynamik -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          
-          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+
+          <!-- BRÜCKENBAU & GESPRÄCHSLEITFADEN -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
               <div>
-                <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                  <span>⚡</span> Paar-Synergie im Radar
-                </h3>
-                <p class="text-[10.5px] text-slate-400">Vergleich der 9 erotischen Hauptdimensionen</p>
+                <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Psychologischer Gesprächs-Katalysator</span>
+                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">💬 Brückenbau: Wünsche ohne Rechtfertigungsdruck besprechen</h3>
               </div>
-              <div class="flex items-center gap-2.5 text-[11px] font-bold">
-                <span class="text-indigo-400" id="legend-name-A">🔵 Partner 1</span>
-                <span class="text-purple-400" id="legend-name-B">🟣 Partner 2</span>
+              <span class="text-[10.5px] text-amber-300 font-bold" id="bridges-count-badge">0 Brücken</span>
+            </div>
+            <div id="bridges-interactive-container" class="space-y-2"></div>
+          </div>
+
+          <!-- DOPPEL-5ER VOLLTREFFER -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Beidseitige Leidenschaft</span>
+                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">⭐ Eure gemeinsamen Doppel-5er Volltreffer</h3>
               </div>
+              <span class="text-[10.5px] text-emerald-300 font-bold" id="doppel5-count-badge">0 Volltreffer</span>
             </div>
-            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-              <canvas id="pairRadarCanvas"></canvas>
-            </div>
-          </div>
-
-          <!-- Psychologisches Synergie-Gutachten -->
-          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between shadow-xs">
-            <div class="space-y-1.5">
-              <span class="text-[10px] font-black uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
-                Beziehungs-Dynamik
-              </span>
-              <h3 class="text-sm sm:text-base font-extrabold text-white">Eure fundamentale Paar-Signatur</h3>
-              <p class="text-xs text-slate-300 leading-relaxed" id="pair-signature-text">
-                Wertet eure Antworten aus...
-              </p>
-            </div>
-
-            <!-- Die 4 Zonen-Legende -->
-            <div class="space-y-2 pt-2 border-t border-slate-800 text-xs">
-              <strong class="text-slate-300 font-bold block text-[11px]">Die 4 Beziehungs-Zonen eurer Partnerschaft:</strong>
-              <div class="grid grid-cols-2 gap-2 text-[10.5px]">
-                <div class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">
-                  <strong class="block font-bold">🟢 Komfort-Zone:</strong> Sichere Spielwiese für sofortige Sessions.
-                </div>
-                <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-800/50 text-amber-200">
-                  <strong class="block font-bold">🟡 Wachstums-Zone:</strong> Großes Potenzial durch behutsames Herantasten.
-                </div>
-                <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-800/50 text-indigo-200">
-                  <strong class="block font-bold">🎁 Duldungs-Zone:</strong> Liebesdienste & akzeptierte Strafhärte (Note 2).
-                </div>
-                <div class="p-2.5 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200">
-                  <strong class="block font-bold">⛔ Schutz-Zone:</strong> Absolute No-Gos, die vollkommen heilig bleiben.
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- GESPRÄCHS-LEITFADEN FÜR BRÜCKENBAU -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-3 shadow-xs">
-          <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Psychologischer Gesprächs-Katalysator</span>
-              <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">💬 Brückenbau: Wünsche behutsam besprechen</h3>
-            </div>
-            <span class="text-[10.5px] text-amber-300 font-bold" id="bridges-count-badge">0 Brücken identifiziert</span>
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Hier trifft ein starker Wunsch (Note 4 oder 5) auf Neugier (Note 3) oder Duldung (Note 2). Klicke auf eine Karte für konkrete Formulierungshilfen:
-          </p>
-          <div id="bridges-interactive-container" class="space-y-2"></div>
-        </div>
-
-        <!-- DOPPEL-5ER VOLLTREFFER -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3 shadow-xs">
-          <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Beidseitige Leidenschaft</span>
-              <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">⭐ Eure gemeinsamen Doppel-5er Volltreffer</h3>
-            </div>
-            <span class="text-[10.5px] text-emerald-300 font-bold" id="doppel5-count-badge">0 Volltreffer</span>
-          </div>
-          <div id="doppel5-interactive-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
-        </div>
-
-        <!-- LIEBESDIENSTE & NOTE-2 DULDUNGEN -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border border-indigo-500/30 space-y-3 shadow-xs">
-          <div class="flex items-center justify-between border-b border-indigo-500/20 pb-2">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-wider text-indigo-400">Besondere Großzügigkeit</span>
-              <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">🎁 Was der Partner dir zuliebe tun würde (Note 2)</h3>
-            </div>
-            <span class="text-[10.5px] text-indigo-300 font-bold">Duldung & Strafhärte</span>
-          </div>
-          <div id="note2-interactive-container" class="space-y-2 text-xs"></div>
-        </div>
-
-        <!-- TRANSPARENTE DETAILÜBERSICHT MIT SUCHE & FILTER -->
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-            <div>
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lückenloser Transparenz-Abgleich</span>
-              <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">🔍 Alle 35 Kapitel im direkten Vergleich</h3>
-            </div>
-            <div class="flex items-center gap-2">
-              <input type="text" id="detail-search-input" onkeyup="filterDetailItems(this.value)" placeholder="Praktik suchen..." class="px-3 py-1.5 rounded-xl theme-panel border border-slate-700 text-xs focus:outline-none focus:border-brand-500">
-            </div>
-          </div>
-          <div id="detailed-breakdown-container" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs"></div>
-        </div>
-
-      </div>
-
-    </section>
-    <!-- VIEW 2: SELBSTPROFIL & ARCHETYPEN-TIEFENANALYSE -->
-    <section id="view-self-analysis" class="space-y-5 hidden">
-      
-      <!-- Nutzer-Auswahl für das Selbstprofil -->
-      <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-400 font-bold">Analysiere Persönlichkeit von:</span>
-          <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border text-xs font-bold">
-            <button onclick="setSelfAnalysisUser('A')" id="btn-self-A" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 1</button>
-            <button onclick="setSelfAnalysisUser('B')" id="btn-self-B" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Partner 2</button>
+            <div id="doppel5-interactive-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
           </div>
         </div>
-        <span class="text-[11px] text-slate-400 font-mono" id="self-answered-stat">0 von 635 Fragen bewertet</span>
-      </div>
+      </section>
 
-      <!-- Archetypen-Radar & Die 5 Säulen -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
-          <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
-            <span>🕸️ Persönliches Archetypen-Radar</span>
-            <span class="text-[10px] text-slate-400 font-normal">9 Erotische Achsen</span>
-          </h3>
-          <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-            <canvas id="selfRadarCanvas"></canvas>
+      <!-- VIEW 2: PSYCHOLOGISCHE INDIVIDUALANALYSE -->
+      <section id="view-self-analysis" class="space-y-5 hidden">
+        <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-bold">Wissenschaftliche Individualanalyse für:</span>
+            <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border text-xs font-bold">
+              <button onclick="setSelfAnalysisUser('A')" id="btn-self-A" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 1</button>
+              <button onclick="setSelfAnalysisUser('B')" id="btn-self-B" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Partner 2</button>
+            </div>
           </div>
+          <span class="text-[11px] text-slate-400 font-mono" id="self-answered-stat">0 Fragen bewertet</span>
         </div>
 
-        <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 flex flex-col justify-between shadow-xs">
-          <div class="space-y-1">
-            <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
-            <p class="text-[11px] text-slate-400">Verteilung deiner inneren Triebfedern:</p>
-          </div>
-
-          <div class="space-y-2.5 text-xs">
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
-                <span id="self-bar-val-power">0 %</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                <div id="self-bar-fill-power" class="bg-indigo-500 h-full rounded-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
-                <span id="self-bar-val-sensation">0 %</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                <div id="self-bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Fürsorge & Geborgenheit (Caregiver, Decken, Nurturing)</span>
-                <span id="self-bar-val-nurturing">0 %</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                <div id="self-bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Tabubruch & Mentaler Nervenkitzel (CNC, Verhör, Fear)</span>
-                <span id="self-bar-val-thrill">0 %</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                <div id="self-bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Visuelle Erotik & Lingerie (CFNM, Leder, Dessous)</span>
-                <span id="self-bar-val-visual">0 %</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                <div id="self-bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="p-2.5 rounded-xl theme-panel border text-[11px] text-slate-300 leading-relaxed" id="self-interpretation-box">
-            Werte dein Profil aus...
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Highlights & Tabus der Person -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="theme-card p-4 rounded-2xl border border-emerald-500/30 space-y-2 shadow-xs">
-          <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-            <span>⭐</span> Persönliche Spitzen (Note 5)
-          </h3>
-          <div id="self-highs-container" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
-        </div>
-
-        <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2 shadow-xs">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⛔</span> Persönliche Tabus & Grenzen (Note 1)
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
+            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
+              <span>🕸️ Erotisches Archetypen-Radar</span>
+              <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
             </h3>
-            <span class="text-[9px] text-slate-400 font-bold">Top vs. Bottom</span>
+            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+              <canvas id="selfRadarCanvas"></canvas>
+            </div>
           </div>
-          <div id="self-tabus-container" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
+
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs flex flex-col justify-between">
+            <div class="space-y-1">
+              <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
+              <p class="text-[11px] text-slate-400">Verteilung deiner inneren Antriebe:</p>
+            </div>
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
+                  <span id="self-bar-val-power">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-power" class="bg-indigo-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
+                  <span id="self-bar-val-sensation">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Fürsorge & Geborgenheit (Caregiver, Nurturing)</span>
+                  <span id="self-bar-val-nurturing">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Tabubruch & Mentaler Kick (CNC, Verhör)</span>
+                  <span id="self-bar-val-thrill">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Visuelle Erotik & Lingerie (CFNM, Leder)</span>
+                  <span id="self-bar-val-visual">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-400 italic">Berechnet aus den individuellen Antworten</div>
+          </div>
         </div>
-      </div>
 
-    </section>
+        <!-- GROSSES WISSENSCHAFTLICHES PSYCHOGRAMM -->
+        <div class="theme-card p-5 rounded-2xl border space-y-3 shadow-xs">
+          <div class="border-b border-slate-800 pb-2">
+            <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Psychologische Fundierung</span>
+            <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">
+              Woher deine Vorlieben kommen & wie sie im Kopf funktionieren
+            </h3>
+            <p class="text-xs text-slate-400">Empirische Analyse gestützt auf 35+ wissenschaftliche Studien</p>
+          </div>
+          <div id="self-scientific-deep-analysis" class="space-y-3 text-xs leading-relaxed text-slate-300"></div>
+        </div>
+      </section>
 
-    </div><!-- Ende #analyse-workspace-container -->
-
+    </div>
   </main>
 
-  <!-- FOOTER -->
   <footer class="border-t theme-card px-4 py-4 text-center text-xs text-slate-500">
     🔒 100 % Lokale Verschlüsselung im Browser. Keine Cloud, kein Tracking.
   </footer>
 
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
-
-  <!-- FRAGENKATALOGE -->
+  <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script>
     let activeAnalysisTab = 'pair';
     let selfUser = 'A';
     let names = { A: 'Partner 1', B: 'Partner 2' };
+    let anatomy = { A: 'penis', B: 'vulva' };
     let answers = { A: {}, B: {} };
     let notes = { A: {}, B: {} };
-    let privacy = { A: { mode: 'blind' }, B: { mode: 'blind' } };
-
+    let shameFlags = { A: {}, B: {} };
+    let safetyConfig = { A: {}, B: {} };
+    let customKinks = [];
     let pairRadarChartInstance = null;
     let selfRadarChartInstance = null;
-    let cachedDetailItems = [];
 
     function verifySitePassword() {
       const input = document.getElementById('site-pw-input');
@@ -528,6 +376,33 @@
         sessionStorage.setItem('kompass_unlocked', 'true');
         if (lock) lock.classList.add('hidden');
         if (err) err.classList.add('hidden');
+        initAnalysisApp();
+      } else {
+        if (err) err.classList.remove('hidden');
+      }
+    }
+
+    function checkSiteLockscreen() {
+      const lock = document.getElementById('site-lockscreen');
+      if (!lock) return true;
+      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
+        lock.classList.add('hidden');
+        return true;
+      } else {
+        lock.classList.remove('hidden');
+        return false;
+      }
+    }
+
+    function initAnalysisApp() {
+      loadStorageData();
+      applySavedTheme();
+      if (!checkSurveyDataGate()) return;
+      updateNamesDisplay();
+      renderPairAnalysis();
+      renderSelfAnalysis();
+    }
+
     function checkSurveyDataGate() {
       const countA = Object.keys(answers.A || {}).length;
       const countB = Object.keys(answers.B || {}).length;
@@ -545,26 +420,23 @@
       }
     }
 
-    function initAnalysisApp() {
-      loadStorageData();
-      applySavedTheme();
-      if (!checkSurveyDataGate()) return;
-      updateNamesDisplay();
-      renderPairAnalysis();
-      renderSelfAnalysis();
-    }
-
     function loadStorageData() {
       try {
         const a = localStorage.getItem('kompass_answers');
         const n = localStorage.getItem('kompass_notes');
+        const sh = localStorage.getItem('kompass_shame');
+        const sc = localStorage.getItem('kompass_safety_config');
+        const ck = localStorage.getItem('kompass_custom_kinks');
         const nm = localStorage.getItem('kompass_names');
-        const p = localStorage.getItem('kompass_privacy');
+        const an = localStorage.getItem('kompass_anatomy');
 
         if (a) answers = JSON.parse(a);
         if (n) notes = JSON.parse(n);
+        if (sh) shameFlags = JSON.parse(sh);
+        if (sc) safetyConfig = JSON.parse(sc);
+        if (ck) customKinks = JSON.parse(ck);
         if (nm) names = JSON.parse(nm);
-        if (p) privacy = JSON.parse(p);
+        if (an) anatomy = JSON.parse(an);
       } catch (e) {
         console.error("Fehler beim Laden:", e);
       }
@@ -572,32 +444,23 @@
 
     function applySavedTheme() {
       const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
-      updateThemeUI(savedTheme);
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
     }
 
     function toggleGlobalTheme() {
       const isDark = document.documentElement.classList.contains('dark');
       const newTheme = isDark ? 'light' : 'dark';
-
       if (newTheme === 'dark') {
         document.documentElement.classList.add('dark');
         localStorage.setItem('kompass_theme', 'dark');
-        showToast("Nacht-Design aktiviert");
       } else {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('kompass_theme', 'light');
-        showToast("Helles Design aktiviert");
       }
-      updateThemeUI(newTheme);
+      applySavedTheme();
       if (pairRadarChartInstance) renderPairRadar();
       if (selfRadarChartInstance) renderSelfRadar();
-    }
-
-    function updateThemeUI(theme) {
-      const icon = document.getElementById('theme-icon');
-      const label = document.getElementById('theme-label');
-      if (icon) icon.innerText = (theme === 'dark') ? '🌙' : '☀️';
-      if (label) label.innerText = (theme === 'dark') ? 'Nacht' : 'Tag';
     }
 
     function updateNamesDisplay() {
@@ -607,11 +470,11 @@
       const bA = document.getElementById('btn-self-A');
       const bB = document.getElementById('btn-self-B');
 
-      if (sub) sub.innerText = `${names.A} & ${names.B}`;
-      if (lA) lA.innerText = `🔵 ${names.A}`;
-      if (lB) lB.innerText = `🟣 ${names.B}`;
-      if (bA) bA.innerText = names.A;
-      if (bB) bB.innerText = names.B;
+      if (sub) sub.innerText = `${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
+      if (lA) lA.innerText = `🔵 ${names.A || 'Partner 1'}`;
+      if (lB) lB.innerText = `🟣 ${names.B || 'Partner 2'}`;
+      if (bA) bA.innerText = names.A || 'Partner 1';
+      if (bB) bB.innerText = names.B || 'Partner 2';
     }
 
     function switchAnalysisTab(tab) {
@@ -649,7 +512,7 @@
       }
       renderSelfAnalysis();
     }
-    /* PAAR-SYNERGIE AUSWERTUNG */
+
     function renderPairAnalysis() {
       const hasA = answers.A && Object.keys(answers.A).length > 0;
       const hasB = answers.B && Object.keys(answers.B).length > 0;
@@ -666,14 +529,14 @@
       if (lockedBanner) lockedBanner.classList.add('hidden');
       if (unlockedContent) unlockedContent.classList.remove('hidden');
 
+      renderSafetyCodexDisplay();
+
       const allChapters = window.surveyChapters || [];
       let totalMatchesEvaluated = 0;
       let positiveMatchesCount = 0;
       let doppel5List = [];
       let bridgesList = [];
-      let note2List = [];
       let tabusList = [];
-      let allDetailList = [];
 
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
@@ -684,79 +547,102 @@
           const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
 
           const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
-
           if (isTabu) {
-            let reasons = [];
-            if (aR1 === 1) reasons.push(`${names.A} als Top (Aktiv: ${it.r1})`);
-            if (aR2 === 1) reasons.push(`${names.A} als Bottom (Passiv: ${it.r2})`);
-            if (bR1 === 1) reasons.push(`${names.B} als Top (Aktiv: ${it.r1})`);
-            if (bR2 === 1) reasons.push(`${names.B} als Bottom (Passiv: ${it.r2})`);
-            tabusList.push({ item: it, chapter: ch, reasons, aR1, aR2, bR1, bR2 });
+            tabusList.push(it);
           } else {
-            // Doppel-5er Komplementär (Aktiv trifft Passiv)
-            if (aR1 === 5 && bR2 === 5) {
-              doppel5List.push({ item: it, leader: names.A, receiver: names.B, roleLead: it.r1, roleRecv: it.r2 });
-            }
-            if (bR1 === 5 && aR2 === 5) {
-              doppel5List.push({ item: it, leader: names.B, receiver: names.A, roleLead: it.r1, roleRecv: it.r2 });
-            }
+            if (aR1 === 5 && bR2 === 5) doppel5List.push({ item: it, lead: names.A, recv: names.B, roleLead: it.r1, roleRecv: it.r2 });
+            if (bR1 === 5 && aR2 === 5) doppel5List.push({ item: it, lead: names.B, recv: names.A, roleLead: it.r1, roleRecv: it.r2 });
 
-            // Brückenbau (Wunsch 4/5 trifft Bereitschaft 2/3)
-            if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) {
-              bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
-            }
-            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) {
-              bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
-            }
-
-            // Note 2 Liebesdienste
-            if (bR2 === 2 && aR1 >= 3) {
-              note2List.push({ item: it, giver: names.B, receiver: names.A, role: it.r2, wishScore: aR1 });
-            }
-            if (aR2 === 2 && bR1 >= 3) {
-              note2List.push({ item: it, giver: names.A, receiver: names.B, role: it.r2, wishScore: bR1 });
-            }
+            if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
+            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
 
             if (aR1 !== undefined && bR2 !== undefined) {
               totalMatchesEvaluated++;
               if (aR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
             }
           }
-
-          allDetailList.push({ item: it, chapter: ch, aR1, aR2, bR1, bR2, isTabu });
         });
       });
 
-      cachedDetailItems = allDetailList;
-
-      // KPIs
       const harmonyPct = totalMatchesEvaluated > 0 ? Math.round((positiveMatchesCount / totalMatchesEvaluated) * 100) : 0;
       document.getElementById('kpi-harmony').innerText = `${harmonyPct} %`;
       document.getElementById('kpi-doppel5').innerText = doppel5List.length;
       document.getElementById('kpi-bridges').innerText = bridgesList.length;
       document.getElementById('kpi-tabus').innerText = tabusList.length;
 
-      document.getElementById('bridges-count-badge').innerText = `${bridgesList.length} Brücken identifiziert`;
+      document.getElementById('bridges-count-badge').innerText = `${bridgesList.length} Brücken`;
       document.getElementById('doppel5-count-badge').innerText = `${doppel5List.length} Volltreffer`;
 
-      // Paarsignatur
-      const sigEl = document.getElementById('pair-signature-text');
-      if (sigEl) {
-        if (harmonyPct >= 75) {
-          sigEl.innerHTML = `Eure Beziehung zeichnet sich durch eine <strong>außergewöhnlich hohe Schnittmenge (${harmonyPct} %)</strong> aus. Ihr teilt eine gemeinsame erotische Sprache und verfügt über ein stabiles Vertrauensfundament, auf dem ihr ohne langes Zögern aufbauen könnt.`;
-        } else if (harmonyPct >= 50) {
-          sigEl.innerHTML = `Eure Profile ergänzen sich spannend (${harmonyPct} % Basis-Übereinstimmung). Ihr habt klare Kernbereiche, in denen ihr perfekt harmoniert, und gleichzeitig spannende Brückenbau-Zonen, die euch Raum für behutsame gemeinsame Entdeckungsreisen bieten.`;
-        } else {
-          sigEl.innerHTML = `Ihr habt sehr eigenständige, individuelle Vorlieben (${harmonyPct} % Harmonie). Hier ist achtsame Kommunikation der Schlüssel: Konzentriert euch voll auf eure verifizierten Doppel-5er und respektiert eure jeweiligen Grenzen.`;
-        }
-      }
-
+      renderPairScientificGutachten(harmonyPct, doppel5List.length, bridgesList.length);
       renderBridgesUI(bridgesList);
       renderDoppel5UI(doppel5List);
-      renderNote2UI(note2List);
-      renderDetailListUI(allDetailList);
       renderPairRadar();
     }
+
+    function renderSafetyCodexDisplay() {
+      const c = document.getElementById('safety-codex-display');
+      if (!c) return;
+
+      const labels = {
+        safeword: { title: "Safeword", map: { traffic: "🚦 Ampel (Grün/Gelb/Rot)", code_word: "🌵 Code-Wort ('Kaktus')", tactile_hand: "🤝 Taktiler Handdruck" } },
+        gag_signal: { title: "Knebel-Signal", map: { drop_cloth: "🪨 Drop-Tuch in der Hand", closed_fist: "✊ Faust 3s halten / Klopfen", bell_rattle: "🔔 Akustisches Glöckchen" } },
+        disobedience: { title: "Ungehorsam", map: { spanking: "✋ Handspanking über Knie", formal_corner: "🧘 Ecke stehen & Abbitte", chores_ban: "🧹 Hausarbeit / Handy-Verbot", talk_only: "💬 Reine Klärung im Gespräch" } },
+        aftercare: { title: "Aftercare", map: { warmth: "🛌 Decken, Tee & Halten", praise_words: "💖 Verbales Lob & Schutzworte", bath_care: "🛁 Bad & Einbalsamieren" } },
+        privacy: { title: "Diskretion", map: { secret: "🔒 100 % Absolutes Geheimnis", scene_friends: "👥 Szene-Freunde dürfen wissen", relaxed: "🌐 Entspannter Umgang" } }
+      };
+
+      const cfgA = safetyConfig.A || {};
+      const cfgB = safetyConfig.B || {};
+
+      let html = '';
+      Object.keys(labels).forEach(k => {
+        const item = labels[k];
+        const valA = cfgA[k] || 'traffic';
+        const valB = cfgB[k] || 'traffic';
+        const isMatch = (valA === valB);
+
+        html += `
+          <div class="p-3 rounded-xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/30 border border-amber-800/40'} space-y-1">
+            <div class="flex justify-between items-center">
+              <strong class="text-white text-xs font-bold">${item.title}</strong>
+              <span class="text-[9.5px] font-black px-1.5 py-0.2 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-300'}">
+                ${isMatch ? '✓ Übereinstimmung' : '⚠️ Abweichung'}
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-300">${item.map[valA] || valA}</p>
+            ${!isMatch ? `<p class="text-[10px] text-amber-300">Partner 2 bevorzugt: ${item.map[valB] || valB}</p>` : ''}
+          </div>
+        `;
+      });
+
+      c.innerHTML = html;
+    }
+
+    function renderPairScientificGutachten(harmony, d5Count, bridgeCount) {
+      const c = document.getElementById('pair-scientific-gutachten');
+      if (!c) return;
+
+      c.innerHTML = `
+        <div class="space-y-2">
+          <p>
+            Basierend auf dem <strong>Actor-Partner Interdependence Model (Velten & Margraf, 2017)</strong> weist eure Paarbeziehung eine <strong>${harmony} %ige Basis-Harmonie</strong> auf. Mit <strong>${d5Count} Doppel-5er Volltreffern</strong> verfügt ihr über ein starkes neuronales Belohnungsfundament, das bei beiden Partnern Dopamin und Oxytocin ohne Schwellenängste freisetzt.
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-brand-300 font-bold block">🧠 Neuro-psychologische Passung:</strong>
+            <p class="text-[11px]">
+              Eure Rollenverteilung dockt komplementär aneinander an: Die Lust des aktiven Parts an achtsamer Verantwortung (<em>Topspace-Flow</em> nach Wismeijer, 2013) ermöglicht dem passiven Part das angstfreie Abschalten des präfrontalen Kortex (<em>transiente Hypofrontalität</em> nach Sagarin et al., 2009).
+            </p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-amber-300 font-bold block">🌉 Wachstums- & Triggerzonen (Gottman, 2015):</strong>
+            <p class="text-[11px]">
+              Ihr habt <strong>${bridgeCount} Brückenbau-Positionen</strong>. Hier treffen hohe Wünsche auf vorsichtige Bereitschaft (Note 2/3). Folgt dem Prinzip der <em>somatischen Sicherheit (van der Kolk, 2014)</em>: Erkundet diese Zonen nur mit festem Handdrück-Signal und niemals an Tagen mit hohem Alltagsstress.
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
     function renderBridgesUI(list) {
       const c = document.getElementById('bridges-interactive-container');
       if (!c) return;
@@ -766,7 +652,7 @@
         return;
       }
 
-      c.innerHTML = list.slice(0, 10).map(b => `
+      c.innerHTML = list.slice(0, 8).map(b => `
         <div class="p-3.5 rounded-2xl theme-panel border border-amber-500/30 space-y-2 shadow-xs">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs sm:text-sm text-white">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
@@ -775,9 +661,9 @@
             </span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(b.item.desc)}</p>
-          <div class="p-2.5 rounded-xl theme-subtle border border-slate-700/60 text-[11px] space-y-1">
-            <span class="text-amber-300 font-bold block">💡 Gesprächs-Impuls für ${escapeHtml(b.wishUser)}:</span>
-            <p class="text-slate-300 italic">„Ich wünsche mir '${escapeHtml(b.roleWish)}'. Ich weiß, dass du '${escapeHtml(b.rolePartner)}' noch zurückhaltend siehst. Welche Bedingungen oder Sicherheiten bräuchtest du, damit wir uns ganz vorsichtig herantasten?“</p>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/60 text-[11px] space-y-1">
+            <span class="text-amber-300 font-bold block">💡 Gesprächs-Leitfaden für ${escapeHtml(b.wishUser)}:</span>
+            <p class="text-slate-300 italic">„Ich wünsche mir '${escapeHtml(b.roleWish)}'. Du hast dafür eine vorsichtige Bereitschaft signalisiert. Welche Rahmenbedingungen oder Sicherheitszeichen brauchst du, damit wir uns ganz behutsam herantasten können?“</p>
           </div>
         </div>
       `).join('');
@@ -792,7 +678,7 @@
         return;
       }
 
-      c.innerHTML = list.slice(0, 12).map(d => `
+      c.innerHTML = list.slice(0, 10).map(d => `
         <div class="p-3 rounded-2xl theme-panel border border-emerald-500/30 space-y-1.5 shadow-xs">
           <div class="flex items-center justify-between">
             <strong class="text-xs text-emerald-200">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
@@ -800,85 +686,11 @@
           </div>
           <p class="text-[10.5px] text-slate-300 leading-snug">${escapeHtml(d.item.desc)}</p>
           <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-800">
-            <span>🔵 <strong>${escapeHtml(d.leader)}:</strong> ${escapeHtml(d.roleLead)}</span><br>
-            <span>🟣 <strong>${escapeHtml(d.receiver)}:</strong> ${escapeHtml(d.roleRecv)}</span>
+            <span>🔵 <strong>${escapeHtml(d.lead)} als Top:</strong> ${escapeHtml(d.roleLead)}</span><br>
+            <span>🟣 <strong>${escapeHtml(d.recv)} als Bottom:</strong> ${escapeHtml(d.roleRecv)}</span>
           </div>
         </div>
       `).join('');
-    }
-
-    function renderNote2UI(list) {
-      const c = document.getElementById('note2-interactive-container');
-      if (!c) return;
-
-      if (list.length === 0) {
-        c.innerHTML = '<p class="text-slate-400 italic text-center py-2">Keine Note-2 Duldungen vorhanden.</p>';
-        return;
-      }
-
-      c.innerHTML = list.slice(0, 8).map(n => `
-        <div class="p-3 rounded-2xl theme-panel border border-indigo-500/30 flex items-start justify-between gap-3 shadow-xs">
-          <div class="space-y-1">
-            <strong class="text-xs text-white block">${n.item.id}. ${escapeHtml(n.item.title)}</strong>
-            <p class="text-[11px] text-indigo-300">
-              <strong>${escapeHtml(n.giver)}</strong> würde <strong>${escapeHtml(n.receiver)}</strong> zuliebe: <em>„${escapeHtml(n.role)}“</em> (Wunsch von ${escapeHtml(n.receiver)}: Note ${n.wishScore})
-            </p>
-          </div>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
-            Note 2 Duldung
-          </span>
-        </div>
-      `).join('');
-    }
-
-    function renderDetailListUI(list) {
-      const c = document.getElementById('detailed-breakdown-container');
-      if (!c) return;
-
-      c.innerHTML = list.map(d => {
-        let tag = '';
-        if (d.isTabu) {
-          tag = `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">⛔ TABU</span>`;
-        } else if (d.aR1 >= 3 && d.bR2 >= 3) {
-          tag = `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✓ Match</span>`;
-        } else {
-          tag = `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold theme-panel border border-slate-700 text-slate-400">Offen</span>`;
-        }
-
-        let tabuDetailText = '';
-        if (d.isTabu) {
-          let tReasons = [];
-          if (d.aR1 === 1) tReasons.push(`⛔ ${names.A} als Top (Ausführung)`);
-          if (d.aR2 === 1) tReasons.push(`⛔ ${names.A} als Bottom (Empfangen)`);
-          if (d.bR1 === 1) tReasons.push(`⛔ ${names.B} als Top (Ausführung)`);
-          if (d.bR2 === 1) tReasons.push(`⛔ ${names.B} als Bottom (Empfangen)`);
-          tabuDetailText = `<div class="text-[10px] text-rose-300 pt-1 font-semibold">${tReasons.join(' • ')}</div>`;
-        }
-
-        return `
-          <div class="p-2.5 rounded-xl theme-panel border ${d.isTabu ? 'border-rose-900/60 bg-rose-950/20' : 'border-slate-800'} space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <strong class="text-white text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
-              ${tag}
-            </div>
-            <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-0.5 gap-2">
-              <span>${escapeHtml(names.A)}: Aktiv ${d.aR1 ?? '-'} | Passiv ${d.aR2 ?? '-'}</span>
-              <span>${escapeHtml(names.B)}: Aktiv ${d.bR1 ?? '-'} | Passiv ${d.bR2 ?? '-'}</span>
-            </div>
-            ${tabuDetailText}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function filterDetailItems(q) {
-      const query = (q || '').toLowerCase();
-      const filtered = cachedDetailItems.filter(d => 
-        (d.item.title || '').toLowerCase().includes(query) || 
-        (d.item.desc || '').toLowerCase().includes(query) ||
-        String(d.item.id).includes(query)
-      );
-      renderDetailListUI(filtered);
     }
 
     function renderPairRadar() {
@@ -904,8 +716,8 @@
 
       const allChapters = window.surveyChapters || [];
 
-      function calculateDimensionScores(partnerKey) {
-        const pAnswers = answers[partnerKey] || {};
+      function calculateScores(userKey) {
+        const uAnswers = answers[userKey] || {};
         return dimensions.map(dim => {
           let earned = 0;
           let possible = 0;
@@ -914,8 +726,8 @@
             if (ch && ch.items) {
               ch.items.forEach(it => {
                 if (it.type !== 'choice') {
-                  const s1 = pAnswers[`it_${it.id}_r1`];
-                  const s2 = pAnswers[`it_${it.id}_r2`];
+                  const s1 = uAnswers[`it_${it.id}_r1`];
+                  const s2 = uAnswers[`it_${it.id}_r2`];
                   if (typeof s1 === 'number') { earned += s1; possible += 5; }
                   if (typeof s2 === 'number') { earned += s2; possible += 5; }
                 }
@@ -926,8 +738,8 @@
         });
       }
 
-      const scoresA = calculateDimensionScores('A');
-      const scoresB = calculateDimensionScores('B');
+      const scoresA = calculateScores('A');
+      const scoresB = calculateScores('B');
 
       pairRadarChartInstance = new Chart(canvas, {
         type: 'radar',
@@ -935,20 +747,18 @@
           labels: dimensions.map(d => d.label),
           datasets: [
             {
-              label: names.A,
+              label: names.A || 'Partner 1',
               data: scoresA,
               backgroundColor: 'rgba(99, 102, 241, 0.25)',
               borderColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+              borderWidth: 2
             },
             {
-              label: names.B,
+              label: names.B || 'Partner 2',
               data: scoresB,
               backgroundColor: 'rgba(168, 85, 247, 0.25)',
               borderColor: 'rgba(168, 85, 247, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(168, 85, 247, 1)'
+              borderWidth: 2
             }
           ]
         },
@@ -967,35 +777,25 @@
         }
       });
     }
-    /* TIEFEN-SELBSTPROFIL AUSWERTUNG */
+
     function renderSelfAnalysis() {
       const uAnswers = answers[selfUser] || {};
       const allChapters = window.surveyChapters || [];
-      let totalQuestions = 0;
-      allChapters.forEach(c => {
-        if (c.items) {
-          c.items.forEach(it => {
-            if (it.type === 'choice') totalQuestions += 1;
-            else totalQuestions += 2;
-          });
-        }
-      });
+      const answeredCount = Object.keys(uAnswers).length;
 
-      const answeredKeys = Object.keys(uAnswers).filter(k => typeof uAnswers[k] === 'number' || typeof uAnswers[k] === 'string');
-      const count = answeredKeys.length;
+      document.getElementById('self-answered-stat').innerText = `${answeredCount} Antworten abgegeben`;
 
-      const statEl = document.getElementById('self-answered-stat');
-      if (statEl) statEl.innerText = `${count} von ${totalQuestions || 635} Fragen bewertet`;
-
-      // 5 Säulen dynamisch berechnen
       let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
       let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
+      let totalTop = 0, totalBottom = 0, cTop = 0, cBottom = 0;
 
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
           const v1 = uAnswers[`it_${it.id}_r1`];
           const v2 = uAnswers[`it_${it.id}_r2`];
-          const addScore = (val) => {
+          if (typeof v1 === 'number') { totalTop += v1; cTop++; }
+          if (typeof v2 === 'number') { totalBottom += v2; cBottom++; }
+          const add = (val) => {
             if (typeof val === 'number') {
               if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
               else if ([13, 16, 17].includes(ch.id)) { pSensation += val; countSensation += 5; }
@@ -1004,71 +804,76 @@
               else if ([9, 10, 11].includes(ch.id)) { pVisual += val; countVisual += 5; }
             }
           };
-          addScore(v1);
-          addScore(v2);
+          add(v1);
+          add(v2);
         });
       });
 
-      setSelfBar('power', countPower > 0 ? Math.round((pPower / countPower) * 100) : 0);
-      setSelfBar('sensation', countSensation > 0 ? Math.round((pSensation / countSensation) * 100) : 0);
-      setSelfBar('nurturing', countNurturing > 0 ? Math.round((pNurturing / countNurturing) * 100) : 0);
-      setSelfBar('thrill', countThrill > 0 ? Math.round((pThrill / countThrill) * 100) : 0);
-      setSelfBar('visual', countVisual > 0 ? Math.round((pVisual / countVisual) * 100) : 0);
+      const setB = (id, cur, max) => {
+        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        document.getElementById(`self-bar-val-${id}`).innerText = `${pct} %`;
+        document.getElementById(`self-bar-fill-${id}`).style.width = `${pct}%`;
+        return pct;
+      };
 
-      let highs = [];
-      let tabus = [];
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          const r1 = uAnswers[`it_${it.id}_r1`];
-          const r2 = uAnswers[`it_${it.id}_r2`];
-          if (r1 === 5) highs.push({ title: it.title, role: it.r1, type: 'Top (Aktiv / Ausführen)' });
-          if (r2 === 5) highs.push({ title: it.title, role: it.r2, type: 'Bottom (Passiv / Empfangen)' });
-          if (r1 === 1) tabus.push({ title: it.title, role: it.r1, type: 'Als Top (Aktiv abgelehnt)' });
-          if (r2 === 1) tabus.push({ title: it.title, role: it.r2, type: 'Als Bottom (Passiv abgelehnt)' });
-        });
+      const pctPower = setB('power', pPower, countPower);
+      const pctSensation = setB('sensation', pSensation, countSensation);
+      const pctNurturing = setB('nurturing', pNurturing, countNurturing);
+      const pctThrill = setB('thrill', pThrill, countThrill);
+      const pctVisual = setB('visual', pVisual, countVisual);
+
+      renderScientificDeepGutachten({
+        user: selfUser,
+        pctPower,
+        pctSensation,
+        pctNurturing,
+        pctThrill,
+        pctVisual,
+        avgTop: cTop > 0 ? (totalTop / cTop) : 0,
+        avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
+        shameCount: Object.keys(shameFlags[selfUser] || {}).length
       });
-
-      const hEl = document.getElementById('self-highs-container');
-      if (hEl) {
-        hEl.innerHTML = highs.length > 0 
-          ? highs.map(h => `
-              <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-200 flex justify-between items-center">
-                <span>⭐ <strong>${escapeHtml(h.title)}</strong> <em class="text-[10px] text-emerald-300 block">„${escapeHtml(h.role)}“</em></span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-900/60 text-emerald-300">${h.type}</span>
-              </div>
-            `).join('')
-          : '<p class="text-slate-400 italic">Noch keine 5er vergeben.</p>';
-      }
-
-      const tEl = document.getElementById('self-tabus-container');
-      if (tEl) {
-        tEl.innerHTML = tabus.length > 0
-          ? tabus.map(t => `
-              <div class="p-2 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200 flex justify-between items-center">
-                <span>⛔ <strong>${escapeHtml(t.title)}</strong> <em class="text-[10px] text-rose-300 block">„${escapeHtml(t.role)}“</em></span>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${t.type.includes('Top') ? 'bg-indigo-900/60 text-indigo-300 border border-indigo-700/50' : 'bg-pink-900/60 text-pink-300 border border-pink-700/50'}">${t.type}</span>
-              </div>
-            `).join('')
-          : '<p class="text-slate-400 italic">Keine Tabus gesetzt.</p>';
-      }
-
-      const box = document.getElementById('self-interpretation-box');
-      if (box) {
-        if (count === 0) {
-          box.innerText = `Für ${names[selfUser]} liegen noch keine Bewertungen vor. Beantworte die ersten Kapitel im Fragebogen, um dein Profil zu berechnen.`;
-        } else {
-          box.innerText = `Das Profil von ${names[selfUser]} basiert auf ${count} abgegebenen Bewertungen. Die Schwerpunkte spiegeln deine realen Antworten wider.`;
-        }
-      }
 
       renderSelfRadar();
     }
 
-    function setSelfBar(id, pct) {
-      const val = document.getElementById(`self-bar-val-${id}`);
-      const fill = document.getElementById(`self-bar-fill-${id}`);
-      if (val) val.innerText = `${pct} %`;
-      if (fill) fill.style.width = `${pct}%`;
+    function renderScientificDeepGutachten(m) {
+      const c = document.getElementById('self-scientific-deep-analysis');
+      if (!c) return;
+
+      const isSub = m.avgBottom > m.avgTop;
+      const isTop = m.avgTop > m.avgBottom;
+
+      c.innerHTML = `
+        <div class="space-y-3">
+          <div class="p-3.5 rounded-2xl theme-panel border border-indigo-500/30 space-y-1.5">
+            <strong class="text-indigo-300 font-bold text-xs block">🧠 1. Neurobiologische Funktionsweise (Gehirn & Hormone):</strong>
+            <p>
+              ${isSub ? `
+                Deine Antworten zeigen eine deutliche Neigung zur Hingabe. In der Neurobiologie wird dieser Zustand als <strong>transiente Hypofrontalität (Sagarin et al., 2009; Ambler et al., 2017)</strong> beschrieben. Dein präfrontaler Kortex (der Sitz ständiger Alltagsverantwortung und Selbstkontrolle) fährt messbar herunter. Durch kontrollierten Reizstress werden Endorphine und Endocannabinoide ausgeschüttet (Wuyts et al., 2021), die das Nervensystem in einen Zustand tiefer, meditativer Gelassenheit (<em>Subspace</em>) versetzen.
+              ` : (isTop ? `
+                Deine Lust an Führung ist der Eintritt in einen hochfokussierten <strong>Flow-Zustand / Topspace (Wismeijer & van Assen, 2013)</strong>. Dein Gehirn schöpft Belohnung (Dopamin) aus Empathie-Synchronisation: Das exakte Lesen der Mikrosignale des Partners und die Verantwortung für dessen emotionalen Zustand.
+              ` : `
+                Du bist ein ausgeglichener <strong>Switch</strong>. Dein Gehirn kann je nach Tagesform flexibel zwischen empathischer Verantwortung (Topspace) und kognitiver Entlastung (Subspace) umschalten.
+              `)}
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl theme-panel border border-rose-500/30 space-y-1.5">
+            <strong class="text-rose-300 font-bold text-xs block">⚡ 2. Somatische Katharsis & Stress-Kompensation (Williams et al., 2014):</strong>
+            <p>
+              Kink fungiert für dich nicht als Belastung, sondern als aktives, somatisches Coping. Wer im Alltag hohe Entscheidungsverantwortung trägt, erfährt im geschützten BDSM-Rahmen die stärkste psychische Erholung. ${m.pctSensation >= 40 ? 'Deine Reizbereitschaft bei Schmerz und Fesseln nutzt die körpereigene Opiat-Kaskade (Klement et al., 2016) als Ventil zum seelischen Ballastabwurf.' : 'Du bevorzugst dabei sanftere, kontrollierte Reizlinien.'}
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl theme-panel border border-purple-500/30 space-y-1.5">
+            <strong class="text-purple-300 font-bold text-xs block">❤️‍🔥 3. Erotische Scham-Resilienz (Canivet et al., 2025; Tangney & Dearing, 2002):</strong>
+            <p>
+              Du hast <strong>${m.shameCount} Praktiken als schambelastet (🙈)</strong> markiert. Erotische Scham entsteht dort, wo tiefe Sehnsüchte gesellschaftlich tabuisiert werden (z. B. Keuschheit, Pegging, Regressions-Kinks). Nach <em>Dymock (2012)</em> führt das angstfreie Aussprechen vor einem annehmenden Partner zur tiefsten Form emotionaler Verbundenheit.
+            </p>
+          </div>
+        </div>
+      `;
     }
 
     function renderSelfRadar() {
@@ -1095,7 +900,7 @@
       const allChapters = window.surveyChapters || [];
       const uAnswers = answers[selfUser] || {};
 
-      const selfScores = dimensions.map(dim => {
+      const scores = dimensions.map(dim => {
         let earned = 0;
         let possible = 0;
         dim.chapters.forEach(cId => {
@@ -1119,8 +924,8 @@
         data: {
           labels: dimensions.map(d => d.label),
           datasets: [{
-            label: names[selfUser],
-            data: selfScores,
+            label: names[selfUser] || 'Profil',
+            data: scores,
             backgroundColor: 'rgba(225, 29, 72, 0.25)',
             borderColor: 'rgba(225, 29, 72, 1)',
             borderWidth: 2,
@@ -1142,15 +947,6 @@
         }
       });
     }
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      if (!t) return;
-      t.innerText = msg;
-      t.classList.remove('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        t.classList.add('opacity-0', 'pointer-events-none');
-      }, 3000);
-    }
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -1159,7 +955,7 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/'/g, '&#039;');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
