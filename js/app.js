@@ -1,4 +1,4 @@
-// js/app.js - Zentrale Anwendungslogik & Datenverwaltung des Kink- & Beziehungs-Kompasses
+// js/app.js - Zentrale Anwendungslogik, Konsens-Konfigurator & wissenschaftliche Auswertungs-Engine
 
 let currentUser = 'A';
 let currentChapterIndex = 0;
@@ -12,6 +12,12 @@ let anatomy = { A: 'penis', B: 'vulva' }; // 'penis' (Mann) | 'vulva' (Frau)
 let answers = { A: {}, B: {} };
 let notes = { A: {}, B: {} };
 let shameFlags = { A: {}, B: {} }; // Hemmschwellen-Flags { [itemId]: true }
+let chapterReflections = { A: {}, B: {} }; // Freitext-Gedanken je Kapitel
+let customKinks = []; // Eigene hinzugefügte Kinks: [{ id: 'c_1', title, desc, r1, r2, creator: 'A' }]
+let safetyConfig = {
+  A: { safeword: 'traffic', gag_signal: 'drop_cloth', disobedience: 'spanking', aftercare: 'warmth', privacy: 'secret' },
+  B: { safeword: 'traffic', gag_signal: 'drop_cloth', disobedience: 'spanking', aftercare: 'warmth', privacy: 'secret' }
+};
 let privacy = {
   A: { mode: 'blind', shareNotes: true, chapters: {} },
   B: { mode: 'blind', shareNotes: true, chapters: {} }
@@ -21,6 +27,56 @@ let accounts = {
   B: { email: '', partnerEmail: '', setupDone: false }
 };
 
+// 5 Kernbereiche des Konsens- & Sicherheits-Konfigurators
+const safetyOptionsDefinition = {
+  safeword: {
+    title: "1. Primäres Safeword-System",
+    desc: "Wie signalisiert ihr im Normalfall eine Überschreitung der Belastungsgrenze?",
+    options: [
+      { val: "traffic", label: "🚦 Klassische Ampel (Grün = Weiter, Gelb = Sanfter, Rot = Sofort-Stopp)" },
+      { val: "code_word", label: "🌵 Festes Code-Wort (z. B. 'Kaktus' oder 'Halt')" },
+      { val: "tactile_hand", label: "🤝 Taktiler Handdruck (2x = Gut, 3x = Sanfter, Hand loslassen = Stopp)" }
+    ]
+  },
+  gag_signal: {
+    title: "2. Notfall-Signal bei Knebelung / Mundverschluss",
+    desc: "Wie bleibt der Bottom handlungs- und sprechfähig, wenn der Mund verschlossen ist?",
+    options: [
+      { val: "drop_cloth", label: "🪨 Drop-Tuch: Tuch in der Faust; fällt es zu Boden, bricht alles sofort ab" },
+      { val: "closed_fist", label: "✊ Hand-Signal: 3 Sekunden feste Faust oder 3x Klopfen auf den Boden" },
+      { val: "bell_rattle", label: "🔔 Akustischer Signalgeber: Glöckchen oder Rassel in der Hand" }
+    ]
+  },
+  disobedience: {
+    title: "3. Umgang mit Regelverstößen & Frechheit",
+    desc: "Wie soll mit Ungehorsam, Vorlautheit oder Regelverletzungen umgegangen werden?",
+    options: [
+      { val: "spanking", label: "✋ Körperliche Zucht: Handspanking oder Versohlen über den Knien" },
+      { val: "formal_corner", label: "🧘 Formale Besinnung: In der Ecke stehen, Knie-Abbitte, Strafzeilen schreiben" },
+      { val: "chores_ban", label: "🧹 Praktische Wiedergutmachung: Hausarbeit, Handy-Verbot für den Abend" },
+      { val: "talk_only", label: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch ohne Disziplinierung" }
+    ]
+  },
+  aftercare: {
+    title: "4. Bevorzugter Aftercare-Schwerpunkt",
+    desc: "Was braucht der Bottom nach dem Absinken von Endorphin & Adrenalin am dringendsten?",
+    options: [
+      { val: "warmth", label: "🛌 Körperwärme & Stille: Dicke Decken, heißer Tee, stummes Halten im Arm" },
+      { val: "praise_words", label: "💖 Verbaler Zuspruch & De-Briefing: Lob ('Praise'), Schutzworte & Stolz" },
+      { val: "bath_care", label: "🛁 Pflege-Ritual: Warmes Entspannungsbad, behutsames Einbalsamieren der Haut" }
+    ]
+  },
+  privacy: {
+    title: "5. Privatsphäre & Diskretion",
+    desc: "Wie vertraulich soll eure Kink-Dynamik nach außen behandelt werden?",
+    options: [
+      { val: "secret", label: "🔒 Absolutes Geheimnis: 100 % privat, niemand im Umfeld darf davon wissen" },
+      { val: "scene_friends", label: "👥 Szene-Freunde: Ausgewählte vertraute Kontakte dürfen Bescheid wissen" },
+      { val: "relaxed", label: "🌐 Entspannter Umgang: Keine Geheimniskrämerei bei privaten Fragen" }
+    ]
+  }
+};
+
 // Umfassende A-Z BDSM- & Kink-Lexikondaten
 const defaultLexikonData = [
   { term: "SSC (Safe, Sane, Consensual)", def: "Grundsatz der Kink-Szene: Alle Handlungen müssen sicher, vernünftig und zu 100 % einvernehmlich sein.", link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual" },
@@ -28,16 +84,17 @@ const defaultLexikonData = [
   { term: "Safeword & Ampelsystem", def: "Vereinbarte Abbruchworte (Grün = Weiter, Gelb = Tempo drosseln, Rot = Sofort-Stopp), die jederzeit ohne Rechtfertigung gelten.", link: "https://de.wikipedia.org/wiki/Safeword" },
   { term: "Aftercare (Nachsorge)", def: "Liebevolle Fürsorge nach einer Session (Kuscheln, Decken, Tee, De-Briefing) zur seelischen und körperlichen Stabilisierung.", link: "https://de.wikipedia.org/wiki/Aftercare_(BDSM)" },
   { term: "Subdrop / Topdrop", def: "Hormoneller und emotionaler Erschöpfungszustand nach intensiven Sessions durch den abrupten Abfall von Endorphinen und Adrenalin.", link: "https://de.wikipedia.org/wiki/Subdrop" },
-  { term: "Subspace", def: "Tranceähnlicher, glückseliger Zustand des passiven Partners durch Reize, Endorphine und vollkommene Hingabe.", link: "https://de.wikipedia.org/wiki/Subspace" },
+  { term: "Subspace & Transiente Hypofrontalität", def: "Tranceähnlicher Zustand tiefer kognitiver Entlastung des passiven Parts durch vorübergehendes Herunterfahren des präfrontalen Kortex.", link: "https://de.wikipedia.org/wiki/Subspace" },
+  { term: "Topspace & Flow-Zustand", def: "Zustand hochfokussierter Achtsamkeit und Empathie-Synchronisation des führenden Parts bei der Session-Leitung.", link: "https://de.wikipedia.org/wiki/BDSM" },
   { term: "Shibari / Kinbaku", def: "Traditionelle japanische Kunst des Seilbindens mit geölten Naturfasern (Jute/Hanf) zur Erzeugung von Mustern und angenehmem Druck.", link: "https://de.wikipedia.org/wiki/Shibari" },
-  { term: "Praise Play", def: "Führung und Bestätigung des Partners durch warmes, echtes Lob und Zärtlichkeit statt strenger Disziplinierung.", link: "https://de.wikipedia.org/wiki/BDSM" },
+  { term: "Praise Play", def: "Führung und Bestätigung des Partners durch warmes, echtes Lob und Zärtlichkeit statt harter Demütigung.", link: "https://de.wikipedia.org/wiki/BDSM" },
   { term: "Tease & Denial / Edging", def: "Gezieltes Heranführen an den Orgasmus mit anschließendem abruptem Abbruch der Berührung, um die Erregung zu dehnen.", link: "https://de.wikipedia.org/wiki/Edging" },
+  { term: "Ruined Orgasm", def: "Das Stoppen jeder Genitalstimulation genau im Moment der Ejakulation/des Höhepunkts – der Muskel kontrahiert ohne befriedigende Erleichterung.", link: "https://de.wikipedia.org/wiki/Edging" },
   { term: "Keuschhaltung (Chastity)", def: "Freiwillige Abgabe der Orgasmuskontrolle mittels Keuschheitskäfig oder -gürtel; der Schlüssel verbleibt beim dominanten Partner.", link: "https://de.wikipedia.org/wiki/Keuschheitsg%C3%BCrtel" },
+  { term: "Impact Play (Thuddy vs. Stinging)", def: "Schlagintimität: Thuddy wirkt dumpf und tief im Gewebe (Paddle, Gürtel), Stinging wirkt scharf und brennend auf der Haut (Gerte, Flogger, Cane).", link: "https://de.wikipedia.org/wiki/Spanking" },
   { term: "Bratting & Brat Taming", def: "Spielerisches, freches Provozieren des Partners, um eine liebevoll-strenge Zurechtweisung und Bändigung herauszufordern.", link: "https://de.wikipedia.org/wiki/BDSM" },
   { term: "Primal Play", def: "Instinktgetriebenes, körperbetontes Spiel mit Ringen, Beißen, Jagen und Kräftemessen ganz ohne starre Regeln.", link: "https://de.wikipedia.org/wiki/BDSM" },
   { term: "Caregiver / Little (DDLG / CGL)", def: "Rollenaufteilung zwischen fürsorglicher Beschützer-Autorität (Daddy/Mommy) und unbeschwertem, erotisch oder emotional regrediertem Partner (Little).", link: "https://de.wikipedia.org/wiki/Adult_Baby" },
-  { term: "Impact Play & Spanking", def: "Schlagintimität mit Händen, Paddles oder Floggern zur Erwärmung des Gewebes, Katharsis und Luststeigerung.", link: "https://de.wikipedia.org/wiki/Spanking" },
-  { term: "Sinnesentzug (Sensory Deprivation)", def: "Ausschalten visueller oder auditiver Reize (Augenbinden, Kopfhörer), um Tastsinn und Hingabe massiv zu intensivieren.", link: "https://de.wikipedia.org/wiki/Reizdeprivation" },
   { term: "CBT (Cock and Ball Torture)", def: "Gezielte Reizung oder Schmerzapplikation an Penis und Hoden (z. B. Abbinden, Ringe, Gewichte, sanfte Klapse).", link: "https://de.wikipedia.org/wiki/Cock_and_Ball_Torture" },
   { term: "Queening / Facesitting", def: "Ein Partner setzt sich rittlings auf das Gesicht des Partners und steuert Atmung und Zungenkontakt.", link: "https://de.wikipedia.org/wiki/Facesitting" },
   { term: "CFNM (Clothed Female, Naked Male)", def: "Visuelles Machtgefälle: Ein Partner bleibt elegant bekleidet, während der andere nackt zur Verfügung steht.", link: "https://de.wikipedia.org/wiki/CFNM" },
@@ -418,7 +475,7 @@ function nextOnboardingStep() {
     accounts[u].setupDone = true;
     saveToLocalStorage();
     document.getElementById('modal-onboarding')?.classList.add('hidden');
-    showToast(`Willkommen, ${names[u]}! Dynamischer Hetero-Fragebogen aktiviert.`);
+    showToast(`Willkommen, ${names[u]}! Dynamischer Fragebogen aktiviert.`);
   }
 }
 
@@ -436,6 +493,9 @@ function saveToLocalStorage() {
     localStorage.setItem('kompass_answers', JSON.stringify(answers));
     localStorage.setItem('kompass_notes', JSON.stringify(notes));
     localStorage.setItem('kompass_shame', JSON.stringify(shameFlags));
+    localStorage.setItem('kompass_reflections', JSON.stringify(chapterReflections));
+    localStorage.setItem('kompass_custom_kinks', JSON.stringify(customKinks));
+    localStorage.setItem('kompass_safety_config', JSON.stringify(safetyConfig));
     localStorage.setItem('kompass_names', JSON.stringify(names));
     localStorage.setItem('kompass_anatomy', JSON.stringify(anatomy));
     localStorage.setItem('kompass_privacy', JSON.stringify(privacy));
@@ -450,6 +510,9 @@ function loadFromLocalStorage() {
     const a = localStorage.getItem('kompass_answers');
     const n = localStorage.getItem('kompass_notes');
     const sh = localStorage.getItem('kompass_shame');
+    const rf = localStorage.getItem('kompass_reflections');
+    const ck = localStorage.getItem('kompass_custom_kinks');
+    const sc = localStorage.getItem('kompass_safety_config');
     const nm = localStorage.getItem('kompass_names');
     const an = localStorage.getItem('kompass_anatomy');
     const p = localStorage.getItem('kompass_privacy');
@@ -458,6 +521,9 @@ function loadFromLocalStorage() {
     if (a) answers = JSON.parse(a);
     if (n) notes = JSON.parse(n);
     if (sh) shameFlags = JSON.parse(sh);
+    if (rf) chapterReflections = JSON.parse(rf);
+    if (ck) customKinks = JSON.parse(ck);
+    if (sc) safetyConfig = JSON.parse(sc);
     if (nm) names = JSON.parse(nm);
     if (an) anatomy = JSON.parse(an);
     if (p) privacy = JSON.parse(p);
@@ -480,6 +546,9 @@ function checkUrlHashData() {
       if (payload.anatomy) anatomy = payload.anatomy;
       if (payload.notes) notes = payload.notes;
       if (payload.shameFlags) shameFlags = payload.shameFlags;
+      if (payload.chapterReflections) chapterReflections = payload.chapterReflections;
+      if (payload.customKinks) customKinks = payload.customKinks;
+      if (payload.safetyConfig) safetyConfig = payload.safetyConfig;
       if (payload.privacy) privacy = payload.privacy;
       saveToLocalStorage();
 
@@ -503,7 +572,7 @@ function switchMainView(viewId) {
     const title = document.getElementById('gating-modal-title');
     const desc = document.getElementById('gating-modal-desc');
     if (title) title.innerText = "Persönliches Profil noch gesperrt";
-    if (desc) desc.innerText = "Bitte bewerte zuerst die ersten Punkte im Fragebogen, damit dein Profil und deine Archetypen berechnet werden können.";
+    if (desc) desc.innerText = "Bitte bewerte zuerst mindestens 5 Praktiken im Fragebogen, damit deine psychologische Tiefenanalyse berechnet werden kann.";
     if (modal) modal.classList.remove('hidden');
     return;
   }
@@ -603,7 +672,6 @@ function renderCurrentChapter(shouldScroll = false) {
   if (badge) badge.innerText = `Kapitel ${currentChapterIndex + 1} / ${chapters.length}`;
   if (title) title.innerText = ch.title;
   if (desc) desc.innerText = ch.desc;
-  if (countEl) countEl.innerText = `${ch.items ? ch.items.length : 0} Praktiken`;
 
   const prevBtn = document.getElementById('btn-prev-chapter');
   if (prevBtn) prevBtn.disabled = (currentChapterIndex === 0);
@@ -619,7 +687,10 @@ function renderCurrentChapter(shouldScroll = false) {
   const uAnswers = answers[currentUser] || {};
   const uShame = shameFlags[currentUser] || {};
 
-  const items = (ch.items || []).filter(rawIt => {
+  // Custom Kinks für dieses Kapitel filtern
+  const chapterCustoms = customKinks.filter(k => k.chapterId === ch.id || (!k.chapterId && currentChapterIndex === chapters.length - 1));
+
+  const regularItems = (ch.items || []).filter(rawIt => {
     const it = getDynamicItem(rawIt, currentUser);
 
     if (searchQuery) {
@@ -642,116 +713,296 @@ function renderCurrentChapter(shouldScroll = false) {
     return true;
   });
 
-  if (items.length === 0) {
-    container.innerHTML = `
-      <div class="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-2">
-        <span class="text-2xl">🔍</span>
-        <p class="text-xs font-bold text-slate-700">Keine Praktiken für diesen Filter in Kapitel ${currentChapterIndex + 1} gefunden.</p>
-        <button type="button" onclick="setSurveyFilter('all')" class="text-[11px] text-brand-600 hover:underline font-bold">Filter zurücksetzen (Alle anzeigen)</button>
-      </div>
-    `;
-    return;
-  }
+  if (countEl) countEl.innerText = `${regularItems.length + chapterCustoms.length} Praktiken`;
 
   let html = '';
-  items.forEach(rawIt => {
+
+  // Prüfen, ob dieses Kapitel der Konsens- & Sicherheits-Konfigurator ist (z. B. Kapitel 29 oder nach Logistik-Auslagerung)
+  if (ch.id === 29) {
+    html += renderSafetyConfiguratorUI();
+  }
+
+  regularItems.forEach(rawIt => {
     const it = getDynamicItem(rawIt, currentUser);
-    const keyR1 = `it_${it.id}_r1`;
-    const keyR2 = `it_${it.id}_r2`;
-    const keyChoice = `it_${it.id}_choice`;
-
-    const valR1 = answers[currentUser]?.[keyR1];
-    const valR2 = answers[currentUser]?.[keyR2];
-    const valChoice = answers[currentUser]?.[keyChoice];
-    const noteVal = notes[currentUser]?.[it.id] || '';
-    const isShame = !!shameFlags[currentUser]?.[it.id];
-
-    const shameBtnHtml = `
-      <button type="button" onclick="toggleShameFlag(${it.id}, this)" class="text-[10px] font-bold px-2 py-0.5 rounded-lg border transition ${isShame ? 'bg-purple-100 border-purple-400 text-purple-900 shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}" title="Aktivieren, wenn dir dieser Wunsch verletzlich/schambehaftet ist">
-        ${isShame ? '❤️‍🔥 Hoher Reiz, aber schambelastet' : '🙈 Hemmschwelle'}
-      </button>
-    `;
-
-    if (it.type === 'choice') {
-      html += `
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-              <div class="flex items-center gap-1.5">
-                ${shameBtnHtml}
-                <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10px] text-brand-600 dark:text-brand-400 hover:underline font-bold px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800">📖 Lexikon</button>
-              </div>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-            <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 choice-buttons-group">
-            ${(it.options || []).map(opt => {
-              const isChecked = (valChoice === opt.val);
-              return `
-                <button type="button" onclick="recordChoiceAnswer(${it.id}, '${opt.val}', this)" data-val="${opt.val}"
-                        class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
-                  ${opt.label}
-                </button>
-              `;
-            }).join('')}
-          </div>
-          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-      `;
-    } else {
-      html += `
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-              <div class="flex items-center gap-1.5">
-                ${shameBtnHtml}
-                <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10px] text-brand-600 dark:text-brand-400 hover:underline font-bold px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800">📖 Lexikon</button>
-              </div>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR1}">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
-              <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR1)}</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1 scale-buttons-row">
-              ${[0, 1, 2, 3, 4, 5].map(sc => `
-                <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                  ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR2}">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
-              <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR2)}</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1 scale-buttons-row">
-              ${[0, 1, 2, 3, 4, 5].map(sc => `
-                <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                  ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-
-          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Vorwarnung')..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-      `;
-    }
+    html += renderItemCardHtml(it);
   });
+
+  // Hinzugefügte eigene Kinks für dieses Kapitel rendern
+  chapterCustoms.forEach(cKink => {
+    html += renderCustomKinkCardHtml(cKink);
+  });
+
+  // Am Kapitelende: Dezente Reflexionsbox & unaufdringliche Karte für eigene Kinks
+  html += `
+    <div class="pt-2 space-y-3">
+      <!-- 1. Einklappbare, optionale Gedanken-Reflexion -->
+      <details class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs text-xs">
+        <summary class="font-bold text-slate-700 cursor-pointer flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span>💬</span> Persönliche Notiz zu Kapitel ${ch.id} notieren (optional)
+          </span>
+          <span class="text-[10px] text-slate-400 font-normal">Klicken zum Öffnen</span>
+        </summary>
+        <div class="mt-2.5 space-y-1.5">
+          <p class="text-[11px] text-slate-500">Halte hier Gedanken, frühere Erfahrungen oder Bedingungen fest, die dir bei diesem Themenbereich wichtig sind:</p>
+          <textarea rows="2" onchange="recordChapterReflection(${ch.id}, this.value)" placeholder="Deine Gedanken zu ${escapeHtml(ch.title)}..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">${escapeHtml(chapterReflections[currentUser]?.[ch.id] || '')}</textarea>
+        </div>
+      </details>
+
+      <!-- 2. Dezente Karte für eigene Kinks -->
+      <div class="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-3 text-center space-y-2">
+        <span class="text-[11px] text-slate-500 block">Fehlt dir in diesem Kapitel eine persönliche Vorliebe oder Fantasie?</span>
+        <button type="button" onclick="openAddCustomKinkModal(${ch.id})" class="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-xs transition touch-pill">
+          ➕ Einen eigenen Kink zu Kapitel ${ch.id} hinzufügen
+        </button>
+      </div>
+    </div>
+  `;
 
   container.innerHTML = html;
   if (shouldScroll) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+}
+
+function renderItemCardHtml(it) {
+  const keyR1 = `it_${it.id}_r1`;
+  const keyR2 = `it_${it.id}_r2`;
+  const keyChoice = `it_${it.id}_choice`;
+
+  const valR1 = answers[currentUser]?.[keyR1];
+  const valR2 = answers[currentUser]?.[keyR2];
+  const valChoice = answers[currentUser]?.[keyChoice];
+  const noteVal = notes[currentUser]?.[it.id] || '';
+  const isShame = !!shameFlags[currentUser]?.[it.id];
+
+  const shameBtnHtml = `
+    <button type="button" onclick="toggleShameFlag(${it.id}, this)" class="text-[10px] font-bold px-2 py-0.5 rounded-lg border transition ${isShame ? 'bg-purple-100 border-purple-400 text-purple-900 shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}" title="Aktivieren, wenn dir dieser Wunsch verletzlich/schambehaftet ist">
+      ${isShame ? '❤️‍🔥 Hoher Reiz, aber schambelastet' : '🙈 Hemmschwelle'}
+    </button>
+  `;
+
+  if (it.type === 'choice') {
+    return `
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
+            <div class="flex items-center gap-1.5">
+              ${shameBtnHtml}
+              <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10px] text-brand-600 dark:text-brand-400 hover:underline font-bold px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800">📖 Lexikon</button>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
+          <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 choice-buttons-group">
+          ${(it.options || []).map(opt => {
+            const isChecked = (valChoice === opt.val);
+            return `
+              <button type="button" onclick="recordChoiceAnswer(${it.id}, '${opt.val}', this)" data-val="${opt.val}"
+                      class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
+                ${opt.label}
+              </button>
+            `;
+          }).join('')}
+        </div>
+        <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
+      </div>
+    `;
+  }
+
+  return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+      <div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
+          <div class="flex items-center gap-1.5">
+            ${shameBtnHtml}
+            <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10px] text-brand-600 dark:text-brand-400 hover:underline font-bold px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800">📖 Lexikon</button>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
+      </div>
+
+      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR1}">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">${escapeHtml(it.r1)}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR1)}</span>
+        </div>
+        <div class="grid grid-cols-6 gap-1 scale-buttons-row">
+          ${[0, 1, 2, 3, 4, 5].map(sc => `
+            <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+              ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5" data-scale-key="${keyR2}">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">${escapeHtml(it.r2)}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR2)}</span>
+        </div>
+        <div class="grid grid-cols-6 gap-1 scale-buttons-row">
+          ${[0, 1, 2, 3, 4, 5].map(sc => `
+            <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+              ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Vorwarnung')..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
+    </div>
+  `;
+}
+
+function renderCustomKinkCardHtml(cKink) {
+  const keyR1 = `custom_${cKink.id}_r1`;
+  const keyR2 = `custom_${cKink.id}_r2`;
+  const valR1 = answers[currentUser]?.[keyR1];
+  const valR2 = answers[currentUser]?.[keyR2];
+  const isShame = !!shameFlags[currentUser]?.[cKink.id];
+
+  return `
+    <div class="bg-indigo-50/50 border border-indigo-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+      <div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-extrabold text-xs text-indigo-950 flex items-center gap-1.5">
+            <span>✨</span> ${escapeHtml(cKink.title)}
+            <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-indigo-100 text-indigo-800 uppercase">Eigener Kink</span>
+          </span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="toggleShameFlag('${cKink.id}', this)" class="text-[10px] font-bold px-2 py-0.5 rounded-lg border transition ${isShame ? 'bg-purple-100 border-purple-400 text-purple-900 shadow-xs' : 'bg-white border-slate-200 text-slate-500'}">
+              ${isShame ? '❤️‍🔥 Hoher Reiz, aber schambelastet' : '🙈 Hemmschwelle'}
+            </button>
+            <button type="button" onclick="deleteCustomKink('${cKink.id}')" class="text-[10px] text-rose-600 hover:underline">Löschen</button>
+          </div>
+        </div>
+        <p class="text-[11px] text-indigo-900/80 mt-0.5">${escapeHtml(cKink.desc || '')}</p>
+      </div>
+
+      <div class="p-2.5 rounded-xl bg-white border border-indigo-100 space-y-1.5" data-scale-key="${keyR1}">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">${escapeHtml(cKink.r1 || 'Aktiv / Top ausführen')}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR1)}</span>
+        </div>
+        <div class="grid grid-cols-6 gap-1 scale-buttons-row">
+          ${[0, 1, 2, 3, 4, 5].map(sc => `
+            <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}">
+              ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="p-2.5 rounded-xl bg-white border border-indigo-100 space-y-1.5" data-scale-key="${keyR2}">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-slate-800">${escapeHtml(cKink.r2 || 'Passiv / Bottom empfangen')}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-500 scale-label">${getPillLabel(valR2)}</span>
+        </div>
+        <div class="grid grid-cols-6 gap-1 scale-buttons-row">
+          ${[0, 1, 2, 3, 4, 5].map(sc => `
+            <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc}, this)" data-score="${sc}" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}">
+              ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSafetyConfiguratorUI() {
+  const currentCfg = safetyConfig[currentUser] || {};
+  let out = `
+    <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-200 text-xs space-y-4 mb-4 shadow-xs">
+      <div class="border-b border-teal-200/80 pb-2.5">
+        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-teal-600 text-white uppercase tracking-wider">Konsens- & Sicherheits-Konfigurator</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-teal-950 mt-1">Eure gemeinsame Sicherheits-Architektur</h3>
+        <p class="text-[11px] text-teal-900/80 leading-relaxed mt-0.5">
+          Sicherheitsmechanismen und Fürsorge sind keine 0–5-Vorlieben. Wähle hier mit einem Klick deine bevorzugte Methode in den 5 Schlüsselbereichen. Das System ermittelt automatisch euren harmonischen Kodex.
+        </p>
+      </div>
+
+      <div class="space-y-3.5">
+  `;
+
+  Object.keys(safetyOptionsDefinition).forEach(areaKey => {
+    const area = safetyOptionsDefinition[areaKey];
+    const userVal = currentCfg[areaKey];
+    out += `
+      <div class="p-3 bg-white rounded-xl border border-teal-100 space-y-2">
+        <div>
+          <strong class="text-xs font-bold text-slate-900 block">${area.title}</strong>
+          <span class="text-[10.5px] text-slate-500">${area.desc}</span>
+        </div>
+        <div class="grid grid-cols-1 gap-1.5">
+          ${area.options.map(opt => {
+            const isSelected = (userVal === opt.val);
+            return `
+              <button type="button" onclick="recordSafetyChoice('${areaKey}', '${opt.val}')" class="p-2 rounded-lg border text-left text-xs transition touch-pill ${isSelected ? 'bg-teal-50 border-teal-600 text-teal-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
+                ${opt.label}
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  out += `</div></div>`;
+  return out;
+}
+
+function recordSafetyChoice(areaKey, val) {
+  if (!safetyConfig[currentUser]) safetyConfig[currentUser] = {};
+  safetyConfig[currentUser][areaKey] = val;
+  saveToLocalStorage();
+  renderCurrentChapter(false);
+  showToast("Sicherheits-Einstellung gespeichert!");
+}
+
+function recordChapterReflection(chId, text) {
+  if (!chapterReflections[currentUser]) chapterReflections[currentUser] = {};
+  chapterReflections[currentUser][chId] = text.trim();
+  saveToLocalStorage();
+}
+
+function openAddCustomKinkModal(chId) {
+  const title = prompt("Titel deines eigenen Kinks:");
+  if (!title || !title.trim()) return;
+  const desc = prompt("Kurze Beschreibung (optional):") || "";
+  const r1 = prompt("Aktive Rolle (z. B. 'Den Partner fesseln'):") || "Aktiv / Führend";
+  const r2 = prompt("Passive Rolle (z. B. 'Gefesselt werden'):") || "Passiv / Empfangend";
+
+  const newKink = {
+    id: 'custom_' + Date.now(),
+    chapterId: chId,
+    title: title.trim(),
+    desc: desc.trim(),
+    r1: r1.trim(),
+    r2: r2.trim(),
+    creator: currentUser
+  };
+
+  customKinks.push(newKink);
+  saveToLocalStorage();
+  renderCurrentChapter(false);
+  showToast("Eigener Kink hinzugefügt und bewertbar!");
+}
+
+function deleteCustomKink(kinkId) {
+  if (!confirm("Diesen eigenen Kink wirklich löschen?")) return;
+  customKinks = customKinks.filter(k => k.id !== kinkId);
+  delete answers.A[`custom_${kinkId}_r1`];
+  delete answers.A[`custom_${kinkId}_r2`];
+  delete answers.B[`custom_${kinkId}_r1`];
+  delete answers.B[`custom_${kinkId}_r2`];
+  saveToLocalStorage();
+  renderCurrentChapter(false);
+  showToast("Eigener Kink gelöscht.");
 }
 
 function toggleShameFlag(itemId, btnEl) {
@@ -764,7 +1015,7 @@ function toggleShameFlag(itemId, btnEl) {
     if (current) {
       btnEl.className = "text-[10px] font-bold px-2 py-0.5 rounded-lg border transition bg-purple-100 border-purple-400 text-purple-900 shadow-xs";
       btnEl.innerText = "❤️‍🔥 Hoher Reiz, aber schambelastet";
-      showToast("Als schambelastete Fantasie markiert (Wird in der Analyse behutsam geschützt)");
+      showToast("Als schambelastete Fantasie markiert (Wird in der wissenschaftlichen Analyse geschützt)");
     } else {
       btnEl.className = "text-[10px] font-bold px-2 py-0.5 rounded-lg border transition bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100";
       btnEl.innerText = "🙈 Hemmschwelle";
@@ -900,6 +1151,7 @@ function updateProgressBar() {
   chapters.forEach(c => {
     totalItems += (c.items || []).length;
   });
+  totalItems += customKinks.length;
 
   const uAnswers = answers[currentUser] || {};
   let answeredItems = 0;
@@ -916,12 +1168,18 @@ function updateProgressBar() {
     });
   });
 
+  customKinks.forEach(ck => {
+    const v1 = uAnswers[`custom_${ck.id}_r1`];
+    const v2 = uAnswers[`custom_${ck.id}_r2`];
+    if (v1 !== undefined || v2 !== undefined) answeredItems++;
+  });
+
   const pct = totalItems > 0 ? Math.min(100, Math.round((answeredItems / totalItems) * 100)) : 0;
   const fill = document.getElementById('progress-bar-fill');
   const txt = document.getElementById('progress-text');
 
   if (fill) fill.style.width = `${pct}%`;
-  if (txt) txt.innerText = `Fortschritt: ${pct} % (${answeredItems}/${totalItems || 635} Praktiken bewertet)`;
+  if (txt) txt.innerText = `Fortschritt: ${pct} % (${answeredItems}/${totalItems} Praktiken bewertet)`;
 }
 
 function updateTabuBadge() {
@@ -952,11 +1210,22 @@ function renderSingleAnalysis() {
   let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
   let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
 
+  let totalTopScore = 0, totalBottomScore = 0;
+  let countTop = 0, countBottom = 0;
+
   const allChapters = window.surveyChapters || [];
   allChapters.forEach(ch => {
     (ch.items || []).forEach(it => {
       const v1 = uAnswers[`it_${it.id}_r1`];
       const v2 = uAnswers[`it_${it.id}_r2`];
+      if (typeof v1 === 'number') {
+        totalTopScore += v1;
+        countTop++;
+      }
+      if (typeof v2 === 'number') {
+        totalBottomScore += v2;
+        countBottom++;
+      }
       const addScore = (val) => {
         if (typeof val === 'number') {
           if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
@@ -971,11 +1240,30 @@ function renderSingleAnalysis() {
     });
   });
 
-  setBar('power', countPower > 0 ? Math.round((pPower / countPower) * 100) : 0);
-  setBar('sensation', countSensation > 0 ? Math.round((pSensation / countSensation) * 100) : 0);
-  setBar('nurturing', countNurturing > 0 ? Math.round((pNurturing / countNurturing) * 100) : 0);
-  setBar('thrill', countThrill > 0 ? Math.round((pThrill / countThrill) * 100) : 0);
-  setBar('visual', countVisual > 0 ? Math.round((pVisual / countVisual) * 100) : 0);
+  const pctPower = countPower > 0 ? Math.round((pPower / countPower) * 100) : 0;
+  const pctSensation = countSensation > 0 ? Math.round((pSensation / countSensation) * 100) : 0;
+  const pctNurturing = countNurturing > 0 ? Math.round((pNurturing / countNurturing) * 100) : 0;
+  const pctThrill = countThrill > 0 ? Math.round((pThrill / countThrill) * 100) : 0;
+  const pctVisual = countVisual > 0 ? Math.round((pVisual / countVisual) * 100) : 0;
+
+  setBar('power', pctPower);
+  setBar('sensation', pctSensation);
+  setBar('nurturing', pctNurturing);
+  setBar('thrill', pctThrill);
+  setBar('visual', pctVisual);
+
+  // Tiefenpsychologisches Gutachten generieren
+  renderScientificInterpretationText({
+    user: currentUser,
+    pctPower,
+    pctSensation,
+    pctNurturing,
+    pctThrill,
+    pctVisual,
+    avgTop: countTop > 0 ? (totalTopScore / countTop) : 0,
+    avgBottom: countBottom > 0 ? (totalBottomScore / countBottom) : 0,
+    shameCount: Object.keys(shameFlags[currentUser] || {}).length
+  });
 
   let high5 = [];
   let tabus = [];
@@ -1007,6 +1295,69 @@ function renderSingleAnalysis() {
   }
 
   renderSingleRadar();
+}
+
+function renderScientificInterpretationText(metrics) {
+  const box = document.getElementById('single-interpretation-box');
+  if (!box) return;
+
+  const isSubDominant = metrics.avgBottom > metrics.avgTop;
+  const isTopDominant = metrics.avgTop > metrics.avgBottom;
+  const isSwitch = Math.abs(metrics.avgTop - metrics.avgBottom) < 0.4;
+
+  let neuroText = "";
+  if (isSubDominant) {
+    neuroText = `Dein Profil zeigt ein ausgeprägtes Bedürfnis nach Hingabe und Reizabgabe. Neurologisch entspricht dieser Zustand der <strong>transienten Hypofrontalität (Sagarin et al., 2009; Ambler et al., 2017)</strong>: Das gezielte Herunterfahren des präfrontalen Kortex entlastet dich vom ständigen Alltags-Planen, Zweifeln und Entscheiden. Durch Reizstress und Endorphin-Ausschüttung (Wuyts et al., 2021) gleitet dein Nervensystem in einen Zustand tiefer, angstfreier Entspannung (<em>Subspace</em>).`;
+  } else if (isTopDominant) {
+    neuroText = `Deine Lust an Führung und Verantwortung ist kein Kontrollzwang, sondern der Eintritt in einen hochfokussierten <strong>Flow-Zustand / Topspace (Wismeijer & van Assen, 2013)</strong>. Dein Gehirn schöpft Belohnung (Dopamin) aus Empathie-Synchronisation: Das exakte Lesen der Mikrosignale deines Partners und das verlässliche Tragen des gemeinsamen Rahmens.`;
+  } else {
+    neuroText = `Du bist ein klassischer <strong>Switch</strong> mit hoher psychologischer Flexibilität. Du kannst mühelos zwischen empathischer Führungsverantwortung (Topspace) und kognitiver Entlastung (Subspace) wechseln, je nachdem, was dein Nervensystem am jeweiligen Tag als Ausgleich braucht.`;
+  }
+
+  let sensoryText = "";
+  if (metrics.pctSensation >= 40) {
+    sensoryText = `Dein hoher Wert bei Sensorik & Schmerz (${metrics.pctSensation} %) erklärt sich über die <strong>körpereigene Opiat-Kompensation (Klement et al., 2016)</strong>: Dumpfe oder scharfe Hautreize beantwortet dein Körper mit Endorphinen und Endocannabinoiden. In einem sicheren, liebevollen Rahmen wird dieser somatische Stress nicht als Bedrohung, sondern als wohlige Wärme und seelische Katharsis erlebt.`;
+  }
+
+  let attachmentText = "";
+  if (metrics.pctNurturing >= 45) {
+    attachmentText = `Dein hoher Fürsorge- & Geborgenheits-Score (${metrics.pctNurturing} %) spiegelt nach <strong>Mikulincer & Shaver (2007)</strong> ein Bedürfnis nach Bindungssicherheit wider: <em>Praise Play</em> und liebevolle Rituale fungieren als heilender Schutzraum vor emotionaler Zurückweisung.`;
+  }
+
+  let shameText = "";
+  if (metrics.shameCount > 0) {
+    shameText = `Du hast <strong>${metrics.shameCount} Praktiken als schambelastet (🙈)</strong> markiert. Nach <strong>Canivet et al. (2025)</strong> und <strong>Tangney & Dearing (2002)</strong> berührt erotische Scham verletzliche Kernbereiche des Selbstwertgefühls. Das behutsame Teilen dieser Wünsche mit einem verlässlichen Partner ohne Verurteilung führt nachweislich zur stärksten emotionalen Entlastung.`;
+  }
+
+  box.innerHTML = `
+    <div class="space-y-2 leading-relaxed">
+      <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+        <strong class="text-indigo-900 dark:text-indigo-300 font-bold block">🧠 1. Neurobiologische Funktionsweise im Kopf:</strong>
+        <p class="text-[11px] text-slate-700 dark:text-slate-300">${neuroText}</p>
+      </div>
+
+      ${sensoryText ? `
+        <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+          <strong class="text-rose-900 dark:text-rose-300 font-bold block">🔥 2. Somatische Katharsis & Reizverarbeitung:</strong>
+          <p class="text-[11px] text-slate-700 dark:text-slate-300">${sensoryText}</p>
+        </div>
+      ` : ''}
+
+      ${attachmentText ? `
+        <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+          <strong class="text-teal-900 dark:text-teal-300 font-bold block">🛡️ 3. Bindungsmuster & Geborgenheit:</strong>
+          <p class="text-[11px] text-slate-700 dark:text-slate-300">${attachmentText}</p>
+        </div>
+      ` : ''}
+
+      ${shameText ? `
+        <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/80 space-y-1">
+          <strong class="text-purple-900 dark:text-purple-300 font-bold block">❤️‍🔥 4. Erotische Scham-Resilienz & Verletzlichkeit:</strong>
+          <p class="text-[11px] text-purple-950 dark:text-purple-200">${shameText}</p>
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function setBar(id, pct) {
@@ -1162,7 +1513,7 @@ function selectAccountAnatomy(forWhom, type) {
     setAnatomy(otherUser, type);
   }
   updateAccountAnatomyUI();
-  showToast("Anatomie & hetero-dynamische Rollen aktualisiert!");
+  showToast("Anatomie & Rollen aktualisiert!");
 }
 
 function closeAccountModal() {
@@ -1216,6 +1567,7 @@ function resetCurrentUserProfile() {
   answers[u] = {};
   notes[u] = {};
   shameFlags[u] = {};
+  chapterReflections[u] = {};
   names[u] = (u === 'A') ? 'Partner 1' : 'Partner 2';
   if (accounts[u]) accounts[u].setupDone = false;
   
@@ -1242,6 +1594,7 @@ function generateRandomTestData() {
   answers = { A: {}, B: {} };
   notes = { A: {}, B: {} };
   shameFlags = { A: {}, B: {} };
+  chapterReflections = { A: {}, B: {} };
 
   chapters.forEach(ch => {
     (ch.items || []).forEach(it => {
@@ -1414,6 +1767,9 @@ function getLiveShareUrl() {
     answers: answers,
     notes: notes,
     shameFlags: shameFlags,
+    chapterReflections: chapterReflections,
+    customKinks: customKinks,
+    safetyConfig: safetyConfig,
     names: names,
     anatomy: anatomy,
     privacy: privacy,
@@ -1546,7 +1902,7 @@ function filterLexikon(q) {
       `).join('')
     : `
         <div class="text-center py-4 space-y-2">
-          <p class="text-slate-400 italic text-xs">Kein weiterer allgemeiner A–Z Begriff für „${escapeHtml(q)}“ gefunden.</p>
+          <p class="text-slate-400 italic text-xs">Kein Begriff für „${escapeHtml(q)}“ gefunden.</p>
           <button type="button" onclick="window.activeLexikonItemContext = null; filterLexikon(''); document.getElementById('lexikon-search-input').value='';" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300">
             Alle A–Z Begriffe anzeigen
           </button>
