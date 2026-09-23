@@ -3,18 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Session-Begleiter & Schlafzimmer-Zentrale</title>
+  <title>Session-Begleiter & Schlafzimmer-Cockpit</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    (function() {
-      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    })();
-
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -28,601 +19,316 @@
               600: '#e11d48',
               700: '#be123c',
               800: '#9f1239',
+              900: '#881337',
               950: '#4c0519',
             },
-            obsidian: {
+            noir: {
               950: '#000000',
-              900: '#05070c',
-              850: '#0a0e17',
-              800: '#0f1523',
-              700: '#151c2e',
-              600: '#1e293b'
+              900: '#06080d',
+              850: '#0c1017',
+              800: '#121722',
+              700: '#1a2232',
+              600: '#26334a',
             }
           }
         }
       }
-    }
+    };
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-    
-    :root {
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
-    }
-
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
-      padding-left: var(--safe-left);
-      padding-right: var(--safe-right);
+      background-color: #000000;
+      color: #f8fafc;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
     }
-
-    html.dark body {
-      background-color: #05070c !important;
-      color: #f8fafc !important;
+    
+    .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+    .touch-pill:active { transform: scale(0.96); }
+    
+    .session-card {
+      background-color: #090d15;
+      border: 1px solid #1a2336;
     }
-    html.dark .session-card {
-      background-color: #0c101a !important;
-      border-color: #1a2336 !important;
-      color: #f8fafc !important;
+    .session-panel {
+      background-color: #0f1624;
+      border: 1px solid #222f47;
     }
-    html.dark .session-panel {
-      background-color: #111726 !important;
-      border-color: #1f2b42 !important;
-      color: #e2e8f0 !important;
+    
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
-
-    html:not(.dark) body {
-      background-color: #f8fafc !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .session-card {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    html:not(.dark) .session-panel {
-      background-color: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
-      color: #1e293b !important;
-    }
-
-    .oled-mode body {
-      background-color: #000000 !important;
-    }
-    .oled-mode .session-card,
-    .oled-mode .session-panel {
-      background-color: #040404 !important;
-      border-color: #181818 !important;
-    }
-
-    .touch-pill {
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .touch-pill:active {
-      transform: scale(0.96);
+    .animate-pulse-subtle {
+      animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white overflow-x-hidden">
 
-  <!-- SPERRBILDSCHIRM (PASSWORT) -->
-  <div id="site-lockscreen" class="fixed inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
-      <div class="w-16 h-16 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-2xl shadow-inner">
-        🔒
-      </div>
-      <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Session-Begleiter gesperrt</h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Bitte gib das vereinbarte Zugangspasswort ein, um das Schlafzimmer-Cockpit zu öffnen.
-        </p>
-      </div>
-      <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." 
-               onkeydown="if(event.key==='Enter') verifySitePassword()"
-               class="w-full text-center px-4 py-3 session-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill">
-          Entsperren & Fortfahren
-        </button>
-        <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-      <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
-        🛡️ <strong>100 % Lokale Sicherheit:</strong> Daten verbleiben auf deinem Gerät.
-      </div>
-    </div>
-  </div>
-
-  <!-- SPERRBILDSCHIRM (FRAGEBOGEN NOCH NICHT AUSGEFÜLLT) -->
-  <div id="gate-survey-incomplete" class="hidden fixed inset-0 z-[148] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-rose-500/40 text-center space-y-5">
-      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center text-3xl shadow-inner">
+  <!-- NOTFALL-LAMPE & ANWEISUNGEN BEI ROT -->
+  <div id="red-emergency-screen" class="hidden fixed inset-0 z-[150] bg-amber-50 text-slate-950 p-6 flex flex-col justify-between items-center text-center overflow-y-auto">
+    <div class="max-w-md w-full space-y-4 pt-6">
+      <div class="w-16 h-16 rounded-full bg-rose-600 text-white text-3xl font-black mx-auto flex items-center justify-center shadow-lg">
         🛑
-      </div>
-      <div class="space-y-2">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Fragebogen noch nicht ausgefüllt</h2>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Der Session-Begleiter schützt euch im Schlafzimmer aktiv vor Grenzüberschreitungen. Um die Session, den Timer und die Werkzeuge zu nutzen, müssen eure Schutzgrenzen, Tabus und Sicherheitsregeln im Fragebogen erfasst werden!
-        </p>
-      </div>
-      <div class="p-3.5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-[11px] text-rose-200 text-left space-y-1.5">
-        <strong class="block font-bold text-rose-300">🛡️ Warum ist das unerlässlich?</strong>
-        <p>• Euer verbindlicher Sicherheits-Kodex (Safeword & Knebel-Signal)</p>
-        <p>• Trennung von Top-Tabus (Aktiv) und Bottom-Tabus (Passiv)</p>
-        <p>• Passgenaue Disziplinierungen statt unpassender Strafen</p>
-      </div>
-      <a href="index.html" class="block w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm shadow-md transition touch-pill text-center">
-        Jetzt zum Fragebogen wechseln →
-      </a>
-    </div>
-  </div>
-
-  <!-- HEADER -->
-  <header class="sticky top-0 z-40 session-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2 shadow-sm">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
-      
-      <!-- Brand & Name -->
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="1.5" fill="#f43f5e" />
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Session-Begleiter</h1>
-            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">Live</span>
-          </div>
-          <span class="text-[9.5px] sm:text-[10px] text-slate-400 font-medium block mt-0.5">Schlafzimmer-Cockpit</span>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-1.5">
-        <!-- Schnelltaste Sicherheits-Kodex -->
-        <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-2 bg-teal-950/40 hover:bg-teal-900/60 text-teal-300 font-bold rounded-xl text-xs border border-teal-800/80 flex items-center gap-1 transition touch-pill" title="Unser Sicherheits-Kodex">
-          <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
-        </button>
-
-        <!-- Schnelltaste Tabus -->
-        <button onclick="openSessionTabuModal()" class="px-2.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl text-xs border border-rose-800/80 flex items-center gap-1 transition touch-pill" title="Gemeinsame Tabus (Note 1)">
-          <span>⛔</span> <span class="hidden sm:inline text-[11px]">Tabus</span> (<span id="header-tabu-count">0</span>)
-        </button>
-
-        <!-- Burger Menü Button -->
-        <button onclick="openBurgerMenu()" id="btn-burger-open" class="w-10 h-10 rounded-xl session-panel hover:border-brand-500 border text-slate-200 hover:text-white font-black text-lg flex items-center justify-center transition touch-pill" title="Menü & Werkzeuge öffnen" aria-label="Menü">
-          ☰
-        </button>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- SLIDE-OVER DRAWER (BURGER-MENÜ) -->
-  <div id="drawer-burger-menu" class="hidden fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex justify-end">
-    <div class="max-w-xs sm:max-w-sm w-full h-full session-card border-l p-5 space-y-5 overflow-y-auto flex flex-col justify-between shadow-2xl">
-      
-      <div class="space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xl">🛠️</span>
-            <div>
-              <h3 class="text-sm font-black text-white">Cockpit & Werkzeuge</h3>
-              <span class="text-[10px] text-slate-400">Direktzugriff für das Schlafzimmer</span>
-            </div>
-          </div>
-          <button onclick="closeBurgerMenu()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center text-sm">✕</button>
-        </div>
-
-        <!-- Sicherheits-Kodex Schnelltaste im Drawer -->
-        <div class="p-3 rounded-2xl bg-teal-950/40 border border-teal-800/80 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <strong class="text-xs font-bold text-teal-200 flex items-center gap-1.5">
-              <span>📜</span> Euer Sicherheits-Kodex
-            </strong>
-            <button onclick="openSessionSafetyCodexModal(); closeBurgerMenu();" class="text-[10px] text-teal-300 underline font-bold">Öffnen ↗</button>
-          </div>
-          <p class="text-[10.5px] text-slate-300 leading-tight">
-            Eure im Konfigurator vereinbarten Safewords, Notfallgesten und Aftercare-Schwerpunkte.
-          </p>
-        </div>
-
-        <!-- 4 Schlafzimmer-Werkzeuge -->
-        <div class="space-y-2">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Spezial-Werkzeuge</span>
-          <div class="grid grid-cols-1 gap-2 text-xs">
-            <button onclick="toggleEdgingToolPanel(); closeBurgerMenu();" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-left flex items-center gap-3 touch-pill">
-              <span class="text-2xl">⏱️</span>
-              <div>
-                <strong class="text-brand-200 block font-bold text-xs">Edge-Counter & Countdown</strong>
-                <span class="text-[10px] text-slate-400 block leading-tight">Zähler & variabler Orgasmus-Countdown</span>
-              </div>
-            </button>
-
-            <button onclick="openZenBreathingModal(); closeBurgerMenu();" class="p-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/80 text-left flex items-center gap-3 touch-pill">
-              <span class="text-2xl">🫁</span>
-              <div>
-                <strong class="text-teal-200 block font-bold text-xs">4/7/8 Atem-Taktkreis</strong>
-                <span class="text-[10px] text-slate-400 block leading-tight">Vagusnerv-Entspannung mit Zen-Ring</span>
-              </div>
-            </button>
-
-            <button onclick="triggerWhisperPrompt(); closeBurgerMenu();" class="p-3 rounded-2xl bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/80 text-left flex items-center gap-3 touch-pill">
-              <span class="text-2xl">💬</span>
-              <div>
-                <strong class="text-purple-200 block font-bold text-xs">Flüster-Impuls</strong>
-                <span class="text-[10px] text-slate-400 block leading-tight">Zärtlicher Dirty Talk ins Ohr</span>
-              </div>
-            </button>
-
-            <button onclick="openDiscreetBedsideClock(); closeBurgerMenu();" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex items-center gap-3 touch-pill">
-              <span class="text-2xl">🕰️</span>
-              <div>
-                <strong class="text-slate-200 block font-bold text-xs">Nachttisch-Uhr</strong>
-                <span class="text-[10px] text-slate-400 block leading-tight">Unauffällige Tarnung bei Störung</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <!-- Ambiente & Schalter -->
-        <div class="space-y-2 pt-2 border-t border-slate-800">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ambiente & Schalter</span>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <button onclick="toggleBlackout(); closeBurgerMenu();" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
-              <span class="block text-base">👁️‍🗨️</span>
-              <strong class="block text-[11px] text-slate-200">Sofort-Blackout</strong>
-            </button>
-
-            <button onclick="toggleSound()" id="drawer-btn-sound" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
-              <span class="block text-base" id="drawer-sound-icon">🔔</span>
-              <strong class="block text-[11px] text-slate-200" id="drawer-sound-text">Gong: Aktiv</strong>
-            </button>
-
-            <button onclick="toggleOledMode()" class="p-2.5 rounded-xl session-panel hover:border-amber-600 border text-left touch-pill">
-              <span class="block text-base">🖤</span>
-              <strong class="block text-[11px] text-slate-200">OLED Pure Black</strong>
-            </button>
-
-            <button onclick="toggleGlobalTheme()" class="p-2.5 rounded-xl session-panel hover:border-slate-500 border text-left touch-pill">
-              <span class="block text-base" id="drawer-theme-icon">🌙</span>
-              <strong class="block text-[11px] text-slate-200" id="drawer-theme-text">Tag/Nacht</strong>
-            </button>
-          </div>
-        </div>
-
-        <!-- Verknüpfte Bereiche -->
-        <div class="space-y-2 pt-2 border-t border-slate-800">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Verknüpfte Bereiche</span>
-          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-            <a href="index.html" class="p-2.5 rounded-xl session-panel hover:border-brand-600 border flex items-center gap-2 text-slate-200 hover:text-white">
-              <span>🧭</span> <span>Fragebogen</span>
-            </a>
-            <a href="analyse.html" class="p-2.5 rounded-xl session-panel hover:border-brand-600 border flex items-center gap-2 text-slate-200 hover:text-white">
-              <span>📊</span> <span>Paar-Analyse</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-slate-800 text-center">
-        <button onclick="closeBurgerMenu()" class="w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-pill">
-          Schließen & Zurück zur Session
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL: SICHERHEITS- & KONSENS-KODEX -->
-  <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[125] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-lg w-full session-card p-5 sm:p-6 rounded-3xl border border-teal-500/40 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-teal-500/30 pb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">📜</span>
-          <div>
-            <h3 class="text-sm sm:text-base font-black text-teal-300">Unser verbindlicher Sicherheits-Kodex</h3>
-            <span class="text-[10px] text-slate-400">Eure gemeinsamen Absprachen aus dem Konfigurator</span>
-          </div>
-        </div>
-        <button onclick="closeSessionSafetyCodexModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
-      </div>
-
-      <div id="session-safety-codex-content" class="space-y-2 text-xs">
-        <p class="text-slate-400 italic text-center py-4">Lade Sicherheits-Kodex...</p>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeSessionSafetyCodexModal()" class="px-4 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-white font-bold text-xs transition touch-pill">
-          Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: 4/7/8 ATEM-TAKTGEBER -->
-  <div id="modal-zen-breathing" class="hidden fixed inset-0 z-[125] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-xs w-full session-card p-6 rounded-3xl border border-teal-500/40 text-center space-y-5 shadow-2xl">
-      <div class="flex justify-between items-center">
-        <span class="text-xs font-bold text-teal-300 uppercase tracking-wider">Vagusnerv-Entspannung</span>
-        <button onclick="closeZenBreathingModal()" class="w-6 h-6 rounded-lg session-panel border text-slate-400 hover:text-white text-xs">✕</button>
-      </div>
-      
-      <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
-        <div id="zen-breathe-ring" class="w-36 h-36 rounded-full bg-teal-500/20 border-2 border-teal-400/80 transition-all duration-1000 flex items-center justify-center shadow-lg shadow-teal-500/20">
-          <span id="zen-breathe-text" class="text-sm font-black text-white">Einatmen (4s)</span>
-        </div>
-      </div>
-
-      <p class="text-[11px] text-slate-300 leading-relaxed">
-        Gemeinsam im Takt des Rings atmen: 4s Einatmen, 7s Halten, 8s Ausatmen.
-      </p>
-
-      <button onclick="closeZenBreathingModal()" class="w-full py-2 session-panel border text-slate-300 hover:text-white rounded-xl text-xs font-bold">
-        Schließen & Weiter
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL: DISKRETE NACHTTISCH-UHR -->
-  <div id="modal-bedside-clock" onclick="closeDiscreetBedsideClock()" class="hidden fixed inset-0 z-[145] bg-black text-slate-600 flex flex-col items-center justify-center cursor-pointer select-none">
-    <div class="text-6xl sm:text-8xl font-mono font-bold tracking-tight text-slate-700" id="bedside-clock-time">00:00:00</div>
-    <span class="text-slate-800 text-xs font-mono mt-3">Tippen zum Enttarnen</span>
-  </div>
-
-  <!-- MODAL: GEMEINSAME TABU-LISTE -->
-  <div id="modal-session-tabus" class="hidden fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-lg w-full session-card p-5 rounded-3xl border border-rose-500/40 space-y-3.5 shadow-2xl max-h-[85vh] flex flex-col justify-between">
-      <div class="flex items-center justify-between border-b border-rose-500/30 pb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">⛔</span>
-          <div>
-            <h3 class="text-sm sm:text-base font-black text-rose-300">Tabus nach Rolle & Paardynamik</h3>
-            <span class="text-[10px] text-slate-400">Differenziert nach Top- (Aktiv) und Bottom-Grenzen (Passiv)</span>
-          </div>
-        </div>
-        <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs" id="session-tabu-list-content">
-        <p class="text-slate-400 italic text-center py-4">Lade Tabu-Liste...</p>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeSessionTabuModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition touch-pill">
-          Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: TIMER-RESET SICHERHEITSABFRAGE -->
-  <div id="modal-timer-reset" class="hidden fixed inset-0 z-[115] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-sm w-full session-card p-5 rounded-3xl border border-amber-500/40 space-y-3.5 shadow-2xl text-center">
-      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center text-xl">
-        ⏱️
       </div>
       <div>
-        <h3 class="text-sm sm:text-base font-black text-white">Timer wirklich zurücksetzen?</h3>
-        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-          Die aktuelle Session-Laufzeit wird auf die ursprüngliche Dauer zurückgesetzt. Der Fortschritt der Phasen bleibt erhalten.
-        </p>
+        <h2 class="text-2xl font-black tracking-tight text-slate-950">ROT – SESSION GESTOPPT</h2>
+        <p class="text-xs font-bold text-slate-600 mt-1 uppercase tracking-wider">Sofortiges Handeln erforderlich</p>
       </div>
-      <div class="grid grid-cols-2 gap-2 pt-1 text-xs font-bold">
-        <button onclick="confirmTimerReset()" class="py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white shadow-md transition touch-pill">
-          Ja, zurücksetzen
-        </button>
-        <button onclick="closeTimerResetModal()" class="py-2.5 rounded-xl session-panel border text-slate-300 hover:text-white transition touch-pill">
-          Abbrechen
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- MODAL: REGELVERSTOSS & VORFALL-DISZIPLINIERUNG -->
-  <div id="modal-incident-punish" class="hidden fixed inset-0 z-[115] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-lg w-full session-card p-5 rounded-3xl border border-rose-500/40 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-rose-500/30 pb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">⚖️</span>
+      <div class="space-y-3 text-left">
+        <div class="p-3.5 bg-white rounded-2xl border-2 border-rose-300 shadow-sm flex items-start gap-3">
+          <span class="text-xl flex-shrink-0">✂️</span>
           <div>
-            <h3 class="text-sm sm:text-base font-black text-rose-300">Vorfall & Regelverstoß disziplinieren</h3>
-            <span class="text-[10px] text-slate-400" id="incident-sub-discipline-hint">Gemäß eurem Sicherheits-Kodex</span>
+            <strong class="text-xs font-black block text-slate-900">1. Alle Seile & Fesseln sofort lösen</strong>
+            <p class="text-[11px] text-slate-600 mt-0.5">Sicherheits-Cutter nutzen. Keine Knoten aufdröseln – bei Taubheit oder Schmerz sofort kappen.</p>
           </div>
         </div>
-        <button onclick="closeIncidentModal()" class="w-7 h-7 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
-      </div>
 
-      <!-- Auswahl des Vorfalls -->
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-300 block">1. Was ist vorgefallen?</label>
-        <div class="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
-          <button onclick="selectIncidentType('orgasm')" id="btn-inc-orgasm" class="p-2 rounded-xl border bg-rose-950/60 border-rose-700 text-rose-200 text-left">
-            🚫 Unerlaubter Orgasmus
-            <span class="block text-[9px] font-normal text-slate-400 mt-0.5">Vorzeitiges Kommen ohne Freigabe</span>
-          </button>
-          <button onclick="selectIncidentType('bratting')" id="btn-inc-bratting" class="p-2 rounded-xl border session-panel text-slate-300 text-left">
-            😜 Frechheit / Bratting
-            <span class="block text-[9px] font-normal text-slate-400 mt-0.5">Widerworte & Grinsen</span>
-          </button>
-          <button onclick="selectIncidentType('posture')" id="btn-inc-posture" class="p-2 rounded-xl border session-panel text-slate-300 text-left">
-            🧘 Haltungsfehler
-            <span class="block text-[9px] font-normal text-slate-400 mt-0.5">Zappeln, Blick gehoben, Hände bewegt</span>
-          </button>
-          <button onclick="selectIncidentType('hesitation')" id="btn-inc-hesitation" class="p-2 rounded-xl border session-panel text-slate-300 text-left">
-            ⏱️ Zögern / Ungehorsam
-            <span class="block text-[9px] font-normal text-slate-400 mt-0.5">Befehl nicht sofort ausgeführt</span>
-          </button>
+        <div class="p-3.5 bg-white rounded-2xl border-2 border-rose-300 shadow-sm flex items-start gap-3">
+          <span class="text-xl flex-shrink-0">🛌</span>
+          <div>
+            <strong class="text-xs font-black block text-slate-900">2. Körper in stabile Lage & Wärme</strong>
+            <p class="text-[11px] text-slate-600 mt-0.5">Aufrecht hinsetzen oder stabile Seitenlage. Dicke Decke umlegen, um Unterkühlung zu verhindern.</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-white rounded-2xl border-2 border-rose-300 shadow-sm flex items-start gap-3">
+          <span class="text-xl flex-shrink-0">🤝</span>
+          <div>
+            <strong class="text-xs font-black block text-slate-900">3. Präsenz & Erdung (Grounding)</strong>
+            <p class="text-[11px] text-slate-600 mt-0.5">Hand halten, Augenkontakt: „Ich bin hier bei dir. Alles ist sicher und du bist beschützt.“</p>
+          </div>
         </div>
       </div>
-
-      <!-- Auswahl Härtegrad des Vorfalls -->
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-300 block">2. Schwere des Verstoßes:</label>
-        <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
-          <button onclick="selectIncidentSeverity('leicht')" id="btn-inc-sev-leicht" class="py-1.5 rounded-xl border session-panel text-slate-300">🟢 Milde</button>
-          <button onclick="selectIncidentSeverity('mittel')" id="btn-inc-sev-mittel" class="py-1.5 rounded-xl border bg-brand-950/60 border-brand-700 text-brand-200">🟡 Bestimmt</button>
-          <button onclick="selectIncidentSeverity('schwer')" id="btn-inc-sev-schwer" class="py-1.5 rounded-xl border session-panel text-slate-300">🔴 Streng</button>
-        </div>
-      </div>
-
-      <!-- Strafenvorschläge mit Top-Sprechsatz -->
-      <div class="space-y-2 pt-1 border-t border-slate-800">
-        <span class="text-[10.5px] font-bold text-rose-300 block">3. Maßgeschneiderte Maßregelungen:</span>
-        <div id="incident-penalties-container" class="space-y-2"></div>
-      </div>
     </div>
+
+    <button onclick="dismissEmergencyScreen()" class="w-full max-w-md py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill mt-4">
+      ✓ Situation stabilisiert – Notfallmodus beenden
+    </button>
   </div>
 
-  <!-- AKTIVES FARB-CHECK-IN OVERLAY -->
-  <div id="modal-active-checkin" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="max-w-md w-full session-card p-6 rounded-3xl border-2 border-brand-500/60 shadow-2xl space-y-4 text-center">
-      <span class="text-3xl">🚦</span>
-      <div class="space-y-1">
-        <h3 class="text-base sm:text-lg font-black text-white" id="active-checkin-title">Kurzer Ampel-Check-in</h3>
-        <p class="text-xs text-slate-300">Wie fühlt sich die Intensität gerade an?</p>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2.5 pt-2">
-        <button onclick="handleCheckInResponse('green')" class="py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-sm shadow-lg transition touch-pill">
-          🟢 Grün<br><span class="text-[10px] font-normal opacity-80">Alles super</span>
-        </button>
-        <button onclick="handleCheckInResponse('yellow')" class="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-sm shadow-lg transition touch-pill">
-          🟡 Gelb<br><span class="text-[10px] font-normal opacity-80">Sanfter / Pause</span>
-        </button>
-        <button onclick="handleCheckInResponse('red')" class="py-4 rounded-2xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-sm shadow-lg transition touch-pill">
-          🔴 Rot<br><span class="text-[10px] font-normal opacity-80">Sofort-Stopp</span>
-        </button>
-      </div>
-
-      <button onclick="closeActiveCheckInModal()" class="w-full py-2 session-panel border text-slate-400 hover:text-white rounded-xl text-xs font-bold transition">
-        Überspringen & weiter
-      </button>
-    </div>
-  </div>
-
-  <!-- EMERGENCY LANTERN (BEI ROT) -->
-  <div id="emergency-lantern" class="hidden fixed inset-0 z-[130] bg-[#fffbf2] text-slate-900 p-6 sm:p-10 flex flex-col justify-between overflow-y-auto">
-    <div class="space-y-3 max-w-xl mx-auto text-center pt-4">
-      <div class="w-16 h-16 rounded-full bg-rose-600 text-white flex items-center justify-center text-3xl mx-auto shadow-xl">
-        🛑
-      </div>
-      <h2 class="text-xl sm:text-2xl font-black text-rose-700 tracking-tight">ROT AKTIVIERT: NOTFALL-HALT</h2>
-      <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
-        Das Display dient jetzt als Notfall-Licht. Alle Aktionen sind sofort unterbrochen. Atmet ruhig durch.
-      </p>
-    </div>
-
-    <div class="max-w-md mx-auto w-full p-4 bg-white/80 rounded-2xl border border-slate-300 shadow-sm space-y-2.5 text-xs text-slate-800">
-      <strong class="font-bold block text-sm border-b border-slate-200 pb-1">Sofort-Checkliste für den Top:</strong>
-      <p>1. Partner behutsam in die stabile Seitenlage oder aufrechte Sitzposition bringen.</p>
-      <p>2. Alle Fesseln & Seile mit dem Sicherheits-Cutter sofort schmerzfrei lösen.</p>
-      <p>3. Hand halten, warm zudecken: <em>„Ich bin bei dir. Alles ist gut.“</em></p>
-    </div>
-
-    <div class="max-w-xs mx-auto w-full pt-4">
-      <button onclick="closeEmergencyLantern()" class="w-full py-3 bg-slate-900 text-white font-bold rounded-2xl shadow-lg transition touch-pill text-xs">
-        Notfall beenden & zurück zum Normalmodus
-      </button>
-    </div>
-  </div>
-
-  <!-- SOFORT-BLACKOUT OVERLAY -->
+  <!-- SOFORT-BLACKOUT OVERLAY (TIPPEN ZUM ENTTARNEN) -->
   <div id="blackout-screen" onclick="toggleBlackout()" class="hidden fixed inset-0 z-[140] bg-black cursor-pointer flex items-center justify-center">
     <span class="text-slate-800 text-[10px] font-mono select-none">Tippen zum Enttarnen</span>
   </div>
 
+  <!-- HEADER NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 px-3 sm:px-6 py-2.5 shadow-sm">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-brand-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs">
+          🕯️
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Session-Begleiter</h1>
+            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">Darkroom</span>
+          </div>
+          <span class="text-[9.5px] sm:text-[10px] text-slate-500 font-medium block mt-0.5">Sicherheit & Dynamik im Schlafzimmer</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-1.5">
+        <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
+          <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
+        </button>
+        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus einsehen">
+          <span>⛔</span> (<span id="header-tabu-count">0</span>)
+        </button>
+        <button onclick="toggleBlackout()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
+          <span>🌑</span>
+        </button>
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 session-panel hover:border-brand-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs transition flex items-center gap-1 touch-pill">
+          <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
   <!-- HAUPTBEREICH -->
-  <main class="max-w-7xl mx-auto p-3 sm:p-5 flex-1 w-full space-y-4">
+  <main class="max-w-6xl mx-auto p-3 sm:p-5 flex-1 w-full space-y-4">
     
     <!-- STUFE 1: ENTSCHEIDUNGS-PORTAL -->
     <div id="session-entry-portal" class="max-w-2xl mx-auto py-4 sm:py-8 space-y-6">
       
-      <div class="text-center space-y-2">
-        <span class="px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800/80 inline-block shadow-inner">
-          Schlafzimmer-Zentrale
-        </span>
-        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wie soll eure Session heute aussehen?</h2>
-        <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-          Wählt eure Dynamik für heute Abend. Das Cockpit schützt euch und passt sich euren Absprachen an.
-        </p>
+      <!-- SCHRITT 1: ROLLENVERTEILUNG (TOP & BOTTOM ZUERST) -->
+      <div id="portal-step-roles" class="space-y-5">
+        <div class="text-center space-y-2">
+          <span class="px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800/80 inline-block shadow-inner">
+            Schritt 1 von 2: Rollenverteilung
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wer führt heute – und wer gibt sich hin?</h2>
+          <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+            Legt zuerst fest, wer heute Abend die Führung übernimmt (Top) und wer loslassen darf (Bottom). Alle Schutzregeln und akuten No-Gos richten sich sofort danach aus.
+          </p>
+        </div>
+
+        <!-- 2 Große Auswahl-Karten für die Dynamik -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          
+          <!-- Konstellation B: Partner 1 = Top / Partner 2 = Bottom -->
+          <button type="button" onclick="selectPortalRoleSetup('B')" id="portal-card-role-B" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="role-badge-indicator-B" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
+                ✓ Aktiv gewählt
+              </span>
+              <span class="text-xs font-mono text-brand-300 font-bold">Dynamik 1</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2.5">
+                <span class="text-xl">👑</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
+                  <strong class="text-white text-xs font-black portal-sub-name-A">Partner 1</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-brand-950/60 border border-brand-800/80 flex items-center gap-2.5">
+                <span class="text-xl">🧎</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
+                  <strong class="text-brand-100 text-xs font-black portal-sub-name-B">Partner 2</strong>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
+              <span class="portal-sub-name-A">Partner 1</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="portal-sub-name-B">Partner 2</span> sind aktiv geschützt.
+            </p>
+          </button>
+
+          <!-- Konstellation A: Partner 2 = Top / Partner 1 = Bottom -->
+          <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="role-badge-indicator-A" class="hidden px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
+                ✓ Aktiv gewählt
+              </span>
+              <span class="text-xs font-mono text-slate-500 font-bold">Dynamik 2</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2.5">
+                <span class="text-xl">👑</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
+                  <strong class="text-white text-xs font-black portal-sub-name-B">Partner 2</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-brand-950/60 border border-brand-800/80 flex items-center gap-2.5">
+                <span class="text-xl">🧎</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
+                  <strong class="text-brand-100 text-xs font-black portal-sub-name-A">Partner 1</strong>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
+              <span class="portal-sub-name-B">Partner 2</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="portal-sub-name-A">Partner 1</span> sind aktiv geschützt.
+            </p>
+          </button>
+
+        </div>
+
+        <!-- Sicherheits-Kodex Hinweis vor dem Weitergehen -->
+        <div class="p-3 bg-teal-950/30 border border-teal-800/50 rounded-2xl flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">📜</span>
+            <span class="text-teal-200 text-[11px]">Sicherheits-Kodex geladen: <strong id="portal-safeword-summary" class="text-white">Ampelsystem & Drop-Tuch</strong></span>
+          </div>
+          <button onclick="openSessionSafetyCodexModal()" class="text-[10px] text-teal-300 font-bold underline">Prüfen ↗</button>
+        </div>
+
+        <!-- Weiter zu Schritt 2 Button -->
+        <button type="button" onclick="goToPortalStep(2)" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-lg transition touch-pill flex items-center justify-center gap-2">
+          <span>✓ Rollen bestätigt: Weiter zur Spielart (Schritt 2)</span>
+          <span>→</span>
+        </button>
       </div>
 
-      <!-- Rollen-Zuweisung vorab -->
-      <div class="session-card p-3 sm:p-4 rounded-2xl border flex items-center justify-between gap-3 shadow-sm text-xs">
-        <span class="text-slate-400 font-bold text-[11px] flex items-center gap-1.5">
-          <span>👑</span> <span>Unterworfener Part heute:</span>
-        </span>
-        <div class="flex items-center gap-1.5">
-          <button onclick="setSubPartner('A')" id="portal-btn-sub-A" class="px-3 py-1.5 rounded-xl font-bold session-panel border text-slate-400 transition touch-pill">
-            🔵 <span class="portal-sub-name-A">Partner 1</span>
-          </button>
-          <button onclick="setSubPartner('B')" id="portal-btn-sub-B" class="px-3 py-1.5 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition touch-pill">
-            🟣 <span class="portal-sub-name-B">Partner 2</span>
+      <!-- SCHRITT 2: MODUS WÄHLEN (FREIER FLOW ODER GEFÜHRT) -->
+      <div id="portal-step-modes" class="hidden space-y-5">
+        <div class="text-center space-y-2">
+          <span class="px-3 py-1 rounded-full text-[10.5px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800/80 inline-block shadow-inner">
+            Schritt 2 von 2: Spielmodus
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wie soll eure Session ablaufen?</h2>
+          <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+            Wählt zwischen freiem, spontanem Spiel oder einer strukturierten 4-Phasen-Führung.
+          </p>
+        </div>
+
+        <!-- Aktive Rollen-Zusammenfassung mit Wechsel-Option -->
+        <div class="session-card p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-2 text-xs shadow-xs">
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="text-base">👑</span>
+            <span class="text-slate-300">
+              Top: <strong id="portal-step2-top-name" class="text-white">Partner 1</strong> &nbsp;|&nbsp; 
+              Bottom: <strong id="portal-step2-sub-name" class="text-brand-300">Partner 2</strong>
+            </span>
+          </div>
+          <button type="button" onclick="goToPortalStep(1)" class="px-2.5 py-1 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-[10px] transition touch-pill">
+            ← Rollen ändern
           </button>
         </div>
-      </div>
 
-      <!-- Schneller Sicherheits-Status im Portal -->
-      <div class="p-3 bg-teal-950/30 border border-teal-800/50 rounded-2xl flex items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">📜</span>
-          <span class="text-teal-200 text-[11px]">Sicherheits-Kodex geladen: <strong id="portal-safeword-summary" class="text-white">Ampelsystem & Drop-Tuch</strong></span>
+        <!-- Die 2 Grundwege -->
+        <div class="grid grid-cols-1 gap-4">
+          
+          <!-- Weg 1: Freier Flow -->
+          <button onclick="selectSessionMode('free')" class="session-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-brand-950/80 border border-brand-700/80 text-brand-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+              🕯️
+            </div>
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-brand-200 transition-colors">1. Freier Flow (Ungestört spielen)</h3>
+                <span class="text-[10px] font-bold text-brand-300 bg-brand-950 px-2 py-0.5 rounded-full border border-brand-800">Spontan</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Ihr spielt frei und intuitiv ohne festen Leitfaden. Das Steuerpult hält diskret den Timer, die Notfall-Ampel, den Edge-Counter und Sofort-Disziplinierung bereit.
+              </p>
+              <span class="text-[10.5px] font-bold text-brand-400 pt-1 block">Direkt ins freie Cockpit →</span>
+            </div>
+          </button>
+
+          <!-- Weg 2: Geführte Session -->
+          <button onclick="selectSessionMode('guided_flow')" class="session-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-purple-950/80 border border-purple-700/80 text-purple-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+              📖
+            </div>
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-purple-200 transition-colors">2. Geführte Session (Planen & Erleben)</h3>
+                <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">4 Phasen</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Stimmt kurz eure heutige Tagesenergie (1–5) und gewünschte Härte ab. Die App stellt euer individuelles Drehbuch zusammen und leitet euch Schritt für Schritt durch Phase 1 bis 4.
+              </p>
+              <span class="text-[10.5px] font-bold text-purple-400 pt-1 block">Tagesform abstimmen & Regiebuch starten →</span>
+            </div>
+          </button>
+
         </div>
-        <button onclick="openSessionSafetyCodexModal()" class="text-[10px] text-teal-300 font-bold underline">Prüfen ↗</button>
-      </div>
 
-      <!-- Die 2 Grundwege -->
-      <div class="grid grid-cols-1 gap-4">
-        
-        <!-- Weg 1: Freier Flow -->
-        <button onclick="selectSessionMode('free')" class="session-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-brand-950/80 border border-brand-700/80 text-brand-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            🕯️
-          </div>
-          <div class="flex-1 space-y-1">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm sm:text-base font-black text-white group-hover:text-brand-200 transition-colors">1. Freier Flow (Ungestört spielen)</h3>
-              <span class="text-[10px] font-bold text-brand-300 bg-brand-950 px-2 py-0.5 rounded-full border border-brand-800">Spontan</span>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Ihr spielt frei und intuitiv ohne festen Leitfaden. Das Steuerpult hält diskret den Timer, die Notfall-Ampel, den Edge-Counter und Sofort-Disziplinierung bereit.
-            </p>
-            <span class="text-[10.5px] font-bold text-brand-400 pt-1 block">Direkt ins freie Cockpit →</span>
-          </div>
-        </button>
-
-        <!-- Weg 2: Geführte Session -->
-        <button onclick="selectSessionMode('guided_flow')" class="session-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-purple-950/80 border border-purple-700/80 text-purple-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            📖
-          </div>
-          <div class="flex-1 space-y-1">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm sm:text-base font-black text-white group-hover:text-purple-200 transition-colors">2. Geführte Session (Planen & Erleben)</h3>
-              <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">4 Phasen</span>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Stimmt kurz eure heutige Tagesenergie (1–5) und gewünschte Härte ab. Die App stellt euer individuelles Drehbuch zusammen und leitet euch Schritt für Schritt durch Phase 1 bis 4.
-            </p>
-            <span class="text-[10.5px] font-bold text-purple-400 pt-1 block">Tagesform abstimmen & Regiebuch starten →</span>
-          </div>
-        </button>
-
-      </div>
-
-      <div class="text-center pt-1">
-        <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-slate-400 hover:text-white transition underline decoration-slate-600 underline-offset-4">
-          ⚖️ Oder nur den Strafenkatalog & Duldungen durchstöbern
-        </button>
+        <div class="flex items-center justify-between pt-1">
+          <button type="button" onclick="goToPortalStep(1)" class="text-xs font-semibold text-slate-400 hover:text-white transition">
+            ← Zurück zu Schritt 1 (Rollen)
+          </button>
+          <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-slate-400 hover:text-white transition underline decoration-slate-600 underline-offset-4">
+            ⚖️ Oder nur den Strafenkatalog durchstöbern
+          </button>
+        </div>
       </div>
 
     </div>
@@ -630,513 +336,183 @@
     <!-- STUFE 2: VOLLSTÄNDIGER ARBEITSBEREICH MIT TIMER & COCKPIT -->
     <div id="cockpit-main-workspace" class="hidden space-y-4">
       
-      <!-- SUB-BAR -->
-      <div class="session-card px-3 sm:px-5 py-2.5 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
+      <!-- SUB-LEISTE: AKTIVER MODUS & RÜCKKEHR -->
+      <div class="session-card p-3 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
-          <button onclick="returnToModeSelection()" class="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-[11px] flex items-center gap-1 transition touch-pill" title="Anderen Modus wählen">
-            <span>←</span> <span>Modus wechseln</span>
-          </button>
+          <span id="active-mode-badge" class="px-2.5 py-1 rounded-lg bg-brand-950 text-brand-300 border border-brand-800 font-bold text-[11px]">
+            Modus: Freier Flow
+          </span>
+          <span class="text-slate-400">
+            Top: <strong class="text-white portal-sub-name-A">Partner 1</strong> &nbsp;|&nbsp; 
+            Bottom: <strong class="text-brand-300 portal-sub-name-B">Partner 2</strong>
+          </span>
+        </div>
+        <button onclick="returnToModeSelection()" class="px-2.5 py-1 rounded-xl session-panel border text-slate-400 hover:text-white text-[10px] font-bold transition">
+          🔄 Spielmodus wechseln
+        </button>
+      </div>
+
+      <!-- TIMER- & AMPEL-HERZSTÜCK -->
+      <div class="session-card p-4 sm:p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3">
           
-          <div class="flex items-center gap-1.5 pl-1 border-l border-slate-800">
-            <span class="text-slate-400 font-bold text-[10.5px]">Sub:</span>
-            <button onclick="setSubPartner('A')" id="btn-sub-A" class="px-2.5 py-1 rounded-lg font-bold session-panel border text-slate-400 transition">
-              🔵 <span id="sub-name-A">Partner 1</span>
+          <!-- Timer-Display -->
+          <div>
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Verbleibende Zeit</span>
+            <div class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider" id="timer-display">45:00</div>
+          </div>
+
+          <!-- Timer Controls -->
+          <div class="flex items-center gap-2">
+            <button onclick="toggleTimer()" id="btn-timer-toggle" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5">
+              <span id="timer-icon">▶</span> <span id="timer-label">Starten</span>
             </button>
-            <button onclick="setSubPartner('B')" id="btn-sub-B" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition">
-              🟣 <span id="sub-name-B">Partner 2</span>
+            <button onclick="adjustTimer(5)" class="px-3 py-2.5 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+              +5m
+            </button>
+            <button onclick="resetTimer()" class="px-3 py-2.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs transition">
+              ↺
             </button>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 text-[10px] text-slate-400">
-          <button onclick="openSessionSafetyCodexModal()" class="px-2 py-0.5 rounded session-panel border font-bold text-teal-300 hover:text-teal-200">
-            📜 Kodex: <span id="sub-safeword-indicator">Ampel</span>
-          </button>
-          <span id="active-mode-badge" class="px-2 py-0.5 rounded session-panel border font-bold text-brand-300">Modus: Freier Flow</span>
-          <span id="audio-status" class="px-2 py-0.5 rounded session-panel border">Gong: Aktiv</span>
+        <!-- SAFEWORT-AMPEL (RIESIGE TOUCH-FLÄCHEN) -->
+        <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
+          <div class="flex justify-between items-center text-[10.5px]">
+            <span class="font-bold text-slate-400 uppercase tracking-wider">Sofort-Signale für <strong class="text-brand-300 portal-sub-name-B">Bottom</strong>:</span>
+            <span class="text-slate-500 font-mono" id="sub-safeword-indicator">Ampel & Drop-Tuch</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="handleSafewordSignal('green')" class="py-3 px-2 rounded-2xl bg-emerald-950/60 border-2 border-emerald-500/80 hover:bg-emerald-900/60 text-emerald-200 font-black text-xs sm:text-sm text-center transition touch-pill shadow-md">
+              🟢 GRÜN
+              <span class="block text-[9.5px] font-normal text-emerald-300/80 mt-0.5">Alles bestens</span>
+            </button>
+            <button onclick="handleSafewordSignal('yellow')" class="py-3 px-2 rounded-2xl bg-amber-950/60 border-2 border-amber-500/80 hover:bg-amber-900/60 text-amber-200 font-black text-xs sm:text-sm text-center transition touch-pill shadow-md">
+              🟡 GELB
+              <span class="block text-[9.5px] font-normal text-amber-300/80 mt-0.5">Tempo senken</span>
+            </button>
+            <button onclick="handleSafewordSignal('red')" class="py-3 px-2 rounded-2xl bg-rose-950/80 border-2 border-rose-500 hover:bg-rose-900 text-rose-100 font-black text-xs sm:text-sm text-center transition touch-pill shadow-lg animate-pulse-subtle">
+              🛑 ROT
+              <span class="block text-[9.5px] font-normal text-rose-200 mt-0.5">Sofort-Stopp</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- 2-SPALTEN COCKPIT GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        
-        <!-- LINKE SPALTE: DAS FESTE STEUERPULT (TIMER & AMPEL) -->
-        <aside class="lg:col-span-5 space-y-4">
-          
-          <!-- Der Haupt-Timer -->
-          <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3.5 shadow-md">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Session-Laufzeit</span>
-              <div class="flex items-center gap-1.5">
-                <button onclick="openTimerResetModal()" class="px-2 py-0.5 rounded-lg session-panel border text-slate-400 hover:text-white text-[10.5px] font-bold transition touch-pill" title="Timer zurücksetzen">
-                  🔄 Reset
-                </button>
-                <span class="px-2 py-0.5 rounded-lg bg-brand-950 border border-brand-800 text-brand-300 text-[10px] font-mono font-bold" id="cockpit-edge-badge">0 Edges</span>
-              </div>
-            </div>
+      <!-- WERKZEUG-LEISTE (EDGING, COUNTDOWN, VORFALL, STRAFEN) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+        <button onclick="toggleEdgingToolPanel()" class="session-card p-3 rounded-2xl border text-left hover:border-brand-500/60 transition touch-pill space-y-1">
+          <span class="text-xl">🎢</span>
+          <strong class="block text-white text-xs font-bold">Edging-Counter</strong>
+          <span class="text-[10.5px] text-slate-400 block"><span id="cockpit-edge-badge">0</span> Spitzen erreicht</span>
+        </button>
 
-            <!-- Zeitanzeige -->
-            <div class="text-center py-1">
-              <div class="text-5xl sm:text-6xl font-mono font-black tracking-tight text-white" id="timer-display">45:00</div>
-              <span class="text-[11px] text-slate-400 font-medium block mt-1">Verbleibende Session-Dauer</span>
-            </div>
+        <button onclick="openIncidentDisciplineModal()" class="session-card p-3 rounded-2xl border text-left hover:border-purple-500/60 transition touch-pill space-y-1">
+          <span class="text-xl">⚡</span>
+          <strong class="block text-white text-xs font-bold">Vorfall / Zucht</strong>
+          <span class="text-[10.5px] text-purple-300 block">Frechheit bestrafen</span>
+        </button>
 
-            <!-- Start / Pause Button & Verlängerung -->
-            <div class="space-y-2">
-              <button onclick="toggleTimer()" id="btn-timer-toggle" class="w-full py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-sm shadow-lg transition touch-pill flex items-center justify-center gap-2">
-                <span id="free-play-icon">▶</span>
-                <span id="free-play-text">Session starten</span>
-              </button>
+        <button onclick="openBedsideZenModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-pill space-y-1">
+          <span class="text-xl">🫁</span>
+          <strong class="block text-white text-xs font-bold">Zen & Atem</strong>
+          <span class="text-[10.5px] text-teal-300 block">Vagusnerv beruhigen</span>
+        </button>
 
-              <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-                <button onclick="extendTimer(15)" class="py-2.5 rounded-xl session-panel hover:border-brand-600 border text-slate-300 hover:text-white transition touch-pill">
-                  +15 Min.
-                </button>
-                <button onclick="extendTimer(30)" class="py-2.5 rounded-xl session-panel hover:border-brand-600 border text-slate-300 hover:text-white transition touch-pill">
-                  +30 Min.
-                </button>
-              </div>
-            </div>
+        <button onclick="openSessionSafetyCodexModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-pill space-y-1">
+          <span class="text-xl">📜</span>
+          <strong class="block text-white text-xs font-bold">Sicherheits-Kodex</strong>
+          <span class="text-[10.5px] text-slate-400 block">Cutter, Signale & Checks</span>
+        </button>
+      </div>
 
-            <!-- Laufzeit-Vorauswahl -->
-            <div class="pt-2 border-t border-slate-800">
-              <div class="flex justify-between items-center text-[10.5px] text-slate-400 mb-1.5">
-                <span>Dauer festlegen:</span>
-                <span>45 / 75 / 120 Min.</span>
-              </div>
-              <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
-                <button onclick="startTimer(45)" id="btn-free-dur-45" class="py-2 rounded-xl bg-brand-700 border border-brand-600 text-white touch-pill">45 Min.</button>
-                <button onclick="startTimer(75)" id="btn-free-dur-75" class="py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill">75 Min.</button>
-                <button onclick="startTimer(120)" id="btn-free-dur-120" class="py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill">120 Min.</button>
-              </div>
-            </div>
-
-            <!-- Sanfter Übergang zu Aftercare -->
-            <button onclick="finishSessionGently()" class="w-full py-2 session-panel hover:border-teal-500/60 border text-teal-300 hover:text-teal-200 font-bold text-xs rounded-xl transition touch-pill">
-              ✨ Sanfter Übergang ins Aftercare
-            </button>
-          </div>
-
-          <!-- Die Taktile 3-Farb-Ampel -->
-          <div class="session-card p-4 rounded-3xl border space-y-2.5 shadow-md">
-            <div class="flex justify-between items-center">
-              <strong class="text-xs font-bold text-slate-300">Blinde Notfall-Ampel:</strong>
-              <span class="text-[10px] text-slate-500 font-mono">Taktiler Fingertipp</span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2">
-              <button onclick="triggerTrafficLight('green')" class="py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-md transition touch-pill">
-                🟢 Grün<br><span class="text-[9.5px] font-normal opacity-80">Weiter</span>
-              </button>
-              <button onclick="triggerTrafficLight('yellow')" class="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-xs shadow-md transition touch-pill">
-                🟡 Gelb<br><span class="text-[9.5px] font-normal opacity-80">Sanfter</span>
-              </button>
-              <button onclick="triggerTrafficLight('red')" class="py-4 rounded-2xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md transition touch-pill">
-                🔴 Rot<br><span class="text-[9.5px] font-normal opacity-80">Stopp</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Schneller Flüster-Anzeige-Kasten -->
-          <div id="inline-whisper-card" class="hidden p-3 rounded-2xl bg-purple-950/40 border border-purple-800/60 text-xs space-y-1">
-            <span class="text-[9px] font-bold text-purple-300 uppercase tracking-widest block">🗣️ Ins Ohr flüstern:</span>
-            <p class="text-slate-200 italic text-[11.5px] leading-relaxed" id="inline-whisper-text">„...“</p>
-          </div>
-
-        </aside>
-
-        <!-- RECHTE SPALTE: DIE BÜHNE (4 HAUPT-TABS) -->
-        <section class="lg:col-span-7 space-y-3.5">
-          
-          <!-- Tab Navigation -->
-          <nav class="grid grid-cols-4 gap-1 p-1 session-card rounded-2xl border text-xs font-bold shadow-xs">
-            <button onclick="switchTab('free')" id="tab-btn-free" class="py-2.5 rounded-xl bg-brand-700 text-white shadow transition flex flex-col sm:flex-row items-center justify-center gap-1">
-              <span>🕯️</span> <span class="text-[11px] truncate">Freier Flow</span>
-            </button>
-            <button onclick="switchTab('guide')" id="tab-btn-guide" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-              <span>📖</span> <span class="text-[11px] truncate">Regiebuch</span>
-            </button>
-            <button onclick="switchTab('planner')" id="tab-btn-planner" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-              <span>⚙️</span> <span class="text-[11px] truncate">Planer</span>
-            </button>
-            <button onclick="switchTab('punishments')" id="tab-btn-punishments" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1">
-              <span>⚖️</span> <span class="text-[11px] truncate">Strafen</span>
-            </button>
-          </nav>
-
-          <!-- VIEW 0: FREIER FLOW -->
-          <div id="view-free" class="space-y-3.5">
-            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <div>
-                  <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Modus: Freier Flow</span>
-                  <h2 class="text-sm sm:text-base font-black text-white">Ungestörtes Spiel ohne Zwang</h2>
-                </div>
-                <span class="text-[10px] text-slate-400">Reine Cockpit-Steuerung</span>
-              </div>
-
-              <p class="text-xs text-slate-300 leading-relaxed">
-                Ihr spielt frei nach eurer Intuition. Das linke Steuerpult hält die Zeit, den Farb-Check und die Safeword-Wächter im Blick.
-              </p>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                <button onclick="rollRandomKinkPrompt()" class="p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-900/60 border border-brand-800/80 text-brand-200 font-bold text-xs transition touch-pill flex items-center gap-2">
-                  <span class="text-lg">🎲</span>
-                  <div class="text-left">
-                    <span>Spontaner Reiz-Impuls</span>
-                    <span class="block text-[9.5px] font-normal text-slate-400">Zieht eine Praxis aus euren Matches</span>
-                  </div>
-                </button>
-
-                <button onclick="openIncidentModal()" class="p-3 rounded-2xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-200 font-bold text-xs transition touch-pill flex items-center gap-2">
-                  <span class="text-lg">⚖️</span>
-                  <div class="text-left">
-                    <span>Vorfall disziplinieren</span>
-                    <span class="block text-[9.5px] font-normal text-slate-400">Verstoß gemäß Kodex maßregeln</span>
-                  </div>
-                </button>
-              </div>
-
-              <!-- Spontaner Prompt Kasten -->
-              <div id="spontaneous-prompt-card" class="hidden p-3 rounded-2xl bg-brand-950/40 border border-brand-800/60 space-y-1">
-                <strong class="text-xs font-bold text-brand-300 block" id="spontaneous-prompt-title">Impuls</strong>
-                <p class="text-slate-300 text-xs" id="spontaneous-prompt-desc">Beschreibung...</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- VIEW 1: REGIEBUCH -->
-          <div id="view-guide" class="space-y-3.5 hidden">
-            <!-- Phasen-Header Kachel -->
-            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <div class="flex items-center gap-2">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30" id="guide-step-badge">Phase 1 von 4</span>
-                  <h2 class="text-sm sm:text-base font-black text-white" id="guide-step-name">1. Ankommen & Vorbereitung</h2>
-                </div>
-                <span class="text-[10px] text-slate-400 font-mono" id="guide-phase-time-allocated">ca. 10 Min.</span>
-              </div>
-
-              <!-- 4 Stepper Tabs -->
-              <div class="grid grid-cols-4 gap-1.5">
-                <button onclick="jumpToPhase(1)" id="stepper-tab-1" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600">
-                  1. Ankommen
-                </button>
-                <button onclick="jumpToPhase(2)" id="stepper-tab-2" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                  2. Sensorik
-                </button>
-                <button onclick="jumpToPhase(3)" id="stepper-tab-3" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                  3. Hauptakt
-                </button>
-                <button onclick="jumpToPhase(4)" id="stepper-tab-4" class="py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700">
-                  4. Aftercare
-                </button>
-              </div>
-
-              <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-800/40 text-xs italic text-brand-200">
-                <span id="phase-prompt-quote">„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“</span>
-              </div>
-            </div>
-
-            <!-- BOTTOM-PROTOKOLL -->
-            <div id="guide-bottom-protocol-card" class="session-panel p-3.5 rounded-2xl border border-indigo-500/30 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <strong class="text-xs font-black text-indigo-200 flex items-center gap-1.5">
-                  <span>📜</span> <span>Aktuelles Protokoll für <span id="guide-sub-name">Partner 2</span>:</span>
-                </strong>
-                <span class="text-[9.5px] px-2 py-0.5 rounded font-bold bg-indigo-950 border border-indigo-800 text-indigo-300">Verbindlich</span>
-              </div>
-              <p class="text-[11px] text-slate-300 leading-relaxed" id="guide-bottom-protocol-text">
-                Lade Haltungsregeln...
-              </p>
-            </div>
-
-            <!-- EINGEBAUTER SICHERHEITS-KODEX IN PHASE 1 -->
-            <div id="guide-safeword-card" class="session-card p-4 rounded-3xl border border-teal-500/40 space-y-3 shadow-md bg-teal-950/10">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">🛡️</span>
-                  <div>
-                    <strong class="text-xs sm:text-sm font-black text-teal-200 block">Euer vereinbarter Sicherheits-Kodex</strong>
-                    <span class="text-[10px] text-teal-300/80">Automatisch aus dem Konfigurator übernommen</span>
-                  </div>
-                </div>
-                <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1 rounded-xl bg-teal-900/60 hover:bg-teal-800 border border-teal-700 text-teal-200 font-bold text-[10.5px] transition touch-pill flex items-center gap-1">
-                  <span>📜</span> <span>Alle 5 Bereiche</span>
-                </button>
-              </div>
-
-              <!-- Live-Status der 2 Schlüssel-Signale in Phase 1 -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 rounded-xl bg-slate-900 border border-teal-800/60 space-y-0.5">
-                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">1. Safeword-System:</span>
-                  <strong class="text-teal-200 block text-xs" id="phase1-safeword-display">🚦 Ampelsystem (Grün/Gelb/Rot)</strong>
-                </div>
-                <div class="p-2.5 rounded-xl bg-slate-900 border border-teal-800/60 space-y-0.5">
-                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">2. Knebel-Notfallsignal:</span>
-                  <strong class="text-teal-200 block text-xs" id="phase1-gag-display">🪨 Drop-Tuch in der Hand</strong>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 pt-1 border-t border-teal-900/60">
-                <span class="text-[10.5px] text-slate-400">Individuelles Code-Wort verfeinern:</span>
-                <input type="text" id="guide-safeword-input" placeholder="z. B. Kaktus..." class="flex-1 px-3 py-1.5 rounded-xl session-panel border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-teal-500">
-                <button onclick="confirmSafewordInGuide()" class="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 active:scale-95 text-white font-bold text-xs shadow-md transition touch-pill whitespace-nowrap">
-                  ✓ Speichern
-                </button>
-              </div>
-            </div>
-
-            <!-- EDGING-PANEL -->
-            <div id="edging-interactive-card" class="hidden session-card p-4 rounded-3xl border-2 border-brand-500/50 space-y-3 text-xs shadow-lg bg-brand-950/20">
-              <div class="flex items-center justify-between border-b border-brand-800/60 pb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-xl">⏱️</span>
-                  <div>
-                    <strong class="text-sm font-black text-brand-200 block">Edge-Counter & Orgasmus-Countdown</strong>
-                    <span class="text-[10px] text-slate-400">Zähle Kanten & leite den Höhepunkt an</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <span class="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-brand-900 border border-brand-700 text-brand-200 shadow-sm" id="edge-count-badge">Edge 0</span>
-                  <button onclick="toggleEdgingToolPanel()" class="w-6 h-6 rounded-lg session-panel border text-slate-400 hover:text-white text-xs">✕</button>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <button onclick="incrementEdgeCount()" class="py-3 rounded-2xl bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-black text-xs shadow-md transition touch-pill flex items-center justify-center gap-1.5">
-                  <span class="text-sm">+1</span> <span>Edge zählen</span>
-                </button>
-                <button onclick="resetEdgeCount()" class="py-3 rounded-2xl session-panel hover:border-slate-500 border text-slate-300 text-xs font-bold transition touch-pill">
-                  Zähler Reset
-                </button>
-              </div>
-
-              <!-- Countdown-Vorwahl -->
-              <div class="p-3 rounded-2xl session-panel border border-slate-700/60 space-y-2.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <span class="text-[10.5px] font-bold text-slate-300">Countdown-Dauer:</span>
-                  <div class="flex items-center gap-1 text-[10.5px] font-mono font-bold">
-                    <button onclick="setCountdownDuration(10)" id="cd-pill-10" class="px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold">10s</button>
-                    <button onclick="setCountdownDuration(20)" id="cd-pill-20" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">20s</button>
-                    <button onclick="setCountdownDuration(30)" id="cd-pill-30" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">30s</button>
-                    <button onclick="setCountdownDuration(60)" id="cd-pill-60" class="px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white">60s</button>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
-                  <span class="text-[10px] text-slate-400 font-medium pl-1">Freie Eingabe:</span>
-                  <div class="flex items-center gap-1">
-                    <button onclick="adjustCountdownDuration(-5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-5</button>
-                    <button onclick="adjustCountdownDuration(-1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">-1</button>
-                    <div class="flex items-center gap-1 px-1">
-                      <input type="number" id="cd-custom-input" min="1" max="300" value="10" 
-                             onchange="setCountdownDuration(this.value)"
-                             oninput="setCountdownDuration(this.value)"
-                             class="w-12 text-center py-1 rounded-lg session-panel border border-brand-600/60 font-mono font-bold text-white text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
-                      <span class="text-[10px] font-bold text-slate-400">Sek.</span>
-                    </div>
-                    <button onclick="adjustCountdownDuration(1)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+1</button>
-                    <button onclick="adjustCountdownDuration(5)" class="w-7 h-7 rounded-lg session-panel border text-slate-300 hover:text-white font-mono font-black flex items-center justify-center touch-pill text-xs">+5</button>
-                  </div>
-                </div>
-
-                <div class="space-y-1.5 pt-1 border-t border-slate-800">
-                  <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-slate-300">Countdown-Begleitung:</span>
-                    <span class="text-[9.5px] text-brand-300 font-mono font-bold" id="cd-audio-mode-label">🗣️ Selbst zählen</span>
-                  </div>
-                  <div class="grid grid-cols-3 gap-1 text-[11px] font-bold">
-                    <button onclick="setCountdownAudioMode('self')" id="cd-mode-self" class="py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill">
-                      <span>🗣️</span> <span>Selbst</span>
-                    </button>
-                    <button onclick="setCountdownAudioMode('metronome')" id="cd-mode-metronome" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
-                      <span>⏱️</span> <span>Metronom</span>
-                    </button>
-                    <button onclick="setCountdownAudioMode('voice')" id="cd-mode-voice" class="py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill">
-                      <span>🎙️</span> <span>Stimme</span>
-                    </button>
-                  </div>
-                </div>
-
-                <button onclick="startOrgasmCountdown()" id="btn-start-countdown" class="w-full py-2.5 rounded-xl bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs shadow-lg transition touch-pill flex items-center justify-center gap-1.5">
-                  <span>💥</span> <span id="countdown-btn-text">Countdown starten (10s Freigabe)</span>
-                </button>
-
-                <div id="countdown-live-display" class="hidden text-center py-2 space-y-2">
-                  <span class="text-4xl font-mono font-black text-rose-400 animate-pulse block" id="countdown-number">10</span>
-                  <p class="text-xs italic text-rose-200 font-semibold" id="countdown-voice-quote">„Zehn... Atme ganz tief ein. Gleich darfst du.“</p>
-
-                  <div class="grid grid-cols-3 gap-1.5 pt-1.5 max-w-xs mx-auto">
-                    <button type="button" onclick="resumeOrgasmCountdown()" id="btn-cd-play" class="py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill" title="Countdown fortsetzen">
-                      <span>▶</span> <span>Play</span>
-                    </button>
-                    <button type="button" onclick="pauseOrgasmCountdown()" id="btn-cd-pause" class="py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown pausieren">
-                      <span>⏸</span> <span>Pause</span>
-                    </button>
-                    <button type="button" onclick="stopOrgasmCountdown()" id="btn-cd-stop" class="py-2 px-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md" title="Countdown abbrechen">
-                      <span>⏹</span> <span>Stop</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FOKUS-KARTEN -->
-            <div class="space-y-3">
-              <div id="active-step-focus-card" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500/60 shadow-xl space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-[10.5px] font-black uppercase tracking-wider text-brand-300 bg-brand-500/20 px-2.5 py-0.5 rounded-full border border-brand-500/30" id="focus-step-indicator">
-                    Schritt 1 von 4
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <button onclick="toggleEdgingToolPanel()" class="text-[10px] font-bold text-brand-300 hover:underline flex items-center gap-1">
-                      <span>⏱️</span> <span>Edge-Tool</span>
-                    </button>
-                    <button onclick="openIncidentModal()" class="text-[10px] font-bold text-rose-400 hover:underline flex items-center gap-1">
-                      <span>⚡</span> <span>Verstoß</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="space-y-1">
-                  <h3 class="text-sm sm:text-base font-black text-white" id="focus-step-title">Lade Aktion...</h3>
-                  <p class="text-xs text-slate-300 leading-relaxed" id="focus-step-desc">Lade Beschreibung...</p>
-                </div>
-
-                <div class="p-3 rounded-2xl bg-brand-950/50 border border-brand-800/60 space-y-1">
-                  <span class="text-[9.5px] font-bold text-brand-300 uppercase tracking-widest block">🗣️ Wörtlich zum Partner sprechen:</span>
-                  <p class="text-xs italic text-brand-100 font-medium" id="focus-step-top-quote">„...“</p>
-                </div>
-
-                <button onclick="advanceToNextStep()" class="w-full py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
-                  <span>✓ Schritt vollzogen & weiter</span>
-                  <span>→</span>
-                </button>
-              </div>
-
-              <!-- Vorschau-Kachel -->
-              <div id="upcoming-step-preview-card" class="session-panel p-3.5 rounded-2xl border border-slate-700/60 opacity-80 space-y-1">
-                <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">👀 Als Nächstes kommt:</span>
-                <h4 class="text-xs font-bold text-slate-200" id="preview-step-title">Nächster Schritt</h4>
-                <p class="text-[11px] text-slate-400 leading-snug line-clamp-2" id="preview-step-desc">Vorschau lädt...</p>
-              </div>
-            </div>
-
-            <!-- Dynamischer Kasten für Phase 3 -->
-            <div id="phase-dynamic-injection" class="hidden"></div>
-
-            <!-- De-Briefing Box in Phase 4 -->
-            <div id="debriefing-box" class="hidden session-card p-4 rounded-3xl border space-y-3">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="text-xs sm:text-sm font-bold text-teal-300">📝 2-Minuten De-Briefing & Aftercare-Abschluss</h3>
-                <span class="text-[10px] text-teal-400 bg-teal-950 px-2 py-0.5 rounded border border-teal-800" id="debrief-aftercare-badge">Fokus: Körperwärme</span>
-              </div>
-              <div class="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 1 (1–10):</label>
-                  <input type="range" min="1" max="10" value="7" id="slider-intensity-a" class="w-full accent-brand-600">
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1">Intensität Partner 2 (1–10):</label>
-                  <input type="range" min="1" max="10" value="7" id="slider-intensity-b" class="w-full accent-brand-600">
-                </div>
-              </div>
-              <textarea id="debrief-notes" placeholder="Was war das Highlight? Was passen wir nächstes Mal an?..." class="w-full p-2.5 rounded-xl session-panel border text-xs focus:outline-none focus:border-brand-500"></textarea>
-              <button onclick="saveDeBriefing()" class="w-full py-2 bg-teal-700 hover:bg-teal-600 text-white font-bold rounded-xl text-xs shadow transition touch-pill">
-                💾 Im Tagebuch festhalten
-              </button>
-            </div>
-
-          </div>
-
-          <!-- VIEW 2: SZENEN-PLANER -->
-          <div id="view-planner" class="space-y-3.5 hidden">
-            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-              <div class="border-b border-slate-800 pb-2">
-                <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Schritt 1: Session-Kalibrierung</span>
-                <h2 class="text-sm sm:text-base font-black text-white">Tagesform & Schwerpunkte für das Regiebuch</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und Intensität ist heute da? Die App passt euer Drehbuch daran an.</p>
-              </div>
-
-              <div class="space-y-3 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div class="space-y-1">
-                    <label class="font-bold text-slate-300 block">Gewünschte Intensität:</label>
-                    <select id="plan-intensity" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
-                      <option value="mild">🟢 Milde & Geborgen (Sensual, Nurturing)</option>
-                      <option value="moderate" selected>🟡 Moderat (Teasing, D/s, Fesseln)</option>
-                      <option value="hard">🔴 Intensiv (Disziplin, Impact, Kälte/Hitze)</option>
-                    </select>
-                  </div>
-                  <div class="space-y-1">
-                    <label class="font-bold text-slate-300 block">Fokus-Thema:</label>
-                    <select id="plan-focus" class="w-full p-2 rounded-xl session-panel border text-xs font-bold">
-                      <option value="all">Ausgewogene Mischung aller Matches</option>
-                      <option value="sensual">Fokus auf Entschleunigung & Berührung</option>
-                      <option value="shibari">Fokus auf Seilkunst & Shibari</option>
-                      <option value="chastity">Fokus auf Keuschhaltung & Teasing</option>
-                      <option value="impact">Fokus auf Spanking & Disziplin</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="space-y-1">
-                    <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-A">Partner 1</span> Tages-Energie (1–5):</label>
-                    <input type="range" min="1" max="5" value="4" id="plan-energy-a" class="w-full accent-brand-600">
-                  </div>
-                  <div class="space-y-1">
-                    <label class="text-[10.5px] text-slate-400 block"><span class="portal-sub-name-B">Partner 2</span> Tages-Energie (1–5):</label>
-                    <input type="range" min="1" max="5" value="3" id="plan-energy-b" class="w-full accent-brand-600">
-                  </div>
-                </div>
-
-                <div class="pt-2 flex flex-col sm:flex-row gap-2">
-                  <button onclick="generateCustomSessionPlan()" class="flex-1 py-3 bg-brand-700 hover:bg-brand-600 active:scale-95 text-white font-extrabold rounded-2xl shadow-lg transition touch-pill flex items-center justify-center gap-2">
-                    <span>✨</span> <span>Drehbuch generieren & Phase 1 starten →</span>
-                  </button>
-                  <button onclick="switchTab('guide'); jumpToPhase(1);" class="py-2.5 px-3 rounded-2xl session-panel border text-slate-400 hover:text-white font-bold text-[11px] transition touch-pill">
-                    Standard-Ablauf sofort starten
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- VIEW 3: STRAFEN-KATALOG -->
-          <div id="view-punishments" class="space-y-3.5 hidden">
-            <div class="session-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-md">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <div>
-                  <span class="text-[10px] font-black uppercase tracking-wider text-rose-400">Disziplinierung</span>
-                  <h2 class="text-sm sm:text-base font-black text-white">Strafen-Katalog & Duldungen</h2>
-                </div>
-                <span class="text-[10.5px] text-slate-400">Härtegrad wählen</span>
-              </div>
-
-              <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
-                <button onclick="setPunishLevel('leicht')" id="btn-punish-leicht" class="py-2 rounded-xl border session-panel text-slate-300">🟢 Stufe I (Milde)</button>
-                <button onclick="setPunishLevel('mittel')" id="btn-punish-mittel" class="py-2 rounded-xl border bg-brand-700 text-white border-brand-600">🟡 Stufe II (Moderat)</button>
-                <button onclick="setPunishLevel('schwer')" id="btn-punish-schwer" class="py-2 rounded-xl border session-panel text-slate-300">🔴 Stufe III (Streng)</button>
-              </div>
-
-              <div id="punishments-list-container" class="space-y-2 text-xs"></div>
-            </div>
-          </div>
-
-        </section>
-
+      <!-- DYNAMISCHER BEREICH: GEFÜHRTES DREHBUCH ODER FREIE SZENEN -->
+      <div id="cockpit-tab-content" class="space-y-4">
+        <!-- Inhalte werden per Tab-Wechsel injiziert -->
       </div>
 
     </div>
 
   </main>
 
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <!-- MODAL: UNSER VEREINBARTER SICHERHEITS- & KONSENS-KODEX -->
+  <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-xl w-full border border-teal-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-teal-800/60 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📜</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Unser verbindlicher Sicherheits-Kodex</h3>
+            <p class="text-[10.5px] text-teal-300">Aus dem Kompass-Konfigurator übernommen</p>
+          </div>
+        </div>
+        <button onclick="closeSessionSafetyCodexModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
 
-  <!-- FRAGENKATALOGE -->
+      <div class="space-y-2.5 overflow-y-auto flex-1 pr-1" id="session-safety-codex-content"></div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button onclick="closeSessionSafetyCodexModal()" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-xl text-xs transition">
+          Verstanden & Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VORFALL-DISZIPLINIERUNG & SOFORT-STRAFEN -->
+  <div id="modal-incident-discipline" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-md w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-purple-800/60 pb-2">
+        <h3 class="text-sm font-extrabold text-purple-200 flex items-center gap-1.5">
+          <span>⚖️</span> Sofort-Zucht für <span class="portal-sub-name-B text-white">Partner 2</span>
+        </h3>
+        <button onclick="closeIncidentDisciplineModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <p class="text-[11px] text-slate-400 leading-relaxed">
+        Wähle den Anlass des Regelverstoßes. Die App schlägt eine passende Konsequenz vor, die mit euren hinterlegten Grenzen harmoniert.
+      </p>
+
+      <div class="space-y-2">
+        <button onclick="applyIncidentDiscipline('frech')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
+          <div>
+            <strong class="text-white block">1. Frechheit & Vorlautes Verhalten</strong>
+            <span class="text-[10px] text-slate-400">Widerworte, unaufgefordertes Lachen</span>
+          </div>
+          <span class="text-[10px] text-purple-300 font-bold">10 Hiebe Handspanking →</span>
+        </button>
+
+        <button onclick="applyIncidentDiscipline('stillhalten')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
+          <div>
+            <strong class="text-white block">2. Zappeln & Nicht-Stillhalten</strong>
+            <span class="text-[10px] text-slate-400">Unerlaubte Bewegung unter Fixierung</span>
+          </div>
+          <span class="text-[10px] text-purple-300 font-bold">5 Min. Kniebank / Nadu →</span>
+        </button>
+
+        <button onclick="applyIncidentDiscipline('zeit')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
+          <div>
+            <strong class="text-white block">3. Unerlaubter Orgasmus / Ausrutscher</strong>
+            <span class="text-[10px] text-slate-400">Gekommen ohne ausdrückliche Freigabe</span>
+          </div>
+          <span class="text-[10px] text-purple-300 font-bold">Verlängerung Keuschheit →</span>
+        </button>
+      </div>
+
+      <div id="incident-action-result" class="hidden p-3 rounded-xl bg-purple-950/60 border border-purple-800 text-purple-200 text-[11px] space-y-1"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeIncidentDisciplineModal()" class="px-4 py-2 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+          Fertig
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
+
+  <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
 
@@ -1157,8 +533,8 @@
     let selectedIncidentType = 'orgasm';
     let selectedIncidentSeverity = 'mittel';
 
-    let checkInIntervalSetting = '15';
     let currentSessionActiveMode = null;
+    let portalCurrentStep = 1;
 
     let edgeCount = 0;
     let countdownTimer = null;
@@ -1167,81 +543,356 @@
     let isCountdownPaused = false;
     let countdownAudioMode = 'self';
 
-    let zenBreatheInterval = null;
-    let bedsideClockInterval = null;
-
     let executedActions = [];
-    let customSafeword = '';
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let safetyConfig = { A: {}, B: {} };
 
     const safetyLabelsMap = {
+      emergency_tools: {
+        title: "Sicherheits-Cutter / Bandschneider",
+        cutter_mandatory: "✂️ Pflicht: Liegt bei jeder Fesselung sichtbar in Griffweite des Tops",
+        cutter_shibari: "🪢 Nur bei komplexem Seil-Shibari zwingend erforderlich",
+        cutter_velcro_only: "🩹 Nicht nötig (nur Klettfesseln mit Schnellöffnung)"
+      },
       safeword: {
-        title: "Safeword-System",
+        title: "Primäres verbales Safeword",
         traffic: "🚦 Klassische Ampel (Grün = Weiter, Gelb = Sanfter, Rot = Sofort-Stopp)",
-        code_word: "🌵 Festes Code-Wort ('Kaktus' / 'Halt')",
-        tactile_hand: "🤝 Taktiler Handdruck (2x = Gut, 3x = Sanfter, Loslassen = Stopp)"
+        code_word: "🌵 Festes Code-Wort (z. B. 'Kaktus' oder 'Halt')",
+        intuitive: "💬 Rein intuitive Klärung mit normalen Stopp-Worten"
       },
       gag_signal: {
-        title: "Knebel-Signal",
-        drop_cloth: "🪨 Drop-Tuch in der Hand (Fällt es, stoppt alles)",
-        closed_fist: "✊ Feste Faust für 3 Sekunden oder 3x Klopfen",
-        bell_rattle: "🔔 Akustischer Signalgeber (Glöckchen in der Hand)"
+        title: "Nonverbales Knebel- & Blockade-Signal",
+        drop_cloth: "🪨 Drop-Tuch in der Hand (Fällt es zu Boden, bricht alles sofort ab)",
+        fist_tap: "✊ Feste Faust für 3 Sekunden oder 3x deutliches Klopfen (Tap-Out)",
+        bell_rattle: "🔔 Akustischer Signalgeber (Glöckchen oder Rassel)"
+      },
+      tactile_signal: {
+        title: "Taktiles Handdrück-Signal",
+        hand_squeeze: "🤝 2x Drücken = Gut / 3x Drücken = Sanfter / Hand erschlafft = Sofort-Stopp",
+        no_squeeze: "❌ Kein taktiles Handdrücken vereinbart"
+      },
+      vital_checks: {
+        title: "Puls- & Zirkulationsprüfung",
+        pulse_15min: "⏱️ Verbindlicher 15-Minuten-Check: Finger-Temperatur, Hautfarbe & Puls prüfen",
+        pulse_as_needed: "👂 Prüfung nur nach Gefühl und auf Zuruf"
+      },
+      numbness_rule: {
+        title: "Umgang mit Kribbeln & Taubheitsgefühl",
+        stop_immediate: "⚡ Eiserne Regel: Beim ersten Kribbeln oder Kältegefühl sofort Seile lockern",
+        check_then_loosen: "🔍 Kurz beobachten und erst bei Fortbestehen nachlassen"
+      },
+      pain_classification: {
+        title: "Schmerz-Klassifikation",
+        tissue_vs_joint: "🎯 Strikte Trennung: Dumpfer Fleischreiz ist erlaubt – Gelenkschmerz tabu",
+        subjective: "🎨 Rein subjektives Schmerzempfinden entscheiden lassen"
+      },
+      substance_rule: {
+        title: "Substanz- & Nüchternheitsregel",
+        sober_100: "🚫 100 % Nüchternheit: Keinerlei Alkohol oder berauschende Mittel vor Sessions",
+        wine_allowed: "🍷 Ein Glas Wein oder Sekt beim lockeren Vorspiel ist in Ordnung"
+      },
+      bedside_care: {
+        title: "Notfall-Versorgung am Bett",
+        water_glucose: "🥤 Wasserflasche mit Strohhalm & Traubenzucker liegen am Bett griffbereit",
+        on_demand: "🏃 Getränke und Snacks werden bei Bedarf geholt"
       },
       disobedience: {
-        title: "Umgang mit Ungehorsam",
-        spanking: "✋ Körperliche Zucht: Handspanking über den Knien",
-        formal_corner: "🧘 Formale Besinnung: Ecke stehen & Knie-Abbitte",
-        chores_ban: "🧹 Praktische Wiedergutmachung: Hausarbeit / Handy-Verbot",
+        title: "Umgang mit Ungehorsam / Frechheiten",
+        spanking: "✋ Körperliche Zucht: Handspanking oder Versohlen über den Knien",
+        formal_corner: "🧘 Formale Besinnung: In der Ecke stehen (Corner Time), Knie-Abbitte",
+        chores_ban: "🧹 Praktische Wiedergutmachung: Hausarbeit, Smartphone-Verbot für den Abend",
         talk_only: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch"
       },
       aftercare: {
-        title: "Aftercare-Schwerpunkt",
-        warmth: "🛌 Körperwärme & Stille: Dicke Decken, Tee & Halten",
-        praise_words: "💖 Verbaler Zuspruch: Lob ('Praise'), Schutzworte & Stolz",
-        bath_care: "🛁 Pflege-Ritual: Warmes Bad & sanftes Einbalsamieren"
+        title: "Primärer Aftercare-Schwerpunkt",
+        warmth: "🛌 Körperwärme & Stille: Dicke Decken, heißer Tee, stummes Halten im Arm",
+        praise_words: "💖 Verbaler Zuspruch & Praise: Warmes Lob ('Braves Mädchen/Guter Junge')",
+        bath_care: "🛁 Pflege-Ritual: Warmes Bad, Einbalsamieren der beanspruchten Haut mit Creme"
       },
-      privacy: {
-        title: "Privatsphäre & Diskretion",
-        secret: "🔒 Absolutes Geheimnis: 100 % privat",
-        scene_friends: "👥 Szene-Freunde: Vertraute Kontakte dürfen wissen",
-        relaxed: "🌐 Entspannter Umgang: Keine Geheimniskrämerei"
+      cooldown_phase: {
+        title: "Abschalt-Phase nach der Session",
+        offline_20min: "📵 Mindestens 20 Minuten striktes Smartphone-Verbot nach der Session",
+        free_flow: "✨ Freier Übergang in den Alltag nach Gefühl"
+      },
+      checkin_24h: {
+        title: "24-Stunden-Nachsorge-Check",
+        checkin_mandatory: "💬 Verbindliche kurze Rückmeldung am Folgetag, um den Subdrop abzufangen",
+        checkin_optional: "🕊️ Rückmeldung nur, wenn sich jemand unwohl fühlt"
       }
     };
 
-    function verifySitePassword() {
-      const input = document.getElementById('site-pw-input');
-      const err = document.getElementById('pw-error-hint');
-      const lock = document.getElementById('site-lockscreen');
-      if (!input) return;
+    function ensureDataIntegrity() {
+      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+      if (!answers.A || typeof answers.A !== 'object') answers.A = {};
+      if (!answers.B || typeof answers.B !== 'object') answers.B = {};
 
-      if (input.value.trim() === 'Bommelchen!') {
-        sessionStorage.setItem('kompass_unlocked', 'true');
-        if (lock) lock.classList.add('hidden');
-        if (err) err.classList.add('hidden');
-        showToast("Erfolgreich entsperrt!");
+      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+      if (!names.A) names.A = 'Partner 1';
+      if (!names.B) names.B = 'Partner 2';
+
+      if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
+      if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
+      if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
+    }
+
+    function selectPortalRoleSetup(chosenSub) {
+      setSubPartner(chosenSub);
+    }
+
+    function setSubPartner(p) {
+      subPartner = p;
+      updatePortalRoleCardsUI();
+      updateTabuCounts();
+      showToast(`Bottom gewählt: ${names[p] || p}`);
+    }
+
+    function updatePortalRoleCardsUI() {
+      const cardA = document.getElementById('portal-card-role-A');
+      const cardB = document.getElementById('portal-card-role-B');
+      const badgeA = document.getElementById('role-badge-indicator-A');
+      const badgeB = document.getElementById('role-badge-indicator-B');
+
+      const domPartner = getDomPartner();
+      const domName = names[domPartner] || (domPartner === 'A' ? 'Partner 1' : 'Partner 2');
+      const subName = names[subPartner] || (subPartner === 'A' ? 'Partner 1' : 'Partner 2');
+
+      const step2Top = document.getElementById('portal-step2-top-name');
+      const step2Sub = document.getElementById('portal-step2-sub-name');
+      if (step2Top) step2Top.innerText = domName;
+      if (step2Sub) step2Sub.innerText = subName;
+
+      document.querySelectorAll('.portal-sub-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
+      document.querySelectorAll('.portal-sub-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
+
+      if (subPartner === 'B') {
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3";
+        if (badgeB) badgeB.classList.remove('hidden');
+
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3";
+        if (badgeA) badgeA.classList.add('hidden');
       } else {
-        if (err) err.classList.remove('hidden');
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3";
+        if (badgeA) badgeA.classList.remove('hidden');
+
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3";
+        if (badgeB) badgeB.classList.add('hidden');
       }
     }
 
-    function checkSiteLockscreen() {
-      const lock = document.getElementById('site-lockscreen');
-      if (!lock) return;
-      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-        lock.classList.add('hidden');
+    function goToPortalStep(step) {
+      portalCurrentStep = step;
+      const step1 = document.getElementById('portal-step-roles');
+      const step2 = document.getElementById('portal-step-modes');
+
+      if (step === 1) {
+        if (step1) step1.classList.remove('hidden');
+        if (step2) step2.classList.add('hidden');
       } else {
-        lock.classList.remove('hidden');
+        if (step1) step1.classList.add('hidden');
+        if (step2) step2.classList.remove('hidden');
+        updatePortalRoleCardsUI();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectSessionMode(mode) {
+      currentSessionActiveMode = mode;
+      const portal = document.getElementById('session-entry-portal');
+      const workspace = document.getElementById('cockpit-main-workspace');
+      const badge = document.getElementById('active-mode-badge');
+
+      if (portal) portal.classList.add('hidden');
+      if (workspace) workspace.classList.remove('hidden');
+
+      const labels = {
+        free: 'Modus: Freier Flow',
+        guided_flow: 'Modus: Geführte Session',
+        punishments: 'Modus: Strafen'
+      };
+      if (badge) badge.innerText = labels[mode] || 'Session aktiv';
+
+      requestWakeLock();
+      initAudio();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function returnToModeSelection() {
+      const portal = document.getElementById('session-entry-portal');
+      const workspace = document.getElementById('cockpit-main-workspace');
+
+      if (workspace) workspace.classList.add('hidden');
+      if (portal) portal.classList.remove('hidden');
+
+      currentSessionActiveMode = null;
+      goToPortalStep(1);
+      releaseWakeLock();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function getDomPartner() {
+      return subPartner === 'A' ? 'B' : 'A';
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateTimerButtonUI(false);
+        releaseWakeLock();
+      } else {
+        requestWakeLock();
+        initAudio();
+        timerInterval = setInterval(() => {
+          if (timerRemaining > 0) {
+            timerRemaining--;
+            sessionElapsedSeconds++;
+            renderTimerDisplay();
+
+            if (sessionElapsedSeconds % 900 === 0) {
+              playGongSound(432);
+              triggerHapticPulse([200, 100, 200]);
+              showToast("⏱️ 15-Minuten-Marke: Vital- & Nervencheck");
+            }
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            updateTimerButtonUI(false);
+            playGongSound(528);
+            showToast("🔔 Zeit abgelaufen: Übergang in den Aftercare-Bereich");
+          }
+        }, 1000);
+        updateTimerButtonUI(true);
       }
     }
 
-    function openBurgerMenu() {
-      document.getElementById('drawer-burger-menu')?.classList.remove('hidden');
+    function renderTimerDisplay() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      const el = document.getElementById('timer-display');
+      if (el) el.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    function closeBurgerMenu() {
-      document.getElementById('drawer-burger-menu')?.classList.add('hidden');
+    function updateTimerButtonUI(isRunning) {
+      const btn = document.getElementById('btn-timer-toggle');
+      const icon = document.getElementById('timer-icon');
+      const lbl = document.getElementById('timer-label');
+      if (!btn) return;
+
+      if (isRunning) {
+        btn.className = "px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5";
+        if (icon) icon.innerText = "⏸";
+        if (lbl) lbl.innerText = "Pause";
+      } else {
+        btn.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5";
+        if (icon) icon.innerText = "▶";
+        if (lbl) lbl.innerText = "Starten";
+      }
+    }
+
+    function adjustTimer(mins) {
+      timerRemaining = Math.max(0, timerRemaining + mins * 60);
+      renderTimerDisplay();
+      showToast(`+${mins} Minuten hinzugefügt`);
+    }
+
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateTimerButtonUI(false);
+      }
+      timerRemaining = sessionTotalMinutes * 60;
+      sessionElapsedSeconds = 0;
+      renderTimerDisplay();
+      showToast("Timer zurückgesetzt");
+    }
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockInstance = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.warn("WakeLock nicht aktivierbar:", err);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLockInstance) {
+        wakeLockInstance.release().then(() => { wakeLockInstance = null; });
+      }
+    }
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playGongSound(freq = 432) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.0);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 3.2);
+      } catch (e) {
+        console.warn("Audio-Ausgabe nicht möglich:", e);
+      }
+    }
+
+    function triggerHapticPulse(pattern = [100, 50, 100]) {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    function handleSafewordSignal(color) {
+      initAudio();
+      if (color === 'red') {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          updateTimerButtonUI(false);
+        }
+        playGongSound(220);
+        triggerHapticPulse([300, 100, 300, 100, 400]);
+
+        const emScreen = document.getElementById('red-emergency-screen');
+        if (emScreen) emScreen.classList.remove('hidden');
+      } else if (color === 'yellow') {
+        playGongSound(330);
+        triggerHapticPulse([150, 80, 150]);
+        showToast("🟡 GELB signalisiert: Tempo & Härte drosseln");
+      } else {
+        playGongSound(528);
+        triggerHapticPulse([80]);
+        showToast("🟢 GRÜN: Alles in bester Ordnung");
+      }
+    }
+
+    function dismissEmergencyScreen() {
+      const emScreen = document.getElementById('red-emergency-screen');
+      if (emScreen) emScreen.classList.add('hidden');
+      showToast("Notfallschirm beendet. Nehmt euch Zeit zum Atmen.");
+    }
+
+    function toggleBlackout() {
+      const bo = document.getElementById('blackout-screen');
+      if (bo) bo.classList.toggle('hidden');
     }
 
     function openSessionSafetyCodexModal() {
@@ -1265,20 +916,23 @@
       let html = '';
       Object.keys(safetyLabelsMap).forEach(k => {
         const item = safetyLabelsMap[k];
-        const valA = cfgA[k] || 'traffic';
-        const valB = cfgB[k] || 'traffic';
+        const valA = cfgA[k] || Object.keys(item).find(key => key !== 'title');
+        const valB = cfgB[k] || valA;
         const isMatch = (valA === valB);
+
+        const textA = item[valA] || "Standard vereinbart";
+        const textB = item[valB] || textA;
 
         html += `
           <div class="p-3 rounded-2xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/30 border border-amber-800/40'} space-y-1">
             <div class="flex justify-between items-center">
               <strong class="text-white text-xs font-bold">${item.title}</strong>
-              <span class="text-[9.5px] font-black px-1.5 py-0.2 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-300'}">
+              <span class="text-[9.5px] font-black px-1.5 py-0.5 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-300'}">
                 ${isMatch ? '✓ Vereinbart' : '⚠️ Abstimmung'}
               </span>
             </div>
-            <p class="text-[11px] text-teal-100 font-semibold">${item[valA] || valA}</p>
-            ${!isMatch ? `<p class="text-[10px] text-amber-300">${escapeHtml(nameB)} bevorzugt: ${item[valB] || valB}</p>` : ''}
+            <p class="text-[11px] text-teal-100 font-semibold">${textA}</p>
+            ${!isMatch ? `<p class="text-[10px] text-amber-300">${escapeHtml(nameB)} bevorzugt: ${textB}</p>` : ''}
           </div>
         `;
       });
@@ -1288,1171 +942,26 @@
 
     function updateSafetyCodexUI() {
       const cfgA = safetyConfig.A || {};
-      const cfgB = safetyConfig.B || {};
       const swA = cfgA.safeword || 'traffic';
       const gagA = cfgA.gag_signal || 'drop_cloth';
-      const afA = cfgA.aftercare || 'warmth';
 
-      const swText = safetyLabelsMap.safeword[swA] || swA;
-      const gagText = safetyLabelsMap.gag_signal[gagA] || gagA;
-      const afText = safetyLabelsMap.aftercare[afA] || afA;
+      const swItem = safetyLabelsMap.safeword || {};
+      const gagItem = safetyLabelsMap.gag_signal || {};
 
-      const p1Sw = document.getElementById('phase1-safeword-display');
-      const p1Gag = document.getElementById('phase1-gag-display');
+      const swText = swItem[swA] || "Ampelsystem";
+      const gagText = gagItem[gagA] || "Drop-Tuch";
+
       const portSum = document.getElementById('portal-safeword-summary');
       const subInd = document.getElementById('sub-safeword-indicator');
-      const afBadge = document.getElementById('debrief-aftercare-badge');
 
-      if (p1Sw) p1Sw.innerText = swText;
-      if (p1Gag) p1Gag.innerText = gagText;
       if (portSum) portSum.innerText = `${swA === 'traffic' ? 'Ampel' : 'Code-Wort'} & ${gagA === 'drop_cloth' ? 'Drop-Tuch' : 'Geste'}`;
-      if (subInd) subInd.innerText = swA === 'traffic' ? 'Ampel' : (swA === 'code_word' ? 'Code-Wort' : 'Handdruck');
-      if (afBadge) afBadge.innerText = `Fokus: ${afA === 'warmth' ? 'Körperwärme' : (afA === 'praise_words' ? 'Praise Play' : 'Pflege-Ritual')}`;
-    }
-
-    function toggleEdgingToolPanel() {
-      const card = document.getElementById('edging-interactive-card');
-      if (!card) return;
-      const isHidden = card.classList.contains('hidden');
-      if (isHidden) {
-        card.classList.remove('hidden');
-        if (activeTabId !== 'guide') {
-          switchTab('guide');
-        }
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        showToast("⏱️ Edge-Counter & Countdown eingeblendet");
-      } else {
-        card.classList.add('hidden');
-      }
-    }
-
-    function incrementEdgeCount() {
-      edgeCount++;
-      const badge1 = document.getElementById('edge-count-badge');
-      const badge2 = document.getElementById('cockpit-edge-badge');
-      if (badge1) badge1.innerText = `Edge ${edgeCount}`;
-      if (badge2) badge2.innerText = `${edgeCount} Edges`;
-      playHarmonicGong(1.1 + (edgeCount * 0.04));
-      showToast(`Edge ${edgeCount} gezählt!`);
-    }
-
-    function resetEdgeCount() {
-      edgeCount = 0;
-      const badge1 = document.getElementById('edge-count-badge');
-      const badge2 = document.getElementById('cockpit-edge-badge');
-      if (badge1) badge1.innerText = `Edge 0`;
-      if (badge2) badge2.innerText = `0 Edges`;
-      showToast("Edge-Zähler zurückgesetzt.");
-    }
-
-    function adjustCountdownDuration(delta) {
-      setCountdownDuration(selectedCountdownDuration + delta);
-    }
-
-    function setCountdownDuration(seconds) {
-      const parsed = parseInt(seconds, 10);
-      selectedCountdownDuration = isNaN(parsed) || parsed < 1 ? 1 : (parsed > 300 ? 300 : parsed);
-
-      const customInput = document.getElementById('cd-custom-input');
-      if (customInput && document.activeElement !== customInput) {
-        customInput.value = selectedCountdownDuration;
-      }
-
-      [10, 20, 30, 60].forEach(s => {
-        const btn = document.getElementById(`cd-pill-${s}`);
-        if (btn) {
-          if (s === selectedCountdownDuration) {
-            btn.className = "px-2.5 py-1 rounded-lg border bg-brand-700 text-white border-brand-500 font-bold";
-          } else {
-            btn.className = "px-2.5 py-1 rounded-lg border session-panel text-slate-400 hover:text-white";
-          }
-        }
-      });
-
-      const btnText = document.getElementById('countdown-btn-text');
-      if (btnText) btnText.innerText = `Countdown starten (${selectedCountdownDuration}s Freigabe)`;
-    }
-
-    function setCountdownAudioMode(mode) {
-      countdownAudioMode = mode;
-      const modes = ['self', 'metronome', 'voice'];
-      modes.forEach(m => {
-        const btn = document.getElementById(`cd-mode-${m}`);
-        if (btn) {
-          if (m === mode) {
-            btn.className = "py-1.5 px-2 rounded-xl border bg-brand-700 text-white border-brand-500 flex items-center justify-center gap-1 touch-pill font-bold shadow-xs";
-          } else {
-            btn.className = "py-1.5 px-2 rounded-xl border session-panel text-slate-400 hover:text-white flex items-center justify-center gap-1 touch-pill font-bold";
-          }
-        }
-      });
-
-      const label = document.getElementById('cd-audio-mode-label');
-      if (label) {
-        if (mode === 'self') label.innerText = '🗣️ Selbst zählen';
-        else if (mode === 'metronome') label.innerText = '⏱️ Metronom-Takt';
-        else if (mode === 'voice') label.innerText = '🎙️ Weibliche Stimme';
-      }
-
-      saveSessionSnapshot();
-      showToast(mode === 'self' ? 'Modus: Selbst zählen' : (mode === 'metronome' ? 'Modus: Metronom-Takt' : 'Modus: Weibliche Stimme'));
-    }
-
-    function playMetronomeTick(count, total) {
-      if (!isSoundEnabled) return;
-      try {
-        initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        const isFinal = count === 1;
-
-        osc.type = isFinal ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(isFinal ? 880 : 540, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(isFinal ? 440 : 120, audioCtx.currentTime + 0.08);
-
-        gain.gain.setValueAtTime(isFinal ? 0.35 : 0.22, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.09);
-
-        if (navigator.vibrate) {
-          navigator.vibrate(isFinal ? [120, 60, 120] : 45);
-        }
-      } catch (e) {
-        console.error("Metronom-Fehler:", e);
-      }
-    }
-
-    function speakCountdownNumber(count) {
-      if (!('speechSynthesis' in window) || !isSoundEnabled) return;
-      try {
-        window.speechSynthesis.cancel();
-        let text = String(count);
-        if (count === 1) text = "Eins! Jetzt darfst du!";
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'de-DE';
-        utterance.rate = 1.05;
-        utterance.pitch = 1.15;
-
-        const voices = window.speechSynthesis.getVoices();
-        const deVoices = voices.filter(v => v.lang && v.lang.startsWith('de'));
-        const femaleDeVoice = deVoices.find(v => {
-          const n = v.name.toLowerCase();
-          return n.includes('female') || n.includes('frauen') || n.includes('helena') || 
-                 n.includes('anna') || n.includes('katja') || n.includes('marlene') || 
-                 n.includes('petra') || n.includes('google deutsch') || n.includes('hedda');
-        }) || deVoices[0];
-
-        if (femaleDeVoice) utterance.voice = femaleDeVoice;
-        window.speechSynthesis.speak(utterance);
-      } catch (e) {
-        console.warn("SpeechSynthesis nicht verfügbar:", e);
-      }
-    }
-
-    function getCountdownVoiceQuote(count) {
-      if (count >= 25) return "„Ganz ruhig durchatmen... halte die Spannung, ich zähle dich herunter.“";
-      if (count >= 20) return "„Zwanzig... Spüre das Beben in deinem Körper, aber halte still!“";
-      if (count >= 15) return "„Fünfzehn... Die Lust gehört mir. Noch kein Zucken.“";
-      if (count === 10) return "„Zehn... Atme ganz tief ein. Wir nähern uns der Schwelle.“";
-      if (count === 9) return "„Neun... Konzentrier dich voll auf meine Stimme.“";
-      if (count === 8) return "„Acht... Spüre die Schwelle, halte still!“";
-      if (count === 7) return "„Sieben... Nicht nachgeben, bleib ganz bei mir.“";
-      if (count === 6) return "„Sechs... Die Erregung steigt, noch halten!“";
-      if (count === 5) return "„Fünf... Atme ein. Noch kein Ausbrechen.“";
-      if (count === 4) return "„Vier... Spüre die absolute Grenze.“";
-      if (count === 3) return "„Drei... Ganz kurz noch halten!“";
-      if (count === 2) return "„Zwei... Mach dich bereit für die Explosion!“";
-      if (count === 1) return "„Eins! Jetzt! Du darfst explodieren! Lass alles raus!“";
-      return `„Noch ${count}... Halte still!“`;
-    }
-
-    function startOrgasmCountdown() {
-      if (countdownTimer) clearInterval(countdownTimer);
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-
-      countdownCurrentCount = selectedCountdownDuration;
-      isCountdownPaused = false;
-
-      const btn = document.getElementById('btn-start-countdown');
-      const disp = document.getElementById('countdown-live-display');
-
-      if (btn) btn.classList.add('hidden');
-      if (disp) disp.classList.remove('hidden');
-
-      updateCountdownControlsUI(true, false);
-      runCountdownTick();
-      countdownTimer = setInterval(runCountdownTick, 1000);
-    }
-
-    function runCountdownTick() {
-      if (isCountdownPaused) return;
-
-      const numEl = document.getElementById('countdown-number');
-      const quoteEl = document.getElementById('countdown-voice-quote');
-      const btn = document.getElementById('btn-start-countdown');
-      const disp = document.getElementById('countdown-live-display');
-
-      if (numEl) numEl.innerText = countdownCurrentCount;
-      if (quoteEl) quoteEl.innerText = getCountdownVoiceQuote(countdownCurrentCount);
-
-      if (countdownAudioMode === 'metronome') {
-        playMetronomeTick(countdownCurrentCount, selectedCountdownDuration);
-      } else if (countdownAudioMode === 'voice') {
-        speakCountdownNumber(countdownCurrentCount);
-      } else {
-        if (navigator.vibrate) {
-          navigator.vibrate(countdownCurrentCount === 1 ? [100, 50, 100] : 30);
-        }
-      }
-
-      if (countdownCurrentCount <= 1) {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-        setTimeout(() => {
-          if (btn) btn.classList.remove('hidden');
-          if (disp) disp.classList.add('hidden');
-        }, 3500);
-      } else {
-        countdownCurrentCount--;
-      }
-    }
-
-    function pauseOrgasmCountdown() {
-      if (!countdownTimer && isCountdownPaused) return;
-      isCountdownPaused = true;
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      updateCountdownControlsUI(false, true);
-      showToast("⏸ Countdown pausiert");
-    }
-
-    function resumeOrgasmCountdown() {
-      const disp = document.getElementById('countdown-live-display');
-      if (disp && disp.classList.contains('hidden')) {
-        startOrgasmCountdown();
-        return;
-      }
-      if (!isCountdownPaused) return;
-      isCountdownPaused = false;
-      updateCountdownControlsUI(true, false);
-      showToast("▶ Countdown fortgesetzt");
-      runCountdownTick();
-    }
-
-    function stopOrgasmCountdown() {
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-      }
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      isCountdownPaused = false;
-      countdownCurrentCount = selectedCountdownDuration;
-
-      const btn = document.getElementById('btn-start-countdown');
-      const disp = document.getElementById('countdown-live-display');
-      if (btn) btn.classList.remove('hidden');
-      if (disp) disp.classList.add('hidden');
-
-      showToast("⏹ Countdown gestoppt & zurückgesetzt");
-    }
-
-    function updateCountdownControlsUI(isRunning, isPaused) {
-      const btnPlay = document.getElementById('btn-cd-play');
-      const btnPause = document.getElementById('btn-cd-pause');
-
-      if (btnPlay) {
-        if (isPaused) {
-          btnPlay.className = "py-2 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md animate-pulse";
-        } else {
-          btnPlay.className = "py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill";
-        }
-      }
-      if (btnPause) {
-        if (isRunning && !isPaused) {
-          btnPause.className = "py-2 px-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill shadow-md";
-        } else {
-          btnPause.className = "py-2 px-2 rounded-xl session-panel text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 touch-pill";
-        }
-      }
-    }
-
-    function openZenBreathingModal() {
-      document.getElementById('modal-zen-breathing')?.classList.remove('hidden');
-      startZenBreatheLoop();
-    }
-
-    function closeZenBreathingModal() {
-      document.getElementById('modal-zen-breathing')?.classList.add('hidden');
-      if (zenBreatheInterval) clearInterval(zenBreatheInterval);
-    }
-
-    function startZenBreatheLoop() {
-      const ring = document.getElementById('zen-breathe-ring');
-      const text = document.getElementById('zen-breathe-text');
-      if (!ring || !text) return;
-
-      let step = 0;
-
-      function cycle() {
-        if (step === 0) {
-          text.innerText = "Einatmen (4s)";
-          ring.className = "w-44 h-44 rounded-full bg-teal-500/30 border-2 border-teal-300 transition-all duration-4000 flex items-center justify-center shadow-2xl shadow-teal-500/40";
-          setTimeout(cycle, 4000);
-          step = 1;
-        } else if (step === 1) {
-          text.innerText = "Halten (7s)";
-          ring.className = "w-44 h-44 rounded-full bg-amber-500/20 border-2 border-amber-300 transition-all duration-7000 flex items-center justify-center shadow-2xl shadow-amber-500/30";
-          setTimeout(cycle, 7000);
-          step = 2;
-        } else {
-          text.innerText = "Ausatmen (8s)";
-          ring.className = "w-28 h-28 rounded-full bg-teal-500/10 border-2 border-teal-500/40 transition-all duration-8000 flex items-center justify-center";
-          setTimeout(cycle, 8000);
-          step = 0;
-        }
-      }
-
-      cycle();
-    }
-
-    function triggerWhisperPrompt() {
-      const subName = names[subPartner] || 'Partner 2';
-      const prompts = [
-        `„Du gehörst heute mit jeder Faser mir, ${subName}.“`,
-        `„Atme ganz ruhig aus. Ich passe auf dich auf.“`,
-        `„Du machst das so brav. Ich bin so stolz auf dich.“`,
-        `„Schließe die Augen und lass alles los. Du musst jetzt nichts mehr kontrollieren.“`,
-        `„Spüre nur meine Hände. Dein Körper ist heute mein Tempel.“`,
-        `„Du darfst dich ganz fallen lassen. Ich halte dich sicher fest.“`
-      ];
-
-      const p = prompts[Math.floor(Math.random() * prompts.length)];
-
-      const inlineCard = document.getElementById('inline-whisper-card');
-      const inlineText = document.getElementById('inline-whisper-text');
-      if (inlineCard && inlineText) {
-        inlineText.innerText = p;
-        inlineCard.classList.remove('hidden');
-      }
-
-      playHarmonicGong(1.2);
-    }
-
-    function openDiscreetBedsideClock() {
-      const clockEl = document.getElementById('modal-bedside-clock');
-      if (!clockEl) return;
-      clockEl.classList.remove('hidden');
-
-      function updateClock() {
-        const now = new Date();
-        const str = now.toTimeString().split(' ')[0];
-        const timeEl = document.getElementById('bedside-clock-time');
-        if (timeEl) timeEl.innerText = str;
-      }
-      updateClock();
-      bedsideClockInterval = setInterval(updateClock, 1000);
-    }
-
-    function closeDiscreetBedsideClock() {
-      const clockEl = document.getElementById('modal-bedside-clock');
-      if (clockEl) clockEl.classList.add('hidden');
-      if (bedsideClockInterval) clearInterval(bedsideClockInterval);
-    }
-
-    const phaseConfig = [
-      {
-        step: 1,
-        title: "Phase 1: Vorbereitung & Safeword",
-        timePct: 0.15,
-        quote: "„Heute gibt es keine Hektik. Atme tief durch und lass alle Gedanken los.“",
-        checkpoints: [
-          { title: "Raum vorbereiten & Decken wärmen", desc: "Raum abdunkeln, Kissen bereitlegen und Temperatur prüfen.", quote: "„Kuschel dich erst einmal ein. Spüre, wie der Raum zur Ruhe kommt.“" },
-          { title: "Sicherheits-Kodex & Safeword aktiv bestätigen", desc: "Ampelsystem, Knebel-Notsignal und Codewort verankern.", quote: "„Unser Sicherheits-Kodex steht fest. Du kannst dich vollkommen fallenlassen.“" },
-          { title: "Tagesform & Energie abfragen", desc: "Kurzer Check-in: Wie geht es Körper und Seele heute?", quote: "„Erzähl mir kurz, wie dein Tag war. Ich passe das Tempo genau an dich an.“" },
-          { title: "Haltung einnehmen & erste Berührung", desc: "Den Partner sanft in die vereinbarte Ausgangsposition bringen.", quote: "„Schließe die Augen. Ab jetzt musst du nichts mehr kontrollieren.“" }
-        ]
-      },
-      {
-        step: 2,
-        title: "Phase 2: Sensorik & Entschleunigung",
-        timePct: 0.25,
-        quote: "„Deine Haut wird jetzt mit jedem Atemzug empfindlicher.“",
-        checkpoints: [
-          { title: "Sinnesentzug anlegen", desc: "Augenbinde oder Tuch anlegen; visuelle Reize ausschalten.", quote: "„Ich nehme dir jetzt das Sehen. Vertraue ganz auf mein Führen.“" },
-          { title: "Sensorische Reizlinien ziehen", desc: "Mit Federn, Seidentuch oder warmem Atem über den Körper streichen.", quote: "„Spüre diesen Hauch. Jeder Millimeter deiner Haut gehört jetzt dem Moment.“" },
-          { title: "Erste Fixierung oder Fesselung", desc: "Handgelenke sanft zusammenführen und fixieren.", quote: "„Lass deine Arme ganz schwer werden. Das Seil hält dich sicher.“" },
-          { title: "Zirkulation & Atem prüfen", desc: "Puls an den Fingern fühlen und tiefes Durchatmen anleiten.", quote: "„Atme ganz tief mit mir ein... und wieder aus. Wunderbar machst du das.“" }
-        ]
-      },
-      {
-        step: 3,
-        title: "Phase 3: Hauptakt, Dynamik & Disziplin",
-        timePct: 0.40,
-        quote: "„Die Hingabe vertieft sich. Spüre die Intensität in jeder Faser.“",
-        checkpoints: [
-          { title: "Intensivierung der Reize", desc: "Führung aufnehmen, Teasing oder Haltung vertiefen.", quote: "„Halte still. Du darfst jetzt nur noch empfangen und spüren.“" },
-          { title: "Orgasmuskontrolle & Edging", desc: "An die Kante der Erregung führen und bewusst stoppen.", quote: "„Noch nicht kommen. Die Lust gehört mir – halte die Schwelle.“" },
-          { title: "Maßregelung oder Prüfung", desc: "Kleine Disziplinierung oder Haltungsprüfung einweben.", quote: "„Bleib ganz ruhig liegen. Jede Bewegung wird von mir belohnt oder gezügelt.“" },
-          { title: "Freigabe oder bewusstes Verwehren", desc: "Höhepunkt auf Zählkommando gewähren oder Keuschheit bewahren.", quote: "„Jetzt zähle ich rückwärts... Bei Eins darfst du explodieren!“" }
-        ]
-      },
-      {
-        step: 4,
-        title: "Phase 4: Sanfte Landung & Aftercare",
-        timePct: 0.20,
-        quote: "„Du bist in Sicherheit. Alles ist getan. Du wirst gehalten.“",
-        checkpoints: []
-      }
-    ];
-
-    const phaseBottomProtocols = {
-      1: "Ruhig atmen, Hände offen auf den Oberschenkeln, Blickkontakt halten.",
-      2: "Augen geschlossen halten, keine eigenmächtigen Bewegungen, Rederecht nur auf Ansprache.",
-      3: "Vollkommene Reglosigkeit, kein Berühren des eigenen Körpers, kein Orgasmus ohne Freigabe.",
-      4: "Körper entspannen, zudecken lassen, Gefühle und Tränen frei fließen lassen."
-    };
-
-    function generateCustomSessionPlan() {
-      playHarmonicGong(1.2);
-      showToast("✨ Individuelles Regiebuch zusammengestellt!");
-      switchTab('guide');
-      jumpToPhase(1);
-    }
-
-    function openTimerResetModal() {
-      document.getElementById('modal-timer-reset')?.classList.remove('hidden');
-    }
-
-    function closeTimerResetModal() {
-      document.getElementById('modal-timer-reset')?.classList.add('hidden');
-    }
-
-    function confirmTimerReset() {
-      closeTimerResetModal();
-      pauseTimer();
-      timerRemaining = sessionTotalMinutes * 60;
-      sessionElapsedSeconds = 0;
-      updateTimerDisplay();
-      saveSessionSnapshot();
-      playHarmonicGong(1.0);
-      showToast("⏱️ Timer auf Ausgangszeit zurückgesetzt!");
-    }
-
-    function toggleTimer() {
-      if (timerInterval) {
-        pauseTimer();
-      } else {
-        resumeTimer();
-      }
-    }
-
-    function resumeTimer() {
-      if (timerInterval) return;
-      initAudio();
-      requestWakeLock();
-      playHarmonicGong(1.0);
-
-      const btnText = document.getElementById('free-play-text');
-      const btnIcon = document.getElementById('free-play-icon');
-      if (btnText) btnText.innerText = "Pause";
-      if (btnIcon) btnIcon.innerText = "⏸";
-
-      timerInterval = setInterval(() => {
-        if (timerRemaining > 0) {
-          timerRemaining--;
-          sessionElapsedSeconds++;
-          updateTimerDisplay();
-
-          if (checkInIntervalSetting !== 'none' && checkInIntervalSetting !== 'phase') {
-            const intervalSec = parseInt(checkInIntervalSetting, 10) * 60;
-            if (sessionElapsedSeconds > 0 && sessionElapsedSeconds % intervalSec === 0) {
-              openActiveCheckInModal(`Regulärer ${checkInIntervalSetting}-Minuten Ampel-Check`);
-            }
-          }
-
-          if (sessionElapsedSeconds % 10 === 0) {
-            saveSessionSnapshot();
-          }
-        } else {
-          pauseTimer();
-          playHarmonicGong(0.8);
-          showToast("⏱️ Session-Zeit abgelaufen!");
-          jumpToPhase(4);
-        }
-      }, 1000);
-      showToast("▶ Session läuft");
-    }
-
-    function pauseTimer() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      releaseWakeLock();
-      const btnText = document.getElementById('free-play-text');
-      const btnIcon = document.getElementById('free-play-icon');
-      if (btnText) btnText.innerText = "Fortsetzen";
-      if (btnIcon) btnIcon.innerText = "▶";
-    }
-
-    function startTimer(minutes) {
-      pauseTimer();
-      sessionTotalMinutes = minutes;
-      timerRemaining = minutes * 60;
-      sessionElapsedSeconds = 0;
-      updateTimerDisplay();
-
-      ['45', '75', '120'].forEach(m => {
-        const btn = document.getElementById(`btn-free-dur-${m}`);
-        if (btn) {
-          if (parseInt(m, 10) === minutes) {
-            btn.className = "py-2 rounded-xl bg-brand-700 border border-brand-600 text-white touch-pill";
-          } else {
-            btn.className = "py-2 rounded-xl session-panel border text-slate-300 hover:text-white touch-pill";
-          }
-        }
-      });
-
-      renderPhaseUI();
-      saveSessionSnapshot();
-      showToast(`⏱️ Dauer auf ${minutes} Minuten eingestellt.`);
-    }
-
-    function extendTimer(extraMinutes) {
-      timerRemaining += extraMinutes * 60;
-      sessionTotalMinutes += extraMinutes;
-      updateTimerDisplay();
-      renderPhaseUI();
-      saveSessionSnapshot();
-      playHarmonicGong(1.2);
-      showToast(`⏳ Session um ${extraMinutes} Minuten verlängert!`);
-    }
-
-    function updateTimerDisplay() {
-      const el = document.getElementById('timer-display');
-      if (!el) return;
-      const m = Math.floor(timerRemaining / 60);
-      const s = timerRemaining % 60;
-      el.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-
-    function finishSessionGently() {
-      pauseTimer();
-      playHarmonicGong(0.9);
-      jumpToPhase(4);
-      switchTab('guide');
-      showToast("✨ Sanfter Übergang ins Aftercare eingeleitet.");
-    }
-
-    function openIncidentModal() {
-      selectIncidentType('orgasm');
-      selectIncidentSeverity('mittel');
-      document.getElementById('modal-incident-punish')?.classList.remove('hidden');
-    }
-
-    function closeIncidentModal() {
-      document.getElementById('modal-incident-punish')?.classList.add('hidden');
-    }
-
-    function selectIncidentType(type) {
-      selectedIncidentType = type;
-      ['orgasm', 'bratting', 'posture', 'hesitation'].forEach(t => {
-        const btn = document.getElementById(`btn-inc-${t}`);
-        if (btn) btn.className = "p-2 rounded-xl border session-panel text-slate-300 text-left";
-      });
-      const act = document.getElementById(`btn-inc-${type}`);
-      if (act) act.className = "p-2 rounded-xl border bg-rose-950/60 border-rose-700 text-rose-200 text-left";
-      renderIncidentPenalties();
-    }
-
-    function selectIncidentSeverity(sev) {
-      selectedIncidentSeverity = sev;
-      ['leicht', 'mittel', 'schwer'].forEach(s => {
-        const btn = document.getElementById(`btn-inc-sev-${s}`);
-        if (btn) btn.className = "py-1.5 rounded-xl border session-panel text-slate-300";
-      });
-      const act = document.getElementById(`btn-inc-sev-${sev}`);
-      if (act) act.className = "py-1.5 rounded-xl border bg-brand-950/60 border-brand-700 text-brand-200";
-      renderIncidentPenalties();
-    }
-
-    function renderIncidentPenalties() {
-      const container = document.getElementById('incident-penalties-container');
-      if (!container) return;
-
-      const subName = names[subPartner] || 'Partner 2';
-      const domCfg = safetyConfig[getDomPartner()] || {};
-      const subCfg = safetyConfig[subPartner] || {};
-      const disChoice = domCfg.disobedience || subCfg.disobedience || 'spanking';
-
-      let proposals = [];
-
-      if (disChoice === 'talk_only') {
-        proposals.push({
-          title: "Achtsame Klärung im Gespräch (Euer Kodex)",
-          desc: "Innehalten, tief durchatmen und die Erregung gemeinsam ohne Bestrafung besprechen.",
-          quote: `„Wir haben vereinbart, keine Zucht anzuwenden. Sag mir ehrlich, ${subName}, wie wir den Rhythmus wieder angleichen können.“`,
-          action: "Gespräch & Innehalten"
-        });
-      } else if (disChoice === 'formal_corner') {
-        proposals.push({
-          title: "Formale Besinnung: 5 Minuten in der Ecke stehen",
-          desc: "Mit dem Gesicht zur Wand stillstehen und zur Ruhe kommen.",
-          quote: `„Du gehst jetzt zur Besinnung in die Ecke, ${subName}. Finde dort deine Ruhe wieder.“`,
-          action: "Formale Besinnung (5 Min)"
-        });
-      } else if (selectedIncidentType === 'orgasm') {
-        if (selectedIncidentSeverity === 'leicht') {
-          proposals.push({
-            title: "5 Minuten unbewegliche Abbitte auf Knien",
-            desc: "Aufrecht knien, Hände auf den Knien, Blick gesenkt.",
-            quote: `„Du bist ohne meine Erlaubnis gekommen, ${subName}. Du gehst jetzt auf die Knie und verharrst fünf Minuten vollkommen still.“`,
-            action: "Knie-Abbitte (5 Min)"
-          });
-        } else if (selectedIncidentSeverity === 'mittel') {
-          proposals.push({
-            title: "15 flache Handspankings auf das Gesäß",
-            desc: "Flach über den Schoß legen und 15 gezählte Streiche verabreichen.",
-            quote: `„Du hast die Lustkontrolle missachtet. Lege dich quer über meine Oberschenkel und zähle jeden der 15 Hiebe laut mit.“`,
-            action: "15 Handspankings mit Mitzählen"
-          });
-        } else {
-          proposals.push({
-            title: "Ruiniertes Edging & 10 Minuten Zwickmühle",
-            desc: "An die Kante führen und Berührung abrupt stoppen, danach Frogtie-Fesselung.",
-            quote: `„Ein schwerer Verstoß verlangt strenge Disziplin. Du wirst jetzt an die Kante geführt – und genau dort lasse ich dich brennen.“`,
-            action: "Ruiniertes Edging & Zwickmühle"
-          });
-        }
-      } else if (selectedIncidentType === 'bratting') {
-        proposals.push({
-          title: "Matten-Niederringen bis zur vollen Kapitulation",
-          desc: "Primal Wrestling auf der Bodenmatte, Hände pinnen.",
-          quote: `„Du forderst mich heraus? Dann zeig mir, wie lange du dagegenhalten kannst. Auf die Matte!“`,
-          action: "Primal Bändigung"
-        });
-      } else {
-        proposals.push({
-          title: "Haltungs-Disziplinierung mit Hand oder Paddle",
-          desc: "10 dosierte Treffer mit der flachen Hand auf den Po.",
-          quote: `„Jede unruhige Bewegung hat Konsequenzen. Finde jetzt deine Haltung wieder.“`,
-          action: "10 Disziplinierungs-Klapse"
-        });
-      }
-
-      container.innerHTML = proposals.map((p) => `
-        <div class="p-3 rounded-2xl session-panel border border-slate-700/80 space-y-2">
-          <div class="flex items-center justify-between">
-            <strong class="text-xs font-bold text-white">${escapeHtml(p.title)}</strong>
-            <span class="text-[9.5px] font-bold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/80">Sofort-Maßnahme</span>
-          </div>
-          <p class="text-[11px] text-slate-300">${escapeHtml(p.desc)}</p>
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/60 text-[10.5px]">
-            <span class="text-rose-300 font-bold block">🗣️ Wörtlich zum Partner sprechen:</span>
-            <p class="italic text-slate-200 mt-0.5">${escapeHtml(p.quote)}</p>
-          </div>
-          <button onclick="applyIncidentPenaltyDirectly('${escapeHtml(p.action)}', '${escapeHtml(p.title)}')" class="w-full py-2 bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs rounded-xl shadow transition touch-pill flex items-center justify-center gap-1.5">
-            <span>⚡</span> <span>Diese Strafe jetzt anwenden & einweben</span>
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function applyIncidentPenaltyDirectly(actionName, title) {
-      executedActions.push({
-        id: 'incident_' + Date.now(),
-        title: title,
-        category: `Vorfall-Strafe (${selectedIncidentSeverity})`,
-        isNote2: true,
-        sub: subPartner,
-        dom: getDomPartner(),
-        timestamp: Date.now()
-      });
-
-      closeIncidentModal();
-      playHarmonicGong(1.2);
-      showToast(`⚖️ Disziplinierung eingewoben: ${title}`);
-      jumpToPhase(3);
-      switchTab('guide');
-    }
-
-    function advanceToNextStep() {
-      const cfg = phaseConfig[currentPhase - 1];
-      if (!cfg || !cfg.checkpoints) return;
-
-      playHarmonicGong(1.1);
-
-      if (currentPhaseStepIndex < cfg.checkpoints.length - 1) {
-        currentPhaseStepIndex++;
-        renderPhaseUI();
-        showToast("✓ Nächster Schritt aktiv!");
-      } else {
-        if (currentPhase < 4) {
-          currentPhase++;
-          currentPhaseStepIndex = 0;
-          renderPhaseUI();
-          showToast(`✓ Phase ${currentPhase} erreicht!`);
-        } else {
-          finishSessionGently();
-        }
-      }
-    }
-
-    function renderPhaseUI() {
-      const cfg = phaseConfig[currentPhase - 1];
-      if (!cfg) return;
-
-      const stepBadge = document.getElementById('guide-step-badge');
-      const stepName = document.getElementById('guide-step-name');
-      const quote = document.getElementById('phase-prompt-quote');
-      const allocTime = document.getElementById('guide-phase-time-allocated');
-      const subNameLabel = document.getElementById('guide-sub-name');
-      const bottomProtocolText = document.getElementById('guide-bottom-protocol-text');
-
-      const minutesAllocated = Math.round(sessionTotalMinutes * cfg.timePct);
-
-      if (stepBadge) stepBadge.innerText = `Phase ${cfg.step} von 4`;
-      if (stepName) stepName.innerText = cfg.title;
-      if (quote) quote.innerText = cfg.quote;
-      if (allocTime) allocTime.innerText = `ca. ${minutesAllocated} Min.`;
-
-      if (subNameLabel) subNameLabel.innerText = names[subPartner] || 'Partner 2';
-      if (bottomProtocolText) {
-        bottomProtocolText.innerHTML = phaseBottomProtocols[currentPhase] || "Vollkommene Ruhe und Hingabe.";
-      }
-
-      const safewordCard = document.getElementById('guide-safeword-card');
-      if (safewordCard) {
-        if (currentPhase === 1) {
-          safewordCard.classList.remove('hidden');
-        } else {
-          safewordCard.classList.add('hidden');
-        }
-      }
-
-      [1, 2, 3, 4].forEach(s => {
-        const tab = document.getElementById(`stepper-tab-${s}`);
-        if (tab) {
-          if (s === currentPhase) {
-            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition bg-brand-700 text-white border-brand-600 shadow-xs";
-          } else if (s < currentPhase) {
-            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-brand-300 border-brand-800/60";
-          } else {
-            tab.className = "py-2 rounded-xl border text-center text-[10.5px] font-bold transition session-panel text-slate-400 border-slate-700";
-          }
-        }
-      });
-
-      const rawCheckpoints = (currentPhase === 4) ? computeDynamicAftercareCheckpoints() : cfg.checkpoints;
-      const totalSteps = rawCheckpoints.length;
-      if (currentPhaseStepIndex >= totalSteps) currentPhaseStepIndex = Math.max(0, totalSteps - 1);
-
-      const activeStep = rawCheckpoints[currentPhaseStepIndex];
-      const nextStep = rawCheckpoints[currentPhaseStepIndex + 1];
-
-      const indicator = document.getElementById('focus-step-indicator');
-      const focusTitle = document.getElementById('focus-step-title');
-      const focusDesc = document.getElementById('focus-step-desc');
-      const focusQuote = document.getElementById('focus-step-top-quote');
-
-      if (indicator) indicator.innerText = `Schritt ${currentPhaseStepIndex + 1} von ${totalSteps}`;
-
-      if (activeStep) {
-        const aTitle = typeof activeStep === 'string' ? activeStep : activeStep.title;
-        const aDesc = typeof activeStep === 'string' ? 'Diesen Nachsorge-Punkt achtsam gemeinsam umsetzen.' : activeStep.desc;
-        const aQuote = typeof activeStep === 'string' ? '„Ich halte dich ganz fest. Du bist vollkommen sicher bei mir.“' : activeStep.quote;
-
-        if (focusTitle) focusTitle.innerText = aTitle;
-        if (focusDesc) focusDesc.innerText = aDesc;
-        if (focusQuote) focusQuote.innerText = aQuote;
-      }
-
-      const previewBox = document.getElementById('upcoming-step-preview-card');
-      const previewTitle = document.getElementById('preview-step-title');
-      const previewDesc = document.getElementById('preview-step-desc');
-
-      if (nextStep) {
-        if (previewBox) previewBox.classList.remove('hidden');
-        const nTitle = typeof nextStep === 'string' ? nextStep : nextStep.title;
-        const nDesc = typeof nextStep === 'string' ? 'Nächster Nachsorge-Schritt.' : nextStep.desc;
-        if (previewTitle) previewTitle.innerText = nTitle;
-        if (previewDesc) previewDesc.innerText = nDesc;
-      } else {
-        if (previewBox) {
-          if (currentPhase < 4) {
-            previewBox.classList.remove('hidden');
-            if (previewTitle) previewTitle.innerText = `Übergang zu Phase ${currentPhase + 1}`;
-            if (previewDesc) previewDesc.innerText = phaseConfig[currentPhase]?.title || "Nächste Phase";
-          } else {
-            previewBox.classList.add('hidden');
-          }
-        }
-      }
-
-      const injectBox = document.getElementById('phase-dynamic-injection');
-      const debriefBox = document.getElementById('debriefing-box');
-
-      if (currentPhase === 3) {
-        if (injectBox) {
-          injectBox.classList.remove('hidden');
-          const executedHtml = executedActions.length > 0 
-            ? executedActions.map(a => `<span class="px-2 py-1 rounded bg-brand-900/60 border border-brand-700 text-[10.5px] text-brand-200">✓ ${escapeHtml(a.title)}</span>`).join(' ')
-            : '<span class="text-[11px] text-slate-400 italic">Noch keine Strafe eingewoben.</span>';
-
-          injectBox.innerHTML = `
-            <div class="p-3 rounded-2xl bg-brand-950/40 border border-brand-800/50 space-y-1.5 text-xs">
-              <div class="flex justify-between items-center">
-                <strong class="text-brand-300 font-bold">✨ Aktive Aktionen & Strafen für Phase 3:</strong>
-                <button onclick="openIncidentModal()" class="text-[10px] text-rose-400 hover:underline font-bold">⚡ Vorfall disziplinieren</button>
-              </div>
-              <div class="flex flex-wrap gap-1.5 pt-1">${executedHtml}</div>
-            </div>
-          `;
-        }
-        if (debriefBox) debriefBox.classList.add('hidden');
-      } else if (currentPhase === 4) {
-        if (injectBox) injectBox.classList.add('hidden');
-        if (debriefBox) debriefBox.classList.remove('hidden');
-      } else {
-        if (injectBox) injectBox.classList.add('hidden');
-        if (debriefBox) debriefBox.classList.add('hidden');
-      }
-
-      saveSessionSnapshot();
-    }
-
-    function jumpToPhase(phaseNum) {
-      currentPhase = phaseNum;
-      currentPhaseStepIndex = 0;
-      playHarmonicGong(1.1);
-      if (checkInIntervalSetting === 'phase' && phaseNum > 1 && phaseNum <= 4) {
-        openActiveCheckInModal(`Phasenwechsel zu Phase ${phaseNum}: Kurzer Ampel-Check-in`);
-      }
-      renderPhaseUI();
-    }
-
-    function computeDynamicAftercareCheckpoints() {
-      const cfgA = safetyConfig.A || {};
-      const afFocus = cfgA.aftercare || 'warmth';
-
-      let list = [
-        { title: "Fesseln & Klammern vollständig lösen", desc: "Alle Fixierungen lösen und Gelenke sanft kreisen.", quote: "„Du bist vollkommen frei. Atme tief durch und bleib liegen.“" },
-        { title: "Wärmedecken & Wollsocken bereitstellen", desc: "Den Körper warm einpacken gegen Hormonabfall.", quote: "„Kuschel dich fest ein. Ich halte dich warm.“" }
-      ];
-
-      if (afFocus === 'praise_words') {
-        list.push({ title: "Verbales Praise Play & Stolz aussprechen", desc: "Den Partner mit warmen Schutzworten loben und Bestätigung schenken.", quote: "„Du hast das so unglaublich mutig und wunderbar gemacht. Ich bin stolz auf dich.“" });
-      } else if (afFocus === 'bath_care') {
-        list.push({ title: "Pflege-Ritual & Einbalsamieren", desc: "Beanspruchte Hautstellen sanft mit Öl oder Lotion massieren.", quote: "„Ich pflege deine Haut jetzt ganz behutsam. Spüre, wie alles zur Ruhe kommt.“" });
-      } else {
-        list.push({ title: "Körperwärme & wortloses Halten", desc: "Mindestens 15 Minuten stumm im Arm halten und gleichmäßig atmen.", quote: "„Kein Reden jetzt. Schließe die Augen und spüre meinen Herzschlag.“" });
-      }
-
-      if (sessionTotalMinutes >= 45 || sessionElapsedSeconds >= 45 * 60) {
-        list.push({ title: "Traubenzucker oder süßen Tee reichen", desc: "Glukosehaushalt nach Anstrengung auffüllen.", quote: "„Trink einen Schluck süßen Tee und iss ein Stück Traubenzucker.“" });
-      }
-
-      list.push({ title: "24h-Check-in verbindlich vereinbaren", desc: "Rückmeldung für den nächsten Tag absprechen.", quote: "„Morgen Mittag melde ich mich kurz bei dir, um zu hören, wie es dir geht.“" });
-      return list;
-    }
-
-    function switchTab(tabId) {
-      activeTabId = tabId;
-      ['free', 'guide', 'planner', 'punishments'].forEach(t => {
-        const v = document.getElementById(`view-${t}`);
-        const b = document.getElementById(`tab-btn-${t}`);
-        if (v) v.classList.add('hidden');
-        if (b) {
-          b.className = "py-2.5 rounded-xl text-slate-400 hover:text-white transition flex flex-col sm:flex-row items-center justify-center gap-1";
-        }
-      });
-
-      const actView = document.getElementById(`view-${tabId}`);
-      const actBtn = document.getElementById(`tab-btn-${tabId}`);
-      if (actView) actView.classList.remove('hidden');
-      if (actBtn) {
-        actBtn.className = "py-2.5 rounded-xl bg-brand-700 text-white shadow transition flex flex-col sm:flex-row items-center justify-center gap-1";
-      }
-
-      if (tabId === 'punishments') renderPunishments();
-      if (tabId === 'guide') renderPhaseUI();
-    }
-
-    function confirmSafewordInGuide() {
-      const input = document.getElementById('guide-safeword-input');
-      const val = input ? input.value.trim() : '';
-      if (!val) {
-        showToast("Bitte zuerst ein Safeword eingeben.");
-        return;
-      }
-      customSafeword = val;
-      const p1Sw = document.getElementById('phase1-safeword-display');
-      if (p1Sw) p1Sw.innerText = `🌵 Code-Wort: '${val}'`;
-      playHarmonicGong(1.2);
-      saveSessionSnapshot();
-      showToast(`🛡️ Safeword "${val}" bestätigt!`);
-    }
-
-    function triggerTrafficLight(color) {
-      initAudio();
-      if (color === 'green') {
-        playHarmonicGong(1.2);
-        showToast("🟢 GRÜN: Alles bestens!");
-      } else if (color === 'yellow') {
-        playHarmonicGong(0.9);
-        showToast("🟡 GELB: Tempo drosseln / Pause!");
-      } else if (color === 'red') {
-        pauseTimer();
-        document.getElementById('emergency-lantern')?.classList.remove('hidden');
-        playHarmonicGong(0.6);
-      }
-    }
-
-    function closeEmergencyLantern() {
-      document.getElementById('emergency-lantern')?.classList.add('hidden');
-      showToast("Notfall-Beleuchtung geschlossen.");
-    }
-
-    function openActiveCheckInModal(title) {
-      initAudio();
-      playHarmonicGong(1.0);
-      const tEl = document.getElementById('active-checkin-title');
-      if (tEl && title) tEl.innerText = title;
-      document.getElementById('modal-active-checkin')?.classList.remove('hidden');
-    }
-
-    function closeActiveCheckInModal() {
-      document.getElementById('modal-active-checkin')?.classList.add('hidden');
-    }
-
-    function handleCheckInResponse(color) {
-      closeActiveCheckInModal();
-      triggerTrafficLight(color);
-    }
-
-    function setPunishLevel(lvl) {
-      currentPunishLvl = lvl;
-      ['leicht', 'mittel', 'schwer'].forEach(l => {
-        const btn = document.getElementById(`btn-punish-${l}`);
-        if (btn) {
-          if (l === lvl) {
-            btn.className = "py-2 rounded-xl border bg-brand-700 text-white border-brand-600";
-          } else {
-            btn.className = "py-2 rounded-xl border session-panel text-slate-300";
-          }
-        }
-      });
-      renderPunishments();
-    }
-
-    function renderPunishments() {
-      const container = document.getElementById('punishments-list-container');
-      if (!container) return;
-
-      const subAnswers = answers[subPartner] || {};
-      const allChapters = window.surveyChapters || [];
-      let list = [];
-
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          if (it.type === 'choice') return;
-          const r1Key = `it_${it.id}_r1`;
-          const r2Key = `it_${it.id}_r2`;
-          const r1Val = subAnswers[r1Key];
-          const r2Val = subAnswers[r2Key];
-
-          if (r1Val === 1 || r2Val === 1) return;
-
-          const isNote2 = (r1Val === 2 || r2Val === 2);
-          const hasScore = (r1Val >= 2 || r2Val >= 2);
-
-          if (isNote2 || hasScore) {
-            let catLvl = 'mittel';
-            if (it.title.includes('Spanking') || it.title.includes('Paddle') || it.title.includes('Eis') || it.title.includes('Kerker')) {
-              catLvl = 'schwer';
-            } else if (it.title.includes('Knien') || it.title.includes('Betteln') || it.title.includes('Schweigen') || it.title.includes('Tee')) {
-              catLvl = 'leicht';
-            }
-
-            if (catLvl === currentPunishLvl || isNote2) {
-              list.push({
-                item: it,
-                chapter: ch,
-                isNote2: isNote2,
-                role: r2Val ? it.r2 : it.r1
-              });
-            }
-          }
-        });
-      });
-
-      if (list.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 italic text-center py-4">Keine passenden Duldungen gefunden.</p>';
-        return;
-      }
-
-      container.innerHTML = list.slice(0, 15).map(p => `
-        <div class="p-3 rounded-2xl session-panel border border-slate-700/80 space-y-1.5">
-          <div class="flex items-center justify-between">
-            <strong class="text-xs font-bold text-white">${p.item.id}. ${escapeHtml(p.item.title)}</strong>
-            ${p.isNote2 ? '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Note 2 Duldung</span>' : '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold session-card text-slate-300">Match</span>'}
-          </div>
-          <p class="text-[11px] text-slate-300">${escapeHtml(p.desc)}</p>
-          <button onclick="applyIncidentPenaltyDirectly('${escapeHtml(p.role)}', '${escapeHtml(p.item.title)}')" class="w-full py-1.5 mt-1 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow transition touch-pill">
-            ✓ In Phase 3 einweben
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function rollRandomKinkPrompt() {
-      const allChapters = window.surveyChapters || [];
-      let positive = [];
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          const a = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
-          const b = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
-          if (a >= 4 && b >= 4) positive.push(it);
-        });
-      });
-
-      const card = document.getElementById('spontaneous-prompt-card');
-      const t = document.getElementById('spontaneous-prompt-title');
-      const d = document.getElementById('spontaneous-prompt-desc');
-      if (!card || !t || !d) return;
-
-      if (positive.length === 0) {
-        t.innerText = "Sinnlicher Lippentanz";
-        d.innerText = "5 Minuten zärtliches Küssen mit geschlossenen Augen.";
-      } else {
-        const it = positive[Math.floor(Math.random() * positive.length)];
-        t.innerText = `🎲 ${it.title}`;
-        d.innerText = it.desc;
-      }
-      card.classList.remove('hidden');
-      playHarmonicGong(1.2);
-    }
-
-    function openSessionTabuModal() {
-      const container = document.getElementById('session-tabu-list-content');
-      if (!container) return;
-
-      const allChapters = window.surveyChapters || [];
-      const domPartner = getDomPartner();
-      const domName = names[domPartner] || (domPartner === 'A' ? 'Partner 1' : 'Partner 2');
-      const subName = names[subPartner] || (subPartner === 'A' ? 'Partner 1' : 'Partner 2');
-
-      let acuteTabus = [];
-      let generalTabus = [];
-
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          if (it.type === 'choice') return;
-
-          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
-          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
-          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
-          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
-
-          const domR1 = (domPartner === 'A') ? aR1 : bR1;
-          const subR2 = (subPartner === 'A') ? aR2 : bR2;
-
-          let isAcute = false;
-          let acuteReasons = [];
-          if (domR1 === 1) {
-            isAcute = true;
-            acuteReasons.push(`Top ${domName} lehnt Ausführung ab (${it.r1})`);
-          }
-          if (subR2 === 1) {
-            isAcute = true;
-            acuteReasons.push(`Bottom ${subName} lehnt Empfangen ab (${it.r2})`);
-          }
-
-          if (isAcute) {
-            acuteTabus.push({ it, ch, reasons: acuteReasons });
-          }
-
-          let roleHits = [];
-          if (aR1 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Top (Aktiv)', roleText: it.r1 });
-          if (aR2 === 1) roleHits.push({ who: names.A || 'Partner 1', roleType: 'Bottom (Passiv)', roleText: it.r2 });
-          if (bR1 === 1) roleHits.push({ who: names.B || 'Partner 2', roleType: 'Top (Aktiv)', roleText: it.r1 });
-          if (bR2 === 1) roleHits.push({ who: names.B || 'Partner 2', roleType: 'Bottom (Passiv)', roleText: it.r2 });
-
-          if (roleHits.length > 0) {
-            generalTabus.push({ it, ch, roleHits });
-          }
-        });
-      });
-
-      let html = '';
-
-      html += `
-        <div class="p-3 rounded-2xl bg-rose-950/60 border border-rose-700/80 space-y-2">
-          <div class="flex items-center justify-between">
-            <strong class="text-xs font-black text-rose-200 flex items-center gap-1.5">
-              <span>⚡</span> <span>HEUTE AKUT VERBOTEN (Dynamik: ${escapeHtml(domName)} ➔ ${escapeHtml(subName)})</span>
-            </strong>
-            <span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-rose-800 text-white">${acuteTabus.length} No-Gos</span>
-          </div>
-          <p class="text-[10px] text-rose-300 leading-tight">
-            Diese Praktiken dürfen heute keinesfalls vorkommen, weil entweder Top ${escapeHtml(domName)} sie nicht ausführen oder Bottom ${escapeHtml(subName)} sie nicht empfangen möchte.
-          </p>
-          <div class="space-y-1.5 pt-1">
-            ${acuteTabus.length > 0 ? acuteTabus.map(t => `
-              <div class="p-2 rounded-xl bg-slate-900/90 border border-rose-800/60 text-[11px] space-y-0.5">
-                <div class="flex justify-between items-center">
-                  <strong class="text-white">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-                  <span class="text-[9px] font-bold text-rose-400 bg-rose-950 px-1.5 py-0.5 rounded border border-rose-800">Akut</span>
-                </div>
-                <div class="text-[10px] text-rose-300">${t.reasons.map(r => `• ${escapeHtml(r)}`).join('<br>')}</div>
-              </div>
-            `).join('') : '<p class="text-slate-400 italic text-[11px]">Keine akuten No-Gos für diese Rollenverteilung hinterlegt.</p>'}
-          </div>
-        </div>
-      `;
-
-      html += `
-        <div class="space-y-2 pt-2 border-t border-slate-800">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-            Alle hinterlegten Tabus beider Partner (nach Rollen aufgeschlüsselt)
-          </span>
-          <div class="space-y-1.5">
-            ${generalTabus.length > 0 ? generalTabus.map(t => `
-              <div class="p-2.5 rounded-xl session-panel border border-slate-700/60 space-y-1">
-                <div class="flex justify-between items-center">
-                  <strong class="text-slate-200 text-xs">${t.it.id}. ${escapeHtml(t.it.title)}</strong>
-                  <span class="text-[9.5px] text-slate-400 font-medium">${escapeHtml(t.ch.title)}</span>
-                </div>
-                <div class="flex flex-wrap gap-1 pt-0.5">
-                  ${t.roleHits.map(h => `
-                    <span class="px-2 py-0.5 rounded-lg text-[9.5px] font-bold ${h.roleType.includes('Top') ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60' : 'bg-pink-950/80 text-pink-300 border border-pink-700/60'}">
-                      ⛔ ${escapeHtml(h.who)} als ${escapeHtml(h.roleType)}: „${escapeHtml(h.roleText)}“
-                    </span>
-                  `).join('')}
-                </div>
-              </div>
-            `).join('') : '<p class="text-slate-400 italic text-center py-2">Keine Tabus hinterlegt.</p>'}
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = html;
-      document.getElementById('modal-session-tabus')?.classList.remove('hidden');
-    }
-
-    function closeSessionTabuModal() {
-      document.getElementById('modal-session-tabus')?.classList.add('hidden');
+      if (subInd) subInd.innerText = swA === 'traffic' ? 'Ampelsystem & Drop-Tuch' : 'Codewort & Geste';
     }
 
     function updateTabuCounts() {
       const allChapters = window.surveyChapters || [];
       const domPartner = getDomPartner();
       let acuteCount = 0;
-      let totalCount = 0;
 
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
@@ -2461,8 +970,6 @@
           const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
           const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
           const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
-
-          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) totalCount++;
 
           const domR1 = (domPartner === 'A') ? aR1 : bR1;
           const subR2 = (subPartner === 'A') ? aR2 : bR2;
@@ -2471,254 +978,74 @@
       });
 
       const cntEl = document.getElementById('header-tabu-count');
-      if (cntEl) cntEl.innerText = `${acuteCount} akut / ${totalCount}`;
+      if (cntEl) cntEl.innerText = acuteCount;
     }
 
-    function setSubPartner(p) {
-      subPartner = p;
-      const bA = document.getElementById('btn-sub-A');
-      const bB = document.getElementById('btn-sub-B');
-      const pA = document.getElementById('portal-btn-sub-A');
-      const pB = document.getElementById('portal-btn-sub-B');
-
-      if (p === 'A') {
-        if (bA) bA.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition";
-        if (bB) bB.className = "px-2.5 py-1 rounded-lg font-bold session-panel border text-slate-400 transition";
-        if (pA) pA.className = "px-3 py-1.5 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition touch-pill";
-        if (pB) pB.className = "px-3 py-1.5 rounded-xl font-bold session-panel border text-slate-400 transition touch-pill";
-      } else {
-        if (bB) bB.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition";
-        if (bA) bA.className = "px-2.5 py-1 rounded-lg font-bold session-panel border text-slate-400 transition";
-        if (pB) pB.className = "px-3 py-1.5 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition touch-pill";
-        if (pA) pA.className = "px-3 py-1.5 rounded-xl font-bold session-panel border text-slate-400 transition touch-pill";
-      }
-      updateTabuCounts();
-      renderPhaseUI();
-      showToast(`Unterworfener Part: ${names[p] || p}`);
+    function toggleEdgingToolPanel() {
+      edgeCount++;
+      const b = document.getElementById('cockpit-edge-badge');
+      if (b) b.innerText = edgeCount;
+      triggerHapticPulse([120]);
+      showToast(`🎢 Edge #${edgeCount} registriert!`);
     }
 
-    function selectSessionMode(mode) {
-      currentSessionActiveMode = mode;
-      const portal = document.getElementById('session-entry-portal');
-      const workspace = document.getElementById('cockpit-main-workspace');
-      const badge = document.getElementById('active-mode-badge');
-
-      if (portal) portal.classList.add('hidden');
-      if (workspace) workspace.classList.remove('hidden');
-
-      const labels = {
-        free: 'Modus: Freier Flow',
-        guided_flow: 'Modus: Geführte Session',
-        guide: 'Modus: Regiebuch',
-        planner: 'Modus: Szenen-Planer',
-        punishments: 'Modus: Strafen'
-      };
-      if (badge) badge.innerText = labels[mode] || 'Session aktiv';
-
-      if (mode === 'guided_flow') {
-        switchTab('planner');
-      } else {
-        switchTab(mode);
-      }
-
-      saveSessionSnapshot();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function openIncidentDisciplineModal() {
+      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
     }
 
-    function returnToModeSelection() {
-      const portal = document.getElementById('session-entry-portal');
-      const workspace = document.getElementById('cockpit-main-workspace');
-
-      if (workspace) workspace.classList.add('hidden');
-      if (portal) portal.classList.remove('hidden');
-
-      currentSessionActiveMode = null;
-      saveSessionSnapshot();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function closeIncidentDisciplineModal() {
+      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
     }
 
-    function getDomPartner() {
-      return subPartner === 'A' ? 'B' : 'A';
-    }
+    function applyIncidentDiscipline(type) {
+      const res = document.getElementById('incident-action-result');
+      if (!res) return;
 
-    function toggleBlackout() {
-      document.getElementById('blackout-screen')?.classList.toggle('hidden');
-    }
-
-    function toggleSound() {
-      isSoundEnabled = !isSoundEnabled;
-      const stat = document.getElementById('audio-status');
-      const drawerIcon = document.getElementById('drawer-sound-icon');
-      const drawerText = document.getElementById('drawer-sound-text');
-      
-      if (stat) stat.innerText = isSoundEnabled ? 'Gong: Aktiv' : 'Gong: Stumm';
-      if (drawerIcon) drawerIcon.innerText = isSoundEnabled ? '🔔' : '🔕';
-      if (drawerText) drawerText.innerText = isSoundEnabled ? 'Gong: Aktiv' : 'Gong: Stumm';
-
-      showToast(isSoundEnabled ? 'Audio-Gong aktiviert' : 'Audio-Gong stumm');
-    }
-
-    function toggleOledMode() {
-      document.documentElement.classList.toggle('oled-mode');
-      showToast("OLED Pure-Black umgeschaltet");
-    }
-
-    function toggleGlobalTheme() {
-      const isDark = document.documentElement.classList.contains('dark');
-      const newTheme = isDark ? 'light' : 'dark';
-      if (newTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('kompass_theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('kompass_theme', 'light');
-      }
-
-      const drawerIcon = document.getElementById('drawer-theme-icon');
-      const drawerText = document.getElementById('drawer-theme-text');
-      if (drawerIcon) drawerIcon.innerText = (newTheme === 'dark') ? '🌙' : '☀️';
-      if (drawerText) drawerText.innerText = (newTheme === 'dark') ? 'Nachtmodus' : 'Tagmodus';
-    }
-
-    function applySavedTheme() {
-      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      const drawerIcon = document.getElementById('drawer-theme-icon');
-      const drawerText = document.getElementById('drawer-theme-text');
-      if (drawerIcon) drawerIcon.innerText = (savedTheme === 'dark') ? '🌙' : '☀️';
-      if (drawerText) drawerText.innerText = (savedTheme === 'dark') ? 'Nachtmodus' : 'Tagmodus';
-    }
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
-
-    function playHarmonicGong(pitch = 1.0) {
-      if (!isSoundEnabled) return;
-      try {
-        initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(432 * pitch, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 2.5);
-
-        if (navigator.vibrate) {
-          navigator.vibrate([150, 80, 150]);
-        }
-      } catch (e) {
-        console.error("Audio-Gong Fehler:", e);
-      }
-    }
-
-    async function requestWakeLock() {
-      if ('wakeLock' in navigator && !wakeLockInstance) {
-        try {
-          wakeLockInstance = await navigator.wakeLock.request('screen');
-        } catch (e) {
-          console.warn("Wake Lock nicht verfügbar:", e);
-        }
-      }
-    }
-
-    function releaseWakeLock() {
-      if (wakeLockInstance) {
-        wakeLockInstance.release();
-        wakeLockInstance = null;
-      }
-    }
-
-    function saveSessionSnapshot() {
-      const snap = {
-        timerRemaining,
-        sessionTotalMinutes,
-        sessionElapsedSeconds,
-        currentPhase,
-        currentPhaseStepIndex,
-        customSafeword,
-        subPartner,
-        executedActions,
-        checkInIntervalSetting,
-        edgeCount,
-        selectedCountdownDuration,
-        countdownAudioMode,
-        currentSessionActiveMode,
-        timestamp: Date.now()
-      };
-      sessionStorage.setItem('session_snapshot', JSON.stringify(snap));
-    }
-
-    function restoreSessionSnapshot() {
-      try {
-        const raw = sessionStorage.getItem('session_snapshot');
-        if (!raw) return;
-        const snap = JSON.parse(raw);
-        if (snap && snap.timestamp && Date.now() - snap.timestamp < 6 * 3600 * 1000) {
-          timerRemaining = snap.timerRemaining || 45 * 60;
-          sessionTotalMinutes = snap.sessionTotalMinutes || 45;
-          sessionElapsedSeconds = snap.sessionElapsedSeconds || 0;
-          currentPhase = snap.currentPhase || 1;
-          currentPhaseStepIndex = snap.currentPhaseStepIndex || 0;
-          customSafeword = snap.customSafeword || '';
-          subPartner = snap.subPartner || 'B';
-          executedActions = snap.executedActions || [];
-          if (snap.edgeCount !== undefined) {
-            edgeCount = snap.edgeCount;
-            const b1 = document.getElementById('edge-count-badge');
-            const b2 = document.getElementById('cockpit-edge-badge');
-            if (b1) b1.innerText = `Edge ${edgeCount}`;
-            if (b2) b2.innerText = `${edgeCount} Edges`;
-          }
-          if (snap.selectedCountdownDuration) {
-            setCountdownDuration(snap.selectedCountdownDuration);
-          }
-          if (snap.countdownAudioMode) {
-            setCountdownAudioMode(snap.countdownAudioMode);
-          }
-          if (snap.currentSessionActiveMode) {
-            selectSessionMode(snap.currentSessionActiveMode);
-          }
-        }
-      } catch (e) {
-        console.error("Snapshot-Ladefehler:", e);
-      }
-    }
-
-    function saveDeBriefing() {
-      const intA = document.getElementById('slider-intensity-a')?.value || '7';
-      const intB = document.getElementById('slider-intensity-b')?.value || '7';
-      const notes = document.getElementById('debrief-notes')?.value || '';
-
-      const entry = {
-        date: new Date().toLocaleDateString('de-DE'),
-        intensityA: intA,
-        intensityB: intB,
-        notes: notes,
-        durationMinutes: Math.round(sessionElapsedSeconds / 60)
+      const actions = {
+        frech: "✋ Handspanking: 10 kontrollierte Hiebe über den Knien mit lautem Mitzählen.",
+        stillhalten: "🧘 Kniebank: 5 Minuten regungslos knien mit Blick auf den Boden.",
+        zeit: "⏳ Keuschheit verlängert: Schlüssel bleibt für weitere 24 Stunden verschlossen."
       };
 
-      const diary = JSON.parse(localStorage.getItem('kompass_diary') || '[]');
-      diary.push(entry);
-      localStorage.setItem('kompass_diary', JSON.stringify(diary));
-      playHarmonicGong(1.2);
-      showToast("💾 Im verschlüsselten Tagebuch gespeichert!");
+      res.innerText = actions[type] || "Konsequenz erteilt.";
+      res.classList.remove('hidden');
+      triggerHapticPulse([150, 100, 150]);
     }
 
-    function loadAppData() {
+    function openBedsideZenModal() {
+      showToast("🫁 Vagusnerv-Atmung: 4 Sekunden einatmen, 6 Sekunden ausatmen");
+    }
+
+    function openTabuModal() {
+      showToast("⛔ Tabu-Check: Keine Schläge auf Gelenke oder Wirbelsäule, kein Atemwegsverschluss.");
+    }
+
+    function showToast(msg) {
+      const c = document.getElementById('toast-container');
+      if (!c) return;
+      const el = document.createElement('div');
+      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+      el.innerText = msg;
+      c.appendChild(el);
+
+      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+      setTimeout(() => {
+        el.classList.add('opacity-0');
+        setTimeout(() => { el.remove(); }, 300);
+      }, 2500);
+    }
+
+    function escapeHtml(str) {
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function loadStorageData() {
       try {
         const a = localStorage.getItem('kompass_answers');
         const nm = localStorage.getItem('kompass_names');
@@ -2727,60 +1054,18 @@
         if (a) answers = JSON.parse(a);
         if (nm) names = JSON.parse(nm);
         if (sc) safetyConfig = JSON.parse(sc);
-
-        const countA = Object.keys(answers.A || {}).length;
-        const countB = Object.keys(answers.B || {}).length;
-        const gate = document.getElementById('gate-survey-incomplete');
-
-        if (countA < 5 && countB < 5) {
-          if (gate) gate.classList.remove('hidden');
-          return;
-        } else {
-          if (gate) gate.classList.add('hidden');
-        }
-
-        const subA = document.getElementById('sub-name-A');
-        const subB = document.getElementById('sub-name-B');
-        if (subA) subA.innerText = names.A || 'Partner 1';
-        if (subB) subB.innerText = names.B || 'Partner 2';
-
-        document.querySelectorAll('.portal-sub-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
-        document.querySelectorAll('.portal-sub-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
-
-        updateSafetyCodexUI();
-        updateTabuCounts();
       } catch (e) {
         console.error("Ladefehler:", e);
       }
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      if (!t) return;
-      t.innerText = msg;
-      t.classList.remove('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        t.classList.add('opacity-0', 'pointer-events-none');
-      }, 2500);
+      ensureDataIntegrity();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      checkSiteLockscreen();
-      applySavedTheme();
-      loadAppData();
-      restoreSessionSnapshot();
-      updateTimerDisplay();
-      renderPhaseUI();
+      loadStorageData();
+      renderTimerDisplay();
+      updatePortalRoleCardsUI();
+      updateSafetyCodexUI();
+      updateTabuCounts();
     });
   </script>
 </body>
