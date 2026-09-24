@@ -181,13 +181,33 @@
         </div>
       </div>
 
+      <!-- ZENTRALE NAVIGATION (EXAKT WIE IM FRAGEBOGEN & ANALYSE) -->
+      <nav class="hidden md:flex items-center session-panel p-1 rounded-xl border text-xs font-bold">
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+          <span>📝</span> <span>Fragebogen</span>
+        </a>
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1">
+          <span>🛡️</span> <span>Sicherheits-Kodex</span>
+        </a>
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+          <span>👤</span> <span>Mein Profil</span>
+        </a>
+        <a href="analyse.html" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1">
+          <span>📊</span> <span>Paar-Analyse</span>
+        </a>
+      </nav>
+
       <!-- Quick Action Controls -->
       <div class="flex items-center gap-1.5">
+        <!-- IMMER SICHTBARER DIREKTSPRUNG ZUM FRAGEBOGEN -->
+        <a href="index.html#view=survey" class="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Zurück zum Fragebogen">
+          <span>📝</span> <span class="font-extrabold text-[11px]">Fragebogen</span>
+        </a>
         <button onclick="openSessionDiaryModal()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Session-Tagebuch einsehen">
-          <span>📖</span> <span class="hidden sm:inline text-[11px]">Logbuch</span>
+          <span>📖</span> <span class="hidden lg:inline text-[11px]">Logbuch</span>
         </button>
         <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
-          <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
+          <span>📜</span> <span class="hidden lg:inline text-[11px]">Sicherheit</span>
         </button>
         <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus für heute Abend einsehen">
           <span>⛔</span> (<span id="header-tabu-count">0</span>)
@@ -195,9 +215,6 @@
         <button onclick="toggleBlackout()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
           <span>🌑</span>
         </button>
-        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 session-panel hover:border-brand-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs transition flex items-center gap-1 touch-pill">
-          <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
-        </a>
       </div>
     </div>
   </header>
