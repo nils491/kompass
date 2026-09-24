@@ -1,4 +1,4 @@
-// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass (Hardened & Error-Safe)
+// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass (Vollständig, gehärtet & fehlerfrei)
 
 let currentUser = 'A';
 let currentChapterIndex = 0;
@@ -520,7 +520,6 @@ function checkOnboardingStatus() {
   const u = currentUser;
   if (accounts[u]?.setupDone) return;
 
-  // Wenn der Nutzer bereits Antworten abgegeben hat, Setup als erledigt markieren und nicht mehr belästigen
   const hasAnswers = Object.keys(answers[u] || {}).length > 0;
   if (hasAnswers) {
     if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
@@ -545,7 +544,6 @@ function openOnboardingModal() {
 }
 
 function closeOnboardingModal() {
-  // Überspringen oder Schließen speichert das Setup dauerhaft, sodass es nie wieder aufpoppt
   const u = currentUser;
   if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
   accounts[u].setupDone = true;
@@ -605,6 +603,40 @@ function updateOnboardingStepUI() {
 function prevOnboardingStep() {
   if (onboardingStep > 1) {
     onboardingStep--;
+    updateOnboardingStepUI();
+  }
+}
+
+function nextOnboardingStep() {
+  if (onboardingStep < 4) {
+    onboardingStep++;
+    updateOnboardingStepUI();
+  } else {
+    const u = currentUser;
+    const nameInput = document.getElementById('onboarding-name-input');
+    if (nameInput && nameInput.value.trim()) {
+      names[u] = nameInput.value.trim();
+    }
+    const emailInput = document.getElementById('onboarding-email-input');
+    if (emailInput && emailInput.value.trim()) {
+      if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
+      accounts[u].email = emailInput.value.trim();
+    }
+    const privRadios = document.getElementsByName('onboarding-privacy');
+    let privMode = 'blind';
+    privRadios.forEach(r => { if (r.checked) privMode = r.value; });
+    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true };
+    privacy[u].mode = privMode;
+    if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
+    accounts[u].setupDone = true;
+    saveToLocalStorage();
+    closeOnboardingModal();
+    updateCurrentUserUI();
+    renderCurrentChapter();
+    showToast("Setup abgeschlossen! Viel Freude mit dem Kompass ✨");
+  }
+}
+
 function getGlobalProgressData(userKey = currentUser) {
   if (!window.surveyChapters) return { pct: 0, answered: 0, total: 0 };
   let totalQuestions = 0;
@@ -633,7 +665,6 @@ function setSurveyFilter(filter) {
         btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition";
       }
 
-      // Dynamische Beschriftung bei > 30 %
       if (f === 'unanswered') {
         if (prog.pct >= 30) {
           btn.innerHTML = `⚡ Unbeantwortet (Global)`;
@@ -667,7 +698,6 @@ function renderCurrentChapter() {
   const uShame = (shameFlags && shameFlags[currentUser]) || {};
   const uNotes = (notes && notes[currentUser]) || {};
 
-  // GLOBALER MODUS FÜR UNBEANTWORTETE FRAGEN BEI >= 30 % FORTSCHRITT
   if (activeSurveyFilter === 'unanswered' && prog.pct >= 30) {
     renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes);
     return;
@@ -783,7 +813,6 @@ function renderCurrentChapter() {
   container.innerHTML = html;
 }
 
-// RENDERT DIE GLOBALE SAMMELANSICHT ALLER OFFENEN FRAGEN AUS ALLEN 35 KAPITELN
 function renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes) {
   const container = document.getElementById('survey-items-container');
   if (!container) return;
@@ -793,7 +822,6 @@ function renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes) {
   const desc = document.getElementById('chapter-desc');
   const count = document.getElementById('chapter-items-count');
 
-  // Alle noch offenen Fragen aus ALLEN Kapiteln sammeln
   let globalUnanswered = [];
   (window.surveyChapters || []).forEach((ch, chIdx) => {
     (ch.items || []).forEach(it => {
@@ -887,7 +915,6 @@ function renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes) {
   container.innerHTML = html;
 }
 
-// HILFSFUNKTION: EINE EINZELNE FRAGE-KARTE GENERIEREN (FÜR NORMALE & GLOBALE ANSICHT)
 function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext = null) {
   const keyR1 = `it_${it.id}_r1`;
   const keyR2 = `it_${it.id}_r2`;
@@ -1133,7 +1160,6 @@ function updateProgressBar() {
   if (fill) fill.style.width = `${prog.pct}%`;
   if (txt) txt.innerText = `Fortschritt: ${prog.pct} % (${prog.answered}/${prog.total})`;
 
-  // Button-Label dynamisch anpassen
   const btnUnanswered = document.getElementById('filter-btn-unanswered');
   if (btnUnanswered) {
     if (prog.pct >= 30) {
@@ -1599,7 +1625,7 @@ function renderSingleAnalysis() {
   }
 
   if (emptyBox) emptyBox.classList.add('hidden');
-  if (contentBox) contentBox.classList.remove('hidden');
+  contentBox.classList.remove('hidden');
 
   let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
   let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
@@ -1609,11 +1635,12 @@ function renderSingleAnalysis() {
     (ch.items || []).forEach(it => {
       const v1 = uAnswers[`it_${it.id}_r1`];
       const v2 = uAnswers[`it_${it.id}_r2`];
-      if (typeof v1 === 'number') { totalTop += v1; cTop++; }
-      if (typeof v2 === 'number') { totalBottom += v2; cBottom++; }
+      // 0 (Entfällt / Desinteresse) wird aus Verhältnissen und Durchschnitten herausgehalten
+      if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
+      if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
 
       const addPoints = (val) => {
-        if (typeof val === 'number') {
+        if (typeof val === 'number' && val > 0) {
           if ([21, 22, 23, 29].includes(ch.id)) { pPower += val; countPower += 5; }
           else if ([13, 14, 16, 17, 31].includes(ch.id)) { pSensation += val; countSensation += 5; }
           else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
@@ -1749,8 +1776,9 @@ function renderSingleRadar() {
           if (it.type !== 'choice') {
             const s1 = uAnswers[`it_${it.id}_r1`];
             const s2 = uAnswers[`it_${it.id}_r2`];
-            if (typeof s1 === 'number') { earned += s1; possible += 5; }
-            if (typeof s2 === 'number') { earned += s2; possible += 5; }
+            // 0 = Entfällt: Weder bei erreichten Punkten noch beim Nenner werten
+            if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
+            if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
           }
         });
       }
