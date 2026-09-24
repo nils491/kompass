@@ -417,9 +417,26 @@ function loadFromLocalStorage() {
 }
 
 function checkUrlHashData() {
-  if (!window.location.hash.startsWith('#data=')) return;
+  const hash = window.location.hash || '';
+
+  // 1. Direkte Ansichten-Navigation via Hash (#view=survey, #view=safety, #view=single)
+  if (hash.includes('view=')) {
+    if (hash.includes('view=safety')) {
+      switchMainView('safety');
+      return;
+    } else if (hash.includes('view=single')) {
+      switchMainView('single');
+      return;
+    } else {
+      switchMainView('survey');
+      return;
+    }
+  }
+
+  // 2. Verschlüsselte Antwortdaten laden
+  if (!hash.startsWith('#data=')) return;
   try {
-    const raw = window.location.hash.replace('#data=', '');
+    const raw = hash.replace('#data=', '');
     const json = decodeURIComponent(escape(atob(raw)));
     const payload = JSON.parse(json);
 
