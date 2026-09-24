@@ -672,30 +672,45 @@ function getGlobalProgressData(userKey = currentUser) {
 function setSurveyFilter(filter) {
   activeSurveyFilter = filter;
   const prog = getGlobalProgressData();
+  const isComplete = (prog.pct >= 100 || (prog.total > 0 && prog.answered >= prog.total));
 
   ['all', 'unanswered', 'high', 'tabu', 'shame'].forEach(f => {
     const btn = document.getElementById(`filter-btn-${f}`);
     if (btn) {
       if (f === filter) {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition";
+        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition whitespace-nowrap";
       } else {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition";
+        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition whitespace-nowrap";
       }
 
       if (f === 'unanswered') {
-        if (prog.pct >= 30) {
+        if (isComplete) {
+          btn.innerHTML = `✓ Alle beantwortet`;
+          btn.title = "Alle Fragen im Bogen sind vollständig beantwortet";
+        } else if (prog.pct >= 30) {
           btn.innerHTML = `⚡ Unbeantwortet (Global)`;
           btn.title = "Zeigt alle noch offenen Fragen aus allen Kapiteln gebündelt an";
         } else {
           btn.innerHTML = `⏳ Unbeantwortet`;
           btn.title = "Zeigt offene Fragen des aktuellen Kapitels (ab 30 % global für alle Kapitel)";
         }
+      } else if (f === 'high') {
+        btn.innerHTML = isComplete ? `⭐ 4–5 Favoriten (Global)` : `⭐ 4–5 Favoriten`;
+        btn.title = isComplete ? "Alle Favoriten aus allen 35 Kapiteln gebündelt" : "Favoriten des aktuellen Kapitels";
+      } else if (f === 'tabu') {
+        btn.innerHTML = isComplete ? `⛔ Tabus (Global)` : `⛔ Tabus (1)`;
+        btn.title = isComplete ? "Alle Tabus aus allen 35 Kapiteln gebündelt" : "Tabus des aktuellen Kapitels";
+      } else if (f === 'shame') {
+        btn.innerHTML = isComplete ? `🙈 Hemmschwellen (Global)` : `🙈 Hemmschwelle`;
+        btn.title = isComplete ? "Alle Hemmschwellen aus allen 35 Kapiteln gebündelt" : "Hemmschwellen des aktuellen Kapitels";
       }
     }
   });
 
-  if (filter === 'unanswered' && prog.pct >= 30) {
+  if (filter === 'unanswered' && prog.pct >= 30 && !isComplete) {
     showToast("⚡ Global-Filter aktiv: Alle noch offenen Fragen aus allen Kapiteln");
+  } else if (isComplete && filter !== 'all') {
+    showToast(`🌐 Global-Filter aktiv: Alle ${filter === 'high' ? 'Favoriten' : (filter === 'tabu' ? 'Tabus' : (filter === 'shame' ? 'Hemmschwellen' : 'Punkte'))} aus allen Kapiteln`);
   }
 
   renderCurrentChapter();
@@ -714,7 +729,15 @@ function renderCurrentChapter() {
   const uAnswers = (answers && answers[currentUser]) || {};
   const uShame = (shameFlags && shameFlags[currentUser]) || {};
   const uNotes = (notes && notes[currentUser]) || {};
+  const isComplete = (prog.pct >= 100 || (prog.total > 0 && prog.answered >= prog.total));
 
+  // 1. Wenn 100 % fertig und ein Filter aktiv ist (Favoriten, Tabus, Hemmschwellen): GLOBAL RENDERN!
+  if (isComplete && activeSurveyFilter !== 'all') {
+    renderGlobalFilteredView(prog, uAnswers, uShame, uNotes, activeSurveyFilter);
+    return;
+  }
+
+  // 2. Wenn ab 30 % der Unbeantwortet-Filter gewählt wurde: GLOBAL RENDERN!
   if (activeSurveyFilter === 'unanswered' && prog.pct >= 30) {
     renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes);
     return;
@@ -826,6 +849,115 @@ function renderCurrentChapter() {
       </button>
     </div>
   `;
+
+  container.innerHTML = html;
+}
+
+// GENERALISIERTER GLOBAL-FILTER FÜR 100% ABGESCHLOSSENE FRAGEBÖGEN
+function renderGlobalFilteredView(prog, uAnswers, uShame, uNotes, filterType) {
+  const container = document.getElementById('survey-items-container');
+  if (!container) return;
+
+  const badge = document.getElementById('chapter-badge');
+  const title = document.getElementById('chapter-title');
+  const desc = document.getElementById('chapter-desc');
+  const count = document.getElementById('chapter-items-count');
+
+  let matches = [];
+  (window.surveyChapters || []).forEach((ch, chIdx) => {
+    (ch.items || []).forEach(it => {
+      const vR1 = uAnswers[`it_${it.id}_r1`];
+      const vR2 = uAnswers[`it_${it.id}_r2`];
+      const isShame = !!uShame[it.id];
+
+      let isMatch = false;
+      if (filterType === 'high') {
+        isMatch = (vR1 !== undefined && vR1 >= 4) || (vR2 !== undefined && vR2 >= 4);
+      } else if (filterType === 'tabu') {
+        isMatch = (vR1 === 1 || vR2 === 1);
+      } else if (filterType === 'shame') {
+        isMatch = (isShame === true);
+      } else if (filterType === 'unanswered') {
+        isMatch = (it.type === 'choice') ? (uAnswers[`it_${it.id}_choice`] === undefined) : (vR1 === undefined || vR2 === undefined);
+      }
+
+      if (isMatch) {
+        if (surveySearchQuery) {
+          const matchTitle = (it.title || '').toLowerCase().includes(surveySearchQuery);
+          const matchDesc = (it.desc || '').toLowerCase().includes(surveySearchQuery);
+          if (!matchTitle && !matchDesc) return;
+        }
+        matches.push({ chapter: ch, chapterIndex: chIdx, item: it });
+      }
+    });
+  });
+
+  const filterMeta = {
+    high: { icon: "⭐", name: "Favoriten (Note 4–5)", bannerBg: "from-emerald-950/60 to-emerald-900/40 border-emerald-800 text-emerald-200" },
+    tabu: { icon: "⛔", name: "Persönliche Tabus (Note 1)", bannerBg: "from-rose-950/60 to-rose-900/40 border-rose-800 text-rose-200" },
+    shame: { icon: "🙈", name: "Hemmschwellen", bannerBg: "from-purple-950/60 to-purple-900/40 border-purple-800 text-purple-200" },
+    unanswered: { icon: "⚡", name: "Offene Fragen", bannerBg: "from-amber-950/60 to-amber-900/40 border-amber-800 text-amber-200" }
+  };
+  const meta = filterMeta[filterType] || filterMeta.high;
+
+  if (badge) badge.innerText = `🌐 Global-Filter (100 % fertig)`;
+  if (title) title.innerText = `${meta.icon} Alle ${meta.name} über alle 35 Kapitel`;
+  if (desc) desc.innerText = `Da du den Bogen vollständig ausgefüllt hast, siehst du hier deine gesamte ${meta.name}-Sammlung aus allen 35 Kapiteln gebündelt in einer Übersicht.`;
+  if (count) count.innerText = `${matches.length} Treffer`;
+
+  const prevBtn = document.getElementById('btn-prev-chapter');
+  const nextBtn = document.getElementById('btn-next-chapter');
+  const nextBtnBottom = document.getElementById('btn-next-chapter-bottom');
+
+  if (prevBtn) {
+    prevBtn.disabled = false;
+    prevBtn.innerText = "← Zurück zur Kapitelansicht";
+    prevBtn.onclick = () => setSurveyFilter('all');
+  }
+  if (nextBtn) {
+    nextBtn.innerText = "Zurück zur Kapitelansicht →";
+    nextBtn.onclick = () => setSurveyFilter('all');
+  }
+  if (nextBtnBottom) {
+    nextBtnBottom.innerText = "Zurück zur Kapitelansicht →";
+    nextBtnBottom.onclick = () => setSurveyFilter('all');
+  }
+
+  if (matches.length === 0) {
+    container.innerHTML = `
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-3 shadow-xs">
+        <span class="text-3xl block">${meta.icon}</span>
+        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Keine Treffer für ${meta.name}</h3>
+        <p class="text-xs text-slate-500">Es wurden keine Praktiken mit diesem Kriterium im gesamten Fragebogen gefunden.</p>
+        <button onclick="setSurveyFilter('all')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition touch-pill">
+          Zurück zur normalen Kapitelansicht
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="p-3.5 bg-gradient-to-r ${meta.bannerBg} rounded-2xl flex items-center justify-between gap-3 text-xs mb-3 shadow-xs">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">${meta.icon}</span>
+        <div>
+          <strong class="text-white block">${matches.length} ${meta.name} im gesamten Bogen gefunden</strong>
+          <span class="text-[10.5px] opacity-80">Jede Karte zeigt das zugehörige Kapitel. Änderungen werden live synchronisiert.</span>
+        </div>
+      </div>
+      <button onclick="setSurveyFilter('all')" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-900 border border-slate-700 text-white font-bold rounded-xl text-xs transition touch-pill">
+        Filter beenden
+      </button>
+    </div>
+  `;
+
+  matches.forEach(({ chapter, chapterIndex, item }) => {
+    html += renderSingleItemCardHtml(item, uAnswers, uShame, uNotes, {
+      chapterName: chapter.title,
+      chapterIndex: chapterIndex
+    });
+  });
 
   container.innerHTML = html;
 }
