@@ -93,15 +93,32 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
-          <span id="theme-icon">🌙</span> <span class="hidden md:inline text-[11px]" id="theme-label">Nacht</span>
-        </button>
-        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill">
-          <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
+      <!-- ZENTRALE NAVIGATION (EXAKT WIE IM FRAGEBOGEN) -->
+      <nav class="hidden md:flex items-center theme-panel p-1 rounded-xl border text-xs font-bold">
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+          <span>📝</span> <span>Fragebogen</span>
         </a>
-        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
-          <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1">
+          <span>🛡️</span> <span>Sicherheits-Kodex</span>
+        </a>
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+          <span>👤</span> <span>Mein Profil</span>
+        </a>
+        <span class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-xs flex items-center gap-1 cursor-default">
+          <span>📊</span> <span>Paar-Analyse</span>
+        </span>
+      </nav>
+
+      <div class="flex items-center gap-1.5">
+        <!-- IMMER SICHTBARER DIREKTSPRUNG ZUM FRAGEBOGEN -->
+        <a href="index.html#view=survey" class="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Zurück zum Fragebogen">
+          <span>📝</span> <span class="font-extrabold text-[11px]">Fragebogen</span>
+        </a>
+        <button onclick="toggleGlobalTheme()" class="px-2 py-1.5 theme-panel border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Design wechseln">
+          <span id="theme-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-label">Nacht</span>
+        </button>
+        <a href="session.html" class="px-2 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit">
+          <span>🕯️</span> <span class="hidden lg:inline text-[11px]">Cockpit</span>
         </a>
       </div>
     </div>
@@ -421,6 +438,7 @@
     }
 
     function checkSurveyDataGate() {
+      ensureAnalysisDataIntegrity();
       const countA = Object.keys(answers.A || {}).length;
       const countB = Object.keys(answers.B || {}).length;
       const gate = document.getElementById('gate-analyse-incomplete');
@@ -430,11 +448,60 @@
       if (countA < 5 || countB < 5) {
         if (gate) {
           gate.classList.remove('hidden');
-          gate.querySelector('h2').innerText = (countA < 5 && countB < 5) 
-            ? "Fragebogen noch von beiden unvollständig" 
-            : `Warte auf ${countA < 5 ? (names.A || 'Partner 1') : (names.B || 'Partner 2')}`;
-          gate.querySelector('p').innerText = "Die Paar- und Tiefenanalyse wird freigeschaltet, sobald BEIDE Partner mindestens 5 Praktiken im Fragebogen bewertet haben.";
+          const h2 = gate.querySelector('h2');
+          const p = gate.querySelector('p');
+          if (h2) {
+            h2.innerText = (countA < 5 && countB < 5) 
+              ? "Fragebogen noch von beiden unvollständig" 
+              : `Warte auf ${countA < 5 ? (names.A || 'Partner 1') : (names.B || 'Partner 2')}`;
+          }
+          if (p) {
+            p.innerText = "Die Paar- und Tiefenanalyse wird freigeschaltet, sobald BEIDE Partner mindestens 5 Praktiken im Fragebogen bewertet haben.";
+          }
         }
+        if (container) container.classList.add('hidden');
+        return false;
+      } else {
+        if (gate) gate.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
+        return true;
+      }
+    }
+
+    function ensureAnalysisDataIntegrity() {
+      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+      if (!answers.A || typeof answers.A !== 'object') answers.A = {};
+      if (!answers.B || typeof answers.B !== 'object') answers.B = {};
+      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+      if (!names.A) names.A = 'Partner 1';
+      if (!names.B) names.B = 'Partner 2';
+      if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
+      if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
+      if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
+    }
+
+    function loadStorageData() {
+      try {
+        const a = localStorage.getItem('kompass_answers');
+        const n = localStorage.getItem('kompass_notes');
+        const sh = localStorage.getItem('kompass_shame');
+        const sc = localStorage.getItem('kompass_safety_config');
+        const ck = localStorage.getItem('kompass_custom_kinks');
+        const nm = localStorage.getItem('kompass_names');
+        const an = localStorage.getItem('kompass_anatomy');
+
+        if (a) answers = JSON.parse(a);
+        if (n) notes = JSON.parse(n);
+        if (sh) shameFlags = JSON.parse(sh);
+        if (sc) safetyConfig = JSON.parse(sc);
+        if (ck) customKinks = JSON.parse(ck);
+        if (nm) names = JSON.parse(nm);
+        if (an) anatomy = JSON.parse(an);
+      } catch (e) {
+        console.error("Fehler beim Laden:", e);
+      }
+      ensureAnalysisDataIntegrity();
+    }
         if (container) container.classList.add('hidden');
         return false;
       } else {
