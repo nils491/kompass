@@ -504,36 +504,6 @@
       }
       ensureAnalysisDataIntegrity();
     }
-        if (container) container.classList.add('hidden');
-        return false;
-      } else {
-        if (gate) gate.classList.add('hidden');
-        if (container) container.classList.remove('hidden');
-        return true;
-      }
-    }
-
-    function loadStorageData() {
-      try {
-        const a = localStorage.getItem('kompass_answers');
-        const n = localStorage.getItem('kompass_notes');
-        const sh = localStorage.getItem('kompass_shame');
-        const sc = localStorage.getItem('kompass_safety_config');
-        const ck = localStorage.getItem('kompass_custom_kinks');
-        const nm = localStorage.getItem('kompass_names');
-        const an = localStorage.getItem('kompass_anatomy');
-
-        if (a) answers = JSON.parse(a);
-        if (n) notes = JSON.parse(n);
-        if (sh) shameFlags = JSON.parse(sh);
-        if (sc) safetyConfig = JSON.parse(sc);
-        if (ck) customKinks = JSON.parse(ck);
-        if (nm) names = JSON.parse(nm);
-        if (an) anatomy = JSON.parse(an);
-      } catch (e) {
-        console.error("Fehler beim Laden:", e);
-      }
-    }
 
     function applySavedTheme() {
       const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
