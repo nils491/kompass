@@ -895,8 +895,9 @@
                 if (it.type !== 'choice') {
                   const s1 = uAnswers[`it_${it.id}_r1`];
                   const s2 = uAnswers[`it_${it.id}_r2`];
-                  if (typeof s1 === 'number') { earned += s1; possible += 5; }
-                  if (typeof s2 === 'number') { earned += s2; possible += 5; }
+                  // 0 (Entfällt) nicht in das Verhältnis einrechnen
+                  if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
+                  if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
                 }
               });
             }
@@ -960,10 +961,10 @@
         (ch.items || []).forEach(it => {
           const v1 = uAnswers[`it_${it.id}_r1`];
           const v2 = uAnswers[`it_${it.id}_r2`];
-          if (typeof v1 === 'number') { totalTop += v1; cTop++; }
-          if (typeof v2 === 'number') { totalBottom += v2; cBottom++; }
+          if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
+          if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
           const add = (val) => {
-            if (typeof val === 'number') {
+            if (typeof val === 'number' && val > 0) {
               if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
               else if ([13, 16, 17].includes(ch.id)) { pSensation += val; countSensation += 5; }
               else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
@@ -1079,8 +1080,9 @@
               if (it.type !== 'choice') {
                 const s1 = uAnswers[`it_${it.id}_r1`];
                 const s2 = uAnswers[`it_${it.id}_r2`];
-                if (typeof s1 === 'number') { earned += s1; possible += 5; }
-                if (typeof s2 === 'number') { earned += s2; possible += 5; }
+                // 0 (Entfällt) nicht in den Teiler einrechnen
+                if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
+                if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
               }
             });
           }
