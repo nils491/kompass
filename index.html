@@ -136,61 +136,66 @@
   </script>
 
   <!-- HEADER NAVIGATION -->
-  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="1.5" fill="#f43f5e" />
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Intim- & Paar-Kompass</h1>
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b shadow-sm">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
+      <!-- ZEILE 1: LOGO & ESSENTIELLE AKTIONEN (NIEMALS ÜBERLAUFEND) -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
+              <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
+              <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
+              <circle cx="12" cy="1.5" fill="#f43f5e" />
+            </svg>
           </div>
-          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Hetero-Dynamik</span>
+          <div class="truncate">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none truncate">Intim- & Paar-Kompass</h1>
+              <span class="px-1 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">SSC</span>
+            </div>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5">Erkenntnis & Hetero-Dynamik</span>
+          </div>
+        </div>
+
+        <!-- Schnell-Aktionen rechts -->
+        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+          <a href="session.html" onclick="return handleProtectedNavigation(event, 'session.html')" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit">
+            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
+          </a>
+          <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition touch-pill" title="Tabu-Liste einsehen">
+            <span>⛔</span> <span id="header-tabu-count">0</span>
+          </button>
+          <button onclick="openLexikonModal()" class="p-1.5 sm:px-2 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="A–Z Lexikon">
+            <span>📖</span>
+          </button>
+          <button onclick="openShareModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill" title="Mit Partner teilen">
+            <span>🔗</span>
+          </button>
+          <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="p-1.5 sm:px-2 theme-panel border rounded-xl text-xs font-bold transition flex items-center touch-pill" title="Tag/Nacht wechseln">
+            <span id="theme-toggle-icon">🌙</span>
+          </button>
+          <button onclick="openAccountModal()" class="p-1.5 sm:px-2 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition touch-pill" title="Einstellungen & Anatomie">
+            <span>⚙️</span>
+          </button>
         </div>
       </div>
 
-      <nav class="flex items-center theme-panel p-1 rounded-xl border text-xs font-bold overflow-x-auto">
-        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
-          📝 Fragebogen
+      <!-- ZEILE 2: DURCHGÄNGIGE APP-TABS (AUF ALLEN SMARTPHONES 100% SICHTBAR & WISCHBAR) -->
+      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
+          <span>📝</span> <span>Fragebogen</span>
         </button>
-        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1 font-bold">
-          <span>🛡️ Sicherheits-Kodex</span>
+        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 font-bold whitespace-nowrap flex-shrink-0 touch-pill">
+          <span>🛡️</span> <span>Sicherheits-Kodex</span>
         </button>
-        <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-          👤 Mein Profil
+        <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
+          <span>👤</span> <span>Mein Profil</span>
         </button>
-        <a href="analyse.html" onclick="return handleProtectedNavigation(event, 'analyse.html')" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1 font-bold">
-          <span>📊 Paar-Analyse ↗</span>
+        <a href="analyse.html" onclick="return handleProtectedNavigation(event, 'analyse.html')" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 font-bold whitespace-nowrap flex-shrink-0 touch-pill">
+          <span>📊</span> <span>Paar-Analyse ↗</span>
         </a>
       </nav>
-
-      <div class="flex items-center gap-1 sm:gap-1.5">
-        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2 py-1.5 sm:px-2.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten">
-          <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
-        </button>
-        <a href="session.html" onclick="return handleProtectedNavigation(event, 'session.html')" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
-          <span>🕯️</span> <span class="hidden md:inline">Session</span>
-        </a>
-        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition" title="Tabu-Liste einsehen">
-          <span>⛔</span> (<span id="header-tabu-count">0</span>)
-        </button>
-        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="A–Z Lexikon">
-          <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
-        </button>
-        <button onclick="openShareModal()" class="px-2.5 sm:px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
-          <span>🔗</span> <span class="hidden xs:inline">Teilen</span>
-        </button>
-        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="Account, Anatomie & Einstellungen">
-          <span>⚙️</span>
-        </button>
-      </div>
     </div>
   </header>
 
