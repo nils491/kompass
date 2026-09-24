@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kink- & Beziehungs-Kompass (Master-Version)</title>
+  <title>Wissenschaftliche Paar- & Tiefenanalyse</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -31,14 +31,6 @@
               800: '#9f1239',
               900: '#881337',
               950: '#4c0519',
-            },
-            noir: {
-              950: '#05070c',
-              900: '#090d16',
-              850: '#101624',
-              800: '#161f33',
-              700: '#23304b',
-              600: '#38496d',
             }
           }
         }
@@ -46,69 +38,33 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      padding-left: env(safe-area-inset-left, 0px);
-      padding-right: env(safe-area-inset-right, 0px);
     }
-    
     html.dark body { background-color: #05070c !important; color: #f8fafc !important; }
-    html.dark .theme-card { background-color: #0f1523 !important; border-color: #1e293b !important; color: #f8fafc !important; }
-    html.dark .theme-panel { background-color: #141c2e !important; border-color: #24334f !important; color: #e2e8f0 !important; }
-    html.dark .bg-white { background-color: #0f1523 !important; color: #f8fafc !important; }
-    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 { background-color: #141c2e !important; color: #e2e8f0 !important; }
-    html.dark .bg-slate-100 { background-color: #1a2438 !important; color: #f8fafc !important; }
-    html.dark .border-slate-200, html.dark .border-slate-300 { border-color: #1e293b !important; }
-    html.dark .text-slate-900, html.dark .text-slate-800 { color: #f8fafc !important; }
-    html.dark .text-slate-700 { color: #cbd5e1 !important; }
-    html.dark .text-slate-600, html.dark .text-slate-500 { color: #94a3b8 !important; }
-    html.dark input[type="text"], html.dark input[type="email"], html.dark textarea { background-color: #141c2e !important; border-color: #24334f !important; color: #f8fafc !important; }
-
+    html.dark .theme-card { background-color: #0c101a !important; border-color: #1a2336 !important; color: #f8fafc !important; }
+    html.dark .theme-panel { background-color: #111726 !important; border-color: #1f2b42 !important; color: #e2e8f0 !important; }
     html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
     html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
-    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
-    html:not(.dark) .bg-white { background-color: #ffffff !important; color: #0f172a !important; }
-    html:not(.dark) .bg-slate-50 { background-color: #f8fafc !important; color: #334155 !important; }
-    html:not(.dark) .border-slate-200 { border-color: #e2e8f0 !important; }
-
+    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
     .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-    .touch-pill:active { transform: scale(0.96); }
+    .touch-pill:active { transform: scale(0.97); }
   </style>
-  <script>
-    function verifySitePassword() {
-      const input = document.getElementById('site-pw-input');
-      const err = document.getElementById('pw-error-hint');
-      const lock = document.getElementById('site-lockscreen');
-      if (!input) return;
-
-      if (input.value.trim() === 'Bommelchen!') {
-        sessionStorage.setItem('kompass_unlocked', 'true');
-        if (lock) lock.classList.add('hidden');
-        if (err) err.classList.add('hidden');
-        if (typeof showToast === 'function') showToast("Erfolgreich entsperrt!");
-        if (typeof checkOnboardingStatus === 'function') checkOnboardingStatus();
-      } else {
-        if (err) err.classList.remove('hidden');
-      }
-    }
-  </script>
 </head>
-<body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
   <!-- SPERRBILDSCHIRM (PASSWORT) -->
-  <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+  <div id="site-lockscreen" class="fixed inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
       <div class="w-16 h-16 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-2xl shadow-inner">
         🔒
       </div>
       <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Privater Beziehungs-Kompass</h2>
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Paar-Analyse gesperrt</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Diese Seite enthält vertrauliche Intimbereiche. Bitte gib das Zugangspasswort ein.
+          Bitte gib das Zugangspasswort ein, um die detaillierte psychologische Paaranalyse zu öffnen.
         </p>
       </div>
       <div class="space-y-3">
@@ -121,665 +77,1064 @@
     </div>
   </div>
 
-  <!-- HEADER NAVIGATION -->
-  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0">
-          <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-            <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-            <circle cx="12" cy="1.5" fill="#f43f5e" />
-          </svg>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-sm">
+          📊
         </div>
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-extrabold tracking-tight leading-none">Intim- & Paar-Kompass</h1>
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-brand-950 text-brand-300 border border-brand-800 uppercase">SSC</span>
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Wissenschaftliche Paar-Analyse</h1>
+            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">35+ Studien</span>
           </div>
-          <span class="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">Erkenntnis & Hetero-Dynamik</span>
+          <span class="text-[9.5px] sm:text-[10px] text-slate-400 font-medium block mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
         </div>
       </div>
 
-      <nav class="flex items-center theme-panel p-1 rounded-xl border text-xs font-bold overflow-x-auto">
-        <button onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition">
-          📝 Fragebogen
+      <div class="flex items-center gap-1.5">
+        <button onclick="toggleGlobalTheme()" class="px-2.5 py-1.5 theme-panel border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
+          <span id="theme-icon">🌙</span> <span class="hidden md:inline text-[11px]" id="theme-label">Nacht</span>
         </button>
-        <button onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1 font-bold">
-          <span>🛡️ Sicherheits-Kodex</span>
-        </button>
-        <button onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-          👤 Mein Profil
-        </button>
-        <a href="analyse.html" onclick="return handleProtectedNavigation(event, 'analyse.html')" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1 font-bold">
-          <span>📊 Paar-Analyse ↗</span>
+        <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill">
+          <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
         </a>
-      </nav>
-
-      <div class="flex items-center gap-1 sm:gap-1.5">
-        <button onclick="toggleGlobalTheme()" id="btn-global-theme" class="px-2 py-1.5 sm:px-2.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1" title="Design umschalten">
-          <span id="theme-toggle-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-toggle-label">Nacht</span>
-        </button>
-        <a href="session.html" onclick="return handleProtectedNavigation(event, 'session.html')" class="px-2.5 py-1.5 bg-brand-950 hover:bg-brand-900 text-brand-200 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition">
-          <span>🕯️</span> <span class="hidden md:inline">Session</span>
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 theme-panel hover:border-brand-700 border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill">
+          <span>🧭</span> <span class="hidden sm:inline text-[11px]">Kompass</span>
         </a>
-        <button onclick="openTabuModal()" class="px-2 py-1.5 bg-brand-950/40 hover:bg-brand-900/60 text-brand-300 font-bold rounded-xl text-xs border border-brand-800 flex items-center gap-1 transition" title="Tabu-Liste einsehen">
-          <span>⛔</span> (<span id="header-tabu-count">0</span>)
-        </button>
-        <button onclick="openLexikonModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="A–Z Lexikon">
-          <span>📖</span> <span class="hidden sm:inline">Lexikon</span>
-        </button>
-        <button onclick="openShareModal()" class="px-2.5 sm:px-3 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1 touch-pill">
-          <span>🔗</span> <span class="hidden xs:inline">Teilen</span>
-        </button>
-        <button onclick="openAccountModal()" class="p-1.5 sm:px-2.5 sm:py-1.5 theme-panel hover:border-slate-500 border rounded-xl text-xs font-bold transition" title="Account, Anatomie & Einstellungen">
-          <span>⚙️</span>
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- SUB-HEADER: NUTZER & FORTSCHRITT -->
-  <div class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2">
-    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5 text-xs">
-      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <span class="text-[10.5px] font-bold text-slate-500 pl-2">Du füllst aus für:</span>
-        <button onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs">
-          <span>🔵</span> <span id="user-display-A">Partner 1 (♂️)</span>
-        </button>
-        <button onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
-          <span>🟣</span> <span id="user-display-B">Partner 2 (♀️)</span>
-        </button>
-      </div>
+  <!-- HAUPTINHALT -->
+  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
-      <div class="flex items-center gap-2.5 flex-1 max-w-xs sm:max-w-md justify-end">
-        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap" id="progress-text">Fortschritt: 0 %</span>
-        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
-          <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
-        </div>
+    <!-- SPERRBILDSCHIRM BEI UNVOLLSTÄNDIGEM FRAGEBOGEN -->
+    <div id="gate-analyse-incomplete" class="hidden theme-card rounded-3xl p-8 text-center space-y-5 border border-rose-500/30 shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-3xl mx-auto flex items-center justify-center shadow-inner">
+        🔒
       </div>
+      <div class="max-w-md mx-auto space-y-2">
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Auswertung noch nicht verfügbar</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Die Paar- und Tiefenanalyse basiert auf euren persönlichen Bewertungen. Bitte füllt zuerst die ersten Kapitel im Fragebogen aus.
+        </p>
+      </div>
+      <a href="index.html" class="inline-block px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
+        Jetzt zum Fragebogen wechseln →
+      </a>
     </div>
-  </div>
 
-  <!-- HAUPTBEREICH -->
-  <main class="max-w-5xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
-    <section id="view-survey" class="space-y-4">
-      <div id="chapter-quick-grid" class="hidden bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs space-y-2">
-        <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-          <span>📑 Kapitel-Schnellverzeichnis</span>
-          <span class="text-[10px] text-slate-400 font-normal">Tippe auf ein Kapitel zum direkten Wechsel</span>
-        </div>
-        <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1 text-[11px]"></div>
+    <!-- ANZEIGEBEREICH WENN DATEN VORHANDEN -->
+    <div id="analyse-workspace-container" class="space-y-5">
+
+      <!-- TOP-LEVEL TABS -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
+        <button onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5">
+          <span>👥</span> <span>Paar-Synergie & Matches</span>
+        </button>
+        <button onclick="switchAnalysisTab('self')" id="tab-self" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>🧠</span> <span>Psychologische Individualanalyse</span>
+        </button>
       </div>
 
-      <!-- FILTER- & SUCHLEISTE -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
-        <div class="flex flex-wrap items-center gap-1.5" id="survey-filter-buttons">
-          <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition">
-            Alle
-          </button>
-          <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition">
-            ⏳ Unbeantwortet
-          </button>
-          <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-emerald-700 hover:bg-emerald-50 border border-slate-200 transition">
-            ⭐ 4–5 Favoriten
-          </button>
-          <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-rose-700 hover:bg-rose-50 border border-slate-200 transition">
-            ⛔ Tabus (1)
-          </button>
-          <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-purple-700 hover:bg-purple-50 border border-slate-200 transition">
-            🙈 Hemmschwelle
-          </button>
-        </div>
-        <div class="flex-1 min-w-[180px] max-w-xs">
-          <input type="text" id="survey-search-input" onkeyup="handleSurveySearch(this.value)" placeholder="Kapitel durchsuchen..." class="w-full text-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        </div>
-      </div>
-
-      <!-- KAPITEL-KOPFZEILE -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-md text-[10.5px] font-black bg-brand-50 text-brand-700 border border-brand-200 uppercase" id="chapter-badge">
-              Kapitel 1
-            </span>
-            <span class="text-xs text-slate-400 font-bold" id="chapter-items-count">0 Praktiken</span>
+      <!-- VIEW 1: PAAR-SYNERGIE -->
+      <section id="view-pair-analysis" class="space-y-5">
+        <div id="pair-locked-banner" class="hidden theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-2xl mx-auto flex items-center justify-center">
+            🔒
           </div>
-          <h2 class="text-base sm:text-lg font-black text-slate-900 mt-1" id="chapter-title">Lade Kapitel...</h2>
-          <p class="text-xs text-slate-500 mt-0.5 leading-relaxed" id="chapter-desc">Beschreibung lädt...</p>
-        </div>
-
-        <div class="flex items-center gap-1.5 self-end sm:self-center">
-          <button onclick="prevChapter()" id="btn-prev-chapter" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition disabled:opacity-30 disabled:pointer-events-none">
-            ← Zurück
-          </button>
-          <button onclick="nextChapter()" id="btn-next-chapter" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-            Weiter →
-          </button>
-        </div>
-      </div>
-
-      <!-- FRAGEN-CONTAINER -->
-      <div id="survey-items-container" class="space-y-3.5"></div>
-
-      <!-- UNTERE NAVIGATION -->
-      <div class="flex justify-between items-center pt-2">
-        <button onclick="prevChapter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
-          ← Vorheriges Kapitel
-        </button>
-        <button onclick="nextChapter()" id="btn-next-chapter-bottom" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-          Nächstes Kapitel →
-        </button>
-      </div>
-    </section>
-
-    <!-- VIEW SAFETY: KONSENS- & SICHERHEITS-KONFIGURATOR (SCHRITT 2 NACH DEM FRAGEBOGEN) -->
-    <section id="view-safety" class="space-y-4 hidden">
-      <div class="bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800">
-            Schritt 2: Verbindliche Vereinbarungen
-          </span>
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-1">
-            Euer Sicherheits- & Konsens-Kodex
-          </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-            Klasse, der Kink-Fragebogen ist ausgefüllt! Nun legt ihr die 6 verbindlichen Sicherheits-Module fest (Cutter, Safewords, Vital-Checks, Aftercare etc.). Diese Vereinbarungen fließen nicht als 0–5-Vorlieben in die Kink-Matches ein, sondern bilden das geschützte Fundament für eure gemeinsamen Sessions.
+          <h3 class="text-base font-extrabold text-white">Paar-Analyse ist noch geschützt</h3>
+          <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+            Die gemeinsame Gegenüberstellung wird freigeschaltet, sobald <strong>beide Partner</strong> ihre Bewertungen abgegeben haben.
           </p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-300 flex items-center justify-center text-2xl flex-shrink-0">
-          🛡️
-        </div>
-      </div>
-
-      <div id="safety-configurator-full-container"></div>
-
-      <div class="flex justify-between items-center pt-2">
-        <button onclick="switchMainView('survey')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 transition">
-          ← Zurück zum Fragebogen
-        </button>
-        <button onclick="switchMainView('single')" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
-          ✓ Sicherheits-Kodex bestätigen & Zu Mein Profil →
-        </button>
-      </div>
-    </section>
-
-    <!-- VIEW B: MEIN PROFIL -->
-    <section id="view-single" class="space-y-5 hidden">
-      <div id="single-empty-state" class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-4 shadow-xs">
-        <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 text-2xl mx-auto flex items-center justify-center">
-          🌱
-        </div>
-        <div class="max-w-md mx-auto space-y-1.5">
-          <h3 class="text-base font-extrabold text-slate-900">Dein Profil erwacht mit deinen Antworten</h3>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            Du hast für <strong id="empty-state-username">Partner 1</strong> bisher noch keine oder zu wenige Fragen beantwortet.
-          </p>
-        </div>
-        <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-          Jetzt Fragebogen starten →
-        </button>
-      </div>
-
-      <div id="single-content-state" class="space-y-5 hidden">
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-              Wissenschaftliches Profil
-            </span>
-            <h2 class="text-lg font-extrabold text-slate-900 mt-1">
-              Persönlichkeitsanalyse von <span id="single-profile-name" class="text-indigo-600">Partner 1</span>
-            </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Gestützt auf die Studien aus dem wissenschaftlichen Repository.</p>
-          </div>
-          <a href="analyse.html" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-xs transition">
-            Zur großen Paaranalyse ↗
+          <a href="index.html" class="inline-block px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition touch-pill">
+            Zum Fragebogen zurückkehren →
           </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <h3 class="text-xs font-bold text-slate-800 flex items-center justify-between">
-              <span>🕸️ Archetypen-Radar</span>
+        <div id="pair-unlocked-content" class="space-y-5">
+          <!-- 4 Haupt-KPIs -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
+              <span class="text-2xl font-black text-white" id="kpi-harmony">0 %</span>
+              <span class="text-[10px] text-slate-400 block">Gemeinsame Basis</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er Volltreffer</span>
+              <span class="text-2xl font-black text-emerald-400" id="kpi-doppel5">0</span>
+              <span class="text-[10px] text-emerald-400/80 block">Beidseitige Leidenschaft</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
+              <span class="text-2xl font-black text-amber-400" id="kpi-bridges">0</span>
+              <span class="text-[10px] text-amber-400/80 block">Wunsch trifft Neugier</span>
+            </div>
+            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Absolute Tabus</span>
+              <span class="text-2xl font-black text-rose-400" id="kpi-tabus">0</span>
+              <span class="text-[10px] text-rose-400/80 block">Top- & Bottom-Schranken</span>
+            </div>
+          </div>
+
+          <!-- UNSER VERBINDLICHER SICHERHEITS-KODEX -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-teal-500/40 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-teal-500/20 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📜</span>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-teal-300">Unser verbindlicher Konsens- & Sicherheits-Kodex</h3>
+                  <p class="text-[10px] text-slate-400">Das Fundament eurer gemeinsamen Sessions (Nicht als 0–5 bewertet, sondern fest vereinbart)</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/40">Vereinbart</span>
+            </div>
+            <div id="safety-codex-display" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs"></div>
+          </div>
+
+          <!-- Radar & Paar-Psychologie -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                    <span>⚡</span> Paar-Synergie im Radar
+                  </h3>
+                  <p class="text-[10.5px] text-slate-400">Vergleich der 9 erotischen Hauptdimensionen</p>
+                </div>
+                <div class="flex items-center gap-2.5 text-[11px] font-bold">
+                  <span class="text-indigo-400" id="legend-name-A">🔵 Partner 1</span>
+                  <span class="text-purple-400" id="legend-name-B">🟣 Partner 2</span>
+                </div>
+              </div>
+              <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+                <canvas id="pairRadarCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Wissenschaftliches Paar-Gutachten -->
+            <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs">
+              <div class="border-b border-slate-800 pb-2">
+                <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Wissenschaftliches Gutachten</span>
+                <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">Neuro-psychologische Komplementarität</h3>
+              </div>
+              <div id="pair-scientific-gutachten" class="space-y-2 text-xs leading-relaxed text-slate-300 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- BRÜCKENBAU & GESPRÄCHSLEITFADEN -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Psychologischer Gesprächs-Katalysator</span>
+                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">💬 Brückenbau: Wünsche ohne Rechtfertigungsdruck besprechen</h3>
+              </div>
+              <span class="text-[10.5px] text-amber-300 font-bold" id="bridges-count-badge">0 Brücken</span>
+            </div>
+            <div id="bridges-interactive-container" class="space-y-2"></div>
+          </div>
+
+          <!-- DOPPEL-5ER VOLLTREFFER -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-emerald-500/30 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Beidseitige Leidenschaft</span>
+                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">⭐ Eure gemeinsamen Doppel-5er Volltreffer</h3>
+              </div>
+              <span class="text-[10.5px] text-emerald-300 font-bold" id="doppel5-count-badge">0 Volltreffer</span>
+            </div>
+            <div id="doppel5-interactive-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
+          </div>
+
+          <!-- EROTISCHES LOGBUCH & SESSION-HISTORIE -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-pink-500/40 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-pink-500/20 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📖</span>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-pink-300">Erotisches Logbuch & Beziehungs-Historie</h3>
+                  <p class="text-[10px] text-slate-400">Aus dem Schlafzimmer-Begleiter übernommene Sessions, Erkenntnisse & Highlights</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40" id="diary-total-count-badge">0 Einträge</span>
+            </div>
+            <div id="pair-session-diary-container" class="space-y-2.5 text-xs">
+              <!-- Dynamisch aus dem Tagebuch gefüllt -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: PSYCHOLOGISCHE INDIVIDUALANALYSE -->
+      <section id="view-self-analysis" class="space-y-5 hidden">
+        <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-bold">Wissenschaftliche Individualanalyse für:</span>
+            <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border text-xs font-bold">
+              <button onclick="setSelfAnalysisUser('A')" id="btn-self-A" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs">Partner 1</button>
+              <button onclick="setSelfAnalysisUser('B')" id="btn-self-B" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Partner 2</button>
+            </div>
+          </div>
+          <span class="text-[11px] text-slate-400 font-mono" id="self-answered-stat">0 Fragen bewertet</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-2 shadow-xs">
+            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
+              <span>🕸️ Erotisches Archetypen-Radar</span>
               <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
             </h3>
-            <div class="relative h-64 w-full flex items-center justify-center">
-              <canvas id="singleRadarChart"></canvas>
+            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+              <canvas id="selfRadarCanvas"></canvas>
             </div>
           </div>
 
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3 flex flex-col justify-between">
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 shadow-xs flex flex-col justify-between">
             <div class="space-y-1">
-              <h3 class="text-xs font-bold text-slate-800">📊 Die 5 Motivations-Säulen</h3>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Verteilung deiner Antriebe:</p>
+              <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
+              <p class="text-[11px] text-slate-400">Verteilung deiner inneren Antriebe:</p>
             </div>
-            
             <div class="space-y-2.5 text-xs">
               <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
                   <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
-                  <span id="bar-val-power">0 %</span>
+                  <span id="self-bar-val-power">0 %</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div id="bar-fill-power" class="bg-indigo-600 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Sensorik & Schmerz (Impact, Shibari, Temperatur)</span>
-                  <span id="bar-val-sensation">0 %</span>
-                </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div id="bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-power" class="bg-indigo-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
-
               <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Fürsorge & Geborgenheit (Caregiver, Decken, Nurturing)</span>
-                  <span id="bar-val-nurturing">0 %</span>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
+                  <span id="self-bar-val-sensation">0 %</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div id="bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
-
               <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Tabubruch & Nervenkitzel (CNC, Verhör, Fear)</span>
-                  <span id="bar-val-thrill">0 %</span>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Fürsorge & Geborgenheit (Caregiver, Nurturing)</span>
+                  <span id="self-bar-val-nurturing">0 %</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div id="bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
-
               <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-700 mb-0.5">
-                  <span>Visuelle Erotik & Lingerie (CFNM, Leder, Dessous)</span>
-                  <span id="bar-val-visual">0 %</span>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Tabubruch & Mentaler Kick (CNC, Verhör)</span>
+                  <span id="self-bar-val-thrill">0 %</span>
                 </div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div id="bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                  <span>Visuelle Erotik & Lingerie (CFNM, Leder)</span>
+                  <span id="self-bar-val-visual">0 %</span>
+                </div>
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+                  <div id="self-bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
             </div>
-
-            <div class="text-[10px] text-slate-400 italic">Echtzeit-Berechnung aus deinen Antworten</div>
+            <div class="text-[10px] text-slate-400 italic">Berechnet aus den individuellen Antworten</div>
           </div>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
-          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">🔬 Tiefenpsychologisches Psychogramm</h3>
-          <div id="single-interpretation-box" class="text-xs text-slate-600 leading-relaxed"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <h3 class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⭐</span> Deine absoluten Highlights (Note 5)
+        <!-- GROSSES WISSENSCHAFTLICHES PSYCHOGRAMM -->
+        <div class="theme-card p-5 rounded-2xl border space-y-3 shadow-xs">
+          <div class="border-b border-slate-800 pb-2">
+            <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Psychologische Fundierung</span>
+            <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">
+              Woher deine Vorlieben kommen & wie sie im Kopf funktionieren
             </h3>
-            <div id="single-high-prio-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
+            <p class="text-xs text-slate-400">Empirische Analyse gestützt auf 35+ wissenschaftliche Studien</p>
           </div>
-
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
-            <h3 class="text-xs font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⛔</span> Deine persönlichen Tabus (Note 1)
-            </h3>
-            <div id="single-tabus-list" class="space-y-1.5 text-xs max-h-64 overflow-y-auto pr-1"></div>
-          </div>
+          <div id="self-scientific-deep-analysis" class="space-y-3 text-xs leading-relaxed text-slate-300"></div>
         </div>
-      </div>
-    </section>
+      </section>
+
+    </div>
   </main>
 
-  <!-- MODAL: GATING -->
-  <div id="modal-gating-incomplete" class="hidden fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border border-amber-500/40 text-xs">
-      <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-2xl mx-auto flex items-center justify-center shadow-inner">
-        🔒
-      </div>
-      <div class="space-y-1.5">
-        <h3 class="text-base font-extrabold text-slate-900 dark:text-white" id="gating-modal-title">Erst Fragebogen ausfüllen</h3>
-        <p class="text-slate-500 dark:text-slate-300 leading-relaxed" id="gating-modal-desc">
-          Um dein Profil, die Paar-Analyse oder den Session-Begleiter freizuschalten, musst du zuerst mindestens einige Punkte im Fragebogen bewerten.
-        </p>
-      </div>
-      <button onclick="closeGatingModal()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xs transition touch-pill">
-        Zurück zum Fragebogen →
-      </button>
-    </div>
-  </div>
+  <footer class="border-t theme-card px-4 py-4 text-center text-xs text-slate-500">
+    🔒 100 % Lokale Verschlüsselung im Browser. Keine Cloud, kein Tracking.
+  </footer>
 
-  <!-- MODAL: ONBOARDING -->
-  <div id="modal-onboarding" class="hidden fixed inset-0 z-[90] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs max-h-[90vh] flex flex-col justify-between">
-      <div class="p-5 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400">Willkommen im Kompass</span>
-          <h3 class="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">Setup für <span id="onboarding-user-title">Partner 1</span></h3>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-[10px] text-slate-600 dark:text-slate-300" id="onboarding-step-indicator">Schritt 1 von 4</span>
-          <button type="button" onclick="closeOnboardingModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold">✕</button>
-        </div>
-      </div>
-
-      <div class="p-6 space-y-5 overflow-y-auto flex-1">
-        <div id="onboarding-step-1" class="space-y-4">
-          <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">1. Name & Geschlechtsorgane</strong>
-            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Wähle deine körperliche Anatomie, damit sich alle Fragen dynamisch an eure heterosexuelle Dynamik anpassen.
-            </p>
-          </div>
-          <input type="text" id="onboarding-name-input" placeholder="Dein Name oder Kosename..." class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-
-          <div class="space-y-2 pt-1">
-            <span class="block text-slate-700 dark:text-slate-300 font-bold text-[11px]">Deine Geschlechtsorgane:</span>
-            <div class="flex gap-2">
-              <button type="button" onclick="selectOnboardingAnatomy('penis')" id="onboarding-anat-penis" class="flex-1 p-3 rounded-2xl border bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs text-left touch-pill">
-                <span class="text-lg block">🍆</span>
-                <strong class="block text-xs mt-0.5">Penis & Hoden</strong>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Männliche Rolle</span>
-              </button>
-              <button type="button" onclick="selectOnboardingAnatomy('vulva')" id="onboarding-anat-vulva" class="flex-1 p-3 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700 text-left touch-pill hover:bg-slate-100">
-                <span class="text-lg block">🌸</span>
-                <strong class="block text-xs mt-0.5">Vulva & Vagina</strong>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 block font-normal">Weibliche Rolle</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div id="onboarding-step-2" class="hidden space-y-4">
-          <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">2. Anleitung: Wie bewerte ich richtig?</strong>
-            <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
-              Jede Praktik hat zwei Zeilen: <strong>Aktiv (Ausführen)</strong> und <strong>Passiv (Empfangen)</strong>.
-            </p>
-          </div>
-          <div class="space-y-2 text-[10.5px]">
-            <div class="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60">
-              <strong class="text-rose-950 dark:text-rose-200 font-bold block">⛔ Note 1: Absolutes Tabu & Grenze</strong>
-              Keinesfalls tun oder empfangen. Landet sofort in der roten Schutzcharta.
-            </div>
-            <div class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60">
-              <strong class="text-indigo-950 dark:text-indigo-200 font-bold block">🎁 Note 2: Dem Partner zuliebe / Strafe</strong>
-              Kein eigenes Verlangen, aber dem Partner zuliebe oder als D/s-Strafe akzeptiert.
-            </div>
-            <div class="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60">
-              <strong class="text-blue-950 dark:text-blue-200 font-bold block">💡 Note 3: Neugierig / Gesprächsbedarf</strong>
-              Offen dafür, erfordert aber vorheriges Absprechen von Bedingungen.
-            </div>
-            <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60">
-              <strong class="text-amber-950 dark:text-amber-200 font-bold block">✨ Note 4: Reizvoll / Bereicherung</strong>
-              Macht mich an und bereichert unser Liebesleben gern regelmäßig.
-            </div>
-            <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60">
-              <strong class="text-emerald-950 dark:text-emerald-200 font-bold block">⭐ Note 5: Leidenschaft / Must-Have</strong>
-              Absolute Lieblingspraktik. Trifft es auf eine 5 des Partners, entsteht ein Doppel-5er.
-            </div>
-          </div>
-        </div>
-
-        <div id="onboarding-step-3" class="hidden space-y-3">
-          <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">3. Datenfreigabe an den Partner</strong>
-          </div>
-          <div class="space-y-2">
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
-              <input type="radio" name="onboarding-privacy" value="blind" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
-              <div>
-                <strong class="text-slate-900 dark:text-white block font-bold">Selektiver Blind-Match (Empfohlen)</strong>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Sichtbar sind gemeinsame Schnittmengen (3–5) und Tabus (1). Einseitige Noten bleiben verborgen.</span>
-              </div>
-            </label>
-            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
-              <input type="radio" name="onboarding-privacy" value="open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
-              <div>
-                <strong class="text-slate-900 dark:text-white block font-bold">Vollständig offene Einsicht</strong>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Alle vergebenen Noten von 0 bis 5 sind gegenseitig vollständig einsehbar.</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div id="onboarding-step-4" class="hidden space-y-3">
-          <div class="space-y-1">
-            <strong class="text-slate-900 dark:text-white text-sm block">4. E-Mail-Sicherung (Optional)</strong>
-            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">
-              Lass dir deinen Zugangs-Link zuschicken, um ihn niemals zu verlieren.
-            </p>
-          </div>
-          <input type="email" id="onboarding-email-input" placeholder="name@beispiel.de (optional)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-        </div>
-      </div>
-
-      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-shrink-0">
-        <button id="onboarding-btn-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs">
-          ← Zurück
-        </button>
-        <button type="button" onclick="closeOnboardingModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-semibold">
-          Überspringen & direkt starten
-        </button>
-        <button id="onboarding-btn-next" onclick="nextOnboardingStep()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs touch-pill">
-          Weiter →
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: ACCOUNT -->
-  <div id="modal-account" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-          <span>⚙️</span> Account & Einstellungen (<span id="account-active-username">Partner 1</span>)
-        </h3>
-        <button onclick="closeAccountModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
-      </div>
-      <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-        <div class="space-y-1.5">
-          <label class="font-bold text-slate-700 block">Dein angezeigter Name:</label>
-          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-semibold text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
-        </div>
-        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-          <strong class="text-slate-900 font-bold text-xs block">Geschlechtsorgane & Hetero-Dynamik:</strong>
-          <div class="space-y-2">
-            <div>
-              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Deine Organe:</span>
-              <div class="flex gap-2">
-                <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-2 px-3 rounded-xl border bg-brand-50 border-brand-500 text-brand-950 font-bold text-xs shadow-xs touch-pill">
-                  🍆 Penis (Mann)
-                </button>
-                <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
-                  🌸 Vulva (Frau)
-                </button>
-              </div>
-            </div>
-            <div class="pt-1 border-t border-slate-200/80">
-              <span class="text-[10.5px] font-bold text-slate-600 block mb-1">Organe des Partners:</span>
-              <div class="flex gap-2">
-                <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100">
-                  🍆 Penis (Mann)
-                </button>
-                <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-2 px-3 rounded-xl border bg-indigo-50 border-indigo-500 text-indigo-950 font-bold text-xs shadow-xs touch-pill">
-                  🌸 Vulva (Frau)
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-          <strong class="text-slate-900 font-bold text-xs block">Rechte & Freigabe:</strong>
-          <div class="space-y-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="radio" name="account-privacy-mode" value="blind" onchange="updatePrivacyMode(this.value)" id="account-priv-blind" class="mt-0.5 text-brand-600 focus:ring-brand-500">
-              <div>
-                <strong class="text-slate-800 block text-[11px] font-bold">Selektiver Blind-Match</strong>
-                <span class="text-[10px] text-slate-500 block">Schnittmengen (3–5) und Tabus (1) sichtbar.</span>
-              </div>
-            </label>
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="radio" name="account-privacy-mode" value="open" onchange="updatePrivacyMode(this.value)" id="account-priv-open" class="mt-0.5 text-brand-600 focus:ring-brand-500">
-              <div>
-                <strong class="text-slate-800 block text-[11px] font-bold">Vollständig offene Einsicht</strong>
-                <span class="text-[10px] text-slate-500 block">Alle vergebenen Noten von 0 bis 5 für Partner sichtbar.</span>
-              </div>
-            </label>
-          </div>
-          <div class="pt-2 border-t border-slate-200">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="account-share-notes" onchange="updateShareNotes(this.checked)" class="rounded text-brand-600 focus:ring-brand-500">
-              <span class="text-[11px] text-slate-700 font-semibold">Persönliche Notizen teilen</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="font-bold text-slate-700 block">E-Mail für Backups:</label>
-          <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
-        </div>
-
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-          <button onclick="sendBackupEmail()" class="w-full py-2 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-            <span>✉️</span> Meinen aktuellen Daten-Link mailen
-          </button>
-          <button onclick="generateRandomTestData()" class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-            <span>🎲</span> Zufällige Testdaten einspielen
-          </button>
-        </div>
-
-        <div class="p-3 bg-rose-50/60 border border-rose-200 rounded-xl space-y-2">
-          <div id="reset-trigger-area">
-            <button onclick="showResetConfirmation()" class="w-full py-2 px-3 bg-white border border-rose-300 hover:bg-rose-100 text-rose-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs">
-              <span>🗑️</span> Mein Profil zurücksetzen (<span id="reset-current-username">Partner 1</span>)
-            </button>
-          </div>
-          <div id="reset-confirmation-box" class="hidden p-3 bg-white border border-rose-300 rounded-xl space-y-2 text-xs">
-            <strong class="text-rose-950 block font-bold">Bist du sicher?</strong>
-            <p class="text-slate-600 text-[11px]">Alle Antworten und Notizen dieses Profils werden gelöscht.</p>
-            <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button onclick="resetCurrentUserProfile()" class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs transition">Ja, leeren</button>
-              <button onclick="cancelResetConfirmation()" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">Abbrechen</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
-        <button onclick="closeAccountModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: TABU-LISTE -->
-  <div id="modal-tabus" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
-      <div class="p-4 bg-rose-50 dark:bg-rose-950/40 border-b border-rose-200 dark:border-rose-900/60 flex justify-between items-center">
-        <div>
-          <h3 class="font-extrabold text-rose-950 dark:text-rose-200 text-sm flex items-center gap-1.5">
-            <span>⛔</span> Die Zweigeteilte Tabu- & Schutz-Charta (Note 1)
-          </h3>
-          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
-            Top-Ausführungsgrenzen vs. Bottom-Schutzgrenzen
-          </span>
-        </div>
-        <button onclick="closeTabuModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-rose-200 text-rose-700 font-bold flex items-center justify-center">✕</button>
-      </div>
-      <div class="p-5 space-y-3 max-h-[75vh] overflow-y-auto" id="tabu-modal-list"></div>
-      <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
-        <button onclick="closeTabuModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs">Schließen</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: SHARING -->
-  <div id="modal-share" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden text-xs">
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-          <span>🔗</span> Partner einladen & Antworten teilen
-        </h3>
-        <button onclick="closeShareModal()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-500 font-bold hover:bg-slate-100 flex items-center justify-center">✕</button>
-      </div>
-      <div class="p-5 space-y-3.5">
-        <p class="text-[11px] text-slate-600 leading-relaxed">
-          Sende diesen Link an deinen Partner. Deine Antworten sind direkt im Link hinterlegt – ohne Cloud!
-        </p>
-        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-          <input type="text" id="share-link-input" readonly class="w-full text-[11px] bg-white border border-slate-300 rounded-lg p-2 font-mono text-slate-600 select-all">
-          <button onclick="copyShareLinkToClipboard()" id="btn-copy-share-link" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition shadow-xs touch-pill">
-            📋 Link in Zwischenablage kopieren
-          </button>
-        </div>
-      </div>
-      <div class="p-3 border-t border-slate-100 flex justify-end bg-slate-50">
-        <button onclick="closeShareModal()" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Fertig</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LEXIKON -->
-  <div id="modal-lexikon" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden text-xs flex flex-col max-h-[85vh]">
-      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-        <h3 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-1.5">
-          <span>📖</span> A–Z BDSM-, Kink- & Begriffs-Lexikon
-        </h3>
-        <button type="button" onclick="closeLexikonModal()" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 text-slate-500 hover:text-slate-900 font-bold flex items-center justify-center">✕</button>
-      </div>
-      <div class="p-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50">
-        <input type="text" id="lexikon-search-input" onkeyup="filterLexikon(this.value)" placeholder="Begriff suchen..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
-      </div>
-      <div class="p-4 space-y-2 overflow-y-auto flex-1" id="lexikon-entries-container"></div>
-      <div class="p-3 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900">
-        <button type="button" onclick="closeLexikonModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs">Schließen</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none"></div>
-
-  <!-- SKRIPTE -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
-  <script src="js/app.js"></script>
-
   <script>
-    function openSafetyConfiguratorDirectly() {
-      switchMainView('safety');
-      showToast("🛡️ Sicherheits- & Konsens-Kodex geöffnet");
+    let activeAnalysisTab = 'pair';
+    let selfUser = 'A';
+    let names = { A: 'Partner 1', B: 'Partner 2' };
+    let anatomy = { A: 'penis', B: 'vulva' };
+    let answers = { A: {}, B: {} };
+    let notes = { A: {}, B: {} };
+    let shameFlags = { A: {}, B: {} };
+    let safetyConfig = { A: {}, B: {} };
+    let customKinks = [];
+    let pairRadarChartInstance = null;
+    let selfRadarChartInstance = null;
+
+    function verifySitePassword() {
+      const input = document.getElementById('site-pw-input');
+      const err = document.getElementById('pw-error-hint');
+      const lock = document.getElementById('site-lockscreen');
+      if (!input) return;
+
+      if (input.value.trim() === 'Bommelchen!') {
+        sessionStorage.setItem('kompass_unlocked', 'true');
+        if (lock) lock.classList.add('hidden');
+        if (err) err.classList.add('hidden');
+        initAnalysisApp();
+      } else {
+        if (err) err.classList.remove('hidden');
+      }
     }
 
-    function handleProtectedNavigation(event, targetUrl) {
-      const answersA = Object.keys(answers.A || {}).length;
-      const answersB = Object.keys(answers.B || {}).length;
-      const currentCount = Object.keys(answers[currentUser] || {}).length;
-
-      if (currentCount < 5 && answersA < 5 && answersB < 5) {
-        if (event) event.preventDefault();
-        const m = document.getElementById('modal-gating-incomplete');
-        const title = document.getElementById('gating-modal-title');
-        const desc = document.getElementById('gating-modal-desc');
-
-        if (title) title.innerText = targetUrl.includes('session') ? "Session-Begleiter noch gesperrt" : "Paar-Analyse noch gesperrt";
-        if (desc) desc.innerText = `Bevor du ${targetUrl.includes('session') ? 'den Schlafzimmer-Begleiter' : 'die Paar-Analyse'} öffnen kannst, fülle bitte zuerst mindestens 5 Praktiken im Fragebogen aus.`;
-
-        if (m) m.classList.remove('hidden');
+    function checkSiteLockscreen() {
+      const lock = document.getElementById('site-lockscreen');
+      if (!lock) return true;
+      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
+        lock.classList.add('hidden');
+        return true;
+      } else {
+        lock.classList.remove('hidden');
         return false;
       }
-      return true;
     }
 
-    function closeGatingModal() {
-      document.getElementById('modal-gating-incomplete')?.classList.add('hidden');
-      switchMainView('survey');
+    function initAnalysisApp() {
+      loadStorageData();
+      applySavedTheme();
+      if (!checkSurveyDataGate()) return;
+      updateNamesDisplay();
+      renderPairAnalysis();
+      renderSelfAnalysis();
     }
+
+    function checkSurveyDataGate() {
+      const countA = Object.keys(answers.A || {}).length;
+      const countB = Object.keys(answers.B || {}).length;
+      const gate = document.getElementById('gate-analyse-incomplete');
+      const container = document.getElementById('analyse-workspace-container');
+
+      // Strikte Prüfung: Beide Partner müssen mindestens einige Fragen beantwortet haben
+      if (countA < 5 || countB < 5) {
+        if (gate) {
+          gate.classList.remove('hidden');
+          gate.querySelector('h2').innerText = (countA < 5 && countB < 5) 
+            ? "Fragebogen noch von beiden unvollständig" 
+            : `Warte auf ${countA < 5 ? (names.A || 'Partner 1') : (names.B || 'Partner 2')}`;
+          gate.querySelector('p').innerText = "Die Paar- und Tiefenanalyse wird freigeschaltet, sobald BEIDE Partner mindestens 5 Praktiken im Fragebogen bewertet haben.";
+        }
+        if (container) container.classList.add('hidden');
+        return false;
+      } else {
+        if (gate) gate.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
+        return true;
+      }
+    }
+
+    function loadStorageData() {
+      try {
+        const a = localStorage.getItem('kompass_answers');
+        const n = localStorage.getItem('kompass_notes');
+        const sh = localStorage.getItem('kompass_shame');
+        const sc = localStorage.getItem('kompass_safety_config');
+        const ck = localStorage.getItem('kompass_custom_kinks');
+        const nm = localStorage.getItem('kompass_names');
+        const an = localStorage.getItem('kompass_anatomy');
+
+        if (a) answers = JSON.parse(a);
+        if (n) notes = JSON.parse(n);
+        if (sh) shameFlags = JSON.parse(sh);
+        if (sc) safetyConfig = JSON.parse(sc);
+        if (ck) customKinks = JSON.parse(ck);
+        if (nm) names = JSON.parse(nm);
+        if (an) anatomy = JSON.parse(an);
+      } catch (e) {
+        console.error("Fehler beim Laden:", e);
+      }
+    }
+
+    function applySavedTheme() {
+      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    }
+
+    function toggleGlobalTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const newTheme = isDark ? 'light' : 'dark';
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('kompass_theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('kompass_theme', 'light');
+      }
+      applySavedTheme();
+      if (pairRadarChartInstance) renderPairRadar();
+      if (selfRadarChartInstance) renderSelfRadar();
+    }
+
+    function updateNamesDisplay() {
+      const sub = document.getElementById('analysis-names-subtitle');
+      const lA = document.getElementById('legend-name-A');
+      const lB = document.getElementById('legend-name-B');
+      const bA = document.getElementById('btn-self-A');
+      const bB = document.getElementById('btn-self-B');
+
+      if (sub) sub.innerText = `${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
+      if (lA) lA.innerText = `🔵 ${names.A || 'Partner 1'}`;
+      if (lB) lB.innerText = `🟣 ${names.B || 'Partner 2'}`;
+      if (bA) bA.innerText = names.A || 'Partner 1';
+      if (bB) bB.innerText = names.B || 'Partner 2';
+    }
+
+    function switchAnalysisTab(tab) {
+      activeAnalysisTab = tab;
+      const viewPair = document.getElementById('view-pair-analysis');
+      const viewSelf = document.getElementById('view-self-analysis');
+      const btnPair = document.getElementById('tab-pair');
+      const btnSelf = document.getElementById('tab-self');
+
+      if (tab === 'pair') {
+        viewPair.classList.remove('hidden');
+        viewSelf.classList.add('hidden');
+        btnPair.className = "py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5";
+        btnSelf.className = "py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";
+        renderPairAnalysis();
+      } else {
+        viewPair.classList.add('hidden');
+        viewSelf.classList.remove('hidden');
+        btnSelf.className = "py-2.5 rounded-xl bg-brand-700 text-white shadow-sm transition flex items-center justify-center gap-1.5";
+        btnPair.className = "py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5";
+        renderSelfAnalysis();
+      }
+    }
+
+    function setSelfAnalysisUser(u) {
+      selfUser = u;
+      const bA = document.getElementById('btn-self-A');
+      const bB = document.getElementById('btn-self-B');
+      if (u === 'A') {
+        bA.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs";
+        bB.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        bB.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs";
+        bA.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      }
+      renderSelfAnalysis();
+    }
+
+    function renderPairAnalysis() {
+      const hasA = answers.A && Object.keys(answers.A).length > 0;
+      const hasB = answers.B && Object.keys(answers.B).length > 0;
+
+      const lockedBanner = document.getElementById('pair-locked-banner');
+      const unlockedContent = document.getElementById('pair-unlocked-content');
+
+      if (!hasA || !hasB) {
+        if (lockedBanner) lockedBanner.classList.remove('hidden');
+        if (unlockedContent) unlockedContent.classList.add('hidden');
+        return;
+      }
+
+      if (lockedBanner) lockedBanner.classList.add('hidden');
+      if (unlockedContent) unlockedContent.classList.remove('hidden');
+
+      renderSafetyCodexDisplay();
+
+      const allChapters = window.surveyChapters || [];
+      let totalMatchesEvaluated = 0;
+      let positiveMatchesCount = 0;
+      let doppel5List = [];
+      let bridgesList = [];
+      let tabusList = [];
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type === 'choice') return;
+          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
+          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
+          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
+          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
+
+          const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
+          if (isTabu) {
+            tabusList.push(it);
+          } else {
+            if (aR1 === 5 && bR2 === 5) doppel5List.push({ item: it, lead: names.A, recv: names.B, roleLead: it.r1, roleRecv: it.r2 });
+            if (bR1 === 5 && aR2 === 5) doppel5List.push({ item: it, lead: names.B, recv: names.A, roleLead: it.r1, roleRecv: it.r2 });
+
+            if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
+            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
+
+            if (aR1 !== undefined && bR2 !== undefined) {
+              totalMatchesEvaluated++;
+              if (aR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
+            }
+          }
+        });
+      });
+
+      const harmonyPct = totalMatchesEvaluated > 0 ? Math.round((positiveMatchesCount / totalMatchesEvaluated) * 100) : 0;
+      document.getElementById('kpi-harmony').innerText = `${harmonyPct} %`;
+      document.getElementById('kpi-doppel5').innerText = doppel5List.length;
+      document.getElementById('kpi-bridges').innerText = bridgesList.length;
+      document.getElementById('kpi-tabus').innerText = tabusList.length;
+
+      document.getElementById('bridges-count-badge').innerText = `${bridgesList.length} Brücken`;
+      document.getElementById('doppel5-count-badge').innerText = `${doppel5List.length} Volltreffer`;
+
+      renderPairScientificGutachten(harmonyPct, doppel5List.length, bridgesList.length);
+      renderBridgesUI(bridgesList);
+      renderDoppel5UI(doppel5List);
+      renderPairSessionDiaryUI();
+      renderPairRadar();
+    }
+
+    function renderPairSessionDiaryUI() {
+      const container = document.getElementById('pair-session-diary-container');
+      const badge = document.getElementById('diary-total-count-badge');
+      if (!container) return;
+
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) {
+        diary = [];
+      }
+
+      if (badge) badge.innerText = `${diary.length} ${diary.length === 1 ? 'Eintrag' : 'Einträge'}`;
+
+      if (!Array.isArray(diary) || diary.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-400 italic space-y-1.5 theme-panel rounded-2xl border border-slate-800">
+            <span class="text-2xl block">🕯️</span>
+            <p>Noch keine Sessions im Tagebuch eingetragen.</p>
+            <p class="text-[10.5px] text-slate-500">Startet eine Runde im <a href="session.html" class="text-brand-400 underline font-semibold">Session-Begleiter</a> – dort könnt ihr im Aftercare euer Feedback direkt für die Paaranalyse speichern.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = diary.map(entry => `
+        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
+                ${escapeHtml(entry.mode || 'Session')}
+              </span>
+              <span class="text-slate-400 text-[10.5px] font-mono">${escapeHtml(entry.date)}</span>
+            </div>
+            <span class="text-pink-400 font-black font-mono">⚡ Intensität: ${entry.intensity || 7}/10</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
+          </div>
+
+          ${entry.highlight ? `
+            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
+              <strong class="text-amber-300 block text-[10px] uppercase tracking-wider">🌟 Highlight:</strong>
+              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.highlight)}</p>
+            </div>
+          ` : ''}
+
+          ${entry.learning ? `
+            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
+              <strong class="text-teal-300 block text-[10px] uppercase tracking-wider">💡 Was beim nächsten Mal anpassen / probieren:</strong>
+              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.learning)}</p>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function renderSafetyCodexDisplay() {
+      const c = document.getElementById('safety-codex-display');
+      if (!c) return;
+
+      const labels = {
+        emergency_tools: {
+          title: "Sicherheits-Cutter",
+          safer_default: "cutter_mandatory",
+          map: {
+            cutter_mandatory: "✂️ Pflicht bei jeder Fesselung",
+            cutter_shibari: "🪢 Nur bei Seil-Shibari",
+            cutter_velcro_only: "🩹 Nur Klettfesseln"
+          }
+        },
+        safeword: {
+          title: "Safeword-System",
+          safer_default: "traffic",
+          map: {
+            traffic: "🚦 Ampel (Grün/Gelb/Rot)",
+            code_word: "🌵 Code-Wort ('Kaktus')",
+            intuitive: "💬 Intuitive Absprache"
+          }
+        },
+        gag_signal: {
+          title: "Knebel-Signal",
+          safer_default: "drop_cloth",
+          map: {
+            drop_cloth: "🪨 Drop-Tuch in der Hand",
+            fist_tap: "✊ Faust 3s / 3x Klopfen",
+            bell_rattle: "🔔 Glöckchen / Rassel"
+          }
+        },
+        vital_checks: {
+          title: "Vital- & Nervenschutz",
+          safer_default: "pulse_15min",
+          map: {
+            pulse_15min: "⏱️ 15-Min-Pulsprüfung",
+            pulse_as_needed: "👂 Nach Gefühl & Zuruf"
+          }
+        },
+        disobedience: {
+          title: "Ungehorsam & Zucht",
+          safer_default: "talk_only",
+          map: {
+            spanking: "✋ Handspanking über Knie",
+            formal_corner: "🧘 Ecke stehen & Abbitte",
+            chores_ban: "🧹 Hausarbeit / Handy-Verbot",
+            talk_only: "💬 Reine Klärung im Gespräch"
+          }
+        },
+        aftercare: {
+          title: "Aftercare-Schwerpunkt",
+          safer_default: "warmth",
+          map: {
+            warmth: "🛌 Decken, Tee & Halten",
+            praise_words: "💖 Verbales Lob ('Praise')",
+            bath_care: "🛁 Bad & Einbalsamieren"
+          }
+        }
+      };
+
+      const cfgA = safetyConfig.A || {};
+      const cfgB = safetyConfig.B || {};
+      const hasAnswersB = Object.keys(answers.B || {}).length >= 5;
+      const hasConfigB = Object.keys(cfgB).length > 0;
+      const nameA = names.A || 'Partner 1';
+      const nameB = names.B || 'Partner 2';
+
+      let html = '';
+      Object.keys(labels).forEach(k => {
+        const item = labels[k];
+        const valA = cfgA[k] || Object.keys(item.map)[0];
+        const rawValB = cfgB[k];
+
+        if (!hasConfigB || rawValB === undefined) {
+          // Partner B hat noch nicht gewählt
+          html += `
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs font-bold">${item.title}</strong>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">
+                  ⏳ ${escapeHtml(nameB)} offen
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-300">${item.map[valA] || 'Standard'}</p>
+              <p class="text-[10px] text-slate-500 italic">Noch nicht von ${escapeHtml(nameB)} bestätigt</p>
+            </div>
+          `;
+        } else {
+          const valB = rawValB;
+          const isMatch = (valA === valB);
+          const textA = item.map[valA] || "Standard vereinbart";
+          const textB = item.map[valB] || textA;
+          const saferChoice = item.map[item.safer_default] || textA;
+
+          html += `
+            <div class="p-3 rounded-xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/40 border border-amber-800/60'} space-y-1">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs font-bold">${item.title}</strong>
+                <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-200'}">
+                  ${isMatch ? '✓ Vereinbart' : '⚠️ Abweichung'}
+                </span>
+              </div>
+              <p class="text-[11px] text-white font-medium">${textA}</p>
+              ${!isMatch ? `
+                <div class="pt-1 border-t border-amber-900/40 text-[10px] space-y-0.5">
+                  <p class="text-amber-300">${escapeHtml(nameB)} bevorzugt: <strong>${textB}</strong></p>
+                  <p class="text-teal-300 italic">🛡️ Sicherheits-Konsens: Es gilt vorerst die vorsichtigere Regelung (<em>${saferChoice}</em>).</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }
+      });
+
+      c.innerHTML = html;
+    }
+
+    function renderPairScientificGutachten(harmony, d5Count, bridgeCount) {
+      const c = document.getElementById('pair-scientific-gutachten');
+      if (!c) return;
+
+      c.innerHTML = `
+        <div class="space-y-2">
+          <p>
+            Basierend auf dem <strong>Actor-Partner Interdependence Model (Velten & Margraf, 2017)</strong> weist eure Paarbeziehung eine <strong>${harmony} %ige Basis-Harmonie</strong> auf. Mit <strong>${d5Count} Doppel-5er Volltreffern</strong> verfügt ihr über ein starkes neuronales Belohnungsfundament, das bei beiden Partnern Dopamin und Oxytocin ohne Schwellenängste freisetzt.
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-brand-300 font-bold block">🧠 Neuro-psychologische Passung:</strong>
+            <p class="text-[11px]">
+              Eure Rollenverteilung dockt komplementär aneinander an: Die Lust des aktiven Parts an achtsamer Verantwortung (<em>Topspace-Flow</em> nach Wismeijer, 2013) ermöglicht dem passiven Part das angstfreie Abschalten des präfrontalen Kortex (<em>transiente Hypofrontalität</em> nach Sagarin et al., 2009).
+            </p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-amber-300 font-bold block">🌉 Wachstums- & Triggerzonen (Gottman, 2015):</strong>
+            <p class="text-[11px]">
+              Ihr habt <strong>${bridgeCount} Brückenbau-Positionen</strong>. Hier treffen hohe Wünsche auf vorsichtige Bereitschaft (Note 2/3). Folgt dem Prinzip der <em>somatischen Sicherheit (van der Kolk, 2014)</em>: Erkundet diese Zonen nur mit festem Handdrück-Signal und niemals an Tagen mit hohem Alltagsstress.
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBridgesUI(list) {
+      const c = document.getElementById('bridges-interactive-container');
+      if (!c) return;
+
+      if (list.length === 0) {
+        c.innerHTML = '<p class="text-slate-400 italic text-center py-2">Keine offenen Brückenpunkte vorhanden.</p>';
+        return;
+      }
+
+      c.innerHTML = list.slice(0, 8).map(b => `
+        <div class="p-3.5 rounded-2xl theme-panel border border-amber-500/30 space-y-2 shadow-xs">
+          <div class="flex items-center justify-between gap-2">
+            <strong class="text-xs sm:text-sm text-white">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Wunsch (${b.wishScore}) trifft Bereitschaft (${b.partnerScore})
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(b.item.desc)}</p>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/60 text-[11px] space-y-1">
+            <span class="text-amber-300 font-bold block">💡 Gesprächs-Leitfaden für ${escapeHtml(b.wishUser)}:</span>
+            <p class="text-slate-300 italic">„Ich wünsche mir '${escapeHtml(b.roleWish)}'. Du hast dafür eine vorsichtige Bereitschaft signalisiert. Welche Rahmenbedingungen oder Sicherheitszeichen brauchst du, damit wir uns ganz behutsam herantasten können?“</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDoppel5UI(list) {
+      const c = document.getElementById('doppel5-interactive-container');
+      if (!c) return;
+
+      if (list.length === 0) {
+        c.innerHTML = '<p class="text-slate-400 italic col-span-2 text-center py-2">Noch keine beidseitigen Doppel-5er erfasst.</p>';
+        return;
+      }
+
+      c.innerHTML = list.slice(0, 10).map(d => `
+        <div class="p-3 rounded-2xl theme-panel border border-emerald-500/30 space-y-1.5 shadow-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-emerald-200">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
+            <span class="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">⭐ 5 & 5</span>
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-snug">${escapeHtml(d.item.desc)}</p>
+          <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-800">
+            <span>🔵 <strong>${escapeHtml(d.lead)} als Top:</strong> ${escapeHtml(d.roleLead)}</span><br>
+            <span>🟣 <strong>${escapeHtml(d.recv)} als Bottom:</strong> ${escapeHtml(d.roleRecv)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPairRadar() {
+      const canvas = document.getElementById('pairRadarCanvas');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      if (pairRadarChartInstance) {
+        try { pairRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
+      }
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
+      const labelColor = isDark ? '#cbd5e1' : '#334155';
+
+      const dimensions = [
+        { label: 'Körperzonen', chapters: [1, 12] },
+        { label: 'Romantik', chapters: [2, 3] },
+        { label: 'Keuschheit', chapters: [7, 8] },
+        { label: 'Shibari', chapters: [13, 14] },
+        { label: 'Sinnesentzug', chapters: [15] },
+        { label: 'Impact', chapters: [16] },
+        { label: 'Primal', chapters: [18] },
+        { label: 'Caregiver', chapters: [19] },
+        { label: 'Aftercare', chapters: [30] }
+      ];
+
+      const allChapters = window.surveyChapters || [];
+
+      function calculateScores(userKey) {
+        const uAnswers = answers[userKey] || {};
+        return dimensions.map(dim => {
+          let earned = 0;
+          let possible = 0;
+          dim.chapters.forEach(cId => {
+            const ch = allChapters.find(c => c.id === cId);
+            if (ch && ch.items) {
+              ch.items.forEach(it => {
+                if (it.type !== 'choice') {
+                  const s1 = uAnswers[`it_${it.id}_r1`];
+                  const s2 = uAnswers[`it_${it.id}_r2`];
+                  // 0 (Entfällt) nicht in das Verhältnis einrechnen
+                  if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
+                  if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
+                }
+              });
+            }
+          });
+          return possible > 0 ? Math.round((earned / possible) * 100) : 0;
+        });
+      }
+
+      const scoresA = calculateScores('A');
+      const scoresB = calculateScores('B');
+
+      pairRadarChartInstance = new Chart(canvas, {
+        type: 'radar',
+        data: {
+          labels: dimensions.map(d => d.label),
+          datasets: [
+            {
+              label: names.A || 'Partner 1',
+              data: scoresA,
+              backgroundColor: 'rgba(99, 102, 241, 0.25)',
+              borderColor: 'rgba(99, 102, 241, 1)',
+              borderWidth: 2
+            },
+            {
+              label: names.B || 'Partner 2',
+              data: scoresB,
+              backgroundColor: 'rgba(168, 85, 247, 0.25)',
+              borderColor: 'rgba(168, 85, 247, 1)',
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: gridColor },
+              grid: { color: gridColor },
+              pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
+              ticks: { display: false, max: 100, min: 0 }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function renderSelfAnalysis() {
+      const uAnswers = answers[selfUser] || {};
+      const allChapters = window.surveyChapters || [];
+      const answeredCount = Object.keys(uAnswers).length;
+
+      document.getElementById('self-answered-stat').innerText = `${answeredCount} Antworten abgegeben`;
+
+      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
+      let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
+      let totalTop = 0, totalBottom = 0, cTop = 0, cBottom = 0;
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          const v1 = uAnswers[`it_${it.id}_r1`];
+          const v2 = uAnswers[`it_${it.id}_r2`];
+          if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
+          if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
+          const add = (val) => {
+            if (typeof val === 'number' && val > 0) {
+              if ([21, 22, 23].includes(ch.id)) { pPower += val; countPower += 5; }
+              else if ([13, 16, 17].includes(ch.id)) { pSensation += val; countSensation += 5; }
+              else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
+              else if ([24, 25, 31].includes(ch.id)) { pThrill += val; countThrill += 5; }
+              else if ([9, 10, 11].includes(ch.id)) { pVisual += val; countVisual += 5; }
+            }
+          };
+          add(v1);
+          add(v2);
+        });
+      });
+
+      const setB = (id, cur, max) => {
+        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        document.getElementById(`self-bar-val-${id}`).innerText = `${pct} %`;
+        document.getElementById(`self-bar-fill-${id}`).style.width = `${pct}%`;
+        return pct;
+      };
+
+      const pctPower = setB('power', pPower, countPower);
+      const pctSensation = setB('sensation', pSensation, countSensation);
+      const pctNurturing = setB('nurturing', pNurturing, countNurturing);
+      const pctThrill = setB('thrill', pThrill, countThrill);
+      const pctVisual = setB('visual', pVisual, countVisual);
+
+      renderScientificDeepGutachten({
+        user: selfUser,
+        pctPower,
+        pctSensation,
+        pctNurturing,
+        pctThrill,
+        pctVisual,
+        avgTop: cTop > 0 ? (totalTop / cTop) : 0,
+        avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
+        shameCount: Object.keys(shameFlags[selfUser] || {}).length
+      });
+
+      renderSelfRadar();
+    }
+
+    function renderScientificDeepGutachten(m) {
+      const c = document.getElementById('self-scientific-deep-analysis');
+      if (!c) return;
+
+      const isSub = m.avgBottom > m.avgTop;
+      const isTop = m.avgTop > m.avgBottom;
+
+      c.innerHTML = `
+        <div class="space-y-3">
+          <div class="p-3.5 rounded-2xl theme-panel border border-indigo-500/30 space-y-1.5">
+            <strong class="text-indigo-300 font-bold text-xs block">🧠 1. Neurobiologische Funktionsweise (Gehirn & Hormone):</strong>
+            <p>
+              ${isSub ? `
+                Deine Antworten zeigen eine deutliche Neigung zur Hingabe. In der Neurobiologie wird dieser Zustand als <strong>transiente Hypofrontalität (Sagarin et al., 2009; Ambler et al., 2017)</strong> beschrieben. Dein präfrontaler Kortex (der Sitz ständiger Alltagsverantwortung und Selbstkontrolle) fährt messbar herunter. Durch kontrollierten Reizstress werden Endorphine und Endocannabinoide ausgeschüttet (Wuyts et al., 2021), die das Nervensystem in einen Zustand tiefer, meditativer Gelassenheit (<em>Subspace</em>) versetzen.
+              ` : (isTop ? `
+                Deine Lust an Führung ist der Eintritt in einen hochfokussierten <strong>Flow-Zustand / Topspace (Wismeijer & van Assen, 2013)</strong>. Dein Gehirn schöpft Belohnung (Dopamin) aus Empathie-Synchronisation: Das exakte Lesen der Mikrosignale des Partners und die Verantwortung für dessen emotionalen Zustand.
+              ` : `
+                Du bist ein ausgeglichener <strong>Switch</strong>. Dein Gehirn kann je nach Tagesform flexibel zwischen empathischer Verantwortung (Topspace) und kognitiver Entlastung (Subspace) umschalten.
+              `)}
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl theme-panel border border-rose-500/30 space-y-1.5">
+            <strong class="text-rose-300 font-bold text-xs block">⚡ 2. Somatische Katharsis & Stress-Kompensation (Williams et al., 2014):</strong>
+            <p>
+              Kink fungiert für dich nicht als Belastung, sondern als aktives, somatisches Coping. Wer im Alltag hohe Entscheidungsverantwortung trägt, erfährt im geschützten BDSM-Rahmen die stärkste psychische Erholung. ${m.pctSensation >= 40 ? 'Deine Reizbereitschaft bei Schmerz und Fesseln nutzt die körpereigene Opiat-Kaskade (Klement et al., 2016) als Ventil zum seelischen Ballastabwurf.' : 'Du bevorzugst dabei sanftere, kontrollierte Reizlinien.'}
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl theme-panel border border-purple-500/30 space-y-1.5">
+            <strong class="text-purple-300 font-bold text-xs block">❤️‍🔥 3. Erotische Scham-Resilienz (Canivet et al., 2025; Tangney & Dearing, 2002):</strong>
+            <p>
+              Du hast <strong>${m.shameCount} Praktiken als schambelastet (🙈)</strong> markiert. Erotische Scham entsteht dort, wo tiefe Sehnsüchte gesellschaftlich tabuisiert werden (z. B. Keuschheit, Pegging, Regressions-Kinks). Nach <em>Dymock (2012)</em> führt das angstfreie Aussprechen vor einem annehmenden Partner zur tiefsten Form emotionaler Verbundenheit.
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSelfRadar() {
+      const canvas = document.getElementById('selfRadarCanvas');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      if (selfRadarChartInstance) {
+        try { selfRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
+      }
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
+      const labelColor = isDark ? '#cbd5e1' : '#334155';
+
+      const dimensions = [
+        { label: 'Körperzonen', chapters: [1, 12] },
+        { label: 'Romantik', chapters: [2, 3] },
+        { label: 'Keuschheit', chapters: [7, 8] },
+        { label: 'Shibari', chapters: [13, 14] },
+        { label: 'Sinnesentzug', chapters: [15] },
+        { label: 'Impact', chapters: [16] },
+        { label: 'Primal', chapters: [18] },
+        { label: 'Caregiver', chapters: [19] },
+        { label: 'Aftercare', chapters: [30] }
+      ];
+
+      const allChapters = window.surveyChapters || [];
+      const uAnswers = answers[selfUser] || {};
+
+      const scores = dimensions.map(dim => {
+        let earned = 0;
+        let possible = 0;
+        dim.chapters.forEach(cId => {
+          const ch = allChapters.find(c => c.id === cId);
+          if (ch && ch.items) {
+            ch.items.forEach(it => {
+              if (it.type !== 'choice') {
+                const s1 = uAnswers[`it_${it.id}_r1`];
+                const s2 = uAnswers[`it_${it.id}_r2`];
+                // 0 (Entfällt) nicht in den Teiler einrechnen
+                if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
+                if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
+              }
+            });
+          }
+        });
+        return possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      });
+
+      selfRadarChartInstance = new Chart(canvas, {
+        type: 'radar',
+        data: {
+          labels: dimensions.map(d => d.label),
+          datasets: [{
+            label: names[selfUser] || 'Profil',
+            data: scores,
+            backgroundColor: 'rgba(225, 29, 72, 0.25)',
+            borderColor: 'rgba(225, 29, 72, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(225, 29, 72, 1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: gridColor },
+              grid: { color: gridColor },
+              pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
+              ticks: { display: false, max: 100, min: 0 }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const isUnlocked = checkSiteLockscreen();
+      if (isUnlocked) {
+        initAnalysisApp();
+      }
+    });
   </script>
 </body>
 </html>
