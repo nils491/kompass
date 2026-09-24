@@ -409,8 +409,15 @@
       const gate = document.getElementById('gate-analyse-incomplete');
       const container = document.getElementById('analyse-workspace-container');
 
-      if (countA < 5 && countB < 5) {
-        if (gate) gate.classList.remove('hidden');
+      // Strikte Prüfung: Beide Partner müssen mindestens einige Fragen beantwortet haben
+      if (countA < 5 || countB < 5) {
+        if (gate) {
+          gate.classList.remove('hidden');
+          gate.querySelector('h2').innerText = (countA < 5 && countB < 5) 
+            ? "Fragebogen noch von beiden unvollständig" 
+            : `Warte auf ${countA < 5 ? (names.A || 'Partner 1') : (names.B || 'Partner 2')}`;
+          gate.querySelector('p').innerText = "Die Paar- und Tiefenanalyse wird freigeschaltet, sobald BEIDE Partner mindestens 5 Praktiken im Fragebogen bewertet haben.";
+        }
         if (container) container.classList.add('hidden');
         return false;
       } else {
@@ -584,35 +591,114 @@
       if (!c) return;
 
       const labels = {
-        safeword: { title: "Safeword", map: { traffic: "🚦 Ampel (Grün/Gelb/Rot)", code_word: "🌵 Code-Wort ('Kaktus')", tactile_hand: "🤝 Taktiler Handdruck" } },
-        gag_signal: { title: "Knebel-Signal", map: { drop_cloth: "🪨 Drop-Tuch in der Hand", closed_fist: "✊ Faust 3s halten / Klopfen", bell_rattle: "🔔 Akustisches Glöckchen" } },
-        disobedience: { title: "Ungehorsam", map: { spanking: "✋ Handspanking über Knie", formal_corner: "🧘 Ecke stehen & Abbitte", chores_ban: "🧹 Hausarbeit / Handy-Verbot", talk_only: "💬 Reine Klärung im Gespräch" } },
-        aftercare: { title: "Aftercare", map: { warmth: "🛌 Decken, Tee & Halten", praise_words: "💖 Verbales Lob & Schutzworte", bath_care: "🛁 Bad & Einbalsamieren" } },
-        privacy: { title: "Diskretion", map: { secret: "🔒 100 % Absolutes Geheimnis", scene_friends: "👥 Szene-Freunde dürfen wissen", relaxed: "🌐 Entspannter Umgang" } }
+        emergency_tools: {
+          title: "Sicherheits-Cutter",
+          safer_default: "cutter_mandatory",
+          map: {
+            cutter_mandatory: "✂️ Pflicht bei jeder Fesselung",
+            cutter_shibari: "🪢 Nur bei Seil-Shibari",
+            cutter_velcro_only: "🩹 Nur Klettfesseln"
+          }
+        },
+        safeword: {
+          title: "Safeword-System",
+          safer_default: "traffic",
+          map: {
+            traffic: "🚦 Ampel (Grün/Gelb/Rot)",
+            code_word: "🌵 Code-Wort ('Kaktus')",
+            intuitive: "💬 Intuitive Absprache"
+          }
+        },
+        gag_signal: {
+          title: "Knebel-Signal",
+          safer_default: "drop_cloth",
+          map: {
+            drop_cloth: "🪨 Drop-Tuch in der Hand",
+            fist_tap: "✊ Faust 3s / 3x Klopfen",
+            bell_rattle: "🔔 Glöckchen / Rassel"
+          }
+        },
+        vital_checks: {
+          title: "Vital- & Nervenschutz",
+          safer_default: "pulse_15min",
+          map: {
+            pulse_15min: "⏱️ 15-Min-Pulsprüfung",
+            pulse_as_needed: "👂 Nach Gefühl & Zuruf"
+          }
+        },
+        disobedience: {
+          title: "Ungehorsam & Zucht",
+          safer_default: "talk_only",
+          map: {
+            spanking: "✋ Handspanking über Knie",
+            formal_corner: "🧘 Ecke stehen & Abbitte",
+            chores_ban: "🧹 Hausarbeit / Handy-Verbot",
+            talk_only: "💬 Reine Klärung im Gespräch"
+          }
+        },
+        aftercare: {
+          title: "Aftercare-Schwerpunkt",
+          safer_default: "warmth",
+          map: {
+            warmth: "🛌 Decken, Tee & Halten",
+            praise_words: "💖 Verbales Lob ('Praise')",
+            bath_care: "🛁 Bad & Einbalsamieren"
+          }
+        }
       };
 
       const cfgA = safetyConfig.A || {};
       const cfgB = safetyConfig.B || {};
+      const hasAnswersB = Object.keys(answers.B || {}).length >= 5;
+      const hasConfigB = Object.keys(cfgB).length > 0;
+      const nameA = names.A || 'Partner 1';
+      const nameB = names.B || 'Partner 2';
 
       let html = '';
       Object.keys(labels).forEach(k => {
         const item = labels[k];
-        const valA = cfgA[k] || 'traffic';
-        const valB = cfgB[k] || 'traffic';
-        const isMatch = (valA === valB);
+        const valA = cfgA[k] || Object.keys(item.map)[0];
+        const rawValB = cfgB[k];
 
-        html += `
-          <div class="p-3 rounded-xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/30 border border-amber-800/40'} space-y-1">
-            <div class="flex justify-between items-center">
-              <strong class="text-white text-xs font-bold">${item.title}</strong>
-              <span class="text-[9.5px] font-black px-1.5 py-0.2 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-300'}">
-                ${isMatch ? '✓ Übereinstimmung' : '⚠️ Abweichung'}
-              </span>
+        if (!hasConfigB || rawValB === undefined) {
+          // Partner B hat noch nicht gewählt
+          html += `
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs font-bold">${item.title}</strong>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">
+                  ⏳ ${escapeHtml(nameB)} offen
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-300">${item.map[valA] || 'Standard'}</p>
+              <p class="text-[10px] text-slate-500 italic">Noch nicht von ${escapeHtml(nameB)} bestätigt</p>
             </div>
-            <p class="text-[11px] text-slate-300">${item.map[valA] || valA}</p>
-            ${!isMatch ? `<p class="text-[10px] text-amber-300">Partner 2 bevorzugt: ${item.map[valB] || valB}</p>` : ''}
-          </div>
-        `;
+          `;
+        } else {
+          const valB = rawValB;
+          const isMatch = (valA === valB);
+          const textA = item.map[valA] || "Standard vereinbart";
+          const textB = item.map[valB] || textA;
+          const saferChoice = item.map[item.safer_default] || textA;
+
+          html += `
+            <div class="p-3 rounded-xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/40 border border-amber-800/60'} space-y-1">
+              <div class="flex justify-between items-center">
+                <strong class="text-white text-xs font-bold">${item.title}</strong>
+                <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-200'}">
+                  ${isMatch ? '✓ Vereinbart' : '⚠️ Abweichung'}
+                </span>
+              </div>
+              <p class="text-[11px] text-white font-medium">${textA}</p>
+              ${!isMatch ? `
+                <div class="pt-1 border-t border-amber-900/40 text-[10px] space-y-0.5">
+                  <p class="text-amber-300">${escapeHtml(nameB)} bevorzugt: <strong>${textB}</strong></p>
+                  <p class="text-teal-300 italic">🛡️ Sicherheits-Konsens: Es gilt vorerst die vorsichtigere Regelung (<em>${saferChoice}</em>).</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }
       });
 
       c.innerHTML = html;
@@ -695,9 +781,11 @@
 
     function renderPairRadar() {
       const canvas = document.getElementById('pairRadarCanvas');
-      if (!canvas) return;
+      if (!canvas || typeof Chart === 'undefined') return;
 
-      if (pairRadarChartInstance) pairRadarChartInstance.destroy();
+      if (pairRadarChartInstance) {
+        try { pairRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
+      }
       const isDark = document.documentElement.classList.contains('dark');
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
       const labelColor = isDark ? '#cbd5e1' : '#334155';
@@ -878,9 +966,11 @@
 
     function renderSelfRadar() {
       const canvas = document.getElementById('selfRadarCanvas');
-      if (!canvas) return;
+      if (!canvas || typeof Chart === 'undefined') return;
 
-      if (selfRadarChartInstance) selfRadarChartInstance.destroy();
+      if (selfRadarChartInstance) {
+        try { selfRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
+      }
       const isDark = document.documentElement.classList.contains('dark');
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
       const labelColor = isDark ? '#cbd5e1' : '#334155';
