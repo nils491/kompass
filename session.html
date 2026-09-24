@@ -71,6 +71,41 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white overflow-x-hidden">
 
+  <!-- MODAL: VITAL- & NERVENCHECK (HINTERGRUND-TIMER ALARM) -->
+  <div id="modal-vital-check-alarm" class="hidden fixed inset-0 z-[160] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card border-2 border-amber-500 rounded-3xl max-w-md w-full p-5 sm:p-6 text-center space-y-4 shadow-2xl animate-pulse-subtle">
+      <div class="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500 text-amber-400 text-3xl mx-auto flex items-center justify-center shadow-lg">
+        ⏱️
+      </div>
+      <div>
+        <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-800">
+          Sicherheits-Intervall erreicht
+        </span>
+        <h3 class="text-lg font-black text-white mt-1.5">Vital- & Nervencheck fällig!</h3>
+        <p class="text-xs text-slate-300 mt-1">15 Minuten Spielzeit vergangen. Bitte kurz innehalten und prüfen:</p>
+      </div>
+
+      <div class="p-3 bg-slate-900 rounded-2xl text-left text-xs space-y-2 border border-slate-800">
+        <div class="flex items-center gap-2">
+          <span>🖐️</span>
+          <span class="text-slate-200"><strong>Finger & Zehen warm?</strong> (Keine Eiskälte)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>🩺</span>
+          <span class="text-slate-200"><strong>Hautfarbe normal?</strong> (Keine Weiß-/Blaufärbung)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>💬</span>
+          <span class="text-slate-200"><strong>Kein Kribbeln oder Taubheitsgefühl?</strong></span>
+        </div>
+      </div>
+
+      <button onclick="confirmVitalCheckDone()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill">
+        ✓ Alles warm & durchblutet – Weiter im Spiel
+      </button>
+    </div>
+  </div>
+
   <!-- NOTFALL-LAMPE & ANWEISUNGEN BEI ROT -->
   <div id="red-emergency-screen" class="hidden fixed inset-0 z-[150] bg-amber-50 text-slate-950 p-6 flex flex-col justify-between items-center text-center overflow-y-auto">
     <div class="max-w-md w-full space-y-4 pt-6">
@@ -429,7 +464,7 @@
 
       <!-- DYNAMISCHER BEREICH: GEFÜHRTES DREHBUCH ODER FREIE SZENEN -->
       <div id="cockpit-tab-content" class="space-y-4">
-        <!-- Inhalte werden per Tab-Wechsel injiziert -->
+        <!-- Dynamischer Inhalt für Free Flow oder Geführte Session -->
       </div>
 
     </div>
@@ -518,35 +553,40 @@
 
   <script>
     let subPartner = 'B';
+
+    // Helper: Determine the active Top/Dominant partner based on selected Bottom/Sub
+    function getDomPartner() {
+      return subPartner === 'A' ? 'B' : 'A';
+    }
+
     let currentPunishLvl = 'mittel';
     let timerInterval = null;
     let timerRemaining = 45 * 60;
     let sessionTotalMinutes = 45;
     let sessionElapsedSeconds = 0;
-    let currentPhase = 1;
-    let currentPhaseStepIndex = 0;
-    let activeTabId = 'free';
-    let wakeLockInstance = null;
-    let isSoundEnabled = true;
-    let audioCtx = null;
-
-    let selectedIncidentType = 'orgasm';
-    let selectedIncidentSeverity = 'mittel';
+    let vitalCheckIntervalSeconds = 15 * 60; // 15 Minuten Standard
+    let lastVitalCheckElapsed = 0;
 
     let currentSessionActiveMode = null;
     let portalCurrentStep = 1;
 
-    let edgeCount = 0;
-    let countdownTimer = null;
-    let selectedCountdownDuration = 10;
-    let countdownCurrentCount = 10;
-    let isCountdownPaused = false;
-    let countdownAudioMode = 'self';
+    // Geführtes Spiel - Zustände
+    let guidedState = {
+      isConfigured: false,
+      energyTop: 3,
+      energySub: 3,
+      intensity: 'mittel', // sanft, mittel, intensiv
+      currentPhase: 1,
+      currentStepIndex: 0,
+      steps: []
+    };
 
-    let executedActions = [];
+    let edgeCount = 0;
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let safetyConfig = { A: {}, B: {} };
+    let wakeLockInstance = null;
+    let audioCtx = null;
 
     const safetyLabelsMap = {
       emergency_tools: {
@@ -707,13 +747,14 @@
 
       const labels = {
         free: 'Modus: Freier Flow',
-        guided_flow: 'Modus: Geführte Session',
-        punishments: 'Modus: Strafen'
+        guided_flow: 'Modus: Geführte 4-Phasen-Session',
+        punishments: 'Modus: D/s-Strafen'
       };
       if (badge) badge.innerText = labels[mode] || 'Session aktiv';
 
       requestWakeLock();
       initAudio();
+      renderActiveModeWorkspace();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -730,8 +771,295 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function getDomPartner() {
-      return subPartner === 'A' ? 'B' : 'A';
+    function renderActiveModeWorkspace() {
+      const container = document.getElementById('cockpit-tab-content');
+      if (!container) return;
+
+      if (currentSessionActiveMode === 'free') {
+        container.innerHTML = `
+          <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                <span>🕯️</span> Freier Spielraum – Keine Vorgaben
+              </h3>
+              <span class="text-[10px] text-slate-500 font-mono">Intuitives Spiel</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Ihr spielt völlig frei. Das Cockpit hält im Hintergrund den Timer, den Notfall-Schutz und die Vital-Prüfung aktiv. Nutzt oben die Schnell-Werkzeuge für Edging, Disziplinierung oder Atempausen.
+            </p>
+          </div>
+        `;
+      } else if (currentSessionActiveMode === 'guided_flow') {
+        if (!guidedState.isConfigured) {
+          renderGuidedCheckinForm(container);
+        } else {
+          renderGuidedPlaybook(container);
+        }
+      } else if (currentSessionActiveMode === 'punishments') {
+        renderPunishmentsCatalog(container);
+      }
+    }
+
+    // TAGESFORM-CHECKIN FÜR GEFÜHRTE SESSION
+    function renderGuidedCheckinForm(container) {
+      const domName = names[getDomPartner()];
+      const subName = names[subPartner];
+
+      container.innerHTML = `
+        <div class="session-card p-4 sm:p-6 rounded-3xl border border-purple-500/40 space-y-5">
+          <div class="border-b border-purple-900/60 pb-3">
+            <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
+              Vorbereitung: Tagesform-Abstimmung
+            </span>
+            <h3 class="text-base sm:text-lg font-black text-white mt-1">Euer Drehbuch für heute Abend</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und welche Intensität soll das Regiebuch einplanen?</p>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <!-- Energie Top -->
+            <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-300 font-bold">👑 Energie von Top (${escapeHtml(domName)}):</span>
+                <span class="text-purple-300 font-mono font-bold" id="disp-energy-top">Stufe 3 (Ausgeglichen)</span>
+              </div>
+              <input type="range" min="1" max="5" value="${guidedState.energyTop}" oninput="updateCheckinEnergy('top', this.value)" class="w-full accent-purple-500 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span>1 (Müde / Sanft)</span>
+                <span>3 (Normal)</span>
+                <span>5 (Volle Tatkraft)</span>
+              </div>
+            </div>
+
+            <!-- Energie Sub -->
+            <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-300 font-bold">🧎 Belastbarkeit von Bottom (${escapeHtml(subName)}):</span>
+                <span class="text-brand-300 font-mono font-bold" id="disp-energy-sub">Stufe 3 (Bereit)</span>
+              </div>
+              <input type="range" min="1" max="5" value="${guidedState.energySub}" oninput="updateCheckinEnergy('sub', this.value)" class="w-full accent-brand-500 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span>1 (Ruhebedürftig)</span>
+                <span>3 (Bereit für Reize)</span>
+                <span>5 (Sucht Katharsis)</span>
+              </div>
+            </div>
+
+            <!-- Wunsch-Härtegrad -->
+            <div class="space-y-1.5">
+              <span class="text-slate-300 font-bold block">Gewünschte Spieltiefe:</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="selectGuidedIntensity('sanft')" id="btn-int-sanft" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'sanft' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  🌸 Sanft & Sinnlich
+                </button>
+                <button type="button" onclick="selectGuidedIntensity('mittel')" id="btn-int-mittel" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'mittel' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  ⚡ Mäßig & Fordernd
+                </button>
+                <button type="button" onclick="selectGuidedIntensity('intensiv')" id="btn-int-intensiv" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'intensiv' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  🔥 Intensiv & Scharf
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="startGuidedSessionPlaybook()" class="w-full py-3.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill">
+            📖 Drehbuch generieren & Session starten →
+          </button>
+        </div>
+      `;
+    }
+
+    function updateCheckinEnergy(who, val) {
+      val = parseInt(val);
+      const labels = ["1 (Müde/Sanft)", "2 (Ruhig)", "3 (Ausgeglichen)", "4 (Aktiv/Spannung)", "5 (Volle Kraft)"];
+      if (who === 'top') {
+        guidedState.energyTop = val;
+        document.getElementById('disp-energy-top').innerText = labels[val - 1];
+      } else {
+        guidedState.energySub = val;
+        document.getElementById('disp-energy-sub').innerText = labels[val - 1];
+      }
+    }
+
+    function selectGuidedIntensity(int) {
+      guidedState.intensity = int;
+      ['sanft', 'mittel', 'intensiv'].forEach(i => {
+        const btn = document.getElementById(`btn-int-${i}`);
+        if (btn) {
+          btn.className = (i === int) 
+            ? "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill bg-purple-950 border-purple-500 text-white shadow-xs"
+            : "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill session-panel border-slate-800 text-slate-400";
+        }
+      });
+    }
+
+    function startGuidedSessionPlaybook() {
+      guidedState.steps = generatePersonalizedSessionSteps();
+      guidedState.isConfigured = true;
+      guidedState.currentPhase = 1;
+      guidedState.currentStepIndex = 0;
+
+      // Timer starten falls noch nicht aktiv
+      if (!timerInterval) toggleTimer();
+
+      renderActiveModeWorkspace();
+      showToast("📖 Regiebuch gestartet: Phase 1 (Ankommen)");
+    }
+
+    // GENERIERUNG DER SCHRITTE AUS EUREN REALEN MATCHES
+    function generatePersonalizedSessionSteps() {
+      const domName = names[getDomPartner()];
+      const subName = names[subPartner];
+      const cfgA = safetyConfig.A || {};
+      const afcChoice = cfgA.aftercare || 'warmth';
+
+      return [
+        // PHASE 1: ANKOMMEN & ERDUNG (Dauer: ca. 10m)
+        {
+          phase: 1,
+          phaseTitle: "Phase 1: Ankommen & Erdung",
+          title: "1. Mentaler Übergang & Safeword-Re-Check",
+          desc: "Setzt euch ruhig gegenüber. Beide atmen dreimal tief synchron aus. Der Top fragt: 'Bist du bereit, dich heute fallen zu lassen?' Das Safeword und Knebelzeichen werden kurz laut wiederholt.",
+          actor: `${domName} leitet die Atmung; ${subName} lässt die Schultern sinken.`
+        },
+        {
+          phase: 1,
+          phaseTitle: "Phase 1: Ankommen & Erdung",
+          title: "2. Förmliches Entkleiden & Haltung einnehmen",
+          desc: "Der Top entkleidet den Bottom langsam Stück für Stück. Der Bottom verharrt still und richtet den Blick nach unten oder empfängt das Halsband.",
+          actor: `${domName} bestimmt das Tempo des Entkleidens.`
+        },
+
+        // PHASE 2: WARM-UP & TEASING (Dauer: ca. 15m)
+        {
+          phase: 2,
+          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: "3. Sensorische Weckung der Haut",
+          desc: "Fingerspitzen, Nägel oder Seidentücher streichen über Wirbelsäule, Schenkel und Nacken. Das Genital wird noch streng ausgespart.",
+          actor: `${subName} muss stillhalten und darf nicht nach vorne greifen.`
+        },
+        {
+          phase: 2,
+          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: "4. Erste Begrenzung oder Fesselung anlegen",
+          desc: "Handgelenke vorne oder hinten mit Seilen/Fesseln fixieren. Sicherheits-Cutter sichtbar bereitlegen. Kurze Prüfung der Fingerwärme.",
+          actor: `${domName} fixiert die Gliedmaßen mit ruhiger Autorität.`
+        },
+
+        // PHASE 3: HAUPTAKTION & INTENSITÄT (Dauer: ca. 15-20m)
+        {
+          phase: 3,
+          phaseTitle: "Phase 3: Energetischer Höhepunkt",
+          title: "5. Kern-Aktion (Impact / D/s / Hingabe)",
+          desc: guidedState.intensity === 'sanft' 
+            ? "Langes, tiefes Dösen, Halten und ruhige Penetration oder achtsames Streicheln."
+            : (guidedState.intensity === 'intensiv' 
+                ? "Dosierte Schläge mit der Hand oder dem Paddle auf den Po mit lautem Mitzählen, gefolgt von fordernder Vereinigung."
+                : "Edging an die Orgasmuskante mit strengem Haltesignal. Erlaubnis zum Kommen muss erbeten werden."),
+          actor: `${domName} führt mit klarer Konsequenz; ${subName} gibt die Kontrolle ab.`
+        },
+        {
+          phase: 3,
+          phaseTitle: "Phase 3: Energetischer Höhepunkt",
+          title: "6. Höchste Erregung & Freigabe",
+          desc: "Der Höhepunkt wird gemeinsam oder auf Countdown eingeläutet. Vollständige Verschmelzung ohne Ablenkung.",
+          actor: "Beide lassen die aufgestaute Spannung explodieren."
+        },
+
+        // PHASE 4: AFTERCARE & LANDUNG (Dauer: ca. 15m)
+        {
+          phase: 4,
+          phaseTitle: "Phase 4: Aftercare & Schutz",
+          title: "7. Fesseln lösen & Körperwärme",
+          desc: "Alle Seile und Fixierungen sofort behutsam lösen. Dicke Decke um den Bottom legen, um den hormonellen Temperaturabfall abzufangen.",
+          actor: `${domName} wickelt ${subName} warm ein und reicht Wasser.`
+        },
+        {
+          phase: 4,
+          phaseTitle: "Phase 4: Aftercare & Schutz",
+          title: "8. Emotionales De-Briefing & Stille",
+          desc: afcChoice === 'praise_words' 
+            ? "Dem Partner liebevolles Praise ins Ohr flüstern: 'Du warst wunderbar brav heute. Ich bin stolz auf dich.' Festes Halten."
+            : "Wortloses, ruhiges Halten im Arm für mindestens 15 Minuten. Telefone bleiben strikt im Flugmodus.",
+          actor: "Gemeinsames Zur-Ruhe-Kommen."
+        }
+      ];
+    }
+
+    function renderGuidedPlaybook(container) {
+      const step = guidedState.steps[guidedState.currentStepIndex];
+      const totalSteps = guidedState.steps.length;
+      const isLast = (guidedState.currentStepIndex === totalSteps - 1);
+
+      container.innerHTML = `
+        <div class="session-card p-4 sm:p-6 rounded-3xl border border-purple-500/60 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-purple-900/60 pb-3">
+            <div>
+              <span class="text-[9.5px] font-black uppercase tracking-widest text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">
+                ${step.phaseTitle}
+              </span>
+              <h3 class="text-sm sm:text-base font-extrabold text-white mt-1">${step.title}</h3>
+            </div>
+            <span class="text-xs font-mono text-purple-300 font-bold bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">
+              Schritt ${guidedState.currentStepIndex + 1} / ${totalSteps}
+            </span>
+          </div>
+
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2 text-xs">
+            <p class="text-slate-200 leading-relaxed">${step.desc}</p>
+            <div class="pt-2 border-t border-slate-800 text-[11px] text-purple-300 font-medium">
+              💡 <strong>Rollen-Fokus:</strong> ${step.actor}
+            </div>
+          </div>
+
+          <!-- Schritt-Navigation -->
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="prevGuidedStep()" class="px-3 py-2 session-panel border text-slate-400 hover:text-white font-bold rounded-xl text-xs transition disabled:opacity-30" ${guidedState.currentStepIndex === 0 ? 'disabled' : ''}>
+              ← Vorheriger Schritt
+            </button>
+            <button onclick="${isLast ? 'finishGuidedPlaybook()' : 'nextGuidedStep()'}" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill">
+              ${isLast ? '✓ Session abschließen & Aftercare' : 'Nächster Schritt →'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function nextGuidedStep() {
+      if (guidedState.currentStepIndex < guidedState.steps.length - 1) {
+        guidedState.currentStepIndex++;
+        playGongSound(480);
+        triggerHapticPulse([80]);
+        renderActiveModeWorkspace();
+      }
+    }
+
+    function prevGuidedStep() {
+      if (guidedState.currentStepIndex > 0) {
+        guidedState.currentStepIndex--;
+        renderActiveModeWorkspace();
+      }
+    }
+
+    function finishGuidedPlaybook() {
+      showToast("💖 Session abgeschlossen. Genießt die Nachsorge und Ruhe.");
+      guidedState.isConfigured = false;
+      renderActiveModeWorkspace();
+    }
+
+    function renderPunishmentsCatalog(container) {
+      container.innerHTML = `
+        <div class="session-card p-4 sm:p-5 rounded-3xl border border-purple-500/40 space-y-3">
+          <div class="border-b border-purple-900/60 pb-2 flex justify-between items-center">
+            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+              <span>⚖️</span> D/s-Strafenkatalog & Zucht
+            </h3>
+            <span class="text-[10px] text-purple-300 font-bold">Nach Härtegraden</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Nutzt das Vorfall-Werkzeug oben für Sofortstrafen, oder wählt hier ein gezieltes Ritual zur Wiedergutmachung.
+          </p>
+        </div>
+      `;
     }
 
     function toggleTimer() {
@@ -749,10 +1077,9 @@
             sessionElapsedSeconds++;
             renderTimerDisplay();
 
-            if (sessionElapsedSeconds % 900 === 0) {
-              playGongSound(432);
-              triggerHapticPulse([200, 100, 200]);
-              showToast("⏱️ 15-Minuten-Marke: Vital- & Nervencheck");
+            // VITAL-CHECK INTERVALL-PRÜFUNG (z.B. alle 15 Minuten)
+            if (sessionElapsedSeconds - lastVitalCheckElapsed >= vitalCheckIntervalSeconds) {
+              triggerVitalCheckAlarm();
             }
           } else {
             clearInterval(timerInterval);
@@ -764,6 +1091,21 @@
         }, 1000);
         updateTimerButtonUI(true);
       }
+    }
+
+    function triggerVitalCheckAlarm() {
+      lastVitalCheckElapsed = sessionElapsedSeconds;
+      playGongSound(432);
+      triggerHapticPulse([200, 100, 200, 100, 300]);
+      const modal = document.getElementById('modal-vital-check-alarm');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function confirmVitalCheckDone() {
+      const modal = document.getElementById('modal-vital-check-alarm');
+      if (modal) modal.classList.add('hidden');
+      showToast("✓ Vitalwerte bestätigt – Timer läuft weiter");
+      playGongSound(528);
     }
 
     function renderTimerDisplay() {
