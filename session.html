@@ -67,6 +67,17 @@
     .animate-pulse-subtle {
       animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
+
+    /* Atem-Pacer Animation */
+    @keyframes breath-cycle {
+      0% { transform: scale(0.85); opacity: 0.6; }
+      28% { transform: scale(1.3); opacity: 1; }
+      57% { transform: scale(1.3); opacity: 0.9; }
+      100% { transform: scale(0.85); opacity: 0.6; }
+    }
+    .animate-breathing-circle {
+      animation: breath-cycle 14s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white overflow-x-hidden">
@@ -175,7 +186,7 @@
         <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
           <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
         </button>
-        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus einsehen">
+        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus für heute Abend einsehen">
           <span>⛔</span> (<span id="header-tabu-count">0</span>)
         </button>
         <button onclick="toggleBlackout()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
@@ -223,7 +234,7 @@
                 <span class="text-xl">👑</span>
                 <div>
                   <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
-                  <strong class="text-white text-xs font-black portal-sub-name-A">Partner 1</strong>
+                  <strong class="text-white text-xs font-black disp-name-A">Partner 1</strong>
                 </div>
               </div>
 
@@ -231,13 +242,13 @@
                 <span class="text-xl">🧎</span>
                 <div>
                   <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
-                  <strong class="text-brand-100 text-xs font-black portal-sub-name-B">Partner 2</strong>
+                  <strong class="text-brand-100 text-xs font-black disp-name-B">Partner 2</strong>
                 </div>
               </div>
             </div>
 
             <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
-              <span class="portal-sub-name-A">Partner 1</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="portal-sub-name-B">Partner 2</span> sind aktiv geschützt.
+              <span class="disp-name-A font-bold text-slate-300">Partner 1</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="disp-name-B font-bold text-brand-300">Partner 2</span> sind aktiv geschützt.
             </p>
           </button>
 
@@ -255,7 +266,7 @@
                 <span class="text-xl">👑</span>
                 <div>
                   <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
-                  <strong class="text-white text-xs font-black portal-sub-name-B">Partner 2</strong>
+                  <strong class="text-white text-xs font-black disp-name-B">Partner 2</strong>
                 </div>
               </div>
 
@@ -263,13 +274,13 @@
                 <span class="text-xl">🧎</span>
                 <div>
                   <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
-                  <strong class="text-brand-100 text-xs font-black portal-sub-name-A">Partner 1</strong>
+                  <strong class="text-brand-100 text-xs font-black disp-name-A">Partner 1</strong>
                 </div>
               </div>
             </div>
 
             <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
-              <span class="portal-sub-name-B">Partner 2</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="portal-sub-name-A">Partner 1</span> sind aktiv geschützt.
+              <span class="disp-name-B font-bold text-slate-300">Partner 2</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="disp-name-A font-bold text-brand-300">Partner 1</span> sind aktiv geschützt.
             </p>
           </button>
 
@@ -279,7 +290,7 @@
         <div class="p-3 bg-teal-950/30 border border-teal-800/50 rounded-2xl flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-2">
             <span class="text-lg">📜</span>
-            <span class="text-teal-200 text-[11px]">Sicherheits-Kodex geladen: <strong id="portal-safeword-summary" class="text-white">Ampelsystem & Drop-Tuch</strong></span>
+            <span class="text-teal-200 text-[11px]">Sicherheits-Kodex aktiv: <strong id="portal-safeword-summary" class="text-white">Ampelsystem & Drop-Tuch</strong></span>
           </div>
           <button onclick="openSessionSafetyCodexModal()" class="text-[10px] text-teal-300 font-bold underline">Prüfen ↗</button>
         </div>
@@ -299,7 +310,7 @@
           </span>
           <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wie soll eure Session ablaufen?</h2>
           <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-            Wählt zwischen freiem, spontanem Spiel oder einer strukturierten 4-Phasen-Führung.
+            Wählt zwischen freiem, ungestörtem Spiel oder einer strukturierten 4-Phasen-Führung.
           </p>
         </div>
 
@@ -361,7 +372,7 @@
             ← Zurück zu Schritt 1 (Rollen)
           </button>
           <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-slate-400 hover:text-white transition underline decoration-slate-600 underline-offset-4">
-            ⚖️ Oder nur den Strafenkatalog durchstöbern
+            ⚖️ Oder gezielten D/s-Strafenkatalog öffnen
           </button>
         </div>
       </div>
@@ -378,8 +389,8 @@
             Modus: Freier Flow
           </span>
           <span class="text-slate-400">
-            Top: <strong class="text-white portal-sub-name-A">Partner 1</strong> &nbsp;|&nbsp; 
-            Bottom: <strong class="text-brand-300 portal-sub-name-B">Partner 2</strong>
+            Top: <strong class="text-white" id="active-cockpit-top-name">Partner 1</strong> &nbsp;|&nbsp; 
+            Bottom: <strong class="text-brand-300" id="active-cockpit-sub-name">Partner 2</strong>
           </span>
         </div>
         <button onclick="returnToModeSelection()" class="px-2.5 py-1 rounded-xl session-panel border text-slate-400 hover:text-white text-[10px] font-bold transition">
@@ -414,7 +425,7 @@
         <!-- SAFEWORT-AMPEL (RIESIGE TOUCH-FLÄCHEN) -->
         <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
           <div class="flex justify-between items-center text-[10.5px]">
-            <span class="font-bold text-slate-400 uppercase tracking-wider">Sofort-Signale für <strong class="text-brand-300 portal-sub-name-B">Bottom</strong>:</span>
+            <span class="font-bold text-slate-400 uppercase tracking-wider">Sofort-Signale für <strong class="text-brand-300" id="safeword-sub-target-name">Bottom</strong>:</span>
             <span class="text-slate-500 font-mono" id="sub-safeword-indicator">Ampel & Drop-Tuch</span>
           </div>
 
@@ -463,13 +474,74 @@
       </div>
 
       <!-- DYNAMISCHER BEREICH: GEFÜHRTES DREHBUCH ODER FREIE SZENEN -->
-      <div id="cockpit-tab-content" class="space-y-4">
-        <!-- Dynamischer Inhalt für Free Flow oder Geführte Session -->
-      </div>
+      <div id="cockpit-tab-content" class="space-y-4"></div>
 
     </div>
 
   </main>
+
+  <!-- MODAL: AKUTE TABU- & SCHUTZ-CHARTA FÜR DIE HEUTIGE SESSION -->
+  <div id="modal-session-tabus" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-2xl w-full border border-rose-500/60 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-rose-900/60 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⛔</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Akute Tabus für heute Abend</h3>
+            <p class="text-[10.5px] text-rose-300" id="tabu-modal-subtitle">Ausgewertet für die heutige Rollenverteilung</p>
+          </div>
+        </div>
+        <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-tabu-modal-content">
+        <!-- Dynamischer Inhalt -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
+        <span class="text-[10px] text-slate-400">Verletzungen dieser Grenzen lösen sofortiges ROT aus.</span>
+        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs transition">
+          Verstanden & Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INTERAKTIVER VAGUSNERV-ATEMPACER (ZEN & ATEM) -->
+  <div id="modal-session-zen" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-md w-full border border-teal-500/60 p-6 space-y-5 text-center shadow-2xl">
+      <div class="flex items-center justify-between border-b border-teal-900/60 pb-2">
+        <h3 class="text-xs font-black uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+          <span>🫁</span> Vagusnerv-Regulation & Erdung
+        </h3>
+        <button onclick="closeBedsideZenModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="space-y-1">
+        <h4 class="text-sm font-extrabold text-white">Synchrones Loslassen (4-4-6 Pacer)</h4>
+        <p class="text-[11px] text-slate-400">Folgt gemeinsam dem Kreis: Entlastet das Nervensystem bei Reizstress.</p>
+      </div>
+
+      <!-- Optischer Atemkreis -->
+      <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full bg-teal-500/20 border-2 border-teal-500/80 animate-breathing-circle"></div>
+        <div class="text-center z-10 space-y-0.5">
+          <span class="text-2xl block">🌊</span>
+          <span class="text-xs font-black text-teal-200 uppercase tracking-widest" id="zen-breath-phase-text">Atmen</span>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-1.5 text-slate-300">
+        <div><strong>1. 4s Einatmen:</strong> Tief durch die Nase in den Bauch.</div>
+        <div><strong>2. 4s Sanft halten:</strong> Ruhe im Körper spüren.</div>
+        <div><strong>3. 6s Langsam ausatmen:</strong> Durch den leicht geöffneten Mund seufzen.</div>
+      </div>
+
+      <button onclick="closeBedsideZenModal()" class="w-full py-3 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-2xl text-xs transition touch-pill">
+        ✓ Puls beruhigt – Zurück zur Session
+      </button>
+    </div>
+  </div>
 
   <!-- MODAL: UNSER VEREINBARTER SICHERHEITS- & KONSENS-KODEX -->
   <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
@@ -500,7 +572,7 @@
     <div class="session-card rounded-3xl max-w-md w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-center justify-between border-b border-purple-800/60 pb-2">
         <h3 class="text-sm font-extrabold text-purple-200 flex items-center gap-1.5">
-          <span>⚖️</span> Sofort-Zucht für <span class="portal-sub-name-B text-white">Partner 2</span>
+          <span>⚖️</span> Sofort-Zucht für <span id="incident-sub-target-name" class="text-white">Partner 2</span>
         </h3>
         <button onclick="closeIncidentDisciplineModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
@@ -539,7 +611,55 @@
 
       <div class="pt-2 border-t border-slate-800 flex justify-end">
         <button onclick="closeIncidentDisciplineModal()" class="px-4 py-2 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
-          Fertig
+        Fertig
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: REGULÄRER SESSION-ABSCHLUSS & AFTERCARE-LANDUNG -->
+  <div id="modal-session-aftercare" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-lg w-full border border-pink-500/50 p-6 space-y-5 text-center shadow-2xl">
+      <div class="w-14 h-14 rounded-full bg-pink-950/60 border border-pink-500/50 text-pink-300 text-2xl mx-auto flex items-center justify-center shadow-lg">
+        💖
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-[10px] font-black uppercase tracking-widest text-pink-400 bg-pink-950/80 px-2.5 py-0.5 rounded-full border border-pink-800">
+          Harmonischer Ausklang
+        </span>
+        <h3 class="text-base sm:text-lg font-black text-white mt-1">Session erfolgreich beendet!</h3>
+        <p class="text-xs text-slate-300">
+          Zeit zum Landen, Durchatmen und Halten. Lasst alle Rollen langsam los.
+        </p>
+      </div>
+
+      <!-- Vereinbarter Aftercare-Schwerpunkt -->
+      <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-2.5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <strong class="text-pink-300 font-bold flex items-center gap-1.5">
+            <span>🍵</span> Euer vereinbartes Nachsorge-Ritual:
+          </strong>
+          <span class="text-[10px] text-slate-400 font-mono" id="aftercare-modal-rule-badge">Körperwärme & Stille</span>
+        </div>
+        <p class="text-slate-300 text-[11px] leading-relaxed" id="aftercare-modal-desc">
+          Wickelt den Bottom in dicke Decken, reicht warmes Wasser oder Tee und haltet euch mindestens 15 bis 20 Minuten wortlos im Arm, um den Hormonabsturz (Subdrop) abzufedern.
+        </p>
+        <div class="grid grid-cols-2 gap-2 pt-1 text-[10px] text-slate-400">
+          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80">
+            📵 <strong>Offline-Phase:</strong> 20 Minuten Handy-Ruhe
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80">
+            💬 <strong>24h-Check-in:</strong> Morgen kurz rückmelden
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2 pt-1">
+        <button onclick="completeSessionAndExit()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs shadow-lg transition touch-pill">
+          ✓ Zurück zur Modus-Auswahl
+        </button>
+        <button onclick="closeAftercareModal()" class="px-4 py-3 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition">
+          Im Cockpit bleiben
         </button>
       </div>
     </div>
@@ -547,6 +667,7 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
+  <!-- SKRIPTE -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
@@ -554,7 +675,7 @@
   <script>
     let subPartner = 'B';
 
-    // Helper: Determine the active Top/Dominant partner based on selected Bottom/Sub
+    // Helper: Determine active Top partner based on selected Bottom
     function getDomPartner() {
       return subPartner === 'A' ? 'B' : 'A';
     }
@@ -587,6 +708,7 @@
     let safetyConfig = { A: {}, B: {} };
     let wakeLockInstance = null;
     let audioCtx = null;
+    let zenInterval = null;
 
     const safetyLabelsMap = {
       emergency_tools: {
@@ -702,8 +824,20 @@
       if (step2Top) step2Top.innerText = domName;
       if (step2Sub) step2Sub.innerText = subName;
 
-      document.querySelectorAll('.portal-sub-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
-      document.querySelectorAll('.portal-sub-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
+      // Update cockpit top/sub displays
+      const actTop = document.getElementById('active-cockpit-top-name');
+      const actSub = document.getElementById('active-cockpit-sub-name');
+      if (actTop) actTop.innerText = domName;
+      if (actSub) actSub.innerText = subName;
+
+      const incSub = document.getElementById('incident-sub-target-name');
+      if (incSub) incSub.innerText = subName;
+
+      const swSub = document.getElementById('safeword-sub-target-name');
+      if (swSub) swSub.innerText = subName;
+
+      document.querySelectorAll('.disp-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
+      document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
 
       if (subPartner === 'B') {
         if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3";
@@ -748,7 +882,7 @@
       const labels = {
         free: 'Modus: Freier Flow',
         guided_flow: 'Modus: Geführte 4-Phasen-Session',
-        punishments: 'Modus: D/s-Strafen'
+        punishments: 'Modus: D/s-Strafenkatalog'
       };
       if (badge) badge.innerText = labels[mode] || 'Session aktiv';
 
@@ -775,18 +909,27 @@
       const container = document.getElementById('cockpit-tab-content');
       if (!container) return;
 
+      const domName = names[getDomPartner()];
+      const subName = names[subPartner];
+
       if (currentSessionActiveMode === 'free') {
         container.innerHTML = `
-          <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-3">
+          <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                <span>🕯️</span> Freier Spielraum – Keine Vorgaben
+                <span>🕯️</span> Freier Spielraum – Keine festen Vorgaben
               </h3>
-              <span class="text-[10px] text-slate-500 font-mono">Intuitives Spiel</span>
+              <span class="text-[10px] text-brand-300 font-mono bg-brand-950 px-2 py-0.5 rounded border border-brand-800">Spontanes Spiel</span>
             </div>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Ihr spielt völlig frei. Das Cockpit hält im Hintergrund den Timer, den Notfall-Schutz und die Vital-Prüfung aktiv. Nutzt oben die Schnell-Werkzeuge für Edging, Disziplinierung oder Atempausen.
+              Ihr spielt völlig frei. ${escapeHtml(domName)} bestimmt das Tempo, während ${escapeHtml(subName)} sich fallenlässt. Das Cockpit hält im Hintergrund den Timer, den Notfall-Schutz und die 15-Min-Vitalprüfung aktiv.
             </p>
+
+            <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+              <button onclick="finishSessionRegularly()" class="w-full py-3.5 bg-gradient-to-r from-pink-700 to-brand-600 hover:from-pink-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill flex items-center justify-center gap-2">
+                <span>💖</span> <span>Session harmonisch beenden & Aftercare starten</span>
+              </button>
+            </div>
           </div>
         `;
       } else if (currentSessionActiveMode === 'guided_flow') {
@@ -913,7 +1056,7 @@
       const afcChoice = cfgA.aftercare || 'warmth';
 
       return [
-        // PHASE 1: ANKOMMEN & ERDUNG (Dauer: ca. 10m)
+        // PHASE 1: ANKOMMEN & ERDUNG
         {
           phase: 1,
           phaseTitle: "Phase 1: Ankommen & Erdung",
@@ -929,7 +1072,7 @@
           actor: `${domName} bestimmt das Tempo des Entkleidens.`
         },
 
-        // PHASE 2: WARM-UP & TEASING (Dauer: ca. 15m)
+        // PHASE 2: WARM-UP & TEASING
         {
           phase: 2,
           phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
@@ -945,7 +1088,7 @@
           actor: `${domName} fixiert die Gliedmaßen mit ruhiger Autorität.`
         },
 
-        // PHASE 3: HAUPTAKTION & INTENSITÄT (Dauer: ca. 15-20m)
+        // PHASE 3: HAUPTAKTION & INTENSITÄT
         {
           phase: 3,
           phaseTitle: "Phase 3: Energetischer Höhepunkt",
@@ -965,7 +1108,7 @@
           actor: "Beide lassen die aufgestaute Spannung explodieren."
         },
 
-        // PHASE 4: AFTERCARE & LANDUNG (Dauer: ca. 15m)
+        // PHASE 4: AFTERCARE & LANDUNG
         {
           phase: 4,
           phaseTitle: "Phase 4: Aftercare & Schutz",
@@ -1041,25 +1184,136 @@
     }
 
     function finishGuidedPlaybook() {
-      showToast("💖 Session abgeschlossen. Genießt die Nachsorge und Ruhe.");
-      guidedState.isConfigured = false;
-      renderActiveModeWorkspace();
+      finishSessionRegularly();
     }
 
+    function finishSessionRegularly() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateTimerButtonUI(false);
+      }
+      playGongSound(528);
+      triggerHapticPulse([100, 100, 200]);
+
+      // Aftercare-Text personalisieren
+      const cfgA = safetyConfig.A || {};
+      const afcChoice = cfgA.aftercare || 'warmth';
+      const badgeEl = document.getElementById('aftercare-modal-rule-badge');
+      const descEl = document.getElementById('aftercare-modal-desc');
+
+      const aftercareTexts = {
+        warmth: {
+          title: "Körperwärme & Stille",
+          desc: "Wickelt den Bottom sofort in dicke Decken, reicht warmes Wasser oder Kräutertee und haltet euch 15 bis 20 Minuten stumm im Arm, um den Hormonabfall abzufangen."
+        },
+        praise_words: {
+          title: "Verbaler Zuspruch & Praise",
+          desc: "Flüstert liebevolle, stolze Bestätigung ins Ohr ('Du warst wunderbar brav heute, ich bin stolz auf dich'). Feste Umarmung und positives emotionales De-Briefing."
+        },
+        bath_care: {
+          title: "Pflege-Ritual & Salbung",
+          desc: "Ein warmes Bad vorbereiten oder die beanspruchte Haut behutsam mit kühlendem Balsam/Creme einreiben. Sanfte, regenerierende Berührungen."
+        }
+      };
+
+      const selected = aftercareTexts[afcChoice] || aftercareTexts.warmth;
+      if (badgeEl) badgeEl.innerText = selected.title;
+      if (descEl) descEl.innerText = selected.desc;
+
+      const modal = document.getElementById('modal-session-aftercare');
+      if (modal) modal.classList.remove('hidden');
+      showToast("💖 Session harmonisch beendet – Willkommen in der Nachsorge");
+    }
+
+    function closeAftercareModal() {
+      const modal = document.getElementById('modal-session-aftercare');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function completeSessionAndExit() {
+      closeAftercareModal();
+      returnToModeSelection();
+      showToast("Session abgeschlossen.");
+    }
+
+    // INTERAKTIVER D/S-STRAFENKATALOG
     function renderPunishmentsCatalog(container) {
+      const subName = names[subPartner];
+
       container.innerHTML = `
-        <div class="session-card p-4 sm:p-5 rounded-3xl border border-purple-500/40 space-y-3">
+        <div class="session-card p-4 sm:p-5 rounded-3xl border border-purple-500/40 space-y-4">
           <div class="border-b border-purple-900/60 pb-2 flex justify-between items-center">
-            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-              <span>⚖️</span> D/s-Strafenkatalog & Zucht
-            </h3>
-            <span class="text-[10px] text-purple-300 font-bold">Nach Härtegraden</span>
+            <div>
+              <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                <span>⚖️</span> D/s-Strafenkatalog & Zucht
+              </h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">Verbindliche Rituale für ${escapeHtml(subName)}</p>
+            </div>
+            <div class="flex gap-1 text-[10px] font-bold">
+              <button onclick="setPunishmentTab('stufe1')" id="punish-tab-stufe1" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe1' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 1</button>
+              <button onclick="setPunishmentTab('stufe2')" id="punish-tab-stufe2" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe2' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 2</button>
+              <button onclick="setPunishmentTab('stufe3')" id="punish-tab-stufe3" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe3' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 3</button>
+            </div>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Nutzt das Vorfall-Werkzeug oben für Sofortstrafen, oder wählt hier ein gezieltes Ritual zur Wiedergutmachung.
-          </p>
+
+          <div id="punishment-list-content" class="space-y-2 text-xs">
+            <!-- Dynamisch gefüllt je nach Stufe -->
+          </div>
         </div>
       `;
+      renderPunishmentLevelContent();
+    }
+
+    function setPunishmentTab(lvl) {
+      currentPunishLvl = lvl;
+      ['stufe1', 'stufe2', 'stufe3'].forEach(l => {
+        const btn = document.getElementById(`punish-tab-${l}`);
+        if (btn) {
+          btn.className = (l === lvl) ? 'px-2 py-1 rounded-lg bg-purple-700 text-white font-bold' : 'px-2 py-1 rounded-lg session-panel text-slate-400';
+        }
+      });
+      renderPunishmentLevelContent();
+    }
+
+    function renderPunishmentLevelContent() {
+      const c = document.getElementById('punishment-list-content');
+      if (!c) return;
+
+      if (currentPunishLvl === 'stufe1') {
+        c.innerHTML = `
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">1. Förmliche Abbitte auf Knien (Nadu)</strong>
+            <p class="text-slate-300 text-[11px]">Bottom kniet aufrecht mit geradem Rücken vor dem Top, senkt den Blick und bittet förmlich um Verzeihung für den Fehler.</p>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">2. Ecke stehen (Corner Time – 5 Minuten)</strong>
+            <p class="text-slate-300 text-[11px]">Mit dem Gesicht zur Wand stillstehen, die Hände hinter dem Rücken verschränkt. Keine Worte, keine Ablenkung.</p>
+          </div>
+        `;
+      } else if (currentPunishLvl === 'stufe2') {
+        c.innerHTML = `
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">1. Handspanking über den Knien (Over the Knee)</strong>
+            <p class="text-slate-300 text-[11px]">10 bis 20 kontrollierte Hiebe mit der flachen Hand auf das entblößte Gesäß. Bottom zählt jeden Hieb laut mit ('Eins, danke Sir/Herrin').</p>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">2. Kniebank & Stillhalten (10 Minuten)</strong>
+            <p class="text-slate-300 text-[11px]">10 Minuten regungslos auf einer Matte knien, Hände auf den Oberschenkeln. Bei jedem Wackeln verlängert sich die Zeit um 1 Minute.</p>
+          </div>
+        `;
+      } else {
+        c.innerHTML = `
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">1. Zucht mit dem Lederpaddle</strong>
+            <p class="text-slate-300 text-[11px]">10 bis 15 flächige Schläge mit dem Paddle auf die Gesäßmuskeln bis zum deutlichen Glühen der Haut. Danach kühle Hand auflegen.</p>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
+            <strong class="text-purple-300 block font-bold">2. Keuschheits-Verlängerung / Orgasmus-Entzug</strong>
+            <p class="text-slate-300 text-[11px]">Für die nächsten 48 Stunden bleibt der Käfig verschlossen bzw. jede Form der Lustentladung strikt untersagt.</p>
+          </div>
+        `;
+      }
     }
 
     function toggleTimer() {
@@ -1077,7 +1331,7 @@
             sessionElapsedSeconds++;
             renderTimerDisplay();
 
-            // VITAL-CHECK INTERVALL-PRÜFUNG (z.B. alle 15 Minuten)
+            // VITAL-CHECK INTERVALL-PRÜFUNG (alle 15 Minuten)
             if (sessionElapsedSeconds - lastVitalCheckElapsed >= vitalCheckIntervalSeconds) {
               triggerVitalCheckAlarm();
             }
@@ -1300,21 +1554,105 @@
       if (subInd) subInd.innerText = swA === 'traffic' ? 'Ampelsystem & Drop-Tuch' : 'Codewort & Geste';
     }
 
+    // VOLLWERTIGES TABU-MODAL IM SESSION-BEGLEITER
+    function openTabuModal() {
+      const m = document.getElementById('modal-session-tabus');
+      const c = document.getElementById('session-tabu-modal-content');
+      const subTitle = document.getElementById('tabu-modal-subtitle');
+      if (!m || !c) return;
+
+      const domPartner = getDomPartner();
+      const domName = names[domPartner] || 'Top';
+      const subName = names[subPartner] || 'Bottom';
+
+      if (subTitle) {
+        subTitle.innerText = `Top: ${domName} (Ausführung) | Bottom: ${subName} (Schutzgrenzen)`;
+      }
+
+      const allChapters = window.surveyChapters || [];
+      let topTabus = [];
+      let bottomTabus = [];
+
+      const domAnswers = answers[domPartner] || {};
+      const subAnswers = answers[subPartner] || {};
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type === 'choice') return;
+          // Top darf/will Aktiv nicht
+          if (domAnswers[`it_${it.id}_r1`] === 1) {
+            topTabus.push({ item: it, text: it.r1 });
+          }
+          // Bottom darf/will Passiv nicht
+          if (subAnswers[`it_${it.id}_r2`] === 1) {
+            bottomTabus.push({ item: it, text: it.r2 });
+          }
+        });
+      });
+
+      let html = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Top Ausführungsgrenzen -->
+          <div class="p-3.5 bg-indigo-950/40 border border-indigo-800/60 rounded-2xl space-y-2">
+            <div class="flex items-center justify-between border-b border-indigo-900 pb-1.5">
+              <strong class="text-indigo-300 font-bold flex items-center gap-1.5">
+                <span>✋</span> ${escapeHtml(domName)} (Top) will nicht:
+              </strong>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-900 text-indigo-200 font-black">${topTabus.length}</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Handlungen, die der Top heute keinesfalls aktiv ausführen möchte.</p>
+            <div class="space-y-1.5 pt-1 max-h-56 overflow-y-auto pr-1">
+              ${topTabus.length > 0 ? topTabus.map(t => `
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-indigo-900/40 text-[11px] space-y-0.5">
+                  <strong class="text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+                  <span class="text-[10px] text-indigo-300 block">⛔ ${escapeHtml(t.text)}</span>
+                </div>
+              `).join('') : '<p class="text-slate-500 italic text-center py-3">Keine Ausführungs-Tabus hinterlegt.</p>'}
+            </div>
+          </div>
+
+          <!-- Bottom Schutzgrenzen -->
+          <div class="p-3.5 bg-rose-950/40 border border-rose-800/60 rounded-2xl space-y-2">
+            <div class="flex items-center justify-between border-b border-rose-900 pb-1.5">
+              <strong class="text-rose-300 font-bold flex items-center gap-1.5">
+                <span>🛡️</span> ${escapeHtml(subName)} (Bottom) erträgt nicht:
+              </strong>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-black">${bottomTabus.length}</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Schranken, die am Körper des Bottom keinesfalls geschehen dürfen.</p>
+            <div class="space-y-1.5 pt-1 max-h-56 overflow-y-auto pr-1">
+              ${bottomTabus.length > 0 ? bottomTabus.map(t => `
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-rose-900/40 text-[11px] space-y-0.5">
+                  <strong class="text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+                  <span class="text-[10px] text-rose-300 block">⛔ ${escapeHtml(t.text)}</span>
+                </div>
+              `).join('') : '<p class="text-slate-500 italic text-center py-3">Keine Schutz-Tabus hinterlegt.</p>'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      c.innerHTML = html;
+      m.classList.remove('hidden');
+    }
+
+    function closeSessionTabuModal() {
+      document.getElementById('modal-session-tabus')?.classList.add('hidden');
+    }
+
     function updateTabuCounts() {
       const allChapters = window.surveyChapters || [];
       const domPartner = getDomPartner();
       let acuteCount = 0;
 
+      const domAnswers = answers[domPartner] || {};
+      const subAnswers = answers[subPartner] || {};
+
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
-          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
-          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
-          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
-          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
-
-          const domR1 = (domPartner === 'A') ? aR1 : bR1;
-          const subR2 = (subPartner === 'A') ? aR2 : bR2;
+          const domR1 = domAnswers[`it_${it.id}_r1`];
+          const subR2 = subAnswers[`it_${it.id}_r2`];
           if (domR1 === 1 || subR2 === 1) acuteCount++;
         });
       });
@@ -1354,12 +1692,33 @@
       triggerHapticPulse([150, 100, 150]);
     }
 
+    // INTERAKTIVER VAGUSNERV-ATEMPACER
     function openBedsideZenModal() {
-      showToast("🫁 Vagusnerv-Atmung: 4 Sekunden einatmen, 6 Sekunden ausatmen");
+      initAudio();
+      playGongSound(380);
+      const m = document.getElementById('modal-session-zen');
+      if (m) m.classList.remove('hidden');
+
+      const txt = document.getElementById('zen-breath-phase-text');
+      let second = 0;
+      if (zenInterval) clearInterval(zenInterval);
+
+      zenInterval = setInterval(() => {
+        second = (second + 1) % 14;
+        if (txt) {
+          if (second < 4) txt.innerText = "Einatmen (4s)";
+          else if (second < 8) txt.innerText = "Halten (4s)";
+          else txt.innerText = "Ausatmen (6s)";
+        }
+      }, 1000);
     }
 
-    function openTabuModal() {
-      showToast("⛔ Tabu-Check: Keine Schläge auf Gelenke oder Wirbelsäule, kein Atemwegsverschluss.");
+    function closeBedsideZenModal() {
+      if (zenInterval) {
+        clearInterval(zenInterval);
+        zenInterval = null;
+      }
+      document.getElementById('modal-session-zen')?.classList.add('hidden');
     }
 
     function showToast(msg) {
