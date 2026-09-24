@@ -183,6 +183,9 @@
 
       <!-- Quick Action Controls -->
       <div class="flex items-center gap-1.5">
+        <button onclick="openSessionDiaryModal()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Session-Tagebuch einsehen">
+          <span>📖</span> <span class="hidden sm:inline text-[11px]">Logbuch</span>
+        </button>
         <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
           <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
         </button>
@@ -633,6 +636,35 @@
         </p>
       </div>
 
+      <!-- 2-MINUTEN DE-BRIEFING FÜRS TAGEBUCH -->
+      <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-pink-900/40 text-left text-xs space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <strong class="text-pink-300 font-bold flex items-center gap-1.5">
+            <span>📝</span> 1-Minuten De-Briefing (Optional fürs Tagebuch):
+          </strong>
+          <span class="text-[10px] text-slate-400" id="aftercare-diary-time-badge">Dauer: 0 Min.</span>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <div class="flex justify-between text-[11px] text-slate-300 font-semibold mb-1">
+              <span>Intensität des Abends:</span>
+              <span class="text-pink-400 font-bold font-mono" id="disp-debrief-intensity">7 / 10</span>
+            </div>
+            <input type="range" min="1" max="10" value="7" oninput="document.getElementById('disp-debrief-intensity').innerText = this.value + ' / 10'" id="debrief-input-intensity" class="w-full accent-pink-500 cursor-pointer">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <input type="text" id="debrief-input-highlight" placeholder="Highlight: Was war heute besonders schön?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
+            <input type="text" id="debrief-input-learning" placeholder="Learning: Was beim nächsten Mal anpassen?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
+          </div>
+
+          <button type="button" onclick="saveSessionDebriefToDiary()" id="btn-save-debrief" class="w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-pill flex items-center justify-center gap-1.5">
+            <span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Vereinbarter Aftercare-Schwerpunkt -->
       <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-2.5">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
@@ -660,6 +692,33 @@
         </button>
         <button onclick="closeAftercareModal()" class="px-4 py-3 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition">
           Im Cockpit bleiben
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SESSION-TAGEBUCH & LOGBUCH -->
+  <div id="modal-session-diary" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-xl w-full border border-pink-500/50 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-pink-900/60 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Unser Schlafzimmer-Tagebuch</h3>
+            <p class="text-[10.5px] text-pink-300">Gemeinsame Session-Historie & Reflexionen</p>
+          </div>
+        </div>
+        <button onclick="closeSessionDiaryModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-diary-list-content">
+        <!-- Dynamischer Inhalt -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
+        <span class="text-[10px] text-slate-500">Wird auch in der Paaranalyse synchronisiert.</span>
+        <button onclick="closeSessionDiaryModal()" class="px-4 py-2 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+          Schließen
         </button>
       </div>
     </div>
@@ -1221,9 +1280,128 @@
       if (badgeEl) badgeEl.innerText = selected.title;
       if (descEl) descEl.innerText = selected.desc;
 
+      const durMin = Math.round(sessionElapsedSeconds / 60);
+      const timeBadge = document.getElementById('aftercare-diary-time-badge');
+      if (timeBadge) timeBadge.innerText = `Dauer: ${durMin} Min.`;
+
+      const btnSave = document.getElementById('btn-save-debrief');
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = `<span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>`;
+        btnSave.className = "w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-pill flex items-center justify-center gap-1.5";
+      }
+
       const modal = document.getElementById('modal-session-aftercare');
       if (modal) modal.classList.remove('hidden');
       showToast("💖 Session harmonisch beendet – Willkommen in der Nachsorge");
+    }
+
+    function saveSessionDebriefToDiary() {
+      const intensity = parseInt(document.getElementById('debrief-input-intensity')?.value || '7');
+      const highlight = document.getElementById('debrief-input-highlight')?.value.trim() || '';
+      const learning = document.getElementById('debrief-input-learning')?.value.trim() || '';
+
+      const domPartner = getDomPartner();
+      const domName = names[domPartner] || 'Top';
+      const subName = names[subPartner] || 'Bottom';
+      const durMin = Math.max(1, Math.round(sessionElapsedSeconds / 60));
+
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        mode: currentSessionActiveMode === 'guided_flow' ? 'Geführte Session' : 'Freier Flow',
+        top: domName,
+        bottom: subName,
+        durationMinutes: durMin,
+        intensity: intensity,
+        edgeCount: edgeCount,
+        highlight: highlight,
+        learning: learning
+      };
+
+      try {
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        if (!Array.isArray(diary)) diary = [];
+        diary.unshift(entry);
+        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+
+        const btnSave = document.getElementById('btn-save-debrief');
+        if (btnSave) {
+          btnSave.disabled = true;
+          btnSave.innerHTML = `<span>✓</span> <span>Gespeichert & im Logbuch abgelegt!</span>`;
+          btnSave.className = "w-full py-2 bg-emerald-950 border border-emerald-700/60 text-emerald-200 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5";
+        }
+        showToast("📖 Eintrag erfolgreich im Tagebuch gespeichert!");
+      } catch (e) {
+        console.error("Fehler beim Speichern des Tagebuchs:", e);
+      }
+    }
+
+    function openSessionDiaryModal() {
+      renderSessionDiaryContent();
+      document.getElementById('modal-session-diary')?.classList.remove('hidden');
+    }
+
+    function closeSessionDiaryModal() {
+      document.getElementById('modal-session-diary')?.classList.add('hidden');
+    }
+
+    function renderSessionDiaryContent() {
+      const container = document.getElementById('session-diary-list-content');
+      if (!container) return;
+
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) {
+        diary = [];
+      }
+
+      if (!Array.isArray(diary) || diary.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500 space-y-2">
+            <span class="text-3xl block">📖</span>
+            <p class="text-xs">Noch keine Tagebucheinträge vorhanden.</p>
+            <p class="text-[10.5px] text-slate-600">Nach jeder Session könnt ihr im Aftercare-Fenster ein kurzes 1-Minuten-Fazit speichern.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = diary.map(entry => `
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
+                ${escapeHtml(entry.mode || 'Session')}
+              </span>
+              <span class="text-slate-400 text-[10.5px]">${escapeHtml(entry.date)}</span>
+            </div>
+            <span class="text-pink-400 font-black font-mono">⚡ ${entry.intensity || 7}/10</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+            <div>👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
+            <div>🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
+            <div>⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
+            <div>🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
+          </div>
+
+          ${entry.highlight ? `
+            <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px]">
+              <strong class="text-amber-300 block text-[10px] uppercase tracking-wider">Highlight:</strong>
+              <p class="text-slate-300 mt-0.5">${escapeHtml(entry.highlight)}</p>
+            </div>
+          ` : ''}
+
+          ${entry.learning ? `
+            <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px]">
+              <strong class="text-teal-300 block text-[10px] uppercase tracking-wider">Learning für nächstes Mal:</strong>
+              <p class="text-slate-300 mt-0.5">${escapeHtml(entry.learning)}</p>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
     }
 
     function closeAftercareModal() {
