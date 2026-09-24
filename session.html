@@ -166,56 +166,58 @@
   </div>
 
   <!-- HEADER NAVIGATION -->
-  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 px-3 sm:px-6 py-2.5 shadow-sm">
-    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-brand-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs">
-          🕯️
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Session-Begleiter</h1>
-            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">Darkroom</span>
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
+      <!-- ZEILE 1: TITEL & ESSENZIELLER DARKROOM-SCHNELLZUGRIFF -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-brand-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs">
+            🕯️
           </div>
-          <span class="text-[9.5px] sm:text-[10px] text-slate-500 font-medium block mt-0.5">Sicherheit & Dynamik im Schlafzimmer</span>
+          <div class="truncate">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Session-Begleiter</h1>
+              <span class="px-1 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">Darkroom</span>
+            </div>
+            <span class="text-[9.5px] text-slate-500 font-medium block truncate mt-0.5">Sicherheit & Dynamik im Schlafzimmer</span>
+          </div>
+        </div>
+
+        <!-- Schnell-Werkzeuge rechts -->
+        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+          <button onclick="openSessionDiaryModal()" class="px-2 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Session-Tagebuch einsehen">
+            <span>📖</span> <span class="hidden sm:inline text-[11px]">Logbuch</span>
+          </button>
+          <button onclick="openSessionSafetyCodexModal()" class="px-2 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
+            <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
+          </button>
+          <button onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus für heute Abend">
+            <span>⛔</span> <span id="header-tabu-count">0</span>
+          </button>
+          <button onclick="toggleBlackout()" class="p-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
+            <span>🌑</span>
+          </button>
         </div>
       </div>
 
-      <!-- ZENTRALE NAVIGATION (EXAKT WIE IM FRAGEBOGEN & ANALYSE) -->
-      <nav class="hidden md:flex items-center session-panel p-1 rounded-xl border text-xs font-bold">
-        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+      <!-- ZEILE 2: DURCHGÄNGIGE APP-TABS (AUF ALLEN SMARTPHONES 100% SICHTBAR & WISCHBAR) -->
+      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-extrabold flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill shadow-xs">
           <span>📝</span> <span>Fragebogen</span>
         </a>
-        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1">
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
           <span>🛡️</span> <span>Sicherheits-Kodex</span>
         </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
           <span>👤</span> <span>Mein Profil</span>
         </a>
-        <a href="analyse.html" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition flex items-center gap-1">
+        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 font-bold whitespace-nowrap flex-shrink-0 touch-pill">
           <span>📊</span> <span>Paar-Analyse</span>
         </a>
+        <span class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
+          <span>🕯️</span> <span>Session-Cockpit</span>
+        </span>
       </nav>
-
-      <!-- Quick Action Controls -->
-      <div class="flex items-center gap-1.5">
-        <!-- IMMER SICHTBARER DIREKTSPRUNG ZUM FRAGEBOGEN -->
-        <a href="index.html#view=survey" class="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Zurück zum Fragebogen">
-          <span>📝</span> <span class="font-extrabold text-[11px]">Fragebogen</span>
-        </a>
-        <button onclick="openSessionDiaryModal()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Session-Tagebuch einsehen">
-          <span>📖</span> <span class="hidden lg:inline text-[11px]">Logbuch</span>
-        </button>
-        <button onclick="openSessionSafetyCodexModal()" class="px-2.5 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
-          <span>📜</span> <span class="hidden lg:inline text-[11px]">Sicherheit</span>
-        </button>
-        <button onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus für heute Abend einsehen">
-          <span>⛔</span> (<span id="header-tabu-count">0</span>)
-        </button>
-        <button onclick="toggleBlackout()" class="px-2.5 py-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
-          <span>🌑</span>
-        </button>
-      </div>
     </div>
   </header>
 
