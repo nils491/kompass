@@ -247,6 +247,23 @@
             </div>
             <div id="doppel5-interactive-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
           </div>
+
+          <!-- EROTISCHES LOGBUCH & SESSION-HISTORIE -->
+          <div class="theme-card p-4 sm:p-5 rounded-2xl border border-pink-500/40 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-pink-500/20 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📖</span>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-pink-300">Erotisches Logbuch & Beziehungs-Historie</h3>
+                  <p class="text-[10px] text-slate-400">Aus dem Schlafzimmer-Begleiter übernommene Sessions, Erkenntnisse & Highlights</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40" id="diary-total-count-badge">0 Einträge</span>
+            </div>
+            <div id="pair-session-diary-container" class="space-y-2.5 text-xs">
+              <!-- Dynamisch aus dem Tagebuch gefüllt -->
+            </div>
+          </div>
         </div>
       </section>
 
@@ -583,7 +600,69 @@
       renderPairScientificGutachten(harmonyPct, doppel5List.length, bridgesList.length);
       renderBridgesUI(bridgesList);
       renderDoppel5UI(doppel5List);
+      renderPairSessionDiaryUI();
       renderPairRadar();
+    }
+
+    function renderPairSessionDiaryUI() {
+      const container = document.getElementById('pair-session-diary-container');
+      const badge = document.getElementById('diary-total-count-badge');
+      if (!container) return;
+
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) {
+        diary = [];
+      }
+
+      if (badge) badge.innerText = `${diary.length} ${diary.length === 1 ? 'Eintrag' : 'Einträge'}`;
+
+      if (!Array.isArray(diary) || diary.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-400 italic space-y-1.5 theme-panel rounded-2xl border border-slate-800">
+            <span class="text-2xl block">🕯️</span>
+            <p>Noch keine Sessions im Tagebuch eingetragen.</p>
+            <p class="text-[10.5px] text-slate-500">Startet eine Runde im <a href="session.html" class="text-brand-400 underline font-semibold">Session-Begleiter</a> – dort könnt ihr im Aftercare euer Feedback direkt für die Paaranalyse speichern.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = diary.map(entry => `
+        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
+                ${escapeHtml(entry.mode || 'Session')}
+              </span>
+              <span class="text-slate-400 text-[10.5px] font-mono">${escapeHtml(entry.date)}</span>
+            </div>
+            <span class="text-pink-400 font-black font-mono">⚡ Intensität: ${entry.intensity || 7}/10</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
+            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
+          </div>
+
+          ${entry.highlight ? `
+            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
+              <strong class="text-amber-300 block text-[10px] uppercase tracking-wider">🌟 Highlight:</strong>
+              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.highlight)}</p>
+            </div>
+          ` : ''}
+
+          ${entry.learning ? `
+            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
+              <strong class="text-teal-300 block text-[10px] uppercase tracking-wider">💡 Was beim nächsten Mal anpassen / probieren:</strong>
+              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.learning)}</p>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
     }
 
     function renderSafetyCodexDisplay() {
