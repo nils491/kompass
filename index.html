@@ -128,6 +128,12 @@
       </div>
     </div>
   </div>
+  <script>
+    if (sessionStorage.getItem('kompass_unlocked') === 'true') {
+      const lock = document.getElementById('site-lockscreen');
+      if (lock) lock.classList.add('hidden');
+    }
+  </script>
 
   <!-- HEADER NAVIGATION -->
   <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-2.5 sm:px-6 py-2.5 shadow-sm">
