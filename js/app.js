@@ -945,6 +945,18 @@ function nextChapter() {
 function jumpToChapter(idx) {
   currentChapterIndex = idx;
   switchMainView('survey');
+  const grid = document.getElementById('chapter-quick-grid');
+  if (grid) grid.classList.add('hidden');
+}
+
+function toggleChapterQuickGrid() {
+  const grid = document.getElementById('chapter-quick-grid');
+  if (grid) {
+    grid.classList.toggle('hidden');
+    if (!grid.classList.contains('hidden')) {
+      renderQuickGrid();
+    }
+  }
 }
 
 function renderQuickGrid() {
