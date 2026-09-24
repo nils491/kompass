@@ -78,49 +78,51 @@
   </div>
 
   <!-- HEADER -->
-  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b px-3 sm:px-6 py-2.5 shadow-sm">
-    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-sm">
-          📊
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white">Wissenschaftliche Paar-Analyse</h1>
-            <span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase">35+ Studien</span>
+  <header class="sticky top-0 z-40 theme-card/95 backdrop-blur-md border-b shadow-sm">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
+      <!-- ZEILE 1: TITEL & QUICK CONTROLS -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs">
+            📊
           </div>
-          <span class="text-[9.5px] sm:text-[10px] text-slate-400 font-medium block mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
+          <div class="truncate">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar- & Tiefenanalyse</h1>
+              <span class="px-1 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">35+ Studien</span>
+            </div>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <a href="index.html#view=survey" class="px-2.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill shadow-xs" title="Zurück zum Fragebogen">
+            <span>📝</span> <span class="text-[11px] font-extrabold">Fragebogen</span>
+          </a>
+          <button onclick="toggleGlobalTheme()" class="p-1.5 sm:px-2 theme-panel border rounded-xl text-xs font-bold transition flex items-center touch-pill" title="Design wechseln">
+            <span id="theme-icon">🌙</span>
+          </button>
+          <a href="session.html" class="p-1.5 sm:px-2.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit">
+            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
+          </a>
         </div>
       </div>
 
-      <!-- ZENTRALE NAVIGATION (EXAKT WIE IM FRAGEBOGEN) -->
-      <nav class="hidden md:flex items-center theme-panel p-1 rounded-xl border text-xs font-bold">
-        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+      <!-- ZEILE 2: DURCHGÄNGIGE APP-TABS (AUF ALLEN SMARTPHONES 100% SICHTBAR & WISCHBAR) -->
+      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
           <span>📝</span> <span>Fragebogen</span>
         </a>
-        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition flex items-center gap-1">
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
           <span>🛡️</span> <span>Sicherheits-Kodex</span>
         </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1">
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
           <span>👤</span> <span>Mein Profil</span>
         </a>
-        <span class="px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-xs flex items-center gap-1 cursor-default">
+        <span class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
           <span>📊</span> <span>Paar-Analyse</span>
         </span>
       </nav>
-
-      <div class="flex items-center gap-1.5">
-        <!-- IMMER SICHTBARER DIREKTSPRUNG ZUM FRAGEBOGEN -->
-        <a href="index.html#view=survey" class="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-pill shadow-xs" title="Zurück zum Fragebogen">
-          <span>📝</span> <span class="font-extrabold text-[11px]">Fragebogen</span>
-        </a>
-        <button onclick="toggleGlobalTheme()" class="px-2 py-1.5 theme-panel border rounded-xl text-xs font-bold transition flex items-center gap-1 touch-pill" title="Design wechseln">
-          <span id="theme-icon">🌙</span> <span class="hidden lg:inline text-[11px]" id="theme-label">Nacht</span>
-        </button>
-        <a href="session.html" class="px-2 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Schlafzimmer-Cockpit">
-          <span>🕯️</span> <span class="hidden lg:inline text-[11px]">Cockpit</span>
-        </a>
-      </div>
     </div>
   </header>
 
