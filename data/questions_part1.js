@@ -1,5 +1,65 @@
 window.surveyChapters = (window.surveyChapters || []).concat([
   {
+    id: 0,
+    title: "Somatische Sicherheit, Vertrauen & Traumabiografie",
+    desc: "Das traumasensible Fundament: Raum für persönliche Vorerfahrungen, emotionale Trigger und den gewünschten Schutz- und Ermächtigungsrahmen in eurer Partnerschaft (van der Kolk, 2014; Canivet et al., 2025).",
+    items: [
+      {
+        id: 901,
+        title: "Sexuelle & emotionale Vorerfahrungen",
+        desc: "Ehrliche Selbsteinschätzung früherer Belastungen, Grenzüberschreitungen oder Übergriffe.",
+        type: "choice",
+        question: "Gibt es frühere belastende Erfahrungen, die dich heute noch berühren können?",
+        options: [
+          { val: "none", label: "🌱 Keine belastenden Vorerfahrungen vorhanden" },
+          { val: "boundary", label: "⚡ Frühere unschöne Grenzüberschreitungen oder Enttäuschungen" },
+          { val: "trauma", label: "🛡️ Früheres sexuelles oder emotionales Trauma / Übergriff" },
+          { val: "private", label: "🔒 Möchte ich vorerst für mich behalten" }
+        ]
+      },
+      {
+        id: 902,
+        title: "Heilungs- & Integrationsstand",
+        desc: "Wie präsent sind eventuelle Vorerfahrungen in deinem heutigen Erleben?",
+        type: "choice",
+        question: "Wie gut sind frühere Erfahrungen verarbeitet?",
+        options: [
+          { val: "integrated", label: "🌿 Vollständig integriert / geheilt – hat heute keinen negativen Einfluss mehr" },
+          { val: "triggers", label: "⚠️ Weitgehend verarbeitet, aber spezifische Trigger vorhanden (Worte, Enge, Hilflosigkeit)" },
+          { val: "vulnerable", label: "❤️‍🩹 Noch aktiv & verletzlich – ich reagiere rasch mit Angst oder Dissoziation" },
+          { val: "na", label: "🌱 Entfällt (keine belastenden Vorerfahrungen)" }
+        ]
+      },
+      {
+        id: 903,
+        title: "Gewünschte Rahmung in der Partnerschaft",
+        desc: "Welche Haltung und welches Tempo wünschst du dir von deinem Gegenüber?",
+        type: "choice",
+        question: "Welcher Rahmen gibt dir die meiste Sicherheit?",
+        options: [
+          { val: "safety_first", label: "🛡️ Sicherheits-Fokus: Keine plötzlichen Überraschungen, strikte Vorab-Absprache jedes Schritts" },
+          { val: "mastery", label: "🔥 Kink-Mastery & Ermächtigung: Grenzerfahrungen bewusst im sicheren Rahmen nutzen, um Stärke zu spüren" },
+          { val: "free_flow", label: "✨ Völlig freies, unbeschwertes Spiel ohne besondere Vorbedingungen" }
+        ]
+      },
+      {
+        id: 904,
+        title: "Grounding & Re-Orientierung bei Dissoziation (Freeze)",
+        desc: "Sollte der Kopf plötzlich abdriften: Innehalten, Decke umlegen, tiefe Atemzüge und feste Hände auf den Schultern zur Erdung.",
+        r1: "Den Partner bei Überforderung erden, halten & beruhigen",
+        r2: "Erdung & sicheren Halt empfangen, wenn der Kopf blockiert"
+      },
+      {
+        id: 905,
+        title: "Achtsames Vorankündigen intensiver Gesten",
+        desc: "Vor festem Zupacken, Fesseln oder Augenbinden kurz berühren oder leise ankündigen, was als Nächstes geschieht.",
+        r1: "Schritte ruhig & transparent ankündigen",
+        r2: "Durch kurze Ankündigungen Sicherheit gewinnen"
+      }
+    ]
+  },
+
+  {
     id: 1,
     title: "Körperbild, Berührung & Erogene Zonen",
     desc: "Das persönliche Fundament: Zonen intensiver Erregung, Berührungsarten und Tabu-Stellen.",
