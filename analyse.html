@@ -306,7 +306,7 @@
                 <span class="text-xl">📖</span>
                 <div>
                   <h3 class="text-xs sm:text-sm font-bold text-pink-300">Erotisches Logbuch & Beziehungs-Historie</h3>
-                  <p class="text-[10px] text-slate-400">Aus dem Schlafzimmer-Begleiter übernommene Sessions, Erkenntnisse & Highlights</p>
+                  <p class="text-[10px] text-slate-400">Aus dem Schlafzimmer-Begleiter übernommene Sessions, Live-Aktionen & Dual-Feedback</p>
                 </div>
               </div>
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40" id="diary-total-count-badge">0 Einträge</span>
@@ -1081,7 +1081,7 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
       }
 
       container.innerHTML = diary.map(entry => `
-        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-2">
+        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-2.5">
           <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
@@ -1089,7 +1089,10 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
               </span>
               <span class="text-slate-400 text-[10.5px] font-mono">${escapeHtml(entry.date)}</span>
             </div>
-            <span class="text-pink-400 font-black font-mono">⚡ Intensität: ${entry.intensity || 7}/10</span>
+            <div class="flex items-center gap-2">
+              <span class="text-pink-400 font-black font-mono">⚡ Intensität: ${entry.intensity || 7}/10</span>
+              <button onclick="deletePairDiaryEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1 text-[11px]" title="Eintrag löschen">🗑️</button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
@@ -1099,299 +1102,59 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
             <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
           </div>
 
-          ${entry.highlight ? `
+          <!-- DUAL FEEDBACK IN DER ANALYSE -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/60">
             <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
-              <strong class="text-amber-300 block text-[10px] uppercase tracking-wider">🌟 Highlight:</strong>
-              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.highlight)}</p>
+              <strong class="text-white block text-[10px] uppercase tracking-wider">👑 Feedback von ${escapeHtml(entry.top)} (Top):</strong>
+              <p class="text-slate-200 mt-0.5">${entry.topFeedback ? escapeHtml(entry.topFeedback) : '<span class="text-slate-500 italic">Noch kein Feedback hinterlegt</span>'}</p>
             </div>
-          ` : ''}
 
-          ${entry.learning ? `
             <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
-              <strong class="text-teal-300 block text-[10px] uppercase tracking-wider">💡 Was beim nächsten Mal anpassen / probieren:</strong>
-              <p class="text-slate-200 mt-0.5">${escapeHtml(entry.learning)}</p>
+              <strong class="text-brand-300 block text-[10px] uppercase tracking-wider">🧎 Feedback von ${escapeHtml(entry.bottom)} (Bottom):</strong>
+              <p class="text-slate-200 mt-0.5">${entry.bottomFeedback ? escapeHtml(entry.bottomFeedback) : '<span class="text-slate-500 italic">Noch kein Feedback hinterlegt</span>'}</p>
+            </div>
+          </div>
+
+          <!-- BEWERTUNGEN EINZELNER AKTIONEN -->
+          ${(entry.events && entry.events.length > 0) ? `
+            <div class="pt-1 border-t border-slate-800/80 space-y-1">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Protokollierte Aktionen & Bewertungen:</span>
+              <div class="space-y-1 max-h-40 overflow-y-auto pr-1">
+                ${entry.events.map(ev => {
+                  const isAction = (ev.type === 'action');
+                  return `
+                    <div class="p-1.5 rounded-lg bg-slate-950/80 border border-slate-800/60 text-[10.5px] flex items-center justify-between gap-1.5">
+                      <div class="flex items-center gap-1.5 min-w-0 truncate">
+                        <span class="text-slate-500 font-mono text-[9px] flex-shrink-0">${ev.time}</span>
+                        <span class="text-slate-300 truncate">${escapeHtml(ev.label)}</span>
+                      </div>
+                      ${isAction ? `
+                        <div class="flex items-center gap-1 flex-shrink-0 text-[10px]">
+                          <span title="Top-Bewertung">${ev.ratings?.top === 'like' ? '👍 (Top)' : (ev.ratings?.top === 'dislike' ? '👎 (Top)' : '⚪')}</span>
+                          <span class="text-slate-700">|</span>
+                          <span title="Bottom-Bewertung">${ev.ratings?.sub === 'like' ? '👍 (Sub)' : (ev.ratings?.sub === 'dislike' ? '👎 (Sub)' : '⚪')}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
             </div>
           ` : ''}
         </div>
       `).join('');
     }
 
-    function renderSelfAnalysis() {
-      const uAnswers = answers[selfUser] || {};
-      const allChapters = window.surveyChapters || [];
-      const answeredCount = Object.keys(uAnswers).length;
-
-      document.getElementById('self-answered-stat').innerText = `${answeredCount} Antworten abgegeben`;
-
-      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-      let countPower = 0, countSensation = 0, countNurturing = 0, countThrill = 0, countVisual = 0;
-      let totalTop = 0, totalBottom = 0, cTop = 0, cBottom = 0;
-
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          const v1 = uAnswers[`it_${it.id}_r1`];
-          const v2 = uAnswers[`it_${it.id}_r2`];
-          if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
-          if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
-          const add = (val) => {
-            if (typeof val === 'number' && val > 0) {
-              if ([21, 22, 23, 29].includes(ch.id)) { pPower += val; countPower += 5; }
-              else if ([13, 14, 16, 17, 31].includes(ch.id)) { pSensation += val; countSensation += 5; }
-              else if ([19, 30].includes(ch.id)) { pNurturing += val; countNurturing += 5; }
-              else if ([18, 20, 24, 25].includes(ch.id)) { pThrill += val; countThrill += 5; }
-              else if ([9, 10, 11].includes(ch.id)) { pVisual += val; countVisual += 5; }
-            }
-          };
-          add(v1);
-          add(v2);
-        });
-      });
-
-      const setB = (id, cur, max) => {
-        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-        document.getElementById(`self-bar-val-${id}`).innerText = `${pct} %`;
-        document.getElementById(`self-bar-fill-${id}`).style.width = `${pct}%`;
-        return pct;
-      };
-
-      const pctPower = setB('power', pPower, countPower);
-      const pctSensation = setB('sensation', pSensation, countSensation);
-      const pctNurturing = setB('nurturing', pNurturing, countNurturing);
-      const pctThrill = setB('thrill', pThrill, countThrill);
-      const pctVisual = setB('visual', pVisual, countVisual);
-
-      renderScientificDeepGutachten({
-        user: selfUser,
-        pctPower,
-        pctSensation,
-        pctNurturing,
-        pctThrill,
-        pctVisual,
-        avgTop: cTop > 0 ? (totalTop / cTop) : 0,
-        avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
-        shameCount: Object.keys(shameFlags[selfUser] || {}).length
-      });
-
-      renderSelfRadar();
-    }
-
-    function renderScientificDeepGutachten(m) {
-      const c = document.getElementById('self-scientific-deep-analysis');
-      if (!c) return;
-
-      const cachedSelf = sessionStorage.getItem(`kompass_ai_self_cache_${m.user}`);
-      if (cachedSelf && localStorage.getItem('kompass_ai_active') === 'true') {
-        c.innerHTML = cachedSelf;
-        return;
-      }
-
-      const isSub = m.avgBottom > m.avgTop;
-      const isTop = m.avgTop > m.avgBottom;
-      const userName = names[m.user] || (m.user === 'A' ? 'Partner 1' : 'Partner 2');
-
-      // Traumasensible Einordnung aus Kapitel 0
-      const traumaExp = (answers[m.user] && answers[m.user]['it_901_choice']) || 'none';
-      const traumaFrame = (answers[m.user] && answers[m.user]['it_903_choice']) || 'safety_first';
-
-      let traumaBox = '';
-      if (traumaExp === 'trauma' || traumaExp === 'boundary') {
-        traumaBox = `
-          <div class="p-4 rounded-2xl theme-panel border border-teal-500/50 space-y-2 bg-teal-950/20">
-            <div class="flex items-center gap-2">
-              <span class="text-base">🛡️</span>
-              <strong class="text-teal-300 font-bold text-xs">Somatische Sicherheit & Trauma-Resilienz (van der Kolk, 2014; Canivet et al., 2025):</strong>
-            </div>
-            <p class="text-[11px] leading-relaxed text-slate-300">
-              Deine Angaben in Kapitel 0 zeigen frühere Grenzerfahrungen oder emotionale Verletzungen. Psychologisch ist dein gewählter Rahmen (${traumaFrame === 'mastery' ? '<strong class="text-teal-200">Kink-Mastery & bewusste Selbstermächtigung</strong>' : '<strong class="text-teal-200">Sicherheits-Fokus mit strikter Vorab-Klärung</strong>'}) ein hochgradig gesunder Bewältigungsweg: Echte Freiwilligkeit unter verlässlichen Safewords ermöglicht deinem Nervensystem, alte Ohnmachtsmuster im geschützten Raum durch bewusste Agency und Selbstwirksamkeit zu überschreiben.
-            </p>
-            <div class="pt-1 text-[10.5px] text-teal-300/90 font-medium">
-              💡 <strong>Handlungsimpuls für dich:</strong> Achte darauf, dass du in Sessions niemals aus Gefälligkeit mitgehst, wenn ein alter Trigger berührt wird. Nutze dein Safeword frühzeitig als Werkzeug deiner Stärke, nicht als Scheitern.
-            </div>
-          </div>
-        `;
-      }
-
-      // Bestimmung der primären psychologischen Antriebssäule
-      const pillars = [
-        { name: "Macht & Hingabe (D/s)", val: m.pctPower, trait: "Sucht kognitive Entlastung durch klare Führung oder Sinnhaftigkeit durch Verantwortung." },
-        { name: "Sensorik & Schmerz (Impact/Shibari)", val: m.pctSensation, trait: "Nutzt intensive taktile Hautreize zur körperlichen Erdung und somatischen Katharsis." },
-        { name: "Fürsorge & Geborgenheit (Caregiver/Praise)", val: m.pctNurturing, trait: "Verknüpft Erotik eng mit bedingungsloser Bestätigung, Aufgehobensein und Schutz." },
-        { name: "Tabubruch & Mentaler Kick (CNC/Trance)", val: m.pctThrill, trait: "Sucht den kontrollierten Kontrollverlust und das Übertreten alltäglicher Schranken." },
-        { name: "Visuelle Erotik & Ästhetik", val: m.pctVisual, trait: "Bezieht Erregung stark aus Inszenierung, Kleidungskontrasten und optischer Bewunderung." }
-      ];
-      pillars.sort((a, b) => b.val - a.val);
-      const topPillar = pillars[0];
-      const secondPillar = pillars[1];
-
-      c.innerHTML = `
-        <div class="space-y-4 text-xs leading-relaxed text-slate-300">
-          ${traumaBox}
-
-          <!-- ABSCHNITT 1: DER PSYCHODYNAMISCHE KERN -->
-          <div class="p-4 rounded-2xl theme-panel border border-indigo-500/40 space-y-2 bg-indigo-950/15">
-            <div class="flex items-center justify-between border-b border-indigo-900/60 pb-1.5">
-              <strong class="text-indigo-200 font-extrabold text-xs flex items-center gap-1.5">
-                <span>🧠</span> 1. Dein psychodynamischer Kern: Alltagspersona vs. Erotisches Selbst
-              </strong>
-              <span class="text-[10px] font-mono text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">
-                Schwerpunkt: ${topPillar.name} (${topPillar.val} %)
-              </span>
-            </div>
-            <p>
-              Deine Antworten spiegeln nicht bloß isolierte Vorlieben wider, sondern ein zusammenhängendes psychologisches Motiv: Deine stärksten Antriebe liegen in <strong>${topPillar.name}</strong>, gefolgt von <strong>${secondPillar.name}</strong>.
-            </p>
-            <p>
-              ${isSub ? `
-                In deinem Alltag trägst du vermutlich ein hohes Maß an Planungs-, Entscheidungs- oder Selbstkontroll-Verantwortung. Dein Wunsch nach Unterwerfung, Fesselung oder sensorischer Überwältigung ist neurologisch der Eintritt in die <strong>transiente Hypofrontalität (Sagarin et al., 2009; Ambler et al., 2017)</strong>: Dein präfrontaler Kortex (der Sitz des ständigen inneren Kritikers, des Organisierens und der sozialen Maske) fährt gezielt herunter. Was Außenstehende als „Ausgeliefertsein“ missverstehen, ist in Wahrheit deine effektivste Form tiefer psychischer Regeneration (<em>Williams et al., 2014</em>).
-              ` : (isTop ? `
-                Deine Lust an Dominanz und Führung ist der Eintritt in einen hochfokussierten <strong>Flow-Zustand / Topspace (Wismeijer & van Assen, 2013)</strong>. Dein Gehirn schöpft Belohnung (Dopamin) aus Empathie-Synchronisation: Du beobachtest kleinste Mikrosignale, Atemveränderungen und Muskelspannungen deines Gegenübers. Führung bedeutet für dich nicht rücksichtslose Willkür, sondern die souveräne Gestaltung eines sicheren Erlebnisses, in dem der Partner vollkommen loslassen darf.
-              ` : `
-                Als <strong>Switch</strong> besitzt dein Nervensystem eine bemerkenswerte emotionale Flexibilität: Je nach Tagesform und Alltagsstress kannst du zwischen empathischer Führung (Topspace) und kognitiver Entlastung (Subspace) wechseln. Du verstehst beide Seiten intuitiv aus eigenem Erleben.
-              `)}
-            </p>
-          </div>
-
-          <!-- ABSCHNITT 2: NERWENSYSTEM & BIOCHEMIE -->
-          <div class="p-4 rounded-2xl theme-panel border border-rose-500/40 space-y-2 bg-rose-950/15">
-            <strong class="text-rose-200 font-extrabold text-xs block flex items-center gap-1.5">
-              <span>⚡</span> 2. Nervensystem-Regulation & Katharsis (Porges Polyvagal-Theorie & Wuyts et al., 2021)
-            </strong>
-            <p>
-              Wie dein Körper mit intensiven Reizen umgeht, folgt klaren neurochemischen Gesetzmäßigkeiten:
-            </p>
-            <ul class="space-y-1.5 pl-3 list-disc text-slate-300 text-[11px]">
-              <li>
-                <strong>Die endogene Opiat-Kaskade:</strong> ${m.pctSensation >= 35 ? 'Bei intensiven Schmerz-, Zug- oder Druckreizen (Spanking, Shibari) schüttet dein Gehirn Beta-Endorphine und Endocannabinoide (AEA) aus. Du nutzt diesen Schmerzreiz als biologischen Reset-Knopf, um innere Anspannung in wohlige Wärme und emotionale Gelassenheit zu transformieren.' : 'Du bevorzugst sanfter dosierte, kontrollierte Reizlinien. Dein Nervensystem reagiert sensibel auf Berührungsqualität und Rhythmus, weniger auf harten sensorischen Stress.'}
-              </li>
-              <li>
-                <strong>Schutz vor dem Hormon-Drop (Subdrop / Topdrop):</strong> Nach einer Session sinken Dopamin und Endorphine unweigerlich ab. ${isSub ? 'Für dich als Hingebenden ist es essenziell, die Nachsorge (Decken, Wärme, wortloses Halten) nicht abzukürzen, um das typische Stimmungstief am Folgetag abzufedern.' : 'Als Führender trägst auch du ein Erschöpfungsrisiko (Topdrop): Erlaube dir nach der Session, die Führung wieder abzugeben und selbst Fürsorge einzufordern.'}
-              </li>
-            </ul>
-          </div>
-
-          <!-- ABSCHNITT 3: SCHAM-RESILIENZ -->
-          <div class="p-4 rounded-2xl theme-panel border border-purple-500/40 space-y-2 bg-purple-950/15">
-            <div class="flex items-center justify-between border-b border-purple-900/60 pb-1.5">
-              <strong class="text-purple-200 font-extrabold text-xs flex items-center gap-1.5">
-                <span>🙈</span> 3. Deine persönliche Scham-Resilienz (Canivet et al., 2025; Tangney & Dearing, 2002)
-              </strong>
-              <span class="text-[10px] font-mono text-purple-300 font-bold bg-purple-950 px-2 py-0.5 rounded border border-purple-800">
-                ${m.shameCount} Praktiken als Hemmschwelle markiert
-              </span>
-            </div>
-            <p>
-              Erotische Scham entsteht dort, wo tiefe, oft ungewöhnliche Sehnsüchte mit gesellschaftlichen Moralvorstellungen oder alten Glaubenssätzen kollidieren (z. B. bei Rollenspielen, Keuschheit, verbaler Unterwerfung oder Degradation).
-            </p>
-            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-purple-900/40 text-[11px] space-y-1">
-              <strong class="text-purple-300 block text-[10.5px] uppercase tracking-wider">Dein 3-Schritte-Weg zur Entlastung:</strong>
-              <div><strong>Schritt 1 (Eigene Erlaubnis):</strong> Mache dir bewusst, dass deine Fantasien evolutionär und psychologisch vollkommen harmlos sind. Fantasie ist kein Handlungsbefehl, sondern ein innerer Spielraum.</div>
-              <div><strong>Schritt 2 (Dosierte Mitteilung):</strong> Nutze den Brückenbau-Filter in der Paaranalyse: Ihr müsst nichts sofort tun. Es reicht völlig, wenn der Partner weiß: „Das erregt meinen Kopf.“</div>
-              <div><strong>Schritt 3 (Bedingungslose Annahme):</strong> Nach <em>Dymock (2012)</em> erzeugt genau das angstfreie Aussprechen einer schambehafteten Fantasie vor einem verlässlichen Partner die tiefste denkbare Bindungssicherheit.</div>
-            </div>
-          </div>
-
-          <!-- ABSCHNITT 4: PRAKTISCHER HANDLUNGSLEITFADEN FÜR DICH -->
-          <div class="p-4 rounded-2xl theme-panel border border-amber-500/40 space-y-2.5 bg-amber-950/15">
-            <strong class="text-amber-200 font-extrabold text-xs block flex items-center gap-1.5">
-              <span>🧭</span> 4. Wie du ganz konkret mit deiner Analyse arbeiten kannst
-            </strong>
-            <p class="text-[11px]">
-              Verwende diese Erkenntnisse als Kompass für deine Selbstfürsorge und eure Gespräche:
-            </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10.5px]">
-              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <strong class="text-amber-300 block">⚠️ Typische persönliche Fallstricke:</strong>
-                <p class="text-slate-300">
-                  ${isSub ? '<strong>Fawning / Überanpassung:</strong> Die Gefahr, aus Liebe Grenzen zu weit zu dehnen und Schmerz oder Härte zu ertragen, die sich innerlich nicht mehr gut anfühlen. Lerne, dein GELB oder ROT ohne Schuldgefühl zu nutzen.' : '<strong>Performance-Druck & Perfektionismus:</strong> Die Sorge, nicht dominant, einfallsreich oder ausdauernd genug zu sein. Echte Führung braucht keine Show, sondern entspannte, präsente Gelassenheit.'}
-                </p>
-              </div>
-
-              <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <strong class="text-teal-300 block">💬 3 Reflexionsfragen für dein nächstes Gespräch:</strong>
-                <ul class="space-y-0.5 list-disc pl-3 text-slate-300">
-                  <li>„Welches Gefühl suche ich in unseren Sessions am meisten: Sicherheit, Ekstase oder vollkommene Ruhe?“</li>
-                  <li>„Bei welcher meiner Wunsch-Positionen brauche ich die behutsamste Vorbereitung?“</li>
-                  <li>„Wie können wir unsere Nachsorge noch genauer auf mein Nervensystem abstimmen?“</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    async function generateAiSelfReport() {
-      const container = document.getElementById('self-scientific-deep-analysis');
-      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="p-5 rounded-2xl bg-purple-950/40 border border-purple-800 text-center space-y-2 animate-pulse">
-          <span class="text-2xl block">✨</span>
-          <strong class="text-purple-200 block text-xs">Gemini erstellt dein tiefenpsychologisches Individual-Gutachten...</strong>
-          <p class="text-[10.5px] text-slate-400 max-w-md mx-auto">
-            Verknüpfe deine Motivations-Säulen, Top/Bottom-Dynamik, Scham-Flags und Kapitel-0-Angaben mit 35+ Studien zu einer ca. halben DIN A4 Seite handlungsleitender Selbsterkenntnis.
-          </p>
-        </div>
-      `;
-
+    function deletePairDiaryEntry(sessionId) {
+      if (!confirm("Möchtest du diese Session wirklich aus dem gemeinsamen Logbuch löschen?")) return;
       try {
-        const uName = names[selfUser] || (selfUser === 'A' ? 'Partner 1' : 'Partner 2');
-        const pPower = document.getElementById('self-bar-val-power')?.innerText || '0 %';
-        const pSensation = document.getElementById('self-bar-val-sensation')?.innerText || '0 %';
-        const pNurturing = document.getElementById('self-bar-val-nurturing')?.innerText || '0 %';
-        const pThrill = document.getElementById('self-bar-val-thrill')?.innerText || '0 %';
-        const pVisual = document.getElementById('self-bar-val-visual')?.innerText || '0 %';
-        const shameCnt = Object.keys(shameFlags[selfUser] || {}).length;
-
-        const traumaExp = (answers[selfUser] && answers[selfUser]['it_901_choice']) || 'none';
-        const traumaFrame = (answers[selfUser] && answers[selfUser]['it_903_choice']) || 'safety_first';
-
-        const promptText = `
-Du bist eine führende klinische Sexualpsychologin, Paartherapeutin und BDSM-Forscherin. Erstelle ein ausführliches, tiefenpsychologisches Individual-Gutachten für ${uName} im Umfang von ca. 400 bis 550 Wörtern (ca. eine halbe DIN-A4-Seite).
-
-PROFIL-DATEN:
-- Motivations-Säulen: Macht/Hingabe: ${pPower}, Sensorik/Schmerz: ${pSensation}, Fürsorge/Praise: ${pNurturing}, Tabubruch/Thrill: ${pThrill}, Visuell: ${pVisual}
-- Markierte Hemmschwellen / Scham-Flags: ${shameCnt}
-- Traumabiografie (Kapitel 0): Vorerfahrung: ${traumaExp}, Gewünschter Rahmen: ${traumaFrame}
-
-WICHTIGE ANFORDERUNGEN:
-1. Zähle NICHT einfach auf, was die Person angeklickt hat (das weiß sie selbst!). Analysiere stattdessen die psychologischen Tiefenmuster dahinter.
-2. Beziehe dich fundiert auf empirische Studien: Sagarin (2009, transiente Hypofrontalität), Wismeijer (2013, Flow/Topspace & emotionale Stabilität), van der Kolk (2014, somatische Sicherheit), Canivet (2025, Schamüberwindung).
-3. Gliedere den Text in 4 strukturierte Absätze mit prägnanten Überschriften:
-   - 1. Psychodynamischer Archetyp: Alltagspersona vs. Erotisches Selbst
-   - 2. Nervensystem, Biochemie & Stressbewältigung (Polyvagal & Opiat-Kaskade)
-   - 3. Erotische Scham-Resilienz & der heilsame Umgang mit den ${shameCnt} Hemmschwellen
-   - 4. Konkreter Handlungsleitfaden für dich (Typische persönliche Fallstricke & 3 gezielte Reflexionsfragen für das nächste Gespräch mit dem Partner)
-4. Tonfall: Professionell, warmherzig, bestärkend, normalisierend, 0% moralisierend.
-5. Ausgabeformat: Saubere HTML-Absätze mit Tailwind-Klassen (text-xs, text-slate-300, leading-relaxed, font-bold etc.), keine Markdown-Backticks.`;
-
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-
-        if (!resp.ok) throw new Error("API-Fehler");
-        const data = await resp.json();
-        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        if (output) {
-          const cleanHtml = output.replace(/```html/g, '').replace(/```/g, '').trim();
-          sessionStorage.setItem(`kompass_ai_self_cache_${selfUser}`, cleanHtml);
-          container.innerHTML = cleanHtml;
-          showToast(`✨ Umfassendes KI-Gutachten für ${uName} generiert!`);
-        } else {
-          throw new Error("Leere Antwort");
-        }
-      } catch (err) {
-        console.warn("KI-Fehler, nutze Offline-Auswertung:", err);
-        sessionStorage.removeItem(`kompass_ai_self_cache_${selfUser}`);
-        renderSelfAnalysis();
-        showToast("⚠️ KI offline – Fundierte Evidenz-Analyse geladen");
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        diary = diary.filter(e => e.id !== sessionId);
+        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+        renderPairSessionDiaryUI();
+        showToast("Session gelöscht.");
+      } catch (e) {
+        console.error(e);
       }
     }
 
