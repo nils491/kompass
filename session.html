@@ -658,7 +658,7 @@
       <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
         <div class="flex items-center gap-2">
           <button onclick="openIncidentDisciplineModal()" class="px-4 py-2.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-700/80 text-purple-200 font-extrabold rounded-2xl text-xs transition touch-btn flex items-center gap-1.5 shadow-md">
-            <span>⚖️</span> <span>D/s-Zuchtrechner</span>
+            <span>⚖️</span> <span>D/s-Zuchtrechner & Top-Assistenz</span>
           </button>
           <button onclick="toggleEdgingPanelVisibility()" class="px-3 py-2.5 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition touch-btn">
             <span>🎢</span> <span class="hidden sm:inline">Edging</span>
@@ -674,7 +674,7 @@
 
   </main>
 
-  <!-- MODAL: 5-STUFIGER D/S-ZUCHTRECHNER MIT NOTEN AUF ALLEN STUFEN -->
+  <!-- MODAL: 5-STUFIGER D/S-ZUCHTRECHNER MIT TOP-ASSISTENZ & WÜRFELN AUF ALLEN STUFEN -->
   <div id="modal-incident-discipline" class="hidden fixed inset-0 z-[125] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="session-card rounded-3xl max-w-xl w-full border border-purple-500/60 p-4 sm:p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto text-xs">
       
@@ -684,26 +684,48 @@
           <span class="text-2xl">⚖️</span>
           <div>
             <h3 class="text-sm font-black text-white">D/s-Zucht- & Strafenkonfigurator</h3>
-            <p class="text-[10px] text-purple-300 font-mono" id="wizard-step-indicator">Schritt 1 von 5: Vergehen & Hauptstrafe</p>
+            <p class="text-[10px] text-purple-300 font-mono" id="wizard-step-indicator">Schritt 1 von 5: Vergehen & Top-Assistenz</p>
           </div>
         </div>
         <button onclick="closeIncidentDisciplineModal()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- STUFE 1: ANLASS, FREITEXT & HAUPTMASSNAHME -->
+      <!-- STUFE 1: ANLASS, ECHTZEIT-FREITEXT & DYNAMISCHE TOP-ASSISTENZ -->
       <div id="wizard-stage-1" class="space-y-3">
         <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">1. Wofür wird bestraft? (Anlass & Begründung)</span>
         
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
           <button type="button" onclick="selectIncidentInfraction('frech')" id="btn-infract-frech" class="p-2 rounded-xl border bg-purple-950 border-purple-500 text-purple-100 font-bold text-center touch-btn">Frechheit / Widerrede</button>
           <button type="button" onclick="selectIncidentInfraction('unruhe')" id="btn-infract-unruhe" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Zappeln / Haltung</button>
-          <button type="button" onclick="selectIncidentInfraction('regel')" id="btn-infract-regel" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Regelverstoß</button>
-          <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infract-orgasmus" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Verbotener Samenerguss</button>
+          <button type="button" onclick="selectIncidentInfraction('regel')" id="btn-infract-regel" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Regelverstoß / Trödeln</button>
+          <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infract-orgasmus" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Unerlaubte Lust / Orgasmus</button>
         </div>
 
-        <input type="text" id="incident-top-custom-reason" placeholder="Konkrete Begründung des Tops (z. B. 'Hat dreimal widersprochen...')" class="w-full text-xs p-2.5 session-panel border rounded-xl text-white focus:outline-none focus:border-purple-500">
+        <div class="space-y-1">
+          <label class="text-[10px] font-bold text-slate-400 block uppercase">Konkrete Schilderung des Tops (Recherche-Basis):</label>
+          <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInput(this.value)" placeholder="z. B. 'Hat dreimal laut widersprochen und den Raum verlassen...'" class="w-full text-xs p-2.5 session-panel border rounded-xl text-white focus:outline-none focus:border-purple-500">
+        </div>
 
-        <!-- SCHWEREGRAD & HAUPTSTRAFE -->
+        <!-- DYNAMISCHE TOP-ASSISTENZ-ANALYSE-BOX (REAGIERT BEI JEDEM TASTENDRUCK) -->
+        <div id="top-assistant-insight-box" class="p-3.5 rounded-2xl bg-gradient-to-br from-purple-950/70 via-slate-900 to-noir-900 border border-purple-500/50 space-y-2 shadow-inner">
+          <div class="flex items-center justify-between">
+            <span class="text-[9.5px] font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+              <span>🧠</span> <span id="top-assistant-category-title">Top-Assistenz-Analyse: Frechheit & Widerrede</span>
+            </span>
+            <span class="px-2 py-0.5 rounded text-[8.5px] font-mono bg-purple-900/60 text-purple-200 border border-purple-700">Live-Heuristik</span>
+          </div>
+          <p class="text-[11px] text-slate-200 leading-relaxed" id="top-assistant-rationale">
+            Da der Mund und die Haltung frevelhaft waren, empfiehlt die D/s-Psychologie eine Unterwerfung der Sprechfähigkeit (Mitzählen unter Zucht) kombiniert mit einer strengen Hand- oder Paddle-Disziplinierung.
+          </p>
+          <div class="pt-1 border-t border-purple-900/40 flex items-center justify-between text-[10px]">
+            <span class="text-purple-300 font-bold" id="top-assistant-recommendation-summary">Empfohlen: Spanking über Knie + Ringknebel zum Mitzählen</span>
+            <button type="button" onclick="triggerGeminiAiDisciplineReview()" id="btn-gemini-ai-review" class="hidden px-2 py-0.5 rounded bg-purple-900 hover:bg-purple-800 text-white font-bold transition flex items-center gap-1">
+              <span>✨</span> <span>KI-Urteil</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SCHWEREGRAD & HAUPTSTRAFE MIT WÜRFEL UND PAGINATION -->
         <div class="pt-2 border-t border-slate-800 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold text-slate-400 uppercase">Schweregrad wählen:</span>
@@ -714,13 +736,18 @@
             </div>
           </div>
 
-          <!-- HAUPTSTRAFEN-KARTE MIT BOTTOM-RATING & PAGINATION -->
+          <!-- HAUPTSTRAFEN-KARTE MIT WÜRFEL & PAGINATION -->
           <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[9.5px] font-mono text-purple-300 font-bold" id="discipline-variant-counter">Variante 1 von 3</span>
-              <div class="flex items-center gap-1">
-                <button type="button" onclick="prevDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">◄</button>
-                <button type="button" onclick="nextDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">►</button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="rerollStage1Variants()" class="px-2 py-0.5 bg-purple-900/80 hover:bg-purple-800 border border-purple-700 text-purple-200 rounded text-[9.5px] font-bold flex items-center gap-1">
+                  <span>🎲</span> <span>Würfeln</span>
+                </button>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="prevDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">◄</button>
+                  <button type="button" onclick="nextDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">►</button>
+                </div>
               </div>
             </div>
             <h4 class="text-sm font-extrabold text-white" id="discipline-main-title">Handspanking über den Knien</h4>
@@ -735,21 +762,36 @@
         </div>
       </div>
 
-      <!-- STUFE 2: VORGESCHRIEBENE KÖRPERHALTUNG -->
+      <!-- STUFE 2: VORGESCHRIEBENE KÖRPERHALTUNG MIT WÜRFEL -->
       <div id="wizard-stage-2" class="hidden space-y-3">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">2. Vorgeschriebene Körperhaltung für den Vollzug</span>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">2. Vorgeschriebene Körperhaltung für den Vollzug</span>
+          <button type="button" onclick="rerollStage2Postures()" class="px-2 py-0.5 bg-purple-950 border border-purple-800 text-purple-200 rounded text-[9.5px] font-bold hover:bg-purple-900 transition flex items-center gap-1">
+            <span>🎲</span> <span>Neue Haltungen würfeln</span>
+          </button>
+        </div>
         <div id="wizard-posture-list" class="space-y-2"></div>
       </div>
 
-      <!-- STUFE 3: FESSELUNG & FIXIERUNG -->
+      <!-- STUFE 3: FESSELUNG & FIXIERUNG MIT WÜRFEL -->
       <div id="wizard-stage-3" class="hidden space-y-3">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">3. Fesselung & Bewegungs-Einschränkung</span>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">3. Fesselung & Bewegungs-Einschränkung</span>
+          <button type="button" onclick="rerollStage3Bondage()" class="px-2 py-0.5 bg-purple-950 border border-purple-800 text-purple-200 rounded text-[9.5px] font-bold hover:bg-purple-900 transition flex items-center gap-1">
+            <span>🎲</span> <span>Neue Fesselungen würfeln</span>
+          </button>
+        </div>
         <div id="wizard-bondage-list" class="space-y-2"></div>
       </div>
 
-      <!-- STUFE 4: KNEBELUNG & SINNESKONTROLLE -->
+      <!-- STUFE 4: KNEBELUNG & SINNESKONTROLLE MIT WÜRFEL -->
       <div id="wizard-stage-4" class="hidden space-y-3">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">4. Knebelung & Sensorische Kontrolle</span>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">4. Knebelung & Sensorische Kontrolle</span>
+          <button type="button" onclick="rerollStage4Gags()" class="px-2 py-0.5 bg-purple-950 border border-purple-800 text-purple-200 rounded text-[9.5px] font-bold hover:bg-purple-900 transition flex items-center gap-1">
+            <span>🎲</span> <span>Neue Knebel/Sensorik würfeln</span>
+          </button>
+        </div>
         <div id="wizard-gag-list" class="space-y-2"></div>
       </div>
 
@@ -907,40 +949,47 @@
     let selectedBondageIdx = 0;
     let selectedGagIdx = 0;
 
+    // ERWEITERTER KATALOG FÜR ALLE 4 STUFEN MIT WÜRFEL-MÖGLICHKEIT
     const disciplineVariantsCatalog = {
       1: [
         { id: 262, title: "Warmes Handspanking (Milde)", desc: "10 bis 15 gleichmäßige Schläge mit der Handfläche zur Erwärmung des Pos." },
         { id: 363, title: "Besinnung in der Ecke (Corner Time)", desc: "10 Minuten still mit dem Gesicht zur Wand stehen & zur Ruhe kommen." },
-        { id: 362, title: "Strafzeilen schreiben mit Füller", desc: "30-mal einen vorgegebenen Gehorsamssatz in ein Notizheft schreiben." }
+        { id: 362, title: "Strafzeilen schreiben mit Füller", desc: "30-mal einen vorgegebenen Gehorsamssatz in ein Notizheft schreiben." },
+        { id: 341, title: "Kleine Ermahnung mit dem Finger", desc: "Gezieltes Antippen der Nasenspitze gefolgt von Knie-Abbitte am Sessel." }
       ],
       2: [
         { id: 263, title: "Spanking über die Knie gelegt (OTK)", desc: "20 bis 30 gezielte Schläge mit der Hand oder Bürste über den Oberschenkeln des Tops." },
         { id: 264, title: "Leder-Paddle (Flächig & dumpf)", desc: "15 gezielte Treffer mit dem breiten Lederpaddle mit lautem Mitzählen." },
-        { id: 108, title: "24-Stunden Keuschheits-Verlängerung", desc: "Der Keuschheitskäfig bleibt für 24 Stunden zusätzlich unerbittlich verriegelt." }
+        { id: 108, title: "24-Stunden Keuschheits-Verlängerung", desc: "Der Keuschheitskäfig bleibt für 24 Stunden zusätzlich unerbittlich verriegelt." },
+        { id: 270, title: "Kontrollierter Wangenklaps & Schultergriff", desc: "Leichter Klaps auf die Wange als Zurechtweisung mit festem Blickkontakt." }
       ],
       3: [
         { id: 272, title: "Schläge mit gefaltetem Ledergürtel", desc: "20 schwere Hiebe mit dem gefalteten Lederriemen auf die Gesäßmuskeln." },
         { id: 275, title: "Reitgerte / Cane (Spitzer Schmerz)", desc: "12 präzise Treffer mit der Gerte; Haltung muss starr gehalten werden." },
-        { id: 120, title: "48-Stunden Keuschheit mit App-Kontrolle", desc: "Verlängerung des Käfigs auf 48 Stunden inklusive täglicher strenger Inspektion." }
+        { id: 120, title: "48-Stunden Keuschheit mit App-Kontrolle", desc: "Verlängerung des Käfigs auf 48 Stunden inklusive täglicher strenger Inspektion." },
+        { id: 284, title: "Flächiges Versohlen bis zum Glühen", desc: "Umfassende Disziplinierung des gesamten Gesäßes bis zur tiefen Rötung." }
       ]
     };
 
-    const postureOptions = [
-      { id: 348, title: "Aufrechtes Knien neben dem Sessel (Nadu)", desc: "Gerader Rücken, Hände auf den Oberschenkeln, Blick gesenkt." },
-      { id: 227, title: "Vorbeuge über der Bettkante", desc: "Becken erhöht auf der Matratze, Oberkörper tief, Gesäß frei." },
-      { id: 305, title: "Flach auf dem Bauch gepinnt", desc: "Ausgestreckt am Boden liegen; keine Bewegung erlaubt." }
+    let activePostureCatalog = [
+      { id: 348, title: "Aufrechtes Knien neben dem Sessel (Nadu)", desc: "Gerader Rücken, Hände auf den Oberschenkeln, Blick gesenkt.", tag: "Demut" },
+      { id: 227, title: "Vorbeuge über der Bettkante", desc: "Becken erhöht auf der Matratze, Oberkörper tief, Gesäß frei.", tag: "Zucht" },
+      { id: 305, title: "Flach auf dem Bauch gepinnt", desc: "Ausgestreckt am Boden liegen; keine Bewegung erlaubt.", tag: "Ruhe" },
+      { id: 225, title: "Gepolsterte Kniebank-Haltung", desc: "Geduldiges Knien vor dem Top mit Händen auf den Knien des Führenden.", tag: "Respekt" }
     ];
 
-    const bondageOptions = [
-      { id: 204, title: "Hände hinter dem Rücken fixiert", desc: "Lederfesseln an den Handgelenken hinter dem Rücken verschlossen." },
-      { id: 205, title: "Knöchel eng aneinander gebunden", desc: "Beine so fixiert, dass nur Trippelschritte möglich sind." },
-      { id: 207, title: "Klettfesseln mit Schnellöffnung", desc: "Sichere Klettfesseln mit sofortigem Reißverschluss-Lösen." }
+    let activeBondageCatalog = [
+      { id: 204, title: "Hände hinter dem Rücken fixiert", desc: "Lederfesseln an den Handgelenken hinter dem Rücken verschlossen.", tag: "Wehrlos" },
+      { id: 205, title: "Knöchel eng aneinander gebunden", desc: "Beine so fixiert, dass nur Trippelschritte möglich sind.", tag: "Bewegungsstopp" },
+      { id: 207, title: "Klettfesseln mit Schnellöffnung", desc: "Sichere Klettfesseln mit sofortigem Reißverschluss-Lösen.", tag: "Sicherheit" },
+      { id: 206, title: "Vier-Punkt-Arretierung am Bett", desc: "Handgelenke und Knöchel an den Bettpfosten für totale Starre fixiert.", tag: "Arretierung" }
     ];
 
-    const gagOptions = [
-      { id: 247, title: "Weicher Tuchknebel (Stoff)", desc: "Baumwolltuch fest zwischen den Zähnen; Dämpft lautes Weinen." },
-      { id: 246, title: "Offener Ringknebel (Mitzählen möglich)", desc: "Hält den Mund geöffnet; Mitzählen der Hiebe ist hörbar." },
-      { id: 241, title: "Blickdichte Augenbinde (Kein Knebel)", desc: "Mund frei, Augen vollständig verdunkelt für sensorische Auslieferung." }
+    let activeGagCatalog = [
+      { id: 247, title: "Weicher Tuchknebel (Stoff)", desc: "Baumwolltuch fest zwischen den Zähnen; Dämpft lautes Weinen.", tag: "Dämpfung" },
+      { id: 246, title: "Offener Ringknebel (Mitzählen möglich)", desc: "Hält den Mund geöffnet; Mitzählen der Hiebe ist laut hörbar.", tag: "Mitzählen" },
+      { id: 241, title: "Blickdichte Augenbinde (Kein Knebel)", desc: "Mund frei, Augen vollständig verdunkelt für sensorische Auslieferung.", tag: "Sensorik" },
+      { id: 245, title: "Silikon-Ballknebel (Ball Gag)", desc: "Vollständiges Verstummen für max. 15 Minuten; Drop-Tuch in der Hand.", tag: "Stille" }
     ];
 
     function initSessionApp() {
@@ -950,6 +999,7 @@
       initAverageTimerDuration();
       checkUnreviewedSessionsBanner();
       updateActiveSafewordIndicator();
+      updateAiIndicators();
     }
 
     function loadStorageData() {
@@ -969,6 +1019,20 @@
       const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
       if (savedTheme === 'dark') document.documentElement.classList.add('dark');
       else document.documentElement.classList.remove('dark');
+    }
+
+    function updateAiIndicators() {
+      const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
+      const badge = document.getElementById('ai-active-badge-session');
+      const btnGemini = document.getElementById('btn-gemini-ai-review');
+      if (badge) {
+        if (isAiActive) badge.classList.remove('hidden');
+        else badge.classList.add('hidden');
+      }
+      if (btnGemini) {
+        if (isAiActive) btnGemini.classList.remove('hidden');
+        else btnGemini.classList.add('hidden');
+      }
     }
 
     function updateNamesDisplay() {
@@ -1122,7 +1186,8 @@
         title: "Phase 1: Ankommen & Raum öffnen",
         options: [
           { label: "Augenkontakt & Atem-Synchronisation", desc: "5 Minuten ununterbrochen in die Augen blicken, Hände auf der Brust des Partners." },
-          { label: "Achtsame Yoni-/Lingam-Ölberührung", desc: "Warme Hände streichen langsam über den Körper, ohne sexuelle Hektik." }
+          { label: "Achtsame Yoni-/Lingam-Ölberührung", desc: "Warme Hände streichen langsam über den Körper, ohne sexuelle Hektik." },
+          { label: "Sinnliches Entkleiden im Kerzenlicht", desc: "Jedes Kleidungsstück andächtig und langsam ablegen; Begrüßungskuss." }
         ]
       },
       {
@@ -1130,7 +1195,8 @@
         title: "Phase 2: Hingabe & Rollen-Vertiefung",
         options: [
           { label: "Nadu-Körperhaltung & Kinn heben", desc: "Der Bottom kniet aufmerksam neben dem Top und lauscht den Vorgaben." },
-          { label: "Seilführung & leichte Armfesselung", desc: "Sanftes Binden der Handgelenke hinter dem Rücken für kognitive Entlastung." }
+          { label: "Seilführung & leichte Armfesselung", desc: "Sanftes Binden der Handgelenke hinter dem Rücken für kognitive Entlastung." },
+          { label: "Blickdichte Augenbinde & sensorischer Entzug", desc: "Abschalten des Sehens für geschärfte Berührungsempfindlichkeit." }
         ]
       },
       {
@@ -1138,7 +1204,8 @@
         title: "Phase 3: Energetischer Höhepunkt (Edging)",
         options: [
           { label: "Mehrfaches Edging an die Kante", desc: "Dreimaliges Heranführen an den Point of No Return mit sofortigem Stopp." },
-          { label: "Sensorisches Impact & Spanking", desc: "Gezieltes Handspanking zur Opiat-Ausschüttung, gefolgt von warmem Halten." }
+          { label: "Sensorisches Impact & Spanking", desc: "Gezieltes Handspanking zur Opiat-Ausschüttung, gefolgt von warmem Halten." },
+          { label: "Countdown-Finale mit Ruined Orgasm", desc: "Erregung anstauen und den Orgasmus auf Kommando des Tops freigeben oder verweigern." }
         ]
       },
       {
@@ -1146,7 +1213,8 @@
         title: "Phase 4: Erdung & Aftercare",
         options: [
           { label: "Wärme, Decken & stummes Halten", desc: "Einhüllen in dicke Decken, warmes Wasser trinken und mindestens 15 Min. ruhen." },
-          { label: "Praise Play & Zuspruch", desc: "Warmes verbales Feedback: 'Du hast das wunderbar gemacht'." }
+          { label: "Praise Play & Zuspruch", desc: "Warmes verbales Feedback: 'Du hast das wunderbar gemacht'." },
+          { label: "Pflegendes Einbalsamieren der Haut", desc: "Beanspruchte Stellen mit Arnikabalsam einreiben und festhalten." }
         ]
       }
     ];
@@ -1205,7 +1273,6 @@
       logLiveSessionEvent('action', `🔥 KANTE ERREICHT (Edge #${edgeCount})`);
       showToast(`🔥 Edge #${edgeCount} erreicht! Reiz sofort stoppen.`);
 
-      // Automatische 45-Sekunden Abkühlphase starten
       startCooldownPhase(45);
     }
 
@@ -1273,7 +1340,7 @@
       utterance.rate = 0.9;
       utterance.pitch = 1.05;
       const voices = window.speechSynthesis.getVoices();
-      const femaleGermanVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Female') || v.name.includes('Katja') || v.name.includes('Hedda')));
+      const femaleGermanVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Female') || v.name.includes('Katja') || v.name.includes('Hedda') || v.name.includes('Marlene')));
       if (femaleGermanVoice) utterance.voice = femaleGermanVoice;
       window.speechSynthesis.speak(utterance);
     }
@@ -1305,11 +1372,16 @@
     function openIncidentDisciplineModal() {
       wizardCurrentStage = 1;
       updateWizardStageView();
+      analyzeTopReasonLive();
       document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
     }
 
     function closeIncidentDisciplineModal() {
       document.getElementById('modal-incident-discipline')?.classList.add('hidden');
+    }
+
+    function handleReasonLiveInput(text) {
+      analyzeTopReasonLive();
     }
 
     function selectIncidentInfraction(inf) {
@@ -1321,6 +1393,63 @@
           ? "p-2 rounded-xl border bg-purple-950 border-purple-500 text-purple-100 font-bold text-center touch-btn"
           : "p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn";
       });
+      analyzeTopReasonLive();
+    }
+
+    function analyzeTopReasonLive() {
+      const rawText = (document.getElementById('incident-top-custom-reason')?.value || '').toLowerCase().trim();
+      const inf = selectedInfraction;
+
+      let category = "Frechheit & Widerrede (Mund / Sprache)";
+      let rationale = "Da der Mund frevelhaft war, ist die Zucht auf Unterwerfung und das Schweigen / Mitzählen fokussiert. Gezieltes Spanking stellt den Respekt wieder her.";
+      let recommendation = "Empfehlung: Spanking über Knie + Ringknebel zum Mitzählen + Hände am Rücken";
+
+      if (rawText.includes("zappel") || rawText.includes("still") || rawText.includes("haltung") || rawText.includes("unruhig") || inf === 'unruhe') {
+        category = "Haltungsfehler & Motorische Unruhe";
+        rationale = "Der Körper verweigert die Ruhe. Psychologisch ist hier eine rigide Körperfixierung geboten, bei der jede Eigenbewegung unterbunden wird.";
+        recommendation = "Empfehlung: Vorbeuge über der Bettkante + Hände & Knöchel eng fixiert";
+      } else if (rawText.includes("orgasmus") || rawText.includes("spritz") || rawText.includes("wichs") || rawText.includes("lust") || rawText.includes("käfig") || rawText.includes("keusch") || inf === 'orgasmus') {
+        category = "Unerlaubte Lust / Keuschheitsbruch";
+        rationale = "Das Genital wurde unberechtigt erregt. Die einzig logische und wirksame Zuchtmaßnahme ist die strikte Verlängerung des Keuschheitsarrests und Entzug jeglicher Erlösung.";
+        recommendation = "Empfehlung: 24h/48h Keuschheits-Verlängerung + Nadu-Knien";
+      } else if (rawText.includes("aufgabe") || rawText.includes("haushalt") || rawText.includes("vergessen") || rawText.includes("trödel") || rawText.includes("zeit") || inf === 'regel') {
+        category = "Pflichtverletzung & Unachtsamkeit";
+        rationale = "Der Verstand war unaufmerksam. Hier helfen formale Besinnung, Strafzeilen oder Corner Time zur Wiedererlangung von Konzentration und Demut.";
+        recommendation = "Empfehlung: Besinnung in der Ecke (Corner Time) + Strafzeilen mit Füller";
+      }
+
+      const catTitleEl = document.getElementById('top-assistant-category-title');
+      const rationaleEl = document.getElementById('top-assistant-rationale');
+      const recSummaryEl = document.getElementById('top-assistant-recommendation-summary');
+
+      if (catTitleEl) catTitleEl.innerText = `Top-Assistenz: ${category}`;
+      if (rationaleEl) rationaleEl.innerText = rationale;
+      if (recSummaryEl) recSummaryEl.innerText = recommendation;
+    }
+
+    async function triggerGeminiAiDisciplineReview() {
+      const apiKey = localStorage.getItem('kompass_gemini_api_key');
+      const reason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
+      const rationaleEl = document.getElementById('top-assistant-rationale');
+
+      if (rationaleEl) rationaleEl.innerText = "⏳ Gemini formuliert die pädagogisch-erotische D/s-Urteilsbegründung...";
+
+      try {
+        const prompt = `Du bist eine erfahrene BDSM-Gouvernante/Herrin. Der Top bestraft den Bottom wegen folgendem Vergehen: "${reason}". Erstelle eine prägnante, würdevolle, 2-3 sätzige psychologische Urteilsbegründung, warum dafür körperliche Zucht (Spanking) kombiniert mit Fixierung und Knebelung angemessen ist. Bleibe rein im konsensualen D/s-Kontext (SSC/RACK).`;
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        if (!resp.ok) throw new Error("API-Fehler");
+        const data = await resp.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && rationaleEl) rationaleEl.innerText = text.trim();
+        showToast("✨ KI-Urteil aktualisiert!");
+      } catch (e) {
+        analyzeTopReasonLive();
+        showToast("⚠️ Lokale Heuristik verwendet");
+      }
     }
 
     function selectIncidentSeverity(sev) {
@@ -1346,6 +1475,13 @@
       const list = disciplineVariantsCatalog[selectedSeverity] || [];
       selectedDisciplineVariantIdx = (selectedDisciplineVariantIdx - 1 + list.length) % list.length;
       renderCurrentDisciplineVariant();
+    }
+
+    function rerollStage1Variants() {
+      const list = disciplineVariantsCatalog[selectedSeverity] || [];
+      selectedDisciplineVariantIdx = Math.floor(Math.random() * list.length);
+      renderCurrentDisciplineVariant();
+      showToast("🎲 Hauptstrafe neu ausgewürfelt!");
     }
 
     function renderCurrentDisciplineVariant() {
@@ -1375,10 +1511,31 @@
       return '<span class="text-slate-400 italic">Noch unbewertet</span>';
     }
 
+    function rerollStage2Postures() {
+      activePostureCatalog.sort(() => Math.random() - 0.5);
+      selectedPostureIdx = 0;
+      renderWizardStage2List();
+      showToast("🎲 Haltungen neu ausgewürfelt!");
+    }
+
+    function rerollStage3Bondage() {
+      activeBondageCatalog.sort(() => Math.random() - 0.5);
+      selectedBondageIdx = 0;
+      renderWizardStage3List();
+      showToast("🎲 Fesselungen neu ausgewürfelt!");
+    }
+
+    function rerollStage4Gags() {
+      activeGagCatalog.sort(() => Math.random() - 0.5);
+      selectedGagIdx = 0;
+      renderWizardStage4List();
+      showToast("🎲 Knebel neu ausgewürfelt!");
+    }
+
     function updateWizardStageView() {
       const stepIndicator = document.getElementById('wizard-step-indicator');
       const labels = {
-        1: "Schritt 1 von 5: Vergehen & Hauptstrafe",
+        1: "Schritt 1 von 5: Vergehen & Top-Assistenz",
         2: "Schritt 2 von 5: Vorgeschriebene Körperhaltung",
         3: "Schritt 3 von 5: Fesselung & Fixierung",
         4: "Schritt 4 von 5: Knebelung & Sensorik",
@@ -1417,14 +1574,17 @@
     function renderWizardStage2List() {
       const c = document.getElementById('wizard-posture-list');
       if (!c) return;
-      c.innerHTML = postureOptions.map((opt, idx) => {
+      c.innerHTML = activePostureCatalog.map((opt, idx) => {
         const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
         const isSelected = (idx === selectedPostureIdx);
         return `
           <div onclick="selectWizardPosture(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
             <div>
-              <strong class="text-white text-xs block">${opt.title}</strong>
-              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+              <div class="flex items-center gap-1.5">
+                <strong class="text-white text-xs block">${opt.title}</strong>
+                <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono bg-purple-900/60 text-purple-300">${opt.tag}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-300 leading-snug mt-0.5">${opt.desc}</p>
             </div>
             <div class="text-right flex-shrink-0">
               <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
@@ -1443,14 +1603,17 @@
     function renderWizardStage3List() {
       const c = document.getElementById('wizard-bondage-list');
       if (!c) return;
-      c.innerHTML = bondageOptions.map((opt, idx) => {
+      c.innerHTML = activeBondageCatalog.map((opt, idx) => {
         const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
         const isSelected = (idx === selectedBondageIdx);
         return `
           <div onclick="selectWizardBondage(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
             <div>
-              <strong class="text-white text-xs block">${opt.title}</strong>
-              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+              <div class="flex items-center gap-1.5">
+                <strong class="text-white text-xs block">${opt.title}</strong>
+                <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono bg-purple-900/60 text-purple-300">${opt.tag}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-300 leading-snug mt-0.5">${opt.desc}</p>
             </div>
             <div class="text-right flex-shrink-0">
               <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
@@ -1469,14 +1632,17 @@
     function renderWizardStage4List() {
       const c = document.getElementById('wizard-gag-list');
       if (!c) return;
-      c.innerHTML = gagOptions.map((opt, idx) => {
+      c.innerHTML = activeGagCatalog.map((opt, idx) => {
         const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
         const isSelected = (idx === selectedGagIdx);
         return `
           <div onclick="selectWizardGag(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
             <div>
-              <strong class="text-white text-xs block">${opt.title}</strong>
-              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+              <div class="flex items-center gap-1.5">
+                <strong class="text-white text-xs block">${opt.title}</strong>
+                <span class="px-1.5 py-0.2 rounded text-[8.5px] font-mono bg-purple-900/60 text-purple-300">${opt.tag}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-300 leading-snug mt-0.5">${opt.desc}</p>
             </div>
             <div class="text-right flex-shrink-0">
               <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
@@ -1508,9 +1674,9 @@
 
     function buildWizardSummary() {
       const mainAct = (disciplineVariantsCatalog[selectedSeverity] || [])[selectedDisciplineVariantIdx] || {};
-      const posture = postureOptions[selectedPostureIdx] || {};
-      const bondage = bondageOptions[selectedBondageIdx] || {};
-      const gag = gagOptions[selectedGagIdx] || {};
+      const posture = activePostureCatalog[selectedPostureIdx] || {};
+      const bondage = activeBondageCatalog[selectedBondageIdx] || {};
+      const gag = activeGagCatalog[selectedGagIdx] || {};
       const customReason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
 
       document.getElementById('summary-infraction-text').innerText = customReason;
@@ -1523,9 +1689,9 @@
 
     function applyConfiguredDiscipline() {
       const mainAct = (disciplineVariantsCatalog[selectedSeverity] || [])[selectedDisciplineVariantIdx] || {};
-      const posture = postureOptions[selectedPostureIdx] || {};
-      const bondage = bondageOptions[selectedBondageIdx] || {};
-      const gag = gagOptions[selectedGagIdx] || {};
+      const posture = activePostureCatalog[selectedPostureIdx] || {};
+      const bondage = activeBondageCatalog[selectedBondageIdx] || {};
+      const gag = activeGagCatalog[selectedGagIdx] || {};
       const customReason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
 
       const logText = `⚖️ Zucht vollzogen: ${mainAct.title} | Haltung: ${posture.title} | Fixierung: ${bondage.title} | Knebel: ${gag.title} (Anlass: ${customReason})`;
