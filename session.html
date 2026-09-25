@@ -53,7 +53,6 @@
       padding-left: var(--sal);
       padding-right: var(--sar);
     }
-    
     .touch-btn {
       min-height: 44px;
       display: inline-flex;
@@ -64,7 +63,6 @@
     .touch-btn:active {
       transform: scale(0.97);
     }
-    
     .session-card {
       background-color: #090d15;
       border: 1px solid #1a2336;
@@ -73,23 +71,12 @@
       background-color: #0f1624;
       border: 1px solid #222f47;
     }
-    
     @keyframes pulse-subtle {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.7; }
     }
     .animate-pulse-subtle {
       animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes breath-cycle {
-      0% { transform: scale(0.85); opacity: 0.6; }
-      28% { transform: scale(1.3); opacity: 1; }
-      57% { transform: scale(1.3); opacity: 0.9; }
-      100% { transform: scale(0.85); opacity: 0.6; }
-    }
-    .animate-breathing-circle {
-      animation: breath-cycle 14s ease-in-out infinite;
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -241,7 +228,7 @@
 
   <!-- DEZENTER FEEDBACK-BANNER FÜR UNBEWERTETE SESSIONS -->
   <div id="unreviewed-session-toast" class="hidden max-w-6xl mx-auto px-3 sm:px-6 pt-2">
-    <div class="p-2.5 rounded-2xl bg-pink-950/60 border border-pink-700/60 flex items-center justify-between text-xs text-pink-200">
+    <div class="p-2.5 rounded-2xl bg-pink-950/60 border border-pink-700/60 flex items-center justify-between text-xs text-pink-200 shadow-md">
       <div class="flex items-center gap-2">
         <span>📖</span>
         <span>Ihr habt noch unbewertete Sessions im Logbuch.</span>
@@ -265,7 +252,7 @@
           </span>
           <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Wer führt heute – und wer gibt sich hin?</h2>
           <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-            Legt zuerst fest, wer heute Abend die Führung übernimmt (Top) und wer loslassen darf (Bottom). Alle Schutzregeln und akuten No-Gos richten sich sofort danach aus.
+            Legt zuerst fest, wer heute die Führung übernimmt (Top) und wer loslassen darf (Bottom). Alle Schutzregeln und No-Gos richten sich sofort danach aus.
           </p>
         </div>
 
@@ -424,6 +411,75 @@
         </div>
       </div>
 
+      <!-- MODAL/BLOCK: TAGESFORM-CHECKIN (FÜR BEIDE MODI) -->
+      <div id="portal-step-checkin" class="hidden space-y-5">
+        <div class="text-center space-y-1.5">
+          <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800 inline-block">
+            Tagesform-Abstimmung
+          </span>
+          <h2 class="text-xl font-black text-white tracking-tight" id="checkin-title">Energie & Spieltiefe heute</h2>
+          <p class="text-xs text-slate-400 max-w-md mx-auto">
+            Stimmt kurz eure Verfassung ab, damit Tempo und Härte für beide Partner perfekt passen.
+          </p>
+        </div>
+
+        <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-300">👑 Top-Energie (<span class="disp-name-top">Top</span>):</span>
+                <span id="val-top-energy" class="text-brand-400 font-mono font-black">3 / 5</span>
+              </div>
+              <input type="range" min="1" max="5" value="3" oninput="updateCheckinValues()" id="slider-top-energy" class="w-full accent-brand-500 cursor-pointer">
+              <span class="text-[10px] text-slate-400 block" id="desc-top-energy">Präsent & aufmerksam</span>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-brand-300">🧎 Sub-Belastbarkeit (<span class="disp-name-sub">Sub</span>):</span>
+                <span id="val-sub-energy" class="text-brand-400 font-mono font-black">3 / 5</span>
+              </div>
+              <input type="range" min="1" max="5" value="3" oninput="updateCheckinValues()" id="slider-sub-energy" class="w-full accent-brand-500 cursor-pointer">
+              <span class="text-[10px] text-slate-400 block" id="desc-sub-energy">Normale Belastbarkeit</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-slate-200">🎯 Gewünschte Härte / Spieltiefe:</span>
+              <span id="val-session-depth" class="text-purple-300 font-mono font-black">2 / 3 (Mittel)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <button type="button" onclick="setSessionDepth(1)" id="depth-btn-1" class="py-2.5 rounded-xl border session-panel text-slate-300 hover:text-white font-bold transition">1. Sanft / Sinnlich</button>
+              <button type="button" onclick="setSessionDepth(2)" id="depth-btn-2" class="py-2.5 rounded-xl border bg-brand-950 border-brand-500 text-white font-black transition">2. Mittel / Fordernd</button>
+              <button type="button" onclick="setSessionDepth(3)" id="depth-btn-3" class="py-2.5 rounded-xl border session-panel text-slate-300 hover:text-white font-bold transition">3. Intensiv / Hart</button>
+            </div>
+          </div>
+
+          <!-- DREHBUCH-VORSCHAU (NUR FÜR GEFÜHRTEN MODUS) -->
+          <div id="guided-preview-container" class="space-y-2 pt-2 border-t border-slate-800">
+            <div class="flex items-center justify-between">
+              <span class="text-[10.5px] font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                <span>📖</span> Drehbuch-Vorschau (4 Phasen):
+              </span>
+              <button type="button" onclick="rerollPlaybook()" class="px-2.5 py-1 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-[10px] font-bold hover:bg-purple-900 transition flex items-center gap-1">
+                <span>🎲</span> Neu auswürfeln
+              </button>
+            </div>
+            <div id="playbook-preview-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
+          </div>
+
+          <div class="flex items-center gap-2 pt-2">
+            <button type="button" onclick="goToPortalStep(2)" class="px-4 py-3 session-panel border text-slate-400 hover:text-white font-bold rounded-2xl text-xs touch-btn">
+              ← Zurück
+            </button>
+            <button type="button" onclick="confirmCheckinAndLaunch()" class="flex-1 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn flex items-center justify-center gap-2">
+              <span>🚀 Session jetzt starten</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- STUFE 2: VOLLSTÄNDIGER ARBEITSBEREICH MIT TIMER & COCKPIT -->
@@ -496,7 +552,6 @@
       <!-- DYNAMISCHES EDGING- & ORGASMUS-COCKPIT (AUTHENTISCHER REAL-LIFE ABLAUF) -->
       <div id="edging-interactive-panel" class="hidden session-card p-4 sm:p-5 rounded-3xl border border-brand-500/60 space-y-4 shadow-xl bg-gradient-to-br from-brand-950/40 via-noir-900 to-black">
         
-        <!-- HEADER DES PANELS -->
         <div class="flex items-center justify-between border-b border-brand-900/60 pb-2.5">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-xl bg-brand-950 border border-brand-800 flex items-center justify-center text-lg">
@@ -504,4 +559,1309 @@
             </div>
             <div>
               <h3 class="text-xs sm:text-sm font-black text-white">Edging- & Orgasmussteuerung</h3>
-              <p class="text-[10px] text-brand-300">Point of No Return meiste
+              <p class="text-[10px] text-brand-300">Point of No Return meistern: Kante reiten, Abkühlen & Finale</p>
+            </div>
+          </div>
+          <span id="edging-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Bereit</span>
+        </div>
+
+        <!-- SCHRITT 1 & 2: DER GROSSE REAL-LIFE KANTEN-TRIGGER -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button type="button" onclick="triggerEdgeHit()" class="p-4 rounded-2xl bg-gradient-to-r from-brand-700 via-rose-600 to-brand-800 hover:brightness-110 text-white font-black text-sm sm:text-base shadow-xl transition touch-btn flex items-center justify-center gap-3">
+            <span class="text-2xl animate-bounce">🔥</span>
+            <div class="text-left">
+              <span>KANTE ERREICHT! (EDGE)</span>
+              <span class="block text-[10px] font-medium text-brand-200">Reiz stoppen & Abkühlphase starten</span>
+            </div>
+          </button>
+
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 block uppercase">Gesammelte Kanten heute:</span>
+              <span class="text-2xl font-black text-white font-mono" id="edging-count-display">0 Edges</span>
+            </div>
+            <button type="button" onclick="resetEdgeCount()" class="p-2 session-panel rounded-xl text-slate-400 hover:text-white text-xs font-bold">↺ Reset</button>
+          </div>
+        </div>
+
+        <!-- AUTOMATISCHE ABKÜHL- & ATEMPHASE -->
+        <div id="edging-cooldown-box" class="hidden p-3.5 rounded-2xl bg-teal-950/40 border border-teal-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🌬️</span>
+              <strong class="text-xs text-teal-200">Abkühl- & Atemphase: Erregung auf Stufe 5 absenken</strong>
+            </div>
+            <span class="text-sm font-mono font-black text-teal-300" id="cooldown-timer-display">45s</span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-tight">
+            Keine Berührung des Genitals. Tief durch die Nase einatmen, lange durch den Mund ausatmen. Beckenboden vollkommen entspannen.
+          </p>
+        </div>
+
+        <!-- SCHRITT 3: DIE FINALE ENTSCHEIDUNG DES TOPS -->
+        <div class="pt-2 border-t border-slate-800 space-y-2">
+          <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">👑 Finale Entscheidung des Tops:</span>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <!-- A: Orgasmus auf Zählkommando -->
+            <button type="button" onclick="openCountdownSettings()" class="p-2.5 rounded-xl session-panel border hover:border-emerald-500/80 text-left transition touch-btn space-y-0.5">
+              <strong class="text-xs text-emerald-300 block">1. Countdown-Freigabe</strong>
+              <span class="text-[10px] text-slate-400 block">Reine Zahlen (10s/15s) mit Frauenstimme</span>
+            </button>
+
+            <!-- B: Ruinierter Orgasmus -->
+            <button type="button" onclick="triggerRuinedOrgasm()" class="p-2.5 rounded-xl session-panel border hover:border-amber-500/80 text-left transition touch-btn space-y-0.5">
+              <strong class="text-xs text-amber-300 block">2. Ruinierter Orgasmus</strong>
+              <span class="text-[10px] text-slate-400 block">Krampf ohne Berührung erzwingen</span>
+            </button>
+
+            <!-- C: Lustverweigerung -->
+            <button type="button" onclick="triggerDenialDecision()" class="p-2.5 rounded-xl session-panel border hover:border-purple-500/80 text-left transition touch-btn space-y-0.5">
+              <strong class="text-xs text-purple-300 block">3. Lustverweigerung (Denial)</strong>
+              <span class="text-[10px] text-slate-400 block">Heute kein Kommen – Keusch ins Bett</span>
+            </button>
+          </div>
+
+          <!-- COUNTDOWN-STEUERLEISTE (WENN AKTIVIERT) -->
+          <div id="countdown-controller-panel" class="hidden p-3 rounded-2xl bg-slate-900 border border-emerald-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl font-mono font-black text-emerald-400" id="countdown-display">10</span>
+                <span class="text-[11px] text-slate-300">Sekunden bis zur Freigabe</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="startSpeechCountdown(10)" class="px-2 py-1 session-panel rounded-lg text-[10px] font-bold">10s</button>
+                <button type="button" onclick="startSpeechCountdown(15)" class="px-2 py-1 session-panel rounded-lg text-[10px] font-bold">15s</button>
+                <button type="button" onclick="startSpeechCountdown(30)" class="px-2 py-1 session-panel rounded-lg text-[10px] font-bold">30s</button>
+                <button type="button" onclick="togglePauseSpeechCountdown()" id="btn-pause-countdown" class="px-2.5 py-1 bg-amber-600 rounded-lg text-[10px] font-bold text-white">Pause</button>
+                <button type="button" onclick="cancelSpeechCountdown()" class="px-2 py-1 bg-rose-900 rounded-lg text-[10px] font-bold text-rose-200">Abbruch</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GEFÜHRTES DREHBUCH (WENN GEFÜHRTER MODUS AKTIV) -->
+      <div id="cockpit-guided-playbook-section" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+            <span>📖</span> Aktives 4-Phasen-Drehbuch:
+          </span>
+          <button type="button" onclick="rerollPlaybook()" class="px-2.5 py-1 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-[10.5px] font-bold hover:bg-purple-900 transition flex items-center gap-1">
+            <span>🎲</span> Phasen neu würfeln
+          </button>
+        </div>
+        <div id="guided-live-cards-container" class="space-y-2 text-xs"></div>
+      </div>
+
+      <!-- ABSCHLUSS- & WERKZEUGLEISTE UNTEN -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+        <div class="flex items-center gap-2">
+          <button onclick="openIncidentDisciplineModal()" class="px-4 py-2.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-700/80 text-purple-200 font-extrabold rounded-2xl text-xs transition touch-btn flex items-center gap-1.5 shadow-md">
+            <span>⚖️</span> <span>D/s-Zuchtrechner</span>
+          </button>
+          <button onclick="toggleEdgingPanelVisibility()" class="px-3 py-2.5 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition touch-btn">
+            <span>🎢</span> <span class="hidden sm:inline">Edging</span>
+          </button>
+        </div>
+
+        <button onclick="finishSessionRegularly()" class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn flex items-center gap-2">
+          <span>💖 Session beenden & Aftercare starten</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: 5-STUFIGER D/S-ZUCHTRECHNER MIT NOTEN AUF ALLEN STUFEN -->
+  <div id="modal-incident-discipline" class="hidden fixed inset-0 z-[125] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="session-card rounded-3xl max-w-xl w-full border border-purple-500/60 p-4 sm:p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto text-xs">
+      
+      <!-- KOPFZEILE DES WIZARDS -->
+      <div class="flex items-center justify-between border-b border-purple-900/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⚖️</span>
+          <div>
+            <h3 class="text-sm font-black text-white">D/s-Zucht- & Strafenkonfigurator</h3>
+            <p class="text-[10px] text-purple-300 font-mono" id="wizard-step-indicator">Schritt 1 von 5: Vergehen & Hauptstrafe</p>
+          </div>
+        </div>
+        <button onclick="closeIncidentDisciplineModal()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- STUFE 1: ANLASS, FREITEXT & HAUPTMASSNAHME -->
+      <div id="wizard-stage-1" class="space-y-3">
+        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">1. Wofür wird bestraft? (Anlass & Begründung)</span>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          <button type="button" onclick="selectIncidentInfraction('frech')" id="btn-infract-frech" class="p-2 rounded-xl border bg-purple-950 border-purple-500 text-purple-100 font-bold text-center touch-btn">Frechheit / Widerrede</button>
+          <button type="button" onclick="selectIncidentInfraction('unruhe')" id="btn-infract-unruhe" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Zappeln / Haltung</button>
+          <button type="button" onclick="selectIncidentInfraction('regel')" id="btn-infract-regel" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Regelverstoß</button>
+          <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infract-orgasmus" class="p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn">Verbotener Samenerguss</button>
+        </div>
+
+        <input type="text" id="incident-top-custom-reason" placeholder="Konkrete Begründung des Tops (z. B. 'Hat dreimal widersprochen...')" class="w-full text-xs p-2.5 session-panel border rounded-xl text-white focus:outline-none focus:border-purple-500">
+
+        <!-- SCHWEREGRAD & HAUPTSTRAFE -->
+        <div class="pt-2 border-t border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Schweregrad wählen:</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="selectIncidentSeverity(1)" id="btn-sev-1" class="px-2.5 py-1 rounded-lg border session-panel text-slate-300 font-bold text-[10px]">1. Milde</button>
+              <button type="button" onclick="selectIncidentSeverity(2)" id="btn-sev-2" class="px-2.5 py-1 rounded-lg border bg-purple-950 border-purple-500 text-purple-100 font-bold text-[10px]">2. Spürbar</button>
+              <button type="button" onclick="selectIncidentSeverity(3)" id="btn-sev-3" class="px-2.5 py-1 rounded-lg border session-panel text-slate-300 font-bold text-[10px]">3. Streng</button>
+            </div>
+          </div>
+
+          <!-- HAUPTSTRAFEN-KARTE MIT BOTTOM-RATING & PAGINATION -->
+          <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[9.5px] font-mono text-purple-300 font-bold" id="discipline-variant-counter">Variante 1 von 3</span>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="prevDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">◄</button>
+                <button type="button" onclick="nextDisciplineVariant()" class="px-2 py-0.5 session-panel rounded text-[10px] text-slate-300 font-bold">►</button>
+              </div>
+            </div>
+            <h4 class="text-sm font-extrabold text-white" id="discipline-main-title">Handspanking über den Knien</h4>
+            <p class="text-xs text-slate-300" id="discipline-main-desc">15 bis 20 gezielte Schläge mit der flachen Hand auf das unbedeckte Gesäß.</p>
+            <div class="pt-1 flex items-center justify-between border-t border-purple-900/60">
+              <span class="text-[10.5px] text-slate-400">Persönliche Bewertung des Bottoms:</span>
+              <span id="discipline-sub-rating-badge" class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-800">
+                🎁 Note 2: Echte Buße / Duldung
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUFE 2: VORGESCHRIEBENE KÖRPERHALTUNG -->
+      <div id="wizard-stage-2" class="hidden space-y-3">
+        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">2. Vorgeschriebene Körperhaltung für den Vollzug</span>
+        <div id="wizard-posture-list" class="space-y-2"></div>
+      </div>
+
+      <!-- STUFE 3: FESSELUNG & FIXIERUNG -->
+      <div id="wizard-stage-3" class="hidden space-y-3">
+        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">3. Fesselung & Bewegungs-Einschränkung</span>
+        <div id="wizard-bondage-list" class="space-y-2"></div>
+      </div>
+
+      <!-- STUFE 4: KNEBELUNG & SINNESKONTROLLE -->
+      <div id="wizard-stage-4" class="hidden space-y-3">
+        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">4. Knebelung & Sensorische Kontrolle</span>
+        <div id="wizard-gag-list" class="space-y-2"></div>
+      </div>
+
+      <!-- STUFE 5: GESAMTÜBERSICHT & VOLLZUG -->
+      <div id="wizard-stage-5" class="hidden space-y-3">
+        <span class="text-[10px] font-black uppercase tracking-wider text-purple-300 block">5. Maßgeschneidertes Zucht-Ritual bereit zum Vollzug:</span>
+        
+        <div class="p-4 rounded-2xl bg-purple-950/50 border border-purple-700/80 space-y-2.5">
+          <div class="flex justify-between items-center border-b border-purple-900 pb-1.5">
+            <strong class="text-white text-xs">Anlass: <span id="summary-infraction-text" class="text-purple-300">Frechheit</span></strong>
+            <span class="text-[10px] font-mono text-purple-300" id="summary-severity-text">Stufe 2 (Spürbar)</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-slate-200">
+            <div>🪵 <strong>1. Hauptstrafe:</strong> <span id="summary-main-act">Spanking</span></div>
+            <div>🧘 <strong>2. Körperhaltung:</strong> <span id="summary-posture">Über den Knien</span></div>
+            <div>🪢 <strong>3. Fixierung:</strong> <span id="summary-bondage">Hände am Rücken</span></div>
+            <div>🤐 <strong>4. Sensorik/Knebel:</strong> <span id="summary-gag">Kein Knebel</span></div>
+          </div>
+          <div class="pt-1.5 border-t border-purple-900 text-[10.5px] text-teal-300 italic">
+            🛡️ Zeitliche Begrenzung: Intensive Knebel/Fesseln sind strikt auf 15 Minuten limitiert.
+          </div>
+        </div>
+      </div>
+
+      <!-- WIZARD-NAVIGATION UNTEN -->
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+        <button type="button" onclick="prevWizardStage()" id="btn-wizard-prev" class="px-4 py-2.5 session-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          ← Zurück
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="nextWizardStage()" id="btn-wizard-next" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn">
+            Weiter →
+          </button>
+          <button type="button" onclick="applyConfiguredDiscipline()" id="btn-wizard-apply" class="hidden px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl text-xs shadow-lg transition touch-btn">
+            ⚡ Strafe anwenden & im Logbuch eintragen
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: AFTERCARE-MODAL MIT DUALEM FEEDBACK -->
+  <div id="modal-session-aftercare" class="hidden fixed inset-0 z-[130] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-lg w-full border border-pink-500/60 p-5 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center gap-3 border-b border-pink-900/60 pb-3">
+        <div class="w-10 h-10 rounded-2xl bg-pink-950 border border-pink-800 flex items-center justify-center text-xl text-pink-300">
+          🍵
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-white">Aftercare & Nachsorge</h3>
+          <p class="text-[10px] text-pink-300">Dopaminabfall sanft abfedern & Erlebtes gemeinsam würdigen</p>
+        </div>
+      </div>
+
+      <div class="p-3 bg-pink-950/30 rounded-2xl border border-pink-900/50 space-y-1.5 text-[11px] text-slate-300">
+        <strong class="text-pink-200 block text-xs">Empfohlene Schritte:</strong>
+        <p>1. Decke umlegen, warmen Tee/Wasser anreichen & mindestens 15 Minuten stumm im Arm halten.</p>
+        <p>2. Keine Kritik oder Alltagsdiskussionen. Warmes Lob (Praise) und körperliche Geborgenheit.</p>
+      </div>
+
+      <!-- DUALES FEEDBACK DIREKT IM AFTERCARE -->
+      <div class="space-y-3 pt-1">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-300 block text-[10.5px]">👑 Feedback von <span class="disp-name-top">Top</span> (Optional):</label>
+          <input type="text" id="aftercare-input-top" placeholder="Wie war die Session für dich als Führender?..." class="w-full text-xs p-2.5 session-panel border rounded-xl text-white">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-brand-300 block text-[10.5px]">🧎 Feedback von <span class="disp-name-sub">Bottom</span> (Optional):</label>
+          <input type="text" id="aftercare-input-sub" placeholder="Wie hat sich dein Körper und Geist gefühlt?..." class="w-full text-xs p-2.5 session-panel border rounded-xl text-white">
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+        <button onclick="closeAftercareModal()" class="px-4 py-2.5 session-panel text-slate-400 hover:text-white font-bold rounded-xl text-xs touch-btn">
+          Im Cockpit bleiben
+        </button>
+        <button onclick="completeSessionAndExit()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn">
+          ✓ Speichern & Zurück zum Portal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SESSION-TAGEBUCH & BEWERTUNGEN -->
+  <div id="modal-session-diary" class="hidden fixed inset-0 z-[130] bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="session-card rounded-3xl max-w-2xl w-full border border-slate-800 p-4 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[88vh] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h3 class="text-sm font-black text-white">Erotisches Session-Logbuch</h3>
+            <p class="text-[10px] text-slate-400">Vergangene Runden, Live-Aktionen & Dual-Feedback von beiden Partnern</p>
+          </div>
+        </div>
+        <button onclick="closeSessionDiaryModal()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div id="diary-list-container" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button onclick="closeSessionDiaryModal()" class="px-5 py-2 bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn">
+          Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[170] space-y-2 pointer-events-none"></div>
+
+  <script>
+    // GLOBAL STATE & DATA
+    let currentPortalStep = 1;
+    let selectedRoleSetup = 'A'; // 'A': Top=B / Sub=A (Default) | 'B': Top=A / Sub=B
+    let topPartner = 'B';
+    let subPartner = 'A';
+    let activeSessionMode = 'free';
+    let sessionDepth = 2;
+
+    let names = { A: 'Partner 1', B: 'Partner 2' };
+    let answers = { A: {}, B: {} };
+    let safetyConfig = { A: {}, B: {} };
+
+    // TIMER STATE
+    let timerTotalSeconds = 3600;
+    let timerRemainingSeconds = 3600;
+    let timerInterval = null;
+    let isTimerRunning = false;
+    let sessionStartTime = null;
+
+    // VITAL CHECK TIMER (15-MIN)
+    let vitalCheckSeconds = 900;
+    let vitalCheckInterval = null;
+
+    // EDGING STATE
+    let edgeCount = 0;
+    let isCooldownActive = false;
+    let cooldownInterval = null;
+    let cooldownSeconds = 45;
+    let speechCountdownSeconds = 10;
+    let speechCountdownInterval = null;
+    let isSpeechPaused = false;
+
+    // LIVE EVENT TRACKING FÜR DAS LOGBUCH
+    let liveSessionEvents = [];
+
+    // WIZARD STATE
+    let wizardCurrentStage = 1;
+    let selectedInfraction = 'frech';
+    let selectedSeverity = 2;
+    let selectedDisciplineVariantIdx = 0;
+    let selectedPostureIdx = 0;
+    let selectedBondageIdx = 0;
+    let selectedGagIdx = 0;
+
+    const disciplineVariantsCatalog = {
+      1: [
+        { id: 262, title: "Warmes Handspanking (Milde)", desc: "10 bis 15 gleichmäßige Schläge mit der Handfläche zur Erwärmung des Pos." },
+        { id: 363, title: "Besinnung in der Ecke (Corner Time)", desc: "10 Minuten still mit dem Gesicht zur Wand stehen & zur Ruhe kommen." },
+        { id: 362, title: "Strafzeilen schreiben mit Füller", desc: "30-mal einen vorgegebenen Gehorsamssatz in ein Notizheft schreiben." }
+      ],
+      2: [
+        { id: 263, title: "Spanking über die Knie gelegt (OTK)", desc: "20 bis 30 gezielte Schläge mit der Hand oder Bürste über den Oberschenkeln des Tops." },
+        { id: 264, title: "Leder-Paddle (Flächig & dumpf)", desc: "15 gezielte Treffer mit dem breiten Lederpaddle mit lautem Mitzählen." },
+        { id: 108, title: "24-Stunden Keuschheits-Verlängerung", desc: "Der Keuschheitskäfig bleibt für 24 Stunden zusätzlich unerbittlich verriegelt." }
+      ],
+      3: [
+        { id: 272, title: "Schläge mit gefaltetem Ledergürtel", desc: "20 schwere Hiebe mit dem gefalteten Lederriemen auf die Gesäßmuskeln." },
+        { id: 275, title: "Reitgerte / Cane (Spitzer Schmerz)", desc: "12 präzise Treffer mit der Gerte; Haltung muss starr gehalten werden." },
+        { id: 120, title: "48-Stunden Keuschheit mit App-Kontrolle", desc: "Verlängerung des Käfigs auf 48 Stunden inklusive täglicher strenger Inspektion." }
+      ]
+    };
+
+    const postureOptions = [
+      { id: 348, title: "Aufrechtes Knien neben dem Sessel (Nadu)", desc: "Gerader Rücken, Hände auf den Oberschenkeln, Blick gesenkt." },
+      { id: 227, title: "Vorbeuge über der Bettkante", desc: "Becken erhöht auf der Matratze, Oberkörper tief, Gesäß frei." },
+      { id: 305, title: "Flach auf dem Bauch gepinnt", desc: "Ausgestreckt am Boden liegen; keine Bewegung erlaubt." }
+    ];
+
+    const bondageOptions = [
+      { id: 204, title: "Hände hinter dem Rücken fixiert", desc: "Lederfesseln an den Handgelenken hinter dem Rücken verschlossen." },
+      { id: 205, title: "Knöchel eng aneinander gebunden", desc: "Beine so fixiert, dass nur Trippelschritte möglich sind." },
+      { id: 207, title: "Klettfesseln mit Schnellöffnung", desc: "Sichere Klettfesseln mit sofortigem Reißverschluss-Lösen." }
+    ];
+
+    const gagOptions = [
+      { id: 247, title: "Weicher Tuchknebel (Stoff)", desc: "Baumwolltuch fest zwischen den Zähnen; Dämpft lautes Weinen." },
+      { id: 246, title: "Offener Ringknebel (Mitzählen möglich)", desc: "Hält den Mund geöffnet; Mitzählen der Hiebe ist hörbar." },
+      { id: 241, title: "Blickdichte Augenbinde (Kein Knebel)", desc: "Mund frei, Augen vollständig verdunkelt für sensorische Auslieferung." }
+    ];
+
+    function initSessionApp() {
+      loadStorageData();
+      applySavedTheme();
+      updateNamesDisplay();
+      initAverageTimerDuration();
+      checkUnreviewedSessionsBanner();
+      updateActiveSafewordIndicator();
+    }
+
+    function loadStorageData() {
+      try {
+        const a = localStorage.getItem('kompass_answers');
+        const nm = localStorage.getItem('kompass_names');
+        const sc = localStorage.getItem('kompass_safety_config');
+        if (a) answers = JSON.parse(a);
+        if (nm) names = JSON.parse(nm);
+        if (sc) safetyConfig = JSON.parse(sc);
+      } catch (e) {
+        console.error("Storage Load Error:", e);
+      }
+    }
+
+    function applySavedTheme() {
+      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    }
+
+    function updateNamesDisplay() {
+      document.querySelectorAll('.disp-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
+      document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
+      const topName = names[topPartner] || 'Top';
+      const subName = names[subPartner] || 'Bottom';
+      document.querySelectorAll('.disp-name-top').forEach(el => el.innerText = topName);
+      document.querySelectorAll('.disp-name-sub').forEach(el => el.innerText = subName);
+
+      const topEl = document.getElementById('portal-step2-top-name');
+      const subEl = document.getElementById('portal-step2-sub-name');
+      if (topEl) topEl.innerText = topName;
+      if (subEl) subEl.innerText = subName;
+
+      const actTop = document.getElementById('active-cockpit-top-name');
+      const actSub = document.getElementById('active-cockpit-sub-name');
+      if (actTop) actTop.innerText = topName;
+      if (actSub) actSub.innerText = subName;
+
+      const swSub = document.getElementById('safeword-sub-target-name');
+      if (swSub) swSub.innerText = subName;
+    }
+
+    function goToPortalStep(step) {
+      currentPortalStep = step;
+      const sRoles = document.getElementById('portal-step-roles');
+      const sModes = document.getElementById('portal-step-modes');
+      const sCheckin = document.getElementById('portal-step-checkin');
+
+      if (sRoles) sRoles.classList.add('hidden');
+      if (sModes) sModes.classList.add('hidden');
+      if (sCheckin) sCheckin.classList.add('hidden');
+
+      if (step === 1) {
+        if (sRoles) sRoles.classList.remove('hidden');
+      } else if (step === 2) {
+        if (sModes) sModes.classList.remove('hidden');
+      } else if (step === 3) {
+        if (sCheckin) sCheckin.classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectPortalRoleSetup(setup) {
+      selectedRoleSetup = setup;
+      const cardA = document.getElementById('portal-card-role-A');
+      const cardB = document.getElementById('portal-card-role-B');
+      const badgeA = document.getElementById('role-badge-indicator-A');
+      const badgeB = document.getElementById('role-badge-indicator-B');
+
+      if (setup === 'A') {
+        topPartner = 'B';
+        subPartner = 'A';
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        if (badgeA) badgeA.classList.remove('hidden');
+        if (badgeB) badgeB.classList.add('hidden');
+      } else {
+        topPartner = 'A';
+        subPartner = 'B';
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        if (badgeB) badgeB.classList.remove('hidden');
+        if (badgeA) badgeA.classList.add('hidden');
+      }
+      updateNamesDisplay();
+      updateActiveSafewordIndicator();
+    }
+
+    function selectSessionMode(mode) {
+      activeSessionMode = mode;
+      if (mode === 'punishments') {
+        openIncidentDisciplineModal();
+        return;
+      }
+      const title = document.getElementById('checkin-title');
+      const previewBox = document.getElementById('guided-preview-container');
+
+      if (mode === 'free') {
+        if (title) title.innerText = "Tagesform vor dem Freien Spiel";
+        if (previewBox) previewBox.classList.add('hidden');
+      } else {
+        if (title) title.innerText = "Drehbuch-Vorschau & Tagesform";
+        if (previewBox) previewBox.classList.remove('hidden');
+        rerollPlaybook();
+      }
+      goToPortalStep(3);
+    }
+
+    function setSessionDepth(d) {
+      sessionDepth = d;
+      [1, 2, 3].forEach(idx => {
+        const btn = document.getElementById(`depth-btn-${idx}`);
+        if (!btn) return;
+        if (idx === d) {
+          btn.className = "py-2.5 rounded-xl border bg-brand-950 border-brand-500 text-white font-black transition";
+        } else {
+          btn.className = "py-2.5 rounded-xl border session-panel text-slate-300 hover:text-white font-bold transition";
+        }
+      });
+      const valEl = document.getElementById('val-session-depth');
+      if (valEl) {
+        const labels = { 1: "1 / 3 (Sanft)", 2: "2 / 3 (Mittel)", 3: "3 / 3 (Intensiv)" };
+        valEl.innerText = labels[d] || `${d} / 3`;
+      }
+      if (activeSessionMode === 'guided_flow') rerollPlaybook();
+    }
+
+    function updateCheckinValues() {
+      const tVal = document.getElementById('slider-top-energy')?.value || 3;
+      const sVal = document.getElementById('slider-sub-energy')?.value || 3;
+      const tDisp = document.getElementById('val-top-energy');
+      const sDisp = document.getElementById('val-sub-energy');
+      if (tDisp) tDisp.innerText = `${tVal} / 5`;
+      if (sDisp) sDisp.innerText = `${sVal} / 5`;
+    }
+
+    function confirmCheckinAndLaunch() {
+      document.getElementById('session-entry-portal')?.classList.add('hidden');
+      document.getElementById('cockpit-main-workspace')?.classList.remove('hidden');
+
+      const badge = document.getElementById('active-mode-badge');
+      const guidedSec = document.getElementById('cockpit-guided-playbook-section');
+
+      if (activeSessionMode === 'free') {
+        if (badge) badge.innerText = "Modus: Freier Flow";
+        if (guidedSec) guidedSec.classList.add('hidden');
+      } else {
+        if (badge) badge.innerText = "Modus: Geführte 4 Phasen";
+        if (guidedSec) guidedSec.classList.remove('hidden');
+        renderGuidedPlaybookLive();
+      }
+
+      sessionStartTime = new Date();
+      liveSessionEvents = [];
+      logLiveSessionEvent('session_start', `Session gestartet (Top: ${names[topPartner]}, Sub: ${names[subPartner]})`);
+      showToast("🚀 Session-Cockpit bereit!");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function returnToModeSelection() {
+      document.getElementById('cockpit-main-workspace')?.classList.add('hidden');
+      document.getElementById('session-entry-portal')?.classList.remove('hidden');
+      goToPortalStep(2);
+    }
+
+    const playbookStagesCatalog = [
+      {
+        phase: 1,
+        title: "Phase 1: Ankommen & Raum öffnen",
+        options: [
+          { label: "Augenkontakt & Atem-Synchronisation", desc: "5 Minuten ununterbrochen in die Augen blicken, Hände auf der Brust des Partners." },
+          { label: "Achtsame Yoni-/Lingam-Ölberührung", desc: "Warme Hände streichen langsam über den Körper, ohne sexuelle Hektik." }
+        ]
+      },
+      {
+        phase: 2,
+        title: "Phase 2: Hingabe & Rollen-Vertiefung",
+        options: [
+          { label: "Nadu-Körperhaltung & Kinn heben", desc: "Der Bottom kniet aufmerksam neben dem Top und lauscht den Vorgaben." },
+          { label: "Seilführung & leichte Armfesselung", desc: "Sanftes Binden der Handgelenke hinter dem Rücken für kognitive Entlastung." }
+        ]
+      },
+      {
+        phase: 3,
+        title: "Phase 3: Energetischer Höhepunkt (Edging)",
+        options: [
+          { label: "Mehrfaches Edging an die Kante", desc: "Dreimaliges Heranführen an den Point of No Return mit sofortigem Stopp." },
+          { label: "Sensorisches Impact & Spanking", desc: "Gezieltes Handspanking zur Opiat-Ausschüttung, gefolgt von warmem Halten." }
+        ]
+      },
+      {
+        phase: 4,
+        title: "Phase 4: Erdung & Aftercare",
+        options: [
+          { label: "Wärme, Decken & stummes Halten", desc: "Einhüllen in dicke Decken, warmes Wasser trinken und mindestens 15 Min. ruhen." },
+          { label: "Praise Play & Zuspruch", desc: "Warmes verbales Feedback: 'Du hast das wunderbar gemacht'." }
+        ]
+      }
+    ];
+
+    let currentSelectedPlaybook = [];
+
+    function rerollPlaybook() {
+      currentSelectedPlaybook = playbookStagesCatalog.map(stage => {
+        const randomOpt = stage.options[Math.floor(Math.random() * stage.options.length)];
+        return { phase: stage.phase, title: stage.title, item: randomOpt };
+      });
+
+      const previewBox = document.getElementById('playbook-preview-cards');
+      if (previewBox) {
+        previewBox.innerHTML = currentSelectedPlaybook.map(p => `
+          <div class="p-3 rounded-2xl bg-purple-950/40 border border-purple-800 space-y-1">
+            <span class="text-[9px] font-bold text-purple-300 uppercase">${p.title}</span>
+            <strong class="text-white block text-xs">${p.item.label}</strong>
+            <p class="text-[10.5px] text-slate-300 leading-snug">${p.item.desc}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderGuidedPlaybookLive() {
+      const container = document.getElementById('guided-live-cards-container');
+      if (!container) return;
+      container.innerHTML = currentSelectedPlaybook.map((p, idx) => `
+        <div class="p-3.5 rounded-2xl session-card border space-y-1.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-purple-950 text-purple-300 border border-purple-800">${p.title}</span>
+            <button onclick="logPlaybookStepDone(${idx}, '${escapeHtml(p.item.label)}')" class="px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-bold">
+              ✓ Als erlebt protokollieren
+            </button>
+          </div>
+          <strong class="text-white text-xs block">${p.item.label}</strong>
+          <p class="text-[11px] text-slate-300 leading-snug">${p.item.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function logPlaybookStepDone(idx, label) {
+      logLiveSessionEvent('action', `Phase ${idx + 1} erlebt: ${label}`);
+      showToast(`✓ Im Logbuch erfasst: ${label}`);
+    }
+
+    function toggleEdgingPanelVisibility() {
+      const panel = document.getElementById('edging-interactive-panel');
+      if (panel) panel.classList.toggle('hidden');
+    }
+
+    function triggerEdgeHit() {
+      edgeCount++;
+      const disp = document.getElementById('edging-count-display');
+      if (disp) disp.innerText = `${edgeCount} ${edgeCount === 1 ? 'Edge' : 'Edges'}`;
+      logLiveSessionEvent('action', `🔥 KANTE ERREICHT (Edge #${edgeCount})`);
+      showToast(`🔥 Edge #${edgeCount} erreicht! Reiz sofort stoppen.`);
+
+      // Automatische 45-Sekunden Abkühlphase starten
+      startCooldownPhase(45);
+    }
+
+    function resetEdgeCount() {
+      edgeCount = 0;
+      const disp = document.getElementById('edging-count-display');
+      if (disp) disp.innerText = "0 Edges";
+      logLiveSessionEvent('action', 'Edge-Zähler zurückgesetzt');
+    }
+
+    function startCooldownPhase(seconds) {
+      clearInterval(cooldownInterval);
+      cooldownSeconds = seconds;
+      const box = document.getElementById('edging-cooldown-box');
+      const disp = document.getElementById('cooldown-timer-display');
+      if (box) box.classList.remove('hidden');
+      if (disp) disp.innerText = `${cooldownSeconds}s`;
+
+      cooldownInterval = setInterval(() => {
+        cooldownSeconds--;
+        if (disp) disp.innerText = `${cooldownSeconds}s`;
+        if (cooldownSeconds <= 0) {
+          clearInterval(cooldownInterval);
+          if (box) box.classList.add('hidden');
+          showToast("🌿 Abkühlphase beendet. Erregung abgesenkt.");
+        }
+      }, 1000);
+    }
+
+    function openCountdownSettings() {
+      const p = document.getElementById('countdown-controller-panel');
+      if (p) p.classList.toggle('hidden');
+    }
+
+    function startSpeechCountdown(seconds) {
+      clearInterval(speechCountdownInterval);
+      window.speechSynthesis?.cancel();
+      speechCountdownSeconds = seconds;
+      isSpeechPaused = false;
+      const disp = document.getElementById('countdown-display');
+      if (disp) disp.innerText = speechCountdownSeconds;
+
+      speakNumberOnly(speechCountdownSeconds);
+
+      speechCountdownInterval = setInterval(() => {
+        if (isSpeechPaused) return;
+        speechCountdownSeconds--;
+        if (disp) disp.innerText = speechCountdownSeconds;
+
+        if (speechCountdownSeconds > 0) {
+          speakNumberOnly(speechCountdownSeconds);
+        } else {
+          clearInterval(speechCountdownInterval);
+          speakNumberOnly("Jetzt");
+          logLiveSessionEvent('action', `🎯 Orgasmus nach ${seconds}s Countdown freigegeben`);
+          showToast("✨ Orgasmus freigegeben!");
+        }
+      }, 1000);
+    }
+
+    function speakNumberOnly(text) {
+      if (!('speechSynthesis' in window)) return;
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      utterance.lang = 'de-DE';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.05;
+      const voices = window.speechSynthesis.getVoices();
+      const femaleGermanVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Female') || v.name.includes('Katja') || v.name.includes('Hedda')));
+      if (femaleGermanVoice) utterance.voice = femaleGermanVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function togglePauseSpeechCountdown() {
+      isSpeechPaused = !isSpeechPaused;
+      const btn = document.getElementById('btn-pause-countdown');
+      if (btn) btn.innerText = isSpeechPaused ? "Weiter" : "Pause";
+      if (isSpeechPaused) window.speechSynthesis?.cancel();
+    }
+
+    function cancelSpeechCountdown() {
+      clearInterval(speechCountdownInterval);
+      window.speechSynthesis?.cancel();
+      document.getElementById('countdown-controller-panel')?.classList.add('hidden');
+      logLiveSessionEvent('action', 'Countdown abgebrochen');
+    }
+
+    function triggerRuinedOrgasm() {
+      logLiveSessionEvent('action', '⚡ Ruinierter Orgasmus befohlen (Berührung gestoppt)');
+      showToast("⚡ RUINIERTER ORGASMUS! Sofort jede Berührung stoppen.");
+    }
+
+    function triggerDenialDecision() {
+      logLiveSessionEvent('action', '🚫 Lustverweigerung (Denial) durch Top ausgesprochen');
+      showToast("🚫 Lustverweigerung: Heute kein Kommen!");
+    }
+
+    function openIncidentDisciplineModal() {
+      wizardCurrentStage = 1;
+      updateWizardStageView();
+      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
+    }
+
+    function closeIncidentDisciplineModal() {
+      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
+    }
+
+    function selectIncidentInfraction(inf) {
+      selectedInfraction = inf;
+      ['frech', 'unruhe', 'regel', 'orgasmus'].forEach(id => {
+        const btn = document.getElementById(`btn-infract-${id}`);
+        if (!btn) return;
+        btn.className = (id === inf)
+          ? "p-2 rounded-xl border bg-purple-950 border-purple-500 text-purple-100 font-bold text-center touch-btn"
+          : "p-2 rounded-xl border session-panel text-slate-300 text-center touch-btn";
+      });
+    }
+
+    function selectIncidentSeverity(sev) {
+      selectedSeverity = sev;
+      selectedDisciplineVariantIdx = 0;
+      [1, 2, 3].forEach(id => {
+        const btn = document.getElementById(`btn-sev-${id}`);
+        if (!btn) return;
+        btn.className = (id === sev)
+          ? "px-2.5 py-1 rounded-lg border bg-purple-950 border-purple-500 text-purple-100 font-bold text-[10px]"
+          : "px-2.5 py-1 rounded-lg border session-panel text-slate-300 font-bold text-[10px]";
+      });
+      renderCurrentDisciplineVariant();
+    }
+
+    function nextDisciplineVariant() {
+      const list = disciplineVariantsCatalog[selectedSeverity] || [];
+      selectedDisciplineVariantIdx = (selectedDisciplineVariantIdx + 1) % list.length;
+      renderCurrentDisciplineVariant();
+    }
+
+    function prevDisciplineVariant() {
+      const list = disciplineVariantsCatalog[selectedSeverity] || [];
+      selectedDisciplineVariantIdx = (selectedDisciplineVariantIdx - 1 + list.length) % list.length;
+      renderCurrentDisciplineVariant();
+    }
+
+    function renderCurrentDisciplineVariant() {
+      const list = disciplineVariantsCatalog[selectedSeverity] || [];
+      const item = list[selectedDisciplineVariantIdx] || list[0];
+      const counter = document.getElementById('discipline-variant-counter');
+      const title = document.getElementById('discipline-main-title');
+      const desc = document.getElementById('discipline-main-desc');
+      const badge = document.getElementById('discipline-sub-rating-badge');
+
+      if (counter) counter.innerText = `Variante ${selectedDisciplineVariantIdx + 1} von ${list.length}`;
+      if (title) title.innerText = item.title;
+      if (desc) desc.innerText = item.desc;
+
+      if (badge) {
+        const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${item.id}_r2`] : undefined;
+        badge.innerHTML = formatSubRatingBadge(subScore);
+      }
+    }
+
+    function formatSubRatingBadge(score) {
+      if (score === 5) return '<span class="text-emerald-300 font-bold">⭐ Note 5: Kink-Favorit (Lustgewinn)</span>';
+      if (score === 4) return '<span class="text-emerald-400 font-bold">✨ Note 4: Lustvoll</span>';
+      if (score === 3) return '<span class="text-blue-300 font-bold">💡 Note 3: Neugierig</span>';
+      if (score === 2) return '<span class="text-amber-300 font-bold">🎁 Note 2: Duldung / Echte Buße (Keine Lust)</span>';
+      if (score === 1) return '<span class="text-rose-400 font-bold">⛔ Note 1: TABU</span>';
+      return '<span class="text-slate-400 italic">Noch unbewertet</span>';
+    }
+
+    function updateWizardStageView() {
+      const stepIndicator = document.getElementById('wizard-step-indicator');
+      const labels = {
+        1: "Schritt 1 von 5: Vergehen & Hauptstrafe",
+        2: "Schritt 2 von 5: Vorgeschriebene Körperhaltung",
+        3: "Schritt 3 von 5: Fesselung & Fixierung",
+        4: "Schritt 4 von 5: Knebelung & Sensorik",
+        5: "Schritt 5 von 5: Gesamtübersicht & Vollzug"
+      };
+      if (stepIndicator) stepIndicator.innerText = labels[wizardCurrentStage];
+
+      for (let s = 1; s <= 5; s++) {
+        const el = document.getElementById(`wizard-stage-${s}`);
+        if (el) {
+          if (s === wizardCurrentStage) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      }
+
+      const btnPrev = document.getElementById('btn-wizard-prev');
+      const btnNext = document.getElementById('btn-wizard-next');
+      const btnApply = document.getElementById('btn-wizard-apply');
+
+      if (btnPrev) btnPrev.disabled = (wizardCurrentStage === 1);
+      if (wizardCurrentStage === 5) {
+        if (btnNext) btnNext.classList.add('hidden');
+        if (btnApply) btnApply.classList.remove('hidden');
+        buildWizardSummary();
+      } else {
+        if (btnNext) btnNext.classList.remove('hidden');
+        if (btnApply) btnApply.classList.add('hidden');
+      }
+
+      if (wizardCurrentStage === 1) renderCurrentDisciplineVariant();
+      if (wizardCurrentStage === 2) renderWizardStage2List();
+      if (wizardCurrentStage === 3) renderWizardStage3List();
+      if (wizardCurrentStage === 4) renderWizardStage4List();
+    }
+
+    function renderWizardStage2List() {
+      const c = document.getElementById('wizard-posture-list');
+      if (!c) return;
+      c.innerHTML = postureOptions.map((opt, idx) => {
+        const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
+        const isSelected = (idx === selectedPostureIdx);
+        return `
+          <div onclick="selectWizardPosture(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
+            <div>
+              <strong class="text-white text-xs block">${opt.title}</strong>
+              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
+              ${isSelected ? '<span class="text-[9px] font-black text-purple-300 uppercase">✓ Gewählt</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectWizardPosture(idx) {
+      selectedPostureIdx = idx;
+      renderWizardStage2List();
+    }
+
+    function renderWizardStage3List() {
+      const c = document.getElementById('wizard-bondage-list');
+      if (!c) return;
+      c.innerHTML = bondageOptions.map((opt, idx) => {
+        const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
+        const isSelected = (idx === selectedBondageIdx);
+        return `
+          <div onclick="selectWizardBondage(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
+            <div>
+              <strong class="text-white text-xs block">${opt.title}</strong>
+              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
+              ${isSelected ? '<span class="text-[9px] font-black text-purple-300 uppercase">✓ Gewählt</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectWizardBondage(idx) {
+      selectedBondageIdx = idx;
+      renderWizardStage3List();
+    }
+
+    function renderWizardStage4List() {
+      const c = document.getElementById('wizard-gag-list');
+      if (!c) return;
+      c.innerHTML = gagOptions.map((opt, idx) => {
+        const subScore = (answers && answers[subPartner]) ? answers[subPartner][`it_${opt.id}_r2`] : undefined;
+        const isSelected = (idx === selectedGagIdx);
+        return `
+          <div onclick="selectWizardGag(${idx})" class="p-3 rounded-2xl border cursor-pointer transition touch-btn ${isSelected ? 'bg-purple-950/80 border-purple-500' : 'session-panel border-slate-800'} flex items-center justify-between gap-2">
+            <div>
+              <strong class="text-white text-xs block">${opt.title}</strong>
+              <p class="text-[10.5px] text-slate-300 leading-snug">${opt.desc}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="text-[10px] block">${formatSubRatingBadge(subScore)}</span>
+              ${isSelected ? '<span class="text-[9px] font-black text-purple-300 uppercase">✓ Gewählt</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectWizardGag(idx) {
+      selectedGagIdx = idx;
+      renderWizardStage4List();
+    }
+
+    function nextWizardStage() {
+      if (wizardCurrentStage < 5) {
+        wizardCurrentStage++;
+        updateWizardStageView();
+      }
+    }
+
+    function prevWizardStage() {
+      if (wizardCurrentStage > 1) {
+        wizardCurrentStage--;
+        updateWizardStageView();
+      }
+    }
+
+    function buildWizardSummary() {
+      const mainAct = (disciplineVariantsCatalog[selectedSeverity] || [])[selectedDisciplineVariantIdx] || {};
+      const posture = postureOptions[selectedPostureIdx] || {};
+      const bondage = bondageOptions[selectedBondageIdx] || {};
+      const gag = gagOptions[selectedGagIdx] || {};
+      const customReason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
+
+      document.getElementById('summary-infraction-text').innerText = customReason;
+      document.getElementById('summary-severity-text').innerText = `Stufe ${selectedSeverity}`;
+      document.getElementById('summary-main-act').innerText = mainAct.title || 'Strafe';
+      document.getElementById('summary-posture').innerText = posture.title || 'Haltung';
+      document.getElementById('summary-bondage').innerText = bondage.title || 'Fixierung';
+      document.getElementById('summary-gag').innerText = gag.title || 'Sensorik';
+    }
+
+    function applyConfiguredDiscipline() {
+      const mainAct = (disciplineVariantsCatalog[selectedSeverity] || [])[selectedDisciplineVariantIdx] || {};
+      const posture = postureOptions[selectedPostureIdx] || {};
+      const bondage = bondageOptions[selectedBondageIdx] || {};
+      const gag = gagOptions[selectedGagIdx] || {};
+      const customReason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
+
+      const logText = `⚖️ Zucht vollzogen: ${mainAct.title} | Haltung: ${posture.title} | Fixierung: ${bondage.title} | Knebel: ${gag.title} (Anlass: ${customReason})`;
+      logLiveSessionEvent('action', logText);
+      closeIncidentDisciplineModal();
+      showToast("⚖️ Strafe angewendet & im Logbuch protokolliert!");
+    }
+
+    function toggleTimer() {
+      isTimerRunning = !isTimerRunning;
+      const btn = document.getElementById('btn-timer-toggle');
+      const icon = document.getElementById('timer-icon');
+      const label = document.getElementById('timer-label');
+
+      if (isTimerRunning) {
+        if (icon) icon.innerText = "⏸";
+        if (label) label.innerText = "Pause";
+        logLiveSessionEvent('admin', 'Timer gestartet');
+        timerInterval = setInterval(() => {
+          timerRemainingSeconds--;
+          updateTimerDisplay();
+          vitalCheckSeconds--;
+          if (vitalCheckSeconds <= 0) triggerVitalCheckAlarm();
+          if (timerRemainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            showToast("⏱️ Reguläre Zeit abgelaufen!");
+          }
+        }, 1000);
+      } else {
+        clearInterval(timerInterval);
+        if (icon) icon.innerText = "▶";
+        if (label) label.innerText = "Weiter";
+        logLiveSessionEvent('admin', 'Timer pausiert');
+      }
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(Math.max(0, timerRemainingSeconds) / 60);
+      const s = Math.max(0, timerRemainingSeconds) % 60;
+      const el = document.getElementById('timer-display');
+      if (el) el.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function adjustTimer(mins) {
+      timerRemainingSeconds += mins * 60;
+      updateTimerDisplay();
+      logLiveSessionEvent('admin', `Zeit um +${mins} Min. verlängert`);
+      showToast(`+${mins} Minuten hinzugefügt`);
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerDisplay();
+      const icon = document.getElementById('timer-icon');
+      const label = document.getElementById('timer-label');
+      if (icon) icon.innerText = "▶";
+      if (label) label.innerText = "Starten";
+      logLiveSessionEvent('admin', 'Timer zurückgesetzt');
+    }
+
+    function triggerVitalCheckAlarm() {
+      vitalCheckSeconds = 900;
+      document.getElementById('modal-vital-check-alarm')?.classList.remove('hidden');
+      logLiveSessionEvent('action', '⏱️ 15-Minuten Vital- & Nervencheck aufgerufen');
+    }
+
+    function confirmVitalCheckDone() {
+      document.getElementById('modal-vital-check-alarm')?.classList.add('hidden');
+      logLiveSessionEvent('action', '✓ Vital- & Nervencheck bestätigt (Alles durchblutet)');
+      showToast("✓ Vital-Check erledigt");
+    }
+
+    function handleSafewordSignal(sig) {
+      if (sig === 'green') {
+        logLiveSessionEvent('action', '🟢 Signal GRÜN bestätigt (Alles bestens)');
+        showToast("🟢 GRÜN bestätigt: Alles bestens");
+      } else if (sig === 'yellow') {
+        logLiveSessionEvent('action', '🟡 Signal GELB ausgelöst (Tempo senken / Pause)');
+        showToast("🟡 GELB: Tempo sofort drosseln!");
+      } else if (sig === 'red') {
+        logLiveSessionEvent('action', '🛑 Signal ROT ausgelöst (Sofortiger Stopp!)');
+        document.getElementById('red-emergency-screen')?.classList.remove('hidden');
+      }
+    }
+
+    function dismissEmergencyScreen() {
+      document.getElementById('red-emergency-screen')?.classList.add('hidden');
+      logLiveSessionEvent('action', 'Notfallmodus beendet (Lage stabilisiert)');
+    }
+
+    function toggleBlackout() {
+      document.getElementById('blackout-screen')?.classList.toggle('hidden');
+    }
+
+    function updateActiveSafewordIndicator() {
+      const cfg = (safetyConfig && safetyConfig[subPartner]) || {};
+      const swType = cfg.safeword || 'traffic';
+      const gagType = cfg.gag_signal || 'drop_cloth';
+      const ind = document.getElementById('sub-safeword-indicator');
+      if (ind) {
+        ind.innerText = `${swType === 'traffic' ? 'Ampel' : 'Code-Wort'} & ${gagType === 'drop_cloth' ? 'Drop-Tuch' : 'Faust-Signal'}`;
+      }
+    }
+
+    function logLiveSessionEvent(type, label) {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      liveSessionEvents.push({
+        id: `ev_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        type,
+        time: timeStr,
+        label,
+        ratings: { top: null, sub: null }
+      });
+    }
+
+    function finishSessionRegularly() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      logLiveSessionEvent('action', 'Session beendet & Aftercare aufgerufen');
+      document.getElementById('modal-session-aftercare')?.classList.remove('hidden');
+    }
+
+    function closeAftercareModal() {
+      document.getElementById('modal-session-aftercare')?.classList.add('hidden');
+    }
+
+    function completeSessionAndExit() {
+      const topFeedback = document.getElementById('aftercare-input-top')?.value || '';
+      const subFeedback = document.getElementById('aftercare-input-sub')?.value || '';
+      const durationMins = sessionStartTime ? Math.max(1, Math.round((new Date() - sessionStartTime) / 60000)) : 60;
+
+      const newDiaryEntry = {
+        id: `ses_${Date.now()}`,
+        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        mode: activeSessionMode === 'free' ? 'Freier Flow' : 'Geführte 4 Phasen',
+        top: names[topPartner] || 'Top',
+        bottom: names[subPartner] || 'Bottom',
+        durationMinutes: durationMins,
+        edgeCount,
+        topFeedback,
+        bottomFeedback,
+        events: liveSessionEvents
+      };
+
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) { diary = []; }
+
+      diary.unshift(newDiaryEntry);
+      localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+
+      closeAftercareModal();
+      returnToModeSelection();
+      showToast("💾 Session erfolgreich im Logbuch gesichert!");
+    }
+
+    function initAverageTimerDuration() {
+      try {
+        const diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        if (Array.isArray(diary) && diary.length > 0) {
+          const total = diary.reduce((sum, d) => sum + (Number(d.durationMinutes) || 60), 0);
+          const avg = Math.round(total / diary.length);
+          timerTotalSeconds = avg * 60;
+          timerRemainingSeconds = timerTotalSeconds;
+          updateTimerDisplay();
+          const badge = document.getElementById('timer-avg-badge');
+          if (badge) badge.innerText = `Basis: Ø ${avg}m`;
+        }
+      } catch (e) { console.warn(e); }
+    }
+
+    function checkUnreviewedSessionsBanner() {
+      try {
+        const diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        const hasUnreviewed = diary.some(d => !d.topFeedback || !d.bottomFeedback);
+        const banner = document.getElementById('unreviewed-session-toast');
+        const badge = document.getElementById('header-unread-diary-badge');
+        if (hasUnreviewed) {
+          if (banner) banner.classList.remove('hidden');
+          if (badge) badge.classList.remove('hidden');
+        }
+      } catch (e) { console.warn(e); }
+    }
+
+    function dismissUnreviewedBanner() {
+      document.getElementById('unreviewed-session-toast')?.classList.add('hidden');
+    }
+
+    function openSessionDiaryModal() {
+      renderDiaryListHtml();
+      document.getElementById('modal-session-diary')?.classList.remove('hidden');
+    }
+
+    function closeSessionDiaryModal() {
+      document.getElementById('modal-session-diary')?.classList.add('hidden');
+    }
+
+    function renderDiaryListHtml() {
+      const container = document.getElementById('diary-list-container');
+      if (!container) return;
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) { diary = []; }
+
+      if (diary.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic text-center p-4">Noch keine Sessions protokolliert.</p>';
+        return;
+      }
+
+      container.innerHTML = diary.map(entry => `
+        <div class="p-3.5 rounded-2xl session-panel border space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-brand-950 text-brand-300 border border-brand-800">${entry.mode}</span>
+              <span class="text-slate-400 font-mono text-[10px]">${entry.date}</span>
+            </div>
+            <button onclick="deleteDiaryEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1 text-[11px]" title="Eintrag löschen">🗑️</button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10.5px] text-slate-300">
+            <div>👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
+            <div>🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
+            <div>⏱️ <strong>Dauer:</strong> ${entry.durationMinutes} Min.</div>
+            <div>🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
+          </div>
+
+          <!-- DUAL FEEDBACK -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800">
+            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-[11px]">
+              <strong class="text-white block text-[10px] uppercase">👑 Feedback von ${escapeHtml(entry.top)}:</strong>
+              <p class="text-slate-200 mt-0.5">${entry.topFeedback ? escapeHtml(entry.topFeedback) : '<span class="text-slate-500 italic">Noch offen</span>'}</p>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-[11px]">
+              <strong class="text-brand-300 block text-[10px] uppercase">🧎 Feedback von ${escapeHtml(entry.bottom)}:</strong>
+              <p class="text-slate-200 mt-0.5">${entry.bottomFeedback ? escapeHtml(entry.bottomFeedback) : '<span class="text-slate-500 italic">Noch offen</span>'}</p>
+            </div>
+          </div>
+
+          <!-- AKTIONEN-BEWERTUNGEN -->
+          ${(entry.events && entry.events.length > 0) ? `
+            <div class="pt-1 border-t border-slate-800 space-y-1">
+              <span class="text-[10px] font-bold text-slate-400 uppercase block">Protokollierte Aktionen & Daumen:</span>
+              <div class="space-y-1 max-h-36 overflow-y-auto pr-1">
+                ${entry.events.map(ev => {
+                  const isAction = (ev.type === 'action');
+                  return `
+                    <div class="p-1.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[10.5px] flex items-center justify-between gap-1.5">
+                      <div class="flex items-center gap-1.5 min-w-0 truncate">
+                        <span class="text-slate-500 font-mono text-[9px] flex-shrink-0">${ev.time}</span>
+                        <span class="text-slate-300 truncate">${escapeHtml(ev.label)}</span>
+                      </div>
+                      ${isAction ? `
+                        <div class="flex items-center gap-1 flex-shrink-0 text-[10px]">
+                          <button onclick="rateDiaryAction('${entry.id}', '${ev.id}', 'top', 'like')" class="p-1 hover:scale-110 ${ev.ratings?.top === 'like' ? 'opacity-100' : 'opacity-40'}">👍 (Top)</button>
+                          <button onclick="rateDiaryAction('${entry.id}', '${ev.id}', 'sub', 'like')" class="p-1 hover:scale-110 ${ev.ratings?.sub === 'like' ? 'opacity-100' : 'opacity-40'}">👍 (Sub)</button>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function rateDiaryAction(sessionId, eventId, who, val) {
+      let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      const session = diary.find(d => d.id === sessionId);
+      if (session && session.events) {
+        const ev = session.events.find(e => e.id === eventId);
+        if (ev) {
+          if (!ev.ratings) ev.ratings = { top: null, sub: null };
+          ev.ratings[who] = (ev.ratings[who] === val) ? null : val;
+          localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+          renderDiaryListHtml();
+        }
+      }
+    }
+
+    function deleteDiaryEntry(id) {
+      let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      diary = diary.filter(d => d.id !== id);
+      localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+      renderDiaryListHtml();
+      initAverageTimerDuration();
+      showToast("Eintrag aus dem Logbuch gelöscht");
+    }
+
+    function openSessionSafetyCodexModal() {
+      alertSafe("Sicherheits-Kodex: Ampelsystem (Grün/Gelb/Rot) & Drop-Tuch bei Knebelung verbindlich vereinbart.");
+    }
+
+    function openTabuModal() {
+      alertSafe("Akute Tabus sind aktiv geschützt. Keine Handlungen aus Note 1 werden vorgeschlagen.");
+    }
+
+    function showToast(msg) {
+      const c = document.getElementById('toast-container');
+      if (!c) return;
+      const el = document.createElement('div');
+      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+      el.innerText = msg;
+      c.appendChild(el);
+
+      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+      setTimeout(() => {
+        el.classList.add('opacity-0');
+        setTimeout(() => { el.remove(); }, 300);
+      }, 2500);
+    }
+
+    function alertSafe(msg) {
+      showToast(msg);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSessionApp();
+    });
+  </script>
+</body>
+</html>
