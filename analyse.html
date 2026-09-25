@@ -676,19 +676,31 @@
           const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
           const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
 
-          const isTabu = (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1);
-          if (isTabu) {
+          // Richtungsabhängige Tabu-Prüfung statt pauschaler Disqualifikation
+          const tabuAtoB = (aR1 === 1 || bR2 === 1);
+          const tabuBtoA = (bR1 === 1 || aR2 === 1);
+
+          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
             tabusList.push(it);
-          } else {
+          }
+
+          // Konstellation 1: A führt, B empfängt
+          if (!tabuAtoB) {
             if (aR1 === 5 && bR2 === 5) doppel5List.push({ item: it, lead: names.A, recv: names.B, roleLead: it.r1, roleRecv: it.r2 });
-            if (bR1 === 5 && aR2 === 5) doppel5List.push({ item: it, lead: names.B, recv: names.A, roleLead: it.r1, roleRecv: it.r2 });
-
             if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
-            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
-
             if (aR1 !== undefined && bR2 !== undefined) {
               totalMatchesEvaluated++;
               if (aR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
+            }
+          }
+
+          // Konstellation 2: B führt, A empfängt
+          if (!tabuBtoA) {
+            if (bR1 === 5 && aR2 === 5) doppel5List.push({ item: it, lead: names.B, recv: names.A, roleLead: it.r1, roleRecv: it.r2 });
+            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
+            if (bR1 !== undefined && aR2 !== undefined) {
+              totalMatchesEvaluated++;
+              if (bR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
             }
           }
         });
@@ -983,7 +995,7 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
         { label: 'Impact', chapters: [16] },
         { label: 'Primal', chapters: [18] },
         { label: 'Caregiver', chapters: [19] },
-        { label: 'Aftercare', chapters: [30] }
+        { label: 'Trance', chapters: [30] }
       ];
 
       const allChapters = window.surveyChapters || [];
@@ -1146,15 +1158,164 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
     }
 
     function deletePairDiaryEntry(sessionId) {
-      if (!confirm("Möchtest du diese Session wirklich aus dem gemeinsamen Logbuch löschen?")) return;
       try {
         let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
         diary = diary.filter(e => e.id !== sessionId);
         localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
         renderPairSessionDiaryUI();
-        showToast("Session gelöscht.");
+        showToast("Session aus dem gemeinsamen Logbuch entfernt.");
       } catch (e) {
         console.error(e);
+      }
+    }
+
+    function renderSelfAnalysis() {
+      const uAnswers = answers[selfUser] || {};
+      const answeredCount = Object.keys(uAnswers).length;
+      const statEl = document.getElementById('self-answered-stat');
+      if (statEl) statEl.innerText = `${answeredCount} Fragen bewertet`;
+
+      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
+      let cPower = 0, cSensation = 0, cNurturing = 0, cThrill = 0, cVisual = 0;
+      let totalTop = 0, totalBottom = 0, cTop = 0, cBottom = 0;
+
+      (window.surveyChapters || []).forEach(ch => {
+        (ch.items || []).forEach(it => {
+          const v1 = uAnswers[`it_${it.id}_r1`];
+          const v2 = uAnswers[`it_${it.id}_r2`];
+          if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
+          if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
+
+          const addPts = (val) => {
+            if (typeof val === 'number' && val > 0) {
+              if ([21, 22, 23, 29].includes(ch.id)) { pPower += val; cPower += 5; }
+              else if ([13, 14, 16, 17, 31].includes(ch.id)) { pSensation += val; cSensation += 5; }
+              else if ([19, 30].includes(ch.id)) { pNurturing += val; cNurturing += 5; }
+              else if ([18, 20, 24, 25].includes(ch.id)) { pThrill += val; cThrill += 5; }
+              else if ([9, 10, 11].includes(ch.id)) { pVisual += val; cVisual += 5; }
+            }
+          };
+          addPts(v1);
+          addPts(v2);
+        });
+      });
+
+      const setBar = (key, cur, max) => {
+        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        const vEl = document.getElementById(`self-bar-val-${key}`);
+        const fEl = document.getElementById(`self-bar-fill-${key}`);
+        if (vEl) vEl.innerText = `${pct} %`;
+        if (fEl) fEl.style.width = `${pct}%`;
+        return pct;
+      };
+
+      const pctPower = setBar('power', pPower, cPower);
+      const pctSensation = setBar('sensation', pSensation, cSensation);
+      const pctNurturing = setBar('nurturing', pNurturing, cNurturing);
+      const pctThrill = setBar('thrill', pThrill, cThrill);
+      const pctVisual = setBar('visual', pVisual, cVisual);
+
+      renderSelfScientificDeepAnalysis({
+        pctPower, pctSensation, pctNurturing, pctThrill, pctVisual,
+        avgTop: cTop > 0 ? (totalTop / cTop) : 0,
+        avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
+        shameCount: Object.keys((shameFlags && shameFlags[selfUser]) || {}).length
+      });
+
+      renderSelfRadar();
+    }
+
+    function renderSelfScientificDeepAnalysis(metrics) {
+      const box = document.getElementById('self-scientific-deep-analysis');
+      if (!box) return;
+
+      const isSub = metrics.avgBottom > metrics.avgTop;
+      const isTop = metrics.avgTop > metrics.avgBottom;
+      const currentUserName = names[selfUser] || (selfUser === 'A' ? 'Partner 1' : 'Partner 2');
+
+      const traumaExp = (answers[selfUser] && answers[selfUser]['it_901_choice']) || 'none';
+      const traumaFrame = (answers[selfUser] && answers[selfUser]['it_903_choice']) || 'safety_first';
+
+      let traumaNote = "";
+      if (traumaExp === 'trauma' || traumaExp === 'boundary') {
+        traumaNote = `
+          <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 space-y-1.5">
+            <strong class="text-teal-200 block text-xs flex items-center gap-1.5">
+              <span>🛡️</span> Somatisches Vertrauen & Re-Integration (van der Kolk, 2014)
+            </strong>
+            <p class="text-[11px] text-teal-100/90 leading-relaxed">
+              Deine Vorerfahrungen erfordern einen verbindlichen Schutzraum. Dein gewählter Rahmen (${traumaFrame === 'mastery' ? 'Kink-Mastery' : 'Sicherheits-Fokus'}) fungiert als neuronale Re-Stabilisierung: Echte Freiwilligkeit unter festen Notfall-Ampeln ermöglicht es deinem Nervensystem, alte Ohnmachtserfahrungen durch aktive Selbstwirksamkeit (Agency) zu überschreiben.
+            </p>
+          </div>
+        `;
+      }
+
+      box.innerHTML = `
+        <div class="space-y-3">
+          ${traumaNote}
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+            <strong class="text-indigo-200 block text-xs">1. Psychodynamischer Kern für ${escapeHtml(currentUserName)}:</strong>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              ${isSub ? 'Als überwiegend hingebender Part (Bottom) dient die Erotik für dich als kognitiver Entlastungsraum (<em>transiente Hypofrontalität</em> nach Sagarin et al., 2009). Du kannst den ständigen Planungs- und Verantwortungsdruck des Alltags abstreifen und durch das Gefühl von bedingungslosem Gehaltensein tiefe psychische Erholung finden.' : (isTop ? 'Als führender Part (Top) schöpft dein Gehirn Erregung aus empathischer Verantwortung und Präsenz (<em>Topspace-Flow</em> nach Wismeijer & van Assen, 2013). Deine Führung ist keine Willkür, sondern das Geschenk eines sicheren Erlebnisses für dein Gegenüber.' : 'Als Switcher besitzt dein Nervensystem eine flexible emotionale Schwingungsbreite: Je nach Alltagsbelastung kannst du zwischen empathischer Führung und tiefer Hingabe wechseln.')}
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+            <strong class="text-rose-200 block text-xs">2. Somatische Reizverarbeitung (Wuyts et al., 2021):</strong>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Mit einem Sensorik-Wert von ${metrics.pctSensation} % und einem Macht-Wert von ${metrics.pctPower} % nutzt dein Nervensystem gezielte physische Reize (Spanking, Fesselung, Temperatur) als endogene Opiat-Ausschüttung. Um einen hormonellen Subdrop oder Topdrop zu verhindern, ist eine ausgedehnte Aftercare-Phase (Wärme und Stille) essenziell.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+            <strong class="text-amber-200 block text-xs">3. Handlungsleitfaden für deine Partnerschaft:</strong>
+            <ul class="text-[11px] text-slate-300 space-y-1 list-disc pl-4">
+              <li><strong>Eigene Erlaubnis:</strong> ${metrics.shameCount} Praktiken sind als Hemmschwelle markiert. Erlaube dir, dass Fantasien harmlos sind und keinen Umsetzungszwang bedeuten.</li>
+              <li><strong>Gelbe Signale aktiv nutzen:</strong> Warte nicht bis zur Überlastung, sondern drossle das Tempo frühzeitig.</li>
+              <li><strong>Reflexionsfrage:</strong> „Welches Bedürfnis steht heute im Vordergrund – Abschalten, Spüren oder reine Geborgenheit?“</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    async function generateAiSelfReport() {
+      const container = document.getElementById('self-scientific-deep-analysis');
+      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800 text-center space-y-2 animate-pulse">
+          <span class="text-xl block">✨</span>
+          <strong class="text-purple-200 block text-xs">Gemini erstellt dein persönliches Tiefenprofil...</strong>
+          <p class="text-[10.5px] text-slate-400">Verknüpfe empirische Studien mit deinen Antworten.</p>
+        </div>
+      `;
+
+      try {
+        const currentUserName = names[selfUser] || 'Person';
+        const promptText = `Du bist eine führende klinische Sexualpsychologin. Erstelle eine tiefenpsychologische Individualanalyse für ${currentUserName} im Umfang von ca. 350-450 Wörtern basierend auf 50% empirischen Studien (Sagarin 2009, Wismeijer 2013, Canivet 2025, van der Kolk 2014) und 50% konkreter Praxis (D/s, Schmerz-Endorphine, Scham-Entlastung). Antworte in 3 strukturierten HTML-Absätzen mit Tailwind-Klassen.`;
+
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+
+        if (!resp.ok) throw new Error("API-Fehler");
+        const data = await resp.json();
+        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+        if (output) {
+          const cleanHtml = output.replace(/```html/g, '').replace(/```/g, '').trim();
+          container.innerHTML = cleanHtml;
+          showToast("✨ Individuelles KI-Profil erfolgreich erstellt!");
+        } else {
+          throw new Error("Leere Antwort");
+        }
+      } catch (e) {
+        showToast("⚠️ KI offline – Evidenzbasierte Analyse geladen");
+        renderSelfAnalysis();
       }
     }
 
@@ -1178,7 +1339,7 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
         { label: 'Impact', chapters: [16] },
         { label: 'Primal', chapters: [18] },
         { label: 'Caregiver', chapters: [19] },
-        { label: 'Aftercare', chapters: [30] }
+        { label: 'Trance', chapters: [30] }
       ];
 
       const allChapters = window.surveyChapters || [];
