@@ -1,4 +1,4 @@
-// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass (Vollständig, gehärtet & fehlerfrei)
+// js/app.js - Master-Anwendungslogik für den Kink- & Beziehungs-Kompass mit Start-Hub & KI-Zentrale
 
 let currentUser = 'A';
 let currentChapterIndex = 0;
@@ -67,19 +67,6 @@ let safetyConfig = {
     checkin_24h: 'checkin_mandatory'
   }
 };
-
-window.lexikonData = window.lexikonData || [
-  { term: "Shibari", def: "Traditionelle japanische Seilfesselkunst mit Schwerpunkt auf Ästhetik, Linienführung und achtsamer Verbindung.", link: "https://de.wikipedia.org/wiki/Shibari" },
-  { term: "Subspace", def: "Neurobiologischer Trancezustand des Loslassens durch Endorphinausschüttung und transiente Hypofrontalität.", link: "https://de.wikipedia.org/wiki/BDSM#Subspace" },
-  { term: "Topspace", def: "Zustand fokussierter Flow-Konzentration und hoher empathischer Aufmerksamkeit beim führenden Part.", link: "https://de.wikipedia.org/wiki/BDSM" },
-  { term: "SSC", def: "Safe, Sane, Consensual – Ethischer Grundsatz für Sicherheit, geistige Klarheit und Freiwilligkeit.", link: "https://de.wikipedia.org/wiki/Safe,_Sane,_Consensual" },
-  { term: "RACK", def: "Risk-Aware Consensual Kink – Einvernehmliches Ausleben von Risiken unter voller Transparenz.", link: "https://de.wikipedia.org/wiki/BDSM" },
-  { term: "Aftercare", def: "Fürsorgliche Phase nach der Session zum Auffangen des Hormonabfalls (Körperwärme, Tee, Geborgenheit).", link: "https://de.wikipedia.org/wiki/Aftercare_(BDSM)" },
-  { term: "Edging", def: "Heranführen an die Schwelle des Orgasmus mit anschließendem bewussten Abstoppen zur Luststeigerung.", link: "https://de.wikipedia.org/wiki/Edging" },
-  { term: "Praise Play", def: "Erotische Bestätigung und verbale Zuwendung ('Braves Mädchen / Guter Junge') als Belohnung.", link: "https://de.wikipedia.org/wiki/BDSM" },
-  { term: "Chastity", def: "Freiwillige Keuschhaltung und Abgabe der Orgasmuskontrolle durch Käfige oder Zeittresore.", link: "https://de.wikipedia.org/wiki/Keuschheitsg%C3%BCrtel" },
-  { term: "CNC", def: "Consensual Non-Consent – Einvernehmlich inszenierte Überwältigungsspiele unter strikten Safewords.", link: "https://de.wikipedia.org/wiki/BDSM" }
-];
 
 const safetyModulesData = [
   {
@@ -350,23 +337,7 @@ function initApp() {
   renderQuickGrid();
   updateProgressBar();
   updateTabuBadge();
-}
-
-function verifySitePassword() {
-  const input = document.getElementById('site-pw-input');
-  const err = document.getElementById('pw-error-hint');
-  const lock = document.getElementById('site-lockscreen');
-  if (!input) return;
-
-  if (input.value.trim() === 'Bommelchen!') {
-    sessionStorage.setItem('kompass_unlocked', 'true');
-    if (lock) lock.classList.add('hidden');
-    if (err) err.classList.add('hidden');
-    showToast("Erfolgreich entsperrt!");
-    checkOnboardingStatus();
-  } else {
-    if (err) err.classList.remove('hidden');
-  }
+  if (typeof updateHubUI === 'function') updateHubUI();
 }
 
 function saveToLocalStorage() {
@@ -419,9 +390,12 @@ function loadFromLocalStorage() {
 function checkUrlHashData() {
   const hash = window.location.hash || '';
 
-  // 1. Direkte Ansichten-Navigation via Hash (#view=survey, #view=safety, #view=single)
+  // 1. Direkte Ansichten-Navigation via Hash (#view=hub, #view=survey, #view=safety, #view=single)
   if (hash.includes('view=')) {
-    if (hash.includes('view=safety')) {
+    if (hash.includes('view=hub')) {
+      switchMainView('hub');
+      return;
+    } else if (hash.includes('view=safety')) {
       switchMainView('safety');
       return;
     } else if (hash.includes('view=single')) {
@@ -461,34 +435,46 @@ function checkUrlHashData() {
 }
 
 function switchMainView(viewId) {
+  const viewHub = document.getElementById('view-hub');
   const viewSurvey = document.getElementById('view-survey');
   const viewSafety = document.getElementById('view-safety');
   const viewSingle = document.getElementById('view-single');
 
+  const btnHub = document.getElementById('nav-btn-hub');
   const btnSurvey = document.getElementById('nav-btn-survey');
   const btnSafety = document.getElementById('nav-btn-safety');
   const btnSingle = document.getElementById('nav-btn-single');
 
+  // Alle Ansichten ausblenden
+  if (viewHub) viewHub.classList.add('hidden');
   if (viewSurvey) viewSurvey.classList.add('hidden');
   if (viewSafety) viewSafety.classList.add('hidden');
   if (viewSingle) viewSingle.classList.add('hidden');
 
-  if (btnSurvey) btnSurvey.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
-  if (btnSafety) btnSafety.className = "px-3 py-1.5 rounded-lg text-teal-400 hover:text-teal-200 transition font-bold flex items-center gap-1";
-  if (btnSingle) btnSingle.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+  // Alle Nav-Buttons zurücksetzen
+  const inactiveBtnClass = "px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
+  if (btnHub) btnHub.className = inactiveBtnClass;
+  if (btnSurvey) btnSurvey.className = inactiveBtnClass;
+  if (btnSafety) btnSafety.className = "px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
+  if (btnSingle) btnSingle.className = inactiveBtnClass;
 
-  if (viewId === 'survey') {
+  if (viewId === 'hub') {
+    if (viewHub) viewHub.classList.remove('hidden');
+    if (btnHub) btnHub.className = "px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
+    if (typeof updateHubUI === 'function') updateHubUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (viewId === 'survey') {
     if (viewSurvey) viewSurvey.classList.remove('hidden');
-    if (btnSurvey) btnSurvey.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition";
+    if (btnSurvey) btnSurvey.className = "px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
     renderCurrentChapter();
   } else if (viewId === 'safety') {
     if (viewSafety) viewSafety.classList.remove('hidden');
-    if (btnSafety) btnSafety.className = "px-3 py-1.5 rounded-lg bg-teal-800 text-white shadow-sm transition font-bold flex items-center gap-1";
+    if (btnSafety) btnSafety.className = "px-3 py-1.5 rounded-xl bg-teal-800 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
     renderSafetyConfiguratorUI();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else if (viewId === 'single') {
     if (viewSingle) viewSingle.classList.remove('hidden');
-    if (btnSingle) btnSingle.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white shadow-sm transition";
+    if (btnSingle) btnSingle.className = "px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
     renderSingleAnalysis();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -502,6 +488,7 @@ function setCurrentUser(user) {
   updateProgressBar();
   updateTabuBadge();
   checkOnboardingStatus();
+  if (typeof updateHubUI === 'function') updateHubUI();
   showToast(`Aktives Profil: ${names[user] || user}`);
 }
 
@@ -520,15 +507,13 @@ function updateCurrentUserUI() {
   if (dispB) dispB.innerText = `${names.B} (${anatIconB})`;
 
   if (u === 'A') {
-    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs";
-    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs touch-btn";
+    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-400 hover:text-white touch-btn";
   } else {
-    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-purple-700 shadow-xs";
-    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+    if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-purple-700 shadow-xs touch-btn";
+    if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-400 hover:text-white touch-btn";
   }
 
-  const emptyName = document.getElementById('empty-state-username');
-  if (emptyName) emptyName.innerText = names[u];
   const singleName = document.getElementById('single-profile-name');
   if (singleName) singleName.innerText = names[u];
 }
@@ -542,115 +527,6 @@ function checkOnboardingStatus() {
     if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
     accounts[u].setupDone = true;
     saveToLocalStorage();
-    return;
-  }
-
-  openOnboardingModal();
-}
-
-function openOnboardingModal() {
-  onboardingStep = 1;
-  const title = document.getElementById('onboarding-user-title');
-  if (title) title.innerText = names[currentUser];
-  const nameInput = document.getElementById('onboarding-name-input');
-  if (nameInput) nameInput.value = names[currentUser];
-  selectOnboardingAnatomy(anatomy[currentUser] || (currentUser === 'A' ? 'penis' : 'vulva'));
-  updateOnboardingStepUI();
-  const m = document.getElementById('modal-onboarding');
-  if (m) m.classList.remove('hidden');
-}
-
-function closeOnboardingModal() {
-  const u = currentUser;
-  if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
-  accounts[u].setupDone = true;
-  saveToLocalStorage();
-
-  const m = document.getElementById('modal-onboarding');
-  if (m) m.classList.add('hidden');
-}
-
-function selectOnboardingAnatomy(anat) {
-  anatomy[currentUser] = anat;
-  const pBtn = document.getElementById('onboarding-anat-penis');
-  const vBtn = document.getElementById('onboarding-anat-vulva');
-  if (!pBtn || !vBtn) return;
-
-  if (anat === 'penis') {
-    pBtn.className = "flex-1 p-3 rounded-2xl border bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs text-left touch-pill";
-    vBtn.className = "flex-1 p-3 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700 text-left touch-pill hover:bg-slate-100";
-  } else {
-    vBtn.className = "flex-1 p-3 rounded-2xl border bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs text-left touch-pill";
-    pBtn.className = "flex-1 p-3 rounded-2xl border bg-slate-50 border-slate-200 text-slate-700 text-left touch-pill hover:bg-slate-100";
-  }
-}
-
-function updateOnboardingStepUI() {
-  const s1 = document.getElementById('onboarding-step-1');
-  const s2 = document.getElementById('onboarding-step-2');
-  const s3 = document.getElementById('onboarding-step-3');
-  const s4 = document.getElementById('onboarding-step-4');
-  const prevBtn = document.getElementById('onboarding-btn-prev');
-  const nextBtn = document.getElementById('onboarding-btn-next');
-  const ind = document.getElementById('onboarding-step-indicator');
-
-  if (ind) ind.innerText = `Schritt ${onboardingStep} von 4`;
-
-  [s1, s2, s3, s4].forEach(s => { if (s) s.classList.add('hidden'); });
-
-  if (onboardingStep === 1) {
-    if (s1) s1.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.add('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
-  } else if (onboardingStep === 2) {
-    if (s2) s2.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
-  } else if (onboardingStep === 3) {
-    if (s3) s3.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Weiter →";
-  } else if (onboardingStep === 4) {
-    if (s4) s4.classList.remove('hidden');
-    if (prevBtn) prevBtn.classList.remove('hidden');
-    if (nextBtn) nextBtn.innerText = "Fertig & Starten ✨";
-  }
-}
-
-function prevOnboardingStep() {
-  if (onboardingStep > 1) {
-    onboardingStep--;
-    updateOnboardingStepUI();
-  }
-}
-
-function nextOnboardingStep() {
-  if (onboardingStep < 4) {
-    onboardingStep++;
-    updateOnboardingStepUI();
-  } else {
-    const u = currentUser;
-    const nameInput = document.getElementById('onboarding-name-input');
-    if (nameInput && nameInput.value.trim()) {
-      names[u] = nameInput.value.trim();
-    }
-    const emailInput = document.getElementById('onboarding-email-input');
-    if (emailInput && emailInput.value.trim()) {
-      if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
-      accounts[u].email = emailInput.value.trim();
-    }
-    const privRadios = document.getElementsByName('onboarding-privacy');
-    let privMode = 'blind';
-    privRadios.forEach(r => { if (r.checked) privMode = r.value; });
-    if (!privacy[u]) privacy[u] = { mode: 'blind', shareNotes: true };
-    privacy[u].mode = privMode;
-    if (!accounts[u]) accounts[u] = { email: '', partnerEmail: '', setupDone: true };
-    accounts[u].setupDone = true;
-    saveToLocalStorage();
-    closeOnboardingModal();
-    updateCurrentUserUI();
-    renderCurrentChapter();
-    showToast("Setup abgeschlossen! Viel Freude mit dem Kompass ✨");
   }
 }
 
@@ -678,40 +554,28 @@ function setSurveyFilter(filter) {
     const btn = document.getElementById(`filter-btn-${f}`);
     if (btn) {
       if (f === filter) {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs transition whitespace-nowrap";
+        btn.className = "px-2.5 py-1 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition whitespace-nowrap touch-btn";
       } else {
-        btn.className = "px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition whitespace-nowrap";
+        btn.className = "px-2.5 py-1 rounded-xl font-bold theme-panel border text-slate-300 hover:text-white transition whitespace-nowrap touch-btn";
       }
 
       if (f === 'unanswered') {
         if (isComplete) {
           btn.innerHTML = `✓ Alle beantwortet`;
-          btn.title = "Alle Fragen im Bogen sind vollständig beantwortet";
         } else if (prog.pct >= 30) {
           btn.innerHTML = `⚡ Unbeantwortet (Global)`;
-          btn.title = "Zeigt alle noch offenen Fragen aus allen Kapiteln gebündelt an";
         } else {
           btn.innerHTML = `⏳ Unbeantwortet`;
-          btn.title = "Zeigt offene Fragen des aktuellen Kapitels (ab 30 % global für alle Kapitel)";
         }
       } else if (f === 'high') {
         btn.innerHTML = isComplete ? `⭐ 4–5 Favoriten (Global)` : `⭐ 4–5 Favoriten`;
-        btn.title = isComplete ? "Alle Favoriten aus allen 35 Kapiteln gebündelt" : "Favoriten des aktuellen Kapitels";
       } else if (f === 'tabu') {
         btn.innerHTML = isComplete ? `⛔ Tabus (Global)` : `⛔ Tabus (1)`;
-        btn.title = isComplete ? "Alle Tabus aus allen 35 Kapiteln gebündelt" : "Tabus des aktuellen Kapitels";
       } else if (f === 'shame') {
         btn.innerHTML = isComplete ? `🙈 Hemmschwellen (Global)` : `🙈 Hemmschwelle`;
-        btn.title = isComplete ? "Alle Hemmschwellen aus allen 35 Kapiteln gebündelt" : "Hemmschwellen des aktuellen Kapitels";
       }
     }
   });
-
-  if (filter === 'unanswered' && prog.pct >= 30 && !isComplete) {
-    showToast("⚡ Global-Filter aktiv: Alle noch offenen Fragen aus allen Kapiteln");
-  } else if (isComplete && filter !== 'all') {
-    showToast(`🌐 Global-Filter aktiv: Alle ${filter === 'high' ? 'Favoriten' : (filter === 'tabu' ? 'Tabus' : (filter === 'shame' ? 'Hemmschwellen' : 'Punkte'))} aus allen Kapiteln`);
-  }
 
   renderCurrentChapter();
 }
@@ -731,13 +595,11 @@ function renderCurrentChapter() {
   const uNotes = (notes && notes[currentUser]) || {};
   const isComplete = (prog.pct >= 100 || (prog.total > 0 && prog.answered >= prog.total));
 
-  // 1. Wenn 100 % fertig und ein Filter aktiv ist (Favoriten, Tabus, Hemmschwellen): GLOBAL RENDERN!
   if (isComplete && activeSurveyFilter !== 'all') {
     renderGlobalFilteredView(prog, uAnswers, uShame, uNotes, activeSurveyFilter);
     return;
   }
 
-  // 2. Wenn ab 30 % der Unbeantwortet-Filter gewählt wurde: GLOBAL RENDERN!
   if (activeSurveyFilter === 'unanswered' && prog.pct >= 30) {
     renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes);
     return;
@@ -751,7 +613,7 @@ function renderCurrentChapter() {
   const desc = document.getElementById('chapter-desc');
   const count = document.getElementById('chapter-items-count');
 
-  if (badge) badge.innerText = `Kapitel ${currentChapterIndex + 1} / ${surveyChapters.length}`;
+  if (badge) badge.innerText = `Kapitel ${ch.id} / ${surveyChapters.length - 1} ▾`;
   if (title) title.innerText = ch.title || '';
   if (desc) desc.innerText = ch.desc || '';
   if (count) count.innerText = `${(ch.items || []).length} Praktiken`;
@@ -816,9 +678,9 @@ function renderCurrentChapter() {
 
   if (filteredItems.length === 0) {
     html = `
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-500 space-y-2">
+      <div class="theme-card border rounded-2xl p-6 text-center text-xs text-slate-400 space-y-2">
         <p>Keine Praktiken für diesen Filter in diesem Kapitel gefunden.</p>
-        <button onclick="setSurveyFilter('all')" class="px-3 py-1.5 bg-brand-600 text-white rounded-xl font-bold">Alle anzeigen</button>
+        <button onclick="setSurveyFilter('all')" class="px-3 py-1.5 bg-brand-600 text-white rounded-xl font-bold touch-btn">Alle anzeigen</button>
       </div>
     `;
   } else {
@@ -827,239 +689,29 @@ function renderCurrentChapter() {
     });
   }
 
+  // Traumasensible Reflexion
   const currentRefl = (chapterReflections[currentUser] && chapterReflections[currentUser][ch.id]) || '';
   html += `
-    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2 mt-4">
+    <div class="theme-card border rounded-2xl p-4 shadow-xs space-y-2 mt-4">
       <div class="flex items-center justify-between">
-        <strong class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-          <span>💬</span> Persönliche Reflexion zu Kapitel ${currentChapterIndex + 1}
+        <strong class="text-xs font-bold text-white flex items-center gap-1.5">
+          <span>💬</span> Persönliche Reflexion zu Kapitel ${ch.id}
         </strong>
         <span class="text-[10px] text-slate-400">Optional</span>
       </div>
-      <textarea onchange="recordChapterReflection(${ch.id}, this.value)" placeholder="Gibt es zu diesem Kapitel Gedanken, Bedingungen oder Fantasien, die du in eigenen Worten festhalten willst?..." class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 h-20">${escapeHtml(currentRefl)}</textarea>
+      <textarea onchange="recordChapterReflection(${ch.id}, this.value)" placeholder="Gedanken, Bedingungen oder persönliche Grenzen, die du festhalten willst?..." class="w-full text-xs p-3 theme-panel border rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 h-20 text-white">${escapeHtml(currentRefl)}</textarea>
     </div>
 
-    <div class="p-3 bg-indigo-50/60 border border-indigo-200 rounded-2xl flex items-center justify-between gap-3 text-xs">
+    <div class="p-3 bg-indigo-950/40 border border-indigo-800/80 rounded-2xl flex items-center justify-between gap-3 text-xs">
       <div class="flex items-center gap-2">
         <span class="text-lg">➕</span>
-        <span class="text-indigo-950 font-bold">Fehlt dir hier eine bestimmte Praktik?</span>
+        <span class="text-indigo-200 font-bold">Fehlt dir hier eine bestimmte Praktik?</span>
       </div>
-      <button type="button" onclick="openAddCustomKinkModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs transition touch-pill">
+      <button type="button" onclick="openAddCustomKinkModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xs transition touch-btn">
         Eigenen Kink hinzufügen
       </button>
     </div>
   `;
-
-  container.innerHTML = html;
-}
-
-// GENERALISIERTER GLOBAL-FILTER FÜR 100% ABGESCHLOSSENE FRAGEBÖGEN
-function renderGlobalFilteredView(prog, uAnswers, uShame, uNotes, filterType) {
-  const container = document.getElementById('survey-items-container');
-  if (!container) return;
-
-  const badge = document.getElementById('chapter-badge');
-  const title = document.getElementById('chapter-title');
-  const desc = document.getElementById('chapter-desc');
-  const count = document.getElementById('chapter-items-count');
-
-  let matches = [];
-  (window.surveyChapters || []).forEach((ch, chIdx) => {
-    (ch.items || []).forEach(it => {
-      const vR1 = uAnswers[`it_${it.id}_r1`];
-      const vR2 = uAnswers[`it_${it.id}_r2`];
-      const isShame = !!uShame[it.id];
-
-      let isMatch = false;
-      if (filterType === 'high') {
-        isMatch = (vR1 !== undefined && vR1 >= 4) || (vR2 !== undefined && vR2 >= 4);
-      } else if (filterType === 'tabu') {
-        isMatch = (vR1 === 1 || vR2 === 1);
-      } else if (filterType === 'shame') {
-        isMatch = (isShame === true);
-      } else if (filterType === 'unanswered') {
-        isMatch = (it.type === 'choice') ? (uAnswers[`it_${it.id}_choice`] === undefined) : (vR1 === undefined || vR2 === undefined);
-      }
-
-      if (isMatch) {
-        if (surveySearchQuery) {
-          const matchTitle = (it.title || '').toLowerCase().includes(surveySearchQuery);
-          const matchDesc = (it.desc || '').toLowerCase().includes(surveySearchQuery);
-          if (!matchTitle && !matchDesc) return;
-        }
-        matches.push({ chapter: ch, chapterIndex: chIdx, item: it });
-      }
-    });
-  });
-
-  const filterMeta = {
-    high: { icon: "⭐", name: "Favoriten (Note 4–5)", bannerBg: "from-emerald-950/60 to-emerald-900/40 border-emerald-800 text-emerald-200" },
-    tabu: { icon: "⛔", name: "Persönliche Tabus (Note 1)", bannerBg: "from-rose-950/60 to-rose-900/40 border-rose-800 text-rose-200" },
-    shame: { icon: "🙈", name: "Hemmschwellen", bannerBg: "from-purple-950/60 to-purple-900/40 border-purple-800 text-purple-200" },
-    unanswered: { icon: "⚡", name: "Offene Fragen", bannerBg: "from-amber-950/60 to-amber-900/40 border-amber-800 text-amber-200" }
-  };
-  const meta = filterMeta[filterType] || filterMeta.high;
-
-  if (badge) badge.innerText = `🌐 Global-Filter (100 % fertig)`;
-  if (title) title.innerText = `${meta.icon} Alle ${meta.name} über alle 35 Kapitel`;
-  if (desc) desc.innerText = `Da du den Bogen vollständig ausgefüllt hast, siehst du hier deine gesamte ${meta.name}-Sammlung aus allen 35 Kapiteln gebündelt in einer Übersicht.`;
-  if (count) count.innerText = `${matches.length} Treffer`;
-
-  const prevBtn = document.getElementById('btn-prev-chapter');
-  const nextBtn = document.getElementById('btn-next-chapter');
-  const nextBtnBottom = document.getElementById('btn-next-chapter-bottom');
-
-  if (prevBtn) {
-    prevBtn.disabled = false;
-    prevBtn.innerText = "← Zurück zur Kapitelansicht";
-    prevBtn.onclick = () => setSurveyFilter('all');
-  }
-  if (nextBtn) {
-    nextBtn.innerText = "Zurück zur Kapitelansicht →";
-    nextBtn.onclick = () => setSurveyFilter('all');
-  }
-  if (nextBtnBottom) {
-    nextBtnBottom.innerText = "Zurück zur Kapitelansicht →";
-    nextBtnBottom.onclick = () => setSurveyFilter('all');
-  }
-
-  if (matches.length === 0) {
-    container.innerHTML = `
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-3 shadow-xs">
-        <span class="text-3xl block">${meta.icon}</span>
-        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Keine Treffer für ${meta.name}</h3>
-        <p class="text-xs text-slate-500">Es wurden keine Praktiken mit diesem Kriterium im gesamten Fragebogen gefunden.</p>
-        <button onclick="setSurveyFilter('all')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition touch-pill">
-          Zurück zur normalen Kapitelansicht
-        </button>
-      </div>
-    `;
-    return;
-  }
-
-  let html = `
-    <div class="p-3.5 bg-gradient-to-r ${meta.bannerBg} rounded-2xl flex items-center justify-between gap-3 text-xs mb-3 shadow-xs">
-      <div class="flex items-center gap-2.5">
-        <span class="text-2xl">${meta.icon}</span>
-        <div>
-          <strong class="text-white block">${matches.length} ${meta.name} im gesamten Bogen gefunden</strong>
-          <span class="text-[10.5px] opacity-80">Jede Karte zeigt das zugehörige Kapitel. Änderungen werden live synchronisiert.</span>
-        </div>
-      </div>
-      <button onclick="setSurveyFilter('all')" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-900 border border-slate-700 text-white font-bold rounded-xl text-xs transition touch-pill">
-        Filter beenden
-      </button>
-    </div>
-  `;
-
-  matches.forEach(({ chapter, chapterIndex, item }) => {
-    html += renderSingleItemCardHtml(item, uAnswers, uShame, uNotes, {
-      chapterName: chapter.title,
-      chapterIndex: chapterIndex
-    });
-  });
-
-  container.innerHTML = html;
-}
-
-function renderGlobalUnansweredView(prog, uAnswers, uShame, uNotes) {
-  const container = document.getElementById('survey-items-container');
-  if (!container) return;
-
-  const badge = document.getElementById('chapter-badge');
-  const title = document.getElementById('chapter-title');
-  const desc = document.getElementById('chapter-desc');
-  const count = document.getElementById('chapter-items-count');
-
-  let globalUnanswered = [];
-  (window.surveyChapters || []).forEach((ch, chIdx) => {
-    (ch.items || []).forEach(it => {
-      const vR1 = uAnswers[`it_${it.id}_r1`];
-      const vR2 = uAnswers[`it_${it.id}_r2`];
-      const vChoice = uAnswers[`it_${it.id}_choice`];
-
-      let isUnanswered = (it.type === 'choice') 
-        ? (vChoice === undefined) 
-        : (vR1 === undefined || vR2 === undefined);
-
-      if (isUnanswered) {
-        if (surveySearchQuery) {
-          const matchTitle = (it.title || '').toLowerCase().includes(surveySearchQuery);
-          const matchDesc = (it.desc || '').toLowerCase().includes(surveySearchQuery);
-          if (!matchTitle && !matchDesc) return;
-        }
-        globalUnanswered.push({ chapter: ch, chapterIndex: chIdx, item: it });
-      }
-    });
-  });
-
-  if (badge) badge.innerText = `⚡ Global-Turbo (${prog.pct} % erreicht)`;
-  if (title) title.innerText = `Alle noch offenen Fragen (Global)`;
-  if (desc) desc.innerText = `Du hast bereits über 30 % bewertet. Hier sind alle noch offenen Fragen aus allen 35 Kapiteln gebündelt, damit du sie direkt am Stück ausfüllen kannst.`;
-  if (count) count.innerText = `${globalUnanswered.length} offen`;
-
-  const prevBtn = document.getElementById('btn-prev-chapter');
-  const nextBtn = document.getElementById('btn-next-chapter');
-  const nextBtnBottom = document.getElementById('btn-next-chapter-bottom');
-
-  if (prevBtn) {
-    prevBtn.disabled = false;
-    prevBtn.innerText = "← Zurück zur Kapitelansicht";
-    prevBtn.onclick = () => setSurveyFilter('all');
-  }
-  if (nextBtn) {
-    nextBtn.innerText = "Zurück zur Kapitelansicht →";
-    nextBtn.onclick = () => setSurveyFilter('all');
-  }
-  if (nextBtnBottom) {
-    nextBtnBottom.innerText = "Zurück zur Kapitelansicht →";
-    nextBtnBottom.onclick = () => setSurveyFilter('all');
-  }
-
-  if (globalUnanswered.length === 0) {
-    container.innerHTML = `
-      <div class="bg-white border-2 border-emerald-500/40 rounded-3xl p-8 text-center space-y-4 shadow-sm">
-        <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 text-3xl mx-auto flex items-center justify-center">
-          🎉
-        </div>
-        <div class="max-w-md mx-auto space-y-1">
-          <h3 class="text-base font-extrabold text-slate-900">Fantastisch! Alle Fragen beantwortet</h3>
-          <p class="text-xs text-slate-500">Du hast keine offenen Fragen mehr im gesamten Fragebogen.</p>
-        </div>
-        <div class="flex justify-center gap-2 pt-2">
-          <button onclick="setSurveyFilter('all')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
-            Zurück zur Kapitelansicht
-          </button>
-          <button onclick="switchMainView('safety')" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-xs transition touch-pill">
-            Weiter zum Sicherheits-Kodex 🛡️ →
-          </button>
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  let html = `
-    <div class="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-center justify-between gap-3 text-xs mb-3 shadow-xs">
-      <div class="flex items-center gap-2">
-        <span class="text-lg">⚡</span>
-        <div>
-          <strong class="text-amber-950 block">Turbo-Modus aktiv (${globalUnanswered.length} offene Fragen verbleibend)</strong>
-          <span class="text-[11px] text-amber-800">Sobald du eine Frage vollständig bewertest, aktualisiert sich die Liste live.</span>
-        </div>
-      </div>
-      <button onclick="setSurveyFilter('all')" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 font-bold rounded-xl text-xs hover:bg-amber-100 transition shadow-xs">
-        Filter beenden
-      </button>
-    </div>
-  `;
-
-  globalUnanswered.forEach(({ chapter, chapterIndex, item }) => {
-    html += renderSingleItemCardHtml(item, uAnswers, uShame, uNotes, {
-      chapterName: chapter.title,
-      chapterIndex: chapterIndex
-    });
-  });
 
   container.innerHTML = html;
 }
@@ -1079,11 +731,11 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
   const adaptedR2 = adaptRoleTextToAnatomy(it.r2, 'passive');
 
   const chapterBadgeHtml = chapterContext ? `
-    <div class="mb-2 flex items-center justify-between pb-1.5 border-b border-slate-100">
-      <span class="px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
-        Kapitel ${chapterContext.chapterIndex + 1}: ${escapeHtml(chapterContext.chapterName)}
+    <div class="mb-2 flex items-center justify-between pb-1.5 border-b border-slate-800">
+      <span class="px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-indigo-950 text-indigo-300 border border-indigo-800">
+        Kapitel ${chapterContext.chapterId}: ${escapeHtml(chapterContext.chapterName)}
       </span>
-      <button type="button" onclick="jumpToChapter(${chapterContext.chapterIndex})" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold">
+      <button type="button" onclick="jumpToChapter(${chapterContext.chapterIndex})" class="text-[10px] text-slate-400 hover:text-indigo-400 font-bold">
         Zu diesem Kapitel ↗
       </button>
     </div>
@@ -1091,15 +743,15 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
 
   if (it.type === 'choice') {
     return `
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+      <div class="theme-card border rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
         ${chapterBadgeHtml}
         <div class="flex items-start justify-between gap-2">
           <div>
-            <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
-            <span class="block text-xs font-bold text-slate-800 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
+            <span class="font-extrabold text-xs text-white">${it.id}. ${escapeHtml(it.title)}</span>
+            <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
+            <span class="block text-xs font-bold text-slate-200 mt-2">${escapeHtml(it.question || 'Deine Haltung:')}</span>
           </div>
-          <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10.5px] text-slate-400 hover:text-brand-600 font-bold whitespace-nowrap p-1">
+          <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10.5px] text-slate-400 hover:text-brand-400 font-bold whitespace-nowrap p-1 touch-btn">
             📖 Lexikon
           </button>
         </div>
@@ -1109,7 +761,7 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
             const isChecked = (valChoice === opt.val);
             return `
               <button type="button" onclick="recordChoiceAnswer(${it.id}, '${opt.val}')" 
-                      class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isChecked ? 'bg-brand-50 border-brand-500 text-brand-950 font-bold shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}">
+                      class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-btn ${isChecked ? 'bg-brand-950 border-brand-500 text-white font-bold shadow-xs' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700'}">
                 ${opt.label}
               </button>
             `;
@@ -1117,8 +769,8 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
         </div>
 
         <div class="flex items-center gap-2 pt-1">
-          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="flex-1 text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-          <button type="button" onclick="toggleShameFlag(${it.id})" title="Hemmschwelle markieren" class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${isShame ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'}">
+          <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Persönliche Bedingung / Notiz (optional)..." class="flex-1 text-[11px] theme-panel border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500">
+          <button type="button" onclick="toggleShameFlag(${it.id})" title="Hemmschwelle markieren" class="px-2.5 py-2 rounded-xl text-xs font-bold border transition touch-btn ${isShame ? 'bg-purple-950 border-purple-500 text-purple-200' : 'theme-panel text-slate-400 hover:text-white'}">
             🙈 <span class="hidden sm:inline text-[10px]">Hemmschwelle</span>
           </button>
         </div>
@@ -1127,40 +779,40 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
   }
 
   return `
-    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+    <div class="theme-card border rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
       ${chapterBadgeHtml}
       <div class="flex items-start justify-between gap-2">
         <div>
-          <span class="font-extrabold text-xs text-slate-900">${it.id}. ${escapeHtml(it.title)}</span>
-          <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
+          <span class="font-extrabold text-xs text-white">${it.id}. ${escapeHtml(it.title)}</span>
+          <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(it.desc)}</p>
         </div>
-        <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10.5px] text-slate-400 hover:text-brand-600 font-bold whitespace-nowrap p-1">
+        <button type="button" onclick="openLexikonForItem(${it.id})" class="text-[10.5px] text-slate-400 hover:text-brand-400 font-bold whitespace-nowrap p-1 touch-btn">
           📖 Lexikon
         </button>
       </div>
 
-      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+      <div class="p-2.5 rounded-xl theme-panel border space-y-1.5">
         <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-slate-800">${escapeHtml(adaptedR1)}:</span>
-          <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR1)}</span>
+          <span class="font-bold text-slate-200">${escapeHtml(adaptedR1)}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-400">${getPillLabel(valR1)}</span>
         </div>
         <div class="grid grid-cols-6 gap-1">
           ${[0, 1, 2, 3, 4, 5].map(sc => `
-            <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR1 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+            <button type="button" onclick="recordScaleAnswer('${keyR1}', ${sc})" class="py-2 rounded-lg border text-center text-xs font-bold transition touch-btn ${valR1 === sc ? getScoreActiveStyle(sc) : 'theme-panel text-slate-300 hover:border-slate-600'}">
               ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
             </button>
           `).join('')}
         </div>
       </div>
 
-      <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+      <div class="p-2.5 rounded-xl theme-panel border space-y-1.5">
         <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-slate-800">${escapeHtml(adaptedR2)}:</span>
-          <span class="text-[10.5px] font-semibold text-slate-500">${getPillLabel(valR2)}</span>
+          <span class="font-bold text-slate-200">${escapeHtml(adaptedR2)}:</span>
+          <span class="text-[10.5px] font-semibold text-slate-400">${getPillLabel(valR2)}</span>
         </div>
         <div class="grid grid-cols-6 gap-1">
           ${[0, 1, 2, 3, 4, 5].map(sc => `
-            <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc})" class="py-1.5 rounded-lg border text-center text-xs font-bold transition touch-pill ${valR2 === sc ? getScoreActiveStyle(sc) : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}">
+            <button type="button" onclick="recordScaleAnswer('${keyR2}', ${sc})" class="py-2 rounded-lg border text-center text-xs font-bold transition touch-btn ${valR2 === sc ? getScoreActiveStyle(sc) : 'theme-panel text-slate-300 hover:border-slate-600'}">
               ${sc === 1 ? '⛔ 1' : (sc === 5 ? '⭐ 5' : sc)}
             </button>
           `).join('')}
@@ -1168,8 +820,8 @@ function renderSingleItemCardHtml(it, uAnswers, uShame, uNotes, chapterContext =
       </div>
 
       <div class="flex items-center gap-2 pt-1">
-        <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Safeword')..." class="flex-1 text-[11px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-        <button type="button" onclick="toggleShameFlag(${it.id})" title="Hemmschwelle markieren" class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${isShame ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'}">
+        <input type="text" value="${escapeHtml(noteVal)}" onchange="recordNote(${it.id}, this.value)" placeholder="Bedingung / Notiz (z. B. 'Nur mit Safeword')..." class="flex-1 text-[11px] theme-panel border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500">
+        <button type="button" onclick="toggleShameFlag(${it.id})" title="Hemmschwelle markieren" class="px-2.5 py-2 rounded-xl text-xs font-bold border transition touch-btn ${isShame ? 'bg-purple-950 border-purple-500 text-purple-200' : 'theme-panel text-slate-400 hover:text-white'}">
           🙈 <span class="hidden sm:inline text-[10px]">Hemmschwelle</span>
         </button>
       </div>
@@ -1196,6 +848,7 @@ function recordScaleAnswer(key, score) {
   saveToLocalStorage();
   updateProgressBar();
   updateTabuBadge();
+  if (typeof updateHubUI === 'function') updateHubUI();
   renderCurrentChapter();
 }
 
@@ -1205,6 +858,7 @@ function recordChoiceAnswer(id, val) {
   answers[currentUser][`it_${id}_choice`] = val;
   saveToLocalStorage();
   updateProgressBar();
+  if (typeof updateHubUI === 'function') updateHubUI();
   renderCurrentChapter();
 }
 
@@ -1295,8 +949,8 @@ function renderQuickGrid() {
   const grid = document.getElementById('quick-grid-buttons');
   if (!grid || !window.surveyChapters) return;
   grid.innerHTML = surveyChapters.map((ch, idx) => `
-    <button onclick="jumpToChapter(${idx})" class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-slate-700 truncate">
-      ${idx + 1}. ${escapeHtml(ch.title)}
+    <button onclick="jumpToChapter(${idx})" class="p-2 rounded-xl theme-panel border hover:border-slate-600 font-bold text-slate-300 truncate touch-btn">
+      ${ch.id}. ${escapeHtml(ch.title)}
     </button>
   `).join('');
 }
@@ -1307,16 +961,14 @@ function updateProgressBar() {
   const fill = document.getElementById('progress-bar-fill');
   const txt = document.getElementById('progress-text');
   if (fill) fill.style.width = `${prog.pct}%`;
-  if (txt) txt.innerText = `Fortschritt: ${prog.pct} % (${prog.answered}/${prog.total})`;
+  if (txt) txt.innerText = `${prog.pct} %`;
 
   const btnUnanswered = document.getElementById('filter-btn-unanswered');
   if (btnUnanswered) {
     if (prog.pct >= 30) {
       btnUnanswered.innerHTML = `⚡ Unbeantwortet (Global)`;
-      btnUnanswered.title = "Zeigt alle noch offenen Fragen aus allen Kapiteln gebündelt an";
     } else {
       btnUnanswered.innerHTML = `⏳ Unbeantwortet`;
-      btnUnanswered.title = "Zeigt offene Fragen des aktuellen Kapitels (ab 30 % global für alle Kapitel)";
     }
   }
 }
@@ -1340,12 +992,12 @@ function renderSafetyConfiguratorUI() {
 
   safetyModulesData.forEach(mod => {
     html += `
-      <div class="bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800 rounded-2xl p-5 shadow-xs space-y-3">
-        <div class="flex items-center gap-2 border-b border-teal-100 dark:border-teal-900 pb-2">
+      <div class="theme-card border border-teal-500/40 rounded-3xl p-5 shadow-xs space-y-3">
+        <div class="flex items-center gap-2 border-b border-teal-900/60 pb-2">
           <span class="text-xl">${mod.icon}</span>
           <div>
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">${mod.title}</h3>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">${mod.desc}</p>
+            <h3 class="text-sm font-extrabold text-white">${mod.title}</h3>
+            <p class="text-[11px] text-slate-400">${mod.desc}</p>
           </div>
         </div>
 
@@ -1354,13 +1006,13 @@ function renderSafetyConfiguratorUI() {
             const currentVal = cfg[it.key];
             return `
               <div class="space-y-1.5">
-                <span class="block text-xs font-bold text-slate-800 dark:text-slate-200">${it.title}:</span>
+                <span class="block text-xs font-bold text-slate-200">${it.title}:</span>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   ${it.options.map(opt => {
                     const isSelected = (currentVal === opt.val);
                     return `
                       <button type="button" onclick="selectSafetyOption('${it.key}', '${opt.val}')"
-                              class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-pill ${isSelected ? 'bg-teal-50 dark:bg-teal-950/80 border-teal-500 text-teal-950 dark:text-teal-200 font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'}">
+                              class="p-2.5 rounded-xl border text-left text-xs font-semibold transition touch-btn ${isSelected ? 'bg-teal-950 border-teal-500 text-teal-100 font-bold shadow-xs' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700'}">
                         ${opt.label}
                       </button>
                     `;
@@ -1417,41 +1069,41 @@ function openTabuModal() {
 
   container.innerHTML = `
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900 rounded-2xl space-y-2">
-        <div class="flex items-center justify-between border-b border-indigo-200 dark:border-indigo-800 pb-2">
-          <strong class="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+      <div class="p-3.5 bg-indigo-950/40 border border-indigo-900 rounded-2xl space-y-2">
+        <div class="flex items-center justify-between border-b border-indigo-800 pb-2">
+          <strong class="text-xs font-bold text-indigo-200 flex items-center gap-1.5">
             <span>✋</span> Ausführungs-Grenzen (Top / Aktiv)
           </strong>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-200 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-200">${topTabus.length}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-900 text-indigo-200">${topTabus.length}</span>
         </div>
-        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight">
+        <p class="text-[10.5px] text-slate-400 leading-tight">
           Was Partner aktiv moralisch oder emotional nicht tun möchten.
         </p>
         <div class="space-y-1.5 pt-1">
           ${topTabus.length > 0 ? topTabus.map(t => `
-            <div class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-[11px] space-y-0.5">
-              <strong class="text-slate-900 dark:text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
-              <span class="text-[10px] text-indigo-700 dark:text-indigo-300 block">⛔ ${t.who} will nicht: ${escapeHtml(t.text)}</span>
+            <div class="p-2 rounded-xl bg-slate-900 border border-indigo-800 text-[11px] space-y-0.5">
+              <strong class="text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+              <span class="text-[10px] text-indigo-300 block">⛔ ${t.who} will nicht: ${escapeHtml(t.text)}</span>
             </div>
           `).join('') : '<p class="text-slate-400 italic text-center py-2">Keine Top-Ausführungs-Tabus hinterlegt.</p>'}
         </div>
       </div>
 
-      <div class="p-3.5 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-2xl space-y-2">
-        <div class="flex items-center justify-between border-b border-rose-200 dark:border-rose-800 pb-2">
-          <strong class="text-xs font-bold text-rose-950 dark:text-rose-200 flex items-center gap-1.5">
+      <div class="p-3.5 bg-rose-950/40 border border-rose-900 rounded-2xl space-y-2">
+        <div class="flex items-center justify-between border-b border-rose-800 pb-2">
+          <strong class="text-xs font-bold text-rose-200 flex items-center gap-1.5">
             <span>🛡️</span> Schutz- & Belastungsgrenzen (Bottom / Passiv)
           </strong>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200">${bottomTabus.length}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-900 text-rose-200">${bottomTabus.length}</span>
         </div>
-        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight">
+        <p class="text-[10.5px] text-slate-400 leading-tight">
           Was Körper und Geist des Partners keinesfalls empfangen wollen (Schutz-Schranken).
         </p>
         <div class="space-y-1.5 pt-1">
           ${bottomTabus.length > 0 ? bottomTabus.map(t => `
-            <div class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-[11px] space-y-0.5">
-              <strong class="text-slate-900 dark:text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
-              <span class="text-[10px] text-rose-700 dark:text-rose-300 block">⛔ ${t.who} erträgt nicht: ${escapeHtml(t.text)}</span>
+            <div class="p-2 rounded-xl bg-slate-900 border border-rose-800 text-[11px] space-y-0.5">
+              <strong class="text-white block">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+              <span class="text-[10px] text-rose-300 block">⛔ ${t.who} erträgt nicht: ${escapeHtml(t.text)}</span>
             </div>
           `).join('') : '<p class="text-slate-400 italic text-center py-2">Keine Bottom-Schutz-Tabus hinterlegt.</p>'}
         </div>
@@ -1497,17 +1149,17 @@ function openLexikonForItem(itemId) {
   if (!container || !found) return;
 
   container.innerHTML = `
-    <div class="p-3.5 bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 rounded-2xl space-y-2 mb-3">
+    <div class="p-3.5 bg-brand-950/40 border border-brand-800 rounded-2xl space-y-2 mb-3">
       <div class="flex items-center justify-between">
-        <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400">Direkte Erklärung der Praxis</span>
-        <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300">Pos. ${found.id}</span>
+        <span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-400">Direkte Erklärung der Praxis</span>
+        <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-800 text-slate-300">Pos. ${found.id}</span>
       </div>
-      <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">${escapeHtml(found.title)}</h4>
-      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(found.desc)}</p>
+      <h4 class="font-extrabold text-sm text-white">${escapeHtml(found.title)}</h4>
+      <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(found.desc)}</p>
       ${found.r1 ? `
-        <div class="pt-1.5 border-t border-brand-200/60 dark:border-brand-900 text-[11px] space-y-1">
-          <div><strong class="text-brand-950 dark:text-brand-200">Aktiv (Top):</strong> ${escapeHtml(found.r1)}</div>
-          <div><strong class="text-brand-950 dark:text-brand-200">Passiv (Bottom):</strong> ${escapeHtml(found.r2)}</div>
+        <div class="pt-1.5 border-t border-brand-900 text-[11px] space-y-1">
+          <div><strong class="text-brand-200">Aktiv (Top):</strong> ${escapeHtml(found.r1)}</div>
+          <div><strong class="text-brand-200">Passiv (Bottom):</strong> ${escapeHtml(found.r2)}</div>
         </div>
       ` : ''}
     </div>
@@ -1524,12 +1176,12 @@ function filterLexikon(q, append = false) {
   const filtered = list.filter(l => (l.term && l.term.toLowerCase().includes(query)) || (l.def && l.def.toLowerCase().includes(query)));
 
   const listHtml = filtered.map(l => `
-    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1">
+    <div class="p-2.5 rounded-xl theme-panel border space-y-1">
       <div class="flex justify-between items-center">
-        <strong class="text-slate-900 dark:text-white font-bold text-xs">${escapeHtml(l.term)}</strong>
-        ${l.link ? `<a href="${l.link}" target="_blank" class="text-[10px] text-brand-600 hover:underline">Info ↗</a>` : ''}
+        <strong class="text-white font-bold text-xs">${escapeHtml(l.term)}</strong>
+        ${l.link ? `<a href="${l.link}" target="_blank" class="text-[10px] text-brand-400 hover:underline">Info ↗</a>` : ''}
       </div>
-      <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(l.def)}</p>
+      <p class="text-[11px] text-slate-300 leading-relaxed">${escapeHtml(l.def)}</p>
     </div>
   `).join('');
 
@@ -1538,54 +1190,6 @@ function filterLexikon(q, append = false) {
   } else {
     container.innerHTML = listHtml || '<p class="text-slate-400 italic text-center p-3">Keine passenden Lexikon-Einträge gefunden.</p>';
   }
-}
-
-function openShareModal() {
-  const url = getLiveShareUrl();
-  const input = document.getElementById('share-link-input');
-  if (input) input.value = url;
-  const m = document.getElementById('modal-share');
-  if (m) m.classList.remove('hidden');
-}
-
-function closeShareModal() {
-  const m = document.getElementById('modal-share');
-  if (m) m.classList.add('hidden');
-}
-
-function getLiveShareUrl() {
-  ensureDataIntegrity();
-  const payload = {
-    sender: currentUser,
-    answers,
-    notes,
-    shameFlags,
-    chapterReflections,
-    customKinks,
-    names,
-    anatomy,
-    privacy,
-    safetyConfig,
-    ts: Date.now()
-  };
-  const json = JSON.stringify(payload);
-  const encoded = btoa(unescape(encodeURIComponent(json)));
-  const base = window.location.href.split('#')[0];
-  return `${base}#data=${encoded}`;
-}
-
-function copyShareLinkToClipboard() {
-  const input = document.getElementById('share-link-input');
-  if (!input) return;
-  input.select();
-  document.execCommand('copy');
-  const btn = document.getElementById('btn-copy-share-link');
-  if (btn) {
-    const orig = btn.innerText;
-    btn.innerText = "✓ Link kopiert!";
-    setTimeout(() => { btn.innerText = orig; }, 2000);
-  }
-  showToast("Link in Zwischenablage kopiert!");
 }
 
 function openAccountModal() {
@@ -1603,17 +1207,6 @@ function openAccountModal() {
   selectAccountAnatomy('me', anatomy[u] || (u === 'A' ? 'penis' : 'vulva'));
   const pUser = (u === 'A') ? 'B' : 'A';
   selectAccountAnatomy('partner', anatomy[pUser] || (pUser === 'A' ? 'penis' : 'vulva'));
-
-  const privBlind = document.getElementById('account-priv-blind');
-  const privOpen = document.getElementById('account-priv-open');
-  if (privacy[u]?.mode === 'open') {
-    if (privOpen) privOpen.checked = true;
-  } else {
-    if (privBlind) privBlind.checked = true;
-  }
-
-  const shareNotesBox = document.getElementById('account-share-notes');
-  if (shareNotesBox) shareNotesBox.checked = (privacy[u]?.shareNotes !== false);
 
   const resetUserSpan = document.getElementById('reset-current-username');
   if (resetUserSpan) resetUserSpan.innerText = names[u];
@@ -1639,11 +1232,11 @@ function selectAccountAnatomy(target, anat) {
     const vBtn = document.getElementById('acc-anat-my-vulva');
     if (pBtn && vBtn) {
       if (anat === 'penis') {
-        pBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-brand-50 border-brand-500 text-brand-950 font-bold text-xs shadow-xs touch-pill";
-        vBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100";
+        pBtn.className = "flex-1 py-1.5 px-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-[11px] shadow-xs touch-btn";
+        vBtn.className = "flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-400 text-[11px] touch-btn";
       } else {
-        vBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-brand-50 border-brand-500 text-brand-950 font-bold text-xs shadow-xs touch-pill";
-        pBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100";
+        vBtn.className = "flex-1 py-1.5 px-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-[11px] shadow-xs touch-btn";
+        pBtn.className = "flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-400 text-[11px] touch-btn";
       }
     }
   } else {
@@ -1652,11 +1245,11 @@ function selectAccountAnatomy(target, anat) {
     const vBtn = document.getElementById('acc-anat-part-vulva');
     if (pBtn && vBtn) {
       if (anat === 'penis') {
-        pBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-indigo-50 border-indigo-500 text-indigo-950 font-bold text-xs shadow-xs touch-pill";
-        vBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100";
+        pBtn.className = "flex-1 py-1.5 px-2 rounded-xl border bg-indigo-950 border-indigo-500 text-indigo-100 font-bold text-[11px] shadow-xs touch-btn";
+        vBtn.className = "flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-400 text-[11px] touch-btn";
       } else {
-        vBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-indigo-50 border-indigo-500 text-indigo-950 font-bold text-xs shadow-xs touch-pill";
-        pBtn.className = "flex-1 py-2 px-3 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs touch-pill hover:bg-slate-100";
+        vBtn.className = "flex-1 py-1.5 px-2 rounded-xl border bg-indigo-950 border-indigo-500 text-indigo-100 font-bold text-[11px] shadow-xs touch-btn";
+        pBtn.className = "flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-400 text-[11px] touch-btn";
       }
     }
   }
@@ -1678,21 +1271,6 @@ function updateCurrentUserEmail(val) {
   ensureDataIntegrity();
   if (!accounts[currentUser]) accounts[currentUser] = { email: '', partnerEmail: '', setupDone: true };
   accounts[currentUser].email = (val || '').trim();
-  saveToLocalStorage();
-}
-
-function updatePrivacyMode(mode) {
-  ensureDataIntegrity();
-  if (!privacy[currentUser]) privacy[currentUser] = { mode: 'blind', shareNotes: true };
-  privacy[currentUser].mode = mode;
-  saveToLocalStorage();
-  showToast(mode === 'open' ? "Vollständige Einsicht aktiv" : "Selektiver Blind-Match aktiv");
-}
-
-function updateShareNotes(checked) {
-  ensureDataIntegrity();
-  if (!privacy[currentUser]) privacy[currentUser] = { mode: 'blind', shareNotes: true };
-  privacy[currentUser].shareNotes = checked;
   saveToLocalStorage();
 }
 
@@ -1723,6 +1301,7 @@ function resetCurrentUserProfile() {
   renderCurrentChapter();
   updateProgressBar();
   updateTabuBadge();
+  if (typeof updateHubUI === 'function') updateHubUI();
   showToast(`Profil ${names[u]} zurückgesetzt.`);
 }
 
@@ -1749,6 +1328,7 @@ function generateRandomTestData() {
   updateTabuBadge();
   renderCurrentChapter();
   closeAccountModal();
+  if (typeof updateHubUI === 'function') updateHubUI();
   showToast("🎲 Realistische Testdaten für dieses Profil eingespielt!");
 }
 
@@ -1758,6 +1338,27 @@ function sendBackupEmail() {
   const subject = encodeURIComponent("Sicherung: Dein persönlicher Kink-Kompass Zugangs-Link");
   const body = encodeURIComponent(`Hallo ${names[currentUser]},\n\nhier ist dein verschlüsselter Zugangs-Link zu deinen Bewertungen:\n\n${url}\n\nBewahre diese E-Mail auf.`);
   window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+}
+
+function getLiveShareUrl() {
+  ensureDataIntegrity();
+  const payload = {
+    sender: currentUser,
+    answers,
+    notes,
+    shameFlags,
+    chapterReflections,
+    customKinks,
+    names,
+    anatomy,
+    privacy,
+    safetyConfig,
+    ts: Date.now()
+  };
+  const json = JSON.stringify(payload);
+  const encoded = btoa(unescape(encodeURIComponent(json)));
+  const base = window.location.href.split('#')[0];
+  return `${base}#data=${encoded}`;
 }
 
 function renderSingleAnalysis() {
@@ -1784,7 +1385,7 @@ function renderSingleAnalysis() {
     (ch.items || []).forEach(it => {
       const v1 = uAnswers[`it_${it.id}_r1`];
       const v2 = uAnswers[`it_${it.id}_r2`];
-      // 0 (Entfällt / Desinteresse) wird aus Verhältnissen und Durchschnitten herausgehalten
+      // 0 (Entfällt) wird aus Verhältnissen herausgehalten
       if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
       if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
 
@@ -1839,12 +1440,12 @@ function renderSingleAnalysis() {
 
   const h5El = document.getElementById('single-high-prio-list');
   if (h5El) {
-    h5El.innerHTML = high5.map(h => `<div class="p-2 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200">⭐ ${escapeHtml(h)}</div>`).join('') || '<p class="text-slate-400 italic">Noch keine 5er-Punkte.</p>';
+    h5El.innerHTML = high5.map(h => `<div class="p-2 rounded-xl bg-emerald-950/40 text-emerald-300 border border-emerald-800">⭐ ${escapeHtml(h)}</div>`).join('') || '<p class="text-slate-500 italic">Noch keine 5er-Punkte.</p>';
   }
 
   const tbEl = document.getElementById('single-tabus-list');
   if (tbEl) {
-    tbEl.innerHTML = tabus.map(t => `<div class="p-2 rounded-lg bg-rose-50 text-rose-900 border border-rose-200">⛔ ${escapeHtml(t)}</div>`).join('') || '<p class="text-slate-400 italic">Keine Tabus gesetzt.</p>';
+    tbEl.innerHTML = tabus.map(t => `<div class="p-2 rounded-xl bg-rose-950/40 text-rose-300 border border-rose-800">⛔ ${escapeHtml(t)}</div>`).join('') || '<p class="text-slate-500 italic">Keine Tabus gesetzt.</p>';
   }
 
   renderSingleRadar();
@@ -1857,13 +1458,32 @@ function renderScientificGutachten(metrics) {
   const isSub = metrics.avgBottom > metrics.avgTop;
   const isTop = metrics.avgTop > metrics.avgBottom;
 
+  // Auswertung von Kapitel 0 (Trauma & somatische Sicherheit)
+  const traumaExp = (answers[currentUser] && answers[currentUser]['it_901_choice']) || 'none';
+  const traumaHeal = (answers[currentUser] && answers[currentUser]['it_902_choice']) || 'integrated';
+  const traumaFrame = (answers[currentUser] && answers[currentUser]['it_903_choice']) || 'safety_first';
+
+  let traumaInsight = "";
+  if (traumaExp === 'trauma' || traumaExp === 'boundary') {
+    traumaInsight = `
+      <div class="p-3 rounded-2xl theme-panel border border-teal-500/40 space-y-1">
+        <strong class="text-teal-300 block text-xs">🛡️ Somatische Sicherheit & Trauma-Resilienz (van der Kolk, 2014; Canivet et al., 2025):</strong>
+        <p class="text-[11px] leading-relaxed text-slate-300">
+          Deine Angaben in Kapitel 0 zeigen frühere Grenzerfahrungen. Dein gewählter Rahmen (${traumaFrame === 'mastery' ? '<strong>Kink-Mastery & Ermächtigung</strong>' : '<strong>Sicherheits-Fokus & Vorab-Absprache</strong>'}) ist neurologisch hochgradig gesund: Echte Freiwilligkeit unter festen Safewords ermöglicht es deinem Nervensystem, alte Hilflosigkeitsmuster durch bewusste Selbstermächtigung abzubauen.
+        </p>
+      </div>
+    `;
+  }
+
   box.innerHTML = `
     <div class="space-y-2.5">
-      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        <strong class="text-indigo-600 dark:text-indigo-400 block text-xs">1. Neurobiologische Funktionsweise (Gehirn & Hormone):</strong>
-        <p class="mt-1">
+      ${traumaInsight}
+
+      <div class="p-3 rounded-2xl theme-panel border border-indigo-500/40 space-y-1">
+        <strong class="text-indigo-300 block text-xs">🧠 1. Neurobiologische Funktionsweise (Gehirn & Hormone):</strong>
+        <p class="text-[11px] leading-relaxed text-slate-300">
           ${isSub ? `
-            Deine Antworten zeigen eine ausgeprägte Sehnsucht nach Hingabe und Kontrollabgabe. Nach <em>Sagarin et al. (2009, 2015)</em> und <em>Ambler et al. (2017)</em> führt dies zur <strong>transienten Hypofrontalität</strong>: Dein präfrontaler Kortex (der Sitz ständiger Alltagsplanung und Selbstkontrolle) fährt messbar herunter. Der Reizstress setzt Endorphine und körpereigene Cannabinoide frei (<em>Wuyts et al., 2021</em>), die dein Nervensystem in einen Zustand meditativer Gelassenheit (<em>Subspace</em>) versetzen.
+            Deine Antworten zeigen eine deutliche Neigung zur Hingabe. Nach <em>Sagarin et al. (2009, 2015)</em> und <em>Ambler et al. (2017)</em> führt dies zur <strong>transienten Hypofrontalität</strong>: Dein präfrontaler Kortex (der Sitz ständiger Alltagsplanung und Selbstkontrolle) fährt messbar herunter. Der Reizstress setzt Endorphine und körpereigene Cannabinoide frei (<em>Wuyts et al., 2021</em>), die dein Nervensystem in einen Zustand meditativer Gelassenheit (<em>Subspace</em>) versetzen.
           ` : (isTop ? `
             Deine Lust an Führung entspricht einem hochfokussierten <strong>Topspace / Flow-Zustand (Wismeijer & van Assen, 2013)</strong>. Dein Gehirn schöpft Belohnung (Dopamin) aus Empathie-Synchronisation: Dem exakten Lesen der Mikrosignale des Partners und der Verantwortung für dessen emotionalen Zustand.
           ` : `
@@ -1872,16 +1492,16 @@ function renderScientificGutachten(metrics) {
         </p>
       </div>
 
-      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        <strong class="text-rose-600 dark:text-rose-400 block text-xs">2. Somatisches Stress-Coping (Williams et al., 2014):</strong>
-        <p class="mt-1">
+      <div class="p-3 rounded-2xl theme-panel border border-rose-500/40 space-y-1">
+        <strong class="text-rose-300 block text-xs">⚡ 2. Somatisches Stress-Coping (Williams et al., 2014):</strong>
+        <p class="text-[11px] leading-relaxed text-slate-300">
           Kink dient bei dir als somatisches Ventil zum Abbau von Alltagsdruck. ${metrics.pctSensation >= 40 ? 'Deine Reizbereitschaft bei Schmerz und Fesseln nutzt die körpereigene Opiat-Kaskade (Klement et al., 2016) zur seelischen Katharsis.' : 'Du bevorzugst dabei sanfte, kontrollierte Reize ohne starke Schmerzerfahrung.'}
         </p>
       </div>
 
-      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        <strong class="text-purple-600 dark:text-purple-400 block text-xs">3. Erotische Scham-Resilienz (Canivet et al., 2025; Tangney & Dearing, 2002):</strong>
-        <p class="mt-1">
+      <div class="p-3 rounded-2xl theme-panel border border-purple-500/40 space-y-1">
+        <strong class="text-purple-300 block text-xs">❤️‍🔥 3. Erotische Scham-Resilienz (Canivet et al., 2025; Tangney & Dearing, 2002):</strong>
+        <p class="text-[11px] leading-relaxed text-slate-300">
           Du hast <strong>${metrics.shameCount} Praktiken als Hemmschwelle (🙈)</strong> markiert. Nach <em>Dymock (2012)</em> führt das angstfreie Aussprechen schambelasteter Sehnsüchte vor einem verlässlichen Partner zur tiefsten Form emotionaler Verbundenheit.
         </p>
       </div>
@@ -1896,10 +1516,6 @@ function renderSingleRadar() {
   if (singleRadarInstance) {
     try { singleRadarInstance.destroy(); } catch (e) { console.warn(e); }
   }
-
-  const isDark = document.documentElement.classList.contains('dark');
-  const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
-  const labelColor = isDark ? '#cbd5e1' : '#334155';
 
   const dimensions = [
     { label: 'Körperzonen', chapters: [1, 12] },
@@ -1925,7 +1541,7 @@ function renderSingleRadar() {
           if (it.type !== 'choice') {
             const s1 = uAnswers[`it_${it.id}_r1`];
             const s2 = uAnswers[`it_${it.id}_r2`];
-            // 0 = Entfällt: Weder bei erreichten Punkten noch beim Nenner werten
+            // 0 = Entfällt: Nicht im Teiler werten
             if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
             if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
           }
@@ -1954,9 +1570,9 @@ function renderSingleRadar() {
         maintainAspectRatio: false,
         scales: {
           r: {
-            angleLines: { color: gridColor },
-            grid: { color: gridColor },
-            pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
+            angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
+            grid: { color: 'rgba(148, 163, 184, 0.2)' },
+            pointLabels: { color: '#cbd5e1', font: { size: 10, weight: 'bold' } },
             ticks: { display: false, max: 100, min: 0 }
           }
         },
@@ -1966,25 +1582,6 @@ function renderSingleRadar() {
   } catch (e) {
     console.warn("Chart creation error:", e);
   }
-}
-
-function toggleGlobalTheme() {
-  const isDark = document.documentElement.classList.contains('dark');
-  const newTheme = isDark ? 'light' : 'dark';
-  if (newTheme === 'dark') {
-    document.documentElement.classList.add('dark');
-    localStorage.setItem('kompass_theme', 'dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('kompass_theme', 'light');
-  }
-
-  const icon = document.getElementById('theme-toggle-icon');
-  const label = document.getElementById('theme-toggle-label');
-  if (icon) icon.innerText = (newTheme === 'dark') ? '🌙' : '☀️';
-  if (label) label.innerText = (newTheme === 'dark') ? 'Nacht' : 'Tag';
-
-  if (singleRadarInstance) renderSingleRadar();
 }
 
 function getPillLabel(score) {
@@ -2004,7 +1601,7 @@ function getScoreActiveStyle(sc) {
   if (sc === 3) return 'bg-blue-600 text-white border-blue-700 shadow-xs font-black';
   if (sc === 4) return 'bg-amber-600 text-white border-amber-700 shadow-xs font-black';
   if (sc === 5) return 'bg-emerald-600 text-white border-emerald-700 shadow-xs font-black';
-  return 'bg-slate-800 text-white border-slate-900 shadow-xs font-black';
+  return 'bg-slate-800 text-white border-slate-700 shadow-xs font-black';
 }
 
 function showToast(msg) {
