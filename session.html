@@ -258,45 +258,13 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           
-          <!-- Konstellation B: Partner 1 = Top / Partner 2 = Bottom -->
-          <button type="button" onclick="selectPortalRoleSetup('B')" id="portal-card-role-B" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3">
+          <!-- Konstellation A (JETZT DEFAULT): Partner 2 = Top / Partner 1 = Bottom -->
+          <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3">
             <div class="flex items-center justify-between">
-              <span id="role-badge-indicator-B" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
-                ✓ Aktiv gewählt
+              <span id="role-badge-indicator-A" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
+                ✓ Aktiv gewählt (Standard)
               </span>
-              <span class="text-xs font-mono text-brand-300 font-bold">Dynamik 1</span>
-            </div>
-
-            <div class="space-y-2">
-              <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2.5">
-                <span class="text-xl">👑</span>
-                <div>
-                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
-                  <strong class="text-white text-xs font-black disp-name-A">Partner 1</strong>
-                </div>
-              </div>
-
-              <div class="p-2.5 rounded-xl bg-brand-950/60 border border-brand-800/80 flex items-center gap-2.5">
-                <span class="text-xl">🧎</span>
-                <div>
-                  <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
-                  <strong class="text-brand-100 text-xs font-black disp-name-B">Partner 2</strong>
-                </div>
-              </div>
-            </div>
-
-            <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
-              <span class="disp-name-A font-bold text-slate-300">Partner 1</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="disp-name-B font-bold text-brand-300">Partner 2</span> sind aktiv geschützt.
-            </p>
-          </button>
-
-          <!-- Konstellation A: Partner 2 = Top / Partner 1 = Bottom -->
-          <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3">
-            <div class="flex items-center justify-between">
-              <span id="role-badge-indicator-A" class="hidden px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
-                ✓ Aktiv gewählt
-              </span>
-              <span class="text-xs font-mono text-slate-500 font-bold">Dynamik 2</span>
+              <span class="text-xs font-mono text-brand-300 font-bold">Variante 1</span>
             </div>
 
             <div class="space-y-2">
@@ -319,6 +287,38 @@
 
             <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
               <span class="disp-name-B font-bold text-slate-300">Partner 2</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="disp-name-A font-bold text-brand-300">Partner 1</span> sind aktiv geschützt.
+            </p>
+          </button>
+
+          <!-- Konstellation B: Partner 1 = Top / Partner 2 = Bottom -->
+          <button type="button" onclick="selectPortalRoleSetup('B')" id="portal-card-role-B" class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="role-badge-indicator-B" class="hidden px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
+                ✓ Aktiv gewählt
+              </span>
+              <span class="text-xs font-mono text-slate-500 font-bold">Variante 2</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2.5">
+                <span class="text-xl">👑</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-slate-400 block uppercase">Top (Führend / Aktiv):</span>
+                  <strong class="text-white text-xs font-black disp-name-A">Partner 1</strong>
+                </div>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-brand-950/60 border border-brand-800/80 flex items-center gap-2.5">
+                <span class="text-xl">🧎</span>
+                <div>
+                  <span class="text-[9.5px] font-bold text-brand-300 block uppercase">Bottom (Hingebend / Sub):</span>
+                  <strong class="text-brand-100 text-xs font-black disp-name-B">Partner 2</strong>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-tight pt-1 border-t border-slate-800/80">
+              <span class="disp-name-A font-bold text-slate-300">Partner 1</span> bestimmt Tempo & Härte. Schutzgrenzen von <span class="disp-name-B font-bold text-brand-300">Partner 2</span> sind aktiv geschützt.
             </p>
           </button>
 
@@ -376,9 +376,9 @@
                 <span class="text-[10px] font-bold text-brand-300 bg-brand-950 px-2 py-0.5 rounded-full border border-brand-800">Spontan</span>
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
-                Ihr spielt frei und intuitiv ohne festen Leitfaden. Das Steuerpult hält diskret den Timer, die Notfall-Ampel, den Edge-Counter und Sofort-Disziplinierung bereit.
+                Ihr spielt frei und intuitiv ohne festen Leitfaden. Ihr stimmt kurz eure Tagesenergie ab; das Steuerpult hält Timer, Notfall-Ampel, Edge-Counter und Zuchtrechner bereit.
               </p>
-              <span class="text-[10.5px] font-bold text-brand-400 pt-1 block">Direkt ins freie Cockpit →</span>
+              <span class="text-[10.5px] font-bold text-brand-400 pt-1 block">Tagesform abstimmen & ins freie Cockpit →</span>
             </div>
           </button>
 
@@ -393,9 +393,9 @@
                 <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">4 Phasen</span>
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
-                Stimmt kurz eure heutige Tagesenergie (1–5) und gewünschte Härte ab. Die App stellt euer individuelles Drehbuch zusammen und leitet euch Schritt für Schritt durch Phase 1 bis 4.
+                Stimmt kurz eure heutige Tagesenergie (1–5) und gewünschte Härte ab. Ihr seht vorab eine genaue Drehbuch-Vorschau der 4 Phasen und könnt diese nach Belieben neu auswürfeln.
               </p>
-              <span class="text-[10.5px] font-bold text-purple-400 pt-1 block">Tagesform abstimmen & Regiebuch starten →</span>
+              <span class="text-[10.5px] font-bold text-purple-400 pt-1 block">Tagesform abstimmen, Vorschau prüfen & starten →</span>
             </div>
           </button>
 
@@ -777,12 +777,15 @@
   <script src="data/questions_part2.js"></script>
 
   <script>
-    let subPartner = 'B';
+    /* STANDARD-DEFAULT: Partner 1 = Bottom ('A'), Partner 2 = Top ('B') */
+    let subPartner = 'A';
 
     function getDomPartner() {
       return subPartner === 'A' ? 'B' : 'A';
     }
 
+    let answers = { A: {}, B: {} };
+    let edgeCount = 0;
     let currentPunishLvl = 'mittel';
     let activeInfractionType = 'frech';
     let activeInfractionSeverity = 'mittel';
@@ -808,8 +811,7 @@
       steps: []
     };
 
-    let edgeCount = 0;
-    let answers = { A: {}, B: {} };
+    let freeFlowCheckinDone = false;
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let safetyConfig = { A: {}, B: {} };
     let wakeLockInstance = null;
@@ -947,18 +949,18 @@
       document.querySelectorAll('.disp-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
       document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
 
-      if (subPartner === 'B') {
-        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
-        if (badgeB) badgeB.classList.remove('hidden');
-
-        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
-        if (badgeA) badgeA.classList.add('hidden');
-      } else {
+      if (subPartner === 'A') {
         if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
         if (badgeA) badgeA.classList.remove('hidden');
 
         if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
         if (badgeB) badgeB.classList.add('hidden');
+      } else {
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
+        if (badgeB) badgeB.classList.remove('hidden');
+
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        if (badgeA) badgeA.classList.add('hidden');
       }
     }
 
@@ -1008,6 +1010,8 @@
       if (portal) portal.classList.remove('hidden');
 
       currentSessionActiveMode = null;
+      freeFlowCheckinDone = false;
+      guidedState.isConfigured = false;
       goToPortalStep(1);
       releaseWakeLock();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1023,28 +1027,45 @@
       const subName = names[subPartner];
 
       if (currentSessionActiveMode === 'free') {
-        if (timerBlock) timerBlock.classList.remove('hidden');
-        if (toolsBar) toolsBar.classList.remove('hidden');
+        if (!freeFlowCheckinDone) {
+          if (timerBlock) timerBlock.classList.add('hidden');
+          if (toolsBar) toolsBar.classList.add('hidden');
+          renderFreeFlowCheckinForm(container);
+        } else {
+          if (timerBlock) timerBlock.classList.remove('hidden');
+          if (toolsBar) toolsBar.classList.remove('hidden');
 
-        container.innerHTML = `
-          <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                <span>🕯️</span> Freier Spielraum – Keine festen Vorgaben
-              </h3>
-              <span class="text-[10px] text-brand-300 font-mono bg-brand-950 px-2 py-0.5 rounded border border-brand-800">Spontanes Spiel</span>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Ihr spielt völlig frei. ${escapeHtml(domName)} bestimmt das Tempo, während ${escapeHtml(subName)} sich fallenlässt. Das Cockpit hält im Hintergrund den Timer, den Notfall-Schutz und die 15-Min-Vitalprüfung aktiv.
-            </p>
+          const intLabels = { sanft: 'Sanft & Sinnlich', mittel: 'Mäßig & Fordernd', intensiv: 'Intensiv & Scharf' };
 
-            <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
-              <button onclick="finishSessionRegularly()" class="w-full py-3.5 bg-gradient-to-r from-pink-700 to-brand-600 hover:from-pink-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn flex items-center justify-center gap-2">
-                <span>💖</span> <span>Session harmonisch beenden & Aftercare starten</span>
-              </button>
+          container.innerHTML = `
+            <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>🕯️</span> Freier Spielraum – Keine festen Vorgaben
+                </h3>
+                <span class="text-[10px] text-brand-300 font-mono bg-brand-950 px-2 py-0.5 rounded border border-brand-800">
+                  ${intLabels[guidedState.intensity] || 'Spontanes Spiel'}
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Ihr spielt völlig frei. ${escapeHtml(domName)} (Energie ${guidedState.energyTop}/5) bestimmt das Tempo, während ${escapeHtml(subName)} (Belastbarkeit ${guidedState.energySub}/5) sich fallenlässt. Das Cockpit hält im Hintergrund den Timer, den Notfall-Schutz und die 15-Min-Vitalprüfung aktiv.
+              </p>
+
+              <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-[11px] flex items-center justify-between text-slate-300">
+                <span>⚡ Vereinbarte Härte: <strong class="text-amber-300">${intLabels[guidedState.intensity]}</strong></span>
+                <button type="button" onclick="freeFlowCheckinDone=false; renderActiveModeWorkspace();" class="text-[10px] text-purple-300 hover:text-white underline">
+                  Tagesform neu anpassen
+                </button>
+              </div>
+
+              <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+                <button onclick="finishSessionRegularly()" class="w-full py-3.5 bg-gradient-to-r from-pink-700 to-brand-600 hover:from-pink-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn flex items-center justify-center gap-2">
+                  <span>💖</span> <span>Session harmonisch beenden & Aftercare starten</span>
+                </button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
       } else if (currentSessionActiveMode === 'guided_flow') {
         if (!guidedState.isConfigured) {
           if (timerBlock) timerBlock.classList.add('hidden');
@@ -1062,22 +1083,97 @@
       }
     }
 
-    function renderGuidedCheckinForm(container) {
+    function renderFreeFlowCheckinForm(container) {
       const domName = names[getDomPartner()];
       const subName = names[subPartner];
 
       container.innerHTML = `
+        <div class="session-card p-4 sm:p-6 rounded-3xl border border-brand-500/40 space-y-5">
+          <div class="border-b border-brand-900/60 pb-3">
+            <span class="text-[10px] font-black uppercase tracking-wider text-brand-400 bg-brand-950/80 px-2 py-0.5 rounded border border-brand-800">
+              Vorbereitung: Freies Spiel
+            </span>
+            <h3 class="text-base sm:text-lg font-black text-white mt-1">Tagesform-Abstimmung für heute Abend</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Auch im freien Spiel richten sich Zucht, Reize und Sicherheitsintervalle nach eurer Energie.</p>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-300 font-bold">👑 Energie von Top (${escapeHtml(domName)}):</span>
+                <span class="text-purple-300 font-mono font-bold" id="disp-energy-top">Stufe 3 (Ausgeglichen)</span>
+              </div>
+              <input type="range" min="1" max="5" value="${guidedState.energyTop}" oninput="updateCheckinEnergy('top', this.value)" class="w-full accent-purple-500 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span>1 (Müde / Sanft)</span>
+                <span>3 (Normal)</span>
+                <span>5 (Volle Tatkraft)</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-300 font-bold">🧎 Belastbarkeit von Bottom (${escapeHtml(subName)}):</span>
+                <span class="text-brand-300 font-mono font-bold" id="disp-energy-sub">Stufe 3 (Bereit)</span>
+              </div>
+              <input type="range" min="1" max="5" value="${guidedState.energySub}" oninput="updateCheckinEnergy('sub', this.value)" class="w-full accent-brand-500 cursor-pointer">
+              <div class="flex justify-between text-[9px] text-slate-500">
+                <span>1 (Ruhebedürftig)</span>
+                <span>3 (Bereit für Reize)</span>
+                <span>5 (Sucht Katharsis)</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <span class="text-slate-300 font-bold block">Gewünschte Spieltiefe / Härte:</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="selectGuidedIntensity('sanft')" id="btn-int-sanft" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'sanft' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  🌸 Sanft & Sinnlich
+                </button>
+                <button type="button" onclick="selectGuidedIntensity('mittel')" id="btn-int-mittel" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'mittel' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  ⚡ Mäßig & Fordernd
+                </button>
+                <button type="button" onclick="selectGuidedIntensity('intensiv')" id="btn-int-intensiv" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'intensiv' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                  🔥 Intensiv & Scharf
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="confirmFreeFlowCheckin()" class="w-full py-3.5 bg-gradient-to-r from-brand-700 to-rose-600 hover:from-brand-600 hover:to-rose-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn">
+            🕯️ Abgestimmt: Freies Cockpit & Timer starten →
+          </button>
+        </div>
+      `;
+    }
+
+    function confirmFreeFlowCheckin() {
+      freeFlowCheckinDone = true;
+      if (!timerInterval) toggleTimer();
+      renderActiveModeWorkspace();
+      showToast("🕯️ Freier Flow aktiv mit eurer abgestimmten Tagesenergie");
+    }
+
+    function renderGuidedCheckinForm(container) {
+      const domName = names[getDomPartner()];
+      const subName = names[subPartner];
+
+      if (!guidedState.steps || guidedState.steps.length === 0) {
+        guidedState.steps = generatePersonalizedSessionSteps();
+      }
+
+      container.innerHTML = `
         <div class="session-card p-4 sm:p-6 rounded-3xl border border-purple-500/40 space-y-5">
-          <div class="border-b border-purple-900/60 pb-3 flex justify-between items-center">
+          <div class="border-b border-purple-900/60 pb-3 flex justify-between items-center gap-2">
             <div>
               <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
-                Vorbereitung: Tagesform-Abstimmung
+                Vorbereitung: Geführte Session
               </span>
               <h3 class="text-base sm:text-lg font-black text-white mt-1">Euer Drehbuch für heute Abend</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und welche Intensität soll das Regiebuch einplanen?</p>
+              <p class="text-xs text-slate-400 mt-0.5">Stimmt Energie ab und prüft die 4-Phasen-Vorschau, bevor ihr startet.</p>
             </div>
-            <button type="button" onclick="rerollGuidedPlaybook()" class="px-2.5 py-1.5 rounded-xl bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-200 text-xs font-bold transition touch-btn flex items-center gap-1 shadow-xs">
-              <span>🎲</span> <span class="hidden sm:inline">Neues Drehbuch würfeln</span>
+            <button type="button" onclick="rerollGuidedPlaybook()" class="px-2.5 py-1.5 rounded-xl bg-purple-900/70 hover:bg-purple-800 border border-purple-600 text-purple-100 text-xs font-bold transition touch-btn flex items-center gap-1 shadow-xs flex-shrink-0">
+              <span>🎲</span> <span>Drehbuch neu würfeln</span>
             </button>
           </div>
 
@@ -1122,10 +1218,32 @@
                 </button>
               </div>
             </div>
+
+            <!-- LIVE-DREHBUCH-VORSCHAU VOR DEM START -->
+            <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-800/80 space-y-2.5">
+              <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
+                <strong class="text-purple-200 font-black text-xs flex items-center gap-1.5">
+                  <span>📜</span> Vorschau des aktuellen Drehbuchs (${guidedState.steps.length} Schritte):
+                </strong>
+                <span class="text-[10px] text-amber-300 font-mono">Variante #${(rollSeed % 6) + 1}</span>
+              </div>
+              <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="playbook-preview-steps-list">
+                ${guidedState.steps.map((st, idx) => `
+                  <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] space-y-0.5">
+                    <div class="flex justify-between items-center">
+                      <strong class="text-white font-bold">${st.title}</strong>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-mono">${st.phaseTitle.split(':')[0]}</span>
+                    </div>
+                    <p class="text-slate-400 text-[10.5px] leading-snug">${escapeHtml(st.desc)}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
           </div>
 
           <button onclick="startGuidedSessionPlaybook()" class="w-full py-3.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn">
-            📖 Drehbuch generieren & Session starten →
+            📖 Mit diesem Drehbuch starten & Cockpit öffnen →
           </button>
         </div>
       `;
@@ -1136,11 +1254,15 @@
       const labels = ["1 (Müde/Sanft)", "2 (Ruhig)", "3 (Ausgeglichen)", "4 (Aktiv/Spannung)", "5 (Volle Kraft)"];
       if (who === 'top') {
         guidedState.energyTop = val;
-        document.getElementById('disp-energy-top').innerText = labels[val - 1];
+        const el = document.getElementById('disp-energy-top');
+        if (el) el.innerText = labels[val - 1];
       } else {
         guidedState.energySub = val;
-        document.getElementById('disp-energy-sub').innerText = labels[val - 1];
+        const el = document.getElementById('disp-energy-sub');
+        if (el) el.innerText = labels[val - 1];
       }
+      guidedState.steps = generatePersonalizedSessionSteps();
+      updatePlaybookPreviewList();
     }
 
     function selectGuidedIntensity(int) {
@@ -1153,25 +1275,30 @@
             : "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn session-panel border-slate-800 text-slate-400";
         }
       });
+      guidedState.steps = generatePersonalizedSessionSteps();
+      updatePlaybookPreviewList();
+    }
+
+    function updatePlaybookPreviewList() {
+      const container = document.getElementById('playbook-preview-steps-list');
+      if (!container || !guidedState.steps) return;
+      container.innerHTML = guidedState.steps.map((st, idx) => `
+        <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] space-y-0.5">
+          <div class="flex justify-between items-center">
+            <strong class="text-white font-bold">${st.title}</strong>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-mono">${st.phaseTitle.split(':')[0]}</span>
+          </div>
+          <p class="text-slate-400 text-[10.5px] leading-snug">${escapeHtml(st.desc)}</p>
+        </div>
+      `).join('');
     }
 
     function rerollGuidedPlaybook() {
       rollSeed++;
       guidedState.steps = generatePersonalizedSessionSteps();
       playGongSound(440);
-      showToast("🎲 Neues 4-Phasen-Drehbuch erfolgreich ausgewürfelt!");
-    }
-
-    function startGuidedSessionPlaybook() {
-      guidedState.steps = generatePersonalizedSessionSteps();
-      guidedState.isConfigured = true;
-      guidedState.currentPhase = 1;
-      guidedState.currentStepIndex = 0;
-
-      if (!timerInterval) toggleTimer();
-
-      renderActiveModeWorkspace();
-      showToast("📖 Regiebuch gestartet: Phase 1 (Ankommen)");
+      updatePlaybookPreviewList();
+      showToast("🎲 Neues Drehbuch ausgewürfelt & Vorschau aktualisiert!");
     }
 
     function generatePersonalizedSessionSteps() {
@@ -1180,44 +1307,102 @@
       const cfgA = safetyConfig.A || {};
       const afcChoice = cfgA.aftercare || 'warmth';
 
-      const varA = rollSeed % 2 === 0;
+      const seedMod = rollSeed % 4;
 
-      return [
+      const phase1Options = [
         {
-          phase: 1,
-          phaseTitle: "Phase 1: Ankommen & Erdung",
-          title: varA ? "1. Mentaler Übergang & Safeword-Re-Check" : "1. Blickkontakt & Synchrones Ausatmen",
-          desc: varA 
-            ? "Setzt euch ruhig gegenüber. Beide atmen dreimal tief synchron aus. Der Top fragt: 'Bist du bereit, dich heute fallen zu lassen?' Das Safeword und Knebelzeichen werden kurz laut wiederholt."
-            : "Der Top legt beide Hände ruhig auf die Schultern des Bottoms. 2 Minuten vollkommene Stille. Alle Alltagssorgen draußen lassen.",
+          title: "1. Mentaler Übergang & Safeword-Re-Check",
+          desc: "Setzt euch ruhig gegenüber. Beide atmen dreimal tief synchron aus. Der Top fragt: 'Bist du bereit, dich heute fallen zu lassen?' Safewords und Notzeichen werden laut wiederholt.",
           actor: `${domName} leitet die Atmung; ${subName} lässt die Schultern sinken.`
         },
         {
-          phase: 1,
-          phaseTitle: "Phase 1: Ankommen & Erdung",
-          title: varA ? "2. Förmliches Entkleiden & Haltung einnehmen" : "2. Sanftes Entblößen & Halsband anlegen",
-          desc: varA 
-            ? "Der Top entkleidet den Bottom langsam Stück für Stück. Der Bottom verharrt still und richtet den Blick nach unten oder empfängt das Halsband."
-            : "Jedes Kleidungsstück wird langsam abgelegt. Dem Bottom wird das Halsband angelegt als Zeichen, dass alle Entscheidungen für heute abgegeben sind.",
+          title: "1. Blickkontakt & Schulter-Erdung (Soul Gazing)",
+          desc: `${domName} legt beide Hände ruhig auf die Schultern von ${subName}. 2 Minuten vollkommene Stille. Augenkontakt halten, alle Alltagssorgen draußen lassen.`,
+          actor: `${domName} erdet mit festem Händedruck; ${subName} schaut aufmerksam in die Augen.`
+        },
+        {
+          title: "1. Förmliche Begrüßung & Knie-Übergabe",
+          desc: `${subName} kniet aufrecht vor ${domName} nieder, neigt den Kopf und bittet förmlich darum, heute geführt zu werden. ${domName} legt die Hand zur Annahme auf den Kopf.`,
+          actor: `${subName} gibt bewusst die Kontrolle ab; ${domName} nimmt die Verantwortung an.`
+        },
+        {
+          title: "1. Vagusnerv-Atemkreis & Stille",
+          desc: "Beide atmen 4 Sekunden ein, 4 Sekunden halten, 6 Sekunden aus. Körperliche Anspannung abstreifen und den Raum bewusst als sichere Zone betreten.",
+          actor: `Gemeinsames Ankommen im Hier und Jetzt.`
+        }
+      ];
+
+      const phase1Step2Options = [
+        {
+          title: "2. Förmliches Entkleiden Stück für Stück",
+          desc: `${domName} entkleidet ${subName} langsam Kleidungsstück für Kleidungsstück. ${subName} verharrt still und richtet den Blick nach unten.`,
           actor: `${domName} bestimmt das Tempo des Entkleidens.`
         },
         {
-          phase: 2,
-          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: "2. Halsband anlegen & Leine übernehmen",
+          desc: `${domName} legt ${subName} feierlich das Halsband an und klinkt die Leine ein als Zeichen, dass für heute alle Entscheidungen abgegeben sind.`,
+          actor: `${domName} schließt das Halsband; ${subName} senkt ergeben das Kinn.`
+        },
+        {
+          title: "2. Begutachtung & Haltungskorrektur",
+          desc: `${subName} steht aufrecht im Raum. ${domName} umrundet den Partner langsam, prüft Haltung und Körperspannung und streicht prüfend über die Haut.`,
+          actor: `${domName} mustert mit ruhiger Autorität.`
+        },
+        {
+          title: "2. Sinnes-Fokus (Augenbinde anlegen)",
+          desc: `${domName} bindet ${subName} sanft eine Seidenbinde oder Schlafmaske um. Visuelle Reize fallen weg; Gehör und Tastsinn schärfen sich.`,
+          actor: `${subName} vertraut auf die Dunkelheit.`
+        }
+      ];
+
+      const phase2Options = [
+        {
           title: "3. Sensorische Weckung der Haut",
           desc: "Fingerspitzen, Nägel oder Seidentücher streichen über Wirbelsäule, Schenkel und Nacken. Das Genital wird noch streng ausgespart.",
           actor: `${subName} muss stillhalten und darf nicht nach vorne greifen.`
         },
         {
-          phase: 2,
-          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: "3. Temperaturspiel (Fire & Ice Kontraste)",
+          desc: "Schmelzende Eiswürfel im Wechsel mit heißem Atem oder warmem Massageöl über Nacken, Brust und Oberschenkel gleiten lassen.",
+          actor: `${domName} setzt überraschende Temperaturreize.`
+        },
+        {
+          title: "3. Teasing & Genitalverbot",
+          desc: "Hände streichen nah an Schamlippen/Glied vorbei, weichen aber im letzten Millimeter wieder ab. Das Verlangen wird gezielt angestaut.",
+          actor: `${subName} darf betteln, aber nicht zucken.`
+        },
+        {
+          title: "3. Sanftes Zupacken & Kratzspuren",
+          desc: "Mit festem Griff in die Hüften und sanften Fingernägeln über den Rücken die Durchblutung anregen und erste Gänsehaut erzeugen.",
+          actor: `${domName} packt fordernd zu.`
+        }
+      ];
+
+      const phase2Step4Options = [
+        {
           title: "4. Erste Begrenzung oder Fesselung anlegen",
           desc: "Handgelenke vorne oder hinten mit Seilen/Fesseln fixieren. Sicherheits-Cutter sichtbar bereitlegen. Kurze Prüfung der Fingerwärme.",
           actor: `${domName} fixiert die Gliedmaßen mit ruhiger Autorität.`
         },
         {
-          phase: 3,
-          phaseTitle: "Phase 3: Energetischer Höhepunkt",
+          title: "4. Knöchel arretieren & Bewegung begrenzen",
+          desc: "Beine an den Knöcheln zusammenbinden oder mit Spreizstange öffnen. Vollständige Auslieferung an die Führung des Tops.",
+          actor: `${subName} spürt die physische Begrenzung.`
+        },
+        {
+          title: "4. Handgelenke am Bettrahmen fixieren",
+          desc: "Die Hände straff am Kopfteil arretieren. Der Körper liegt weit geöffnet da; kein Wegziehen möglich.",
+          actor: `${domName} sichert die Verankerungen.`
+        },
+        {
+          title: "4. Vorbeuge über Kissen oder Bettrand",
+          desc: `${subName} beugt sich über ein festes Keilkissen oder den Bettrand; Becken erhöht, Hände fixiert auf dem Rücken.`,
+          actor: `${domName} richtet die Position exakt aus.`
+        }
+      ];
+
+      const phase3Options = [
+        {
           title: "5. Kern-Aktion (Impact / D/s / Hingabe)",
           desc: guidedState.intensity === 'sanft' 
             ? "Langes, tiefes Dösen, Halten und ruhige Penetration oder achtsames Streicheln."
@@ -1225,6 +1410,59 @@
                 ? "Dosierte Schläge mit der Hand oder dem Paddle auf den Po mit lautem Mitzählen, gefolgt von fordernder Vereinigung."
                 : "Edging an die Orgasmuskante mit strengem Haltesignal. Erlaubnis zum Kommen muss erbeten werden."),
           actor: `${domName} führt mit klarer Konsequenz; ${subName} gibt die Kontrolle ab.`
+        },
+        {
+          title: "5. Kern-Aktion (Spanking & Gesäß-Glühen)",
+          desc: "15 bis 25 kontrollierte Hiebe mit Hand oder Paddle auf den Po, bis die Haut warm pulsiert. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
+          actor: `${domName} setzt präzise Treffer; ${subName} nimmt den Schmerzreiz an.`
+        },
+        {
+          title: "5. Kern-Aktion (Mehrfaches Edging & Verweilen)",
+          desc: `${subName} dreimal kurz vor den Orgasmus treiben und abrupt stoppen. Auf dem Plateau verharren, bis die Gier ins Unermessliche wächst.`,
+          actor: `${domName} diktiert die Orgasmuskante mit eiserner Hand.`
+        },
+        {
+          title: "5. Kern-Aktion (Fordernde Vereinigung)",
+          desc: "Tiefe, kraftvolle Stöße in fester Haltung, bei denen kein Raum für Zweifel bleibt. Volles Eintauchen in den Rhythmus.",
+          actor: "Gemeinsames Verschmelzen in maximaler Intensität."
+        }
+      ];
+
+      return [
+        {
+          phase: 1,
+          phaseTitle: "Phase 1: Ankommen & Erdung",
+          title: phase1Options[seedMod].title,
+          desc: phase1Options[seedMod].desc,
+          actor: phase1Options[seedMod].actor
+        },
+        {
+          phase: 1,
+          phaseTitle: "Phase 1: Ankommen & Erdung",
+          title: phase1Step2Options[(seedMod + 1) % 4].title,
+          desc: phase1Step2Options[(seedMod + 1) % 4].desc,
+          actor: phase1Step2Options[(seedMod + 1) % 4].actor
+        },
+        {
+          phase: 2,
+          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: phase2Options[(seedMod + 2) % 4].title,
+          desc: phase2Options[(seedMod + 2) % 4].desc,
+          actor: phase2Options[(seedMod + 2) % 4].actor
+        },
+        {
+          phase: 2,
+          phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
+          title: phase2Step4Options[seedMod].title,
+          desc: phase2Step4Options[seedMod].desc,
+          actor: phase2Step4Options[seedMod].actor
+        },
+        {
+          phase: 3,
+          phaseTitle: "Phase 3: Energetischer Höhepunkt",
+          title: phase3Options[seedMod].title,
+          desc: phase3Options[seedMod].desc,
+          actor: phase3Options[seedMod].actor
         },
         {
           phase: 3,
@@ -1639,8 +1877,8 @@
           // STRIKTER SCHUTZ: Niemals Tabus (Note 1) empfehlen!
           if (scoreTop === 1 || scoreSub === 1) return;
 
-          // Beide müssen Bereitschaft signalisieren
-          if (scoreTop >= 2 && scoreSub >= 2) {
+          // Beide müssen Bereitschaft signalisieren (oder bei fehlenden Antworten Fallback)
+          if ((scoreTop === undefined || scoreTop >= 2) && (scoreSub === undefined || scoreSub >= 2)) {
             const matchObj = {
               item: it,
               scoreTop: scoreTop,
@@ -1675,99 +1913,73 @@
 
     function getSubRatingBadgeHtml(scoreSub) {
       if (scoreSub === 5) {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800">Note 5: ⭐ Kink-Favorit (Lustgewinn)</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800">⭐ Note 5: Kink-Favorit (Lustgewinn)</span>`;
       } else if (scoreSub === 4) {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-amber-950 text-amber-300 border border-amber-800">Note 4: ✨ Reizvoll / Lustvoll</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-amber-950 text-amber-300 border border-amber-800">✨ Note 4: Reizvoll / Lustvoll</span>`;
       } else if (scoreSub === 3) {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-blue-950 text-blue-300 border border-blue-800">Note 3: 💡 Neugierig / Zögernd</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-blue-950 text-blue-300 border border-blue-800">💡 Note 3: Neugierig / Zögernd</span>`;
       } else if (scoreSub === 2) {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-indigo-950 text-indigo-300 border border-indigo-800">Note 2: 🎁 Duldung / Echte Buße (Keine Lust)</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-indigo-950 text-indigo-300 border border-indigo-800">🎁 Note 2: Duldung / Echte Buße (Keine Lust)</span>`;
+      } else if (scoreSub === 1) {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-rose-950 text-rose-300 border border-rose-800">⛔ Note 1: TABU</span>`;
       } else {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-900 text-slate-400">Note: ${scoreSub || 'Offen'}</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-900 text-slate-400 border border-slate-800">Note des Bottoms: Noch unbewertet</span>`;
       }
     }
 
-    function renderMatchingKinksBoxHtml(cat) {
-      const hasAny = (cat.bondage.length > 0 || cat.gag.length > 0 || cat.impact.length > 0);
-      if (!hasAny) return '';
+    function renderMatchingKinksBoxHtml(catMatches) {
+      if (!catMatches) return '';
+      const { bondage = [], gag = [], impact = [] } = catMatches;
+      if (bondage.length === 0 && gag.length === 0 && impact.length === 0) return '';
+
+      const renderSection = (icon, title, list) => {
+        if (!list || list.length === 0) return '';
+        return `
+          <div class="space-y-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">${icon} ${title}:</span>
+            <div class="space-y-1">
+              ${list.map(m => `
+                <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[10.5px] flex items-center justify-between gap-1.5">
+                  <span class="text-white font-medium truncate">${m.item.id}. ${escapeHtml(m.item.title)}</span>
+                  ${m.isDoppel5 
+                    ? '<span class="px-1.5 py-0.5 rounded text-[8.5px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800 flex-shrink-0">⭐ Doppel-5</span>'
+                    : `<span class="flex-shrink-0">${getSubRatingBadgeHtml(m.scoreSub)}</span>`
+                  }
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      };
 
       return `
-        <div class="p-3.5 bg-purple-950/70 rounded-2xl border border-purple-800/80 space-y-2.5 mt-2">
-          <div class="flex items-center justify-between border-b border-purple-800/60 pb-1.5">
-            <strong class="text-amber-300 font-black text-[11.5px] flex items-center gap-1.5">
-              <span>💡</span> Passend dazu aus euren Fragebogen-Matches:
+        <div class="p-3 bg-purple-950/30 rounded-2xl border border-purple-800/50 space-y-2 pt-2">
+          <div class="flex items-center justify-between border-b border-purple-900/60 pb-1.5">
+            <strong class="text-purple-200 font-bold text-[11px] flex items-center gap-1.5">
+              <span>✨</span> Harmonische Kombi-Vorschläge (aus euren Matches):
             </strong>
-            <span class="text-[9.5px] text-purple-300 font-bold bg-purple-900/80 px-2 py-0.5 rounded">Transparente Bottom-Noten</span>
+            <span class="text-[9.5px] text-slate-400">Keine Tabus</span>
           </div>
-
-          <p class="text-[10px] text-slate-300 leading-snug">
-            Hier siehst du genau, ob eine Maßnahme den Bottom erotisch anregt (Note 4–5) oder echte, ungeliebte Buße (Note 2) darstellt:
-          </p>
-
-          <div class="space-y-2 pt-0.5">
-            ${cat.bondage.length > 0 ? `
-              <div>
-                <span class="text-[9.5px] font-black uppercase tracking-wider text-indigo-300 block mb-1">🪢 Passende Fixierung (Fesselung):</span>
-                <div class="space-y-1">
-                  ${cat.bondage.map(m => `
-                    <div class="p-2 rounded-xl bg-slate-900/90 border border-indigo-900/60 flex items-center justify-between text-[10.5px]">
-                      <div class="truncate mr-2">
-                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
-                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
-                      </div>
-                      ${getSubRatingBadgeHtml(m.scoreSub)}
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-
-            ${cat.gag.length > 0 ? `
-              <div>
-                <span class="text-[9.5px] font-black uppercase tracking-wider text-teal-300 block mb-1">🤐 Passender Knebel & Sinneskontrolle:</span>
-                <div class="space-y-1">
-                  ${cat.gag.map(m => `
-                    <div class="p-2 rounded-xl bg-slate-900/90 border border-teal-900/60 flex items-center justify-between text-[10.5px]">
-                      <div class="truncate mr-2">
-                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
-                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
-                      </div>
-                      ${getSubRatingBadgeHtml(m.scoreSub)}
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-
-            ${cat.impact.length > 0 ? `
-              <div>
-                <span class="text-[9.5px] font-black uppercase tracking-wider text-rose-300 block mb-1">🪵 Zucht- & Impact-Werkzeug:</span>
-                <div class="space-y-1">
-                  ${cat.impact.map(m => `
-                    <div class="p-2 rounded-xl bg-slate-900/90 border border-rose-900/60 flex items-center justify-between text-[10.5px]">
-                      <div class="truncate mr-2">
-                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
-                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
-                      </div>
-                      ${getSubRatingBadgeHtml(m.scoreSub)}
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
+          <div class="space-y-2">
+            ${renderSection('🪢', 'Passende Fixierung & Fesselung', bondage)}
+            ${renderSection('🤐', 'Passende Knebelung & Sinnesentzug', gag)}
+            ${renderSection('🪵', 'Dazu passendes Zucht- & Reizwerkzeug', impact)}
           </div>
         </div>
       `;
     }
 
     function openIncidentDisciplineModal() {
-      selectIncidentInfraction(activeInfractionType);
-      selectIncidentSeverity(activeInfractionSeverity);
-      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
+      const m = document.getElementById('modal-incident-discipline');
+      const subTarget = document.getElementById('incident-sub-target-name');
+      if (subTarget) subTarget.innerText = names[subPartner] || 'Bottom';
+      renderIncidentDisciplineResult();
+      if (m) m.classList.remove('hidden');
     }
 
     function closeIncidentDisciplineModal() {
-      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
+      const m = document.getElementById('modal-incident-discipline');
+      if (m) m.classList.add('hidden');
     }
 
     function selectIncidentInfraction(type) {
@@ -1798,9 +2010,9 @@
 
     function rerollIncidentCombination() {
       rollSeed++;
-      playGongSound(440);
+      playGongSound(460);
       renderIncidentDisciplineResult();
-      showToast("🎲 Frische Kombinations-Vorschläge ausgewürfelt!");
+      showToast("🎲 Neue Kombination & Alternativen ausgewürfelt!");
     }
 
     function renderIncidentDisciplineResult() {
@@ -1809,112 +2021,207 @@
 
       const subName = names[subPartner];
       const domName = names[getDomPartner()];
+      const subAnswers = answers[subPartner] || {};
 
-      const disciplinePresets = {
+      /* ECHTE MEHRFACH-OPTIONEN PRO KATEGORIE & SEVERITY FÜR DYNAMISCHES WÜRFELN */
+      const disciplinePool = {
         frech: {
-          leicht: {
-            title: "1. Ermahnung & Stillschweigen",
-            ritual: "5 Minuten regungslos mit dem Gesicht zur Wand stehen. Danach förmliche Entschuldigung.",
-            tools: "⏱️ 5-Min-Timer, stille Raumecke",
-            bondage: "Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.",
-            gag: "Kein Knebel nötig – Schweigepflicht auf Ehrenwort."
-          },
-          mittel: {
-            title: "2. Handspanking über den Knien (15 Hiebe)",
-            ritual: "15 gezielte Schläge mit der flachen Hand auf das entblößte Gesäß. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
-            tools: "✋ Flache Hand, Oberschenkel von Top",
-            bondage: "Handgelenke hinter dem Rücken mit weichen Fesseln fixieren, damit die Hände nicht zum Po greifen.",
-            gag: "Offener Ringknebel oder Augenbinde."
-          },
-          streng: {
-            title: "3. Formelle Zucht mit dem Lederpaddle (20 Schläge)",
-            ritual: "20 Hiebe mit dem Paddle über die Knie gelegt oder am Bettrand. Jede Regung verlängert um 2 Hiebe.",
-            tools: "🪵 Lederpaddle, Bettrand oder Kissen",
-            bondage: "Am Bettrand fixieren (Hände straff arretiert, Becken erhöht, Bewegungslosigkeit).",
-            gag: "Fester Silikon-Ballknebel oder Tuchknebel (Stöhnen dämpfen; Abbruch: Drop-Tuch)."
-          }
+          leicht: [
+            {
+              itemId: 363,
+              title: "1. Corner Time (5 Minuten)",
+              ritual: "5 Minuten regungslos mit dem Gesicht zur Wand stehen, Hände hinter dem Rücken verschränkt. Danach förmliche Abbitte.",
+              tools: "⏱️ 5-Min-Timer, stille Raumecke",
+              bondage: "Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.",
+              gag: "Kein Knebel nötig – Schweigepflicht auf Ehrenwort."
+            },
+            {
+              itemId: 348,
+              title: "1. Förmliches Knien (Nadu)",
+              ritual: `${escapeHtml(subName)} kniet mit geradem Rücken vor ${escapeHtml(domName)}, Blick zu Boden gesenkt, bis Erlaubnis zum Aufstehen erteilt wird.`,
+              tools: "🧘 Gepolsterte Matte",
+              bondage: "Knöchel mit Band zusammenlegen, um Trippeln zu verhindern.",
+              gag: "Schweigen geboten bis zur Freigabe."
+            }
+          ],
+          mittel: [
+            {
+              itemId: 262,
+              title: "2. Handspanking über den Knien (15 Hiebe)",
+              ritual: "15 gezielte Schläge mit der flachen Hand auf das entblößte Gesäß. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
+              tools: "✋ Flache Hand, Oberschenkel von Top",
+              bondage: "Handgelenke hinter dem Rücken mit weichen Fesseln fixieren, damit die Hände nicht zum Po greifen.",
+              gag: "Offener Ringknebel oder Augenbinde (Mund bleibt frei zum Mitzählen)."
+            },
+            {
+              itemId: 265,
+              title: "2. Zucht mit dem Wildleder-Flogger (20 Hiebe)",
+              ritual: "20 rhythmische Hiebe mit den Flogger-Riemen über das Gesäß. Gleichmäßiges Mitzählen bei jedem Hieb.",
+              tools: "🪶 Wildleder-Flogger",
+              bondage: "Hände an Bettkante oder Sessel fixieren.",
+              gag: "Tuchknebel zwischen den Zähnen."
+            }
+          ],
+          streng: [
+            {
+              itemId: 264,
+              title: "3. Formelle Zucht mit dem Lederpaddle (20 Schläge)",
+              ritual: "20 Hiebe mit dem breiten Lederpaddle über die Knie gelegt oder am Bettrand. Jede Regung verlängert um 2 Hiebe.",
+              tools: "🪵 Lederpaddle, Bettrand oder Kissen",
+              bondage: "Am Bettrand fixieren (Hände straff arretiert, Becken erhöht, Bewegungslosigkeit).",
+              gag: "Fester Silikon-Ballknebel oder Tuchknebel (Stöhnen dämpfen; Abbruch: Drop-Tuch)."
+            },
+            {
+              itemId: 275,
+              title: "3. Scharfe Zucht mit der Reitgerte / Cane (12 Hiebe)",
+              ritual: "12 präzise Hiebe auf die untere Gesäßkante. Kein Ausweichen erlaubt.",
+              tools: "🦯 Reitgerte oder Cane",
+              bondage: "Vier-Punkt-Arretierung am Bett oder Vorbeugebank.",
+              gag: "Ballknebel oder Knebelbinde."
+            }
+          ]
         },
         stillhalten: {
-          leicht: {
-            title: "1. Kniebank (5 Minuten Nadu)",
-            ritual: "Auf Knien verharren mit geradem Rücken und Händen auf den Schenkeln ohne zu zappeln.",
-            tools: "🧘 Gepolsterte Matte",
-            bondage: "Klettfesseln an den Knöcheln, um Trippeln zu unterbinden.",
-            gag: "Kein Knebel – ruhiges, gleichmäßiges Atmen durch die Nase gefordert."
-          },
-          mittel: {
-            title: "2. Fixierung der Handgelenke & Handspanking (10 Hiebe)",
-            ritual: "Hände hinter dem Rücken zusammenbinden, gefolgt von 10 Hieben zur Wiederherstellung der Ruhe.",
-            tools: "🩹 Klettfesseln, flache Hand",
-            bondage: "Hände stramm hinter dem Rücken fixieren; Beine angewinkelt festhalten.",
-            gag: "Tuchknebel zwischen den Zähnen, um jedes Stöhnen zu bändigen."
-          },
-          streng: {
-            title: "3. Vier-Punkt-Arretierung am Bett (15 Minuten)",
-            ritual: "Gliedmaßen fixieren; vollkommene Auslieferung und erzwungene Bewegungslosigkeit.",
-            tools: "🪢 Bettfesseln, Sicherheits-Cutter griffbereit",
-            bondage: "Vier-Punkt-Bettfesseln (Hände und Knöchel an den 4 Ecken straff gespannt).",
-            gag: "Silikon-Ballknebel & blickdichte Augenbinde (totale sensorische Hilflosigkeit)."
-          }
+          leicht: [
+            {
+              itemId: 348,
+              title: "1. Kniebank (5 Minuten Nadu)",
+              ritual: "Auf Knien verharren mit geradem Rücken und Händen auf den Schenkeln ohne zu zappeln.",
+              tools: "🧘 Gepolsterte Matte",
+              bondage: "Klettfesseln an den Knöcheln, um Trippeln zu unterbinden.",
+              gag: "Kein Knebel – ruhiges, gleichmäßiges Atmen durch die Nase gefordert."
+            },
+            {
+              itemId: 88,
+              title: "1. Befehl zum Bewegungslosen Stillhalten",
+              ritual: "Flach auf dem Rücken liegen; für 7 Minuten darf kein Muskel zucken.",
+              tools: "⏱️ Stoppuhr",
+              bondage: "Hände flach neben den Körper legen.",
+              gag: "Augenbinde (Fokus auf innere Ruhe)."
+            }
+          ],
+          mittel: [
+            {
+              itemId: 262,
+              title: "2. Fixierung der Handgelenke & Handspanking (10 Hiebe)",
+              ritual: "Hände hinter dem Rücken zusammenbinden, gefolgt von 10 Hieben zur Wiederherstellung der Ruhe.",
+              tools: "🩹 Klettfesseln, flache Hand",
+              bondage: "Hände stramm hinter dem Rücken fixieren; Beine angewinkelt festhalten.",
+              gag: "Tuchknebel zwischen den Zähnen, um jedes Stöhnen zu bändigen."
+            },
+            {
+              itemId: 206,
+              title: "2. Handgelenke straff am Bett fixieren",
+              ritual: "Hände 15 Minuten straff arretieren; Unruhe führt zu 5 zusätzlichen Minuten.",
+              tools: "🪢 Bettgurte",
+              bondage: "Handgelenke an den Ecken schließen.",
+              gag: "Offener Knebel."
+            }
+          ],
+          streng: [
+            {
+              itemId: 206,
+              title: "3. Vier-Punkt-Arretierung am Bett (15 Minuten)",
+              ritual: "Gliedmaßen fixieren; vollkommene Auslieferung und erzwungene Bewegungslosigkeit.",
+              tools: "🪢 Bettfesseln, Sicherheits-Cutter griffbereit",
+              bondage: "Vier-Punkt-Bettfesseln (Hände und Knöchel an den 4 Ecken straff gespannt).",
+              gag: "Silikon-Ballknebel & blickdichte Augenbinde (totale sensorische Hilflosigkeit)."
+            },
+            {
+              itemId: 229,
+              title: "3. Spreizstange & 15 Hiebe mit dem Paddle",
+              ritual: "Beine mit Spreizstange blockieren, gefolgt von 15 Paddle-Hieben auf das wehrlose Gesäß.",
+              tools: "🪵 Spreizstange & Paddle",
+              bondage: "Spreizstange an den Knöcheln, Hände gebunden.",
+              gag: "Ballknebel."
+            }
+          ]
         },
         zeit: {
-          leicht: {
-            title: "1. Strafzeilen schreiben (20 Zeilen auf Knien)",
-            ritual: "'Ich werde die Zeit und Anweisungen meiner Herrin / meines Herrn achten' 20-mal mit Füller schreiben.",
-            tools: "📝 Papier & Stift",
-            bondage: "Knöchel mit Band zusammenbinden, um saubere Haltung beim Knien am Couchtisch zu erzwingen.",
-            gag: "Tuchknebel (unterstreicht die absolute Stille bei der konzentrierten Schreibarbeit)."
-          },
-          mittel: {
-            title: "2. Smartphone-Verbot & 15 Minuten Corner Time",
-            ritual: "Das Smartphone wird eingezogen. 15 Minuten stummes Stehen mit Händen auf dem Rücken.",
-            tools: "📵 Handy-Sperrbox, Stoppuhr",
-            bondage: "Handgelenke hinter dem Rücken mit Lederfesseln schließen.",
-            gag: "Augenbinde (damit das Auge nicht im Raum umherschweift)."
-          },
-          streng: {
-            title: "3. Hausarbeit als Unterwerfungsdienst (Domestic Service)",
-            ritual: "Gründliche Reinigung des Bads oder der Küche auf Knien vor dem Schlafengehen.",
-            tools: "🧹 Putztuch, Eimer",
-            bondage: "Halsband mit kurzer Leine (wird vom Top beim Inspizieren gehalten).",
-            gag: "Offener Knebel oder Schweigepflicht bis zur sauberen Abnahme der Arbeit."
-          }
+          leicht: [
+            {
+              itemId: 362,
+              title: "1. Strafzeilen schreiben (20 Zeilen auf Knien)",
+              ritual: "'Ich werde die Zeit und Anweisungen meiner Herrin / meines Herrn achten' 20-mal mit Füller schreiben.",
+              tools: "📝 Papier & Stift",
+              bondage: "Knöchel mit Band zusammenbinden, um saubere Haltung beim Knien am Couchtisch zu erzwingen.",
+              gag: "Tuchknebel (unterstreicht die absolute Stille bei der konzentrierten Schreibarbeit)."
+            }
+          ],
+          mittel: [
+            {
+              itemId: 364,
+              title: "2. Smartphone-Verbot & 15 Minuten Corner Time",
+              ritual: "Das Smartphone wird eingezogen. 15 Minuten stummes Stehen mit Händen auf dem Rücken.",
+              tools: "📵 Handy-Sperrbox, Stoppuhr",
+              bondage: "Handgelenke hinter dem Rücken mit Lederfesseln schließen.",
+              gag: "Augenbinde (damit das Auge nicht im Raum umherschweift)."
+            }
+          ],
+          streng: [
+            {
+              itemId: 430,
+              title: "3. Hausarbeit als Unterwerfungsdienst (Domestic Service)",
+              ritual: "Gründliche Reinigung des Bads oder der Küche auf Knien vor dem Schlafengehen.",
+              tools: "🧹 Putztuch, Eimer",
+              bondage: "Halsband mit kurzer Leine (wird vom Top beim Inspizieren gehalten).",
+              gag: "Offener Knebel oder Schweigepflicht bis zur sauberen Abnahme der Arbeit."
+            }
+          ]
         },
         orgasmus: {
-          leicht: {
-            title: "1. Berührungsstopp & Stillschweigen",
-            ritual: "Sofortiger Abbruch jeder Genitalberührung. 15 Minuten stummes Liegenbleiben ohne Zucken.",
-            tools: "🛑 Berührungsstopp",
-            bondage: "Hände flach auf der Matratze fixieren.",
-            gag: "Augenbinde (zwingt zur inneren Einkehr und Besinnung)."
-          },
-          mittel: {
-            title: "2. Ruinierter Orgasmus & 24h Sperre",
-            ritual: "Abrupter Halt bei Kontraktionen; für die nächsten 24 Stunden keine weitere Lustentladung.",
-            tools: "⏳ 24h-Orgasmus-Verbot",
-            bondage: "Beine mit Spreizstange oder Riemen weit geöffnet arretieren.",
-            gag: "Tuchknebel oder Hand auf den Mund beim zuckenden Krampf."
-          },
-          streng: {
-            title: "3. Keuschheitsverlängerung (48 Stunden Käfig)",
-            ritual: "Verriegeln des Keuschheitskäfigs für 48 Stunden. Der Schlüssel bleibt sicher beim Top.",
-            tools: "🗝️ Keuschheitskäfig & Schloss",
-            bondage: "Keuschheitskäfig fest verriegelt; Hände für 20 Minuten hinter dem Rücken gebunden.",
-            gag: "Ballknebel während des feierlichen Zucht-Rituals."
-          }
+          leicht: [
+            {
+              itemId: 32,
+              title: "1. Berührungsstopp & Stillschweigen",
+              ritual: "Sofortiger Abbruch jeder Genitalberührung. 15 Minuten stummes Liegenbleiben ohne Zucken.",
+              tools: "🛑 Berührungsstopp",
+              bondage: "Hände flach auf der Matratze fixieren.",
+              gag: "Augenbinde (zwingt zur inneren Einkehr und Besinnung)."
+            }
+          ],
+          mittel: [
+            {
+              itemId: 78,
+              title: "2. Ruinierter Orgasmus & 24h Sperre",
+              ritual: "Abrupter Halt bei Kontraktionen; für die nächsten 24 Stunden keine weitere Lustentladung.",
+              tools: "⏳ 24h-Orgasmus-Verbot",
+              bondage: "Beine mit Spreizstange oder Riemen weit geöffnet arretieren.",
+              gag: "Tuchknebel oder Hand auf den Mund beim zuckenden Krampf."
+            }
+          ],
+          streng: [
+            {
+              itemId: 106,
+              title: "3. Keuschheitsverlängerung (48 Stunden Käfig)",
+              ritual: "Verriegeln des Keuschheitskäfigs für 48 Stunden. Der Schlüssel bleibt sicher beim Top.",
+              tools: "🗝️ Keuschheitskäfig & Schloss",
+              bondage: "Keuschheitskäfig fest verriegelt; Hände für 20 Minuten hinter dem Rücken gebunden.",
+              gag: "Ballknebel während des feierlichen Zucht-Rituals."
+            }
+          ]
         }
       };
 
-      const preset = disciplinePresets[activeInfractionType]?.[activeInfractionSeverity] || disciplinePresets.frech.mittel;
+      const options = disciplinePool[activeInfractionType]?.[activeInfractionSeverity] || disciplinePool.frech.mittel;
+      const preset = options[rollSeed % options.length];
+
+      /* BEWERTUNG DES BOTTOMS FÜR DIESE SPEZIFISCHE STRAFE AUSLESEN */
+      const subScore = subAnswers[`it_${preset.itemId}_r2`];
+      const ratingBadgeHtml = getSubRatingBadgeHtml(subScore);
+
       const catMatches = getCategorizedDisciplineMatches(activeInfractionSeverity);
 
       container.innerHTML = `
         <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-800/80 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <strong class="text-purple-300 font-extrabold text-xs">${preset.title}</strong>
-            <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-purple-950 text-purple-200 border border-purple-800">
-              Primäre Strafe
-            </span>
+          <div class="flex flex-wrap items-center justify-between gap-1.5 border-b border-purple-900/60 pb-2">
+            <div>
+              <strong class="text-purple-200 font-black text-xs block">${preset.title}</strong>
+              <span class="text-[9px] font-bold text-slate-400">Variante #${(rollSeed % options.length) + 1} von ${options.length}</span>
+            </div>
+            <div class="flex-shrink-0">
+              ${ratingBadgeHtml}
+            </div>
           </div>
 
           <p class="text-slate-200 text-[11px] leading-relaxed">${preset.ritual}</p>
