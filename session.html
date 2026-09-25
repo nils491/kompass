@@ -1291,12 +1291,22 @@
       };
 
       const title = disciplinePool[activeInfractionType]?.[activeInfractionSeverity] || "Zuchtmaßnahme";
+      
+      // Ausgewählte Baukasten-Komponenten ermitteln
+      const currentPreset = (disciplinePool[activeInfractionType]?.[activeInfractionSeverity]) 
+        ? (disciplinePool[activeInfractionType][activeInfractionSeverity]) 
+        : null;
+      
+      const fullLabel = `Zucht vollzogen: ${title}`;
 
-      logSessionEvent('action', `Zucht vollzogen: ${title}`, {
+      logSessionEvent('action', fullLabel, {
         infraction: activeInfractionType,
         severity: activeInfractionSeverity,
         sub: subName,
-        top: domName
+        top: domName,
+        postureChoice: customDisciplineChoice.postureIdx,
+        bondageChoice: customDisciplineChoice.bondageIdx,
+        gagChoice: customDisciplineChoice.gagIdx
       });
 
       triggerHapticPulse([150, 100, 200]);
@@ -1360,6 +1370,17 @@
       const modal = document.getElementById('modal-session-aftercare');
       if (modal) modal.classList.remove('hidden');
       showToast("💖 Session harmonisch beendet – Willkommen in der Nachsorge");
+    }
+
+    function closeAftercareModal() {
+      const modal = document.getElementById('modal-session-aftercare');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function completeSessionAndExit() {
+      closeAftercareModal();
+      returnToModeSelection();
+      showToast("Session beendet. Willkommen zurück im Portal.");
     }
 
     function saveSessionDebriefToDiary() {
@@ -1570,7 +1591,6 @@
     }
 
     function deleteDiaryEntry(sessionId) {
-      if (!confirm("Möchtest du diese Session wirklich unwiderruflich aus dem Tagebuch löschen?")) return;
       try {
         let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
         diary = diary.filter(e => e.id !== sessionId);
@@ -1578,7 +1598,7 @@
         initDynamicTimerDefault();
         renderSessionDiaryContent();
         checkUnreviewedSessionsToast();
-        showToast("Session gelöscht.");
+        showToast("Session aus dem Logbuch gelöscht.");
       } catch (e) {
         console.error(e);
       }
