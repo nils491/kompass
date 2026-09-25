@@ -37,19 +37,33 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
       background-color: #000000;
       color: #f8fafc;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      padding-left: env(safe-area-inset-left, 0px);
-      padding-right: env(safe-area-inset-right, 0px);
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
     }
     
-    .touch-pill { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-    .touch-pill:active { transform: scale(0.96); }
+    .touch-btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .touch-btn:active {
+      transform: scale(0.97);
+    }
     
     .session-card {
       background-color: #090d15;
@@ -68,7 +82,6 @@
       animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
-    /* Atem-Pacer Animation */
     @keyframes breath-cycle {
       0% { transform: scale(0.85); opacity: 0.6; }
       28% { transform: scale(1.3); opacity: 1; }
@@ -78,14 +91,16 @@
     .animate-breathing-circle {
       animation: breath-cycle 14s ease-in-out infinite;
     }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white overflow-x-hidden">
 
-  <!-- MODAL: VITAL- & NERVENCHECK (HINTERGRUND-TIMER ALARM) -->
+  <!-- MODAL: VITAL- & NERVENCHECK (15-MINUTEN TIMER ALARM) -->
   <div id="modal-vital-check-alarm" class="hidden fixed inset-0 z-[160] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="session-card border-2 border-amber-500 rounded-3xl max-w-md w-full p-5 sm:p-6 text-center space-y-4 shadow-2xl animate-pulse-subtle">
-      <div class="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500 text-amber-400 text-3xl mx-auto flex items-center justify-center shadow-lg">
+      <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500 text-amber-400 text-3xl mx-auto flex items-center justify-center shadow-lg">
         ⏱️
       </div>
       <div>
@@ -111,7 +126,7 @@
         </div>
       </div>
 
-      <button onclick="confirmVitalCheckDone()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill">
+      <button onclick="confirmVitalCheckDone()" class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn">
         ✓ Alles warm & durchblutet – Weiter im Spiel
       </button>
     </div>
@@ -155,12 +170,12 @@
       </div>
     </div>
 
-    <button onclick="dismissEmergencyScreen()" class="w-full max-w-md py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill mt-4">
+    <button onclick="dismissEmergencyScreen()" class="w-full max-w-md py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn mt-4">
       ✓ Situation stabilisiert – Notfallmodus beenden
     </button>
   </div>
 
-  <!-- SOFORT-BLACKOUT OVERLAY (TIPPEN ZUM ENTTARNEN) -->
+  <!-- SOFORT-BLACKOUT OVERLAY -->
   <div id="blackout-screen" onclick="toggleBlackout()" class="hidden fixed inset-0 z-[140] bg-black cursor-pointer flex items-center justify-center">
     <span class="text-slate-800 text-[10px] font-mono select-none">Tippen zum Enttarnen</span>
   </div>
@@ -168,54 +183,56 @@
   <!-- HEADER NAVIGATION -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
-      <!-- ZEILE 1: TITEL & ESSENZIELLER DARKROOM-SCHNELLZUGRIFF -->
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center space-x-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-brand-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 group touch-btn" title="Zurück zum Hub">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-brand-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 font-black text-xs group-hover:scale-105 transition-transform">
             🕯️
           </div>
           <div class="truncate">
             <div class="flex items-center gap-1.5">
               <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Session-Begleiter</h1>
-              <span class="px-1 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">Darkroom</span>
+              <span id="ai-active-badge-session" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">KI AKTIV</span>
             </div>
             <span class="text-[9.5px] text-slate-500 font-medium block truncate mt-0.5">Sicherheit & Dynamik im Schlafzimmer</span>
           </div>
-        </div>
+        </a>
 
         <!-- Schnell-Werkzeuge rechts -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <button onclick="openSessionDiaryModal()" class="px-2 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Session-Tagebuch einsehen">
+          <button onclick="openSessionDiaryModal()" class="px-2 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Session-Tagebuch">
             <span>📖</span> <span class="hidden sm:inline text-[11px]">Logbuch</span>
           </button>
-          <button onclick="openSessionSafetyCodexModal()" class="px-2 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Sicherheits-Kodex einsehen">
+          <button onclick="openSessionSafetyCodexModal()" class="px-2 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Sicherheits-Kodex">
             <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
           </button>
-          <button onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-pill" title="Akute Tabus für heute Abend">
+          <button onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Akute Tabus">
             <span>⛔</span> <span id="header-tabu-count">0</span>
           </button>
-          <button onclick="toggleBlackout()" class="p-1.5 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center transition touch-pill" title="Sofort-Blackout (Bildschirm schwarz)">
+          <button onclick="toggleBlackout()" class="p-2 session-panel hover:border-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs flex items-center transition touch-btn" title="Sofort-Blackout">
             <span>🌑</span>
           </button>
         </div>
       </div>
 
-      <!-- ZEILE 2: DURCHGÄNGIGE APP-TABS (AUF ALLEN SMARTPHONES 100% SICHTBAR & WISCHBAR) -->
+      <!-- HORIZONTAL SCROLLBARE APP-TABS -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
-        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-extrabold flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill shadow-xs">
+        <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>🏛️</span> <span>Start-Hub</span>
+        </a>
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>📝</span> <span>Fragebogen</span>
         </a>
-        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>🛡️</span> <span>Sicherheits-Kodex</span>
         </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-pill">
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>👤</span> <span>Mein Profil</span>
         </a>
-        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 font-bold whitespace-nowrap flex-shrink-0 touch-pill">
+        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 font-bold whitespace-nowrap flex-shrink-0 touch-btn">
           <span>📊</span> <span>Paar-Analyse</span>
         </a>
-        <span class="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
-          <span>🕯️</span> <span>Session-Cockpit</span>
+        <span class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
+          <span>🕯️</span> <span>Cockpit</span>
         </span>
       </nav>
     </div>
@@ -239,11 +256,10 @@
           </p>
         </div>
 
-        <!-- 2 Große Auswahl-Karten für die Dynamik -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           
           <!-- Konstellation B: Partner 1 = Top / Partner 2 = Bottom -->
-          <button type="button" onclick="selectPortalRoleSetup('B')" id="portal-card-role-B" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3">
+          <button type="button" onclick="selectPortalRoleSetup('B')" id="portal-card-role-B" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3">
             <div class="flex items-center justify-between">
               <span id="role-badge-indicator-B" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
                 ✓ Aktiv gewählt
@@ -275,7 +291,7 @@
           </button>
 
           <!-- Konstellation A: Partner 2 = Top / Partner 1 = Bottom -->
-          <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3">
+          <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3">
             <div class="flex items-center justify-between">
               <span id="role-badge-indicator-A" class="hidden px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
                 ✓ Aktiv gewählt
@@ -308,7 +324,6 @@
 
         </div>
 
-        <!-- Sicherheits-Kodex Hinweis vor dem Weitergehen -->
         <div class="p-3 bg-teal-950/30 border border-teal-800/50 rounded-2xl flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-2">
             <span class="text-lg">📜</span>
@@ -317,8 +332,7 @@
           <button onclick="openSessionSafetyCodexModal()" class="text-[10px] text-teal-300 font-bold underline">Prüfen ↗</button>
         </div>
 
-        <!-- Weiter zu Schritt 2 Button -->
-        <button type="button" onclick="goToPortalStep(2)" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-lg transition touch-pill flex items-center justify-center gap-2">
+        <button type="button" onclick="goToPortalStep(2)" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-lg transition touch-btn flex items-center justify-center gap-2">
           <span>✓ Rollen bestätigt: Weiter zur Spielart (Schritt 2)</span>
           <span>→</span>
         </button>
@@ -336,7 +350,6 @@
           </p>
         </div>
 
-        <!-- Aktive Rollen-Zusammenfassung mit Wechsel-Option -->
         <div class="session-card p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-2 text-xs shadow-xs">
           <div class="flex items-center gap-2 text-[11px]">
             <span class="text-base">👑</span>
@@ -345,16 +358,15 @@
               Bottom: <strong id="portal-step2-sub-name" class="text-brand-300">Partner 2</strong>
             </span>
           </div>
-          <button type="button" onclick="goToPortalStep(1)" class="px-2.5 py-1 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-[10px] transition touch-pill">
+          <button type="button" onclick="goToPortalStep(1)" class="px-2.5 py-1 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-[10px] transition touch-btn">
             ← Rollen ändern
           </button>
         </div>
 
-        <!-- Die 2 Grundwege -->
         <div class="grid grid-cols-1 gap-4">
           
           <!-- Weg 1: Freier Flow -->
-          <button onclick="selectSessionMode('free')" class="session-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
+          <button onclick="selectSessionMode('free')" class="session-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn shadow-md flex items-start gap-4">
             <div class="w-12 h-12 rounded-2xl bg-brand-950/80 border border-brand-700/80 text-brand-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
               🕯️
             </div>
@@ -371,7 +383,7 @@
           </button>
 
           <!-- Weg 2: Geführte Session -->
-          <button onclick="selectSessionMode('guided_flow')" class="session-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-pill shadow-md flex items-start gap-4">
+          <button onclick="selectSessionMode('guided_flow')" class="session-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn shadow-md flex items-start gap-4">
             <div class="w-12 h-12 rounded-2xl bg-purple-950/80 border border-purple-700/80 text-purple-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
               📖
             </div>
@@ -393,8 +405,8 @@
           <button type="button" onclick="goToPortalStep(1)" class="text-xs font-semibold text-slate-400 hover:text-white transition">
             ← Zurück zu Schritt 1 (Rollen)
           </button>
-          <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-slate-400 hover:text-white transition underline decoration-slate-600 underline-offset-4">
-            ⚖️ Oder gezielten D/s-Strafenkatalog öffnen
+          <button onclick="selectSessionMode('punishments')" class="text-xs font-semibold text-purple-300 hover:text-purple-200 transition underline decoration-purple-600 underline-offset-4">
+            ⚖️ Oder D/s-Strafenkonfigurator öffnen
           </button>
         </div>
       </div>
@@ -421,18 +433,15 @@
       </div>
 
       <!-- TIMER- & AMPEL-HERZSTÜCK -->
-      <div class="session-card p-4 sm:p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+      <div id="cockpit-timer-block" class="session-card p-4 sm:p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          
-          <!-- Timer-Display -->
           <div>
             <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Verbleibende Zeit</span>
             <div class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider" id="timer-display">45:00</div>
           </div>
 
-          <!-- Timer Controls -->
           <div class="flex items-center gap-2">
-            <button onclick="toggleTimer()" id="btn-timer-toggle" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5">
+            <button onclick="toggleTimer()" id="btn-timer-toggle" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn flex items-center gap-1.5">
               <span id="timer-icon">▶</span> <span id="timer-label">Starten</span>
             </button>
             <button onclick="adjustTimer(5)" class="px-3 py-2.5 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
@@ -444,7 +453,7 @@
           </div>
         </div>
 
-        <!-- SAFEWORT-AMPEL (RIESIGE TOUCH-FLÄCHEN) -->
+        <!-- SAFEWORT-AMPEL -->
         <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
           <div class="flex justify-between items-center text-[10.5px]">
             <span class="font-bold text-slate-400 uppercase tracking-wider">Sofort-Signale für <strong class="text-brand-300" id="safeword-sub-target-name">Bottom</strong>:</span>
@@ -452,15 +461,15 @@
           </div>
 
           <div class="grid grid-cols-3 gap-2">
-            <button onclick="handleSafewordSignal('green')" class="py-3 px-2 rounded-2xl bg-emerald-950/60 border-2 border-emerald-500/80 hover:bg-emerald-900/60 text-emerald-200 font-black text-xs sm:text-sm text-center transition touch-pill shadow-md">
+            <button onclick="handleSafewordSignal('green')" class="py-3 px-2 rounded-2xl bg-emerald-950/60 border-2 border-emerald-500/80 hover:bg-emerald-900/60 text-emerald-200 font-black text-xs sm:text-sm text-center transition touch-btn shadow-md">
               🟢 GRÜN
               <span class="block text-[9.5px] font-normal text-emerald-300/80 mt-0.5">Alles bestens</span>
             </button>
-            <button onclick="handleSafewordSignal('yellow')" class="py-3 px-2 rounded-2xl bg-amber-950/60 border-2 border-amber-500/80 hover:bg-amber-900/60 text-amber-200 font-black text-xs sm:text-sm text-center transition touch-pill shadow-md">
+            <button onclick="handleSafewordSignal('yellow')" class="py-3 px-2 rounded-2xl bg-amber-950/60 border-2 border-amber-500/80 hover:bg-amber-900/60 text-amber-200 font-black text-xs sm:text-sm text-center transition touch-btn shadow-md">
               🟡 GELB
               <span class="block text-[9.5px] font-normal text-amber-300/80 mt-0.5">Tempo senken</span>
             </button>
-            <button onclick="handleSafewordSignal('red')" class="py-3 px-2 rounded-2xl bg-rose-950/80 border-2 border-rose-500 hover:bg-rose-900 text-rose-100 font-black text-xs sm:text-sm text-center transition touch-pill shadow-lg animate-pulse-subtle">
+            <button onclick="handleSafewordSignal('red')" class="py-3 px-2 rounded-2xl bg-rose-950/80 border-2 border-rose-500 hover:bg-rose-900 text-rose-100 font-black text-xs sm:text-sm text-center transition touch-btn shadow-lg animate-pulse-subtle">
               🛑 ROT
               <span class="block text-[9.5px] font-normal text-rose-200 mt-0.5">Sofort-Stopp</span>
             </button>
@@ -468,35 +477,35 @@
         </div>
       </div>
 
-      <!-- WERKZEUG-LEISTE (EDGING, COUNTDOWN, VORFALL, STRAFEN) -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-        <button onclick="toggleEdgingToolPanel()" class="session-card p-3 rounded-2xl border text-left hover:border-brand-500/60 transition touch-pill space-y-1">
+      <!-- DYNAMISCHER INHALTSBEREICH (IM GEFÜHRTEN SPIEL DIREKT UNTER DEM TIMER) -->
+      <div id="cockpit-tab-content" class="space-y-4"></div>
+
+      <!-- WERKZEUG-LEISTE (EDGING, VORFALL/ZUCHT, ZEN-ATEM, SICHERHEIT) -->
+      <div id="cockpit-tools-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+        <button onclick="toggleEdgingToolPanel()" class="session-card p-3 rounded-2xl border text-left hover:border-brand-500/60 transition touch-btn space-y-1">
           <span class="text-xl">🎢</span>
           <strong class="block text-white text-xs font-bold">Edging-Counter</strong>
           <span class="text-[10.5px] text-slate-400 block"><span id="cockpit-edge-badge">0</span> Spitzen erreicht</span>
         </button>
 
-        <button onclick="openIncidentDisciplineModal()" class="session-card p-3 rounded-2xl border text-left hover:border-purple-500/60 transition touch-pill space-y-1">
+        <button onclick="openIncidentDisciplineModal()" class="session-card p-3 rounded-2xl border text-left hover:border-purple-500/60 transition touch-btn space-y-1">
           <span class="text-xl">⚡</span>
           <strong class="block text-white text-xs font-bold">Vorfall / Zucht</strong>
-          <span class="text-[10.5px] text-purple-300 block">Frechheit bestrafen</span>
+          <span class="text-[10.5px] text-purple-300 block">Strafen- & Kombi-Rechner</span>
         </button>
 
-        <button onclick="openBedsideZenModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-pill space-y-1">
+        <button onclick="openBedsideZenModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-btn space-y-1">
           <span class="text-xl">🫁</span>
           <strong class="block text-white text-xs font-bold">Zen & Atem</strong>
           <span class="text-[10.5px] text-teal-300 block">Vagusnerv beruhigen</span>
         </button>
 
-        <button onclick="openSessionSafetyCodexModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-pill space-y-1">
+        <button onclick="openSessionSafetyCodexModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-btn space-y-1">
           <span class="text-xl">📜</span>
           <strong class="block text-white text-xs font-bold">Sicherheits-Kodex</strong>
           <span class="text-[10.5px] text-slate-400 block">Cutter, Signale & Checks</span>
         </button>
       </div>
-
-      <!-- DYNAMISCHER BEREICH: GEFÜHRTES DREHBUCH ODER FREIE SZENEN -->
-      <div id="cockpit-tab-content" class="space-y-4"></div>
 
     </div>
 
@@ -516,9 +525,7 @@
         <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-tabu-modal-content">
-        <!-- Dynamischer Inhalt -->
-      </div>
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-tabu-modal-content"></div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
         <span class="text-[10px] text-slate-400">Verletzungen dieser Grenzen lösen sofortiges ROT aus.</span>
@@ -544,7 +551,6 @@
         <p class="text-[11px] text-slate-400">Folgt gemeinsam dem Kreis: Entlastet das Nervensystem bei Reizstress.</p>
       </div>
 
-      <!-- Optischer Atemkreis -->
       <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
         <div class="absolute inset-0 rounded-full bg-teal-500/20 border-2 border-teal-500/80 animate-breathing-circle"></div>
         <div class="text-center z-10 space-y-0.5">
@@ -559,7 +565,7 @@
         <div><strong>3. 6s Langsam ausatmen:</strong> Durch den leicht geöffneten Mund seufzen.</div>
       </div>
 
-      <button onclick="closeBedsideZenModal()" class="w-full py-3 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-2xl text-xs transition touch-pill">
+      <button onclick="closeBedsideZenModal()" class="w-full py-3 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-2xl text-xs transition touch-btn">
         ✓ Puls beruhigt – Zurück zur Session
       </button>
     </div>
@@ -589,52 +595,75 @@
     </div>
   </div>
 
-  <!-- MODAL: VORFALL-DISZIPLINIERUNG & SOFORT-STRAFEN -->
+  <!-- MODAL: D/S-STRAFENKONFIGURATOR MIT RATING-TRANSPARENZ & WÜRFEL-ENGINE -->
   <div id="modal-incident-discipline" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl max-w-md w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-purple-800/60 pb-2">
-        <h3 class="text-sm font-extrabold text-purple-200 flex items-center gap-1.5">
-          <span>⚖️</span> Sofort-Zucht für <span id="incident-sub-target-name" class="text-white">Partner 2</span>
-        </h3>
+    <div class="session-card rounded-3xl max-w-xl w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs max-h-[92vh] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-purple-800/60 pb-2 flex-shrink-0">
+        <div>
+          <h3 class="text-sm font-extrabold text-purple-200 flex items-center gap-1.5">
+            <span>⚖️</span> D/s-Zuchtrechner & Kombi-Plan für <span id="incident-sub-target-name" class="text-white">Partner 2</span>
+          </h3>
+          <p class="text-[10px] text-slate-400 mt-0.5">Zuchtmaßnahme + passende Fixierung & sensorische Kontrolle (mit Bottom-Rating)</p>
+        </div>
         <button onclick="closeIncidentDisciplineModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <p class="text-[11px] text-slate-400 leading-relaxed">
-        Wähle den Anlass des Regelverstoßes. Die App schlägt eine passende Konsequenz vor, die mit euren hinterlegten Grenzen harmoniert.
-      </p>
-
-      <div class="space-y-2">
-        <button onclick="applyIncidentDiscipline('frech')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
-          <div>
-            <strong class="text-white block">1. Frechheit & Vorlautes Verhalten</strong>
-            <span class="text-[10px] text-slate-400">Widerworte, unaufgefordertes Lachen</span>
+      <div class="space-y-3.5 overflow-y-auto flex-1 pr-1" id="incident-configurator-body">
+        
+        <!-- Schritt 1: Anlass / Vergehen wählen -->
+        <div class="space-y-1.5">
+          <span class="text-[10.5px] font-bold text-slate-300 uppercase tracking-wider block">1. Welcher Regelverstoß liegt vor?</span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="selectIncidentInfraction('frech')" id="btn-infraction-frech" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
+              🗣️ Frechheit & Widerworte
+            </button>
+            <button type="button" onclick="selectIncidentInfraction('stillhalten')" id="btn-infraction-stillhalten" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🧎 Zappeln & Haltungsfehler
+            </button>
+            <button type="button" onclick="selectIncidentInfraction('zeit')" id="btn-infraction-zeit" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              ⏳ Zeit- & Regelverstoß
+            </button>
+            <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infraction-orgasmus" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🔥 Unerlaubter Orgasmus
+            </button>
           </div>
-          <span class="text-[10px] text-purple-300 font-bold">10 Hiebe Handspanking →</span>
-        </button>
+        </div>
 
-        <button onclick="applyIncidentDiscipline('stillhalten')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
-          <div>
-            <strong class="text-white block">2. Zappeln & Nicht-Stillhalten</strong>
-            <span class="text-[10px] text-slate-400">Unerlaubte Bewegung unter Fixierung</span>
+        <!-- Schritt 2: Schweregrad wählen & Würfel-Button -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="text-[10.5px] font-bold text-slate-300 uppercase tracking-wider">2. Eigene Härte der Strafe (Primär):</span>
+            <button type="button" onclick="rerollIncidentCombination()" class="px-2.5 py-1 rounded-xl bg-purple-900/60 hover:bg-purple-800 border border-purple-600 text-purple-200 font-bold text-[10px] transition touch-btn flex items-center gap-1 shadow-xs">
+              <span>🎲</span> <span>Alternativen würfeln</span>
+            </button>
           </div>
-          <span class="text-[10px] text-purple-300 font-bold">5 Min. Kniebank / Nadu →</span>
-        </button>
+          <div class="grid grid-cols-3 gap-1.5 text-center">
+            <button type="button" onclick="selectIncidentSeverity('leicht')" id="btn-sev-leicht" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🟢 Leicht
+              <span class="block text-[9px] font-normal text-slate-400">Besinnung</span>
+            </button>
+            <button type="button" onclick="selectIncidentSeverity('mittel')" id="btn-sev-mittel" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
+              🟡 Mittel
+              <span class="block text-[9px] font-normal text-purple-300">Körperlich</span>
+            </button>
+            <button type="button" onclick="selectIncidentSeverity('streng')" id="btn-sev-streng" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🔴 Streng
+              <span class="block text-[9px] font-normal text-slate-400">Strenge Zucht</span>
+            </button>
+          </div>
+        </div>
 
-        <button onclick="applyIncidentDiscipline('zeit')" class="w-full p-2.5 rounded-xl session-panel hover:border-purple-500/80 text-left transition flex justify-between items-center">
-          <div>
-            <strong class="text-white block">3. Unerlaubter Orgasmus / Ausrutscher</strong>
-            <span class="text-[10px] text-slate-400">Gekommen ohne ausdrückliche Freigabe</span>
-          </div>
-          <span class="text-[10px] text-purple-300 font-bold">Verlängerung Keuschheit →</span>
-        </button>
+        <!-- Schritt 3: Berechnete Konsequenz mit "Das passt dazu" & Rating-Transparenz -->
+        <div id="incident-calculated-result-box" class="space-y-2 pt-1"></div>
+
       </div>
 
-      <div id="incident-action-result" class="hidden p-3 rounded-xl bg-purple-950/60 border border-purple-800 text-purple-200 text-[11px] space-y-1"></div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeIncidentDisciplineModal()" class="px-4 py-2 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
-        Fertig
-      </button>
+      <div class="pt-2 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
+        <span class="text-[10px] text-slate-500">Geprüft gegen eure hinterlegten Schutz-Tabus.</span>
+        <button onclick="closeIncidentDisciplineModal()" class="px-4 py-2 bg-purple-800 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition">
+          Verstanden & Schließen
+        </button>
+      </div>
     </div>
   </div>
 
@@ -678,7 +707,7 @@
             <input type="text" id="debrief-input-learning" placeholder="Learning: Was beim nächsten Mal anpassen?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
           </div>
 
-          <button type="button" onclick="saveSessionDebriefToDiary()" id="btn-save-debrief" class="w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-pill flex items-center justify-center gap-1.5">
+          <button type="button" onclick="saveSessionDebriefToDiary()" id="btn-save-debrief" class="w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
             <span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>
           </button>
         </div>
@@ -706,7 +735,7 @@
       </div>
 
       <div class="flex flex-col sm:flex-row gap-2 pt-1">
-        <button onclick="completeSessionAndExit()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs shadow-lg transition touch-pill">
+        <button onclick="completeSessionAndExit()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs shadow-lg transition touch-btn">
           ✓ Zurück zur Modus-Auswahl
         </button>
         <button onclick="closeAftercareModal()" class="px-4 py-3 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition">
@@ -730,9 +759,7 @@
         <button onclick="closeSessionDiaryModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-diary-list-content">
-        <!-- Dynamischer Inhalt -->
-      </div>
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-diary-list-content"></div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
         <span class="text-[10px] text-slate-500">Wird auch in der Paaranalyse synchronisiert.</span>
@@ -745,7 +772,6 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- SKRIPTE -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
@@ -753,28 +779,30 @@
   <script>
     let subPartner = 'B';
 
-    // Helper: Determine active Top partner based on selected Bottom
     function getDomPartner() {
       return subPartner === 'A' ? 'B' : 'A';
     }
 
     let currentPunishLvl = 'mittel';
+    let activeInfractionType = 'frech';
+    let activeInfractionSeverity = 'mittel';
+    let rollSeed = 0;
+
     let timerInterval = null;
     let timerRemaining = 45 * 60;
     let sessionTotalMinutes = 45;
     let sessionElapsedSeconds = 0;
-    let vitalCheckIntervalSeconds = 15 * 60; // 15 Minuten Standard
+    let vitalCheckIntervalSeconds = 15 * 60;
     let lastVitalCheckElapsed = 0;
 
     let currentSessionActiveMode = null;
     let portalCurrentStep = 1;
 
-    // Geführtes Spiel - Zustände
     let guidedState = {
       isConfigured: false,
       energyTop: 3,
       energySub: 3,
-      intensity: 'mittel', // sanft, mittel, intensiv
+      intensity: 'mittel',
       currentPhase: 1,
       currentStepIndex: 0,
       steps: []
@@ -788,11 +816,13 @@
     let audioCtx = null;
     let zenInterval = null;
 
+    const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+
     const safetyLabelsMap = {
       emergency_tools: {
         title: "Sicherheits-Cutter / Bandschneider",
         cutter_mandatory: "✂️ Pflicht: Liegt bei jeder Fesselung sichtbar in Griffweite des Tops",
-        cutter_shibari: "🪢 Nur bei komplexem Seil-Shibari zwingend erforderlich",
+        cutter_shibari: "🪢 Nur bei Seil-Shibari zwingend erforderlich",
         cutter_velcro_only: "🩹 Nicht nötig (nur Klettfesseln mit Schnellöffnung)"
       },
       safeword: {
@@ -884,6 +914,7 @@
       subPartner = p;
       updatePortalRoleCardsUI();
       updateTabuCounts();
+      renderIncidentDisciplineResult();
       showToast(`Bottom gewählt: ${names[p] || p}`);
     }
 
@@ -902,7 +933,6 @@
       if (step2Top) step2Top.innerText = domName;
       if (step2Sub) step2Sub.innerText = subName;
 
-      // Update cockpit top/sub displays
       const actTop = document.getElementById('active-cockpit-top-name');
       const actSub = document.getElementById('active-cockpit-sub-name');
       if (actTop) actTop.innerText = domName;
@@ -918,16 +948,16 @@
       document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
 
       if (subPartner === 'B') {
-        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3";
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
         if (badgeB) badgeB.classList.remove('hidden');
 
-        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3";
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
         if (badgeA) badgeA.classList.add('hidden');
       } else {
-        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-pill shadow-lg relative flex flex-col justify-between space-y-3";
+        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
         if (badgeA) badgeA.classList.remove('hidden');
 
-        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-pill shadow-md relative flex flex-col justify-between space-y-3";
+        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
         if (badgeB) badgeB.classList.add('hidden');
       }
     }
@@ -960,7 +990,7 @@
       const labels = {
         free: 'Modus: Freier Flow',
         guided_flow: 'Modus: Geführte 4-Phasen-Session',
-        punishments: 'Modus: D/s-Strafenkatalog'
+        punishments: 'Modus: D/s-Strafenkonfigurator'
       };
       if (badge) badge.innerText = labels[mode] || 'Session aktiv';
 
@@ -985,12 +1015,17 @@
 
     function renderActiveModeWorkspace() {
       const container = document.getElementById('cockpit-tab-content');
+      const timerBlock = document.getElementById('cockpit-timer-block');
+      const toolsBar = document.getElementById('cockpit-tools-bar');
       if (!container) return;
 
       const domName = names[getDomPartner()];
       const subName = names[subPartner];
 
       if (currentSessionActiveMode === 'free') {
+        if (timerBlock) timerBlock.classList.remove('hidden');
+        if (toolsBar) toolsBar.classList.remove('hidden');
+
         container.innerHTML = `
           <div class="session-card p-4 sm:p-5 rounded-3xl border border-slate-800 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -1004,7 +1039,7 @@
             </p>
 
             <div class="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
-              <button onclick="finishSessionRegularly()" class="w-full py-3.5 bg-gradient-to-r from-pink-700 to-brand-600 hover:from-pink-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill flex items-center justify-center gap-2">
+              <button onclick="finishSessionRegularly()" class="w-full py-3.5 bg-gradient-to-r from-pink-700 to-brand-600 hover:from-pink-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn flex items-center justify-center gap-2">
                 <span>💖</span> <span>Session harmonisch beenden & Aftercare starten</span>
               </button>
             </div>
@@ -1012,32 +1047,41 @@
         `;
       } else if (currentSessionActiveMode === 'guided_flow') {
         if (!guidedState.isConfigured) {
+          if (timerBlock) timerBlock.classList.add('hidden');
+          if (toolsBar) toolsBar.classList.add('hidden');
           renderGuidedCheckinForm(container);
         } else {
+          if (timerBlock) timerBlock.classList.remove('hidden');
+          if (toolsBar) toolsBar.classList.remove('hidden');
           renderGuidedPlaybook(container);
         }
       } else if (currentSessionActiveMode === 'punishments') {
+        if (timerBlock) timerBlock.classList.remove('hidden');
+        if (toolsBar) toolsBar.classList.remove('hidden');
         renderPunishmentsCatalog(container);
       }
     }
 
-    // TAGESFORM-CHECKIN FÜR GEFÜHRTE SESSION
     function renderGuidedCheckinForm(container) {
       const domName = names[getDomPartner()];
       const subName = names[subPartner];
 
       container.innerHTML = `
         <div class="session-card p-4 sm:p-6 rounded-3xl border border-purple-500/40 space-y-5">
-          <div class="border-b border-purple-900/60 pb-3">
-            <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
-              Vorbereitung: Tagesform-Abstimmung
-            </span>
-            <h3 class="text-base sm:text-lg font-black text-white mt-1">Euer Drehbuch für heute Abend</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und welche Intensität soll das Regiebuch einplanen?</p>
+          <div class="border-b border-purple-900/60 pb-3 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
+                Vorbereitung: Tagesform-Abstimmung
+              </span>
+              <h3 class="text-base sm:text-lg font-black text-white mt-1">Euer Drehbuch für heute Abend</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Wie viel Energie und welche Intensität soll das Regiebuch einplanen?</p>
+            </div>
+            <button type="button" onclick="rerollGuidedPlaybook()" class="px-2.5 py-1.5 rounded-xl bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-200 text-xs font-bold transition touch-btn flex items-center gap-1 shadow-xs">
+              <span>🎲</span> <span class="hidden sm:inline">Neues Drehbuch würfeln</span>
+            </button>
           </div>
 
           <div class="space-y-4 text-xs">
-            <!-- Energie Top -->
             <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-slate-300 font-bold">👑 Energie von Top (${escapeHtml(domName)}):</span>
@@ -1051,7 +1095,6 @@
               </div>
             </div>
 
-            <!-- Energie Sub -->
             <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-slate-300 font-bold">🧎 Belastbarkeit von Bottom (${escapeHtml(subName)}):</span>
@@ -1065,24 +1108,23 @@
               </div>
             </div>
 
-            <!-- Wunsch-Härtegrad -->
             <div class="space-y-1.5">
               <span class="text-slate-300 font-bold block">Gewünschte Spieltiefe:</span>
               <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="selectGuidedIntensity('sanft')" id="btn-int-sanft" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'sanft' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                <button type="button" onclick="selectGuidedIntensity('sanft')" id="btn-int-sanft" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'sanft' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
                   🌸 Sanft & Sinnlich
                 </button>
-                <button type="button" onclick="selectGuidedIntensity('mittel')" id="btn-int-mittel" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'mittel' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                <button type="button" onclick="selectGuidedIntensity('mittel')" id="btn-int-mittel" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'mittel' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
                   ⚡ Mäßig & Fordernd
                 </button>
-                <button type="button" onclick="selectGuidedIntensity('intensiv')" id="btn-int-intensiv" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill ${guidedState.intensity === 'intensiv' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
+                <button type="button" onclick="selectGuidedIntensity('intensiv')" id="btn-int-intensiv" class="p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn ${guidedState.intensity === 'intensiv' ? 'bg-purple-950 border-purple-500 text-white' : 'session-panel border-slate-800 text-slate-400'}">
                   🔥 Intensiv & Scharf
                 </button>
               </div>
             </div>
           </div>
 
-          <button onclick="startGuidedSessionPlaybook()" class="w-full py-3.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-pill">
+          <button onclick="startGuidedSessionPlaybook()" class="w-full py-3.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-xl transition touch-btn">
             📖 Drehbuch generieren & Session starten →
           </button>
         </div>
@@ -1107,10 +1149,17 @@
         const btn = document.getElementById(`btn-int-${i}`);
         if (btn) {
           btn.className = (i === int) 
-            ? "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill bg-purple-950 border-purple-500 text-white shadow-xs"
-            : "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-pill session-panel border-slate-800 text-slate-400";
+            ? "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn bg-purple-950 border-purple-500 text-white shadow-xs"
+            : "p-2.5 rounded-xl border text-center font-bold text-xs transition touch-btn session-panel border-slate-800 text-slate-400";
         }
       });
+    }
+
+    function rerollGuidedPlaybook() {
+      rollSeed++;
+      guidedState.steps = generatePersonalizedSessionSteps();
+      playGongSound(440);
+      showToast("🎲 Neues 4-Phasen-Drehbuch erfolgreich ausgewürfelt!");
     }
 
     function startGuidedSessionPlaybook() {
@@ -1119,38 +1168,39 @@
       guidedState.currentPhase = 1;
       guidedState.currentStepIndex = 0;
 
-      // Timer starten falls noch nicht aktiv
       if (!timerInterval) toggleTimer();
 
       renderActiveModeWorkspace();
       showToast("📖 Regiebuch gestartet: Phase 1 (Ankommen)");
     }
 
-    // GENERIERUNG DER SCHRITTE AUS EUREN REALEN MATCHES
     function generatePersonalizedSessionSteps() {
       const domName = names[getDomPartner()];
       const subName = names[subPartner];
       const cfgA = safetyConfig.A || {};
       const afcChoice = cfgA.aftercare || 'warmth';
 
+      const varA = rollSeed % 2 === 0;
+
       return [
-        // PHASE 1: ANKOMMEN & ERDUNG
         {
           phase: 1,
           phaseTitle: "Phase 1: Ankommen & Erdung",
-          title: "1. Mentaler Übergang & Safeword-Re-Check",
-          desc: "Setzt euch ruhig gegenüber. Beide atmen dreimal tief synchron aus. Der Top fragt: 'Bist du bereit, dich heute fallen zu lassen?' Das Safeword und Knebelzeichen werden kurz laut wiederholt.",
+          title: varA ? "1. Mentaler Übergang & Safeword-Re-Check" : "1. Blickkontakt & Synchrones Ausatmen",
+          desc: varA 
+            ? "Setzt euch ruhig gegenüber. Beide atmen dreimal tief synchron aus. Der Top fragt: 'Bist du bereit, dich heute fallen zu lassen?' Das Safeword und Knebelzeichen werden kurz laut wiederholt."
+            : "Der Top legt beide Hände ruhig auf die Schultern des Bottoms. 2 Minuten vollkommene Stille. Alle Alltagssorgen draußen lassen.",
           actor: `${domName} leitet die Atmung; ${subName} lässt die Schultern sinken.`
         },
         {
           phase: 1,
           phaseTitle: "Phase 1: Ankommen & Erdung",
-          title: "2. Förmliches Entkleiden & Haltung einnehmen",
-          desc: "Der Top entkleidet den Bottom langsam Stück für Stück. Der Bottom verharrt still und richtet den Blick nach unten oder empfängt das Halsband.",
+          title: varA ? "2. Förmliches Entkleiden & Haltung einnehmen" : "2. Sanftes Entblößen & Halsband anlegen",
+          desc: varA 
+            ? "Der Top entkleidet den Bottom langsam Stück für Stück. Der Bottom verharrt still und richtet den Blick nach unten oder empfängt das Halsband."
+            : "Jedes Kleidungsstück wird langsam abgelegt. Dem Bottom wird das Halsband angelegt als Zeichen, dass alle Entscheidungen für heute abgegeben sind.",
           actor: `${domName} bestimmt das Tempo des Entkleidens.`
         },
-
-        // PHASE 2: WARM-UP & TEASING
         {
           phase: 2,
           phaseTitle: "Phase 2: Teasing & Spannungsaufbau",
@@ -1165,8 +1215,6 @@
           desc: "Handgelenke vorne oder hinten mit Seilen/Fesseln fixieren. Sicherheits-Cutter sichtbar bereitlegen. Kurze Prüfung der Fingerwärme.",
           actor: `${domName} fixiert die Gliedmaßen mit ruhiger Autorität.`
         },
-
-        // PHASE 3: HAUPTAKTION & INTENSITÄT
         {
           phase: 3,
           phaseTitle: "Phase 3: Energetischer Höhepunkt",
@@ -1185,8 +1233,6 @@
           desc: "Der Höhepunkt wird gemeinsam oder auf Countdown eingeläutet. Vollständige Verschmelzung ohne Ablenkung.",
           actor: "Beide lassen die aufgestaute Spannung explodieren."
         },
-
-        // PHASE 4: AFTERCARE & LANDUNG
         {
           phase: 4,
           phaseTitle: "Phase 4: Aftercare & Schutz",
@@ -1232,12 +1278,11 @@
             </div>
           </div>
 
-          <!-- Schritt-Navigation -->
           <div class="flex items-center justify-between pt-1">
             <button onclick="prevGuidedStep()" class="px-3 py-2 session-panel border text-slate-400 hover:text-white font-bold rounded-xl text-xs transition disabled:opacity-30" ${guidedState.currentStepIndex === 0 ? 'disabled' : ''}>
               ← Vorheriger Schritt
             </button>
-            <button onclick="${isLast ? 'finishGuidedPlaybook()' : 'nextGuidedStep()'}" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill">
+            <button onclick="${isLast ? 'finishGuidedPlaybook()' : 'nextGuidedStep()'}" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn">
               ${isLast ? '✓ Session abschließen & Aftercare' : 'Nächster Schritt →'}
             </button>
           </div>
@@ -1274,7 +1319,6 @@
       playGongSound(528);
       triggerHapticPulse([100, 100, 200]);
 
-      // Aftercare-Text personalisieren
       const cfgA = safetyConfig.A || {};
       const afcChoice = cfgA.aftercare || 'warmth';
       const badgeEl = document.getElementById('aftercare-modal-rule-badge');
@@ -1307,7 +1351,7 @@
       if (btnSave) {
         btnSave.disabled = false;
         btnSave.innerHTML = `<span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>`;
-        btnSave.className = "w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-pill flex items-center justify-center gap-1.5";
+        btnSave.className = "w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5";
       }
 
       const modal = document.getElementById('modal-session-aftercare');
@@ -1434,28 +1478,37 @@
       showToast("Session abgeschlossen.");
     }
 
-    // INTERAKTIVER D/S-STRAFENKATALOG
     function renderPunishmentsCatalog(container) {
+      const domName = names[getDomPartner()];
       const subName = names[subPartner];
 
       container.innerHTML = `
-        <div class="session-card p-4 sm:p-5 rounded-3xl border border-purple-500/40 space-y-4">
-          <div class="border-b border-purple-900/60 pb-2 flex justify-between items-center">
+        <div class="session-card p-4 sm:p-5 rounded-3xl border border-purple-500/40 space-y-4 shadow-xl">
+          <div class="border-b border-purple-900/60 pb-3 flex flex-wrap justify-between items-center gap-2">
             <div>
-              <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                <span>⚖️</span> D/s-Strafenkatalog & Zucht
+              <span class="text-[9.5px] font-black uppercase tracking-wider text-purple-400 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">
+                Regelwerk & Zucht
+              </span>
+              <h3 class="text-sm sm:text-base font-extrabold text-white mt-1 flex items-center gap-1.5">
+                <span>⚖️</span> D/s-Strafenkonfigurator für ${escapeHtml(subName)}
               </h3>
-              <p class="text-[10px] text-slate-400 mt-0.5">Verbindliche Rituale für ${escapeHtml(subName)}</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Autorität von ${escapeHtml(domName)} – abgestimmt auf Spanking, Fesselung & Knebel</p>
             </div>
-            <div class="flex gap-1 text-[10px] font-bold">
-              <button onclick="setPunishmentTab('stufe1')" id="punish-tab-stufe1" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe1' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 1</button>
-              <button onclick="setPunishmentTab('stufe2')" id="punish-tab-stufe2" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe2' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 2</button>
-              <button onclick="setPunishmentTab('stufe3')" id="punish-tab-stufe3" class="px-2 py-1 rounded-lg ${currentPunishLvl === 'stufe3' ? 'bg-purple-700 text-white' : 'session-panel text-slate-400'}">Stufe 3</button>
+            
+            <div class="flex gap-1 text-[10px] font-bold bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <button onclick="setPunishmentTab('stufe1')" id="punish-tab-stufe1" class="px-2.5 py-1 rounded-lg ${currentPunishLvl === 'stufe1' ? 'bg-purple-700 text-white' : 'text-slate-400 hover:text-white'}">Stufe 1 (Milde)</button>
+              <button onclick="setPunishmentTab('stufe2')" id="punish-tab-stufe2" class="px-2.5 py-1 rounded-lg ${currentPunishLvl === 'stufe2' ? 'bg-purple-700 text-white' : 'text-slate-400 hover:text-white'}">Stufe 2 (Körperlich)</button>
+              <button onclick="setPunishmentTab('stufe3')" id="punish-tab-stufe3" class="px-2.5 py-1 rounded-lg ${currentPunishLvl === 'stufe3' ? 'bg-purple-700 text-white' : 'text-slate-400 hover:text-white'}">Stufe 3 (Streng)</button>
             </div>
           </div>
 
-          <div id="punishment-list-content" class="space-y-2 text-xs">
-            <!-- Dynamisch gefüllt je nach Stufe -->
+          <div id="punishment-list-content" class="space-y-3 text-xs"></div>
+
+          <div class="p-3 bg-purple-950/40 border border-purple-800/60 rounded-2xl flex items-center justify-between text-xs">
+            <span class="text-purple-200 text-[11px]">Akuter Vorfall während der Session?</span>
+            <button onclick="openIncidentDisciplineModal()" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-xl text-xs transition touch-btn">
+              ⚡ Akute Zucht & Kombi berechnen
+            </button>
           </div>
         </div>
       `;
@@ -1467,7 +1520,7 @@
       ['stufe1', 'stufe2', 'stufe3'].forEach(l => {
         const btn = document.getElementById(`punish-tab-${l}`);
         if (btn) {
-          btn.className = (l === lvl) ? 'px-2 py-1 rounded-lg bg-purple-700 text-white font-bold' : 'px-2 py-1 rounded-lg session-panel text-slate-400';
+          btn.className = (l === lvl) ? 'px-2.5 py-1 rounded-lg bg-purple-700 text-white font-bold' : 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white';
         }
       });
       renderPunishmentLevelContent();
@@ -1477,40 +1530,415 @@
       const c = document.getElementById('punishment-list-content');
       if (!c) return;
 
+      const subName = names[subPartner];
+      const categorizedMatches = getCategorizedDisciplineMatches(currentPunishLvl === 'stufe1' ? 'leicht' : (currentPunishLvl === 'stufe2' ? 'mittel' : 'streng'));
+
       if (currentPunishLvl === 'stufe1') {
         c.innerHTML = `
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">1. Förmliche Abbitte auf Knien (Nadu)</strong>
-            <p class="text-slate-300 text-[11px]">Bottom kniet aufrecht mit geradem Rücken vor dem Top, senkt den Blick und bittet förmlich um Verzeihung für den Fehler.</p>
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">1. Förmliche Abbitte auf Knien (Nadu)</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Demut</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${escapeHtml(subName)} kniet aufrecht mit geradem Rücken vor dem Top, senkt den Blick und bittet förmlich um Verzeihung für den Fehler ('Ich bitte um Entschuldigung für mein Verhalten').</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.</div>
+              <div>🤐 <strong>Knebel / Sprache:</strong> Redeverbot ohne Aufforderung; nur das förmliche Entschuldigungsgebet ist gestattet.</div>
+            </div>
           </div>
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">2. Ecke stehen (Corner Time – 5 Minuten)</strong>
-            <p class="text-slate-300 text-[11px]">Mit dem Gesicht zur Wand stillstehen, die Hände hinter dem Rücken verschränkt. Keine Worte, keine Ablenkung.</p>
+
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">2. In der Ecke stehen (Corner Time – 5 bis 10 Minuten)</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Besinnung</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Mit dem Gesicht zur Wand stillstehen, die Hände hinter dem Rücken verschränkt. Keine Worte, kein Handy, keine Ablenkung bis zum Freigabe-Signal.</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> Handgelenke hinter dem Rücken mit weichen Bändern oder Klett fixieren.</div>
+              <div>🤐 <strong>Knebel / Sinne:</strong> Augenbinde oder Seidentuch (schärft das Gehör auf die Schritte des Tops).</div>
+            </div>
           </div>
+
+          ${renderMatchingKinksBoxHtml(categorizedMatches)}
         `;
       } else if (currentPunishLvl === 'stufe2') {
         c.innerHTML = `
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">1. Handspanking über den Knien (Over the Knee)</strong>
-            <p class="text-slate-300 text-[11px]">10 bis 20 kontrollierte Hiebe mit der flachen Hand auf das entblößte Gesäß. Bottom zählt jeden Hieb laut mit ('Eins, danke Sir/Herrin').</p>
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">1. Handspanking über den Knien (Over the Knee)</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Körperlich</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">10 bis 20 kontrollierte Hiebe mit der warmen, flachen Hand auf das entblößte Gesäß. ${escapeHtml(subName)} zählt jeden Hieb laut mit ('Eins, danke Sir/Herrin'). Danach kühle Hand auflegen.</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> Hände hinter dem Rücken fixieren oder an den Oberschenkeln des Tops festhalten lassen, damit sie nicht schützend zum Po greifen.</div>
+              <div>🤐 <strong>Knebel / Sinne:</strong> Augenbinde empfohlen; Mund bleibt frei zum lauten und andächtigen Mitzählen.</div>
+            </div>
           </div>
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">2. Kniebank & Stillhalten (10 Minuten)</strong>
-            <p class="text-slate-300 text-[11px]">10 Minuten regungslos auf einer Matte knien, Hände auf den Oberschenkeln. Bei jedem Wackeln verlängert sich die Zeit um 1 Minute.</p>
+
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">2. Strafzeilen schreiben (Füller & Papier auf Knien)</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Fokus</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Einen vorgegebenen Satz 25-mal sauber auf Knien zu Papier bringen (z. B. 'Ich werde meiner Herrin / meinem Herrn aufmerksam zuhören').</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> Knöchel eng zusammenbinden (erzwingt saubere Haltung beim Knien am Couchtisch).</div>
+              <div>🤐 <strong>Knebel / Sinne:</strong> Tuchknebel (unterstreicht das vollkommene Stillschweigen bei der Schreibarbeit).</div>
+            </div>
           </div>
+
+          ${renderMatchingKinksBoxHtml(categorizedMatches)}
         `;
       } else {
         c.innerHTML = `
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">1. Zucht mit dem Lederpaddle</strong>
-            <p class="text-slate-300 text-[11px]">10 bis 15 flächige Schläge mit dem Paddle auf die Gesäßmuskeln bis zum deutlichen Glühen der Haut. Danach kühle Hand auflegen.</p>
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">1. Zucht mit dem Leder- oder Holz-Paddle</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Strenge Zucht</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">10 bis 15 flächige Schläge mit dem Paddle auf die Gesäßmuskeln bis zum deutlichen Glühen der Haut. Strenges Mitzählen und Haltungspflicht.</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> 4-Punkt-Arretierung am Bett oder Vorbeugebank (Hände straff fixiert, Becken erhöht, Flucht unmöglich).</div>
+              <div>🤐 <strong>Knebel / Sinne:</strong> Silikon-Ballknebel oder Tuchknebel (Stöhnen dämpfen; Notabbruch per Drop-Tuch in der Hand).</div>
+            </div>
           </div>
-          <div class="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-            <strong class="text-purple-300 block font-bold">2. Keuschheits-Verlängerung / Orgasmus-Entzug</strong>
-            <p class="text-slate-300 text-[11px]">Für die nächsten 48 Stunden bleibt der Käfig verschlossen bzw. jede Form der Lustentladung strikt untersagt.</p>
+
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="text-purple-300 font-bold block text-xs">2. Keuschheits-Verlängerung & Orgasmus-Entzug (Denial)</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Kontrolle</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Für die nächsten 24 bis 48 Stunden bleibt der Käfig verschlossen bzw. jede Form der Lustentladung strikt untersagt. Schlüssel bleibt beim Top.</p>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
+              <div>🪢 <strong>Kombi-Fixierung:</strong> Edelstahl- oder Silikon-Keuschheitskäfig mit Vorhängeschloss oder Zeittresor.</div>
+              <div>🤐 <strong>Knebel / Sinne:</strong> Halsband mit Leine beim täglichen Antreten zur Käfig-Inspektion.</div>
+            </div>
           </div>
+
+          ${renderMatchingKinksBoxHtml(categorizedMatches)}
         `;
       }
+    }
+
+    function getCategorizedDisciplineMatches(severity) {
+      const domPartner = getDomPartner();
+      const domAnswers = answers[domPartner] || {};
+      const subAnswers = answers[subPartner] || {};
+      const allChapters = window.surveyChapters || [];
+
+      let bondageMatches = [];
+      let gagMatches = [];
+      let impactMatches = [];
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type === 'choice') return;
+          const scoreTop = domAnswers[`it_${it.id}_r1`];
+          const scoreSub = subAnswers[`it_${it.id}_r2`];
+
+          // STRIKTER SCHUTZ: Niemals Tabus (Note 1) empfehlen!
+          if (scoreTop === 1 || scoreSub === 1) return;
+
+          // Beide müssen Bereitschaft signalisieren
+          if (scoreTop >= 2 && scoreSub >= 2) {
+            const matchObj = {
+              item: it,
+              scoreTop: scoreTop,
+              scoreSub: scoreSub,
+              isDoppel5: (scoreTop === 5 && scoreSub === 5)
+            };
+
+            if ([13, 14, 32].includes(ch.id)) {
+              bondageMatches.push(matchObj);
+            } else if ([15].includes(ch.id)) {
+              gagMatches.push(matchObj);
+            } else if ([16, 22, 23, 8, 35].includes(ch.id)) {
+              impactMatches.push(matchObj);
+            }
+          }
+        });
+      });
+
+      // Berücksichtigung des Würfel-Seeds
+      const rotBond = (bondageMatches.length > 0) ? (rollSeed % bondageMatches.length) : 0;
+      const rotGag = (gagMatches.length > 0) ? (rollSeed % gagMatches.length) : 0;
+      const rotImp = (impactMatches.length > 0) ? (rollSeed % impactMatches.length) : 0;
+
+      const shiftArr = (arr, s) => arr.slice(s).concat(arr.slice(0, s));
+
+      return {
+        bondage: shiftArr(bondageMatches, rotBond).slice(0, 2),
+        gag: shiftArr(gagMatches, rotGag).slice(0, 2),
+        impact: shiftArr(impactMatches, rotImp).slice(0, 2)
+      };
+    }
+
+    function getSubRatingBadgeHtml(scoreSub) {
+      if (scoreSub === 5) {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800">Note 5: ⭐ Kink-Favorit (Lustgewinn)</span>`;
+      } else if (scoreSub === 4) {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-amber-950 text-amber-300 border border-amber-800">Note 4: ✨ Reizvoll / Lustvoll</span>`;
+      } else if (scoreSub === 3) {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-blue-950 text-blue-300 border border-blue-800">Note 3: 💡 Neugierig / Zögernd</span>`;
+      } else if (scoreSub === 2) {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-black bg-indigo-950 text-indigo-300 border border-indigo-800">Note 2: 🎁 Duldung / Echte Buße (Keine Lust)</span>`;
+      } else {
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-900 text-slate-400">Note: ${scoreSub || 'Offen'}</span>`;
+      }
+    }
+
+    function renderMatchingKinksBoxHtml(cat) {
+      const hasAny = (cat.bondage.length > 0 || cat.gag.length > 0 || cat.impact.length > 0);
+      if (!hasAny) return '';
+
+      return `
+        <div class="p-3.5 bg-purple-950/70 rounded-2xl border border-purple-800/80 space-y-2.5 mt-2">
+          <div class="flex items-center justify-between border-b border-purple-800/60 pb-1.5">
+            <strong class="text-amber-300 font-black text-[11.5px] flex items-center gap-1.5">
+              <span>💡</span> Passend dazu aus euren Fragebogen-Matches:
+            </strong>
+            <span class="text-[9.5px] text-purple-300 font-bold bg-purple-900/80 px-2 py-0.5 rounded">Transparente Bottom-Noten</span>
+          </div>
+
+          <p class="text-[10px] text-slate-300 leading-snug">
+            Hier siehst du genau, ob eine Maßnahme den Bottom erotisch anregt (Note 4–5) oder echte, ungeliebte Buße (Note 2) darstellt:
+          </p>
+
+          <div class="space-y-2 pt-0.5">
+            ${cat.bondage.length > 0 ? `
+              <div>
+                <span class="text-[9.5px] font-black uppercase tracking-wider text-indigo-300 block mb-1">🪢 Passende Fixierung (Fesselung):</span>
+                <div class="space-y-1">
+                  ${cat.bondage.map(m => `
+                    <div class="p-2 rounded-xl bg-slate-900/90 border border-indigo-900/60 flex items-center justify-between text-[10.5px]">
+                      <div class="truncate mr-2">
+                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
+                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
+                      </div>
+                      ${getSubRatingBadgeHtml(m.scoreSub)}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${cat.gag.length > 0 ? `
+              <div>
+                <span class="text-[9.5px] font-black uppercase tracking-wider text-teal-300 block mb-1">🤐 Passender Knebel & Sinneskontrolle:</span>
+                <div class="space-y-1">
+                  ${cat.gag.map(m => `
+                    <div class="p-2 rounded-xl bg-slate-900/90 border border-teal-900/60 flex items-center justify-between text-[10.5px]">
+                      <div class="truncate mr-2">
+                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
+                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
+                      </div>
+                      ${getSubRatingBadgeHtml(m.scoreSub)}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${cat.impact.length > 0 ? `
+              <div>
+                <span class="text-[9.5px] font-black uppercase tracking-wider text-rose-300 block mb-1">🪵 Zucht- & Impact-Werkzeug:</span>
+                <div class="space-y-1">
+                  ${cat.impact.map(m => `
+                    <div class="p-2 rounded-xl bg-slate-900/90 border border-rose-900/60 flex items-center justify-between text-[10.5px]">
+                      <div class="truncate mr-2">
+                        <strong class="text-white block truncate">${m.item.id}. ${escapeHtml(m.item.title)}</strong>
+                        <span class="text-[9.5px] text-slate-400 truncate block">${escapeHtml(m.item.r1)}</span>
+                      </div>
+                      ${getSubRatingBadgeHtml(m.scoreSub)}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function openIncidentDisciplineModal() {
+      selectIncidentInfraction(activeInfractionType);
+      selectIncidentSeverity(activeInfractionSeverity);
+      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
+    }
+
+    function closeIncidentDisciplineModal() {
+      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
+    }
+
+    function selectIncidentInfraction(type) {
+      activeInfractionType = type;
+      ['frech', 'stillhalten', 'zeit', 'orgasmus'].forEach(t => {
+        const btn = document.getElementById(`btn-infraction-${t}`);
+        if (btn) {
+          btn.className = (t === type)
+            ? "p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
+            : "p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300";
+        }
+      });
+      renderIncidentDisciplineResult();
+    }
+
+    function selectIncidentSeverity(sev) {
+      activeInfractionSeverity = sev;
+      ['leicht', 'mittel', 'streng'].forEach(s => {
+        const btn = document.getElementById(`btn-sev-${s}`);
+        if (btn) {
+          btn.className = (s === sev)
+            ? "p-2 rounded-xl border font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
+            : "p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300";
+        }
+      });
+      renderIncidentDisciplineResult();
+    }
+
+    function rerollIncidentCombination() {
+      rollSeed++;
+      playGongSound(440);
+      renderIncidentDisciplineResult();
+      showToast("🎲 Frische Kombinations-Vorschläge ausgewürfelt!");
+    }
+
+    function renderIncidentDisciplineResult() {
+      const container = document.getElementById('incident-calculated-result-box');
+      if (!container) return;
+
+      const subName = names[subPartner];
+      const domName = names[getDomPartner()];
+
+      const disciplinePresets = {
+        frech: {
+          leicht: {
+            title: "1. Ermahnung & Stillschweigen",
+            ritual: "5 Minuten regungslos mit dem Gesicht zur Wand stehen. Danach förmliche Entschuldigung.",
+            tools: "⏱️ 5-Min-Timer, stille Raumecke",
+            bondage: "Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.",
+            gag: "Kein Knebel nötig – Schweigepflicht auf Ehrenwort."
+          },
+          mittel: {
+            title: "2. Handspanking über den Knien (15 Hiebe)",
+            ritual: "15 gezielte Schläge mit der flachen Hand auf das entblößte Gesäß. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
+            tools: "✋ Flache Hand, Oberschenkel von Top",
+            bondage: "Handgelenke hinter dem Rücken mit weichen Fesseln fixieren, damit die Hände nicht zum Po greifen.",
+            gag: "Offener Ringknebel oder Augenbinde."
+          },
+          streng: {
+            title: "3. Formelle Zucht mit dem Lederpaddle (20 Schläge)",
+            ritual: "20 Hiebe mit dem Paddle über die Knie gelegt oder am Bettrand. Jede Regung verlängert um 2 Hiebe.",
+            tools: "🪵 Lederpaddle, Bettrand oder Kissen",
+            bondage: "Am Bettrand fixieren (Hände straff arretiert, Becken erhöht, Bewegungslosigkeit).",
+            gag: "Fester Silikon-Ballknebel oder Tuchknebel (Stöhnen dämpfen; Abbruch: Drop-Tuch)."
+          }
+        },
+        stillhalten: {
+          leicht: {
+            title: "1. Kniebank (5 Minuten Nadu)",
+            ritual: "Auf Knien verharren mit geradem Rücken und Händen auf den Schenkeln ohne zu zappeln.",
+            tools: "🧘 Gepolsterte Matte",
+            bondage: "Klettfesseln an den Knöcheln, um Trippeln zu unterbinden.",
+            gag: "Kein Knebel – ruhiges, gleichmäßiges Atmen durch die Nase gefordert."
+          },
+          mittel: {
+            title: "2. Fixierung der Handgelenke & Handspanking (10 Hiebe)",
+            ritual: "Hände hinter dem Rücken zusammenbinden, gefolgt von 10 Hieben zur Wiederherstellung der Ruhe.",
+            tools: "🩹 Klettfesseln, flache Hand",
+            bondage: "Hände stramm hinter dem Rücken fixieren; Beine angewinkelt festhalten.",
+            gag: "Tuchknebel zwischen den Zähnen, um jedes Stöhnen zu bändigen."
+          },
+          streng: {
+            title: "3. Vier-Punkt-Arretierung am Bett (15 Minuten)",
+            ritual: "Gliedmaßen fixieren; vollkommene Auslieferung und erzwungene Bewegungslosigkeit.",
+            tools: "🪢 Bettfesseln, Sicherheits-Cutter griffbereit",
+            bondage: "Vier-Punkt-Bettfesseln (Hände und Knöchel an den 4 Ecken straff gespannt).",
+            gag: "Silikon-Ballknebel & blickdichte Augenbinde (totale sensorische Hilflosigkeit)."
+          }
+        },
+        zeit: {
+          leicht: {
+            title: "1. Strafzeilen schreiben (20 Zeilen auf Knien)",
+            ritual: "'Ich werde die Zeit und Anweisungen meiner Herrin / meines Herrn achten' 20-mal mit Füller schreiben.",
+            tools: "📝 Papier & Stift",
+            bondage: "Knöchel mit Band zusammenbinden, um saubere Haltung beim Knien am Couchtisch zu erzwingen.",
+            gag: "Tuchknebel (unterstreicht die absolute Stille bei der konzentrierten Schreibarbeit)."
+          },
+          mittel: {
+            title: "2. Smartphone-Verbot & 15 Minuten Corner Time",
+            ritual: "Das Smartphone wird eingezogen. 15 Minuten stummes Stehen mit Händen auf dem Rücken.",
+            tools: "📵 Handy-Sperrbox, Stoppuhr",
+            bondage: "Handgelenke hinter dem Rücken mit Lederfesseln schließen.",
+            gag: "Augenbinde (damit das Auge nicht im Raum umherschweift)."
+          },
+          streng: {
+            title: "3. Hausarbeit als Unterwerfungsdienst (Domestic Service)",
+            ritual: "Gründliche Reinigung des Bads oder der Küche auf Knien vor dem Schlafengehen.",
+            tools: "🧹 Putztuch, Eimer",
+            bondage: "Halsband mit kurzer Leine (wird vom Top beim Inspizieren gehalten).",
+            gag: "Offener Knebel oder Schweigepflicht bis zur sauberen Abnahme der Arbeit."
+          }
+        },
+        orgasmus: {
+          leicht: {
+            title: "1. Berührungsstopp & Stillschweigen",
+            ritual: "Sofortiger Abbruch jeder Genitalberührung. 15 Minuten stummes Liegenbleiben ohne Zucken.",
+            tools: "🛑 Berührungsstopp",
+            bondage: "Hände flach auf der Matratze fixieren.",
+            gag: "Augenbinde (zwingt zur inneren Einkehr und Besinnung)."
+          },
+          mittel: {
+            title: "2. Ruinierter Orgasmus & 24h Sperre",
+            ritual: "Abrupter Halt bei Kontraktionen; für die nächsten 24 Stunden keine weitere Lustentladung.",
+            tools: "⏳ 24h-Orgasmus-Verbot",
+            bondage: "Beine mit Spreizstange oder Riemen weit geöffnet arretieren.",
+            gag: "Tuchknebel oder Hand auf den Mund beim zuckenden Krampf."
+          },
+          streng: {
+            title: "3. Keuschheitsverlängerung (48 Stunden Käfig)",
+            ritual: "Verriegeln des Keuschheitskäfigs für 48 Stunden. Der Schlüssel bleibt sicher beim Top.",
+            tools: "🗝️ Keuschheitskäfig & Schloss",
+            bondage: "Keuschheitskäfig fest verriegelt; Hände für 20 Minuten hinter dem Rücken gebunden.",
+            gag: "Ballknebel während des feierlichen Zucht-Rituals."
+          }
+        }
+      };
+
+      const preset = disciplinePresets[activeInfractionType]?.[activeInfractionSeverity] || disciplinePresets.frech.mittel;
+      const catMatches = getCategorizedDisciplineMatches(activeInfractionSeverity);
+
+      container.innerHTML = `
+        <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-800/80 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-purple-300 font-extrabold text-xs">${preset.title}</strong>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-purple-950 text-purple-200 border border-purple-800">
+              Primäre Strafe
+            </span>
+          </div>
+
+          <p class="text-slate-200 text-[11px] leading-relaxed">${preset.ritual}</p>
+
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-[10.5px]">
+            <div class="text-indigo-300 flex items-start gap-1.5">
+              <span class="flex-shrink-0">🪢</span>
+              <div><strong>Dazu passende Haltung & Fesselung:</strong> ${preset.bondage}</div>
+            </div>
+            <div class="text-teal-300 flex items-start gap-1.5">
+              <span class="flex-shrink-0">🤐</span>
+              <div><strong>Dazu passende Knebelung & Sinne:</strong> ${preset.gag}</div>
+            </div>
+            <div class="text-slate-400 flex items-start gap-1.5 pt-1 border-t border-slate-900">
+              <span class="flex-shrink-0">🎒</span>
+              <div><strong>Benötigte Werkzeuge:</strong> <span class="text-slate-300">${preset.tools}</span></div>
+            </div>
+          </div>
+        </div>
+
+        ${renderMatchingKinksBoxHtml(catMatches)}
+      `;
+
+      triggerHapticPulse([60]);
     }
 
     function toggleTimer() {
@@ -1528,7 +1956,6 @@
             sessionElapsedSeconds++;
             renderTimerDisplay();
 
-            // VITAL-CHECK INTERVALL-PRÜFUNG (alle 15 Minuten)
             if (sessionElapsedSeconds - lastVitalCheckElapsed >= vitalCheckIntervalSeconds) {
               triggerVitalCheckAlarm();
             }
@@ -1573,11 +2000,11 @@
       if (!btn) return;
 
       if (isRunning) {
-        btn.className = "px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5";
+        btn.className = "px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn flex items-center gap-1.5";
         if (icon) icon.innerText = "⏸";
         if (lbl) lbl.innerText = "Pause";
       } else {
-        btn.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-pill flex items-center gap-1.5";
+        btn.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn flex items-center gap-1.5";
         if (icon) icon.innerText = "▶";
         if (lbl) lbl.innerText = "Starten";
       }
@@ -1751,7 +2178,6 @@
       if (subInd) subInd.innerText = swA === 'traffic' ? 'Ampelsystem & Drop-Tuch' : 'Codewort & Geste';
     }
 
-    // VOLLWERTIGES TABU-MODAL IM SESSION-BEGLEITER
     function openTabuModal() {
       const m = document.getElementById('modal-session-tabus');
       const c = document.getElementById('session-tabu-modal-content');
@@ -1776,11 +2202,9 @@
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
-          // Top darf/will Aktiv nicht
           if (domAnswers[`it_${it.id}_r1`] === 1) {
             topTabus.push({ item: it, text: it.r1 });
           }
-          // Bottom darf/will Passiv nicht
           if (subAnswers[`it_${it.id}_r2`] === 1) {
             bottomTabus.push({ item: it, text: it.r2 });
           }
@@ -1789,7 +2213,6 @@
 
       let html = `
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <!-- Top Ausführungsgrenzen -->
           <div class="p-3.5 bg-indigo-950/40 border border-indigo-800/60 rounded-2xl space-y-2">
             <div class="flex items-center justify-between border-b border-indigo-900 pb-1.5">
               <strong class="text-indigo-300 font-bold flex items-center gap-1.5">
@@ -1808,7 +2231,6 @@
             </div>
           </div>
 
-          <!-- Bottom Schutzgrenzen -->
           <div class="p-3.5 bg-rose-950/40 border border-rose-800/60 rounded-2xl space-y-2">
             <div class="flex items-center justify-between border-b border-rose-900 pb-1.5">
               <strong class="text-rose-300 font-bold flex items-center gap-1.5">
@@ -1866,30 +2288,6 @@
       showToast(`🎢 Edge #${edgeCount} registriert!`);
     }
 
-    function openIncidentDisciplineModal() {
-      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
-    }
-
-    function closeIncidentDisciplineModal() {
-      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
-    }
-
-    function applyIncidentDiscipline(type) {
-      const res = document.getElementById('incident-action-result');
-      if (!res) return;
-
-      const actions = {
-        frech: "✋ Handspanking: 10 kontrollierte Hiebe über den Knien mit lautem Mitzählen.",
-        stillhalten: "🧘 Kniebank: 5 Minuten regungslos knien mit Blick auf den Boden.",
-        zeit: "⏳ Keuschheit verlängert: Schlüssel bleibt für weitere 24 Stunden verschlossen."
-      };
-
-      res.innerText = actions[type] || "Konsequenz erteilt.";
-      res.classList.remove('hidden');
-      triggerHapticPulse([150, 100, 150]);
-    }
-
-    // INTERAKTIVER VAGUSNERV-ATEMPACER
     function openBedsideZenModal() {
       initAudio();
       playGongSound(380);
@@ -1916,6 +2314,15 @@
         zenInterval = null;
       }
       document.getElementById('modal-session-zen')?.classList.add('hidden');
+    }
+
+    function updateAiSessionIndicator() {
+      const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
+      const badge = document.getElementById('ai-active-badge-session');
+      if (badge) {
+        if (isAiActive) badge.classList.remove('hidden');
+        else badge.classList.add('hidden');
+      }
     }
 
     function showToast(msg) {
@@ -1964,6 +2371,7 @@
       updatePortalRoleCardsUI();
       updateSafetyCodexUI();
       updateTabuCounts();
+      updateAiSessionIndicator();
     });
   </script>
 </body>
