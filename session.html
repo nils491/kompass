@@ -193,7 +193,7 @@
               <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Session-Begleiter</h1>
               <span id="ai-active-badge-session" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">KI AKTIV</span>
             </div>
-            <span class="text-[9.5px] text-slate-500 font-medium block truncate mt-0.5">Sicherheit & Dynamik im Schlafzimmer</span>
+            <span class="text-[9.5px] text-slate-500 font-medium block truncate mt-0.5">Sicherheit, Dramaturgie & Live-Logbuch</span>
           </div>
         </a>
 
@@ -201,6 +201,7 @@
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <button onclick="openSessionDiaryModal()" class="px-2 py-1.5 session-panel hover:border-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Session-Tagebuch">
             <span>📖</span> <span class="hidden sm:inline text-[11px]">Logbuch</span>
+            <span id="header-unread-diary-badge" class="hidden w-2 h-2 rounded-full bg-pink-500"></span>
           </button>
           <button onclick="openSessionSafetyCodexModal()" class="px-2 py-1.5 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/80 text-teal-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Sicherheits-Kodex">
             <span>📜</span> <span class="hidden sm:inline text-[11px]">Sicherheit</span>
@@ -238,6 +239,18 @@
     </div>
   </header>
 
+  <!-- DEZENTER FEEDBACK-BANNER FÜR UNBEWERTETE SESSIONS -->
+  <div id="unreviewed-session-toast" class="hidden max-w-6xl mx-auto px-3 sm:px-6 pt-2">
+    <div class="p-2.5 rounded-2xl bg-pink-950/60 border border-pink-700/60 flex items-center justify-between text-xs text-pink-200">
+      <div class="flex items-center gap-2">
+        <span>📖</span>
+        <span>Ihr habt noch unbewertete Sessions im Logbuch.</span>
+        <button onclick="openSessionDiaryModal()" class="font-bold underline text-white hover:text-pink-300">Jetzt ansehen & bewerten ↗</button>
+      </div>
+      <button onclick="dismissUnreviewedBanner()" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+    </div>
+  </div>
+
   <!-- HAUPTBEREICH -->
   <main class="max-w-6xl mx-auto p-3 sm:p-5 flex-1 w-full space-y-4">
     
@@ -258,7 +271,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           
-          <!-- Konstellation A (JETZT DEFAULT): Partner 2 = Top / Partner 1 = Bottom -->
+          <!-- Konstellation A (DEFAULT): Partner 2 = Top / Partner 1 = Bottom -->
           <button type="button" onclick="selectPortalRoleSetup('A')" id="portal-card-role-A" class="session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3">
             <div class="flex items-center justify-between">
               <span id="role-badge-indicator-A" class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white uppercase tracking-wider">
@@ -354,8 +367,8 @@
           <div class="flex items-center gap-2 text-[11px]">
             <span class="text-base">👑</span>
             <span class="text-slate-300">
-              Top: <strong id="portal-step2-top-name" class="text-white">Partner 1</strong> &nbsp;|&nbsp; 
-              Bottom: <strong id="portal-step2-sub-name" class="text-brand-300">Partner 2</strong>
+              Top: <strong id="portal-step2-top-name" class="text-white">Partner 2</strong> &nbsp;|&nbsp; 
+              Bottom: <strong id="portal-step2-sub-name" class="text-brand-300">Partner 1</strong>
             </span>
           </div>
           <button type="button" onclick="goToPortalStep(1)" class="px-2.5 py-1 rounded-xl session-panel border text-slate-300 hover:text-white font-bold text-[10px] transition touch-btn">
@@ -423,8 +436,8 @@
             Modus: Freier Flow
           </span>
           <span class="text-slate-400">
-            Top: <strong class="text-white" id="active-cockpit-top-name">Partner 1</strong> &nbsp;|&nbsp; 
-            Bottom: <strong class="text-brand-300" id="active-cockpit-sub-name">Partner 2</strong>
+            Top: <strong class="text-white" id="active-cockpit-top-name">Partner 2</strong> &nbsp;|&nbsp; 
+            Bottom: <strong class="text-brand-300" id="active-cockpit-sub-name">Partner 1</strong>
           </span>
         </div>
         <button onclick="returnToModeSelection()" class="px-2.5 py-1 rounded-xl session-panel border text-slate-400 hover:text-white text-[10px] font-bold transition">
@@ -436,8 +449,11 @@
       <div id="cockpit-timer-block" class="session-card p-4 sm:p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Verbleibende Zeit</span>
-            <div class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider" id="timer-display">45:00</div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Verbleibende Zeit</span>
+              <span id="timer-avg-badge" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">Basis: Ø 60m</span>
+            </div>
+            <div class="text-4xl sm:text-5xl font-mono font-black text-white tracking-wider" id="timer-display">60:00</div>
           </div>
 
           <div class="flex items-center gap-2">
@@ -477,21 +493,62 @@
         </div>
       </div>
 
-      <!-- DYNAMISCHER INHALTSBEREICH (IM GEFÜHRTEN SPIEL DIREKT UNTER DEM TIMER) -->
+      <!-- DYNAMISCHES EDGING- & ORGASMUS-COCKPIT -->
+      <div id="edging-interactive-panel" class="hidden session-card p-4 sm:p-5 rounded-3xl border border-brand-500/60 space-y-4 shadow-xl bg-gradient-to-br from-brand-950/30 via-noir-900 to-black">
+        <div class="flex items-center justify-between border-b border-brand-900/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🎢</span>
+            <div>
+              <h3 class="text-xs sm:text-sm font-black text-white">Edging- & Orgasmussteuerung</h3>
+              <p class="text-[10px] text-brand-300">Countdown, Plateau & akustische Führung</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-brand-950 text-brand-300 border border-brand-800">
+              Spitzen: <strong id="edging-panel-count-display">0</strong>
+            </span>
+            <button onclick="toggleEdgingToolPanel(false)" class="text-slate-400 hover:text-white text-xs p-1">✕</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center">
+          <button onclick="registerEdgeHit()" class="p-3 rounded-2xl bg-amber-950/60 border border-amber-600 text-amber-200 font-bold text-xs hover:bg-amber-900/80 transition touch-btn flex flex-col items-center justify-center">
+            <span class="text-lg">⚡</span>
+            <span>Kante erreicht (Edge)</span>
+            <span class="text-[9px] text-amber-300/80 font-normal">Stoppen & Abkühlen</span>
+          </button>
+          <button onclick="startCountdownSpeech(10)" class="p-3 rounded-2xl bg-brand-950/70 border border-brand-500 text-brand-100 font-bold text-xs hover:bg-brand-900 transition touch-btn flex flex-col items-center justify-center">
+            <span class="text-lg">⏱️</span>
+            <span>10s Countdown (Stimme)</span>
+            <span class="text-[9px] text-brand-300 font-normal">Sinnliche Sprachführung</span>
+          </button>
+          <button onclick="triggerRuinedOrgasmVoice()" class="p-3 rounded-2xl bg-purple-950/60 border border-purple-600 text-purple-200 font-bold text-xs hover:bg-purple-900 transition touch-btn flex flex-col items-center justify-center">
+            <span class="text-lg">🛑</span>
+            <span>Ruinierter Orgasmus</span>
+            <span class="text-[9px] text-purple-300 font-normal">Zucken ohne Erlösung</span>
+          </button>
+        </div>
+
+        <div id="edging-speech-indicator" class="hidden p-2 rounded-xl bg-slate-900 border border-brand-800/80 text-center text-xs text-brand-200 font-mono animate-pulse">
+          🗣️ Sprachführung aktiv...
+        </div>
+      </div>
+
+      <!-- DYNAMISCHER INHALTSBEREICH (FREIER FLOW / GEFÜHRT / STRAFEN) -->
       <div id="cockpit-tab-content" class="space-y-4"></div>
 
       <!-- WERKZEUG-LEISTE (EDGING, VORFALL/ZUCHT, ZEN-ATEM, SICHERHEIT) -->
       <div id="cockpit-tools-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-        <button onclick="toggleEdgingToolPanel()" class="session-card p-3 rounded-2xl border text-left hover:border-brand-500/60 transition touch-btn space-y-1">
+        <button onclick="toggleEdgingToolPanel(true)" class="session-card p-3 rounded-2xl border text-left hover:border-brand-500/60 transition touch-btn space-y-1">
           <span class="text-xl">🎢</span>
-          <strong class="block text-white text-xs font-bold">Edging-Counter</strong>
-          <span class="text-[10.5px] text-slate-400 block"><span id="cockpit-edge-badge">0</span> Spitzen erreicht</span>
+          <strong class="block text-white text-xs font-bold">Edging-Cockpit</strong>
+          <span class="text-[10.5px] text-slate-400 block"><span id="cockpit-edge-badge">0</span> Spitzen & Countdown</span>
         </button>
 
         <button onclick="openIncidentDisciplineModal()" class="session-card p-3 rounded-2xl border text-left hover:border-purple-500/60 transition touch-btn space-y-1">
           <span class="text-xl">⚡</span>
           <strong class="block text-white text-xs font-bold">Vorfall / Zucht</strong>
-          <span class="text-[10.5px] text-purple-300 block">Strafen- & Kombi-Rechner</span>
+          <span class="text-[10.5px] text-purple-300 block">Stufen-Baukasten</span>
         </button>
 
         <button onclick="openBedsideZenModal()" class="session-card p-3 rounded-2xl border text-left hover:border-teal-500/60 transition touch-btn space-y-1">
@@ -518,150 +575,123 @@
         <div class="flex items-center gap-2">
           <span class="text-2xl">⛔</span>
           <div>
-            <h3 class="text-sm font-extrabold text-white">Akute Tabus für heute Abend</h3>
-            <p class="text-[10.5px] text-rose-300" id="tabu-modal-subtitle">Ausgewertet für die heutige Rollenverteilung</p>
+            <h3 class="text-sm font-extrabold text-white">Akute Tabu- & Schutz-Grenzen</h3>
+            <p class="text-[10.5px] text-rose-300" id="tabu-modal-subtitle">Gültig für die heutige Rollenverteilung</p>
           </div>
         </div>
-        <button onclick="closeSessionTabuModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
+        <button onclick="closeSessionTabuModal()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
       <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-tabu-modal-content"></div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <span class="text-[10px] text-slate-400">Verletzungen dieser Grenzen lösen sofortiges ROT aus.</span>
-        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs transition">
+        <span class="text-[10px] text-slate-500">Diese Handlungen lösen sofortiges ROT aus.</span>
+        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn transition">
           Verstanden & Schließen
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: INTERAKTIVER VAGUSNERV-ATEMPACER (ZEN & ATEM) -->
-  <div id="modal-session-zen" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl max-w-md w-full border border-teal-500/60 p-6 space-y-5 text-center shadow-2xl">
-      <div class="flex items-center justify-between border-b border-teal-900/60 pb-2">
-        <h3 class="text-xs font-black uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-          <span>🫁</span> Vagusnerv-Regulation & Erdung
-        </h3>
-        <button onclick="closeBedsideZenModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
-      </div>
-
-      <div class="space-y-1">
-        <h4 class="text-sm font-extrabold text-white">Synchrones Loslassen (4-4-6 Pacer)</h4>
-        <p class="text-[11px] text-slate-400">Folgt gemeinsam dem Kreis: Entlastet das Nervensystem bei Reizstress.</p>
-      </div>
-
-      <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full bg-teal-500/20 border-2 border-teal-500/80 animate-breathing-circle"></div>
-        <div class="text-center z-10 space-y-0.5">
-          <span class="text-2xl block">🌊</span>
-          <span class="text-xs font-black text-teal-200 uppercase tracking-widest" id="zen-breath-phase-text">Atmen</span>
+  <!-- MODAL: SICHERHEITS-KODEX IN DER SESSION -->
+  <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-2xl w-full border border-teal-500/60 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-teal-900/60 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📜</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Unser Sicherheits- & Konsens-Kodex</h3>
+            <p class="text-[10.5px] text-teal-300">Verbindlich vereinbarte Schutzregeln für heute</p>
+          </div>
         </div>
+        <button onclick="closeSessionSafetyCodexModal()" class="w-8 h-8 rounded-xl session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-1.5 text-slate-300">
-        <div><strong>1. 4s Einatmen:</strong> Tief durch die Nase in den Bauch.</div>
-        <div><strong>2. 4s Sanft halten:</strong> Ruhe im Körper spüren.</div>
-        <div><strong>3. 6s Langsam ausatmen:</strong> Durch den leicht geöffneten Mund seufzen.</div>
-      </div>
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-safety-codex-content"></div>
 
-      <button onclick="closeBedsideZenModal()" class="w-full py-3 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-2xl text-xs transition touch-btn">
-        ✓ Puls beruhigt – Zurück zur Session
+      <div class="pt-3 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button onclick="closeSessionSafetyCodexModal()" class="px-4 py-2 session-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ZEN-ATEM & VAGUSNERV -->
+  <div id="modal-session-zen" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="session-card rounded-3xl max-w-md w-full border border-teal-500/50 p-6 space-y-5 text-center shadow-2xl">
+      <div class="w-24 h-24 rounded-full bg-teal-950/60 border-2 border-teal-500 mx-auto flex items-center justify-center shadow-xl animate-breathing-circle">
+        <span class="text-3xl">🫁</span>
+      </div>
+      <div>
+        <span class="text-[10px] font-black uppercase tracking-widest text-teal-400 bg-teal-950/80 px-2.5 py-0.5 rounded-full border border-teal-800">
+          Vagusnerv-Regulation (4-4-6)
+        </span>
+        <h3 class="text-lg font-black text-white mt-2" id="zen-breath-phase-text">Einatmen (4s)</h3>
+        <p class="text-xs text-slate-300 mt-1">Synchronisiert euren Atem. Senkt Herzfrequenz und Adrenalin.</p>
+      </div>
+      <button onclick="closeBedsideZenModal()" class="w-full py-3 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-xs transition touch-btn">
+        Schließen & Zurück zur Session
       </button>
     </div>
   </div>
 
-  <!-- MODAL: UNSER VEREINBARTER SICHERHEITS- & KONSENS-KODEX -->
-  <div id="modal-session-safety-codex" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl max-w-xl w-full border border-teal-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-teal-800/60 pb-3 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">📜</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Unser verbindlicher Sicherheits-Kodex</h3>
-            <p class="text-[10.5px] text-teal-300">Aus dem Kompass-Konfigurator übernommen</p>
-          </div>
-        </div>
-        <button onclick="closeSessionSafetyCodexModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
-      </div>
-
-      <div class="space-y-2.5 overflow-y-auto flex-1 pr-1" id="session-safety-codex-content"></div>
-
-      <div class="pt-3 border-t border-slate-800 flex justify-end flex-shrink-0">
-        <button onclick="closeSessionSafetyCodexModal()" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-xl text-xs transition">
-          Verstanden & Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: D/S-STRAFENKONFIGURATOR MIT RATING-TRANSPARENZ & WÜRFEL-ENGINE -->
+  <!-- MODAL: D/S-STRAFENKONFIGURATOR ALS MEHRSTUFIGER BAUKASTEN MIT RATING-TRANSPARENZ & WÜRFEL-ENGINE -->
   <div id="modal-incident-discipline" class="hidden fixed inset-0 z-[110] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="session-card rounded-3xl max-w-xl w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs max-h-[92vh] flex flex-col justify-between">
       <div class="flex items-center justify-between border-b border-purple-800/60 pb-2 flex-shrink-0">
         <div>
           <h3 class="text-sm font-extrabold text-purple-200 flex items-center gap-1.5">
-            <span>⚖️</span> D/s-Zuchtrechner & Kombi-Plan für <span id="incident-sub-target-name" class="text-white">Partner 2</span>
+            <span>⚖️</span> D/s-Zuchtrechner für <span id="incident-sub-target-name" class="text-white">Partner 1</span>
           </h3>
-          <p class="text-[10px] text-slate-400 mt-0.5">Zuchtmaßnahme + passende Fixierung & sensorische Kontrolle (mit Bottom-Rating)</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Mehrstufiger Baukasten: Maßnahme + Haltung + Fesselung + Knebelung</p>
         </div>
         <button onclick="closeIncidentDisciplineModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
       <div class="space-y-3.5 overflow-y-auto flex-1 pr-1" id="incident-configurator-body">
         
-        <!-- Schritt 1: Anlass / Vergehen wählen -->
+        <!-- SCHRITT 1: ANLASS & SCHWEREGRAD -->
         <div class="space-y-1.5">
-          <span class="text-[10.5px] font-bold text-slate-300 uppercase tracking-wider block">1. Welcher Regelverstoß liegt vor?</span>
-          <div class="grid grid-cols-2 gap-1.5">
-            <button type="button" onclick="selectIncidentInfraction('frech')" id="btn-infraction-frech" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
-              🗣️ Frechheit & Widerworte
+          <span class="text-[10.5px] font-bold text-slate-300 uppercase tracking-wider block">1. Regelverstoß & Härte:</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            <button type="button" onclick="selectIncidentInfraction('frech')" id="btn-infraction-frech" class="p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
+              🗣️ Frechheit
             </button>
-            <button type="button" onclick="selectIncidentInfraction('stillhalten')" id="btn-infraction-stillhalten" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
-              🧎 Zappeln & Haltungsfehler
+            <button type="button" onclick="selectIncidentInfraction('stillhalten')" id="btn-infraction-stillhalten" class="p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🧎 Zappeln
             </button>
-            <button type="button" onclick="selectIncidentInfraction('zeit')" id="btn-infraction-zeit" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
-              ⏳ Zeit- & Regelverstoß
+            <button type="button" onclick="selectIncidentInfraction('zeit')" id="btn-infraction-zeit" class="p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              ⏳ Zeitfehler
             </button>
-            <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infraction-orgasmus" class="p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
-              🔥 Unerlaubter Orgasmus
+            <button type="button" onclick="selectIncidentInfraction('orgasmus')" id="btn-infraction-orgasmus" class="p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300">
+              🔥 Unerlaubt
             </button>
           </div>
-        </div>
-
-        <!-- Schritt 2: Schweregrad wählen & Würfel-Button -->
-        <div class="space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="text-[10.5px] font-bold text-slate-300 uppercase tracking-wider">2. Eigene Härte der Strafe (Primär):</span>
-            <button type="button" onclick="rerollIncidentCombination()" class="px-2.5 py-1 rounded-xl bg-purple-900/60 hover:bg-purple-800 border border-purple-600 text-purple-200 font-bold text-[10px] transition touch-btn flex items-center gap-1 shadow-xs">
-              <span>🎲</span> <span>Alternativen würfeln</span>
-            </button>
-          </div>
-          <div class="grid grid-cols-3 gap-1.5 text-center">
-            <button type="button" onclick="selectIncidentSeverity('leicht')" id="btn-sev-leicht" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+          <div class="grid grid-cols-3 gap-1.5 text-center pt-1">
+            <button type="button" onclick="selectIncidentSeverity('leicht')" id="btn-sev-leicht" class="p-1.5 rounded-xl border font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300">
               🟢 Leicht
-              <span class="block text-[9px] font-normal text-slate-400">Besinnung</span>
             </button>
-            <button type="button" onclick="selectIncidentSeverity('mittel')" id="btn-sev-mittel" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
+            <button type="button" onclick="selectIncidentSeverity('mittel')" id="btn-sev-mittel" class="p-1.5 rounded-xl border font-bold text-[10.5px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs">
               🟡 Mittel
-              <span class="block text-[9px] font-normal text-purple-300">Körperlich</span>
             </button>
-            <button type="button" onclick="selectIncidentSeverity('streng')" id="btn-sev-streng" class="p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300">
+            <button type="button" onclick="selectIncidentSeverity('streng')" id="btn-sev-streng" class="p-1.5 rounded-xl border font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300">
               🔴 Streng
-              <span class="block text-[9px] font-normal text-slate-400">Strenge Zucht</span>
             </button>
           </div>
         </div>
 
-        <!-- Schritt 3: Berechnete Konsequenz mit "Das passt dazu" & Rating-Transparenz -->
-        <div id="incident-calculated-result-box" class="space-y-2 pt-1"></div>
+        <!-- SCHRITT 2: DER DYNAMISCHE 4-STUFEN-BAUKASTEN -->
+        <div id="incident-wizard-box" class="space-y-2.5 pt-1 border-t border-slate-800"></div>
 
       </div>
 
       <div class="pt-2 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <span class="text-[10px] text-slate-500">Geprüft gegen eure hinterlegten Schutz-Tabus.</span>
-        <button onclick="closeIncidentDisciplineModal()" class="px-4 py-2 bg-purple-800 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition">
-          Verstanden & Schließen
+        <button type="button" onclick="rerollIncidentCombination()" class="px-3 py-2 bg-purple-900/60 hover:bg-purple-800 border border-purple-600 text-purple-200 font-bold rounded-xl text-xs transition touch-btn flex items-center gap-1 shadow-xs">
+          <span>🎲</span> <span>Alternativen würfeln</span>
+        </button>
+        <button onclick="applyConfiguredDiscipline()" class="px-4 py-2.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-xl text-xs transition shadow-md touch-btn flex items-center gap-1.5">
+          <span>⚡</span> <span>Strafe jetzt anwenden & im Logbuch erfassen</span>
         </button>
       </div>
     </div>
@@ -669,7 +699,7 @@
 
   <!-- MODAL: REGULÄRER SESSION-ABSCHLUSS & AFTERCARE-LANDUNG -->
   <div id="modal-session-aftercare" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl max-w-lg w-full border border-pink-500/50 p-6 space-y-5 text-center shadow-2xl">
+    <div class="session-card rounded-3xl max-w-lg w-full border border-pink-500/50 p-6 space-y-4 text-center shadow-2xl max-h-[90vh] overflow-y-auto">
       <div class="w-14 h-14 rounded-full bg-pink-950/60 border border-pink-500/50 text-pink-300 text-2xl mx-auto flex items-center justify-center shadow-lg">
         💖
       </div>
@@ -684,16 +714,16 @@
         </p>
       </div>
 
-      <!-- 2-MINUTEN DE-BRIEFING FÜRS TAGEBUCH -->
+      <!-- DEZENTES 1-MINUTEN DE-BRIEFING BEIDER PARTNER (OPTIONAL) -->
       <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-pink-900/40 text-left text-xs space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
           <strong class="text-pink-300 font-bold flex items-center gap-1.5">
-            <span>📝</span> 1-Minuten De-Briefing (Optional fürs Tagebuch):
+            <span>📝</span> Kurzes Fazit (Optional – kann auch später im Logbuch ergänzt werden):
           </strong>
           <span class="text-[10px] text-slate-400" id="aftercare-diary-time-badge">Dauer: 0 Min.</span>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <div>
             <div class="flex justify-between text-[11px] text-slate-300 font-semibold mb-1">
               <span>Intensität des Abends:</span>
@@ -702,36 +732,34 @@
             <input type="range" min="1" max="10" value="7" oninput="document.getElementById('disp-debrief-intensity').innerText = this.value + ' / 10'" id="debrief-input-intensity" class="w-full accent-pink-500 cursor-pointer">
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            <input type="text" id="debrief-input-highlight" placeholder="Highlight: Was war heute besonders schön?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
-            <input type="text" id="debrief-input-learning" placeholder="Learning: Was beim nächsten Mal anpassen?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <span class="text-[10px] font-bold text-slate-300 block mb-0.5">👑 Top (<span id="aftercare-top-name-label">Top</span>):</span>
+              <input type="text" id="debrief-input-top-note" placeholder="Eindruck / Highlight..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
+            </div>
+            <div>
+              <span class="text-[10px] font-bold text-brand-300 block mb-0.5">🧎 Bottom (<span id="aftercare-sub-name-label">Bottom</span>):</span>
+              <input type="text" id="debrief-input-sub-note" placeholder="Wie hat es sich angefühlt?..." class="w-full text-[11px] p-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-pink-500">
+            </div>
           </div>
 
-          <button type="button" onclick="saveSessionDebriefToDiary()" id="btn-save-debrief" class="w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
-            <span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>
+          <button type="button" onclick="saveSessionDebriefToDiary()" id="btn-save-debrief" class="w-full py-2.5 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
+            <span>💾</span> <span>Im Beziehungs-Tagebuch speichern</span>
           </button>
         </div>
       </div>
 
       <!-- Vereinbarter Aftercare-Schwerpunkt -->
-      <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-2.5">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+      <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 text-left text-xs space-y-2">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <strong class="text-pink-300 font-bold flex items-center gap-1.5">
-            <span>🍵</span> Euer vereinbartes Nachsorge-Ritual:
+            <span>🍵</span> Euer Nachsorge-Ritual:
           </strong>
           <span class="text-[10px] text-slate-400 font-mono" id="aftercare-modal-rule-badge">Körperwärme & Stille</span>
         </div>
         <p class="text-slate-300 text-[11px] leading-relaxed" id="aftercare-modal-desc">
-          Wickelt den Bottom in dicke Decken, reicht warmes Wasser oder Tee und haltet euch mindestens 15 bis 20 Minuten wortlos im Arm, um den Hormonabsturz (Subdrop) abzufedern.
+          Wickelt den Bottom in dicke Decken, reicht warmes Wasser oder Tee und haltet euch 15 bis 20 Minuten wortlos im Arm.
         </p>
-        <div class="grid grid-cols-2 gap-2 pt-1 text-[10px] text-slate-400">
-          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80">
-            📵 <strong>Offline-Phase:</strong> 20 Minuten Handy-Ruhe
-          </div>
-          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80">
-            💬 <strong>24h-Check-in:</strong> Morgen kurz rückmelden
-          </div>
-        </div>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-2 pt-1">
@@ -745,24 +773,24 @@
     </div>
   </div>
 
-  <!-- MODAL: SESSION-TAGEBUCH & LOGBUCH -->
+  <!-- MODAL: SESSION-TAGEBUCH & LOGBUCH MIT DUAL-FEEDBACK & EINZELAKTION-BEWERTUNG -->
   <div id="modal-session-diary" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="session-card rounded-3xl max-w-xl w-full border border-pink-500/50 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+    <div class="session-card rounded-3xl max-w-2xl w-full border border-pink-500/50 p-5 space-y-4 shadow-2xl max-h-[88vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-pink-900/60 pb-3 flex-shrink-0">
         <div class="flex items-center gap-2">
           <span class="text-2xl">📖</span>
           <div>
             <h3 class="text-sm font-extrabold text-white">Unser Schlafzimmer-Tagebuch</h3>
-            <p class="text-[10.5px] text-pink-300">Gemeinsame Session-Historie & Reflexionen</p>
+            <p class="text-[10.5px] text-pink-300">Live-Protokoll, Feedback beider Partner & Bewertung einzelner Aktionen</p>
           </div>
         </div>
         <button onclick="closeSessionDiaryModal()" class="w-7 h-7 rounded-lg session-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="session-diary-list-content"></div>
+      <div class="space-y-3.5 overflow-y-auto flex-1 pr-1" id="session-diary-list-content"></div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <span class="text-[10px] text-slate-500">Wird auch in der Paaranalyse synchronisiert.</span>
+        <span class="text-[10px] text-slate-500">Synchronisiert sich live mit der Paaranalyse.</span>
         <button onclick="closeSessionDiaryModal()" class="px-4 py-2 session-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
           Schließen
         </button>
@@ -791,9 +819,22 @@
     let activeInfractionSeverity = 'mittel';
     let rollSeed = 0;
 
+    /* Live Session Events Log */
+    let currentLiveEvents = [];
+    let currentSessionStartTime = null;
+
+    /* Discipline Wizard State */
+    let customDisciplineChoice = {
+      primaryIdx: 0,
+      postureIdx: 0,
+      bondageIdx: 0,
+      gagIdx: 0
+    };
+
     let timerInterval = null;
-    let timerRemaining = 45 * 60;
-    let sessionTotalMinutes = 45;
+    let defaultSessionMinutes = 60;
+    let timerRemaining = 60 * 60;
+    let sessionTotalMinutes = 60;
     let sessionElapsedSeconds = 0;
     let vitalCheckIntervalSeconds = 15 * 60;
     let lastVitalCheckElapsed = 0;
@@ -871,53 +912,727 @@
       },
       disobedience: {
         title: "Umgang mit Ungehorsam / Frechheiten",
-        spanking: "✋ Körperliche Zucht: Handspanking oder Versohlen über den Knien",
-        formal_corner: "🧘 Formale Besinnung: In der Ecke stehen (Corner Time), Knie-Abbitte",
-        chores_ban: "🧹 Praktische Wiedergutmachung: Hausarbeit, Smartphone-Verbot für den Abend",
-        talk_only: "💬 Keine Strafen: Reine liebevolle Klärung im Gespräch"
+        spanking: "✋ Körperliche Zucht: Handspanking über den Knien",
+        formal_corner: "🧘 Formale Besinnung: Corner Time & Knie-Abbitte",
+        chores_ban: "🧹 Praktische Zucht: Hausarbeit & Handy-Verbot",
+        talk_only: "💬 Reine Klärung im Gespräch"
       },
       aftercare: {
-        title: "Primärer Aftercare-Schwerpunkt",
-        warmth: "🛌 Körperwärme & Stille: Dicke Decken, heißer Tee, stummes Halten im Arm",
-        praise_words: "💖 Verbaler Zuspruch & Praise: Warmes Lob ('Braves Mädchen/Guter Junge')",
-        bath_care: "🛁 Pflege-Ritual: Warmes Bad, Einbalsamieren der beanspruchten Haut mit Creme"
-      },
-      cooldown_phase: {
-        title: "Abschalt-Phase nach der Session",
-        offline_20min: "📵 Mindestens 20 Minuten striktes Smartphone-Verbot nach der Session",
-        free_flow: "✨ Freier Übergang in den Alltag nach Gefühl"
-      },
-      checkin_24h: {
-        title: "24-Stunden-Nachsorge-Check",
-        checkin_mandatory: "💬 Verbindliche kurze Rückmeldung am Folgetag, um den Subdrop abzufangen",
-        checkin_optional: "🕊️ Rückmeldung nur, wenn sich jemand unwohl fühlt"
+        title: "Aftercare-Schwerpunkt",
+        warmth: "🛌 Körperwärme, Tee & stummes Halten im Arm",
+        praise_words: "💖 Verbaler Zuspruch & warmes Lob ('Praise')",
+        bath_care: "🛁 Entspannungsbad & Einbalsamieren der Haut"
       }
     };
 
-    function ensureDataIntegrity() {
-      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
-      if (!answers.A || typeof answers.A !== 'object') answers.A = {};
-      if (!answers.B || typeof answers.B !== 'object') answers.B = {};
-
-      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
-      if (!names.A) names.A = 'Partner 1';
-      if (!names.B) names.B = 'Partner 2';
-
-      if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
-      if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
-      if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
+    /* BERECHNUNG DER STANDARD-DAUER AUS HISTORISCHEN SESSIONS */
+    function calculateAverageSessionDuration() {
+      try {
+        const diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        if (Array.isArray(diary) && diary.length > 0) {
+          const validDurations = diary.map(e => e.durationMinutes).filter(d => typeof d === 'number' && d >= 5);
+          if (validDurations.length > 0) {
+            const sum = validDurations.reduce((a, b) => a + b, 0);
+            return Math.round(sum / validDurations.length);
+          }
+        }
+      } catch (e) {
+        console.warn("Dauer-Berechnungsfehler:", e);
+      }
+      return 60;
     }
 
-    function selectPortalRoleSetup(chosenSub) {
-      setSubPartner(chosenSub);
+    function initDynamicTimerDefault() {
+      defaultSessionMinutes = calculateAverageSessionDuration();
+      sessionTotalMinutes = defaultSessionMinutes;
+      timerRemaining = sessionTotalMinutes * 60;
+      const avgBadge = document.getElementById('timer-avg-badge');
+      if (avgBadge) avgBadge.innerText = `Basis: Ø ${defaultSessionMinutes}m`;
+      renderTimerDisplay();
     }
 
-    function setSubPartner(p) {
-      subPartner = p;
-      updatePortalRoleCardsUI();
-      updateTabuCounts();
+    /* LIVE-EVENT-LOGGING SYSTEM */
+    function logSessionEvent(type, label, details = {}) {
+      if (!currentSessionStartTime) {
+        currentSessionStartTime = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      }
+      const eventObj = {
+        id: 'ev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        elapsedSec: sessionElapsedSeconds,
+        type: type, // 'action' (bewertbar) oder 'system'
+        label: label,
+        details: details,
+        ratings: { top: null, sub: null } // 'like' | 'dislike' | null
+      };
+      currentLiveEvents.push(eventObj);
+    }
+
+    /* EDGING-TOOL & ATTRACTIVE WEIBLICHE SPRACHFÜHRUNG */
+    function toggleEdgingToolPanel(show) {
+      const panel = document.getElementById('edging-interactive-panel');
+      if (!panel) return;
+      if (show === undefined) panel.classList.toggle('hidden');
+      else if (show) panel.classList.remove('hidden');
+      else panel.classList.add('hidden');
+    }
+
+    function registerEdgeHit() {
+      edgeCount++;
+      const b1 = document.getElementById('cockpit-edge-badge');
+      const b2 = document.getElementById('edging-panel-count-display');
+      if (b1) b1.innerText = edgeCount;
+      if (b2) b2.innerText = edgeCount;
+
+      triggerHapticPulse([150]);
+      playGongSound(480);
+      speakSensualVoice(`Kante Nummer ${edgeCount}. Jetzt innehalten, atmen und stillhalten.`);
+      logSessionEvent('action', `Kante #${edgeCount} erreicht (Edge)`, { count: edgeCount });
+      showToast(`🎢 Edge #${edgeCount} registriert!`);
+    }
+
+    function speakSensualVoice(text, onEnd) {
+      if (!('speechSynthesis' in window)) {
+        if (onEnd) onEnd();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const ut = new SpeechSynthesisUtterance(text);
+      ut.lang = 'de-DE';
+      ut.pitch = 1.05;
+      ut.rate = 0.88; // ruhiges, erotisch-bestimmtes Sprechtempo
+
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Katja') || v.name.includes('Hedda') || v.name.includes('Amira') || v.name.includes('Google Deutsch') || v.name.toLowerCase().includes('female')));
+      if (femaleVoice) ut.voice = femaleVoice;
+
+      const ind = document.getElementById('edging-speech-indicator');
+      if (ind) {
+        ind.innerText = `🗣️ „${text}“`;
+        ind.classList.remove('hidden');
+      }
+
+      ut.onend = () => {
+        if (ind) ind.classList.add('hidden');
+        if (onEnd) onEnd();
+      };
+      ut.onerror = () => {
+        if (ind) ind.classList.add('hidden');
+        if (onEnd) onEnd();
+      };
+
+      window.speechSynthesis.speak(ut);
+    }
+
+    function startCountdownSpeech(seconds = 10) {
+      logSessionEvent('action', `Orgasmus-Countdown gestartet (${seconds}s)`, { duration: seconds });
+      let current = seconds;
+      speakSensualVoice(`Countdown beginnt. Zähle rückwärts von ${seconds}. Nicht vorzeitig kommen.`, () => {
+        const interval = setInterval(() => {
+          if (current > 0) {
+            speakSensualVoice(String(current));
+            current--;
+          } else {
+            clearInterval(interval);
+            speakSensualVoice("Eins! Jetzt darfst du kommen. Explodiere für mich!");
+            playGongSound(528);
+            triggerHapticPulse([200, 100, 300]);
+            logSessionEvent('action', 'Countdown-Freigabe erteilt', { result: 'released' });
+          }
+        }, 1200);
+      });
+    }
+
+    function triggerRuinedOrgasmVoice() {
+      speakSensualVoice("Sofort jede Berührung stoppen! Hände weg. Auszucken ohne Erleichterung.");
+      playGongSound(300);
+      triggerHapticPulse([300, 200, 300]);
+      logSessionEvent('action', 'Ruinierter Orgasmus angeordnet (Ruined Orgasm)', { result: 'ruined' });
+      showToast("🛑 Ruinierter Orgasmus – Hände sofort weg!");
+    }
+
+    /* D/S-STRAFENKONFIGURATOR: LOGISCH KONSISTENTER 4-STUFEN-BAUKASTEN */
+    function renderIncidentDisciplineResult() {
+      const container = document.getElementById('incident-wizard-box');
+      if (!container) return;
+
+      const subName = names[subPartner];
+      const domName = names[getDomPartner()];
+      const subAnswers = answers[subPartner] || {};
+
+      /* Logisch konsistente Primärmaßnahmen mit Zeit- und Phasen-Differenzierung */
+      const disciplinePool = {
+        frech: {
+          leicht: [
+            {
+              itemId: 363,
+              title: "1. Corner Time (5 Minuten)",
+              desc: "5 Minuten regungslos mit dem Gesicht zur Wand stehen, Hände hinter dem Rücken verschränkt. Danach förmliche Abbitte auf Knien.",
+              postures: ["Mit Gesicht zur Wand stillstehen", "Aufrecht knien vor dem Sessel (Nadu)"],
+              bondages: ["Handgelenke hinter dem Rücken mit weichen Bändern", "Hände verschränkt ohne Fesselung"],
+              gags: ["Kein Knebel – vollkommene Stille auf Ehrenwort", "Augenbinde (Fokus auf die Wand)"]
+            },
+            {
+              itemId: 348,
+              title: "1. Förmliches Knien (10 Minuten Nadu)",
+              desc: `${escapeHtml(subName)} kniet aufrecht vor ${escapeHtml(domName)}, Blick zu Boden gesenkt, bis Erlaubnis zum Aufstehen erteilt wird.`,
+              postures: ["Aufrechte Kniehaltung mit geradem Rücken", "Kopf auf den Schoß des Tops gebettet"],
+              bondages: ["Klettfesseln an den Knöcheln (verhindert Trippeln)", "Hände flach auf den Oberschenkeln"],
+              gags: ["Schweigen geboten bis zur Freigabe", "Tuchknebel für 10 Minuten"]
+            }
+          ],
+          mittel: [
+            {
+              itemId: 262,
+              title: "2. Handspanking über den Knien (15 Hiebe)",
+              desc: "15 gezielte Schläge mit der flachen Hand auf das entblößte Gesäß. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
+              postures: ["Over the Knee (Quer über den Oberschenkeln des Tops)", "Am Bettrand vorgebeugt mit Beckenerhöhung"],
+              bondages: ["Handgelenke hinter dem Rücken fixiert (kein Vorgriff)", "Hände an den Oberschenkeln des Tops festgehalten"],
+              gags: ["Mund frei zum andächtigen Mitzählen", "Offener Ringknebel (Speichel darf rinnen)"]
+            },
+            {
+              itemId: 265,
+              title: "2. Zucht mit dem Wildleder-Flogger (20 Hiebe)",
+              desc: "20 rhythmische Hiebe mit den Flogger-Riemen über das Gesäß. Gleichmäßiges Mitzählen bei jedem Hieb.",
+              postures: ["Auf allen Vieren am Boden", "Vorgebeugt über die Spanking-Bank"],
+              bondages: ["Hände an Bettpfosten fixiert", "Lederfesseln an den Handgelenken"],
+              gags: ["Tuchknebel zwischen den Zähnen", "Augenbinde für intensive Tastschärfe"]
+            }
+          ],
+          streng: [
+            {
+              itemId: 264,
+              title: "3. Formelle Zucht mit dem Lederpaddle (20 Schläge)",
+              desc: "20 Hiebe mit dem breiten Lederpaddle am Bettrand. Jede Regung verlängert um 2 Hiebe.",
+              postures: ["Edge Positioning (Becken an der Bettkante arretiert)", "Spanking-Bock mit erhöhter Hüfte"],
+              bondages: ["Vier-Punkt-Arretierung am Bettrahmen", "Monohandschuh aus Leder hinter dem Rücken"],
+              gags: ["Silikon-Ballknebel (nur während des 15-Min-Rituals)", "Tuchknebel (Drop-Tuch in der Hand)"]
+            },
+            {
+              itemId: 275,
+              title: "3. Scharfe Zucht mit der Reitgerte / Cane (12 Hiebe)",
+              desc: "12 präzise Hiebe auf die untere Gesäßkante. Kein Ausweichen erlaubt.",
+              postures: ["Andreaskreuz an der Wand", "Am Türrahmen aufrecht fixiert"],
+              bondages: ["Spreizstange an den Knöcheln", "Handschellen an Wandösen"],
+              gags: ["Ballknebel für die Dauer der Zucht (max. 15 Min.)", "Knebelbinde aus Leder"]
+            }
+          ]
+        },
+        stillhalten: {
+          leicht: [
+            {
+              itemId: 88,
+              title: "1. Befehl zum regungslosen Stillhalten (7 Minuten)",
+              desc: "Flach auf dem Rücken liegen; für 7 Minuten darf kein einziger Muskel zucken.",
+              postures: ["Flach auf dem Rücken mit offenen Handflächen", "Lotos-Sitz ohne jede Bewegung"],
+              bondages: ["Weiche Klettfesseln an den Handgelenken", "Ohne Fesselung auf Ehrenwort"],
+              gags: ["Augenbinde (Fokus auf Atem)", "Leises Atmen durch die Nase"]
+            }
+          ],
+          mittel: [
+            {
+              itemId: 206,
+              title: "2. Handgelenke straff am Bett fixieren (15 Minuten)",
+              desc: "Hände 15 Minuten straff arretieren; Unruhe führt zu 5 zusätzlichen Minuten.",
+              postures: ["Auf dem Rücken, Arme über den Kopf gespannt", "Prone Bone (Flach auf dem Bauch)"],
+              bondages: ["Gurte unter der Matratze", "Bettfesseln an beiden Ecken"],
+              gags: ["Tuchknebel für 15 Minuten", "Blickdichte Schlafmaske"]
+            }
+          ],
+          streng: [
+            {
+              itemId: 206,
+              title: "3. Vier-Punkt-Arretierung am Bett (20 Minuten)",
+              desc: "Gliedmaßen fixieren; vollkommene Auslieferung und erzwungene Bewegungslosigkeit.",
+              postures: ["Aufgespannt auf dem Bett", "Frogtie am Boden auf weicher Matte"],
+              bondages: ["Vier-Punkt-Arretierung mit Sicherheits-Cutter daneben", "Geölte Shibari-Seile"],
+              gags: ["Silikon-Ballknebel (20 Min. Zeitlimit)", "Audio-Isolation mit Gehörkapseln"]
+            }
+          ]
+        },
+        zeit: {
+          leicht: [
+            {
+              itemId: 362,
+              title: "1. Strafzeilen schreiben (20 Zeilen auf Knien)",
+              desc: "'Ich werde die Zeit und Anweisungen meiner Herrin / meines Herrn achten' 20-mal mit Füller schreiben.",
+              postures: ["Auf Knien am Couchtisch", "Aufrecht sitzend auf dem Teppich"],
+              bondages: ["Knöchel eng zusammengebunden", "Ohne Fesseln"],
+              gags: ["Tuchknebel (erzwingt vollkommene Stille beim Schreiben)", "Schweigepflicht"]
+            }
+          ],
+          mittel: [
+            {
+              itemId: 364,
+              title: "2. Smartphone-Verbot für den Abend & 15 Min. Corner Time",
+              desc: "Das Smartphone wird eingezogen. 15 Minuten stummes Stehen mit Händen auf dem Rücken.",
+              postures: ["Mit dem Gesicht zur Wand", "Auf Knien neben dem Sessel"],
+              bondages: ["Handgelenke hinter dem Rücken geschlossen", "Lederfesseln"],
+              gags: ["Augenbinde", "Kein Knebel"]
+            }
+          ],
+          streng: [
+            {
+              itemId: 430,
+              title: "3. Hausarbeit als Unterwerfungsdienst (Domestic Service)",
+              desc: "Gründliche Reinigung des Bads oder der Küche auf Knien vor dem Schlafengehen.",
+              postures: ["Auf allen Vieren beim Wischen", "Aufrecht kniend beim Polieren"],
+              bondages: ["Lederhalsband mit kurzer Leine (vom Top geführt)", "Knöchelband mit Trippelschritten"],
+              gags: ["Offener Ringknebel während der Inspektion", "Schweigepflicht"]
+            }
+          ]
+        },
+        orgasmus: {
+          leicht: [
+            {
+              itemId: 32,
+              title: "1. Berührungsstopp & Stillschweigen (15 Minuten)",
+              desc: "Sofortiger Abbruch jeder Genitalberührung. 15 Minuten stummes Liegenbleiben ohne Zucken.",
+              postures: ["Flach auf dem Rücken", "Beine geschlossen"],
+              bondages: ["Hände flach auf der Matratze", "Klettfesseln"],
+              gags: ["Augenbinde (Besinnung)", "Kein Knebel"]
+            }
+          ],
+          mittel: [
+            {
+              itemId: 78,
+              title: "2. Ruinierter Orgasmus & 24h Lust-Sperre",
+              desc: "Abrupter Halt bei Kontraktionen; für die nächsten 24 Stunden keine weitere Lustentladung.",
+              postures: ["Becken erhöht auf Keilkissen", "Doggy-Position arretiert"],
+              bondages: ["Beine mit Spreizstange geöffnet", "Hände hinter dem Rücken"],
+              gags: ["Hand auf den Mund beim Krampf", "Tuchknebel"]
+            }
+          ],
+          streng: [
+            {
+              itemId: 106,
+              title: "3. Keuschheitsverlängerung (48h Käfig & 15 Min. Zucht-Ritual)",
+              desc: "Feierliches Zucht-Ritual für 15 Minuten im Zimmer; danach bleibt der Keuschheitskäfig für 48 Stunden verschlossen.",
+              postures: ["Nadu auf Knien während des Aufschließens und Prüfens", "Flach auf dem Bauch beim Anpassen"],
+              bondages: ["Keuschheitskäfig mit Vorhängeschloss", "Hände für 15 Minuten hinter dem Rücken fixiert"],
+              gags: ["Ballknebel AUSSCHLIESSLICH während des 15-Min-Rituals", "Halsband mit Leine beim täglichen Antreten"]
+            }
+          ]
+        }
+      };
+
+      const options = disciplinePool[activeInfractionType]?.[activeInfractionSeverity] || disciplinePool.frech.mittel;
+      const preset = options[rollSeed % options.length];
+      const subScore = subAnswers[`it_${preset.itemId}_r2`];
+      const ratingBadgeHtml = getSubRatingBadgeHtml(subScore);
+
+      const catMatches = getCategorizedDisciplineMatches(activeInfractionSeverity);
+
+      container.innerHTML = `
+        <div class="p-3 bg-purple-950/40 rounded-2xl border border-purple-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-purple-900 pb-1.5">
+            <div>
+              <span class="text-[9.5px] font-bold text-slate-400">Schritt 1: Primäre Zuchtmaßnahme</span>
+              <strong class="text-purple-200 block text-xs font-black">${preset.title}</strong>
+            </div>
+            <div class="flex-shrink-0">${ratingBadgeHtml}</div>
+          </div>
+          <p class="text-slate-200 text-[11px] leading-relaxed">${preset.desc}</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">Schritt 2: Vorgeschriebene Haltung:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            ${preset.postures.map((p, idx) => `
+              <button type="button" onclick="selectDisciplineComponent('posture', ${idx})" class="p-2 rounded-xl border text-left text-[11px] transition touch-btn ${customDisciplineChoice.postureIdx === idx ? 'bg-indigo-950 border-indigo-500 text-white font-bold' : 'session-panel border-slate-800 text-slate-300'}">
+                🧎 ${escapeHtml(p)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">Schritt 3: Passende Fesselung (Keine Tabus):</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            ${preset.bondages.map((b, idx) => `
+              <button type="button" onclick="selectDisciplineComponent('bondage', ${idx})" class="p-2 rounded-xl border text-left text-[11px] transition touch-btn ${customDisciplineChoice.bondageIdx === idx ? 'bg-indigo-950 border-indigo-500 text-white font-bold' : 'session-panel border-slate-800 text-slate-300'}">
+                🪢 ${escapeHtml(b)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">Schritt 4: Knebel / Sinneskontrolle (Zeitlich begrenzt):</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            ${preset.gags.map((g, idx) => `
+              <button type="button" onclick="selectDisciplineComponent('gag', ${idx})" class="p-2 rounded-xl border text-left text-[11px] transition touch-btn ${customDisciplineChoice.gagIdx === idx ? 'bg-teal-950 border-teal-500 text-white font-bold' : 'session-panel border-slate-800 text-slate-300'}">
+                🤐 ${escapeHtml(g)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        ${renderMatchingKinksBoxHtml(catMatches)}
+      `;
+    }
+
+    function selectDisciplineComponent(type, idx) {
+      if (type === 'posture') customDisciplineChoice.postureIdx = idx;
+      if (type === 'bondage') customDisciplineChoice.bondageIdx = idx;
+      if (type === 'gag') customDisciplineChoice.gagIdx = idx;
       renderIncidentDisciplineResult();
-      showToast(`Bottom gewählt: ${names[p] || p}`);
+    }
+
+    function applyConfiguredDiscipline() {
+      const subName = names[subPartner] || 'Bottom';
+      const domName = names[getDomPartner()] || 'Top';
+
+      const disciplinePool = {
+        frech: { leicht: "Corner Time & Abbitte", mittel: "Handspanking über den Knien", streng: "Formelle Zucht mit dem Paddle" },
+        stillhalten: { leicht: "Regungsloses Stillhalten", mittel: "Handgelenke straff am Bett", streng: "Vier-Punkt-Arretierung" },
+        zeit: { leicht: "Strafzeilen schreiben", mittel: "Smartphone-Verbot & Corner Time", streng: "Hausarbeit als Unterwerfungsdienst" },
+        orgasmus: { leicht: "Berührungsstopp", mittel: "Ruinierter Orgasmus & 24h Sperre", streng: "Keuschheitsverlängerung (48h)" }
+      };
+
+      const title = disciplinePool[activeInfractionType]?.[activeInfractionSeverity] || "Zuchtmaßnahme";
+
+      logSessionEvent('action', `Zucht vollzogen: ${title}`, {
+        infraction: activeInfractionType,
+        severity: activeInfractionSeverity,
+        sub: subName,
+        top: domName
+      });
+
+      triggerHapticPulse([150, 100, 200]);
+      playGongSound(432);
+      closeIncidentDisciplineModal();
+      showToast(`⚡ Strafe übernommen & im Live-Logbuch erfasst!`);
+    }
+
+    /* AFTERCARE & LOGBUCH MIT DUAL-FEEDBACK & EINZELAKTION-BEWERTUNG */
+    function finishSessionRegularly() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateTimerButtonUI(false);
+      }
+      playGongSound(528);
+      triggerHapticPulse([100, 100, 200]);
+
+      logSessionEvent('system', 'Session regulär beendet. Aftercare gestartet.');
+
+      const cfgA = safetyConfig.A || {};
+      const afcChoice = cfgA.aftercare || 'warmth';
+      const badgeEl = document.getElementById('aftercare-modal-rule-badge');
+      const descEl = document.getElementById('aftercare-modal-desc');
+
+      const aftercareTexts = {
+        warmth: {
+          title: "Körperwärme & Stille",
+          desc: "Wickelt den Bottom sofort in dicke Decken, reicht warmes Wasser oder Kräutertee und haltet euch 15 bis 20 Minuten stumm im Arm."
+        },
+        praise_words: {
+          title: "Verbaler Zuspruch & Praise",
+          desc: "Flüstert liebevolle Bestätigung ins Ohr ('Du warst wunderbar brav heute'). Feste Umarmung und positives emotionales De-Briefing."
+        },
+        bath_care: {
+          title: "Pflege-Ritual & Salbung",
+          desc: "Ein warmes Bad vorbereiten oder beanspruchte Haut mit Balsam/Creme einreiben."
+        }
+      };
+
+      const selected = aftercareTexts[afcChoice] || aftercareTexts.warmth;
+      if (badgeEl) badgeEl.innerText = selected.title;
+      if (descEl) descEl.innerText = selected.desc;
+
+      const durMin = Math.max(1, Math.round(sessionElapsedSeconds / 60));
+      const timeBadge = document.getElementById('aftercare-diary-time-badge');
+      if (timeBadge) timeBadge.innerText = `Dauer: ${durMin} Min.`;
+
+      const topLbl = document.getElementById('aftercare-top-name-label');
+      const subLbl = document.getElementById('aftercare-sub-name-label');
+      if (topLbl) topLbl.innerText = names[getDomPartner()] || 'Top';
+      if (subLbl) subLbl.innerText = names[subPartner] || 'Bottom';
+
+      const btnSave = document.getElementById('btn-save-debrief');
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = `<span>💾</span> <span>Im Beziehungs-Tagebuch speichern</span>`;
+        btnSave.className = "w-full py-2.5 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5";
+      }
+
+      const modal = document.getElementById('modal-session-aftercare');
+      if (modal) modal.classList.remove('hidden');
+      showToast("💖 Session harmonisch beendet – Willkommen in der Nachsorge");
+    }
+
+    function saveSessionDebriefToDiary() {
+      const intensity = parseInt(document.getElementById('debrief-input-intensity')?.value || '7');
+      const topNote = document.getElementById('debrief-input-top-note')?.value.trim() || '';
+      const subNote = document.getElementById('debrief-input-sub-note')?.value.trim() || '';
+
+      const domPartner = getDomPartner();
+      const domName = names[domPartner] || 'Top';
+      const subName = names[subPartner] || 'Bottom';
+      const durMin = Math.max(1, Math.round(sessionElapsedSeconds / 60));
+
+      const entry = {
+        id: 'sess_' + Date.now(),
+        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        mode: currentSessionActiveMode === 'guided_flow' ? 'Geführte Session' : 'Freier Flow',
+        top: domName,
+        bottom: subName,
+        durationMinutes: durMin,
+        intensity: intensity,
+        edgeCount: edgeCount,
+        topFeedback: topNote,
+        bottomFeedback: subNote,
+        events: currentLiveEvents.slice(),
+        reviewedBy: {
+          top: !!topNote,
+          bottom: !!subNote
+        }
+      };
+
+      try {
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        if (!Array.isArray(diary)) diary = [];
+        diary.unshift(entry);
+        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+
+        const btnSave = document.getElementById('btn-save-debrief');
+        if (btnSave) {
+          btnSave.disabled = true;
+          btnSave.innerHTML = `<span>✓</span> <span>Gespeichert & im Logbuch abgelegt!</span>`;
+          btnSave.className = "w-full py-2.5 bg-emerald-950 border border-emerald-700/60 text-emerald-200 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5";
+        }
+        checkUnreviewedSessionsToast();
+        showToast("📖 Eintrag erfolgreich im Tagebuch gespeichert!");
+      } catch (e) {
+        console.error("Fehler beim Speichern des Tagebuchs:", e);
+      }
+    }
+
+    function openSessionDiaryModal() {
+      renderSessionDiaryContent();
+      document.getElementById('modal-session-diary')?.classList.remove('hidden');
+    }
+
+    function closeSessionDiaryModal() {
+      document.getElementById('modal-session-diary')?.classList.add('hidden');
+    }
+
+    function renderSessionDiaryContent() {
+      const container = document.getElementById('session-diary-list-content');
+      if (!container) return;
+
+      let diary = [];
+      try {
+        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+      } catch (e) {
+        diary = [];
+      }
+
+      if (!Array.isArray(diary) || diary.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500 space-y-2">
+            <span class="text-3xl block">📖</span>
+            <p class="text-xs">Noch keine Tagebucheinträge vorhanden.</p>
+            <p class="text-[10.5px] text-slate-600">Nach jeder Session könnt ihr im Aftercare-Fenster ein kurzes Fazit speichern.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = diary.map(entry => {
+        const hasUnreviewed = (!entry.topFeedback || !entry.bottomFeedback);
+        return `
+          <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-3 text-xs relative group">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
+                  ${escapeHtml(entry.mode || 'Session')}
+                </span>
+                <span class="text-slate-400 text-[10.5px]">${escapeHtml(entry.date)}</span>
+                ${hasUnreviewed ? '<span class="px-1.5 py-0.2 rounded text-[8px] bg-amber-950 text-amber-300 border border-amber-800">Feedback offen</span>' : ''}
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-pink-400 font-black font-mono">⚡ ${entry.intensity || 7}/10</span>
+                <button onclick="deleteDiaryEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1 text-[11px]" title="Diesen Eintrag löschen">🗑️</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
+              <div>👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
+              <div>🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
+              <div>⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
+              <div>🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/60">
+              <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div class="flex justify-between items-center text-[10px]">
+                  <strong class="text-white">👑 Fazit von ${escapeHtml(entry.top)} (Top):</strong>
+                  ${entry.topFeedback ? '✓ Erfasst' : '<span class="text-amber-400">Offen</span>'}
+                </div>
+                ${entry.topFeedback ? `
+                  <p class="text-slate-300 text-[11px] mt-0.5">${escapeHtml(entry.topFeedback)}</p>
+                ` : `
+                  <div class="flex gap-1 mt-1">
+                    <input type="text" id="input-late-top-${entry.id}" placeholder="Top-Feedback nachtragen..." class="flex-1 text-[10.5px] p-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white">
+                    <button onclick="saveLateFeedback('${entry.id}', 'top')" class="px-2 py-1 bg-pink-900 hover:bg-pink-800 text-white rounded-lg text-[10px] font-bold">Speichern</button>
+                  </div>
+                `}
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div class="flex justify-between items-center text-[10px]">
+                  <strong class="text-brand-300">🧎 Fazit von ${escapeHtml(entry.bottom)} (Bottom):</strong>
+                  ${entry.bottomFeedback ? '✓ Erfasst' : '<span class="text-amber-400">Offen</span>'}
+                </div>
+                ${entry.bottomFeedback ? `
+                  <p class="text-slate-300 text-[11px] mt-0.5">${escapeHtml(entry.bottomFeedback)}</p>
+                ` : `
+                  <div class="flex gap-1 mt-1">
+                    <input type="text" id="input-late-sub-${entry.id}" placeholder="Bottom-Feedback nachtragen..." class="flex-1 text-[10.5px] p-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white">
+                    <button onclick="saveLateFeedback('${entry.id}', 'bottom')" class="px-2 py-1 bg-pink-900 hover:bg-pink-800 text-white rounded-lg text-[10px] font-bold">Speichern</button>
+                  </div>
+                `}
+              </div>
+            </div>
+
+            ${(entry.events && entry.events.length > 0) ? `
+              <div class="pt-1.5 border-t border-slate-800/80 space-y-1">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Protokollierte Aktionen & Bewertungen:</span>
+                <div class="space-y-1 max-h-48 overflow-y-auto pr-1">
+                  ${entry.events.map(ev => {
+                    const isAction = (ev.type === 'action');
+                    return `
+                      <div class="p-1.5 rounded-lg bg-slate-950/80 border border-slate-800/60 text-[10.5px] flex items-center justify-between gap-1.5">
+                        <div class="flex items-center gap-1.5 min-w-0 truncate">
+                          <span class="text-slate-500 font-mono text-[9px] flex-shrink-0">${ev.time}</span>
+                          <span class="text-slate-200 truncate">${escapeHtml(ev.label)}</span>
+                        </div>
+                        ${isAction ? `
+                          <div class="flex items-center gap-1 flex-shrink-0 text-[10px]">
+                            <button onclick="rateSessionEvent('${entry.id}', '${ev.id}', 'top', 'like')" class="px-1 rounded hover:bg-slate-800 ${ev.ratings?.top === 'like' ? 'bg-emerald-950 border border-emerald-700' : 'text-slate-500'}" title="Top: Gut">👍</button>
+                            <button onclick="rateSessionEvent('${entry.id}', '${ev.id}', 'top', 'dislike')" class="px-1 rounded hover:bg-slate-800 ${ev.ratings?.top === 'dislike' ? 'bg-rose-950 border border-rose-700' : 'text-slate-500'}" title="Top: Nicht gut">👎</button>
+                            <span class="text-slate-700">|</span>
+                            <button onclick="rateSessionEvent('${entry.id}', '${ev.id}', 'sub', 'like')" class="px-1 rounded hover:bg-slate-800 ${ev.ratings?.sub === 'like' ? 'bg-emerald-950 border border-emerald-700' : 'text-slate-500'}" title="Bottom: Gut">👍</button>
+                            <button onclick="rateSessionEvent('${entry.id}', '${ev.id}', 'sub', 'dislike')" class="px-1 rounded hover:bg-slate-800 ${ev.ratings?.sub === 'dislike' ? 'bg-rose-950 border border-rose-700' : 'text-slate-500'}" title="Bottom: Nicht gut">👎</button>
+                          </div>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function rateSessionEvent(sessionId, eventId, role, rating) {
+      try {
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        const entry = diary.find(e => e.id === sessionId);
+        if (entry && entry.events) {
+          const ev = entry.events.find(e => e.id === eventId);
+          if (ev) {
+            if (!ev.ratings) ev.ratings = { top: null, sub: null };
+            ev.ratings[role] = (ev.ratings[role] === rating) ? null : rating;
+            localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+            renderSessionDiaryContent();
+            showToast(`Bewertung für ${role === 'top' ? 'Top' : 'Bottom'} gespeichert!`);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function saveLateFeedback(sessionId, role) {
+      const inputEl = document.getElementById(role === 'top' ? `input-late-top-${sessionId}` : `input-late-sub-${sessionId}`);
+      const val = inputEl?.value.trim();
+      if (!val) return;
+
+      try {
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        const entry = diary.find(e => e.id === sessionId);
+        if (entry) {
+          if (role === 'top') entry.topFeedback = val;
+          else entry.bottomFeedback = val;
+          localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+          renderSessionDiaryContent();
+          checkUnreviewedSessionsToast();
+          showToast("✓ Feedback erfolgreich nachgetragen!");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function deleteDiaryEntry(sessionId) {
+      if (!confirm("Möchtest du diese Session wirklich unwiderruflich aus dem Tagebuch löschen?")) return;
+      try {
+        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        diary = diary.filter(e => e.id !== sessionId);
+        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
+        initDynamicTimerDefault();
+        renderSessionDiaryContent();
+        checkUnreviewedSessionsToast();
+        showToast("Session gelöscht.");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function checkUnreviewedSessionsToast() {
+      try {
+        const diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
+        const hasUnreviewed = diary.some(e => !e.topFeedback || !e.bottomFeedback);
+        const toast = document.getElementById('unreviewed-session-toast');
+        const badge = document.getElementById('header-unread-diary-badge');
+
+        if (hasUnreviewed) {
+          if (toast && !sessionStorage.getItem('dismissed_unreviewed_toast')) toast.classList.remove('hidden');
+          if (badge) badge.classList.remove('hidden');
+        } else {
+          if (toast) toast.classList.add('hidden');
+          if (badge) badge.classList.add('hidden');
+        }
+      } catch (e) {}
+    }
+
+    function dismissUnreviewedBanner() {
+      sessionStorage.setItem('dismissed_unreviewed_toast', 'true');
+      document.getElementById('unreviewed-session-toast')?.classList.add('hidden');
+    }
+
+    function goToPortalStep(step) {
+      portalCurrentStep = step;
+      const s1 = document.getElementById('portal-step-roles');
+      const s2 = document.getElementById('portal-step-modes');
+
+      if (step === 1) {
+        if (s1) s1.classList.remove('hidden');
+        if (s2) s2.classList.add('hidden');
+      } else {
+        if (s1) s1.classList.add('hidden');
+        if (s2) s2.classList.remove('hidden');
+
+        const topName = names[getDomPartner()] || 'Top';
+        const subName = names[subPartner] || 'Bottom';
+        const tEl = document.getElementById('portal-step2-top-name');
+        const sEl = document.getElementById('portal-step2-sub-name');
+        if (tEl) tEl.innerText = topName;
+        if (sEl) sEl.innerText = subName;
+      }
+    }
+
+    function selectPortalRoleSetup(setupKey) {
+      subPartner = (setupKey === 'A') ? 'A' : 'B';
+      updatePortalRoleCardsUI();
+      updateCockpitRoleDisplays();
+      updateTabuCounts();
+      triggerHapticPulse([50]);
     }
 
     function updatePortalRoleCardsUI() {
@@ -926,58 +1641,48 @@
       const badgeA = document.getElementById('role-badge-indicator-A');
       const badgeB = document.getElementById('role-badge-indicator-B');
 
-      const domPartner = getDomPartner();
-      const domName = names[domPartner] || (domPartner === 'A' ? 'Partner 1' : 'Partner 2');
-      const subName = names[subPartner] || (subPartner === 'A' ? 'Partner 1' : 'Partner 2');
-
-      const step2Top = document.getElementById('portal-step2-top-name');
-      const step2Sub = document.getElementById('portal-step2-sub-name');
-      if (step2Top) step2Top.innerText = domName;
-      if (step2Sub) step2Sub.innerText = subName;
-
-      const actTop = document.getElementById('active-cockpit-top-name');
-      const actSub = document.getElementById('active-cockpit-sub-name');
-      if (actTop) actTop.innerText = domName;
-      if (actSub) actSub.innerText = subName;
-
-      const incSub = document.getElementById('incident-sub-target-name');
-      if (incSub) incSub.innerText = subName;
-
-      const swSub = document.getElementById('safeword-sub-target-name');
-      if (swSub) swSub.innerText = subName;
-
-      document.querySelectorAll('.disp-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
-      document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
-
       if (subPartner === 'A') {
-        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
-        if (badgeA) badgeA.classList.remove('hidden');
-
-        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        if (cardA) {
+          cardA.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
+        }
+        if (cardB) {
+          cardB.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        }
+        if (badgeA) {
+          badgeA.innerText = "✓ Aktiv gewählt (Standard)";
+          badgeA.classList.remove('hidden');
+        }
         if (badgeB) badgeB.classList.add('hidden');
       } else {
-        if (cardB) cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
-        if (badgeB) badgeB.classList.remove('hidden');
-
-        if (cardA) cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        if (cardB) {
+          cardB.className = "session-card p-4 sm:p-5 rounded-3xl border-2 border-brand-500 bg-brand-950/30 text-left transition-all duration-200 group touch-btn shadow-lg relative flex flex-col justify-between space-y-3";
+        }
+        if (cardA) {
+          cardA.className = "session-card p-4 sm:p-5 rounded-3xl border border-slate-800 hover:border-brand-500/60 text-left transition-all duration-200 group touch-btn shadow-md relative flex flex-col justify-between space-y-3";
+        }
+        if (badgeB) {
+          badgeB.innerText = "✓ Aktiv gewählt";
+          badgeB.classList.remove('hidden');
+        }
         if (badgeA) badgeA.classList.add('hidden');
       }
     }
 
-    function goToPortalStep(step) {
-      portalCurrentStep = step;
-      const step1 = document.getElementById('portal-step-roles');
-      const step2 = document.getElementById('portal-step-modes');
+    function updateCockpitRoleDisplays() {
+      const domP = getDomPartner();
+      const domName = names[domP] || 'Top';
+      const subName = names[subPartner] || 'Bottom';
 
-      if (step === 1) {
-        if (step1) step1.classList.remove('hidden');
-        if (step2) step2.classList.add('hidden');
-      } else {
-        if (step1) step1.classList.add('hidden');
-        if (step2) step2.classList.remove('hidden');
-        updatePortalRoleCardsUI();
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const cTop = document.getElementById('active-cockpit-top-name');
+      const cSub = document.getElementById('active-cockpit-sub-name');
+      const sSub = document.getElementById('safeword-sub-target-name');
+
+      if (cTop) cTop.innerText = domName;
+      if (cSub) cSub.innerText = subName;
+      if (sSub) sSub.innerText = subName;
+
+      document.querySelectorAll('.disp-name-A').forEach(el => el.innerText = names.A || 'Partner 1');
+      document.querySelectorAll('.disp-name-B').forEach(el => el.innerText = names.B || 'Partner 2');
     }
 
     function selectSessionMode(mode) {
@@ -1219,7 +1924,6 @@
               </div>
             </div>
 
-            <!-- LIVE-DREHBUCH-VORSCHAU VOR DEM START -->
             <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-800/80 space-y-2.5">
               <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
                 <strong class="text-purple-200 font-black text-xs flex items-center gap-1.5">
@@ -1228,7 +1932,7 @@
                 <span class="text-[10px] text-amber-300 font-mono">Variante #${(rollSeed % 6) + 1}</span>
               </div>
               <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="playbook-preview-steps-list">
-                ${guidedState.steps.map((st, idx) => `
+                ${guidedState.steps.map(st => `
                   <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] space-y-0.5">
                     <div class="flex justify-between items-center">
                       <strong class="text-white font-bold">${st.title}</strong>
@@ -1282,7 +1986,7 @@
     function updatePlaybookPreviewList() {
       const container = document.getElementById('playbook-preview-steps-list');
       if (!container || !guidedState.steps) return;
-      container.innerHTML = guidedState.steps.map((st, idx) => `
+      container.innerHTML = guidedState.steps.map(st => `
         <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] space-y-0.5">
           <div class="flex justify-between items-center">
             <strong class="text-white font-bold">${st.title}</strong>
@@ -1299,6 +2003,15 @@
       playGongSound(440);
       updatePlaybookPreviewList();
       showToast("🎲 Neues Drehbuch ausgewürfelt & Vorschau aktualisiert!");
+    }
+
+    function startGuidedSessionPlaybook() {
+      guidedState.isConfigured = true;
+      guidedState.currentStepIndex = 0;
+      if (!timerInterval) toggleTimer();
+      renderActiveModeWorkspace();
+      checkAndAutoShowEdgingForPhase(guidedState.steps[0]);
+      showToast("📖 Geführtes Drehbuch aktiv!");
     }
 
     function generatePersonalizedSessionSteps() {
@@ -1490,6 +2203,14 @@
       ];
     }
 
+    function checkAndAutoShowEdgingForPhase(step) {
+      if (!step) return;
+      const text = (step.title + ' ' + step.desc).toLowerCase();
+      if (text.includes('edging') || text.includes('kante') || text.includes('countdown') || step.phase === 3) {
+        toggleEdgingToolPanel(true);
+      }
+    }
+
     function renderGuidedPlaybook(container) {
       const step = guidedState.steps[guidedState.currentStepIndex];
       const totalSteps = guidedState.steps.length;
@@ -1534,6 +2255,7 @@
         playGongSound(480);
         triggerHapticPulse([80]);
         renderActiveModeWorkspace();
+        checkAndAutoShowEdgingForPhase(guidedState.steps[guidedState.currentStepIndex]);
       }
     }
 
@@ -1546,174 +2268,6 @@
 
     function finishGuidedPlaybook() {
       finishSessionRegularly();
-    }
-
-    function finishSessionRegularly() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        updateTimerButtonUI(false);
-      }
-      playGongSound(528);
-      triggerHapticPulse([100, 100, 200]);
-
-      const cfgA = safetyConfig.A || {};
-      const afcChoice = cfgA.aftercare || 'warmth';
-      const badgeEl = document.getElementById('aftercare-modal-rule-badge');
-      const descEl = document.getElementById('aftercare-modal-desc');
-
-      const aftercareTexts = {
-        warmth: {
-          title: "Körperwärme & Stille",
-          desc: "Wickelt den Bottom sofort in dicke Decken, reicht warmes Wasser oder Kräutertee und haltet euch 15 bis 20 Minuten stumm im Arm, um den Hormonabfall abzufangen."
-        },
-        praise_words: {
-          title: "Verbaler Zuspruch & Praise",
-          desc: "Flüstert liebevolle, stolze Bestätigung ins Ohr ('Du warst wunderbar brav heute, ich bin stolz auf dich'). Feste Umarmung und positives emotionales De-Briefing."
-        },
-        bath_care: {
-          title: "Pflege-Ritual & Salbung",
-          desc: "Ein warmes Bad vorbereiten oder die beanspruchte Haut behutsam mit kühlendem Balsam/Creme einreiben. Sanfte, regenerierende Berührungen."
-        }
-      };
-
-      const selected = aftercareTexts[afcChoice] || aftercareTexts.warmth;
-      if (badgeEl) badgeEl.innerText = selected.title;
-      if (descEl) descEl.innerText = selected.desc;
-
-      const durMin = Math.round(sessionElapsedSeconds / 60);
-      const timeBadge = document.getElementById('aftercare-diary-time-badge');
-      if (timeBadge) timeBadge.innerText = `Dauer: ${durMin} Min.`;
-
-      const btnSave = document.getElementById('btn-save-debrief');
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.innerHTML = `<span>💾</span> <span>Eintrag im Beziehungs-Tagebuch speichern</span>`;
-        btnSave.className = "w-full py-2 bg-pink-950 hover:bg-pink-900 border border-pink-700/60 text-pink-200 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5";
-      }
-
-      const modal = document.getElementById('modal-session-aftercare');
-      if (modal) modal.classList.remove('hidden');
-      showToast("💖 Session harmonisch beendet – Willkommen in der Nachsorge");
-    }
-
-    function saveSessionDebriefToDiary() {
-      const intensity = parseInt(document.getElementById('debrief-input-intensity')?.value || '7');
-      const highlight = document.getElementById('debrief-input-highlight')?.value.trim() || '';
-      const learning = document.getElementById('debrief-input-learning')?.value.trim() || '';
-
-      const domPartner = getDomPartner();
-      const domName = names[domPartner] || 'Top';
-      const subName = names[subPartner] || 'Bottom';
-      const durMin = Math.max(1, Math.round(sessionElapsedSeconds / 60));
-
-      const entry = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        mode: currentSessionActiveMode === 'guided_flow' ? 'Geführte Session' : 'Freier Flow',
-        top: domName,
-        bottom: subName,
-        durationMinutes: durMin,
-        intensity: intensity,
-        edgeCount: edgeCount,
-        highlight: highlight,
-        learning: learning
-      };
-
-      try {
-        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
-        if (!Array.isArray(diary)) diary = [];
-        diary.unshift(entry);
-        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
-
-        const btnSave = document.getElementById('btn-save-debrief');
-        if (btnSave) {
-          btnSave.disabled = true;
-          btnSave.innerHTML = `<span>✓</span> <span>Gespeichert & im Logbuch abgelegt!</span>`;
-          btnSave.className = "w-full py-2 bg-emerald-950 border border-emerald-700/60 text-emerald-200 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5";
-        }
-        showToast("📖 Eintrag erfolgreich im Tagebuch gespeichert!");
-      } catch (e) {
-        console.error("Fehler beim Speichern des Tagebuchs:", e);
-      }
-    }
-
-    function openSessionDiaryModal() {
-      renderSessionDiaryContent();
-      document.getElementById('modal-session-diary')?.classList.remove('hidden');
-    }
-
-    function closeSessionDiaryModal() {
-      document.getElementById('modal-session-diary')?.classList.add('hidden');
-    }
-
-    function renderSessionDiaryContent() {
-      const container = document.getElementById('session-diary-list-content');
-      if (!container) return;
-
-      let diary = [];
-      try {
-        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
-      } catch (e) {
-        diary = [];
-      }
-
-      if (!Array.isArray(diary) || diary.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 text-slate-500 space-y-2">
-            <span class="text-3xl block">📖</span>
-            <p class="text-xs">Noch keine Tagebucheinträge vorhanden.</p>
-            <p class="text-[10.5px] text-slate-600">Nach jeder Session könnt ihr im Aftercare-Fenster ein kurzes 1-Minuten-Fazit speichern.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = diary.map(entry => `
-        <div class="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
-                ${escapeHtml(entry.mode || 'Session')}
-              </span>
-              <span class="text-slate-400 text-[10.5px]">${escapeHtml(entry.date)}</span>
-            </div>
-            <span class="text-pink-400 font-black font-mono">⚡ ${entry.intensity || 7}/10</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
-            <div>👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
-            <div>🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
-            <div>⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
-            <div>🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
-          </div>
-
-          ${entry.highlight ? `
-            <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px]">
-              <strong class="text-amber-300 block text-[10px] uppercase tracking-wider">Highlight:</strong>
-              <p class="text-slate-300 mt-0.5">${escapeHtml(entry.highlight)}</p>
-            </div>
-          ` : ''}
-
-          ${entry.learning ? `
-            <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px]">
-              <strong class="text-teal-300 block text-[10px] uppercase tracking-wider">Learning für nächstes Mal:</strong>
-              <p class="text-slate-300 mt-0.5">${escapeHtml(entry.learning)}</p>
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
-    }
-
-    function closeAftercareModal() {
-      const modal = document.getElementById('modal-session-aftercare');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function completeSessionAndExit() {
-      closeAftercareModal();
-      returnToModeSelection();
-      showToast("Session abgeschlossen.");
     }
 
     function renderPunishmentsCatalog(container) {
@@ -1778,7 +2332,7 @@
               <strong class="text-purple-300 font-bold block text-xs">1. Förmliche Abbitte auf Knien (Nadu)</strong>
               <span class="text-[9.5px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Demut</span>
             </div>
-            <p class="text-slate-300 text-[11px] leading-relaxed">${escapeHtml(subName)} kniet aufrecht mit geradem Rücken vor dem Top, senkt den Blick und bittet förmlich um Verzeihung für den Fehler ('Ich bitte um Entschuldigung für mein Verhalten').</p>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${escapeHtml(subName)} kniet aufrecht mit geradem Rücken vor dem Top, senkt den Blick und bittet förmlich um Verzeihung für den Fehler.</p>
             <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-[10.5px]">
               <div>🪢 <strong>Kombi-Fixierung:</strong> Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.</div>
               <div>🤐 <strong>Knebel / Sprache:</strong> Redeverbot ohne Aufforderung; nur das förmliche Entschuldigungsgebet ist gestattet.</div>
@@ -1874,10 +2428,8 @@
           const scoreTop = domAnswers[`it_${it.id}_r1`];
           const scoreSub = subAnswers[`it_${it.id}_r2`];
 
-          // STRIKTER SCHUTZ: Niemals Tabus (Note 1) empfehlen!
           if (scoreTop === 1 || scoreSub === 1) return;
 
-          // Beide müssen Bereitschaft signalisieren (oder bei fehlenden Antworten Fallback)
           if ((scoreTop === undefined || scoreTop >= 2) && (scoreSub === undefined || scoreSub >= 2)) {
             const matchObj = {
               item: it,
@@ -1897,7 +2449,6 @@
         });
       });
 
-      // Berücksichtigung des Würfel-Seeds
       const rotBond = (bondageMatches.length > 0) ? (rollSeed % bondageMatches.length) : 0;
       const rotGag = (gagMatches.length > 0) ? (rollSeed % gagMatches.length) : 0;
       const rotImp = (impactMatches.length > 0) ? (rollSeed % impactMatches.length) : 0;
@@ -1988,8 +2539,8 @@
         const btn = document.getElementById(`btn-infraction-${t}`);
         if (btn) {
           btn.className = (t === type)
-            ? "p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
-            : "p-2.5 rounded-xl border text-left font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300";
+            ? "p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
+            : "p-2 rounded-xl border text-center font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300";
         }
       });
       renderIncidentDisciplineResult();
@@ -2001,8 +2552,8 @@
         const btn = document.getElementById(`btn-sev-${s}`);
         if (btn) {
           btn.className = (s === sev)
-            ? "p-2 rounded-xl border font-bold text-[11px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
-            : "p-2 rounded-xl border font-bold text-[11px] transition touch-btn session-panel border-slate-800 text-slate-300";
+            ? "p-1.5 rounded-xl border font-bold text-[10.5px] transition touch-btn bg-purple-950/80 border-purple-500 text-white shadow-xs"
+            : "p-1.5 rounded-xl border font-bold text-[10.5px] transition touch-btn session-panel border-slate-800 text-slate-300";
         }
       });
       renderIncidentDisciplineResult();
@@ -2013,239 +2564,6 @@
       playGongSound(460);
       renderIncidentDisciplineResult();
       showToast("🎲 Neue Kombination & Alternativen ausgewürfelt!");
-    }
-
-    function renderIncidentDisciplineResult() {
-      const container = document.getElementById('incident-calculated-result-box');
-      if (!container) return;
-
-      const subName = names[subPartner];
-      const domName = names[getDomPartner()];
-      const subAnswers = answers[subPartner] || {};
-
-      /* ECHTE MEHRFACH-OPTIONEN PRO KATEGORIE & SEVERITY FÜR DYNAMISCHES WÜRFELN */
-      const disciplinePool = {
-        frech: {
-          leicht: [
-            {
-              itemId: 363,
-              title: "1. Corner Time (5 Minuten)",
-              ritual: "5 Minuten regungslos mit dem Gesicht zur Wand stehen, Hände hinter dem Rücken verschränkt. Danach förmliche Abbitte.",
-              tools: "⏱️ 5-Min-Timer, stille Raumecke",
-              bondage: "Hände hinter dem Rücken verschränken oder lockere Klettfesseln anlegen.",
-              gag: "Kein Knebel nötig – Schweigepflicht auf Ehrenwort."
-            },
-            {
-              itemId: 348,
-              title: "1. Förmliches Knien (Nadu)",
-              ritual: `${escapeHtml(subName)} kniet mit geradem Rücken vor ${escapeHtml(domName)}, Blick zu Boden gesenkt, bis Erlaubnis zum Aufstehen erteilt wird.`,
-              tools: "🧘 Gepolsterte Matte",
-              bondage: "Knöchel mit Band zusammenlegen, um Trippeln zu verhindern.",
-              gag: "Schweigen geboten bis zur Freigabe."
-            }
-          ],
-          mittel: [
-            {
-              itemId: 262,
-              title: "2. Handspanking über den Knien (15 Hiebe)",
-              ritual: "15 gezielte Schläge mit der flachen Hand auf das entblößte Gesäß. Lautes Mitzählen ('Eins, danke Sir/Herrin').",
-              tools: "✋ Flache Hand, Oberschenkel von Top",
-              bondage: "Handgelenke hinter dem Rücken mit weichen Fesseln fixieren, damit die Hände nicht zum Po greifen.",
-              gag: "Offener Ringknebel oder Augenbinde (Mund bleibt frei zum Mitzählen)."
-            },
-            {
-              itemId: 265,
-              title: "2. Zucht mit dem Wildleder-Flogger (20 Hiebe)",
-              ritual: "20 rhythmische Hiebe mit den Flogger-Riemen über das Gesäß. Gleichmäßiges Mitzählen bei jedem Hieb.",
-              tools: "🪶 Wildleder-Flogger",
-              bondage: "Hände an Bettkante oder Sessel fixieren.",
-              gag: "Tuchknebel zwischen den Zähnen."
-            }
-          ],
-          streng: [
-            {
-              itemId: 264,
-              title: "3. Formelle Zucht mit dem Lederpaddle (20 Schläge)",
-              ritual: "20 Hiebe mit dem breiten Lederpaddle über die Knie gelegt oder am Bettrand. Jede Regung verlängert um 2 Hiebe.",
-              tools: "🪵 Lederpaddle, Bettrand oder Kissen",
-              bondage: "Am Bettrand fixieren (Hände straff arretiert, Becken erhöht, Bewegungslosigkeit).",
-              gag: "Fester Silikon-Ballknebel oder Tuchknebel (Stöhnen dämpfen; Abbruch: Drop-Tuch)."
-            },
-            {
-              itemId: 275,
-              title: "3. Scharfe Zucht mit der Reitgerte / Cane (12 Hiebe)",
-              ritual: "12 präzise Hiebe auf die untere Gesäßkante. Kein Ausweichen erlaubt.",
-              tools: "🦯 Reitgerte oder Cane",
-              bondage: "Vier-Punkt-Arretierung am Bett oder Vorbeugebank.",
-              gag: "Ballknebel oder Knebelbinde."
-            }
-          ]
-        },
-        stillhalten: {
-          leicht: [
-            {
-              itemId: 348,
-              title: "1. Kniebank (5 Minuten Nadu)",
-              ritual: "Auf Knien verharren mit geradem Rücken und Händen auf den Schenkeln ohne zu zappeln.",
-              tools: "🧘 Gepolsterte Matte",
-              bondage: "Klettfesseln an den Knöcheln, um Trippeln zu unterbinden.",
-              gag: "Kein Knebel – ruhiges, gleichmäßiges Atmen durch die Nase gefordert."
-            },
-            {
-              itemId: 88,
-              title: "1. Befehl zum Bewegungslosen Stillhalten",
-              ritual: "Flach auf dem Rücken liegen; für 7 Minuten darf kein Muskel zucken.",
-              tools: "⏱️ Stoppuhr",
-              bondage: "Hände flach neben den Körper legen.",
-              gag: "Augenbinde (Fokus auf innere Ruhe)."
-            }
-          ],
-          mittel: [
-            {
-              itemId: 262,
-              title: "2. Fixierung der Handgelenke & Handspanking (10 Hiebe)",
-              ritual: "Hände hinter dem Rücken zusammenbinden, gefolgt von 10 Hieben zur Wiederherstellung der Ruhe.",
-              tools: "🩹 Klettfesseln, flache Hand",
-              bondage: "Hände stramm hinter dem Rücken fixieren; Beine angewinkelt festhalten.",
-              gag: "Tuchknebel zwischen den Zähnen, um jedes Stöhnen zu bändigen."
-            },
-            {
-              itemId: 206,
-              title: "2. Handgelenke straff am Bett fixieren",
-              ritual: "Hände 15 Minuten straff arretieren; Unruhe führt zu 5 zusätzlichen Minuten.",
-              tools: "🪢 Bettgurte",
-              bondage: "Handgelenke an den Ecken schließen.",
-              gag: "Offener Knebel."
-            }
-          ],
-          streng: [
-            {
-              itemId: 206,
-              title: "3. Vier-Punkt-Arretierung am Bett (15 Minuten)",
-              ritual: "Gliedmaßen fixieren; vollkommene Auslieferung und erzwungene Bewegungslosigkeit.",
-              tools: "🪢 Bettfesseln, Sicherheits-Cutter griffbereit",
-              bondage: "Vier-Punkt-Bettfesseln (Hände und Knöchel an den 4 Ecken straff gespannt).",
-              gag: "Silikon-Ballknebel & blickdichte Augenbinde (totale sensorische Hilflosigkeit)."
-            },
-            {
-              itemId: 229,
-              title: "3. Spreizstange & 15 Hiebe mit dem Paddle",
-              ritual: "Beine mit Spreizstange blockieren, gefolgt von 15 Paddle-Hieben auf das wehrlose Gesäß.",
-              tools: "🪵 Spreizstange & Paddle",
-              bondage: "Spreizstange an den Knöcheln, Hände gebunden.",
-              gag: "Ballknebel."
-            }
-          ]
-        },
-        zeit: {
-          leicht: [
-            {
-              itemId: 362,
-              title: "1. Strafzeilen schreiben (20 Zeilen auf Knien)",
-              ritual: "'Ich werde die Zeit und Anweisungen meiner Herrin / meines Herrn achten' 20-mal mit Füller schreiben.",
-              tools: "📝 Papier & Stift",
-              bondage: "Knöchel mit Band zusammenbinden, um saubere Haltung beim Knien am Couchtisch zu erzwingen.",
-              gag: "Tuchknebel (unterstreicht die absolute Stille bei der konzentrierten Schreibarbeit)."
-            }
-          ],
-          mittel: [
-            {
-              itemId: 364,
-              title: "2. Smartphone-Verbot & 15 Minuten Corner Time",
-              ritual: "Das Smartphone wird eingezogen. 15 Minuten stummes Stehen mit Händen auf dem Rücken.",
-              tools: "📵 Handy-Sperrbox, Stoppuhr",
-              bondage: "Handgelenke hinter dem Rücken mit Lederfesseln schließen.",
-              gag: "Augenbinde (damit das Auge nicht im Raum umherschweift)."
-            }
-          ],
-          streng: [
-            {
-              itemId: 430,
-              title: "3. Hausarbeit als Unterwerfungsdienst (Domestic Service)",
-              ritual: "Gründliche Reinigung des Bads oder der Küche auf Knien vor dem Schlafengehen.",
-              tools: "🧹 Putztuch, Eimer",
-              bondage: "Halsband mit kurzer Leine (wird vom Top beim Inspizieren gehalten).",
-              gag: "Offener Knebel oder Schweigepflicht bis zur sauberen Abnahme der Arbeit."
-            }
-          ]
-        },
-        orgasmus: {
-          leicht: [
-            {
-              itemId: 32,
-              title: "1. Berührungsstopp & Stillschweigen",
-              ritual: "Sofortiger Abbruch jeder Genitalberührung. 15 Minuten stummes Liegenbleiben ohne Zucken.",
-              tools: "🛑 Berührungsstopp",
-              bondage: "Hände flach auf der Matratze fixieren.",
-              gag: "Augenbinde (zwingt zur inneren Einkehr und Besinnung)."
-            }
-          ],
-          mittel: [
-            {
-              itemId: 78,
-              title: "2. Ruinierter Orgasmus & 24h Sperre",
-              ritual: "Abrupter Halt bei Kontraktionen; für die nächsten 24 Stunden keine weitere Lustentladung.",
-              tools: "⏳ 24h-Orgasmus-Verbot",
-              bondage: "Beine mit Spreizstange oder Riemen weit geöffnet arretieren.",
-              gag: "Tuchknebel oder Hand auf den Mund beim zuckenden Krampf."
-            }
-          ],
-          streng: [
-            {
-              itemId: 106,
-              title: "3. Keuschheitsverlängerung (48 Stunden Käfig)",
-              ritual: "Verriegeln des Keuschheitskäfigs für 48 Stunden. Der Schlüssel bleibt sicher beim Top.",
-              tools: "🗝️ Keuschheitskäfig & Schloss",
-              bondage: "Keuschheitskäfig fest verriegelt; Hände für 20 Minuten hinter dem Rücken gebunden.",
-              gag: "Ballknebel während des feierlichen Zucht-Rituals."
-            }
-          ]
-        }
-      };
-
-      const options = disciplinePool[activeInfractionType]?.[activeInfractionSeverity] || disciplinePool.frech.mittel;
-      const preset = options[rollSeed % options.length];
-
-      /* BEWERTUNG DES BOTTOMS FÜR DIESE SPEZIFISCHE STRAFE AUSLESEN */
-      const subScore = subAnswers[`it_${preset.itemId}_r2`];
-      const ratingBadgeHtml = getSubRatingBadgeHtml(subScore);
-
-      const catMatches = getCategorizedDisciplineMatches(activeInfractionSeverity);
-
-      container.innerHTML = `
-        <div class="p-3.5 bg-slate-900 rounded-2xl border border-purple-800/80 space-y-2.5">
-          <div class="flex flex-wrap items-center justify-between gap-1.5 border-b border-purple-900/60 pb-2">
-            <div>
-              <strong class="text-purple-200 font-black text-xs block">${preset.title}</strong>
-              <span class="text-[9px] font-bold text-slate-400">Variante #${(rollSeed % options.length) + 1} von ${options.length}</span>
-            </div>
-            <div class="flex-shrink-0">
-              ${ratingBadgeHtml}
-            </div>
-          </div>
-
-          <p class="text-slate-200 text-[11px] leading-relaxed">${preset.ritual}</p>
-
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-[10.5px]">
-            <div class="text-indigo-300 flex items-start gap-1.5">
-              <span class="flex-shrink-0">🪢</span>
-              <div><strong>Dazu passende Haltung & Fesselung:</strong> ${preset.bondage}</div>
-            </div>
-            <div class="text-teal-300 flex items-start gap-1.5">
-              <span class="flex-shrink-0">🤐</span>
-              <div><strong>Dazu passende Knebelung & Sinne:</strong> ${preset.gag}</div>
-            </div>
-            <div class="text-slate-400 flex items-start gap-1.5 pt-1 border-t border-slate-900">
-              <span class="flex-shrink-0">🎒</span>
-              <div><strong>Benötigte Werkzeuge:</strong> <span class="text-slate-300">${preset.tools}</span></div>
-            </div>
-          </div>
-        </div>
-
-        ${renderMatchingKinksBoxHtml(catMatches)}
-      `;
-
-      triggerHapticPulse([60]);
     }
 
     function toggleTimer() {
@@ -2587,14 +2905,6 @@
       if (cntEl) cntEl.innerText = acuteCount;
     }
 
-    function toggleEdgingToolPanel() {
-      edgeCount++;
-      const b = document.getElementById('cockpit-edge-badge');
-      if (b) b.innerText = edgeCount;
-      triggerHapticPulse([120]);
-      showToast(`🎢 Edge #${edgeCount} registriert!`);
-    }
-
     function openBedsideZenModal() {
       initAudio();
       playGongSound(380);
@@ -2657,6 +2967,18 @@
         .replace(/'/g, '&#039;');
     }
 
+    function ensureDataIntegrity() {
+      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+      if (!answers.A || typeof answers.A !== 'object') answers.A = {};
+      if (!answers.B || typeof answers.B !== 'object') answers.B = {};
+      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+      if (!names.A) names.A = 'Partner 1';
+      if (!names.B) names.B = 'Partner 2';
+      if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
+      if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
+      if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
+    }
+
     function loadStorageData() {
       try {
         const a = localStorage.getItem('kompass_answers');
@@ -2674,11 +2996,13 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       loadStorageData();
-      renderTimerDisplay();
+      initDynamicTimerDefault();
       updatePortalRoleCardsUI();
+      updateCockpitRoleDisplays();
       updateSafetyCodexUI();
       updateTabuCounts();
       updateAiSessionIndicator();
+      checkUnreviewedSessionsToast();
     });
   </script>
 </body>
