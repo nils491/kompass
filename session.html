@@ -695,10 +695,25 @@
           </div>
 
           <div id="release-choice-subpanel" class="hidden p-3 rounded-xl bg-slate-950 border border-emerald-800/80 space-y-2">
-            <span class="text-[11px] font-bold text-emerald-300 block">Wie soll die Freigabe erfolgen?</span>
-            <div class="flex gap-2">
-              <button type="button" onclick="executeReleaseWithCountdown()" class="flex-1 py-2 rounded-xl bg-emerald-900/80 border border-emerald-600 text-white text-xs font-bold touch-btn">
-                Mit 10s-Atem-Countdown
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-emerald-300 block">Freigabe-Modus des Tops:</span>
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] text-slate-400">Countdown:</span>
+                <span id="selected-countdown-duration-label" class="text-xs font-mono font-bold text-emerald-400">10s</span>
+              </div>
+            </div>
+
+            <!-- SCHNELL-WAHL DER COUNTDOWN-DAUER -->
+            <div class="grid grid-cols-4 gap-1 pt-0.5">
+              <button type="button" onclick="setCountdownDuration(5)" id="btn-cd-dur-5" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">5s</button>
+              <button type="button" onclick="setCountdownDuration(10)" id="btn-cd-dur-10" class="py-1 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn">10s</button>
+              <button type="button" onclick="setCountdownDuration(20)" id="btn-cd-dur-20" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">20s</button>
+              <button type="button" onclick="setCountdownDuration(30)" id="btn-cd-dur-30" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">30s</button>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <button type="button" onclick="executeReleaseWithCountdown()" id="btn-trigger-countdown-release" class="flex-1 py-2 rounded-xl bg-emerald-900/80 border border-emerald-600 text-white text-xs font-bold touch-btn">
+                Mit <span id="btn-cd-label-sec">10s</span>-Atem-Countdown
               </button>
               <button type="button" onclick="executeReleaseImmediate()" class="flex-1 py-2 rounded-xl bg-emerald-700 border border-emerald-500 text-white text-xs font-bold touch-btn">
                 Sofortige Freigabe
