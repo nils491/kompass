@@ -480,6 +480,7 @@
 
     </div>
 
+    <!-- COCKPIT LIVE CONTAINER -->
     <div id="cockpit-live-container" class="hidden space-y-4">
       
       <!-- HAUPT-TIMER -->
@@ -1001,7 +1002,7 @@
 
     let isTopVoiceAssistActive = false;
     let activeSessionVoice = 'Despina';
-    let activeDiscoveredModel = "gemini-3.8-flash-tts"; 
+    let activeDiscoveredModel = "gemini-2.5-flash"; 
 
     let currentStagingCategory = 'household';
     let activeEquipmentIds = [];
@@ -1022,7 +1023,6 @@
     let liveStepIndex = 0;
     let sessionDepth = 7;
 
-    // DATA INTEGRITY FALLBACK
     function ensureSessionDataIntegrity() {
       if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
       if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
@@ -1254,7 +1254,7 @@
         try {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (scrollEx) {
-          window.scrollTo(0, 0); // Fallback für Iframes, die behavior:smooth nicht unterstützen
+          window.scrollTo(0, 0);
         }
       } catch (e) {
         console.error("Step Nav Error:", e);
