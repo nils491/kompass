@@ -2,10 +2,10 @@
  * js/hub_modals.js
  * Zentraler Controller für alle Dialoge und Einstellungen in index.html:
  * - Profil- & Account-Einstellungen (Rufname, Anatomie, Gemini-Key, Theme, Backup, Reset)
- * - BDSM- & Kink-Lexikon (Volltextsuche)
+ * - BDSM- & Kink-Lexikon (Volltextsuche & Anbindung an KinkResearch)
  * - Tabu-Charta (Note-1-Schutzschranken beider Partner)
  * - Erst-Onboarding für neue Paare
- * - Probehören der bevorzugten TTS-Stimme über SessionVoice
+ * - Probehören der bevorzugten TTS-Stimme über SessionVoice mit 5s-Autostopp
  */
 
 (function(window) {
@@ -25,6 +25,10 @@
   }
 
   function showToast(msg) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
+      return;
+    }
     var c = document.getElementById('toast-container');
     if (!c) return;
     var el = document.createElement('div');
@@ -76,14 +80,18 @@
 
     updateAccountAnatomyButtons(curAnat);
 
-    document.getElementById('reset-confirmation-box')?.classList.add('hidden');
-    document.getElementById('reset-trigger-area')?.classList.remove('hidden');
-    document.getElementById('modal-account')?.classList.remove('hidden');
+    var resetConfirm = document.getElementById('reset-confirmation-box');
+    var resetTrigger = document.getElementById('reset-trigger-area');
+    if (resetConfirm) resetConfirm.classList.add('hidden');
+    if (resetTrigger) resetTrigger.classList.remove('hidden');
+
+    var modal = document.getElementById('modal-account');
+    if (modal) modal.classList.remove('hidden');
   }
 
   function closeAccountModal() {
-    document.getElementById('modal-account')?.classList.add('hidden');
-    if (typeof window.updateCurrentUserUI === 'function') window.updateCurrentUserUI();
+    var modal = document.getElementById('modal-account');
+    if (modal) modal.classList.add('hidden');
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
   }
 
@@ -117,19 +125,24 @@
     var cur = window.currentUser || 'A';
     if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
     window.names[cur] = val.trim() || (cur === 'A' ? 'Partner 1' : 'Partner 2');
-    localStorage.setItem('kompass_names', JSON.stringify(window.names));
+    try {
+      localStorage.setItem('kompass_names', JSON.stringify(window.names));
+    } catch (e) {}
 
     var disp = document.getElementById('user-display-' + cur);
     if (disp) disp.innerText = window.names[cur];
     var curUserText = document.getElementById('account-active-username');
     if (curUserText) curUserText.innerText = window.names[cur];
-    showToast("Rufname gespeichert");
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    showToast("Rufname gespeichert ✓");
   }
 
   function updateCurrentUserEmail(val) {
     var cur = window.currentUser || 'A';
-    localStorage.setItem('kompass_backup_email_' + cur, val.trim());
-    showToast("E-Mail für Backup hinterlegt");
+    try {
+      localStorage.setItem('kompass_backup_email_' + cur, val.trim());
+    } catch (e) {}
+    showToast("E-Mail für Backup hinterlegt ✓");
   }
 
   function selectAccountAnatomy(who, type) {
@@ -142,13 +155,17 @@
     } else {
       window.anatomy[other] = type;
     }
-    localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
+    try {
+      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
+    } catch (e) {}
     updateAccountAnatomyButtons(window.anatomy);
-    showToast("Anatomie aktualisiert");
+    showToast("Anatomie aktualisiert ✓");
   }
 
   function toggleAccountAiActive(checked) {
-    localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
+    try {
+      localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
+    } catch (e) {}
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     showToast(checked ? "KI-Zentrale aktiviert ✓" : "KI-Zentrale deaktiviert");
   }
@@ -157,12 +174,12 @@
     var isDark = document.documentElement.classList.contains('dark');
     if (isDark) {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('kompass_theme', 'light');
-      showToast("Helles Design aktiviert");
+      try { localStorage.setItem('kompass_theme', 'light'); } catch (e) {}
+      showToast("Helles Design aktiviert ☀️");
     } else {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('kompass_theme', 'dark');
-      showToast("Dunkles Design aktiviert");
+      try { localStorage.setItem('kompass_theme', 'dark'); } catch (e) {}
+      showToast("Dunkles Design aktiviert 🌙");
     }
   }
 
@@ -184,12 +201,17 @@
   }
 
   function saveGeminiKeyInAccount(val) {
-    localStorage.setItem('kompass_gemini_api_key', (val || '').trim());
-    showToast("API-Key gespeichert");
+    var clean = (val || '').trim();
+    try {
+      localStorage.setItem('kompass_gemini_api_key', clean);
+    } catch (e) {}
+    showToast("API-Key gespeichert ✓");
   }
 
   function saveVoiceInAccount(val) {
-    localStorage.setItem('kompass_session_voice', val);
+    try {
+      localStorage.setItem('kompass_session_voice', val);
+    } catch (e) {}
     showToast("Stimme gespeichert: " + val);
   }
 
@@ -202,6 +224,8 @@
     var previewText = "Ich bin deine ausgewählte Stimme für unsere gemeinsamen Sessions.";
 
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      var btn = document.getElementById('btn-acc-voice-preview');
+      if (btn) btn.innerText = "⏳ Lädt...";
       await window.SessionVoice.play(previewText, voice, true);
     } else {
       showToast("⚠️ Audio-Engine nicht geladen.");
@@ -220,16 +244,20 @@
       date: new Date().toISOString()
     };
 
+    var jsonStr = JSON.stringify(backupData, null, 2);
     var subject = encodeURIComponent("Kink-Kompass Datensicherung");
-    var body = encodeURIComponent("Hallo,\n\nhier ist deine Datensicherung des Kink-Kompass vom " + new Date().toLocaleDateString('de-DE') + ":\n\n" + JSON.stringify(backupData, null, 2));
+    var body = encodeURIComponent("Hallo,\n\nhier ist deine Datensicherung des Kink-Kompass vom " + new Date().toLocaleDateString('de-DE') + ":\n\n" + jsonStr);
 
     if (email) {
       window.location.href = "mailto:" + email + "?subject=" + subject + "&body=" + body;
-      showToast("E-Mail-Programm aufgerufen");
+      showToast("E-Mail-Programm aufgerufen ✉️");
     } else {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(JSON.stringify(backupData));
-        showToast("Backup-Daten in Zwischenablage kopiert!");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).then(function() {
+          showToast("Backup-Daten in Zwischenablage kopiert! 📋");
+        }).catch(function() {
+          showToast("Keine Backup-E-Mail hinterlegt.");
+        });
       } else {
         showToast("Keine Backup-E-Mail hinterlegt.");
       }
@@ -239,6 +267,8 @@
   function generateRandomTestData() {
     var allChapters = window.surveyChapters || [];
     if (!window.answers) window.answers = { A: {}, B: {} };
+    if (!window.answers.A) window.answers.A = {};
+    if (!window.answers.B) window.answers.B = {};
 
     allChapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
@@ -267,32 +297,42 @@
       });
     });
 
-    localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
+    try {
+      localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
+    } catch (e) {}
+
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
     showToast("🎲 Zufällige Testdaten für beide Partner befüllt!");
   }
 
   function showResetConfirmation() {
-    document.getElementById('reset-trigger-area')?.classList.add('hidden');
-    document.getElementById('reset-confirmation-box')?.classList.remove('hidden');
+    var triggerArea = document.getElementById('reset-trigger-area');
+    var confirmBox = document.getElementById('reset-confirmation-box');
+    if (triggerArea) triggerArea.classList.add('hidden');
+    if (confirmBox) confirmBox.classList.remove('hidden');
   }
 
   function cancelResetConfirmation() {
-    document.getElementById('reset-confirmation-box')?.classList.add('hidden');
-    document.getElementById('reset-trigger-area')?.classList.remove('hidden');
+    var confirmBox = document.getElementById('reset-confirmation-box');
+    var triggerArea = document.getElementById('reset-trigger-area');
+    if (confirmBox) confirmBox.classList.add('hidden');
+    if (triggerArea) triggerArea.classList.remove('hidden');
   }
 
   function resetCurrentUserProfile() {
     var cur = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     window.answers[cur] = {};
-    localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
+    try {
+      localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
+    } catch (e) {}
+
     cancelResetConfirmation();
     closeAccountModal();
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (typeof window.switchMainView === 'function') window.switchMainView('hub');
-    showToast("Profil geleert");
+    showToast("Profil geleert 🗑️");
   }
 
   // ==========================================
@@ -345,11 +385,13 @@
       `;
     }
 
-    document.getElementById('modal-tabus')?.classList.remove('hidden');
+    var modal = document.getElementById('modal-tabus');
+    if (modal) modal.classList.remove('hidden');
   }
 
   function closeTabuModal() {
-    document.getElementById('modal-tabus')?.classList.add('hidden');
+    var modal = document.getElementById('modal-tabus');
+    if (modal) modal.classList.add('hidden');
   }
 
   // ==========================================
@@ -359,7 +401,8 @@
     if (window.KinkResearch && typeof window.KinkResearch.open === 'function') {
       window.KinkResearch.open(initialTerm);
     } else {
-      document.getElementById('modal-lexikon')?.classList.remove('hidden');
+      var modal = document.getElementById('modal-lexikon');
+      if (modal) modal.classList.remove('hidden');
     }
   }
 
@@ -367,7 +410,8 @@
     if (window.KinkResearch && typeof window.KinkResearch.close === 'function') {
       window.KinkResearch.close();
     } else {
-      document.getElementById('modal-lexikon')?.classList.add('hidden');
+      var modal = document.getElementById('modal-lexikon');
+      if (modal) modal.classList.add('hidden');
     }
   }
 
@@ -388,31 +432,42 @@
   }
 
   function completeOnboarding() {
-    var nameA = document.getElementById('onboard-name-A')?.value.trim() || 'Partner 1';
-    var nameB = document.getElementById('onboard-name-B')?.value.trim() || 'Partner 2';
+    var nameAInput = document.getElementById('onboard-name-A');
+    var nameBInput = document.getElementById('onboard-name-B');
+
+    var nameA = (nameAInput && nameAInput.value.trim()) || 'Partner 1';
+    var nameB = (nameBInput && nameBInput.value.trim()) || 'Partner 2';
 
     window.names = { A: nameA, B: nameB };
     window.anatomy = { A: onboardAnatState.A, B: onboardAnatState.B };
 
-    localStorage.setItem('kompass_names', JSON.stringify(window.names));
-    localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
-    localStorage.setItem('kompass_onboarding_done', 'true');
+    try {
+      localStorage.setItem('kompass_names', JSON.stringify(window.names));
+      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
+      localStorage.setItem('kompass_onboarding_done', 'true');
+    } catch (e) {}
 
-    document.getElementById('modal-onboarding')?.classList.add('hidden');
-    if (typeof window.updateCurrentUserUI === 'function') window.updateCurrentUserUI();
+    var modal = document.getElementById('modal-onboarding');
+    if (modal) modal.classList.add('hidden');
+
+    var dispA = document.getElementById('user-display-A');
+    var dispB = document.getElementById('user-display-B');
+    if (dispA) dispA.innerText = nameA;
+    if (dispB) dispB.innerText = nameB;
+
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     showToast("Willkommen! Profile eingerichtet ✓");
   }
 
-  // Initialisierung beim Laden
   window.addEventListener('DOMContentLoaded', function() {
     var isConfigured = localStorage.getItem('kompass_onboarding_done');
     if (!isConfigured) {
-      document.getElementById('modal-onboarding')?.classList.remove('hidden');
+      var modal = document.getElementById('modal-onboarding');
+      if (modal) modal.classList.remove('hidden');
     }
   });
 
-  // Globale Registrierung
+  // Globale Registrierung aller Modal-Methoden
   window.openAccountModal = openAccountModal;
   window.closeAccountModal = closeAccountModal;
   window.updateCurrentUserName = updateCurrentUserName;
