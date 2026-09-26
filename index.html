@@ -105,6 +105,12 @@
         </a>
 
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+          <!-- Cloud-Sync Header-Indikator -->
+          <button type="button" onclick="openCloudSyncModal()" id="btn-cloud-sync-header" class="px-2.5 py-1.5 rounded-xl theme-panel border border-slate-800 text-xs font-bold flex items-center gap-1.5 transition touch-btn" title="Cloud-Synchronisations-Status anzeigen">
+            <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span id="cloud-sync-status-text" class="hidden sm:inline text-[10.5px] text-slate-300">Lokal</span>
+          </button>
+
           <div class="flex items-center p-0.5 rounded-xl theme-panel border text-xs">
             <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
               <span id="user-display-A">Partner 1</span>
@@ -254,6 +260,22 @@
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
               Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für die Regie.
+            </p>
+          </div>
+        </button>
+
+        <!-- Kachel 07: Cloud-Synchronisation & Gerätekopplung -->
+        <button type="button" onclick="openCloudSyncModal()" class="theme-card hover:border-sky-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
+          <div class="w-11 h-11 rounded-2xl bg-sky-950/80 border border-sky-800 text-sky-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            07
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm font-extrabold text-white group-hover:text-sky-300 transition-colors">Cloud & Kopplung</strong>
+              <span id="hub-sync-status-badge" class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">Lokal</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              Echtzeit-Synchronisation zwischen zwei Handys. 256-Bit Ende-zu-Ende verschlüsselt.
             </p>
           </div>
         </button>
@@ -530,20 +552,14 @@
           <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+        <div class="pt-1">
           <div class="space-y-1">
             <span class="text-[10.5px] font-bold text-slate-300 block">Deine Anatomie:</span>
             <div class="flex gap-1">
               <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
               <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
             </div>
-          </div>
-          <div class="space-y-1">
-            <span class="text-[10.5px] font-bold text-slate-300 block">Partner-Anatomie:</span>
-            <div class="flex gap-1">
-              <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
-              <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
-            </div>
+            <span class="text-[9.5px] text-slate-400 block pt-0.5">Die Anatomie deines Partners wird von ihm auf seinem eigenen Gerät eingestellt.</span>
           </div>
         </div>
 
@@ -577,26 +593,53 @@
           </select>
         </div>
 
+        <!-- ANLEITUNG: APP AUF DEM IPHONE / HOMESCREEN SPEICHERN -->
+        <div class="p-3.5 rounded-2xl bg-sky-950/20 border border-sky-900/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-sky-200 flex items-center gap-1.5">
+              <span>📱</span><span>Als App auf dem iPhone speichern</span>
+            </strong>
+            <span class="text-[9.5px] font-bold text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded border border-sky-800">Tipp</span>
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-snug">
+            So startest du den Kompass künftig wie eine echte App im Vollbildmodus ohne Browserleisten:
+          </p>
+          <div class="space-y-1.5 text-[10.5px] text-slate-300 pt-0.5">
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">1</span>
+              <span>In <strong>Safari</strong> unten auf das <strong>Teilen-Symbol</strong> <span class="font-mono text-sky-300">[↑]</span> tippen.</span>
+            </div>
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">2</span>
+              <span>Im Menü nach unten scrollen und <strong>„Zum Home-Bildschirm“</strong> wählen.</span>
+            </div>
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">3</span>
+              <span>Oben rechts auf <strong>„Hinzufügen“</strong> tippen – fertig!</span>
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
           <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold touch-btn">Design wechseln 🌓</button>
           <button type="button" onclick="sendBackupEmail()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold touch-btn">Datensicherung 📤</button>
         </div>
 
-        <div class="p-3 rounded-2xl bg-amber-950/20 border border-amber-900/40 flex items-center justify-between gap-2">
-          <span class="text-[10.5px] text-slate-300">Zufällige Testdaten befüllen (für beide Partner):</span>
-          <button type="button" onclick="generateRandomTestData()" class="px-3 py-1.5 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 text-xs font-bold touch-btn">🎲 Würfeln</button>
-        </div>
-
         <div id="reset-trigger-area" class="pt-2 border-t border-slate-800 flex justify-end">
-          <button type="button" onclick="showResetConfirmation()" class="text-rose-400 hover:text-rose-300 text-[11px] font-bold touch-btn">Profil zurücksetzen ⚠️</button>
+          <button type="button" onclick="showResetConfirmation()" class="text-rose-400 hover:text-rose-300 text-[11px] font-bold touch-btn">Profil löschen ⚠️</button>
         </div>
 
         <div id="reset-confirmation-box" class="hidden p-3.5 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 space-y-2">
-          <strong class="text-xs block">Wirklich alle Antworten von <span id="reset-current-username">Partner 1</span> löschen?</strong>
-          <p class="text-[10.5px] text-slate-300">Diese Aktion kann nicht rückgängig gemacht werden.</p>
-          <div class="flex justify-end gap-2 pt-1">
-            <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1 rounded-xl theme-panel border text-slate-300 text-xs touch-btn">Abbrechen</button>
-            <button type="button" onclick="resetCurrentUserProfile()" class="px-3 py-1 rounded-xl bg-rose-800 text-white font-bold text-xs touch-btn">Ja, löschen</button>
+          <div class="flex items-start gap-2">
+            <span class="text-base flex-shrink-0">⚠️</span>
+            <div>
+              <strong class="text-xs block text-rose-100">Profil von <span id="reset-current-username" class="font-mono text-white">Partner</span> wirklich unwiderruflich löschen?</strong>
+              <p class="text-[10.5px] text-slate-300 mt-0.5">Alle deine abgegebenen Bewertungen und Antworten werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!</p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-rose-900/60">
+            <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold touch-btn">Abbrechen</button>
+            <button type="button" onclick="resetCurrentUserProfile()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs touch-btn shadow-md">Ja, Profil endgültig löschen</button>
           </div>
         </div>
       </div>
@@ -646,37 +689,223 @@
   </div>
 
   <div id="modal-onboarding" style="display: none;" onclick="if(event.target===this) closeOnboardingModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative max-h-[92vh] overflow-y-auto">
       <button type="button" onclick="closeOnboardingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold w-6 h-6 rounded-lg theme-panel border flex items-center justify-center touch-btn">✕</button>
-      <div class="text-center space-y-1">
-        <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Willkommen</span>
-        <h3 class="text-base font-black text-white">Richtet eure Profile ein</h3>
-        <p class="text-[11px] text-slate-400">Gebt eure Rufnamen und Anatomie an, um die Fragen perfekt anzupassen.</p>
-      </div>
 
-      <div class="space-y-3">
-        <div class="p-3 rounded-2xl theme-panel border space-y-2">
-          <span class="font-bold text-white block">Partner 1:</span>
-          <input type="text" id="onboard-name-A" placeholder="Rufname Partner 1" value="Partner 1" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          <div class="flex gap-1 pt-0.5">
-            <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Penis</button>
-            <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Vulva</button>
-          </div>
-        </div>
-
-        <div class="p-3 rounded-2xl theme-panel border space-y-2">
-          <span class="font-bold text-white block">Partner 2:</span>
-          <input type="text" id="onboard-name-B" placeholder="Rufname Partner 2" value="Partner 2" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          <div class="flex gap-1 pt-0.5">
-            <button type="button" onclick="setOnboardingAnatomy('B', 'penis')" id="onboard-anat-B-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Penis</button>
-            <button type="button" onclick="setOnboardingAnatomy('B', 'vulva')" id="onboard-anat-B-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Vulva</button>
-          </div>
+      <!-- FORTSCHRITTS-INDIKATOR -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span id="onboard-step-badge" class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Schritt 1 von 3</span>
+        <div class="flex gap-1" id="onboard-step-dots">
+          <span id="dot-step-1" class="w-2 h-2 rounded-full bg-brand-500"></span>
+          <span id="dot-step-2" class="w-2 h-2 rounded-full bg-slate-700"></span>
+          <span id="dot-step-3" class="w-2 h-2 rounded-full bg-slate-700"></span>
         </div>
       </div>
 
-      <button type="button" onclick="completeOnboarding()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-        Kompass starten →
-      </button>
+      <!-- SCHRITT 1: NAME & ANATOMIE -->
+      <div id="onboard-step-1" class="space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Richte dein Profil ein</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">Gib deinen Rufnamen und deine Anatomie an. Dein Partner stellt sein eigenes Profil separat ein.</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl theme-panel border space-y-2.5">
+          <label class="font-bold text-white block text-xs">Dein Rufname:</label>
+          <input type="text" id="onboard-name-A" placeholder="z. B. Alex" value="Partner 1" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
+          <div class="space-y-1 pt-1">
+            <span class="text-[10.5px] font-bold text-slate-300 block">Deine Anatomie:</span>
+            <div class="flex gap-1.5">
+              <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Penis</button>
+              <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Vulva</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" onclick="goToOnboardStep(2)" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Weiter zu Schritt 2: Euer Paar-Code →
+        </button>
+      </div>
+
+      <!-- SCHRITT 2: DER AUTOMATISCH GENERIERTE PAAR-CODE & LOGIN-SCHLÜSSEL -->
+      <div id="onboard-step-2" class="hidden space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Euer Paar-Code & Login-Schlüssel</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">Dieser Code wurde soeben automatisch für euch generiert. Er ist euer Generalschlüssel für alle Geräte!</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-sky-950/30 border border-sky-800 text-center space-y-2.5 shadow-inner">
+          <span class="text-xs text-sky-300 font-bold block uppercase tracking-wider">Euer persönlicher Paar-Code:</span>
+          <div id="onboard-code-display" class="text-2xl font-black font-mono tracking-widest text-white bg-slate-950 py-2 px-4 rounded-2xl border border-sky-600 inline-block shadow-lg">
+            KOMPASS-000
+          </div>
+          <div class="flex gap-1.5 pt-1">
+            <button type="button" onclick="copyOnboardCode()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold rounded-xl text-[10.5px] touch-btn flex items-center justify-center gap-1">
+              <span>📋</span><span>Code kopieren</span>
+            </button>
+            <button type="button" onclick="handleShareInviteLink()" class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-[10.5px] touch-btn flex items-center justify-center gap-1 shadow-sm">
+              <span>📤</span><span>Per WhatsApp teilen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- WICHTIGER SPEICHER-HINWEIS -->
+        <div class="p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 space-y-1.5 text-amber-200">
+          <div class="flex items-center gap-1.5 text-amber-300 font-bold text-[11px]">
+            <span>⚠️</span><span>Wichtig: Code jetzt notieren oder merken!</span>
+          </div>
+          <p class="text-[10.5px] leading-relaxed text-slate-300">
+            Wenn du den Browser-Verlauf leerst oder ein anderes Handy nutzt, ist dieser Code dein <strong>Login-Schlüssel</strong>. Damit kannst du jederzeit mit 1 Klick all eure Daten wiederherstellen.
+          </p>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="goToOnboardStep(1)" class="px-3.5 py-2.5 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Zurück
+          </button>
+          <button type="button" onclick="goToOnboardStep(3)" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            Habe ich notiert · Weiter →
+          </button>
+        </div>
+      </div>
+
+      <!-- SCHRITT 3: IPHONE HOMESCREEN & START -->
+      <div id="onboard-step-3" class="hidden space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Als App auf dem iPhone speichern</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">So bleibt dein Login dauerhaft erhalten und du startest künftig im Vollbildmodus ohne Browserleisten:</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-slate-300 text-[10.5px]">
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">1</span>
+            <span>In <strong>Safari</strong> unten auf das <strong>Teilen-Symbol</strong> <span class="font-mono text-sky-300 font-bold">[↑]</span> tippen.</span>
+          </div>
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">2</span>
+            <span>Nach unten scrollen und <strong>„Zum Home-Bildschirm“</strong> antippen.</span>
+          </div>
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">3</span>
+            <span>Oben rechts auf <strong>„Hinzufügen“</strong> bestätigen – fertig!</span>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="goToOnboardStep(2)" class="px-3.5 py-3 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Code ansehen
+          </button>
+          <button type="button" onclick="completeOnboarding()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+            Kompass jetzt starten 🚀
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CLOUD-SYNCHRONISATION & GERÄTEKOPPLUNG -->
+  <div id="modal-cloud-sync" style="display: none;" onclick="if(event.target===this) closeCloudSyncModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-sky-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-sky-900/60 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-950 border border-sky-800 text-sky-300 flex items-center justify-center text-sm font-black">☁️</div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Gerätekopplung & Cloud-Sync</h3>
+            <p class="text-[10px] text-sky-300">256-Bit Ende-zu-Ende-Verschlüsselung (E2EE)</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudSyncModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- STATUS-ANZEIGE -->
+      <div id="cloud-sync-status-card" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] text-slate-400 block">Aktueller Verbindungsstatus:</span>
+          <strong id="cloud-sync-state-label" class="text-white text-xs">Nicht gekoppelt (Nur lokaler Speicher)</strong>
+        </div>
+        <span id="cloud-sync-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400">Offline</span>
+      </div>
+
+      <!-- KOPPEL-OPTIONEN (WENN NICHT GEKOPPELT) -->
+      <div id="cloud-sync-setup-panel" class="space-y-3">
+        <!-- OPTION A: RAUM ERSTELLEN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <strong class="text-white block text-xs">Option A: Neues Paar-Zimmer eröffnen</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">Erzeugt einen 6-stelligen Code für euch zwei. Dein Partner muss diesen Code nur auf seinem Handy eingeben.</p>
+          <button type="button" onclick="handleCreatePairRoom()" id="btn-create-pair-room" class="w-full py-2.5 bg-sky-900 hover:bg-sky-800 text-sky-100 font-extrabold rounded-xl text-xs touch-btn">
+            ✨ Paar-Code jetzt erstellen
+          </button>
+        </div>
+
+        <!-- OPTION B: CODE BEIM PARTNER EINGEBEN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <strong class="text-white block text-xs">Option B: Mit bestehendem Paar-Code verbinden</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">Tippe den Code ein, den dein Partner auf seinem Handy erstellt hat:</p>
+          <input type="text" id="input-pair-code" placeholder="z. B. KOMPASS-842" class="w-full text-xs p-2.5 theme-panel border border-slate-700 rounded-xl text-white font-mono tracking-wider text-center uppercase">
+          
+          <div class="flex items-center gap-1.5 pt-1">
+            <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[10.5px] touch-btn">
+              Als Partner 1 verbinden
+            </button>
+            <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[10.5px] touch-btn">
+              Als Partner 2 verbinden
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BEREITS GEKOPPELT (PANEL) -->
+      <div id="cloud-sync-active-panel" class="hidden space-y-3">
+        <div class="p-4 rounded-2xl bg-sky-950/30 border border-sky-800 text-sky-200 space-y-2 text-center">
+          <span class="text-2xl block">🔒</span>
+          <span class="text-[10.5px] text-slate-400 block">Euer gemeinsamer Paar-Code:</span>
+          <div id="active-pair-code-display" class="text-xl font-black font-mono tracking-wider text-white bg-slate-950 py-1.5 px-3 rounded-xl border border-sky-900 inline-block">
+            KOMPASS-000
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-snug">
+            Alle Antworten, Sicherheits-Absprachen und Logbucheinträge werden automatisch und unlesbar verschlüsselt im Hintergrund abgeglichen.
+          </p>
+        </div>
+
+        <!-- 1-KLICK-EINLADUNG FÜR DIE PARTNERIN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-sky-800/80 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white block">Partnerin per Direkt-Link einladen:</strong>
+            <span class="text-[9.5px] font-bold text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded border border-sky-800">1-Klick</span>
+          </div>
+          <p class="text-[10.5px] text-slate-400 leading-snug">
+            Sende deiner Partnerin diesen Link. Sie muss nur darauf tippen – die Kopplung und Entschlüsselung erfolgt auf ihrem Handy vollautomatisch ohne Code-Eingabe!
+          </p>
+          <div class="flex gap-1.5 pt-0.5">
+            <button type="button" onclick="handleShareInviteLink()" id="btn-share-invite-link" class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs touch-btn flex items-center justify-center gap-1.5 shadow-md">
+              <span>📤</span><span>Link teilen (WhatsApp etc.)</span>
+            </button>
+            <button type="button" onclick="handleCopyInviteLink()" id="btn-copy-invite-link" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs touch-btn" title="In Zwischenablage kopieren">
+              Kopieren 📋
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="handleManualSyncNow()" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-extrabold rounded-xl text-xs touch-btn">
+            🔄 Jetzt manuell abgleichen
+          </button>
+          <button type="button" onclick="handleDisconnectPairing()" class="px-3 py-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 font-bold text-xs touch-btn">
+            Trennen
+          </button>
+        </div>
+      </div>
+
+      <!-- SICHERHEITSHINWEIS -->
+      <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+        🛡️ <strong>Zero-Knowledge-Garantie:</strong> Der Paar-Code fungiert direkt als kryptographischer Schlüssel (PBKDF2 / AES-GCM 256-Bit). Kein Serverbetreiber kann eure Antworten im Klartext lesen.
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeCloudSyncModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          Fertig & Schließen
+        </button>
+      </div>
     </div>
   </div>
 
@@ -686,6 +915,7 @@
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
+  <script src="js/cloud_sync.js?v=4.0"></script>
   <script src="js/session_voice.js?v=3.8"></script>
   <script src="js/hub_toys.js?v=3.8"></script>
   <script src="js/kink_research.js?v=3.8"></script>

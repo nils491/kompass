@@ -2,6 +2,7 @@
  * js/hub_modals.js
  * Vollständiger Controller für alle Modals und Einstellungen im Start-Hub:
  * - Profil & Account-Einstellungen (Name, E-Mail, Anatomie, Gemini-Key, Stimme)
+ * - Cloud-Synchronisations- & Multi-Device-Kopplungs-Steuerung
  * - Testdaten-Generator (Zufallsdaten für beide Partner zum sofortigen Testen)
  * - Profil-Reset mit Sicherheitsabfrage
  * - Tabu-Charta (Übersicht aller Note-1-Praktiken beider Partner)
@@ -41,6 +42,241 @@
       setTimeout(function() { el.remove(); }, 300);
     }, 2500);
   }
+
+  // ==========================================
+  // 1. CLOUD-SYNCHRONISATIONS-CONTROLLER
+  // ==========================================
+
+  function updateCloudSyncUI() {
+    if (!window.CloudSync) return;
+    var state = window.CloudSync.getState();
+
+    var dot = document.getElementById('cloud-sync-status-dot');
+    var txt = document.getElementById('cloud-sync-status-text');
+    var badgeHeader = document.getElementById('cloud-sync-badge');
+    var hubBadge = document.getElementById('hub-sync-status-badge');
+    var stateLabel = document.getElementById('cloud-sync-state-label');
+    var setupPanel = document.getElementById('cloud-sync-setup-panel');
+    var activePanel = document.getElementById('cloud-sync-active-panel');
+    var codeDisplay = document.getElementById('active-pair-code-display');
+
+    if (state.isPaired) {
+      if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+      if (txt) {
+        txt.innerText = state.status === 'syncing' ? "Synchronisiere..." : "Gekoppelt";
+        txt.className = "hidden sm:inline text-[10.5px] text-emerald-300 font-bold";
+      }
+      if (hubBadge) {
+        hubBadge.innerText = "Verbunden (" + state.pairCode + ")";
+        hubBadge.className = "text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800";
+      }
+      if (badgeHeader) {
+        badgeHeader.innerText = state.status === 'syncing' ? "Sync..." : "Live";
+        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
+      }
+      if (stateLabel) {
+        stateLabel.innerText = "Gekoppelt mit Code: " + state.pairCode;
+      }
+      if (codeDisplay) {
+        codeDisplay.innerText = state.pairCode;
+      }
+      if (setupPanel) setupPanel.classList.add('hidden');
+      if (activePanel) activePanel.classList.remove('hidden');
+    } else {
+      if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-500";
+      if (txt) {
+        txt.innerText = "Lokal";
+        txt.className = "hidden sm:inline text-[10.5px] text-slate-400";
+      }
+      if (hubBadge) {
+        hubBadge.innerText = "Lokal";
+        hubBadge.className = "text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800";
+      }
+      if (badgeHeader) {
+        badgeHeader.innerText = "Offline";
+        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400";
+      }
+      if (stateLabel) {
+        stateLabel.innerText = "Nicht gekoppelt (Nur lokaler Speicher)";
+      }
+      if (setupPanel) setupPanel.classList.remove('hidden');
+      if (activePanel) activePanel.classList.add('hidden');
+    }
+  }
+
+  function getInviteUrlForPartner() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    var code = state.pairCode || '';
+    if (!code) return window.location.href;
+
+    // Zielrolle für die Partnerin ist immer das Gegenüber (meist Partner B)
+    var targetRole = (state.role === 'A') ? 'B' : 'A';
+    var baseUrl = window.location.origin + window.location.pathname;
+    return baseUrl + '?pair=' + encodeURIComponent(code) + '&role=' + targetRole + '#view=hub';
+  }
+
+  async function handleShareInviteLink() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    if (!state.pairCode) {
+      showToast("⚠️ Bitte erstelle zuerst einen Paar-Code.");
+      return;
+    }
+
+    var inviteUrl = getInviteUrlForPartner();
+    var shareData = {
+      title: "Unser Kink- & Beziehungs-Kompass",
+      text: "Hier ist unser sicherer Paar-Zugang für den Kink-Kompass. Tippe einfach auf den Link, um dich direkt mit mir zu verbinden:",
+      url: inviteUrl
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        showToast("Einladung geteilt ✓");
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          handleCopyInviteLink();
+        }
+      }
+    } else {
+      handleCopyInviteLink();
+    }
+  }
+
+  function handleCopyInviteLink() {
+    var inviteUrl = getInviteUrlForPartner();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(inviteUrl).then(function() {
+        showToast("📋 Einladungslink in Zwischenablage kopiert! Jetzt in WhatsApp einfügen.");
+      }).catch(function() {
+        promptInviteLinkFallback(inviteUrl);
+      });
+    } else {
+      promptInviteLinkFallback(inviteUrl);
+    }
+  }
+
+  function promptInviteLinkFallback(url) {
+    window.prompt("Kopiere diesen Einladungslink für deine Partnerin:", url);
+  }
+
+  async function checkUrlForAutoPairing() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var pairCode = params.get('pair');
+      var role = params.get('role') || 'B';
+
+      if (pairCode && pairCode.trim().length >= 5) {
+        var cleanCode = pairCode.trim().toUpperCase();
+        showToast("⏳ Einladungslink erkannt: Verbinde automatisch mit " + cleanCode + "...");
+
+        if (window.CloudSync) {
+          try {
+            await window.CloudSync.joinRoom(cleanCode, role);
+            if (typeof window.setCurrentUser === 'function') {
+              window.setCurrentUser(role);
+            }
+            updateCloudSyncUI();
+            showToast("✓ Erfolgreich als " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " gekoppelt!");
+
+            // Saubere URL ohne störende Query-Parameter wiederherstellen
+            var cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#view=hub');
+            window.history.replaceState({}, document.title, cleanUrl);
+          } catch (e) {
+            showToast("⚠️ Automatische Kopplung fehlgeschlagen: " + (e.message || "Code abgelaufen"));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Fehler beim Prüfen von Auto-Pairing Parametern:", e);
+    }
+  }
+
+  function openCloudSyncModal() {
+    var modal = document.getElementById('modal-cloud-sync');
+    if (!modal) return;
+    updateCloudSyncUI();
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+
+  function closeCloudSyncModal() {
+    var modal = document.getElementById('modal-cloud-sync');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+    updateCloudSyncUI();
+  }
+
+  async function handleCreatePairRoom() {
+    var btn = document.getElementById('btn-create-pair-room');
+    if (btn) btn.innerText = "⏳ Erstelle sicheren Paar-Raum...";
+
+    try {
+      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
+      var newCode = await window.CloudSync.createRoom();
+      showToast("✨ Paar-Code erstellt: " + newCode);
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Fehler beim Erstellen: " + (e.message || "Netzwerkfehler"));
+    } finally {
+      if (btn) btn.innerText = "✨ Paar-Code jetzt erstellen";
+    }
+  }
+
+  async function handleJoinPairRoom(role) {
+    var input = document.getElementById('input-pair-code');
+    var code = (input ? input.value : '').trim().toUpperCase();
+
+    if (!code) {
+      showToast("Bitte gib den Paar-Code deines Partners ein.");
+      return;
+    }
+
+    showToast("⏳ Verbinde und entschlüssele Daten...");
+    try {
+      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
+      await window.CloudSync.joinRoom(code, role);
+
+      if (typeof window.setCurrentUser === 'function') {
+        window.setCurrentUser(role);
+      }
+
+      showToast("✓ Erfolgreich mit " + code + " gekoppelt!");
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Kopplung fehlgeschlagen: " + (e.message || "Code ungültig"));
+    }
+  }
+
+  async function handleManualSyncNow() {
+    showToast("🔄 Gleiche Daten mit der Cloud ab...");
+    try {
+      if (!window.CloudSync) return;
+      var success = await window.CloudSync.pull();
+      if (success) {
+        showToast("✓ Daten erfolgreich synchronisiert!");
+      } else {
+        showToast("✓ Lokale Daten aktuell!");
+      }
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Synchronisation fehlgeschlagen.");
+    }
+  }
+
+  function handleDisconnectPairing() {
+    if (window.CloudSync) {
+      window.CloudSync.disconnect();
+    }
+    showToast("Kopplung getrennt. Lokale Daten bleiben erhalten.");
+    updateCloudSyncUI();
+  }
+
+  // ==========================================
+  // 2. ACCOUNT & EINSTELLUNGEN
+  // ==========================================
 
   function openAccountModal() {
     var modal = document.getElementById('modal-account');
@@ -115,6 +351,7 @@
     if (dispB && curUser === 'B') dispB.innerText = cleanVal;
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    if (window.CloudSync) window.CloudSync.trigger();
     showToast("Name gespeichert: " + cleanVal);
   }
 
@@ -128,14 +365,10 @@
   }
 
   function updateAccountAnatomyUI(curUser, anatomy) {
-    var otherUser = (curUser === 'A') ? 'B' : 'A';
     var myAnat = (anatomy && anatomy[curUser]) || 'penis';
-    var partAnat = (anatomy && anatomy[otherUser]) || 'vulva';
 
     var btnMyPenis = document.getElementById('acc-anat-my-penis');
     var btnMyVulva = document.getElementById('acc-anat-my-vulva');
-    var btnPartPenis = document.getElementById('acc-anat-part-penis');
-    var btnPartVulva = document.getElementById('acc-anat-part-vulva');
 
     if (btnMyPenis && btnMyVulva) {
       if (myAnat === 'penis') {
@@ -146,32 +379,21 @@
         btnMyPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       }
     }
-
-    if (btnPartPenis && btnPartVulva) {
-      if (partAnat === 'penis') {
-        btnPartPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-indigo-950 border-indigo-500 text-white touch-btn";
-        btnPartVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      } else {
-        btnPartVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-indigo-950 border-indigo-500 text-white touch-btn";
-        btnPartPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      }
-    }
   }
 
   function selectAccountAnatomy(who, type) {
     var curUser = window.currentUser || 'A';
-    var otherUser = (curUser === 'A') ? 'B' : 'A';
-    var targetKey = (who === 'me') ? curUser : otherUser;
 
     if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[targetKey] = type;
+    window.anatomy[curUser] = type;
 
     try {
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
     } catch (e) {}
 
     updateAccountAnatomyUI(curUser, window.anatomy);
-    showToast("Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
+    if (window.CloudSync) window.CloudSync.trigger();
+    showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
   }
 
   function toggleAccountAiActive(active) {
@@ -265,49 +487,6 @@
     showToast("E-Mail-Programm für Backup geöffnet 📤");
   }
 
-  function generateRandomTestData() {
-    var chapters = window.surveyChapters || [];
-    if (chapters.length === 0) {
-      showToast("⚠️ Kapitel noch nicht geladen");
-      return;
-    }
-
-    if (!window.answers) window.answers = { A: {}, B: {} };
-    if (!window.answers.A) window.answers.A = {};
-    if (!window.answers.B) window.answers.B = {};
-
-    chapters.forEach(function(ch) {
-      (ch.items || []).forEach(function(it) {
-        if (it.type === 'choice') {
-          if (it.options && it.options.length > 0) {
-            var randOptA = it.options[Math.floor(Math.random() * it.options.length)].val;
-            var randOptB = it.options[Math.floor(Math.random() * it.options.length)].val;
-            window.answers.A['it_' + it.id + '_choice'] = randOptA;
-            window.answers.B['it_' + it.id + '_choice'] = randOptB;
-          }
-        } else {
-          // Realistische Zufallswerte (Gewichtung zu 3, 4, 5, gelegentlich 1 oder 2)
-          var weights = [1, 2, 3, 3, 4, 4, 5, 5];
-          window.answers.A['it_' + it.id + '_r1'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.A['it_' + it.id + '_r2'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.B['it_' + it.id + '_r1'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.B['it_' + it.id + '_r2'] = weights[Math.floor(Math.random() * weights.length)];
-        }
-      });
-    });
-
-    try {
-      localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
-    } catch (e) {}
-
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
-    if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
-
-    closeAccountModal();
-    showToast("🎲 Zufällige Testdaten für beide Partner generiert!");
-  }
-
   function showResetConfirmation() {
     var curUser = window.currentUser || 'A';
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
@@ -329,6 +508,8 @@
 
   function resetCurrentUserProfile() {
     var curUser = window.currentUser || 'A';
+    var userName = (window.names && window.names[curUser]) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+
     if (!window.answers) window.answers = { A: {}, B: {} };
     window.answers[curUser] = {};
 
@@ -342,9 +523,14 @@
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
     if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
+    if (window.CloudSync) window.CloudSync.trigger();
 
-    showToast("Profil von " + (window.names?.[curUser] || 'Partner') + " zurückgesetzt");
+    showToast("Profil von " + userName + " vollständig gelöscht 🗑️");
   }
+
+  // ==========================================
+  // 3. TABU-CHARTA & TOY-MANAGEMENT
+  // ==========================================
 
   function openTabuModal() {
     var modal = document.getElementById('modal-tabus');
@@ -450,6 +636,76 @@
     }
   }
 
+  // ==========================================
+  // 4. ONBOARDING
+  // ==========================================
+
+  var currentOnboardStep = 1;
+
+  async function ensureOnboardPairCode() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    var code = state.pairCode;
+
+    // Wenn noch kein Paar-Code existiert, erzeugen wir ihn hier automatisch geräuschlos im Hintergrund
+    if (!code && window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
+      try {
+        code = await window.CloudSync.createRoom();
+      } catch (e) {
+        console.warn("Konnte Paar-Raum im Onboarding nicht vorab erstellen:", e);
+      }
+    }
+
+    var codeEl = document.getElementById('onboard-code-display');
+    if (codeEl && code) {
+      codeEl.innerText = code;
+    }
+    return code;
+  }
+
+  function goToOnboardStep(step) {
+    currentOnboardStep = step;
+
+    [1, 2, 3].forEach(function(s) {
+      var pane = document.getElementById('onboard-step-' + s);
+      var dot = document.getElementById('dot-step-' + s);
+      if (pane) {
+        if (s === step) pane.classList.remove('hidden');
+        else pane.classList.add('hidden');
+      }
+      if (dot) {
+        if (s === step) dot.className = "w-2 h-2 rounded-full bg-brand-500";
+        else if (s < step) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        else dot.className = "w-2 h-2 rounded-full bg-slate-700";
+      }
+    });
+
+    var badge = document.getElementById('onboard-step-badge');
+    if (badge) badge.innerText = "Schritt " + step + " von 3";
+
+    if (step === 2) {
+      ensureOnboardPairCode();
+    }
+  }
+
+  function copyOnboardCode() {
+    var codeEl = document.getElementById('onboard-code-display');
+    var code = (codeEl ? codeEl.innerText : '').trim();
+    if (!code || code === 'KOMPASS-000') {
+      showToast("⏳ Code wird noch initialisiert...");
+      return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(function() {
+        showToast("📋 Paar-Code " + code + " kopiert! Bitte sicher notieren.");
+      }).catch(function() {
+        window.prompt("Kopiere deinen Paar-Code:", code);
+      });
+    } else {
+      window.prompt("Kopiere deinen Paar-Code:", code);
+    }
+  }
+
   function setOnboardingAnatomy(who, type) {
     onboardAnatState[who] = type;
     var btnPenis = document.getElementById('onboard-anat-' + who + '-penis');
@@ -457,11 +713,11 @@
 
     if (btnPenis && btnVulva) {
       if (type === 'penis') {
-        btnPenis.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnVulva.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       } else {
-        btnVulva.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnPenis.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       }
     }
   }
@@ -475,14 +731,15 @@
   }
 
   function completeOnboarding() {
-    var nameAInput = document.getElementById('onboard-name-A');
-    var nameBInput = document.getElementById('onboard-name-B');
+    var curUser = window.currentUser || 'A';
+    var nameInput = document.getElementById('onboard-name-A');
+    var chosenName = (nameInput && nameInput.value.trim()) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-    var nameA = (nameAInput && nameAInput.value.trim()) || 'Partner 1';
-    var nameB = (nameBInput && nameBInput.value.trim()) || 'Partner 2';
+    if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
+    window.names[curUser] = chosenName;
 
-    window.names = { A: nameA, B: nameB };
-    window.anatomy = { A: onboardAnatState.A, B: onboardAnatState.B };
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+    window.anatomy[curUser] = onboardAnatState.A || 'penis';
 
     try {
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
@@ -492,33 +749,64 @@
 
     closeOnboardingModal();
 
-    var dispA = document.getElementById('user-display-A');
-    var dispB = document.getElementById('user-display-B');
-    if (dispA) dispA.innerText = nameA;
-    if (dispB) dispB.innerText = nameB;
+    var disp = document.getElementById('user-display-' + curUser);
+    if (disp) disp.innerText = chosenName;
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    showToast("Willkommen! Profile eingerichtet ✓");
+    if (window.CloudSync) window.CloudSync.trigger();
+    showToast("Willkommen " + chosenName + "! Dein Zugang ist einsatzbereit 🚀");
   }
 
-  window.addEventListener('DOMContentLoaded', function() {
+  // ==========================================
+  // INITIALISIERUNG & LISTENER
+  // ==========================================
+
+  function initHubModals() {
     var isDone = localStorage.getItem('kompass_onboarding_done');
     var hasNames = localStorage.getItem('kompass_names');
     var hasAnswers = localStorage.getItem('kompass_answers');
 
-    // Onboarding nur anzeigen, wenn der Nutzer wirklich völlig neu ist
     if (!isDone && !hasNames && !hasAnswers) {
       var modal = document.getElementById('modal-onboarding');
       if (modal) {
+        goToOnboardStep(1);
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+        // Code im Hintergrund direkt generieren, damit er bei Schritt 2 sofort dasteht
+        ensureOnboardPairCode();
       }
     } else if (!isDone) {
       try { localStorage.setItem('kompass_onboarding_done', 'true'); } catch (e) {}
     }
-  });
+
+    if (window.CloudSync) {
+      window.CloudSync.addListener(function(evt, data) {
+        updateCloudSyncUI();
+      });
+      setTimeout(updateCloudSyncUI, 150);
+    }
+
+    // Beim Laden prüfen, ob der Aufruf über einen Partner-Einladungslink kam
+    setTimeout(checkUrlForAutoPairing, 250);
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initHubModals);
+  } else {
+    initHubModals();
+  }
 
   // Globale Registrierungen für inline onclick-Attribute
+  window.openCloudSyncModal = openCloudSyncModal;
+  window.closeCloudSyncModal = closeCloudSyncModal;
+  window.handleCreatePairRoom = handleCreatePairRoom;
+  window.handleJoinPairRoom = handleJoinPairRoom;
+  window.handleManualSyncNow = handleManualSyncNow;
+  window.handleDisconnectPairing = handleDisconnectPairing;
+  window.handleShareInviteLink = handleShareInviteLink;
+  window.handleCopyInviteLink = handleCopyInviteLink;
+  window.updateCloudSyncUI = updateCloudSyncUI;
+
   window.openAccountModal = openAccountModal;
   window.closeAccountModal = closeAccountModal;
   window.updateCurrentUserName = updateCurrentUserName;
@@ -531,7 +819,6 @@
   window.saveVoiceInAccount = saveVoiceInAccount;
   window.playVoicePreviewInAccount = playVoicePreviewInAccount;
   window.sendBackupEmail = sendBackupEmail;
-  window.generateRandomTestData = generateRandomTestData;
   window.showResetConfirmation = showResetConfirmation;
   window.cancelResetConfirmation = cancelResetConfirmation;
   window.resetCurrentUserProfile = resetCurrentUserProfile;
@@ -542,5 +829,7 @@
   window.setOnboardingAnatomy = setOnboardingAnatomy;
   window.closeOnboardingModal = closeOnboardingModal;
   window.completeOnboarding = completeOnboarding;
+  window.goToOnboardStep = goToOnboardStep;
+  window.copyOnboardCode = copyOnboardCode;
 
 })(window);
