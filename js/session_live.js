@@ -24,6 +24,7 @@
   var lastEdgeIntervalTimer = null;
   var cooldownTimerInterval = null;
   var cooldownSecondsRemaining = 45;
+  var targetEdgingDuration = 10;
   var currentEdgingCountdown = 10;
   var isCountdownActive = false;
   var isEdgingCountdownPaused = false;
@@ -351,29 +352,64 @@
     }
   }
 
+  function setCountdownDuration(seconds) {
+    targetEdgingDuration = parseInt(seconds, 10) || 10;
+    var durLabel = document.getElementById('selected-countdown-duration-label');
+    var btnLabel = document.getElementById('btn-cd-label-sec');
+    if (durLabel) durLabel.innerText = targetEdgingDuration + "s";
+    if (btnLabel) btnLabel.innerText = targetEdgingDuration + "s";
+
+    [5, 10, 20, 30].forEach(function(s) {
+      var btn = document.getElementById('btn-cd-dur-' + s);
+      if (btn) {
+        if (s === targetEdgingDuration) {
+          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn";
+        } else {
+          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
+        }
+      }
+    });
+  }
+
+  function buildDynamicCountdownSpeechText(durationSeconds, subName) {
+    var name = subName || 'mein Schatz';
+    if (durationSeconds === 5) {
+      return "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    }
+    if (durationSeconds === 20) {
+      return "Zwanzig... stillhalten, " + name + "... Achtzehn... Sechzehn... tief in den Bauchraum atmen... Vierzehn... Zwölf... Zehn... Neun... Acht... Sieben... Sechs... Fünf... spüre das Glühen... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    }
+    if (durationSeconds === 30) {
+      return "Dreißig Sekunden an der Kante... nicht bewegen, " + name + "... Fünfundzwanzig... spüre jeden Herzschlag... Zwanzig... langsam ausatmen... Fünfzehn... halte die Spannung... Zehn... Neun... Acht... Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
+    }
+    // Standard: 10 Sekunden
+    return "Zehn... tief durchatmen... Neun... Acht... Sieben... Sechs... Fünf... spüre die Hitze, " + name + "... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+  }
+
   function executeReleaseWithCountdown() {
     var panel = document.getElementById('release-choice-subpanel');
     var wrap = document.getElementById('countdown-wrapper');
     if (panel) panel.classList.add('hidden');
     if (wrap) wrap.classList.remove('hidden');
 
-    currentEdgingCountdown = 10;
+    currentEdgingCountdown = targetEdgingDuration;
     isCountdownActive = true;
     isEdgingCountdownPaused = false;
     countdownRunId++;
 
     var disp = document.getElementById('countdown-display');
-    if (disp) disp.innerText = "10";
+    if (disp) disp.innerText = currentEdgingCountdown.toString();
 
-    // Ein einziger zusammenhängender, geführter Atemsatz statt 11 einzelner API-Calls!
-    // Dadurch wird das Free-Tier-Kontingent (15 Anfragen/Min) geschont und der Ton bricht niemals ab.
     var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
-    var fullCountdownText = "Zehn... tief durchatmen... Neun... Acht... Sieben... Sechs... Fünf... spüre die Hitze, " + subName + "... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
 
-    currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Geführter Atem-Countdown gestartet" });
+    currentSessionLog.push({ 
+      type: "action", 
+      time: getFormattedTimeNow(), 
+      label: "Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet" 
+    });
 
-    // Visueller Sekundenzähler läuft synchron mit
-    runVisualCountdownTicker(countdownRunId);
+    runVisualCountdownTicker(countdownRunId, targetEdgingDuration);
 
     if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
@@ -385,9 +421,12 @@
     }
   }
 
-  async function runVisualCountdownTicker(runId) {
+  async function runVisualCountdownTicker(runId, totalSeconds) {
     var disp = document.getElementById('countdown-display');
-    var ticker = 10;
+    var ticker = totalSeconds;
+
+    // Dynamischer Zeittakt je nach Dauer
+    var stepMs = (totalSeconds === 5) ? 1400 : (totalSeconds === 10 ? 2200 : (totalSeconds === 20 ? 1500 : 1600));
 
     while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
       if (isEdgingCountdownPaused) {
@@ -395,14 +434,13 @@
         continue;
       }
       if (disp) disp.innerText = ticker;
-      // Ein 2,2-Sekunden-Intervall entspricht exakt dem natürlichen Sprech- und Atemtempo
-      await new Promise(function(r) { setTimeout(r, 2200); });
+      await new Promise(function(r) { setTimeout(r, stepMs); });
       ticker--;
     }
 
     if (ticker <= 0 && runId === countdownRunId) {
       if (disp) disp.innerText = "KOMMEN!";
-      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
+      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (" + totalSeconds + "s beendet)" });
       setTimeout(function() {
         var wrap = document.getElementById('countdown-wrapper');
         if (wrap) wrap.classList.add('hidden');
@@ -798,6 +836,7 @@
     openReleaseChoice: openReleaseChoiceModal,
     executeReleaseImmediate: executeReleaseImmediate,
     executeReleaseCountdown: executeReleaseWithCountdown,
+    setCountdownDuration: setCountdownDuration,
     pauseCountdown: pauseSpeechCountdown,
     resetCountdown: resetSpeechCountdown,
     finalizeDecision: finalizeEdgingDecision,
@@ -829,7 +868,7 @@
   window.handleArousalSliderTouch = handleArousalSliderTouch;
   window.registerEdgeReachedWrapper = registerEdgeReachedWrapper;
   window.startCooldownBreathingTimer = startCooldownBreathingTimer;
-  window.openReleaseChoiceModal = openReleaseChoiceModal;
+  window.setCountdownDuration = setCountdownDuration;
   window.executeReleaseImmediate = executeReleaseImmediate;
   window.executeReleaseWithCountdown = executeReleaseWithCountdown;
   window.pauseSpeechCountdown = pauseSpeechCountdown;
