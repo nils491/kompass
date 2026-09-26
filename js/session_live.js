@@ -1,15 +1,6 @@
 /**
  * js/session_live.js
  * Modul für das Live-Cockpit, Timer, Edging-Fernbedienung & Aftercare.
- * 
- * Beinhaltet:
- * - Session-Start, Screen Wake Lock & Haupttimer
- * - Safeword-Ampel & Notfall-Schaltungen
- * - Geführte Drehbuch-Schritte & Vorlese-Funktion
- * - Edging-Cockpit mit Erregungs-Schieberegler (1–10) & 10s-Atem-Countdown
- * - Finisher: Freigabe, Ruined Orgasm, Denial & Cooldown
- * - Vagus-Atmung & Trance-Modal
- * - Aftercare-Feedback & Tagebuch-Verwaltung (Session-Diary)
  */
 
 (function(window) {
@@ -81,7 +72,6 @@
     window.currentSessionLog = currentSessionLog;
   }
 
-  // --- AUDIO & DISCIPLINE WRAPPER ---
   function toggleAmbientMusicWrapper() { if (window.SessionAudio && window.SessionAudio.toggle) window.SessionAudio.toggle(); }
   function setSoundscapeStyleWrapper(style) { if (window.SessionAudio && window.SessionAudio.setStyle) window.SessionAudio.setStyle(style); }
   function adjustAmbientEnergyWrapper(dir) { if (window.SessionAudio && window.SessionAudio.adjustEnergy) window.SessionAudio.adjustEnergy(dir); }
@@ -106,7 +96,6 @@
   function rerollCurrentWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.rerollStage) window.SessionDiscipline.rerollStage(); }
   function applyConfiguredDisciplineWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.apply) window.SessionDiscipline.apply(); }
 
-  // --- SAFEWORD ---
   function triggerSafewordWrapper(color) {
     var ind = document.getElementById('safeword-red-indicator');
     var time = getFormattedTimeNow();
@@ -131,11 +120,12 @@
     }
   }
 
-  // --- SESSION START & TIMER ---
   function selectSessionMode(mode) {
     currentSessionMode = mode;
     if (mode === 'guided') {
-      if (typeof window.goToPortalStepSafe === 'function') window.goToPortalStepSafe(3);
+      if (typeof window.goToPortalStepSafe === 'function') {
+        window.goToPortalStepSafe(3);
+      }
     } else {
       startLiveSessionWrapper();
     }
@@ -151,8 +141,14 @@
     var badge = document.getElementById('session-active-badge');
     var gContainer = document.getElementById('guided-step-container');
 
-    if (pContainer) pContainer.classList.add('hidden');
-    if (cContainer) cContainer.classList.remove('hidden');
+    if (pContainer) {
+      pContainer.classList.add('hidden');
+      pContainer.style.display = 'none';
+    }
+    if (cContainer) {
+      cContainer.classList.remove('hidden');
+      cContainer.style.display = 'block';
+    }
     if (badge) badge.classList.remove('hidden');
 
     if (currentSessionMode === 'free') {
@@ -166,7 +162,19 @@
     isSessionPaused = false;
     startSessionTimer();
 
-    currentSessionLog = [{ type: "system", time: getFormattedTimeNow(), label: "Session gestartet" }];
+    currentSessionLog = [{ 
+      type: "system", 
+      time: getFormattedTimeNow(), 
+      label: "Session gestartet (" + (currentSessionMode === 'free' ? 'Freier Flow' : 'Geführt') + ")" 
+    }];
+
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+
+    showToast("Live-Cockpit: " + (currentSessionMode === 'free' ? 'Freier Flow' : 'Geführtes Drehbuch') + " gestartet ✓");
 
     if (window.isTopVoiceAssistActive && window.SessionVoice) {
       var topName = (window.names && window.names[window.topPartner]) || 'Top';
@@ -209,7 +217,6 @@
     showToast("+" + mins + " Minuten Spielzeit");
   }
 
-  // --- DREHBUCH LIVE SCHRITTE ---
   function renderLiveStep() {
     var playbook = window.currentSelectedPlaybook || [];
     var step = playbook[liveStepIndex];
@@ -258,7 +265,6 @@
     }
   }
 
-  // --- EDGING FERNBEDIENUNG ---
   function setEdgingStimulator(stim) {
     edgingStimulationBy = stim;
     var bTop = document.getElementById('btn-stim-top');
@@ -430,9 +436,14 @@
     }
   }
 
-  // --- ZEN & TRANCE MODAL ---
-  function openZenAtemModal() { var m = document.getElementById('modal-session-zen'); if (m) m.classList.remove('hidden'); }
-  function closeZenAtemModal() { var m = document.getElementById('modal-session-zen'); if (m) m.classList.add('hidden'); }
+  function openZenAtemModal() { 
+    var m = document.getElementById('modal-session-zen'); 
+    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; } 
+  }
+  function closeZenAtemModal() { 
+    var m = document.getElementById('modal-session-zen'); 
+    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
+  }
 
   function selectZenMode(mode) {
     var bBreath = document.getElementById('btn-zen-mode-breath');
@@ -461,16 +472,15 @@
     }
   }
 
-  // --- AFTERCARE & LOGBUCH ---
   function endSessionToAftercare() {
     isSessionPaused = true;
     var m = document.getElementById('modal-session-aftercare');
-    if (m) m.classList.remove('hidden');
+    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
   }
 
   function closeAftercareModal() { 
     var m = document.getElementById('modal-session-aftercare');
-    if (m) m.classList.add('hidden'); 
+    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
   }
 
   function completeSessionAndExit() {
@@ -505,12 +515,12 @@
   function openSessionDiaryModal() {
     renderSessionDiaryEntries();
     var m = document.getElementById('modal-session-diary');
-    if (m) m.classList.remove('hidden');
+    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
   }
 
   function closeSessionDiaryModal() { 
     var m = document.getElementById('modal-session-diary');
-    if (m) m.classList.add('hidden'); 
+    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
   }
 
   function renderSessionDiaryEntries() {
@@ -555,16 +565,15 @@
     if (banner) banner.classList.add('hidden'); 
   }
 
-  // --- TABU MODAL IN SESSION ---
   function openSessionTabuModal() {
     renderSessionTabuList();
     var m = document.getElementById('modal-session-tabus');
-    if (m) m.classList.remove('hidden');
+    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
   }
 
   function closeSessionTabuModal() { 
     var m = document.getElementById('modal-session-tabus');
-    if (m) m.classList.add('hidden'); 
+    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
   }
 
   function renderSessionTabuList() {
@@ -635,7 +644,6 @@
     el.innerText = count;
   }
 
-  // --- HARDWARE & SETTINGS ---
   async function acquireScreenWakeLock() {
     try {
       if ('wakeLock' in navigator) {
@@ -653,4 +661,107 @@
 
   function triggerAirPlayPicker() {
     var airplayAudio = document.getElementById('ambient-airplay-audio');
-    if (airplayAudio && typeof air
+    if (airplayAudio && typeof airplayAudio.webkitShowPlaybackTargetPicker === 'function') {
+      airplayAudio.webkitShowPlaybackTargetPicker();
+    } else {
+      showToast("AirPlay über das Kontrollzentrum steuern");
+    }
+  }
+
+  function initLiveCockpit() {
+    loadLiveStorage();
+    checkUnratedSessions();
+    updateHeaderTabuCounter();
+  }
+
+  window.SessionLive = {
+    init: initLiveCockpit,
+    selectMode: selectSessionMode,
+    startSession: startLiveSessionWrapper,
+    addMinutes: addSessionMinutes,
+    togglePause: togglePauseTimer,
+    endToAftercare: endSessionToAftercare,
+    triggerSafeword: triggerSafewordWrapper,
+    speakStep: speakCurrentLiveStep,
+    nextStep: nextLiveStep,
+    prevStep: prevLiveStep,
+    setStimulator: setEdgingStimulator,
+    handleArousal: handleArousalSliderTouch,
+    registerEdge: registerEdgeReachedWrapper,
+    startCooldown: startCooldownBreathingTimer,
+    openReleaseChoice: openReleaseChoiceModal,
+    executeReleaseImmediate: executeReleaseImmediate,
+    executeReleaseCountdown: executeReleaseWithCountdown,
+    pauseCountdown: pauseSpeechCountdown,
+    resetCountdown: resetSpeechCountdown,
+    finalizeDecision: finalizeEdgingDecision,
+    openZen: openZenAtemModal,
+    closeZen: closeZenAtemModal,
+    selectZenMode: selectZenMode,
+    playTrance: playGuidedTranceInduction,
+    closeAftercare: closeAftercareModal,
+    completeExit: completeSessionAndExit,
+    openDiary: openSessionDiaryModal,
+    closeDiary: closeSessionDiaryModal,
+    dismissUnrated: dismissUnratedBanner,
+    openTabus: openSessionTabuModal,
+    closeTabus: closeSessionTabuModal,
+    triggerAirPlay: triggerAirPlayPicker
+  };
+
+  // Direktanbindungen an window für alle inline onclick-Attribute
+  window.toggleAmbientMusicWrapper = toggleAmbientMusicWrapper;
+  window.setSoundscapeStyleWrapper = setSoundscapeStyleWrapper;
+  window.adjustAmbientEnergyWrapper = adjustAmbientEnergyWrapper;
+  window.selectMusicSourceWrapper = selectMusicSourceWrapper;
+  window.saveCustomPlaylistLinkWrapper = saveCustomPlaylistLinkWrapper;
+  window.openIncidentDisciplineModalWrapper = openIncidentDisciplineModalWrapper;
+  window.closeIncidentDisciplineModalWrapper = closeIncidentDisciplineModalWrapper;
+  window.selectIncidentCategoryWrapper = selectIncidentCategoryWrapper;
+  window.handleReasonLiveInputWrapper = handleReasonLiveInputWrapper;
+  window.setStageSeverityWrapper = setStageSeverityWrapper;
+  window.prevWizardStageWrapper = prevWizardStageWrapper;
+  window.nextWizardStageWrapper = nextWizardStageWrapper;
+  window.rerollCurrentWizardStageWrapper = rerollCurrentWizardStageWrapper;
+  window.applyConfiguredDisciplineWrapper = applyConfiguredDisciplineWrapper;
+  window.triggerSafewordWrapper = triggerSafewordWrapper;
+  window.selectSessionMode = selectSessionMode;
+  window.startLiveSessionWrapper = startLiveSessionWrapper;
+  window.togglePauseTimer = togglePauseTimer;
+  window.addSessionMinutes = addSessionMinutes;
+  window.renderLiveStep = renderLiveStep;
+  window.nextLiveStep = nextLiveStep;
+  window.prevLiveStep = prevLiveStep;
+  window.speakCurrentLiveStep = speakCurrentLiveStep;
+  window.setEdgingStimulator = setEdgingStimulator;
+  window.handleArousalSliderTouch = handleArousalSliderTouch;
+  window.registerEdgeReachedWrapper = registerEdgeReachedWrapper;
+  window.startCooldownBreathingTimer = startCooldownBreathingTimer;
+  window.openReleaseChoiceModal = openReleaseChoiceModal;
+  window.executeReleaseImmediate = executeReleaseImmediate;
+  window.executeReleaseWithCountdown = executeReleaseWithCountdown;
+  window.pauseSpeechCountdown = pauseSpeechCountdown;
+  window.resetSpeechCountdown = resetSpeechCountdown;
+  window.finalizeEdgingDecision = finalizeEdgingDecision;
+  window.openZenAtemModal = openZenAtemModal;
+  window.closeZenAtemModal = closeZenAtemModal;
+  window.selectZenMode = selectZenMode;
+  window.playGuidedTranceInduction = playGuidedTranceInduction;
+  window.endSessionToAftercare = endSessionToAftercare;
+  window.closeAftercareModal = closeAftercareModal;
+  window.completeSessionAndExit = completeSessionAndExit;
+  window.openSessionDiaryModal = openSessionDiaryModal;
+  window.closeSessionDiaryModal = closeSessionDiaryModal;
+  window.dismissUnratedBanner = dismissUnratedBanner;
+  window.openSessionTabuModal = openSessionTabuModal;
+  window.closeSessionTabuModal = closeSessionTabuModal;
+  window.updateHeaderTabuCounter = updateHeaderTabuCounter;
+  window.triggerAirPlayPicker = triggerAirPlayPicker;
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initLiveCockpit);
+  } else {
+    initLiveCockpit();
+  }
+
+})(window);
