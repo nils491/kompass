@@ -208,7 +208,10 @@ Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerte
 
   function openModal(term, contextDesc) {
     var modal = document.getElementById('modal-lexikon');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
 
     if (term) {
       performResearch(term, contextDesc);
@@ -222,7 +225,10 @@ Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerte
 
   function closeModal() {
     var modal = document.getElementById('modal-lexikon');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
   }
 
   function renderDefaultWelcome(container) {
