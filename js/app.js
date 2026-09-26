@@ -669,6 +669,38 @@
     }
   }
 
+  async function resolveAvailableTextModels(apiKey) {
+    var fallbackList = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+    try {
+      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
+      if (resp.ok) {
+        var data = await resp.json();
+        var models = (data.models || []).filter(function(m) {
+          return m.supportedGenerationMethods &&
+            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
+            m.name.indexOf('tts') === -1 &&
+            m.name.indexOf('omni') === -1 &&
+            m.name.indexOf('image') === -1 &&
+            m.name.indexOf('video') === -1 &&
+            m.name.indexOf('embed') === -1;
+        }).map(function(m) {
+          return m.name.replace('models/', '');
+        });
+
+        if (models.length > 0) {
+          // Bevorzuge moderne Flash-Modelle
+          models.sort(function(a, b) {
+            var aScore = (a.indexOf('flash') !== -1 ? 10 : 0) + (a.indexOf('2.0') !== -1 ? 5 : 0);
+            var bScore = (b.indexOf('flash') !== -1 ? 10 : 0) + (b.indexOf('2.0') !== -1 ? 5 : 0);
+            return bScore - aScore;
+          });
+          return models;
+        }
+      }
+    } catch (e) {}
+    return fallbackList;
+  }
+
   window.generateAiReport = async function() {
     var out = document.getElementById('ai-report-output');
     var btn = document.getElementById('btn-generate-ai');
@@ -677,13 +709,6 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key');
     if (!apiKey || apiKey.length < 10) apiKey = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
-    // Veraltete 2.5- oder fehlerhafte Omni-Modelle aus dem Speicher bereinigen
-    var activeModel = localStorage.getItem('kompass_discovered_model');
-    if (!activeModel || activeModel.indexOf('2.5') !== -1 || activeModel.indexOf('omni') !== -1) {
-      activeModel = 'gemini-3.8-flash';
-      try { localStorage.setItem('kompass_discovered_model', activeModel); } catch (e) {}
-    }
-
     var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
     var sensPct = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText : '0%';
     var nurtPct = document.getElementById('bar-val-nurturing') ? document.getElementById('bar-val-nurturing').innerText : '0%';
@@ -691,13 +716,7 @@
     
     var promptText = "Du bist ein erfahrener, einfühlsamer und wissenschaftlich fundierter Paartherapeut und Sexualforscher. Erstelle ein prägnantes, traumasensibles und tiefenpsychologisches Gutachten (genau 3 Absätze) für " + (names[currentUser] || 'den Partner') + ". Säulen-Werte: Macht/Hingabe (" + powerPct + "), Sensorik/Schmerz (" + sensPct + "), Fürsorge (" + nurtPct + "), Tabubruch/Kick (" + thrillPct + "). Beziehe dich auf Sagarin (2009) und Wismeijer (2013). Keine moralischen Bewertungen. Formatiere als HTML mit Klassen text-slate-300 text-xs leading-relaxed space-y-2.";
 
-    var candidateModels = [];
-    if (activeModel && activeModel.indexOf('omni') === -1 && activeModel.indexOf('2.5') === -1) {
-      candidateModels.push(activeModel);
-    }
-    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
-    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
-
+    var candidateModels = await resolveAvailableTextModels(apiKey);
     var success = false;
     var lastErrorMsg = "Verbindungsfehler";
 
@@ -721,6 +740,10 @@
         } else {
           var err = await resp.json().catch(function(){ return {}; });
           lastErrorMsg = err.error?.message || ("HTTP " + resp.status);
+          // Falls Quota überschritten ist, breche ab, statt weitere Modelle zu belasten
+          if (resp.status === 429 || (err.error && err.error.message && err.error.message.indexOf('quota') !== -1)) {
+            break;
+          }
         }
       } catch (e) {
         lastErrorMsg = e.message || "Netzwerkfehler";
