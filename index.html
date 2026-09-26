@@ -691,13 +691,24 @@
   <div id="modal-onboarding" style="display: none;" onclick="if(event.target===this) closeOnboardingModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative max-h-[92vh] overflow-y-auto">
       <button type="button" onclick="closeOnboardingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold w-6 h-6 rounded-lg theme-panel border flex items-center justify-center touch-btn">✕</button>
-      <div class="text-center space-y-1">
-        <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Willkommen</span>
-        <h3 class="text-base font-black text-white">Richte dein Profil ein</h3>
-        <p class="text-[11px] text-slate-400">Gib deinen Rufnamen und deine Anatomie an. Dein Partner konfiguriert sein eigenes Profil selbst.</p>
+
+      <!-- FORTSCHRITTS-INDIKATOR -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span id="onboard-step-badge" class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Schritt 1 von 3</span>
+        <div class="flex gap-1" id="onboard-step-dots">
+          <span id="dot-step-1" class="w-2 h-2 rounded-full bg-brand-500"></span>
+          <span id="dot-step-2" class="w-2 h-2 rounded-full bg-slate-700"></span>
+          <span id="dot-step-3" class="w-2 h-2 rounded-full bg-slate-700"></span>
+        </div>
       </div>
 
-      <div class="space-y-3">
+      <!-- SCHRITT 1: NAME & ANATOMIE -->
+      <div id="onboard-step-1" class="space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Richte dein Profil ein</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">Gib deinen Rufnamen und deine Anatomie an. Dein Partner stellt sein eigenes Profil separat ein.</p>
+        </div>
+
         <div class="p-3.5 rounded-2xl theme-panel border space-y-2.5">
           <label class="font-bold text-white block text-xs">Dein Rufname:</label>
           <input type="text" id="onboard-name-A" placeholder="z. B. Alex" value="Partner 1" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
@@ -710,20 +721,85 @@
           </div>
         </div>
 
-        <!-- IPHONE APP HINWEIS IM ONBOARDING -->
-        <div class="p-3 rounded-2xl bg-sky-950/30 border border-sky-900/60 space-y-1.5 text-slate-300">
-          <div class="flex items-center gap-1.5 text-sky-300 font-bold text-[11px]">
-            <span>📲</span><span>Als App auf deinem iPhone ablegen:</span>
+        <button type="button" onclick="goToOnboardStep(2)" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Weiter zu Schritt 2: Euer Paar-Code →
+        </button>
+      </div>
+
+      <!-- SCHRITT 2: DER AUTOMATISCH GENERIERTE PAAR-CODE & LOGIN-SCHLÜSSEL -->
+      <div id="onboard-step-2" class="hidden space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Euer Paar-Code & Login-Schlüssel</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">Dieser Code wurde soeben automatisch für euch generiert. Er ist euer Generalschlüssel für alle Geräte!</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-sky-950/30 border border-sky-800 text-center space-y-2.5 shadow-inner">
+          <span class="text-xs text-sky-300 font-bold block uppercase tracking-wider">Euer persönlicher Paar-Code:</span>
+          <div id="onboard-code-display" class="text-2xl font-black font-mono tracking-widest text-white bg-slate-950 py-2 px-4 rounded-2xl border border-sky-600 inline-block shadow-lg">
+            KOMPASS-000
           </div>
-          <p class="text-[10.5px] leading-snug">
-            Tippe in <strong>Safari</strong> unten auf das Teilen-Symbol <strong class="text-sky-300 font-mono">[↑]</strong> und wähle <strong>„Zum Home-Bildschirm“</strong>. So bleibt dein Zugang dauerhaft wie eine vollwertige App gespeichert.
+          <div class="flex gap-1.5 pt-1">
+            <button type="button" onclick="copyOnboardCode()" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold rounded-xl text-[10.5px] touch-btn flex items-center justify-center gap-1">
+              <span>📋</span><span>Code kopieren</span>
+            </button>
+            <button type="button" onclick="handleShareInviteLink()" class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-[10.5px] touch-btn flex items-center justify-center gap-1 shadow-sm">
+              <span>📤</span><span>Per WhatsApp teilen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- WICHTIGER SPEICHER-HINWEIS -->
+        <div class="p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 space-y-1.5 text-amber-200">
+          <div class="flex items-center gap-1.5 text-amber-300 font-bold text-[11px]">
+            <span>⚠️</span><span>Wichtig: Code jetzt notieren oder merken!</span>
+          </div>
+          <p class="text-[10.5px] leading-relaxed text-slate-300">
+            Wenn du den Browser-Verlauf leerst oder ein anderes Handy nutzt, ist dieser Code dein <strong>Login-Schlüssel</strong>. Damit kannst du jederzeit mit 1 Klick all eure Daten wiederherstellen.
           </p>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="goToOnboardStep(1)" class="px-3.5 py-2.5 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Zurück
+          </button>
+          <button type="button" onclick="goToOnboardStep(3)" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            Habe ich notiert · Weiter →
+          </button>
         </div>
       </div>
 
-      <button type="button" onclick="completeOnboarding()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-        Kompass starten →
-      </button>
+      <!-- SCHRITT 3: IPHONE HOMESCREEN & START -->
+      <div id="onboard-step-3" class="hidden space-y-3.5">
+        <div class="text-center space-y-1">
+          <h3 class="text-base font-black text-white">Als App auf dem iPhone speichern</h3>
+          <p class="text-[11px] text-slate-400 leading-snug">So bleibt dein Login dauerhaft erhalten und du startest künftig im Vollbildmodus ohne Browserleisten:</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-slate-300 text-[10.5px]">
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">1</span>
+            <span>In <strong>Safari</strong> unten auf das <strong>Teilen-Symbol</strong> <span class="font-mono text-sky-300 font-bold">[↑]</span> tippen.</span>
+          </div>
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">2</span>
+            <span>Nach unten scrollen und <strong>„Zum Home-Bildschirm“</strong> antippen.</span>
+          </div>
+          <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">3</span>
+            <span>Oben rechts auf <strong>„Hinzufügen“</strong> bestätigen – fertig!</span>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="goToOnboardStep(2)" class="px-3.5 py-3 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Code ansehen
+          </button>
+          <button type="button" onclick="completeOnboarding()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+            Kompass jetzt starten 🚀
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
