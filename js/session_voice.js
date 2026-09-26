@@ -241,8 +241,8 @@
     }
 
     var apiKey = getGeminiApiKey();
-    // Wenn kein Key oder Preset-Dummy-Key vorhanden ist: sofort nahtlos nativer Fallback!
-    if (!apiKey || apiKey.length < 10 || apiKey.startsWith('AQ.')) {
+    // Wenn kein gültiger Key hinterlegt ist: nativer Fallback
+    if (!apiKey || apiKey.length < 10) {
       return speakNativeBrowserVoice(text, voiceToUse, isPreview);
     }
 
@@ -258,47 +258,22 @@
       var model = candidateModels[i];
       if (!model) continue;
 
-      var payload;
-      var isDedicatedTts = (model.indexOf('-tts') !== -1);
-
-      if (isDedicatedTts) {
-        payload = {
-          contents: [{
-            role: "user",
-            parts: [{ text: text.trim() }]
-          }],
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: {
-              voiceConfig: {
-                voice: voiceToUse
+      var payload = {
+        contents: [{
+          role: "user",
+          parts: [{ text: text.trim() }]
+        }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voiceToUse
               }
             }
           }
-        };
-      } else {
-        payload = {
-          contents: [{
-            role: "user",
-            parts: [{ text: "Lies exakt diesen Text vor: \"" + text.trim() + "\"" }]
-          }],
-          systemInstruction: {
-            parts: [{
-              text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen und füge kein Wort hinzu."
-            }]
-          },
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: {
-              voiceConfig: {
-                prebuiltVoiceConfig: {
-                  voiceName: voiceToUse
-                }
-              }
-            }
-          }
-        };
-      }
+        }
+      };
 
       try {
         var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
@@ -334,7 +309,8 @@
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
         } else if (resp.status === 400 || resp.status === 403) {
-          // Ungültiger API-Key oder fehlende Berechtigung: sofort abbrechen und Fallback nutzen
+          // Key unberechtigt oder ungültig
+          console.warn("Gemini TTS HTTP " + resp.status + ", wechsle zu Systemstimme.");
           break;
         }
       } catch (e) {
