@@ -74,8 +74,7 @@
     }
   }
 
-  function stopAllGenerators() {
-    // 1. Oszillatoren stoppen und trennen
+  function stopActiveOscillators() {
     activeOscillators.forEach(function(item) {
       try {
         item.osc.stop();
@@ -85,7 +84,6 @@
     });
     activeOscillators = [];
 
-    // 2. LFO-Knoten trennen
     lfoNodes.forEach(function(lfo) {
       try {
         lfo.stop();
@@ -93,8 +91,12 @@
       } catch (e) {}
     });
     lfoNodes = [];
+  }
 
-    // 3. Rhythmische Intervalle löschen
+  function stopAllGenerators() {
+    stopActiveOscillators();
+
+    // 2. Rhythmische Intervalle löschen
     rhythmTimers.forEach(function(t) {
       clearInterval(t);
       clearTimeout(t);
@@ -117,7 +119,7 @@
     var chordIdx = 0;
 
     function applyChord(chordFreqs) {
-      stopAllGenerators();
+      stopActiveOscillators();
       var energyBoost = audioState.energyLevel * 0.04;
 
       chordFreqs.forEach(function(freq, i) {
