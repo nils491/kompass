@@ -104,7 +104,6 @@
           </div>
         </a>
 
-        <!-- PROFIL-SWITCHER & AKTIONEN -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <div class="flex items-center p-0.5 rounded-xl theme-panel border text-xs">
             <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
@@ -124,7 +123,6 @@
         </div>
       </div>
 
-      <!-- MAIN NAVIGATION -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
@@ -150,7 +148,6 @@
 
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
-    <!-- VIEW 1: START-HUB (DASHBOARD) -->
     <section id="view-hub" class="space-y-5">
       <div class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl relative overflow-hidden bg-gradient-to-r from-noir-900 via-brand-950/20 to-noir-900">
         <div class="max-w-2xl space-y-2 relative z-10">
@@ -166,10 +163,8 @@
         </div>
       </div>
 
-      <!-- KACHEL-GRID ZU ALLEN APPS & FUNKTIONEN -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
         
-        <!-- Kachel 1: Fragebogen -->
         <button type="button" onclick="switchMainView('survey')" class="theme-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             01
@@ -185,7 +180,6 @@
           </div>
         </button>
 
-        <!-- Kachel 2: Sicherheits-Kodex -->
         <button type="button" onclick="switchMainView('safety')" class="theme-card hover:border-teal-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-teal-950/80 border border-teal-800 text-teal-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             02
@@ -201,7 +195,6 @@
           </div>
         </button>
 
-        <!-- Kachel 3: Mein Profil -->
         <button type="button" onclick="switchMainView('single')" class="theme-card hover:border-indigo-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-indigo-950/80 border border-indigo-800 text-indigo-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             03
@@ -217,7 +210,6 @@
           </div>
         </button>
 
-        <!-- Kachel 4: Paar-Analyse -->
         <a href="analyse.html" class="theme-card hover:border-amber-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             04
@@ -233,7 +225,6 @@
           </div>
         </a>
 
-        <!-- Kachel 5: Schlafzimmer-Regie -->
         <a href="session.html" class="theme-card hover:border-pink-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-pink-950/80 border border-pink-800 text-pink-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             05
@@ -249,7 +240,6 @@
           </div>
         </a>
 
-        <!-- Kachel 6: TOY-VERWALTUNG (UNSER SCHRANK) -->
         <button type="button" onclick="openToyManagementModal()" class="theme-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             06
@@ -260,12 +250,11 @@
               <span id="hub-toy-count-badge" class="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">0 Toys</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
-              Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für das Cockpit.
+              Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für die Regie.
             </p>
           </div>
         </button>
 
-        <!-- Kachel 7: BEDINGTE KI-ZENTRALE -->
         <div id="hub-tile-ai" class="hidden theme-card border-purple-500/60 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group shadow-md flex items-start gap-3.5 bg-purple-950/20">
           <div class="w-11 h-11 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             KI
@@ -287,7 +276,6 @@
       </div>
     </section>
 
-    <!-- VIEW 2: FRAGEBOGEN -->
     <section id="view-survey" class="hidden space-y-4">
       <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-sm space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -304,7 +292,6 @@
 
         <p id="chapter-desc" class="text-xs text-slate-300 leading-relaxed">Beschreibung des Kapitels...</p>
 
-        <!-- PROGRESS BAR -->
         <div class="space-y-1 pt-1">
           <div class="flex justify-between text-[10px] font-mono text-slate-400">
             <span>Gesamtfortschritt</span>
@@ -315,7 +302,6 @@
           </div>
         </div>
 
-        <!-- FILTER LEISTE -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
           <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
             Alle
@@ -335,7 +321,6 @@
         </div>
       </div>
 
-      <!-- SCHNELLWAHL-OVERLAY -->
       <div id="chapter-quick-grid" class="hidden theme-card rounded-3xl p-4 border shadow-xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <strong class="text-xs text-white">Kapitel-Direktsprung:</strong>
@@ -344,10 +329,8 @@
         <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1.5 text-[11px] max-h-60 overflow-y-auto pr-1"></div>
       </div>
 
-      <!-- FRAGEBOGEN-ITEMS CONTAINER -->
       <div id="survey-items-container" class="space-y-3"></div>
 
-      <!-- NAVIGATION UNTEN -->
       <div class="flex items-center justify-between pt-2">
         <button type="button" onclick="prevChapter()" id="btn-prev-chapter" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
           ← Vorheriges Kapitel
@@ -358,7 +341,6 @@
       </div>
     </section>
 
-    <!-- VIEW 3: SICHERHEITS-KODEX -->
     <section id="view-safety" class="hidden space-y-4">
       <div class="theme-card rounded-3xl p-5 sm:p-6 border border-teal-500/40 shadow-sm space-y-2">
         <div class="flex items-center gap-2">
@@ -372,7 +354,6 @@
       <div id="safety-configurator-full-container" class="space-y-4"></div>
     </section>
 
-    <!-- VIEW 4: MEIN PROFIL & PSYCHOLOGISCHE ANALYSE -->
     <section id="view-single" class="hidden space-y-4">
       <div id="single-empty-state" class="theme-card rounded-3xl p-8 text-center space-y-3 border">
         <span class="w-4 h-4 rounded-full bg-indigo-500 mx-auto block"></span>
@@ -394,7 +375,6 @@
           <span class="px-3 py-1 rounded-xl bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs font-bold">Aktiv</span>
         </div>
 
-        <!-- RADAR & SÄULEN -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="theme-card rounded-3xl p-5 border space-y-2">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider">Erotisches Archetypen-Radar</h3>
@@ -455,7 +435,6 @@
           </div>
         </div>
 
-        <!-- HIGH-PRIO UND TABUS LISTEN -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="theme-card rounded-3xl p-4 border space-y-2">
             <h4 class="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">⭐ Höchste Leidenschaften (5 von 5)</h4>
@@ -467,12 +446,10 @@
           </div>
         </div>
 
-        <!-- GUTACHTEN & SCHAM-ENTLASTUNG -->
         <div id="single-interpretation-box" class="space-y-4"></div>
       </div>
     </section>
 
-  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
   <div id="modal-toy-management" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-xl w-full border border-purple-500/40 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
@@ -480,721 +457,3 @@
           <div class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold">🧰</div>
           <div>
             <h3 class="text-sm font-extrabold text-white">Toy-Verwaltung (Unser Schrank)</h3>
-            <p class="text-[10px] text-purple-300">Aktiviere, was ihr wirklich zu Hause besitzt</p>
-          </div>
-        </div>
-        <button onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <!-- Schnellwahl Buttons & Filter -->
-      <div class="flex items-center justify-between gap-1 flex-wrap border-b border-slate-800 pb-2">
-        <div class="flex items-center gap-1">
-          <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1 rounded-lg bg-purple-950 border border-purple-800 text-purple-200 text-[10px] font-bold touch-btn">Alles an</button>
-          <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-bold touch-btn">Nur Haushalt</button>
-          <button type="button" onclick="presetToyManagement('none')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-[10px] font-bold touch-btn">Leeren</button>
-        </div>
-      </div>
-
-      <!-- Kategoriefilter -->
-      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 border-b border-slate-800/80">
-        <button type="button" onclick="filterToyManagementCat('all')" id="btn-toy-cat-all" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn">Alle</button>
-        <button type="button" onclick="filterToyManagementCat('household')" id="btn-toy-cat-household" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🏠 Haushalt</button>
-        <button type="button" onclick="filterToyManagementCat('bondage')" id="btn-toy-cat-bondage" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">⛓️ Fesselung</button>
-        <button type="button" onclick="filterToyManagementCat('impact')" id="btn-toy-cat-impact" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">✋ Impact</button>
-        <button type="button" onclick="filterToyManagementCat('sensory')" id="btn-toy-cat-sensory" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🙈 Sensorik</button>
-        <button type="button" onclick="filterToyManagementCat('cbt_clamps')" id="btn-toy-cat-cbt_clamps" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">⚡ CBT/Käfig</button>
-        <button type="button" onclick="filterToyManagementCat('toys_anal')" id="btn-toy-cat-toys_anal" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🍑 Toys</button>
-        <button type="button" onclick="filterToyManagementCat('special')" id="btn-toy-cat-special" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🕯️ Spezial</button>
-      </div>
-
-      <!-- Item liste -->
-      <div id="toy-management-grid" class="flex-1 overflow-y-auto pr-1 space-y-1.5 max-h-72"></div>
-
-      <div class="pt-2 border-t border-slate-800 flex items-center justify-between flex-shrink-0">
-        <span class="text-slate-400 text-[11px]">Im Schrank aktiviert: <strong id="toy-management-active-count" class="text-white">0</strong> Gegenstände</span>
-        <button type="button" onclick="closeToyManagementModal()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Speichern & Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: ERST-ONBOARDING (FÜR NEUE PAARE) -->
-  <div id="modal-onboarding" class="hidden fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/40 p-6 space-y-4 shadow-2xl text-xs">
-      <div class="text-center space-y-1.5 border-b border-slate-800 pb-3">
-        <div class="w-12 h-12 rounded-2xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center text-xl mx-auto shadow-inner">
-          🧭
-        </div>
-        <h3 class="text-base font-extrabold text-white">Willkommen im Kink-Kompass</h3>
-        <p class="text-[11px] text-slate-400">Richtet kurz eure beiden Profile ein, um zu beginnen.</p>
-      </div>
-
-      <div class="space-y-3.5">
-        <div class="p-3 rounded-2xl theme-panel border space-y-2">
-          <label class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider block">Partner 1:</label>
-          <input type="text" id="onboard-name-A" placeholder="Rufname (z. B. Alex)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          <div class="flex gap-2">
-            <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">♂️ Penis</button>
-            <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">♀️ Vulva</button>
-          </div>
-        </div>
-
-        <div class="p-3 rounded-2xl theme-panel border space-y-2">
-          <label class="text-[10px] font-bold text-purple-300 uppercase tracking-wider block">Partner 2:</label>
-          <input type="text" id="onboard-name-B" placeholder="Rufname (z. B. Sam)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          <div class="flex gap-2">
-            <button type="button" onclick="setOnboardingAnatomy('B', 'penis')" id="onboard-anat-B-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">♂️ Penis</button>
-            <button type="button" onclick="setOnboardingAnatomy('B', 'vulva')" id="onboard-anat-B-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">♀️ Vulva</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="completeOnboarding()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Kompass starten →
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: ACCOUNT SETTINGS (VOLLSTÄNDIG RESTAURIERT) -->
-  <div id="modal-account" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
-      
-      <!-- MODAL HEADER -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center font-bold">⚙️</div>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
-            <p class="text-[10px] text-slate-400">Aktives Profil: <strong id="account-active-username" class="text-brand-300">Partner 1</strong></p>
-          </div>
-        </div>
-        <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <!-- SCROLLABLE CONTENT BODY -->
-      <div class="space-y-3.5 overflow-y-auto pr-1 flex-1">
-        
-        <!-- 1. NAME & EMAIL -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mein Rufname:</label>
-            <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">E-Mail für Backup-Link:</label>
-            <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          </div>
-        </div>
-
-        <!-- 2. ANATOMIE-WAHL -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Meine Anatomie:</label>
-            <div class="flex gap-1.5">
-              <button type="button" id="acc-anat-my-penis" onclick="selectAccountAnatomy('me', 'penis')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
-                ♂️ Penis
-              </button>
-              <button type="button" id="acc-anat-my-vulva" onclick="selectAccountAnatomy('me', 'vulva')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
-                ♀️ Vulva
-              </button>
-            </div>
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Partner-Anatomie:</label>
-            <div class="flex gap-1.5">
-              <button type="button" id="acc-anat-part-penis" onclick="selectAccountAnatomy('partner', 'penis')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
-                ♂️ Penis
-              </button>
-              <button type="button" id="acc-anat-part-vulva" onclick="selectAccountAnatomy('partner', 'vulva')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
-                ♀️ Vulva
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. KI-ZENTRALE AKTIVIEREN / DEAKTIVIEREN -->
-        <div class="p-3 rounded-2xl bg-purple-950/20 border border-purple-900/60 flex items-center justify-between gap-3">
-          <div>
-            <strong class="text-xs text-white block">KI-Zentrale aktivieren</strong>
-            <p class="text-[10px] text-purple-300">Schaltet Kachel & KI-Paargutachten im Kompass frei</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
-            <input type="checkbox" id="account-ai-toggle" onchange="toggleAccountAiActive(this.checked)" class="sr-only peer">
-            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-          </label>
-        </div>
-
-        <!-- 4. GEMINI API-KEY & STATUS -->
-        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
-          <div class="flex items-center justify-between">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Google Gemini API-Key:</label>
-            <button type="button" onclick="testGeminiKeyInAccount()" class="text-[10px] font-bold text-purple-300 hover:text-white">
-              Key prüfen ↗
-            </button>
-          </div>
-          <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="API-Key hinterlegen..." class="w-full text-xs p-2 theme-panel border rounded-xl text-white font-mono">
-        </div>
-
-        <!-- 5. BEVORZUGTE STIMME MIT STRENGEM 5S-PROBEHÖREN -->
-        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Bevorzugte Stimme (TTS):</label>
-          <div class="flex items-center gap-2">
-            <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="flex-1 text-xs p-2 theme-panel border rounded-xl text-white font-medium">
-              <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
-              <option value="Aoede">Fordernde Herrin (Aoede)</option>
-              <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
-              <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
-            </select>
-            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="px-3.5 py-2 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-xs font-bold touch-btn flex-shrink-0">
-              Probe (5s)
-            </button>
-          </div>
-        </div>
-
-        <!-- 6. THEME, BACKUP & SCHNELLE TESTDATEN -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button type="button" onclick="toggleThemeInAccount()" class="p-2.5 rounded-xl theme-panel border text-slate-300 hover:text-white text-[11px] font-bold touch-btn">
-            🌓 Design wechseln
-          </button>
-          <button type="button" onclick="sendBackupEmail()" class="p-2.5 rounded-xl theme-panel border text-slate-300 hover:text-white text-[11px] font-bold touch-btn">
-            ✉️ Backup senden
-          </button>
-          <button type="button" onclick="generateRandomTestData()" class="p-2.5 rounded-xl bg-indigo-950/60 border border-indigo-800 text-indigo-300 text-[11px] font-bold touch-btn">
-            🎲 Testdaten füllen
-          </button>
-        </div>
-
-        <!-- 7. PROFIL ZURÜCKSETZEN MIT SICHERHEITS-ABFRAGE -->
-        <div class="pt-2 border-t border-slate-800/80">
-          <div id="reset-trigger-area">
-            <button type="button" onclick="showResetConfirmation()" class="text-rose-400 hover:text-rose-300 text-[10.5px] font-bold">
-              Profil von <span id="reset-current-username">Partner 1</span> zurücksetzen...
-            </button>
-          </div>
-          <div id="reset-confirmation-box" class="hidden p-3 rounded-2xl bg-rose-950/40 border border-rose-800 space-y-2">
-            <p class="text-[11px] text-rose-200 font-bold">Wirklich alle Antworten und Notizen dieses Profils unwiderruflich löschen?</p>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="resetCurrentUserProfile()" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-600 text-white font-black rounded-lg text-xs touch-btn">
-                Ja, Profil leeren
-              </button>
-              <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 theme-panel border text-slate-300 font-bold rounded-lg text-xs touch-btn">
-                Abbrechen
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- MODAL FOOTER -->
-      <div class="pt-3 border-t border-slate-800 flex justify-end flex-shrink-0">
-        <button onclick="closeAccountModal()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Fertig & Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LEXIKON -->
-  <div id="modal-lexikon" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-xl w-full border border-slate-800 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="text-sm font-extrabold text-white">BDSM- & Kink-Lexikon</h3>
-        <button onclick="closeLexikonModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-      <input type="text" id="lexikon-search-input" oninput="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Pegging, CBT, Safe Word)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-      <div id="lexikon-entries-container" class="space-y-2 overflow-y-auto flex-1 pr-1 max-h-72"></div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeLexikonModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: TABU-CHARTA -->
-  <div id="modal-tabus" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
-          <p class="text-[10px] text-rose-300">Ausführungs-Limits (Top) vs. Schutzgrenzen (Bottom)</p>
-        </div>
-        <button onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-      <div id="tabu-modal-list" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn">
-          Verstanden & Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
-
-  <!-- EXTERNE DATENQUELLEN -->
-  <script src="data/scientific_studies.js"></script>
-  <script src="data/questions_part1.js"></script>
-  <script src="data/questions_part2.js"></script>
-  <script src="data/equipment_catalog.js"></script>
-  <script src="js/app.js"></script>
-
-  <script>
-    const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-    let toyManagementCurrentCat = 'all';
-    let isSampleVoicePlaying = false;
-    let sampleVoiceTimeout = null;
-    let ttsIndexCache = {};
-    let indexAudioCtx = null;
-
-    function getGeminiApiKey() {
-      try {
-        const stored = localStorage.getItem('kompass_gemini_api_key');
-        if (stored && stored.trim().length > 10) return stored.trim();
-      } catch (e) {}
-      return DEFAULT_PRESET_GEMINI_KEY;
-    }
-
-    function unlockAudioEngineOnUserGesture() {
-      if (!indexAudioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) indexAudioCtx = new AudioContextClass();
-      }
-      if (indexAudioCtx && indexAudioCtx.state === 'suspended') {
-        indexAudioCtx.resume();
-      }
-      const masterAudio = document.getElementById('master-voice-audio');
-      if (masterAudio && masterAudio.paused && !masterAudio.src) {
-        masterAudio.play().catch(() => {});
-      }
-    }
-
-    function updateHubUI() {
-      const prog = (typeof getGlobalProgressData === 'function') ? getGlobalProgressData('A') : { pct: 0 };
-      const badge = document.getElementById('hub-survey-pct-badge');
-      if (badge) badge.innerText = `${prog.pct} %`;
-
-      const aiActive = (localStorage.getItem('kompass_ai_active') === 'true');
-      const aiBadge = document.getElementById('hub-ai-badge');
-      const aiTile = document.getElementById('hub-tile-ai');
-      if (aiBadge) {
-        if (aiActive) aiBadge.classList.remove('hidden');
-        else aiBadge.classList.add('hidden');
-      }
-      if (aiTile) {
-        if (aiActive) aiTile.classList.remove('hidden');
-        else aiTile.classList.add('hidden');
-      }
-
-      const aiToggle = document.getElementById('account-ai-toggle');
-      if (aiToggle) aiToggle.checked = aiActive;
-
-      updateHubToyCount();
-    }
-
-    function openToyManagementModal() {
-      renderToyManagementGrid();
-      document.getElementById('modal-toy-management')?.classList.remove('hidden');
-    }
-
-    function closeToyManagementModal() {
-      document.getElementById('modal-toy-management')?.classList.add('hidden');
-      updateHubToyCount();
-    }
-
-    function filterToyManagementCat(cat) {
-      toyManagementCurrentCat = cat;
-      ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(c => {
-        const btn = document.getElementById(`btn-toy-cat-${c}`);
-        if (btn) {
-          if (c === cat) btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn";
-          else btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn";
-        }
-      });
-      renderToyManagementGrid();
-    }
-
-    function getOwnedToyIds() {
-      try {
-        const stored = localStorage.getItem('kompass_active_equipment_ids');
-        if (stored) return JSON.parse(stored);
-      } catch (e) {}
-      const catalog = window.equipmentCatalog || [];
-      return catalog.filter(i => i.defaultPresent).map(i => i.id);
-    }
-
-    function saveOwnedToyIds(ids) {
-      try {
-        localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(ids));
-      } catch (e) {}
-      updateHubToyCount();
-    }
-
-    function updateHubToyCount() {
-      const ids = getOwnedToyIds();
-      const badge = document.getElementById('hub-toy-count-badge');
-      if (badge) badge.innerText = `${ids.length} Toys`;
-    }
-
-    function toggleToyOwned(id) {
-      let ids = getOwnedToyIds();
-      if (ids.includes(id)) {
-        ids = ids.filter(i => i !== id);
-      } else {
-        ids.push(id);
-      }
-      saveOwnedToyIds(ids);
-      renderToyManagementGrid();
-    }
-
-    function presetToyManagement(preset) {
-      const catalog = window.equipmentCatalog || [];
-      let ids = [];
-      if (preset === 'all') {
-        ids = catalog.map(i => i.id);
-        showToast("Alle Gegenstände im Schrank aktiviert");
-      } else if (preset === 'household_only') {
-        ids = catalog.filter(i => i.category === 'household').map(i => i.id);
-        showToast("Nur Haushaltsgegenstände aktiviert");
-      } else {
-        ids = [];
-        showToast("Toy-Inventar geleert");
-      }
-      saveOwnedToyIds(ids);
-      renderToyManagementGrid();
-    }
-
-    function renderToyManagementGrid() {
-      const grid = document.getElementById('toy-management-grid');
-      const countEl = document.getElementById('toy-management-active-count');
-      const catalog = window.equipmentCatalog || [];
-      const owned = getOwnedToyIds();
-      if (!grid) return;
-
-      const filtered = (toyManagementCurrentCat === 'all')
-        ? catalog
-        : catalog.filter(i => i.category === toyManagementCurrentCat);
-
-      grid.innerHTML = filtered.map(item => {
-        const isOwned = owned.includes(item.id);
-        return `
-          <div onclick="toggleToyOwned('${item.id}')" class="p-2.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer touch-btn transition-all ${isOwned ? 'bg-purple-950/40 border-purple-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs truncate">${escapeHtml(item.name)}</span>
-                <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-900 text-slate-400 border border-slate-800 flex-shrink-0">Kap. ${item.chapters ? item.chapters.join(', ') : ''}</span>
-              </div>
-              <p class="text-[10px] text-slate-400 mt-0.5 truncate font-normal">${escapeHtml(item.desc)}</p>
-            </div>
-            <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 ${isOwned ? 'bg-purple-600 text-white shadow-xs' : 'theme-panel text-slate-600 border border-slate-800'}">
-              ${isOwned ? '✓' : '○'}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      if (countEl) countEl.innerText = owned.length;
-    }
-
-    function toggleAccountAiActive(checked) {
-      localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
-      updateHubUI();
-      showToast(checked ? "KI-Zentrale aktiviert ✓" : "KI-Zentrale deaktiviert");
-    }
-
-    function toggleThemeInAccount() {
-      const isDark = document.documentElement.classList.contains('dark');
-      if (isDark) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('kompass_theme', 'light');
-        showToast("Helles Design aktiviert");
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('kompass_theme', 'dark');
-        showToast("Dunkles Design aktiviert");
-      }
-    }
-
-    async function testGeminiKeyInAccount() {
-      const keyInput = document.getElementById('account-gemini-key');
-      const key = (keyInput && keyInput.value.trim().length > 5) ? keyInput.value.trim() : getGeminiApiKey();
-      showToast("⏳ Prüfe API-Key bei Google...");
-      try {
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
-        if (resp.ok) {
-          showToast("✓ Verbindung erfolgreich! Key ist aktiv.");
-        } else {
-          const data = await resp.json().catch(() => ({}));
-          showToast(`⚠️ Fehler: ${data.error?.message || resp.status}`);
-        }
-      } catch (e) {
-        showToast("⚠️ Netzwerkfehler beim Key-Test");
-      }
-    }
-
-    function saveGeminiKeyInAccount(val) {
-      localStorage.setItem('kompass_gemini_api_key', (val || '').trim());
-      showToast("API-Key gespeichert");
-    }
-
-    function saveVoiceInAccount(val) {
-      localStorage.setItem('kompass_session_voice', val);
-      showToast(`Stimme gespeichert: ${val}`);
-    }
-
-    function stopSampleVoice() {
-      if (sampleVoiceTimeout) {
-        clearTimeout(sampleVoiceTimeout);
-        sampleVoiceTimeout = null;
-      }
-      const audio = document.getElementById('master-voice-audio');
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.removeAttribute('src');
-      }
-      const btn = document.getElementById('btn-acc-voice-preview');
-      if (btn) btn.innerText = "Probe (5s)";
-      isSampleVoicePlaying = false;
-    }
-
-    async function playVoicePreviewInAccount() {
-      if (isSampleVoicePlaying) {
-        stopSampleVoice();
-        showToast("Sprachprobe gestoppt");
-        return;
-      }
-      unlockAudioEngineOnUserGesture();
-      const sel = document.getElementById('account-voice-select');
-      const voice = sel ? sel.value : 'Despina';
-      await playSampleTtsVoice(voice);
-    }
-
-    async function playSampleTtsVoice(voice) {
-      stopSampleVoice();
-
-      const btn = document.getElementById('btn-acc-voice-preview');
-      if (btn) btn.innerText = "⏳ Lädt...";
-
-      const cacheKey = `sample_strict_${voice}`;
-      if (ttsIndexCache[cacheKey]) {
-        return playSampleAudioUrl(ttsIndexCache[cacheKey]);
-      }
-
-      const apiKey = getGeminiApiKey();
-      const requestPayload = {
-        contents: [{
-          parts: [{ text: "Lies exakt diesen kurzen Satz vor und sage nichts anderes: Ich bin deine ausgewählte Stimme für unsere Sessions." }]
-        }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: {
-                voiceName: voice
-              }
-            }
-          }
-        }
-      };
-
-      const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-tts", "gemini-3.8-flash-tts"];
-      let lastErrorMessage = "";
-
-      for (let i = 0; i < candidateModels.length; i++) {
-        const modelName = candidateModels[i];
-        try {
-          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestPayload)
-          });
-
-          if (resp.ok) {
-            const data = await resp.json();
-            const part = data?.candidates?.[0]?.content?.parts?.[0];
-            const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType || "";
-
-            if (audioData) {
-              const rawBuffer = base64ToArrayBuffer(audioData);
-              const rawBytes = new Uint8Array(rawBuffer);
-              let wavBlob;
-
-              if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
-                wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
-              } else {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-                const pcm16 = new Int16Array(rawBuffer);
-                wavBlob = pcmToWav(pcm16, sampleRate);
-              }
-
-              const url = URL.createObjectURL(wavBlob);
-              ttsIndexCache[cacheKey] = url;
-              return playSampleAudioUrl(url);
-            }
-          } else {
-            const errData = await resp.json().catch(() => ({}));
-            lastErrorMessage = errData.error?.message || `HTTP ${resp.status}`;
-            console.debug(`TTS Probe Fehler mit ${modelName}:`, lastErrorMessage);
-          }
-        } catch (e) {
-          lastErrorMessage = e.message || "Netzwerkfehler";
-          console.debug(`TTS Probe Netzwerkfehler mit ${modelName}:`, e);
-        }
-      }
-
-      if (btn) btn.innerText = "Probe (5s)";
-      showToast(`⚠️ Sprachausgabe fehlgeschlagen: ${lastErrorMessage || "Modell antwortet nicht"}`);
-      return Promise.resolve();
-    }
-
-    function playSampleAudioUrl(url) {
-      return new Promise((resolve) => {
-        stopSampleVoice();
-        const audio = document.getElementById('master-voice-audio');
-        if (!audio) { resolve(); return; }
-
-        isSampleVoicePlaying = true;
-        const btn = document.getElementById('btn-acc-voice-preview');
-        if (btn) btn.innerText = "⏹ Stopp";
-
-        audio.src = url;
-        audio.currentTime = 0;
-
-        const cleanup = () => {
-          stopSampleVoice();
-          resolve();
-        };
-
-        audio.onended = cleanup;
-        audio.onerror = cleanup;
-
-        audio.play().catch(() => cleanup());
-
-        // HARD 5-SEKUNDEN-TIMEOUT
-        sampleVoiceTimeout = setTimeout(cleanup, 5000);
-      });
-    }
-
-    function base64ToArrayBuffer(base64) {
-      const binaryString = window.atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
-
-    function pcmToWav(pcmData, sampleRate) {
-      const buffer = new ArrayBuffer(44 + pcmData.length * 2);
-      const view = new DataView(buffer);
-
-      function writeString(offset, string) {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      }
-
-      writeString(0, 'RIFF');
-      view.setUint32(4, 36 + pcmData.length * 2, true);
-      writeString(8, 'WAVE');
-      writeString(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeString(36, 'data');
-      view.setUint32(40, pcmData.length * 2, true);
-
-      let offset = 44;
-      for (let i = 0; i < pcmData.length; i++) {
-        view.setInt16(offset, pcmData[i], true);
-        offset += 2;
-      }
-
-      return new Blob([view], { type: 'audio/wav' });
-    }
-
-    function showToast(msg) {
-      const c = document.getElementById('toast-container');
-      if (!c) return;
-      const el = document.createElement('div');
-      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-      el.innerText = msg;
-      c.appendChild(el);
-
-      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-      setTimeout(() => {
-        el.classList.add('opacity-0');
-        setTimeout(() => { el.remove(); }, 300);
-      }, 2500);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(updateHubUI, 150);
-      const accVoice = document.getElementById('account-voice-select');
-      const savedV = localStorage.getItem('kompass_session_voice');
-      if (accVoice && savedV) accVoice.value = savedV;
-      const accKey = document.getElementById('account-gemini-key');
-      const savedK = localStorage.getItem('kompass_gemini_api_key');
-      if (accKey) accKey.value = savedK || getGeminiApiKey();
-
-      // Prüfen, ob Onboarding für Erstnutzer nötig ist
-      const isConfigured = localStorage.getItem('kompass_onboarding_done');
-      if (!isConfigured) {
-        document.getElementById('modal-onboarding')?.classList.remove('hidden');
-      }
-    });
-
-    let onboardAnatState = { A: 'penis', B: 'vulva' };
-
-    function setOnboardingAnatomy(user, anat) {
-      onboardAnatState[user] = anat;
-      const btnP = document.getElementById(`onboard-anat-${user}-penis`);
-      const btnV = document.getElementById(`onboard-anat-${user}-vulva`);
-      if (anat === 'penis') {
-        if (btnP) btnP.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        if (btnV) btnV.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      } else {
-        if (btnV) btnV.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        if (btnP) btnP.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      }
-    }
-
-    function completeOnboarding() {
-      const nameA = document.getElementById('onboard-name-A')?.value.trim() || 'Partner 1';
-      const nameB = document.getElementById('onboard-name-B')?.value.trim() || 'Partner 2';
-
-      names = { A: nameA, B: nameB };
-      anatomy = { A: onboardAnatState.A, B: onboardAnatState.B };
-
-      localStorage.setItem('kompass_names', JSON.stringify(names));
-      localStorage.setItem('kompass_anatomy', JSON.stringify(anatomy));
-      localStorage.setItem('kompass_onboarding_done', 'true');
-
-      document.getElementById('modal-onboarding')?.classList.add('hidden');
-      updateCurrentUserUI();
-      showToast("Willkommen! Profile eingerichtet ✓");
-    }
-  </script>
-</body>
-</html>
