@@ -955,9 +955,13 @@
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
 
+  <!-- MODULARE SPEZIALISIERTE SESSION-ENGINES -->
+  <script src="js/session_voice.js"></script>
+  <script src="js/session_discipline.js"></script>
+  <script src="js/session_audio.js"></script>
+
   <script>
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-
     let portalSelectedRoleSetup = 'default';
     let topPartner = 'B';
     let subPartner = 'A';
@@ -977,19 +981,6 @@
     let isTopVoiceAssistActive = false;
     let activeSessionVoice = 'Despina';
     let activeDiscoveredModel = "gemini-2.5-flash";
-    let activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
-    let ttsAudioCache = {};
-    let previewAudioTimeout = null;
-
-    let activeMusicSource = 'own';
-    let activeSoundscapeStyle = 'velvet';
-    let soundscapeEnergyLevel = 2;
-    let isAmbientPlaying = false;
-    let audioCtx = null;
-    let ambientMasterGain = null;
-    let ambientFilterNode = null;
-    let soundscapeOscNodes = [];
-    let customPlaylistLink = "";
 
     let currentStagingCategory = 'household';
     let activeEquipmentIds = [];
@@ -1006,12 +997,6 @@
     let isEdgingCountdownPaused = false;
     let countdownRunId = 0;
 
-    let wizardCurrentStage = 1;
-    let selectedInfraction = 'mouth';
-    let stageSeverities = { 1: 2, 2: 2, 3: 2, 4: 2 };
-    let selectedStageChoice = { 1: null, 2: null, 3: null, 4: null };
-    let catalogOffsets = { 1: 0, 2: 0, 3: 0, 4: 0 };
-
     let currentSelectedPlaybook = [];
     let liveStepIndex = 0;
     let sessionDepth = 7;
@@ -1023,6 +1008,11 @@
       initEquipmentStaging();
       checkUnratedSessions();
       updateHeaderTabuCounter();
+
+      // Pre-Caching für 0-ms-Countdown starten
+      if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+        window.SessionVoice.preloadCore(activeSessionVoice);
+      }
     }
 
     function loadSessionStorageData() {
@@ -1034,9 +1024,7 @@
         const eq = localStorage.getItem('kompass_active_equipment_ids');
         const v = localStorage.getItem('kompass_session_voice');
         const va = localStorage.getItem('kompass_voice_assist_active');
-        const pl = localStorage.getItem('kompass_custom_playlist_link');
         const dm = localStorage.getItem('kompass_discovered_model');
-        const dtm = localStorage.getItem('kompass_discovered_tts_model');
 
         if (nm) names = JSON.parse(nm);
         if (an) anatomy = JSON.parse(an);
@@ -1045,9 +1033,7 @@
         if (eq) activeEquipmentIds = JSON.parse(eq);
         if (v) activeSessionVoice = v;
         if (va) isTopVoiceAssistActive = (va === 'true');
-        if (pl) customPlaylistLink = pl;
         if (dm) activeDiscoveredModel = dm;
-        if (dtm) activeDiscoveredTtsModel = dtm;
       } catch (e) {
         console.error("Data load error", e);
       }
@@ -1056,6 +1042,14 @@
         const catalog = window.equipmentCatalog || [];
         activeEquipmentIds = catalog.filter(i => i.defaultPresent).map(i => i.id);
       }
+
+      // Globale Variablen für Submodule bereitstellen
+      window.subPartner = subPartner;
+      window.topPartner = topPartner;
+      window.names = names;
+      window.answers = answers;
+      window.currentSessionLog = currentSessionLog;
+      window.isTopVoiceAssistActive = isTopVoiceAssistActive;
     }
 
     function selectPortalRoleSetup(setup) {
@@ -1067,6 +1061,8 @@
         topPartner = 'A';
         subPartner = 'B';
       }
+      window.subPartner = subPartner;
+      window.topPartner = topPartner;
       updatePortalRoleCards();
       setupInitialPlaybook();
       updateHeaderTabuCounter();
@@ -1211,11 +1207,16 @@
         localStorage.setItem('kompass_gemini_api_key', trimmed);
         showToast("Gemini Key gespeichert");
         testGeminiConnectionInSession();
+        if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+          window.SessionVoice.preloadCore(activeSessionVoice);
+        }
       } catch (e) {}
     }
 
     async function testGeminiConnectionInSession(silent = false) {
-      const key = getGeminiApiKey();
+      const key = (window.SessionVoice && window.SessionVoice.getApiKey) 
+        ? window.SessionVoice.getApiKey() 
+        : getGeminiApiKey();
       if (!silent) showToast("⏳ Ermittle unterstützte Gemini-Modelle...");
       const badge = document.getElementById('gemini-active-model-badge');
 
@@ -1237,16 +1238,8 @@
             localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
           }
 
-          const ttsModelObj = modelsList.find(m => m.name.includes('tts'));
-          if (ttsModelObj) {
-            activeDiscoveredTtsModel = ttsModelObj.name.replace('models/', '');
-            localStorage.setItem('kompass_discovered_tts_model', activeDiscoveredTtsModel);
-          } else {
-            activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
-          }
-
           if (badge) badge.innerText = `Modell: ${activeDiscoveredModel}`;
-          if (!silent) showToast(`✓ Verbunden! Text: ${activeDiscoveredModel} · Audio: ${activeDiscoveredTtsModel}`);
+          if (!silent) showToast(`✓ Verbunden! Modell: ${activeDiscoveredModel} aktiv.`);
           return true;
         } else {
           const errData = await resp.json().catch(() => ({}));
@@ -1261,159 +1254,6 @@
       return false;
     }
 
-    async function playSensualGeminiVoice(numText, voiceOverride = null, isPreview = false) {
-      if (previewAudioTimeout) {
-        clearTimeout(previewAudioTimeout);
-        previewAudioTimeout = null;
-      }
-
-      const voiceToUse = voiceOverride || activeSessionVoice || 'Despina';
-      const cacheKey = `${voiceToUse}_${numText}`;
-
-      if (ttsAudioCache[cacheKey]) {
-        return playAudioUrlWithCallback(ttsAudioCache[cacheKey], isPreview);
-      }
-
-      const storedKey = getGeminiApiKey();
-      if (!storedKey || storedKey.length < 15) {
-        showToast("⚠️ Kein Gemini API-Key hinterlegt");
-        return Promise.resolve();
-      }
-
-      const isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
-      const instruction = isMale
-        ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme auf Deutsch kurz, trocken und autoritär: ${numText}`
-        : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, erotischen Frauenstimme auf Deutsch langsam: ${numText}`;
-
-      const ttsCandidates = [
-        activeDiscoveredTtsModel || "gemini-3.8-flash-tts",
-        "gemini-3.8-flash-lite-tts",
-        "gemini-2.5-flash-preview-tts"
-      ];
-
-      for (let i = 0; i < ttsCandidates.length; i++) {
-        const modelToTry = ttsCandidates[i];
-        try {
-          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelToTry}:generateContent?key=${encodeURIComponent(storedKey)}`;
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: instruction }] }],
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                  voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
-                }
-              }
-            })
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            const part = result?.candidates?.[0]?.content?.parts?.[0];
-            const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType || "";
-
-            if (audioData) {
-              const rawBuffer = base64ToArrayBuffer(audioData);
-              const rawBytes = new Uint8Array(rawBuffer);
-              let wavBlob;
-
-              if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
-                wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
-              } else {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-                const pcm16 = new Int16Array(rawBuffer);
-                wavBlob = pcmToWav(pcm16, sampleRate);
-              }
-
-              const audioUrl = URL.createObjectURL(wavBlob);
-              ttsAudioCache[cacheKey] = audioUrl;
-              activeDiscoveredTtsModel = modelToTry;
-              return playAudioUrlWithCallback(audioUrl, isPreview);
-            }
-          }
-        } catch (err) {
-          console.debug(`TTS network error with ${modelToTry}:`, err);
-        }
-      }
-
-      showToast("⚠️ Sprachausgabe konnte nicht generiert werden");
-      return Promise.resolve();
-    }
-
-    function playAudioUrlWithCallback(url, isPreview = false) {
-      return new Promise((resolve) => {
-        const masterAudio = document.getElementById('master-voice-audio');
-        if (!masterAudio) {
-          resolve();
-          return;
-        }
-
-        masterAudio.pause();
-        masterAudio.src = url;
-
-        masterAudio.onended = () => resolve();
-        masterAudio.onerror = () => resolve();
-
-        masterAudio.play().catch(e => {
-          console.debug("Audio play error", e);
-          resolve();
-        });
-
-        if (isPreview) {
-          previewAudioTimeout = setTimeout(() => {
-            masterAudio.pause();
-            resolve();
-          }, 5000);
-        }
-      });
-    }
-
-    function base64ToArrayBuffer(base64) {
-      const binaryString = window.atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
-
-    function pcmToWav(pcmData, sampleRate) {
-      const buffer = new ArrayBuffer(44 + pcmData.length * 2);
-      const view = new DataView(buffer);
-
-      function writeString(offset, string) {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      }
-
-      writeString(0, 'RIFF');
-      view.setUint32(4, 36 + pcmData.length * 2, true);
-      writeString(8, 'WAVE');
-      writeString(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeString(36, 'data');
-      view.setUint32(40, pcmData.length * 2, true);
-
-      let offset = 44;
-      for (let i = 0; i < pcmData.length; i++) {
-        view.setInt16(offset, pcmData[i], true);
-        offset += 2;
-      }
-
-      return new Blob([view], { type: 'audio/wav' });
-    }
-
     function initVoiceSettings() {
       const vSelect = document.getElementById('session-voice-select');
       const vToggle = document.getElementById('session-voice-assist-toggle');
@@ -1422,11 +1262,8 @@
 
       if (vSelect) vSelect.value = activeSessionVoice;
       if (vToggle) vToggle.checked = isTopVoiceAssistActive;
-      if (keyInput) keyInput.value = getGeminiApiKey();
+      if (keyInput) keyInput.value = (window.SessionVoice && window.SessionVoice.getApiKey) ? window.SessionVoice.getApiKey() : getGeminiApiKey();
       if (badge && activeDiscoveredModel) badge.innerText = `Modell: ${activeDiscoveredModel}`;
-
-      const linkInput = document.getElementById('custom-playlist-link-input');
-      if (linkInput && customPlaylistLink) linkInput.value = customPlaylistLink;
 
       testGeminiConnectionInSession(true);
     }
@@ -1435,10 +1272,14 @@
       activeSessionVoice = val;
       localStorage.setItem('kompass_session_voice', val);
       showToast(`Stimme gewechselt: ${val}`);
+      if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+        window.SessionVoice.preloadCore(val);
+      }
     }
 
     function toggleTopVoiceAssistance(checked) {
       isTopVoiceAssistActive = checked;
+      window.isTopVoiceAssistActive = checked;
       localStorage.setItem('kompass_voice_assist_active', checked ? 'true' : 'false');
       const ind = document.getElementById('cockpit-voice-active-indicator');
       if (ind) {
@@ -1449,12 +1290,14 @@
     }
 
     function testSelectedVoiceInStep2() {
-      unlockAudioEngineOnUserGesture();
+      if (window.SessionVoice) window.SessionVoice.unlock();
       const isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
       const sampleText = isMale
         ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
         : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
-      playSensualGeminiVoice(sampleText, activeSessionVoice, true);
+      if (window.SessionVoice) {
+        window.SessionVoice.play(sampleText, activeSessionVoice, true);
+      }
     }
 
     function applyPunishmentVoicePreset() {
@@ -1462,6 +1305,7 @@
       const sel = document.getElementById('session-voice-select');
       if (sel) sel.value = 'Enceladus';
       isTopVoiceAssistActive = true;
+      window.isTopVoiceAssistActive = true;
       const tog = document.getElementById('session-voice-assist-toggle');
       if (tog) tog.checked = true;
       localStorage.setItem('kompass_session_voice', 'Enceladus');
@@ -1471,231 +1315,13 @@
     }
 
     function testGeminiVoiceSample() {
-      unlockAudioEngineOnUserGesture();
+      if (window.SessionVoice) window.SessionVoice.unlock();
       testSelectedVoiceInStep2();
     }
 
     function unlockAudioEngineOnUserGesture() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-      }
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      const masterAudio = document.getElementById('master-voice-audio');
-      if (masterAudio && masterAudio.paused && !masterAudio.src) {
-        masterAudio.play().catch(() => {});
-      }
-    }
-
-    function selectMusicSource(src) {
-      activeMusicSource = src;
-      const bOwn = document.getElementById('btn-music-source-own');
-      const bSynth = document.getElementById('btn-music-source-synth');
-      const pOwn = document.getElementById('music-panel-own');
-      const pSynth = document.getElementById('music-panel-synth');
-
-      if (src === 'own') {
-        if (bOwn) bOwn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
-        if (bSynth) bSynth.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
-        pOwn?.classList.remove('hidden');
-        pSynth?.classList.add('hidden');
-        stopAllSoundscapeNodes();
-      } else {
-        if (bSynth) bSynth.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
-        if (bOwn) bOwn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
-        pSynth?.classList.remove('hidden');
-        pOwn?.classList.add('hidden');
-      }
-    }
-
-    function saveCustomPlaylistLink(val) {
-      customPlaylistLink = (val || '').trim();
-      localStorage.setItem('kompass_custom_playlist_link', customPlaylistLink);
-      const btn = document.getElementById('btn-launch-external-music');
-      if (btn) {
-        btn.href = customPlaylistLink.startsWith('http') ? customPlaylistLink : `https://open.spotify.com`;
-      }
-    }
-
-    function setSoundscapeStyle(style) {
-      activeSoundscapeStyle = style;
-      const styles = ['velvet', 'bowls', 'ocean', 'beats'];
-      styles.forEach(s => {
-        const b = document.getElementById(`btn-style-${s}`);
-        if (b) {
-          if (s === style) b.className = "p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn";
-          else b.className = "p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn";
-        }
-      });
-
-      const selCockpit = document.getElementById('select-cockpit-soundscape');
-      if (selCockpit) selCockpit.value = style;
-
-      const styleLabels = {
-        velvet: "Cinematic Velvet",
-        bowls: "Klangtempel 432Hz",
-        ocean: "Ozean-Symphonie",
-        beats: "Dark Downtempo"
-      };
-      const nameEl = document.getElementById('cockpit-ambient-style-name');
-      if (nameEl) nameEl.innerText = `Soundscape: ${styleLabels[style] || style}`;
-
-      if (isAmbientPlaying) {
-        stopAllSoundscapeNodes();
-        startSoundscapeSynthesis();
-      }
-    }
-
-    function toggleAmbientMusic() {
-      unlockAudioEngineOnUserGesture();
-      isAmbientPlaying = !isAmbientPlaying;
-      updateAmbientUIState();
-
-      if (isAmbientPlaying) {
-        if (activeMusicSource === 'synth') {
-          startSoundscapeSynthesis();
-        } else {
-          showToast("Externe Playlist aktiv (Audio-Ducking bereit)");
-        }
-      } else {
-        stopAllSoundscapeNodes();
-      }
-    }
-
-    function updateAmbientUIState() {
-      const btnH = document.getElementById('btn-ambient-header');
-      const iconH = document.getElementById('ambient-status-icon');
-      const labelH = document.getElementById('ambient-status-label');
-      const btnSetup = document.getElementById('btn-setup-ambient-toggle');
-      const btnCockpit = document.getElementById('btn-cockpit-ambient-play');
-      const ind = document.getElementById('cockpit-ambient-indicator');
-
-      if (isAmbientPlaying) {
-        if (iconH) iconH.innerText = "⏸";
-        if (labelH) labelH.innerText = "Pause";
-        if (btnH) btnH.className = "px-2.5 py-1.5 bg-brand-900 border border-brand-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn";
-        if (btnSetup) btnSetup.innerText = "⏸ Audio pausieren";
-        if (btnCockpit) btnCockpit.innerText = "⏸ Pause";
-        if (ind) ind.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-      } else {
-        if (iconH) iconH.innerText = "🎵";
-        if (labelH) labelH.innerText = "Musik";
-        if (btnH) btnH.className = "px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn";
-        if (btnSetup) btnSetup.innerText = "▶ Audio starten";
-        if (btnCockpit) btnCockpit.innerText = "▶ Play";
-        if (ind) ind.className = "w-2 h-2 rounded-full bg-slate-600";
-      }
-    }
-
-    function adjustAmbientEnergy(direction) {
-      if (direction === 'energy') {
-        soundscapeEnergyLevel = Math.min(4, soundscapeEnergyLevel + 1);
-        showToast(`Soundscape intensiviert (Stufe ${soundscapeEnergyLevel}/4)`);
-      } else {
-        soundscapeEnergyLevel = Math.max(1, soundscapeEnergyLevel - 1);
-        showToast(`Soundscape beruhigt (Stufe ${soundscapeEnergyLevel}/4)`);
-      }
-      const disp = document.getElementById('ambient-intensity-display');
-      if (disp) disp.innerText = `(Stufe ${soundscapeEnergyLevel}/4)`;
-
-      if (isAmbientPlaying && activeMusicSource === 'synth') {
-        applyEnergyToSynthNodes();
-      }
-    }
-
-    function initAmbientAudioNodes() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-      }
-      if (audioCtx && (!ambientMasterGain || !ambientFilterNode)) {
-        ambientMasterGain = audioCtx.createGain();
-        ambientMasterGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-
-        ambientFilterNode = audioCtx.createBiquadFilter();
-        ambientFilterNode.type = 'lowpass';
-        ambientFilterNode.frequency.setValueAtTime(450, audioCtx.currentTime);
-
-        ambientMasterGain.connect(ambientFilterNode);
-        ambientFilterNode.connect(audioCtx.destination);
-      }
-    }
-
-    function startSoundscapeSynthesis() {
-      initAmbientAudioNodes();
-      if (!audioCtx || !ambientFilterNode) return;
-
-      stopAllSoundscapeNodes();
-
-      const chords = {
-        velvet: [146.83, 174.61, 220.00, 261.63],
-        bowls: [108.00, 216.00, 432.00, 864.00],
-        ocean: [65.41, 130.81, 196.00, 293.66],
-        beats: [55.00, 110.00, 164.81, 220.00]
-      };
-
-      const freqs = chords[activeSoundscapeStyle] || chords.velvet;
-
-      freqs.forEach((f, idx) => {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-
-        osc.type = (idx === 0) ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-
-        const gainVal = (0.2 / freqs.length) * (idx === 0 ? 1.5 : 0.8);
-        g.gain.setValueAtTime(gainVal, audioCtx.currentTime);
-
-        osc.connect(g);
-        g.connect(ambientFilterNode);
-
-        osc.start();
-        soundscapeOscNodes.push({ osc, gain: g, baseFreq: f });
-      });
-
-      applyEnergyToSynthNodes();
-    }
-
-    function applyEnergyToSynthNodes() {
-      if (!audioCtx || !ambientFilterNode) return;
-      const targetFreq = 200 + (soundscapeEnergyLevel * 300);
-      ambientFilterNode.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.8);
-
-      if (ambientMasterGain) {
-        const targetVol = 0.2 + (soundscapeEnergyLevel * 0.08);
-        ambientMasterGain.gain.setTargetAtTime(targetVol, audioCtx.currentTime, 0.5);
-      }
-    }
-
-    function stopAllSoundscapeNodes() {
-      soundscapeOscNodes.forEach(n => {
-        try {
-          n.osc.stop();
-          n.osc.disconnect();
-          n.gain.disconnect();
-        } catch (e) {}
-      });
-      soundscapeOscNodes = [];
-    }
-
-    function updateAmbientPhaseModulation() {
-      if (!isAmbientPlaying) return;
-      const step = currentSelectedPlaybook[liveStepIndex];
-      if (!step) return;
-
-      if (step.phase.includes('Warm-up')) {
-        soundscapeEnergyLevel = 1;
-      } else if (step.phase.includes('Machtaufbau')) {
-        soundscapeEnergyLevel = 2;
-      } else if (step.phase.includes('Katharsis')) {
-        soundscapeEnergyLevel = 4;
-      } else if (step.phase.includes('Aftercare')) {
-        soundscapeEnergyLevel = 1;
-        setSoundscapeStyle('ocean');
-      }
-      applyEnergyToSynthNodes();
+      if (window.SessionVoice) window.SessionVoice.unlock();
+      if (window.SessionAudio) window.SessionAudio.ensureGraph();
     }
 
     function triggerAirPlayPicker() {
@@ -1864,9 +1490,9 @@
         { type: "system", time: getFormattedTimeNow(), label: "Session gestartet" }
       ];
 
-      if (isTopVoiceAssistActive) {
+      if (isTopVoiceAssistActive && window.SessionVoice) {
         const topName = names[topPartner] || 'Top';
-        playSensualGeminiVoice(`Session begonnen. ${topName} übernimmt ab jetzt die Führung.`);
+        window.SessionVoice.play(`Session begonnen. ${topName} übernimmt ab jetzt die Führung.`);
       }
     }
 
@@ -1924,8 +1550,6 @@
       if (topRole) topRole.innerText = step.top;
       if (subRole) subRole.innerText = step.sub;
       if (phasePill) phasePill.innerText = step.phase.split(':')[0];
-
-      updateAmbientPhaseModulation();
     }
 
     function nextLiveStep() {
@@ -1947,7 +1571,9 @@
     function speakCurrentLiveStep() {
       const step = currentSelectedPlaybook[liveStepIndex];
       if (!step) return;
-      playSensualGeminiVoice(`${step.title}. ${step.desc}`);
+      if (window.SessionVoice) {
+        window.SessionVoice.play(`${step.title}. ${step.desc}`);
+      }
     }
 
     function triggerSafeword(color) {
@@ -1957,19 +1583,19 @@
       if (color === 'green') {
         currentSessionLog.push({ type: "safeword", time, label: "Safeword GRÜN: Bestätigung" });
         showToast("GRÜN bestätigt: Alles in bester Ordnung");
-        if (isTopVoiceAssistActive) playSensualGeminiVoice("Grün. Sehr gut.");
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Grün. Sehr gut.");
       } else if (color === 'yellow') {
         currentSessionLog.push({ type: "safeword", time, label: "Safeword GELB: Tempo drosseln" });
         showToast("⚠️ GELB ausgelöst: Tempo drosseln!");
-        adjustAmbientEnergy('calm');
-        if (isTopVoiceAssistActive) playSensualGeminiVoice("Gelb registriert. Tempo drosseln und durchatmen.");
+        if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Gelb registriert. Tempo drosseln und durchatmen.");
       } else {
         currentSessionLog.push({ type: "safeword", time, label: "Safeword ROT: Sofort-Abbruch" });
         if (ind) ind.classList.add('animate-ping');
         isSessionPaused = true;
-        stopAllSoundscapeNodes();
+        if (window.SessionAudio) window.SessionAudio.stopAll();
         showToast("🛑 ROT AUSGELÖST: Sofortiger Stillstand!");
-        if (isTopVoiceAssistActive) playSensualGeminiVoice("Halt. Sofortiger Stopp aller Handlungen.");
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Halt. Sofortiger Stopp aller Handlungen.");
         setTimeout(() => ind?.classList.remove('animate-ping'), 4000);
       }
     }
@@ -1994,18 +1620,19 @@
       const labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Kante", "Kante"];
       if (badge) badge.innerText = `Stufe ${activeArousalLevel} / 10 (${labels[activeArousalLevel] || ''})`;
 
-      if (activeArousalLevel >= 8) {
-        adjustAmbientEnergy('energy');
+      if (activeArousalLevel >= 8 && window.SessionAudio) {
+        window.SessionAudio.adjustEnergy('energy');
       }
 
-      if (isTopVoiceAssistActive && Math.random() < 0.35) {
+      if (isTopVoiceAssistActive && window.SessionVoice && Math.random() < 0.35) {
         const phrase = generateDynamicArousalPhrase(activeArousalLevel);
-        playSensualGeminiVoice(phrase);
+        window.SessionVoice.play(phrase);
       }
     }
 
     function generateDynamicArousalPhrase(level) {
       const subName = names[subPartner] || 'Bottom';
+      const topName = names[topPartner] || 'Top';
       if (level <= 3) {
         return `Ganz ruhig atmen, ${subName}. Wir bauen die Spannung langsam auf.`;
       } else if (level <= 6) {
@@ -2015,7 +1642,7 @@
       } else if (level <= 9) {
         return (edgingStimulationBy === 'bottom_self')
           ? `Langsamer werden! Hände kurz anhalten, wenn es zu nah wird.`
-          : `Gefahrenzone. Kein Zucken. Du kommst erst auf mein Zeichen.`;
+          : `Gefahrenzone, ${subName}. Kein Zucken. Du kommst erst auf mein Zeichen.`;
       } else {
         return `Stillhalten! Kante erreicht!`;
       }
@@ -2037,8 +1664,8 @@
       startLastEdgeTimer();
       startCooldownBreathingTimer();
 
-      if (isTopVoiceAssistActive) {
-        playSensualGeminiVoice("Kante! Hände sofort weg und ausatmen.");
+      if (isTopVoiceAssistActive && window.SessionVoice) {
+        window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
       }
     }
 
@@ -2080,8 +1707,8 @@
       currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (Sofort)" });
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       showToast("Sofortige Freigabe erteilt!");
-      if (isTopVoiceAssistActive) {
-        playSensualGeminiVoice("Jetzt! Lass alles los und komm für mich!");
+      if (isTopVoiceAssistActive && window.SessionVoice) {
+        window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
       }
     }
 
@@ -2104,25 +1731,21 @@
         }
 
         if (disp) disp.innerText = currentEdgingCountdown;
-        if (isTopVoiceAssistActive) {
-          const tStart = Date.now();
-          await playSensualGeminiVoice(currentEdgingCountdown.toString());
-          if (Date.now() - tStart < 800) {
-            await new Promise(r => setTimeout(r, 1000));
-          }
+        if (isTopVoiceAssistActive && window.SessionVoice) {
+          await window.SessionVoice.play(currentEdgingCountdown.toString());
         } else {
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 1100));
         }
 
-        await new Promise(r => setTimeout(r, 650));
+        await new Promise(r => setTimeout(r, 400));
         currentEdgingCountdown--;
       }
 
       if (currentEdgingCountdown <= 0 && runId === countdownRunId) {
         if (disp) disp.innerText = "KOMMEN!";
         currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
-        if (isTopVoiceAssistActive) {
-          await playSensualGeminiVoice("Erlösung! Jetzt darfst du kommen!");
+        if (isTopVoiceAssistActive && window.SessionVoice) {
+          await window.SessionVoice.play("Jetzt kommen! Lass alles los!");
         }
         setTimeout(() => {
           document.getElementById('countdown-wrapper')?.classList.add('hidden');
@@ -2148,15 +1771,15 @@
       if (decision === 'ruined') {
         currentSessionLog.push({ type: "action", time, label: "Ruined Orgasm angeordnet" });
         showToast("Ruined Orgasm vollzogen!");
-        if (isTopVoiceAssistActive) {
-          playSensualGeminiVoice("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
+        if (isTopVoiceAssistActive && window.SessionVoice) {
+          window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
         }
       } else if (decision === 'denial') {
         currentSessionLog.push({ type: "action", time, label: "Lustverweigerung (Denial)" });
         showToast("Orgasmus verweigert!");
-        adjustAmbientEnergy('calm');
-        if (isTopVoiceAssistActive) {
-          playSensualGeminiVoice("Schluss für heute. Du bleibst ungelöst.");
+        if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
+        if (isTopVoiceAssistActive && window.SessionVoice) {
+          window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
         }
       }
     }
@@ -2440,7 +2063,8 @@
         localStorage.setItem('kompass_session_diary', JSON.stringify(sessionDiary));
       } catch (e) {}
 
-      stopAllSoundscapeNodes();
+      if (window.SessionAudio) window.SessionAudio.stopAll();
+      if (window.SessionVoice) window.SessionVoice.stop();
       releaseScreenWakeLock();
       window.location.href = "analyse.html";
     }
