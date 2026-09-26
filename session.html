@@ -602,6 +602,20 @@
 
         <p class="text-xs text-slate-200 leading-relaxed" id="live-step-desc">Beschreibung des Schritts...</p>
 
+        <!-- DYNAMISCHER EDGING-HINWEIS IM DREHBUCH -->
+        <div id="guided-edging-callout" class="hidden p-3 rounded-2xl bg-pink-950/40 border border-pink-700/80 text-xs flex items-center justify-between gap-3 shadow-md animate-pulse">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">⚡</span>
+            <div>
+              <strong class="text-pink-200 block text-xs">Edging-Fernbedienung jetzt aktiv</strong>
+              <span class="text-[10.5px] text-slate-300">Du kannst selbst sprechen oder die Gemini-App-Stimme sprechen lassen.</span>
+            </div>
+          </div>
+          <button type="button" onclick="scrollToEdgingPanel()" class="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl text-[11px] touch-btn flex-shrink-0">
+            Zur Fernbedienung ↓
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
           <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px]">
             <strong class="text-brand-300 block text-[10px] uppercase tracking-wider">Top (Führung):</strong>
@@ -624,16 +638,39 @@
       </div>
 
       <!-- EDGING COCKPIT PANEL -->
-      <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 sm:p-6 border border-pink-900/50 shadow-2xl space-y-4 bg-gradient-to-b from-noir-950 to-pink-950/15">
-        <div class="flex items-center justify-between border-b border-pink-900/40 pb-3">
+      <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 sm:p-6 border border-pink-900/50 shadow-2xl space-y-4 bg-gradient-to-b from-noir-950 to-pink-950/15 transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-pink-900/40 pb-3 flex-wrap gap-2">
           <div>
-            <h3 class="text-sm font-extrabold text-white">Edging-Fernbedienung des Tops</h3>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-extrabold text-white">Edging-Fernbedienung des Tops</h3>
+              <span id="edging-focus-badge" class="hidden px-2 py-0.5 rounded text-[9px] font-black uppercase bg-pink-950 text-pink-300 border border-pink-700">DREHBUCH-FOKUS</span>
+            </div>
             <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Musik live</p>
           </div>
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-800">
               Edges: <span id="edging-total-hits">0</span>
             </span>
+          </div>
+        </div>
+
+        <!-- SCHALTER: WER SPRICHT DEN COUNTDOWN / DIE BEFEHLE? -->
+        <div class="p-3 rounded-2xl bg-slate-900/90 border border-pink-900/60 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300 font-bold text-[11px] flex items-center gap-1.5">
+              <span>🎙️</span><span>Wer spricht Countdown & Befehle?</span>
+            </span>
+            <span id="label-current-voice-mode" class="text-[10px] font-mono text-purple-300">App-Stimme aktiv</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="setCountdownVoiceMode('self')" id="btn-voice-mode-self" class="p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
+              <strong class="text-[11px] block text-white">🗣️ Selbst sprechen</strong>
+              <span class="text-[9.5px] block text-slate-400 mt-0.5">Top zählt selbst laut; App gibt visuelle Atem-Takte.</span>
+            </button>
+            <button type="button" onclick="setCountdownVoiceMode('gemini')" id="btn-voice-mode-gemini" class="p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md">
+              <strong class="text-[11px] block text-white">🔊 App-Stimme (Gemini)</strong>
+              <span class="text-[9.5px] block text-purple-300 mt-0.5">App spricht Countdown & Befehle laut ins Zimmer.</span>
+            </button>
           </div>
         </div>
 
@@ -722,7 +759,10 @@
           </div>
 
           <div id="countdown-wrapper" class="hidden flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
-            <div class="text-4xl font-black font-mono tracking-tight text-white" id="countdown-display">10</div>
+            <div>
+              <div class="text-4xl font-black font-mono tracking-tight text-white" id="countdown-display">10</div>
+              <span class="text-[10px] text-slate-400 block mt-0.5" id="countdown-cue-text">Zähle laut mit...</span>
+            </div>
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="pauseSpeechCountdown()" id="btn-pause-countdown" class="px-3 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
                 Pause
