@@ -648,7 +648,10 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key');
     if (!apiKey || apiKey.length < 10) apiKey = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
-    var activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-2.5-flash';
+    var activeModel = localStorage.getItem('kompass_discovered_model');
+    if (!activeModel || activeModel.indexOf('2.5') !== -1) {
+      activeModel = 'gemini-3.8-flash';
+    }
 
     var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
     var sensPct = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText : '0%';
