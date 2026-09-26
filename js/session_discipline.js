@@ -8,6 +8,7 @@
  * - Live-Freitextfeld für konkrete Vergehen
  * - Physische Verträglichkeits- & Plausibilitätsprüfung
  * - Unabhängige Härtegrade pro Stufe
+ * - Zuverlässiges Öffnen und Schließen mit display: flex / none
  */
 
 (function(window) {
@@ -49,8 +50,7 @@
     var chapters = window.surveyChapters || [];
     var matches = [];
 
-    // Kapitel-Zuordnung je Vergehen
-    var relevantChapters = [16, 23]; // Standard: Impact & Zucht
+    var relevantChapters = [16, 23];
     if (infractionCat === 'mouth') relevantChapters = [15, 16, 23];
     else if (infractionCat === 'posture') relevantChapters = [13, 14, 22];
     else if (infractionCat === 'orgasm') relevantChapters = [7, 8, 17];
@@ -60,9 +60,8 @@
       if (relevantChapters.indexOf(ch.id) !== -1 && Array.isArray(ch.items)) {
         ch.items.forEach(function(item) {
           if (item.type === 'choice') return;
-          var rating = allAnswers['it_' + item.id + '_r2']; // Bottom empfängt (r2)
+          var rating = allAnswers['it_' + item.id + '_r2'];
 
-          // Strikter Tabu-Ausschluss (Note 1)
           if (typeof rating === 'number' && rating >= 2 && rating <= 5) {
             matches.push({
               item: item,
@@ -74,7 +73,6 @@
       }
     });
 
-    // Nach Bewertung sortieren (Noten 5 und 4 zuerst, gefolgt von 3 und 2)
     matches.sort(function(a, b) {
       return b.rating - a.rating;
     });
@@ -186,7 +184,6 @@
       }
     }
 
-    // Defensive Plausibilitätsprüfung
     var handsBack = setup.bondage && (setup.bondage.id === 'leather_wrist_cuffs' || (setup.posture && setup.posture.id === 'hands_behind_back'));
     var isSelfSpank = setup.action && setup.action.id === 'self_spank';
 
@@ -318,12 +315,18 @@
     wizardState.selectedChoices = { 1: null, 2: null, 3: null, 4: null };
     showStage(1);
     var modal = document.getElementById('modal-incident-discipline');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
   }
 
   function closeModal() {
     var modal = document.getElementById('modal-incident-discipline');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
   }
 
   window.SessionDiscipline = {
@@ -385,16 +388,25 @@
     apply: applyDisciplineOrder
   };
 
-  // Kompatibilitäts-Aliase für session.html Buttons
+  // Globale Registrierungen für session.html Buttons
   window.openIncidentDisciplineModal = openModal;
+  window.openIncidentDisciplineModalWrapper = openModal;
   window.closeIncidentDisciplineModal = closeModal;
+  window.closeIncidentDisciplineModalWrapper = closeModal;
   window.prevWizardStage = window.SessionDiscipline.prevStage;
+  window.prevWizardStageWrapper = window.SessionDiscipline.prevStage;
   window.nextWizardStage = window.SessionDiscipline.nextStage;
+  window.nextWizardStageWrapper = window.SessionDiscipline.nextStage;
   window.rerollCurrentWizardStage = window.SessionDiscipline.rerollStage;
+  window.rerollCurrentWizardStageWrapper = window.SessionDiscipline.rerollStage;
   window.selectIncidentCategory = window.SessionDiscipline.selectCategory;
+  window.selectIncidentCategoryWrapper = window.SessionDiscipline.selectCategory;
   window.handleReasonLiveInput = window.SessionDiscipline.handleReasonInput;
+  window.handleReasonLiveInputWrapper = window.SessionDiscipline.handleReasonInput;
   window.setStageSeverity = window.SessionDiscipline.setSeverity;
+  window.setStageSeverityWrapper = window.SessionDiscipline.setSeverity;
   window.selectDisciplineOption = window.SessionDiscipline.selectOption;
   window.applyConfiguredDiscipline = applyDisciplineOrder;
+  window.applyConfiguredDisciplineWrapper = applyDisciplineOrder;
 
 })(window);
