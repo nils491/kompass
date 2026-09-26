@@ -5,7 +5,7 @@
  * Features:
  * - 0-ms-Pre-Caching für Countdown (1-10) & Sofort-Kommandos im Speicher
  * - Intelligente Payload-Weiche (verhindert HTTP 400 bei TTS-Modellen)
- * - Dynamische Gemini-TTS-Modellkaskade mit automatischer RIFF-WAV-Erkennung
+ * - Dynamische Gemini-TTS-Modellkaskade (2026-Standard)
  * - Strenger 5-Sekunden-Autostopp beim Probehören
  * - Fallback-Sicherheit ohne Stummschaltung
  */
@@ -19,7 +19,6 @@
   var isPreloading = false;
   var previewTimeout = null;
   var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
-  var voiceContext = null;
 
   function getGeminiApiKey() {
     try {
@@ -102,7 +101,6 @@
 
   /**
    * Spielt einen Text mit der Gemini-Stimme ab.
-   * Nutzt intelligente Payload-Erstellung abhängig vom Modell.
    */
   async function playSensualGeminiVoice(text, voiceOverride, isPreview) {
     stopActiveVoicePlayback();
@@ -124,21 +122,22 @@
       return Promise.resolve();
     }
 
-    // 2. Kandidaten-Liste aktueller Google-Modelle
+    // 2. Kandidaten-Liste aktueller, verlässlicher Google-Modelle (Kein 1.5 mehr!)
     var candidateModels = [
       activeDiscoveredTtsModel,
-      "gemini-3.8-flash-tts", 
-      "gemini-1.5-flash"
+      "gemini-3.8-flash-tts",
+      "gemini-3.8-flash-lite-tts",
+      "gemini-2.5-flash"
     ];
 
     var lastErrorMessage = "Unbekannter API-Fehler";
+    var modelSuccess = false;
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
       if (!model) continue;
 
-      // STRIKTER PAYLOAD-AUFBAU:
-      // Dedizierte TTS-Modelle dürfen KEINE systemInstruction erhalten (HTTP 400)
+      // PAYLOAD-AUFBAU
       var payload = {
         contents: [{
           parts: [{ text: text.trim() }]
@@ -156,8 +155,6 @@
       };
 
       if (model.indexOf('-tts') === -1) {
-        // Fallback für reine LLM-Modelle (wie gemini-1.5-flash):
-        // Hier BRAUCHEN wir die systemInstruction, damit es nicht monologisiert.
         payload.systemInstruction = {
           parts: [{
             text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen und füge kein Wort hinzu."
@@ -185,7 +182,6 @@
             var rawBytes = new Uint8Array(rawBuffer);
             var wavBlob;
 
-            // Auto-Erkennung: Sendet Gemini bereits RIFF-WAV?
             if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
               wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
             } else {
@@ -196,26 +192,24 @@
 
             var blobUrl = URL.createObjectURL(wavBlob);
             ttsAudioCache[cacheKey] = blobUrl;
-            activeDiscoveredTtsModel = model; // Erfolgreiches Modell merken
+            activeDiscoveredTtsModel = model; 
+            modelSuccess = true;
 
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
         } else {
           var errData = await resp.json().catch(function(){ return {}; });
           lastErrorMessage = errData.error?.message || "HTTP " + resp.status;
-          console.debug("Voice model (" + model + ") failed:", lastErrorMessage);
         }
       } catch (e) {
         lastErrorMessage = e.message || "Netzwerkfehler";
-        console.debug("Network error for voice model:", model, e);
       }
     }
 
-    if (typeof window.showToast === 'function') {
+    if (!modelSuccess && typeof window.showToast === 'function') {
       window.showToast("⚠️ Sprachausgabe Fehler: " + lastErrorMessage);
     }
     
-    // Fallback UI-Reset für Probehören
     var btn = document.getElementById('btn-acc-voice-preview');
     if (btn) btn.innerText = "Probe (5s)";
     
@@ -251,17 +245,14 @@
       audio.onended = cleanup;
       audio.onerror = cleanup;
 
-      // Audio-Ducking: Wenn externe Musik läuft, dämpfen
       if (typeof window.applyAudioDucking === 'function') {
         window.applyAudioDucking(true);
       }
 
       audio.play().then(function() {
-        // UI Update für Probehören
         var btn = document.getElementById('btn-acc-voice-preview');
         if (btn && isPreview) btn.innerText = "⏹ Stopp";
 
-        // Bei erfolgreichem Start: 5s Hard-Stop für Probehören
         if (isPreview) {
           previewTimeout = setTimeout(function() {
             stopActiveVoicePlayback();
@@ -270,12 +261,10 @@
           }, 5000);
         }
       }).catch(function(err) {
-        console.debug("Audio play blocked by browser:", err);
         if (typeof window.showToast === 'function') window.showToast("Bitte klicke auf die Seite, um Audio freizugeben.");
         cleanup();
       });
 
-      // Nach Ende des Audios Ducking aufheben
       audio.addEventListener('ended', function() {
         if (typeof window.applyAudioDucking === 'function') {
           window.applyAudioDucking(false);
@@ -286,10 +275,6 @@
     });
   }
 
-  /**
-   * Lädt die Zahlen 1 bis 10 und Standard-Kommandos im Hintergrund vor.
-   * Dadurch gibt es beim Edging-Countdown und Kanten-Befehlen 0 ms Verzögerung.
-   */
   async function preloadCountdownSnippets(voiceName) {
     if (isPreloading) return;
 
@@ -312,13 +297,9 @@
       if (!ttsAudioCache[key]) {
         try {
           var success = await generateAndCacheSnippet(phrase, activeVoice);
-          if (!success) {
-            break;
-          }
+          if (!success) break;
           await new Promise(function(r) { setTimeout(r, 300); });
-        } catch (e) {
-          break;
-        }
+        } catch (e) { break; }
       }
     }
 
@@ -332,7 +313,8 @@
     var candidateModels = [
       activeDiscoveredTtsModel,
       "gemini-3.8-flash-tts",
-      "gemini-1.5-flash"
+      "gemini-3.8-flash-lite-tts",
+      "gemini-2.5-flash"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
@@ -340,21 +322,18 @@
       if (!model) continue;
 
       var payload = {
-        contents: [{
-          parts: [{ text: text.trim() }]
-        }],
+        contents: [{ parts: [{ text: text.trim() }] }],
         generationConfig: {
           responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
-          }
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
         }
       };
 
       if (model.indexOf('-tts') === -1) {
         payload.systemInstruction = {
-          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Deine EINZIGE Aufgabe ist es, das vorgegebene Wort kurz, trocken und präzise auf Deutsch vorzulesen." }]
+          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Lies das Wort kurz vor." }]
         };
+        payload.contents[0].parts[0].text = "Lies exakt: \"" + text.trim() + "\"";
       }
 
       try {
@@ -404,7 +383,6 @@
     getApiKey: getGeminiApiKey
   };
 
-  // Kompatibilitäts-Aliase für bestehenden Code
   window.playSensualGeminiVoice = playSensualGeminiVoice;
   window.stopActiveVoicePlayback = stopActiveVoicePlayback;
   window.unlockAudioEngineOnUserGesture = unlockAudioPlaybackEngine;
