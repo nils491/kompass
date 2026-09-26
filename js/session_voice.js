@@ -466,6 +466,10 @@
     stop: stopActiveVoicePlayback,
     unlock: unlockAudioPlaybackEngine,
     preloadCore: preloadCountdownSnippets,
+    preloadSnippet: function(phrase, voiceName) {
+      var v = voiceName || localStorage.getItem('kompass_session_voice') || 'Despina';
+      return generateAndCacheSnippet(phrase, v, getGeminiApiKey());
+    },
     getApiKey: getGeminiApiKey
   };
 
