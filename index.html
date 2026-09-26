@@ -305,22 +305,35 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
-          <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
-            Alle
-          </button>
-          <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
-            Unbeantwortet
-          </button>
-          <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
-            Favoriten (4–5)
-          </button>
-          <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
-            Tabus (1)
-          </button>
-          <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
-            Hemmschwelle
-          </button>
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/60">
+          <!-- Filter-Reichweite (Scope) -->
+          <div class="flex items-center gap-1 bg-slate-900/90 p-0.5 rounded-xl border border-slate-800 text-[10.5px]">
+            <button type="button" onclick="setSurveyScope('chapter')" id="scope-btn-chapter" class="px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn">
+              Dieses Kapitel
+            </button>
+            <button type="button" onclick="setSurveyScope('global')" id="scope-btn-global" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">
+              🌍 Alle 36 Kapitel
+            </button>
+          </div>
+
+          <!-- Filter-Kriterien -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
+              Alle
+            </button>
+            <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
+              Unbeantwortet
+            </button>
+            <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
+              Favoriten (4–5)
+            </button>
+            <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
+              Tabus (1)
+            </button>
+            <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
+              Hemmschwelle
+            </button>
+          </div>
         </div>
       </div>
 
