@@ -1,16 +1,16 @@
 /**
  * js/session_audio.js
- * Spezialisiertes Ambient- und Klangsynthese-Modul für das Schlafzimmer-Cockpit & die Regie.
+ * Fortgeschrittene generative Musik- & Soundscape-Engine für die Schlafzimmer-Regie.
  * 
  * Features:
- * - 100% rauschfreie, organische Klangwelten:
- *   1. Cinematic Velvet: 5-stimmige warme Analog-Pads (Dm9, Bbmaj7, Fmaj9, C9, Gm9) & Pianoglocken
- *   2. Klangtempel 432Hz: Reine tibetische Obertonschalen mit warmem 432Hz-Resonanzdrone
- *   3. Sinnliche Nachtbrise: Tief atmende harmonische Meereswellen ohne statisches Rauschen
- *   4. Dark Downtempo: Warmer 56-BPM Slow-Beat mit sanften Rhodes-E-Piano-Akkorden
- * - Echter Lautstärkeregler (0–100%) mit weichen Lautstärke-Rampen
- * - Situative Intensitäts-Modulation (Stufen 1–4)
+ * - Echtes 3-Schichten-Musikarrangement:
+ *   1. Harmonische Pad- & Rhodes-Flächen (5-stimmige Voicings: Dm9, Bbmaj9, Fmaj9, Gm11)
+ *   2. Prozedurale, warme Klavier- & Glockenmelodien mit variabler Rhythmik
+ *   3. Sanft gehender, warmer Subbass mit natürlichem Attack & Decay
+ * - 4 kuratierte Stilwelten: Cinematic Velvet, Klangtempel 432Hz, Sinnliche Nachtbrise, Dark Downtempo
+ * - Weicher Lautstärkeregler (0–100 %) mit linearen Lautstärke-Rampen
  * - Sanftes Audio-Ducking (Absenkung auf 20 %) bei Sprachansagen
+ * - 100 % frei von statischem Rauschen oder künstlichen Artefakten
  */
 
 (function(window) {
@@ -28,7 +28,7 @@
   var audioCtx = null;
   var masterGain = null;
   var duckingGainNode = null;
-  var filterNode = null;
+  var mainFilterNode = null;
   var activeNodes = [];
   var generativeIntervals = [];
 
@@ -49,14 +49,14 @@
       duckingGainNode = audioCtx.createGain();
       duckingGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
 
-      filterNode = audioCtx.createBiquadFilter();
-      filterNode.type = 'lowpass';
-      filterNode.frequency.setValueAtTime(3200, audioCtx.currentTime);
-      filterNode.Q.setValueAtTime(0.7, audioCtx.currentTime);
+      mainFilterNode = audioCtx.createBiquadFilter();
+      mainFilterNode.type = 'lowpass';
+      mainFilterNode.frequency.setValueAtTime(3600, audioCtx.currentTime);
+      mainFilterNode.Q.setValueAtTime(0.7, audioCtx.currentTime);
 
       masterGain.connect(duckingGainNode);
-      duckingGainNode.connect(filterNode);
-      filterNode.connect(audioCtx.destination);
+      duckingGainNode.connect(mainFilterNode);
+      mainFilterNode.connect(audioCtx.destination);
     }
   }
 
@@ -69,7 +69,7 @@
     if (masterGain && audioCtx) {
       var now = audioCtx.currentTime;
       masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.linearRampToValueAtTime(num, now + 0.1);
+      masterGain.gain.linearRampToValueAtTime(num, now + 0.08);
     }
 
     var volDisp = document.getElementById('ambient-volume-label');
@@ -83,9 +83,9 @@
 
     duckingGainNode.gain.cancelScheduledValues(now);
     if (duck) {
-      duckingGainNode.gain.setTargetAtTime(0.20, now, 0.15);
+      duckingGainNode.gain.setTargetAtTime(0.20, now, 0.12);
     } else {
-      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.50);
+      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.45);
     }
   }
 
@@ -105,114 +105,179 @@
     activeNodes = [];
   }
 
-  // 1. CINEMATIC VELVET (Warme, atmende Akkorde & delikate Pianoglocken)
+  // 1. CINEMATIC VELVET (Emotionale Neo-Soul Akkorde, Pianolinien & zarter Bass)
   function startVelvetSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // 8 weit gefasste, tief emotionale Akkorde (Grundfrequenzen in Hz)
-    var chordPool = [
-      [146.83, 220.00, 261.63, 329.63, 440.00], // Dm9
-      [116.54, 174.61, 233.08, 293.66, 349.23], // Bbmaj7
-      [87.31, 130.81, 174.61, 220.00, 261.63],  // Fmaj9
-      [130.81, 164.81, 196.00, 246.94, 293.66], // C add 9
-      [98.00, 146.83, 196.00, 246.94, 329.63],  // Gm9
-      [110.00, 164.81, 220.00, 261.63, 329.63], // Am9
-      [82.41, 123.47, 164.81, 246.94, 329.63],  // Em7/11
-      [110.00, 146.83, 220.00, 293.66, 349.23]  // Dm/A
+    // Harmonische Progression mit 6 tiefgreifenden 5-stimmigen Akkorden (Frequenzen in Hz)
+    var progression = [
+      {
+        chord: [146.83, 220.00, 261.63, 329.63, 440.00], // Dm9
+        bass: 73.42,                                       // D2
+        melodyScale: [293.66, 329.63, 349.23, 440.00, 523.25, 587.33, 659.25]
+      },
+      {
+        chord: [116.54, 174.61, 233.08, 293.66, 349.23], // Bbmaj7
+        bass: 58.27,                                       // Bb1
+        melodyScale: [233.08, 293.66, 349.23, 440.00, 466.16, 587.33]
+      },
+      {
+        chord: [87.31, 130.81, 174.61, 220.00, 261.63],  // Fmaj9
+        bass: 43.65,                                       // F1
+        melodyScale: [261.63, 329.63, 349.23, 392.00, 440.00, 523.25]
+      },
+      {
+        chord: [98.00, 146.83, 196.00, 246.94, 329.63],  // Gm9
+        bass: 49.00,                                       // G1
+        melodyScale: [293.66, 349.23, 392.00, 440.00, 523.25, 587.33]
+      },
+      {
+        chord: [110.00, 164.81, 220.00, 261.63, 329.63], // Am9
+        bass: 55.00,                                       // A1
+        melodyScale: [261.63, 329.63, 392.00, 440.00, 523.25, 659.25]
+      },
+      {
+        chord: [130.81, 164.81, 196.00, 246.94, 293.66], // C add 9
+        bass: 65.41,                                       // C2
+        melodyScale: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]
+      }
     ];
 
-    var currentChordIdx = 0;
-    var padOscs = [];
+    var currentStep = 0;
+    var padOscillators = [];
+    var padGains = [];
 
-    // Erzeuge 5 warme Pad-Oszillatoren mit Stereo-Detuning
+    // Erzeuge 5 Pad-Oszillatoren für den harmonischen Teppich
     for (var i = 0; i < 5; i++) {
       var osc = audioCtx.createOscillator();
       var gain = audioCtx.createGain();
 
-      osc.type = (i === 0) ? 'sine' : (i % 2 === 0 ? 'triangle' : 'sine');
-      osc.frequency.setValueAtTime(chordPool[0][i], audioCtx.currentTime);
+      osc.type = (i % 2 === 0) ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(progression[0].chord[i], audioCtx.currentTime);
 
-      // Sanfter Chorschwebungs-Detune
-      var detuneVal = (i - 2) * 5 + (Math.random() - 0.5) * 3;
+      // Leichte Schwebung für seidige Stereobreite
+      var detuneVal = (i - 2) * 4.5 + (Math.random() - 0.5) * 2;
       osc.detune.setValueAtTime(detuneVal, audioCtx.currentTime);
 
-      var baseVol = (i === 0) ? 0.22 : 0.16;
+      var baseVol = (i === 0) ? 0.18 : 0.12;
       gain.gain.setValueAtTime(baseVol, audioCtx.currentTime);
 
       osc.connect(gain);
       gain.connect(masterGain);
       osc.start();
 
-      padOscs.push(osc);
+      padOscillators.push(osc);
+      padGains.push(gain);
       activeNodes.push(osc, gain);
     }
 
-    // Harmonische Akkordfortschreitung alle 8 Sekunden
-    function advanceVelvetChord() {
+    // Sanfter, gezupfter Bass-Synthesizer
+    function playBassNote(freq) {
       if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
-      currentChordIdx = (currentChordIdx + 1) % chordPool.length;
-      var newChord = chordPool[currentChordIdx];
       var now = audioCtx.currentTime;
 
-      padOscs.forEach(function(osc, idx) {
-        osc.frequency.setTargetAtTime(newChord[idx], now, 3.5);
+      var bOsc = audioCtx.createOscillator();
+      var bGain = audioCtx.createGain();
+      var bFilter = audioCtx.createBiquadFilter();
+
+      bOsc.type = 'triangle';
+      bOsc.frequency.setValueAtTime(freq, now);
+
+      bFilter.type = 'lowpass';
+      bFilter.frequency.setValueAtTime(220, now);
+      bFilter.frequency.exponentialRampToValueAtTime(110, now + 1.8);
+
+      bGain.gain.setValueAtTime(0.001, now);
+      bGain.gain.linearRampToValueAtTime(0.28, now + 0.15);
+      bGain.gain.exponentialRampToValueAtTime(0.001, now + 5.5);
+
+      bOsc.connect(bFilter);
+      bFilter.connect(bGain);
+      bGain.connect(masterGain);
+
+      bOsc.start(now);
+      bOsc.stop(now + 6.0);
+    }
+
+    // Melodische Pianoglocken (zufallsgesteuerte, harmonisch passende Töne)
+    function playMelodicPhrase() {
+      if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
+      var scale = progression[currentStep].melodyScale;
+      var numNotes = 2 + Math.floor(Math.random() * 3);
+
+      for (var n = 0; n < numNotes; n++) {
+        (function(noteIndex) {
+          var delay = noteIndex * (350 + Math.random() * 250);
+          var timer = setTimeout(function() {
+            if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
+            var now = audioCtx.currentTime;
+            var noteFreq = scale[Math.floor(Math.random() * scale.length)];
+
+            var pOsc = audioCtx.createOscillator();
+            var pGain = audioCtx.createGain();
+
+            pOsc.type = 'sine';
+            pOsc.frequency.setValueAtTime(noteFreq, now);
+
+            var peakVol = 0.14 + (audioState.energyLevel * 0.03);
+            pGain.gain.setValueAtTime(0.0001, now);
+            pGain.gain.exponentialRampToValueAtTime(peakVol, now + 0.04);
+            pGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+
+            pOsc.connect(pGain);
+            pGain.connect(masterGain);
+
+            pOsc.start(now);
+            pOsc.stop(now + 3.8);
+          }, delay);
+          generativeIntervals.push(timer);
+        })(n);
+      }
+
+      var nextPhraseDelay = 4000 + Math.random() * 4500;
+      var phraseTimer = setTimeout(playMelodicPhrase, nextPhraseDelay);
+      generativeIntervals.push(phraseTimer);
+    }
+
+    // Harmoniewechsel alle 7 Sekunden mit Bass-Impuls
+    function advanceProgression() {
+      if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
+      currentStep = (currentStep + 1) % progression.length;
+      var nextHarmonies = progression[currentStep];
+      var now = audioCtx.currentTime;
+
+      padOscillators.forEach(function(osc, idx) {
+        osc.frequency.setTargetAtTime(nextHarmonies.chord[idx], now, 3.2);
       });
+
+      playBassNote(nextHarmonies.bass);
     }
 
-    var chordTimer = setInterval(advanceVelvetChord, 8000);
-    generativeIntervals.push(chordTimer);
+    playBassNote(progression[0].bass);
+    var chordLoop = setInterval(advanceProgression, 7000);
+    generativeIntervals.push(chordLoop);
 
-    // Kristallklare Pianoglocken (zufällige, sanfte Melodietupfer)
-    function triggerVelvetChime() {
-      if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
-
-      var currentChord = chordPool[currentChordIdx];
-      var noteFreq = currentChord[Math.floor(Math.random() * currentChord.length)] * 2;
-      var now = audioCtx.currentTime;
-
-      var chimeOsc = audioCtx.createOscillator();
-      var chimeGain = audioCtx.createGain();
-
-      chimeOsc.type = 'sine';
-      chimeOsc.frequency.setValueAtTime(noteFreq, now);
-
-      chimeGain.gain.setValueAtTime(0.001, now);
-      chimeGain.gain.exponentialRampToValueAtTime(0.18 + (audioState.energyLevel * 0.04), now + 0.04);
-      chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
-
-      chimeOsc.connect(chimeGain);
-      chimeGain.connect(masterGain);
-
-      chimeOsc.start(now);
-      chimeOsc.stop(now + 3.5);
-
-      var nextDelay = 3500 + Math.random() * 4500;
-      var nextTimer = setTimeout(triggerVelvetChime, nextDelay);
-      generativeIntervals.push(nextTimer);
-    }
-
-    var initialTimer = setTimeout(triggerVelvetChime, 2500);
-    generativeIntervals.push(initialTimer);
+    var startMelodyTimer = setTimeout(playMelodicPhrase, 2000);
+    generativeIntervals.push(startMelodyTimer);
   }
 
-  // 2. KLANGTEMPEL 432Hz (Tibetische Klangschalen mit Naturton-Harmonien)
+  // 2. KLANGTEMPEL 432Hz (Tibetische Schalen, Obertöne & meditativer 432Hz-Resonanzdrone)
   function startBowlsSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // 432Hz Grundschwingung & warmer Om-Resonanzdrone
-    var droneFrequencies = [54.00, 108.00, 216.00, 432.00];
+    var dronePitches = [54.00, 108.00, 216.00, 432.00];
 
-    droneFrequencies.forEach(function(freq, idx) {
+    dronePitches.forEach(function(freq, idx) {
       var osc = audioCtx.createOscillator();
       var g = audioCtx.createGain();
 
       osc.type = (idx === 0) ? 'sine' : 'triangle';
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      osc.detune.setValueAtTime((idx - 1.5) * 2.2, audioCtx.currentTime);
+      osc.detune.setValueAtTime((idx - 1.5) * 2.4, audioCtx.currentTime);
 
-      var vol = (idx === 0) ? 0.28 : (0.15 / idx);
+      var vol = (idx === 0) ? 0.24 : (0.12 / idx);
       g.gain.setValueAtTime(vol, audioCtx.currentTime);
 
       osc.connect(g);
@@ -222,11 +287,10 @@
       activeNodes.push(osc, g);
     });
 
-    // Sanft angeschlagene tibetische Klangschale mit echten Obertönen (1.0x, 2.76x, 5.4x)
-    function strikeSingingBowl() {
+    function strikeBowl() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'bowls') return;
       var now = audioCtx.currentTime;
-      var harmonics = [432.00, 432 * 2.76, 432 * 5.4];
+      var harmonics = [432.00, 432 * 2.76, 432 * 5.40, 432 * 8.12];
 
       harmonics.forEach(function(f, pIdx) {
         var osc = audioCtx.createOscillator();
@@ -235,26 +299,26 @@
         osc.type = 'sine';
         osc.frequency.setValueAtTime(f, now);
 
-        var peak = (0.24 / (pIdx + 1)) * (0.8 + audioState.energyLevel * 0.15);
-        var decay = 6.0 - (pIdx * 1.2);
+        var peak = (0.22 / (pIdx + 1)) * (0.8 + audioState.energyLevel * 0.15);
+        var decay = 6.5 - (pIdx * 1.1);
 
         g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(peak, now + 0.06);
+        g.gain.exponentialRampToValueAtTime(peak, now + 0.08);
         g.gain.exponentialRampToValueAtTime(0.0001, now + decay);
 
         osc.connect(g);
         g.connect(masterGain);
 
         osc.start(now);
-        osc.stop(now + decay + 0.1);
+        osc.stop(now + decay + 0.2);
       });
 
-      var nextTime = 6000 + Math.random() * 4000;
-      var timer = setTimeout(strikeSingingBowl, nextTime);
+      var nextStrike = 5500 + Math.random() * 4000;
+      var timer = setTimeout(strikeBowl, nextStrike);
       generativeIntervals.push(timer);
     }
 
-    strikeSingingBowl();
+    strikeBowl();
   }
 
   // 3. SINNLICHE NACHTBEREISE (Atmende warme Harmoniewellen)
@@ -262,65 +326,73 @@
     ensureAudioGraph();
     stopAllGenerators();
 
-    // Warme, tiefe Akkordwelle (Atmende Sinus-Töne statt statischem Rauschen)
-    var oceanChord = [65.41, 98.00, 130.81, 164.81, 196.00]; // Cmaj9 tief
-    var waveOscs = [];
-    var waveGain = audioCtx.createGain();
+    var oceanChords = [
+      [65.41, 98.00, 130.81, 164.81, 196.00], // Cmaj9
+      [73.42, 110.00, 146.83, 174.61, 220.00], // Dm9
+      [82.41, 123.47, 164.81, 196.00, 246.94]  // Em7
+    ];
+    var cIdx = 0;
+    var swellOscs = [];
+    var swellGain = audioCtx.createGain();
 
-    waveGain.gain.setValueAtTime(0.20, audioCtx.currentTime);
-    waveGain.connect(masterGain);
+    swellGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    swellGain.connect(masterGain);
+    activeNodes.push(swellGain);
 
-    oceanChord.forEach(function(freq, i) {
+    oceanChords[0].forEach(function(freq, i) {
       var osc = audioCtx.createOscillator();
       osc.type = (i === 0) ? 'sine' : 'triangle';
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       osc.detune.setValueAtTime((i - 2) * 3, audioCtx.currentTime);
-      osc.connect(waveGain);
+      osc.connect(swellGain);
       osc.start();
-      waveOscs.push(osc);
+      swellOscs.push(osc);
       activeNodes.push(osc);
     });
-    activeNodes.push(waveGain);
 
-    // Organischer Wellenzyklus: Harmonisches Anschwellen und Abfließen
-    function triggerHarmonicWave() {
+    function triggerOceanSwell() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'ocean') return;
       var now = audioCtx.currentTime;
-      var cycleDuration = 8.5 + (Math.random() * 3.5);
-      var peakTime = now + (cycleDuration * 0.42);
+      var duration = 9.0 + (Math.random() * 3.5);
+      var peakTime = now + (duration * 0.45);
 
-      waveGain.gain.cancelScheduledValues(now);
-      waveGain.gain.setValueAtTime(0.15, now);
-      waveGain.gain.linearRampToValueAtTime(0.35 + (audioState.energyLevel * 0.08), peakTime);
-      waveGain.gain.linearRampToValueAtTime(0.15, now + cycleDuration);
+      cIdx = (cIdx + 1) % oceanChords.length;
+      swellOscs.forEach(function(osc, idx) {
+        osc.frequency.setTargetAtTime(oceanChords[cIdx][idx], now, 3.5);
+      });
 
-      var nextTimer = setTimeout(triggerHarmonicWave, (cycleDuration - 0.5) * 1000);
+      swellGain.gain.cancelScheduledValues(now);
+      swellGain.gain.setValueAtTime(0.14, now);
+      swellGain.gain.linearRampToValueAtTime(0.36 + (audioState.energyLevel * 0.08), peakTime);
+      swellGain.gain.linearRampToValueAtTime(0.14, now + duration);
+
+      var nextTimer = setTimeout(triggerOceanSwell, (duration - 0.4) * 1000);
       generativeIntervals.push(nextTimer);
     }
 
-    triggerHarmonicWave();
+    triggerOceanSwell();
   }
 
-  // 4. DARK DOWNTEMPO (Erotischer Slow-Beat & Rhodes-Akkorde bei 56 BPM)
+  // 4. DARK DOWNTEMPO (Sinnlicher Slow-Beat & Rhodes-Akkorde bei 56 BPM)
   function startBeatsSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // Warmer 55Hz Subbass-Drone
+    // Tiefer 55Hz Subbass-Grundton
     var subOsc = audioCtx.createOscillator();
     var subGain = audioCtx.createGain();
     subOsc.type = 'sine';
     subOsc.frequency.setValueAtTime(55.00, audioCtx.currentTime);
-    subGain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+    subGain.gain.setValueAtTime(0.24, audioCtx.currentTime);
 
     subOsc.connect(subGain);
     subGain.connect(masterGain);
     subOsc.start();
     activeNodes.push(subOsc, subGain);
 
-    // Warme Rhodes-Akkorde (Triangle mit sanftem Tremolo)
-    var rhodesNotes = [110.00, 164.81, 220.00, 261.63]; // Am7
-    rhodesNotes.forEach(function(freq) {
+    // Warme Rhodes-Akkorde (Am7 / Fmaj7)
+    var rhodesPitches = [110.00, 164.81, 220.00, 261.63];
+    rhodesPitches.forEach(function(freq) {
       var osc = audioCtx.createOscillator();
       var g = audioCtx.createGain();
       osc.type = 'triangle';
@@ -333,40 +405,40 @@
       activeNodes.push(osc, g);
     });
 
-    // Sanfter Herzschlag-Puls bei 56 BPM (1.07 Sekunden Intervall)
-    var beatInterval = (60 / 56) * 1000;
+    // 56 BPM Herzschlag-Puls (1.071 Sekunden)
+    var beatDurationMs = (60 / 56) * 1000;
 
-    function triggerHeartbeatPulse() {
+    function playPulseBeat() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'beats') return;
       var now = audioCtx.currentTime;
 
       var pulseOsc = audioCtx.createOscillator();
       var pulseGain = audioCtx.createGain();
 
-      pulseOsc.frequency.setValueAtTime(80, now);
-      pulseOsc.frequency.exponentialRampToValueAtTime(42, now + 0.28);
+      pulseOsc.frequency.setValueAtTime(85, now);
+      pulseOsc.frequency.exponentialRampToValueAtTime(40, now + 0.26);
 
-      pulseGain.gain.setValueAtTime(0.32 + (audioState.energyLevel * 0.05), now);
-      pulseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+      pulseGain.gain.setValueAtTime(0.30 + (audioState.energyLevel * 0.05), now);
+      pulseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.30);
 
       pulseOsc.connect(pulseGain);
       pulseGain.connect(masterGain);
 
       pulseOsc.start(now);
-      pulseOsc.stop(now + 0.35);
+      pulseOsc.stop(now + 0.32);
     }
 
-    triggerHeartbeatPulse();
-    var beatTimer = setInterval(triggerHeartbeatPulse, beatInterval);
-    generativeIntervals.push(beatTimer);
+    playPulseBeat();
+    var pulseTimer = setInterval(playPulseBeat, beatDurationMs);
+    generativeIntervals.push(pulseTimer);
   }
 
   function applySoundscapeEnergyModulation() {
-    if (!audioCtx || !filterNode) return;
+    if (!audioCtx || !mainFilterNode) return;
     var now = audioCtx.currentTime;
 
-    var targetCutoff = 2200 + (audioState.energyLevel * 600);
-    filterNode.frequency.setTargetAtTime(targetCutoff, now, 0.4);
+    var targetCutoff = 2200 + (audioState.energyLevel * 650);
+    mainFilterNode.frequency.setTargetAtTime(targetCutoff, now, 0.4);
 
     var disp = document.getElementById('ambient-intensity-display');
     if (disp) disp.innerText = "(Stufe " + audioState.energyLevel + "/4)";
@@ -413,7 +485,6 @@
     var nameEl = document.getElementById('cockpit-ambient-style-name');
     if (nameEl) nameEl.innerText = "Soundscape: " + (styleNames[style] || style);
 
-    // Klick auf Style startet die Musik direkt oder wechselt sie live
     ensureAudioGraph();
     audioState.isPlaying = true;
     updatePlaybackUI();
@@ -510,7 +581,7 @@
     ensureGraph: ensureAudioGraph
   };
 
-  // Globale Aliase für HTML-Event-Handler
+  // Globale Wrapper für alle inline onclick-Attribute
   window.toggleAmbientMusic = toggleAmbientMusic;
   window.toggleAmbientMusicWrapper = toggleAmbientMusic;
   window.setSoundscapeStyle = setSoundscapeStyle;
