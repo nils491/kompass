@@ -6,7 +6,7 @@
  * - Schritt 1: Rollenverteilung (Standard Top/Bottom vs. Rollenwechsel)
  * - Schritt 2: Tagesform-Check-in (Energie Top / Hingabe Bottom / Härtegrad 1–10)
  * - Schritt 2: Nachttisch-Staging (Equipment-Filter, Schrank-Kategorien, Presets)
- * - Schritt 2: Musik- & Audio-Konfiguration (Eigene Playlists / Ambient-Soundscapes)
+ * - Schritt 2: Playlist-Verknüpfung (Spotify/Apple Music) & Soundscape-Integration
  * - Schritt 2: Top-Sprachassistenz-Setup (Gemini 3.8 Modell-Erkennung, Stimme & Probehören)
  * - Schritt 3: Dynamischer 4-Phasen-Drehbuch-Generator mit Würfel-Funktion & Vorschau
  */
@@ -268,6 +268,16 @@
     setupInitialPlaybook();
   }
 
+  function saveCustomPlaylistLink(val) {
+    var link = (val || '').trim();
+    try {
+      localStorage.setItem('kompass_custom_playlist_url', link);
+      var btn = document.getElementById('btn-launch-external-music');
+      if (btn && link) btn.href = link.startsWith('http') ? link : ('https://' + link);
+      showToast("Playlist-Link hinterlegt ✓");
+    } catch (e) {}
+  }
+
   function selectSessionMode(mode) {
     if (window.SessionLive && typeof window.SessionLive.selectMode === 'function') {
       window.SessionLive.selectMode(mode);
@@ -514,7 +524,7 @@
 
   function rerollPlaybook() {
     setupInitialPlaybook();
-    showToast("Drehbuch frisch zusammengestellt");
+    showToast("Drehbuch frisch zusammengestellt 🎲");
   }
 
   function showToast(msg) {
@@ -579,6 +589,7 @@
     selectPreset: selectEquipmentPreset,
     updateEnergy: updateCheckinEnergy,
     updateDepth: updateSessionDepth,
+    saveCustomPlaylistLink: saveCustomPlaylistLink,
     saveGeminiKey: saveSessionGeminiKey,
     testGeminiConnection: testGeminiConnectionInSession,
     changeVoice: changeSessionVoice,
@@ -597,6 +608,7 @@
   window.selectEquipmentPreset = selectEquipmentPreset;
   window.updateCheckinEnergy = updateCheckinEnergy;
   window.updateSessionDepth = updateSessionDepth;
+  window.saveCustomPlaylistLinkWrapper = saveCustomPlaylistLink;
   window.saveSessionGeminiKey = saveSessionGeminiKey;
   window.testGeminiConnectionInSession = testGeminiConnectionInSession;
   window.changeSessionVoice = changeSessionVoice;
