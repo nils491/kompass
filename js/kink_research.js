@@ -118,21 +118,6 @@
     }
 
     var apiKey = getGeminiApiKey();
-    var discoveredModel = localStorage.getItem('kompass_discovered_model');
-    
-    // Bereinigung: Veraltete 2.5- oder Free-Tier-Quota-Null-Modelle (Omni, Video, Image) strikt entfernen
-    if (!discoveredModel || discoveredModel.indexOf('2.5') !== -1 || discoveredModel.indexOf('omni') !== -1 || discoveredModel.indexOf('image') !== -1 || discoveredModel.indexOf('video') !== -1) {
-      discoveredModel = 'gemini-3.8-flash';
-      try { localStorage.setItem('kompass_discovered_model', discoveredModel); } catch (e) {}
-    }
-
-    var candidateModels = [];
-
-    if (discoveredModel && discoveredModel.indexOf('2.5') === -1 && discoveredModel.indexOf('omni') === -1 && discoveredModel.indexOf('image') === -1 && discoveredModel.indexOf('video') === -1) {
-      candidateModels.push(discoveredModel);
-    }
-    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
-    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
 
     var prompt = `
 Du bist ein erfahrener, einfühlsamer und traumasensibler BDSM- und Sexualaufklärer.
@@ -160,6 +145,24 @@ Erstelle eine strukturierte, schamfreie und bildhafte Aufklärung in genau 3 Abs
 Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerten. Gib nur den HTML-Code zurück.
 `;
 
+    var candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+    try {
+      var modelResp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
+      if (modelResp.ok) {
+        var modelData = await modelResp.json();
+        var discovered = (modelData.models || []).filter(function(m) {
+          return m.supportedGenerationMethods &&
+            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
+            m.name.indexOf('tts') === -1 &&
+            m.name.indexOf('omni') === -1 &&
+            m.name.indexOf('image') === -1 &&
+            m.name.indexOf('video') === -1 &&
+            m.name.indexOf('embed') === -1;
+        }).map(function(m) { return m.name.replace('models/', ''); });
+        if (discovered.length > 0) candidateModels = discovered;
+      }
+    } catch (e) {}
+
     var lastError = "Unbekannter Fehler";
     var success = false;
 
@@ -184,7 +187,7 @@ Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerte
             container.innerHTML = `
               <div class="space-y-3">
                 <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1">
-                  <span>✨ Frisch recherchiert & im Cache gesichert</span>
+                  <span>✨ Frisch recherchiert & im Cache gesichert (${escapeHtml(model)})</span>
                   <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-white font-bold">Neu recherchieren ↺</button>
                 </div>
                 ${cleanContent}
@@ -196,6 +199,7 @@ Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerte
         } else {
           var errData = await resp.json().catch(function() { return {}; });
           lastError = errData.error?.message || ('HTTP ' + resp.status);
+          if (resp.status === 429) break;
         }
       } catch (e) {
         lastError = e.message || "Netzwerkfehler";
