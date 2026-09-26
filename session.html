@@ -70,7 +70,6 @@
     html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
     html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
 
-    /* Touch-Ergonomie: Mindestens 44px Klickfläche ohne Container-Deformation */
     .touch-btn {
       min-height: 44px;
       transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
@@ -86,10 +85,11 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- PERSISTENTE AUDIO ELEMENTE -->
   <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
   <audio id="ambient-airplay-audio" x-webkit-airplay="allow" class="hidden"></audio>
 
-  <!-- HEADER MIT ECHTER NOTCH- / DYNAMIC ISLAND-ABDECKUNG -->
+  <!-- HEADER NAVIGATION -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
@@ -106,10 +106,10 @@
           </div>
         </a>
 
-        <!-- SCHNELLE STEUERUNG RECHTS: SOUND, AIRPLAY, LOGBUCH & TABUS -->
+        <!-- SCHNELLE STEUERUNG RECHTS -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <button type="button" onclick="toggleAmbientMusic()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Ambient-Sound starten/pausieren">
-            <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Sound</span>
+          <button type="button" onclick="toggleAmbientMusic()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
+            <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Musik</span>
           </button>
           <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Audio-Ausgabe">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -149,7 +149,7 @@
 
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
-    <!-- DEZENTES BANNER BEI UNBEWERTETEN SESSIONS -->
+    <!-- BANNER UNBEWERTETE SESSIONS -->
     <div id="unrated-sessions-banner" class="hidden p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 flex items-center justify-between gap-3 text-xs shadow-md">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -166,7 +166,7 @@
       </div>
     </div>
 
-    <!-- PORTAL-SETUP CONTAINER (VOR DEM START) -->
+    <!-- PORTAL-SETUP CONTAINER -->
     <div id="portal-setup-container" class="space-y-4">
 
       <!-- SCHRITT 1: ROLLENVERTEILUNG -->
@@ -178,7 +178,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <!-- VARIANTE 1 (STANDARD: P2 = TOP, P1 = BOTTOM) -->
+          <!-- VARIANTE 1: DEFAULT -->
           <button type="button" onclick="selectPortalRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full">
             <div class="flex items-center justify-between">
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-900 text-brand-200">Standard</span>
@@ -188,10 +188,10 @@
               <div class="text-white font-extrabold text-xs">Top (Führung): <span id="portal-name-top-def" class="text-brand-300 font-bold">Partner 2</span></div>
               <div class="text-slate-300 font-semibold text-xs mt-0.5">Bottom (Hingabe): <span id="portal-name-sub-def" class="text-indigo-300 font-bold">Partner 1</span></div>
             </div>
-            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 2 lenkt Rituale, Tempo und Zucht; Partner 1 empfängt und lässt los.</p>
+            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 2 lenkt Rituale, Tempo und Bestrafung; Partner 1 empfängt und lässt los.</p>
           </button>
 
-          <!-- VARIANTE 2 (ROLLENWECHSEL: P1 = TOP, P2 = BOTTOM) -->
+          <!-- VARIANTE 2: REVERSED -->
           <button type="button" onclick="selectPortalRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
             <div class="flex items-center justify-between">
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">Rollenwechsel</span>
@@ -207,17 +207,17 @@
 
         <div class="pt-2 flex justify-end">
           <button type="button" onclick="goToPortalStep(2)" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Weiter zu Tagesform & Soundscape →
+            Weiter zu Tagesform & Nachttisch-Staging →
           </button>
         </div>
       </div>
 
-      <!-- SCHRITT 2: TAGESFORM, SOUNDSCAPE & SPRACHFÜHRUNG -->
+      <!-- SCHRITT 2: TAGESFORM, PROZEDURALE MUSIK & NACHTTISCH-STAGING -->
       <div id="portal-step-2" class="hidden theme-card rounded-3xl p-5 sm:p-7 border shadow-xl space-y-4">
         <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
           <div>
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block mb-1.5">Schritt 2 / 3</span>
-            <h2 class="text-base sm:text-lg font-black text-white">Tagesform & Erotische Soundscape</h2>
+            <h2 class="text-base sm:text-lg font-black text-white">Tagesform, Ausrüstung & Audio</h2>
             <p class="text-xs text-slate-400">Gilt gleichermaßen für freies Spiel und geführtes Drehbuch.</p>
           </div>
           <button type="button" onclick="goToPortalStep(1)" class="text-slate-400 hover:text-white text-xs font-bold touch-btn">← Zurück</button>
@@ -257,39 +257,96 @@
           </div>
         </div>
 
-        <!-- GENERATIVE SOUNDSCAPE AUSWAHL -->
+        <!-- NACHTTISCH-STAGING ("Was liegt heute am Bett bereit?") -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <div>
+              <strong class="text-white block text-xs">Ausrüstung & Toys für heute Abend (Nachttisch-Staging)</strong>
+              <p class="text-[10.5px] text-slate-400">KI & Regiebücher nutzen ausschließlich aktivierte Gegenstände (Hände & Bett bleiben immer möglich)</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="selectEquipmentPreset('bare')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[10px] font-bold touch-btn">
+                Nur Hände & Bett
+              </button>
+              <button type="button" onclick="selectEquipmentPreset('household')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 text-[10px] font-bold touch-btn">
+                Haushalt
+              </button>
+              <button type="button" onclick="selectEquipmentPreset('all')" class="px-2 py-1 rounded-lg bg-brand-950 border border-brand-800 text-brand-300 text-[10px] font-bold touch-btn">
+                Alles bereit
+              </button>
+            </div>
+          </div>
+
+          <div id="session-staging-equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 max-h-56 overflow-y-auto pr-1">
+            <!-- Wird dynamisch aus equipment_catalog.js gerendert -->
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-[10.5px]">
+            <span class="text-slate-400">Aktiviert für diese Session: <strong id="staging-active-count" class="text-white">0</strong> Gegenstände</span>
+            <span class="text-emerald-400 font-medium">✓ Physikalische Logikmatrix aktiv</span>
+          </div>
+        </div>
+
+        <!-- MUSIK-HUB: OPTION 2 (EIGENE PLAYLISTS / SPOTIFY & APPLE MUSIC + GENERATIV) -->
         <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
           <div class="flex items-center justify-between">
             <div>
-              <strong class="text-white block text-xs">Generative Ambient-Soundscape (Kein Loop)</strong>
-              <span class="text-[10.5px] text-slate-400">Synthetisiert live im Browser · Startet erst bei Play</span>
+              <strong class="text-white block text-xs">Musikalische Untermalung (Option 2: Eigene Playlist & Soundscape)</strong>
+              <span class="text-[10.5px] text-slate-400">Eigene Spotify / Apple Music Playlist ODER generative Soundscapes mit Audio-Ducking</span>
             </div>
-            <span id="ambient-profile-badge" class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-800 text-brand-300 border border-slate-700">Profil-Match</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="selectMusicSource('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
+                Eigene Playlist
+              </button>
+              <button type="button" onclick="selectMusicSource('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
+                Generativ
+              </button>
+            </div>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button type="button" onclick="setSoundscapeStyle('velvet')" id="btn-style-velvet" class="p-2.5 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
-              <span>Velvet Pads</span>
-              <span class="block text-[9.5px] text-slate-400 font-normal">Sinnliche Akkorde</span>
-            </button>
-            <button type="button" onclick="setSoundscapeStyle('bowls')" id="btn-style-bowls" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-              <span>432Hz Schalen</span>
-              <span class="block text-[9.5px] text-slate-400 font-normal">Tiefen-Erdung</span>
-            </button>
-            <button type="button" onclick="setSoundscapeStyle('ocean')" id="btn-style-ocean" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-              <span>Meeresrauschen</span>
-              <span class="block text-[9.5px] text-slate-400 font-normal">Warme Brandung</span>
-            </button>
-            <button type="button" onclick="setSoundscapeStyle('beats')" id="btn-style-beats" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-              <span>Dark Pulse</span>
-              <span class="block text-[9.5px] text-slate-400 font-normal">Pumpende Beats</span>
-            </button>
+          <!-- BEREICH A: EIGENE PLAYLIST (SPOTIFY / APPLE MUSIC HUB) -->
+          <div id="music-panel-own" class="space-y-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-300 font-bold text-[11px]">Eure Lieblings-Playlist starten:</span>
+              <span class="text-[9.5px] text-purple-300 font-mono">Audio-Ducking aktiv</span>
+            </div>
+            <p class="text-[10.5px] text-slate-400 leading-snug">
+              Startet eure Playlist in Spotify oder Apple Music (über AirPlay oder Bluetooth-Boxen). Die Gemini-Sprachführung legt sich bei Ansagen und Countdowns automatisch harmonisch über eure Musik.
+            </p>
+            <div class="flex items-center gap-2">
+              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." onchange="saveCustomPlaylistLink(this.value)" class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
+              <a id="btn-launch-external-music" href="https://open.spotify.com" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-600 text-emerald-200 font-bold text-[10.5px] flex items-center gap-1 touch-btn">
+                App öffnen ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- BEREICH B: GENERATIVE SOUNDSCAPES -->
+          <div id="music-panel-synth" class="hidden space-y-2">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button type="button" onclick="setSoundscapeStyle('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
+                <span>Cinematic Velvet</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Akkord-Filmmusik</span>
+              </button>
+              <button type="button" onclick="setSoundscapeStyle('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+                <span>Klangtempel 432Hz</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen</span>
+              </button>
+              <button type="button" onclick="setSoundscapeStyle('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+                <span>Ozean-Symphonie</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Dynamische Ebbe & Flut</span>
+              </button>
+              <button type="button" onclick="setSoundscapeStyle('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+                <span>Dark Downtempo</span>
+                <span class="block text-[9px] text-slate-400 font-normal">808 Erotik-Grooves</span>
+              </button>
+            </div>
           </div>
 
           <div class="flex items-center justify-between pt-1 border-t border-slate-800">
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="toggleAmbientMusic()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
-                ▶ Sound starten
+                ▶ Audio starten
               </button>
               <button type="button" onclick="adjustAmbientEnergy('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
                 ➖ Ruhiger
@@ -309,7 +366,7 @@
           <div class="flex items-center justify-between">
             <div>
               <strong class="text-xs text-white block">Akustische Sprachassistenz für den Top</strong>
-              <p class="text-[10.5px] text-slate-400">Spricht Countdown & Safewords laut ins Zimmer</p>
+              <p class="text-[10.5px] text-slate-400">Spricht Countdown & Safewords laut ins Zimmer (Ausschließlich Gemini)</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
               <input type="checkbox" id="session-voice-assist-toggle" onchange="toggleTopVoiceAssistance(this.checked)" class="sr-only peer">
@@ -329,19 +386,33 @@
                 <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
                 <option value="Aoede">Fordernde Herrin (Aoede)</option>
                 <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
-                <option value="Fenrir">Rauher Zuchtmeister (Fenrir)</option>
+                <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
               </select>
             </div>
 
-            <div class="p-2.5 rounded-xl bg-slate-950/70 border border-purple-900/60 flex flex-col justify-between">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-purple-900/60 flex flex-col justify-between">
               <div>
-                <span class="text-[10px] font-black uppercase text-amber-300 block">Zucht-Preset für die Herrin:</span>
+                <span class="text-[10px] font-black uppercase text-amber-300 block">Straf-Preset für die Herrin:</span>
                 <p class="text-[10px] text-slate-300 mt-0.5">Männlichen Bottom mit tiefer Männerstimme herunterzählen lassen.</p>
               </div>
               <button type="button" onclick="applyPunishmentVoicePreset()" class="mt-1.5 py-1 px-2.5 rounded-lg bg-purple-900/70 hover:bg-purple-800 border border-purple-700 text-purple-200 text-[10px] font-bold touch-btn">
                 Als Demütigungs-Stimme setzen
               </button>
             </div>
+          </div>
+
+          <!-- DYNAMISCHE GEMINI-INTEGRATION -->
+          <div class="pt-2 border-t border-purple-900/30 flex items-center justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-center">
+                <span class="text-[9.5px] font-bold text-slate-400 block">Gemini API-Key:</span>
+                <span id="gemini-active-model-badge" class="text-[9px] font-mono text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">Modell: Dynamisch</span>
+              </div>
+              <input type="password" id="session-gemini-key-input" onchange="saveSessionGeminiKey(this.value)" placeholder="Gemini API-Key hinterlegen..." class="w-full text-[10.5px] px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono mt-0.5">
+            </div>
+            <button type="button" onclick="testGeminiConnectionInSession()" class="px-2.5 py-1.5 mt-3 rounded-lg bg-purple-950 border border-purple-700 text-purple-200 text-[10px] font-bold flex-shrink-0 touch-btn">
+              Key prüfen ↗
+            </button>
           </div>
         </div>
 
@@ -359,10 +430,10 @@
 
             <button type="button" onclick="selectSessionMode('free')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
               <div class="flex items-center justify-between">
-                <strong class="text-sm font-extrabold text-white">Freier Flow & Zucht-Werkzeuge</strong>
+                <strong class="text-sm font-extrabold text-white">Freier Flow & Bestrafungs-Werkzeuge</strong>
                 <span class="text-xs font-bold text-slate-400">Flexibel</span>
               </div>
-              <p class="text-[11px] text-slate-400">Direktes Schlafzimmer-Cockpit mit freiem Timer, Sound-Umschaltung, Edging und Notfall-Ampel.</p>
+              <p class="text-[11px] text-slate-400">Direktes Schlafzimmer-Cockpit mit freiem Timer, Musik-Umschaltung, Edging und Notfall-Ampel.</p>
             </button>
           </div>
         </div>
@@ -432,9 +503,8 @@
         </div>
       </div>
 
-      <!-- KONSENS-AMPEL & ZUCHT-TRIGGER (STRIKT GETRENNT) -->
+      <!-- KONSENS-AMPEL & BESTRAFUNG (STRIKT GETRENNT) -->
       <div class="space-y-2">
-        <!-- DIE 3 KONSENS-SIGNALE (ROT BLINKT NICHT IM RUHEZUSTAND) -->
         <div class="grid grid-cols-3 gap-2 text-xs">
           <button type="button" onclick="triggerSafeword('green')" class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-800 text-emerald-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-emerald-900/40">
             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
@@ -452,14 +522,13 @@
           </button>
         </div>
 
-        <!-- SEPARATER ZUCHT- & STRAFEN-TRIGGER -->
         <div class="p-3 rounded-2xl bg-brand-950/40 border border-brand-900 flex items-center justify-between gap-3 text-xs">
           <div>
-            <strong class="text-white block">Top-Assistenz & Zucht-Konfigurator</strong>
-            <span class="text-[10.5px] text-slate-400">Vergehen erfassen, Haltung & Zuchtmittel kontextuell berechnen</span>
+            <strong class="text-white block">Top-Assistenz & Bestrafungs-Konfigurator</strong>
+            <span class="text-[10.5px] text-slate-400">Vergehen erfassen, Haltung & Bestrafung kontextuell berechnen</span>
           </div>
           <button type="button" onclick="openIncidentDisciplineModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Zucht anordnen ⚖
+            Bestrafung anordnen ⚖
           </button>
         </div>
       </div>
@@ -468,22 +537,23 @@
       <div class="p-3 rounded-2xl theme-panel border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
           <span id="cockpit-ambient-indicator" class="w-2 h-2 rounded-full bg-slate-600"></span>
-          <span class="font-bold text-white text-[11px]" id="cockpit-ambient-style-name">Soundscape: Velvet Pads</span>
+          <span class="font-bold text-white text-[11px]" id="cockpit-ambient-style-name">Soundscape: Cinematic Velvet</span>
+          <span class="text-[9.5px] text-slate-400 font-mono" id="ambient-intensity-display">(Stufe 2/4)</span>
         </div>
         <div class="flex items-center gap-1.5">
           <select id="select-cockpit-soundscape" onchange="setSoundscapeStyle(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
-            <option value="velvet">Velvet Pads</option>
-            <option value="bowls">432Hz Schalen</option>
-            <option value="ocean">Meeresrauschen</option>
-            <option value="beats">Dark Pulse</option>
+            <option value="velvet">Cinematic Velvet</option>
+            <option value="bowls">Klangtempel 432Hz</option>
+            <option value="ocean">Ozean-Symphonie</option>
+            <option value="beats">Dark Downtempo</option>
           </select>
           <button type="button" onclick="toggleAmbientMusic()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
             ▶ Play
           </button>
-          <button type="button" onclick="adjustAmbientEnergy('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn">
+          <button type="button" onclick="adjustAmbientEnergy('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
             ➖ Ruhiger
           </button>
-          <button type="button" onclick="adjustAmbientEnergy('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn">
+          <button type="button" onclick="adjustAmbientEnergy('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
             ➕ Energetischer
           </button>
         </div>
@@ -527,12 +597,12 @@
         </div>
       </div>
 
-      <!-- ADVANCED EDGING REMOTE COCKPIT -->
+      <!-- EDGING REMOTE COCKPIT -->
       <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 sm:p-6 border border-pink-900/50 shadow-2xl space-y-4 bg-gradient-to-b from-noir-950 to-pink-950/15">
         <div class="flex items-center justify-between border-b border-pink-900/40 pb-3">
           <div>
             <h3 class="text-sm font-extrabold text-white">Edging-Fernbedienung des Tops</h3>
-            <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Klangkulisse</p>
+            <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Musik live</p>
           </div>
           <div class="flex items-center gap-2">
             <button type="button" id="btn-test-edging-voice" onclick="testGeminiVoiceSample()" class="px-2.5 py-1 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 text-[10.5px] font-bold touch-btn">
@@ -544,7 +614,7 @@
           </div>
         </div>
 
-        <!-- WER FÜHRT AUS? -->
+        <!-- STIMULATIONSAUSFÜHRUNG -->
         <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-2 text-xs">
           <span class="text-slate-300 font-bold text-[11px]">Stimulation ausgeführt durch:</span>
           <div class="flex items-center gap-1">
@@ -557,7 +627,7 @@
           </div>
         </div>
 
-        <!-- ERREGUNGS-SKALA 1 BIS 10 MIT LIVE-SOUND-MODULATION -->
+        <!-- ERREGUNGS-SKALA 1 BIS 10 -->
         <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800">
           <div class="flex justify-between items-center text-xs">
             <span class="font-bold text-slate-300">Erregungsstufe des Bottoms:</span>
@@ -572,7 +642,7 @@
           </div>
         </div>
 
-        <!-- DER KANTEN-TRIGGER & ATEMPHASE -->
+        <!-- KANTEN-TRIGGER & ATEMPHASE -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button type="button" onclick="registerEdgeReached()" class="p-4 rounded-2xl bg-gradient-to-r from-pink-900 to-rose-700 hover:from-pink-800 hover:to-rose-600 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2.5 touch-btn active:scale-95">
             <span>KANTE ERREICHT! (Edge)</span>
@@ -593,7 +663,6 @@
         <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-3">
           <span class="text-xs font-bold text-pink-200 block">Entscheidung des Tops am Höhepunkt:</span>
 
-          <!-- 3 FINISHER BUTTONS -->
           <div class="grid grid-cols-3 gap-2 text-xs">
             <button type="button" onclick="openReleaseChoiceModal()" class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-800 text-emerald-300 font-bold touch-btn">
               Kommen lassen
@@ -606,7 +675,6 @@
             </button>
           </div>
 
-          <!-- PANEL ZUR FREIGABE-WAHL (SOFORT VS. COUNTDOWN) -->
           <div id="release-choice-subpanel" class="hidden p-3 rounded-xl bg-slate-950 border border-emerald-800/80 space-y-2">
             <span class="text-[11px] font-bold text-emerald-300 block">Wie soll die Freigabe erfolgen?</span>
             <div class="flex gap-2">
@@ -619,7 +687,6 @@
             </div>
           </div>
 
-          <!-- DER COUNTDOWN AN SICH -->
           <div id="countdown-wrapper" class="hidden flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
             <div class="text-4xl font-black font-mono tracking-tight text-white" id="countdown-display">10</div>
             <div class="flex items-center gap-1.5">
@@ -685,15 +752,21 @@
     </div>
   </div>
 
-  <!-- MODAL: 5-STUFIGER ZUCHT- & DISZIPLINIERUNGS-WIZARD -->
+  <!-- MODAL: 5-STUFIGER BESTRAFUNG- & DISZIPLINIERUNGS-WIZARD -->
   <div id="modal-incident-discipline" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-brand-800/80 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
         <div>
-          <h3 class="text-sm font-extrabold text-white">Top-Assistenz & Zucht-Konfigurator</h3>
-          <p class="text-[10px] text-slate-400" id="wizard-stage-subtitle">Stufe 1 von 5: Vergehen & Maßnahme</p>
+          <h3 class="text-sm font-extrabold text-white">Top-Assistenz & Bestrafungs-Konfigurator</h3>
+          <p class="text-[10px] text-slate-400" id="wizard-stage-subtitle">Stufe 1 von 5: Vergehen, Anlass & Maßnahme</p>
         </div>
         <button onclick="closeIncidentDisciplineModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- PHYSIKALISCHER KONFLIKT-HINWEISBANNER (WENN INKOMPATIBEL) -->
+      <div id="wizard-conflict-warning" class="hidden p-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-200 text-[10.5px] flex items-center gap-2">
+        <span class="text-sm">⚠️</span>
+        <span id="wizard-conflict-text">Physikalischer Konflikt korrigiert.</span>
       </div>
 
       <div class="flex-1 overflow-y-auto pr-1 space-y-3" id="wizard-content-container">
@@ -710,9 +783,13 @@
             </div>
           </div>
 
+          <!-- FREITEXTFELD: KONKRETER ANLASS -->
           <div class="space-y-1">
-            <span class="text-slate-300 font-bold text-xs block">2. Konkreter Anlass:</span>
-            <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInput(this.value)" placeholder="z. B. Hat dreimal frech widersprochen..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-300 font-bold text-xs">2. Konkreter Anlass / Schilderung:</span>
+              <span class="text-[9.5px] text-slate-400">Live-Analyse aktiv</span>
+            </div>
+            <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInput(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
           </div>
 
           <!-- ASSISTENZ ANALYSE-BOX -->
@@ -726,7 +803,7 @@
 
           <!-- HÄRTEGRAD STUFE 1 -->
           <div class="flex items-center justify-between border-t border-slate-800 pt-2">
-            <span class="font-bold text-slate-300 text-xs">Härtegrad der Hauptmaßnahme:</span>
+            <span class="font-bold text-slate-300 text-xs">Härtegrad der Bestrafung:</span>
             <div class="flex gap-1">
               <button type="button" onclick="setStageSeverity(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
               <button type="button" onclick="setStageSeverity(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
@@ -734,7 +811,7 @@
             </div>
           </div>
 
-          <!-- KARTEN-CONTAINER STUFE 1 (KI OBEN + 4 BOGEN-MATCHES DARUNTER) -->
+          <!-- KARTEN-CONTAINER STUFE 1 -->
           <div id="stage-1-cards-container" class="space-y-2"></div>
         </div>
 
@@ -764,6 +841,7 @@
             <div class="flex gap-1">
               <button type="button" onclick="setStageSeverity(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
               <button type="button" onclick="setStageSeverity(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="setStageSeverity(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
               <button type="button" onclick="setStageSeverity(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
@@ -775,7 +853,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div>
               <strong class="text-white text-xs block">Sensorische Kontrolle & Knebelung</strong>
-              <span class="text-[10px] text-slate-400">Mund und Augen während der Zucht (Max. 15 Minuten)</span>
+              <span class="text-[10px] text-slate-400">Mund und Augen während der Bestrafung (Max. 15 Minuten)</span>
             </div>
             <div class="flex gap-1">
               <button type="button" onclick="setStageSeverity(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
@@ -792,7 +870,7 @@
             <strong class="text-white text-xs block">Vollzugs-Protokoll: Dieses Ritual wurde konfiguriert:</strong>
             <div id="summary-discipline-breakdown" class="space-y-1.5 text-xs text-slate-300"></div>
           </div>
-          <p class="text-[11px] text-slate-400 italic">Mit Klick auf 'Strafe anwenden' wird dieses Ritual verbindlich im Session-Logbuch mit Zeitstempel dokumentiert.</p>
+          <p class="text-[11px] text-slate-400 italic">Mit Klick auf 'Strafe anwenden' wird dieses Ritual verbindlich im Session-Logbuch mit Anlass und Zeitstempel dokumentiert.</p>
         </div>
       </div>
 
@@ -867,7 +945,7 @@
     </div>
   </div>
 
-  <!-- MODAL: TABU-CHARTA (2-SPALTIG) -->
+  <!-- MODAL: TABU-CHARTA -->
   <div id="modal-session-tabus" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
@@ -888,11 +966,18 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
+  <!-- EXTERNE DATENQUELLEN -->
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
 
   <script>
-    // GLOBALE VARIABLEN
+    // ==========================================
+    // ANWENDUNGS-STATE & PERSISTENZ
+    // ==========================================
+    const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+    let activeDiscoveredModel = "gemini-2.5-flash";
+
     let answers = { A: {}, B: {} };
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let anatomy = { A: 'penis', B: 'vulva' };
@@ -902,78 +987,239 @@
     let currentRoleSetup = 'default';
     let topPartner = 'B';
     let subPartner = 'A';
-
-    let currentSessionMode = 'guided';
     let energyTop = 4;
     let energySub = 3;
     let sessionDepth = 2;
+    let currentSessionMode = 'guided';
 
-    let sessionTotalSeconds = 3600;
-    let sessionRemainingSeconds = 3600;
-    let sessionTimerInterval = null;
-    let isSessionPaused = false;
+    let activeEquipmentIds = [];
+    let activeMusicSource = 'own';
 
-    let liveStepIndex = 0;
-    let activeArousalLevel = 5;
-    let edgingStimulationBy = 'top';
-    let edgeCount = 0;
-    let lastEdgeTimestamp = null;
-    let lastEdgeIntervalTimer = null;
-    let cooldownTimerInterval = null;
-    let cooldownSecondsRemaining = 0;
-    let currentEdgingCountdown = 10;
-    let isCountdownActive = false;
-    let isEdgingCountdownPaused = false;
-    let countdownRunId = 0;
-
-    let currentSessionLog = [];
-    let screenWakeLock = null;
-
-    // AUDIO & PERSISTENTER WEB-AUDIO STACK FÜR iOS & HYBRID-TTS
-    const ttsAudioCache = {};
-    let previewAudioTimeout = null;
-    let activeSessionVoice = 'Despina';
     let isTopVoiceAssistActive = false;
+    let activeSessionVoice = 'Despina';
+    let previewAudioTimeout = null;
+    let ttsAudioCache = {};
     let isAudioEngineUnlocked = false;
 
-    // SYNTHESIZED MULTI-SOUNDSCAPE ENGINE
+    // Web Audio Synthesizer Engine
     let audioCtx = null;
     let ambientMasterGain = null;
     let ambientFilterNode = null;
     let ambientMediaStreamDest = null;
     let isAmbientPlaying = false;
     let currentSoundscapeStyle = 'velvet';
+    let soundscapeEnergyLevel = 2;
+    let musicalScoreInterval = null;
     let activeSoundscapeNodes = [];
-    let beatTimer = null;
 
-    // WIZARD STATE VARIABLES
+    // Session Timer & Live
+    let sessionTotalSeconds = 3600;
+    let sessionRemainingSeconds = 3600;
+    let sessionTimerInterval = null;
+    let isSessionPaused = false;
+    let liveStepIndex = 0;
+    let currentSessionLog = [];
+
+    // Edging State
+    let edgingStimulationBy = 'top';
+    let activeArousalLevel = 5;
+    let edgeCount = 0;
+    let lastEdgeTimestamp = null;
+    let lastEdgeIntervalTimer = null;
+    let cooldownTimerInterval = null;
+    let cooldownSecondsRemaining = 45;
+    let currentEdgingCountdown = 10;
+    let isCountdownActive = false;
+    let isEdgingCountdownPaused = false;
+    let countdownRunId = 0;
+    let screenWakeLock = null;
+
+    // Bestrafungs-Wizard State
     let wizardCurrentStage = 1;
     let selectedInfraction = 'mouth';
     let stageSeverities = { 1: 2, 2: 2, 3: 2, 4: 2 };
+    let selectedStageChoice = { 1: null, 2: null, 3: null, 4: null };
+    let currentCreativeData = { 1: null, 2: null, 3: null, 4: null };
     let creativeRotationIndex = { 1: 0, 2: 0, 3: 0, 4: 0 };
     let catalogOffsets = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    let currentCreativeData = {};
-    let selectedStageChoice = {};
 
     let currentSelectedPlaybook = [
-      { phase: "Warm-up", title: "Atem-Synchronisation & Blickkontakt", desc: "Setzt euch einander gegenüber. Atmet 3 Minuten ruhig und synchron in den Bauchraum aus.", top: "Führe den Atemrhythmus und halte ununterbrochenen Augenkontakt.", sub: "Lass den Blick ruhen und gib jede Alltagsanspannung ab." },
-      { phase: "Warm-up", title: "Sanfte Nackenberührung & Entkleidung", desc: "Langsame Berührungen am Hals und gezieltes Entkleiden bis auf die Unterwäsche.", top: "Entkleide deinen Partner achtsam und bestimmt.", sub: "Halte still und nimm die Hände nicht hoch." },
-      { phase: "Machtaufbau", title: "Fixierung der Hände", desc: "Die Hände werden vor dem Körper oder hinter dem Rücken mit weichen Bändern arretiert.", top: "Prüfe die Bänder auf angenehmen Sitz (2 Finger Spielraum).", sub: "Spüre die beginnende Bewegungslosigkeit und vertraue." },
-      { phase: "Machtaufbau", title: "Erste sensorische Hautreize", desc: "Einsatz von Händen oder weichem Lederflogger zur großflächigen Durchwärmung.", top: "Beginne rhythmisch und gleichmäßig auf den Po-Muskeln.", sub: "Atme gleichmäßig in jeden Reiz hinein." },
-      { phase: "Katharsis", title: "Edging & Plateau-Führung", desc: "Heranführen an die Erregungskante mit Start-Stopp-Intervallen.", top: "Beobachte die Atmung und halte die Erregung auf Stufe 8.", sub: "Befolge jeden Stoppbefehl ohne Verzögerung." },
-      { phase: "Katharsis", title: "Finale Freigabe oder Zuchtbeschluss", desc: "Top entscheidet über Höhepunkt, Ruined Orgasm oder Lustverweigerung.", top: "Verkünde deine Entscheidung mit klarer Stimme.", sub: "Nimm das Urteil ergeben an." },
-      { phase: "Aftercare", title: "Lösen der Fesseln & Wärmedecke", desc: "Alle Fixierungen lösen. In warme Decken wickeln und warmes Wasser reichen.", top: "Balsamiere beanspruchte Hautstellen ein und halte deinen Partner.", sub: "Kuschele dich tief ein und genieße die Geborgenheit." },
-      { phase: "Aftercare", title: "Stille & Somatischer Ausklang", desc: "Mindestens 15 Minuten wortlose Ruhe und Nähe.", top: "Bleibe präsent und schenke Wärme.", sub: "Lass alle Gefühle und Tränen frei fließen." }
+      { phase: "Warm-up", title: "Sensuelle Berührung & Seiden-Blindheit", desc: "Augen verbinden und Reize mit Seidentüchern und warmen Händen setzen.", top: "Bewege dich lautlos um deinen Partner herum.", sub: "Schließe die Augen und lausche auf jeden Atemzug." },
+      { phase: "Warm-up", title: "Kinn-Führung & Demuts-Kuss", desc: "Zwei Finger unter das Kinn legen und den Blickkontakt fordern.", top: "Lenke den Kopf deines Partners sanft und fordernd.", sub: "Halte dem Blickkontakt stand." },
+      { phase: "Machtaufbau", title: "Fesselung an der Bettkante", desc: "Becken an der Bettkante arretieren; Hände weich hinter dem Rücken schließen.", top: "Fixiere die Manschetten und prüfe die Durchblutung.", sub: "Lass dein Becken völlig entspannt aufliegen." },
+      { phase: "Machtaufbau", title: "Rhythmische Schlagserien mit Zählung", desc: "Dosierte Schläge mit der flachen Hand auf die Gesäßmuskulatur.", top: "Zähle die Hiebe ruhig an und halte das Tempo.", sub: "Antworte nach jedem Schlag mit 'Danke'." },
+      { phase: "Katharsis", title: "Edging & Willensprüfung", desc: "Mehrmaliges Heranführen an die Erregungskante mit akustischem Stopp.", top: "Stoppe die Bewegung exakt bei Stufe 9.", sub: "Werde reglos sobald das Stopp-Signal ertönt." },
+      { phase: "Katharsis", title: "Höhepunkt oder Ruined Orgasm", desc: "Entscheidung über den Orgasmus auf Zählkommando.", top: "Zähle von 10 langsam auf 1 herunter.", sub: "Krampfe erst bei Freigabe aus." },
+      { phase: "Aftercare", title: "Halten im Arm & Wärme-Versorgung", desc: "In Decken hüllen, warmes Wasser reichen und ruhig halten.", top: "Küsse die Stirn und schenke Wärme.", sub: "Lass dich fallen und atme ruhig durch." },
+      { phase: "Aftercare", title: "Gemeinsames De-Briefing", desc: "Kurzer Austausch über Empfindungen und Dankbarkeit.", top: "Frage deinen Partner nach seinem Befinden.", sub: "Formuliere ehrlich, wie es dir geht." }
     ];
 
-    async function acquireScreenWakeLock() {
+    // ==========================================
+    // TOYBOX & EQUIPMENT NACHTTISCH-STAGING
+    // ==========================================
+    function initEquipmentStaging() {
       try {
-        if ('wakeLock' in navigator && !screenWakeLock) {
-          screenWakeLock = await navigator.wakeLock.request('screen');
-          screenWakeLock.addEventListener('release', () => { screenWakeLock = null; });
+        const stored = localStorage.getItem('kompass_active_equipment_ids');
+        if (stored) {
+          activeEquipmentIds = JSON.parse(stored);
+        } else {
+          const catalog = window.equipmentCatalog || [];
+          activeEquipmentIds = catalog.filter(i => i.defaultPresent).map(i => i.id);
         }
-      } catch (err) {
-        console.debug("Wake Lock nicht verfügbar", err);
+      } catch (e) {
+        activeEquipmentIds = ['belt_leather', 'silk_tie_scarf', 'clothespins_wood', 'ice_cubes', 'wooden_spoon'];
+      }
+
+      renderEquipmentStagingGrid();
+    }
+
+    function renderEquipmentStagingGrid() {
+      const grid = document.getElementById('session-staging-equipment-grid');
+      const countEl = document.getElementById('staging-active-count');
+      const catalog = window.equipmentCatalog || [];
+      if (!grid) return;
+
+      grid.innerHTML = catalog.map(item => {
+        const isChecked = activeEquipmentIds.includes(item.id);
+        return `
+          <button type="button" onclick="toggleStagingEquipment('${item.id}')" class="p-2 rounded-xl border text-left transition-all touch-btn block ${isChecked ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
+            <div class="flex items-center justify-between">
+              <span class="truncate text-[10.5px]">${escapeHtml(item.name)}</span>
+              <span class="text-[9.5px] ml-1 flex-shrink-0 ${isChecked ? 'text-brand-300' : 'text-slate-600'}">${isChecked ? '✓' : '○'}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      if (countEl) countEl.innerText = activeEquipmentIds.length;
+      try {
+        localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(activeEquipmentIds));
+      } catch (e) {}
+    }
+
+    function toggleStagingEquipment(id) {
+      if (activeEquipmentIds.includes(id)) {
+        activeEquipmentIds = activeEquipmentIds.filter(i => i !== id);
+      } else {
+        activeEquipmentIds.push(id);
+      }
+      renderEquipmentStagingGrid();
+      checkLiveWizardConstraints();
+    }
+
+    function selectEquipmentPreset(preset) {
+      const catalog = window.equipmentCatalog || [];
+      if (preset === 'bare') {
+        activeEquipmentIds = [];
+        showToast("Nur Hände, Körpergewicht & Bettkante aktiv");
+      } else if (preset === 'household') {
+        activeEquipmentIds = catalog.filter(i => i.category === 'household').map(i => i.id);
+        showToast("Haushaltsgegenstände aktiviert");
+      } else {
+        activeEquipmentIds = catalog.map(i => i.id);
+        showToast("Alle Ausrüstungsgegenstände bereit");
+      }
+      renderEquipmentStagingGrid();
+      checkLiveWizardConstraints();
+    }
+
+    function selectMusicSource(src) {
+      activeMusicSource = src;
+      const bOwn = document.getElementById('btn-music-source-own');
+      const bSynth = document.getElementById('btn-music-source-synth');
+      const pOwn = document.getElementById('music-panel-own');
+      const pSynth = document.getElementById('music-panel-synth');
+
+      if (src === 'own') {
+        if (bOwn) bOwn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
+        if (bSynth) bSynth.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
+        pOwn?.classList.remove('hidden');
+        pSynth?.classList.add('hidden');
+        if (isAmbientPlaying) pauseAmbientMusic();
+      } else {
+        if (bSynth) bSynth.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
+        if (bOwn) bOwn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
+        pSynth?.classList.remove('hidden');
+        pOwn?.classList.add('hidden');
+      }
+    }
+
+    function saveCustomPlaylistLink(val) {
+      const clean = (val || '').trim();
+      localStorage.setItem('kompass_custom_playlist_link', clean);
+      const btnLaunch = document.getElementById('btn-launch-external-music');
+      if (btnLaunch && clean) {
+        btnLaunch.href = clean.startsWith('http') ? clean : `https://open.spotify.com`;
+      }
+      showToast("Playlist-Link gespeichert");
+    }
+
+    function getGeminiApiKey() {
+      let key = localStorage.getItem('kompass_gemini_api_key');
+      if (!key || key.trim().length === 0) {
+        key = DEFAULT_PRESET_GEMINI_KEY;
+        try { localStorage.setItem('kompass_gemini_api_key', key); } catch (e) {}
+      }
+      return key;
+    }
+
+    function saveSessionGeminiKey(val) {
+      const clean = (val || '').trim();
+      try {
+        localStorage.setItem('kompass_gemini_api_key', clean || DEFAULT_PRESET_GEMINI_KEY);
+        showToast("Gemini API-Key aktualisiert");
+        testGeminiConnectionInSession(true);
+      } catch (e) {}
+    }
+
+    async function testGeminiConnectionInSession(silent = false) {
+      const key = getGeminiApiKey();
+      if (!silent) showToast("⏳ Ermittle unterstützte Gemini-Modelle...");
+      const badge = document.getElementById('gemini-active-model-badge');
+
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          const modelsList = data.models || [];
+          
+          const contentModels = modelsList.filter(m => 
+            m.supportedGenerationMethods && 
+            m.supportedGenerationMethods.includes('generateContent') &&
+            m.name.includes('flash')
+          );
+
+          if (contentModels.length > 0) {
+            contentModels.sort((a, b) => b.name.localeCompare(a.name));
+            const bestModel = contentModels[0].name.replace('models/', '');
+            activeDiscoveredModel = bestModel;
+            localStorage.setItem('kompass_discovered_model', bestModel);
+            if (badge) badge.innerText = `Modell: ${bestModel}`;
+            if (!silent) showToast(`✓ Verbunden! Aktives Modell: ${bestModel}`);
+            return true;
+          } else {
+            const anyContent = modelsList.find(m => m.supportedGenerationMethods?.includes('generateContent'));
+            if (anyContent) {
+              const bestModel = anyContent.name.replace('models/', '');
+              activeDiscoveredModel = bestModel;
+              if (badge) badge.innerText = `Modell: ${bestModel}`;
+              if (!silent) showToast(`✓ Verbunden: ${bestModel}`);
+              return true;
+            }
+          }
+        }
+      } catch (e) {}
+
+      if (badge) badge.innerText = `Modell: ${activeDiscoveredModel}`;
+      if (!silent) showToast("API-Verbindung geprüft.");
+      return false;
+    }
+
+    async function acquireScreenWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          screenWakeLock = await navigator.wakeLock.request('screen');
+        } catch (e) {}
       }
     }
 
@@ -1041,9 +1287,8 @@
       isAudioEngineUnlocked = true;
 
       try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!audioCtx) audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') {
+        initAmbientAudioContext();
+        if (audioCtx && audioCtx.state === 'suspended') {
           audioCtx.resume().catch(() => {});
         }
       } catch (e) {
@@ -1078,6 +1323,18 @@
         console.warn("Speicher-Ladefehler", e);
       }
 
+      const keyInput = document.getElementById('session-gemini-key-input');
+      if (keyInput) keyInput.value = getGeminiApiKey();
+
+      const savedModel = localStorage.getItem('kompass_discovered_model');
+      if (savedModel) {
+        activeDiscoveredModel = savedModel;
+        const badge = document.getElementById('gemini-active-model-badge');
+        if (badge) badge.innerText = `Modell: ${savedModel}`;
+      } else {
+        testGeminiConnectionInSession(true);
+      }
+
       selectPortalRoleSetup('default');
 
       const musicChoiceA = answers.A ? answers.A['it_23_choice'] : null;
@@ -1106,7 +1363,6 @@
       renderPlaybookPreview();
       checkUnratedSessions();
       updateSessionTabuCounter();
-      preloadCountdownVoiceSnippets();
     }
 
     function updateSessionTabuCounter() {
@@ -1202,7 +1458,7 @@
         const cap = document.getElementById('caption-energy-sub');
         if (disp) disp.innerText = `${energySub} / 5`;
         if (cap) {
-          const labels = ["", "Sehr sensibel, braucht Schutz", "Sucht Erdung & Halt", "Ausgeglichen, aufnahmefähig", "Belastbar, will gefordert werden", "Hungrig nach harter Führung"];
+          const labels = ["", "Sehr sensibel, braucht Schutz", "Sucht Erdung & Halt", "Ausgeglichen, aufnahmefähig", "Belastbar, will gefordert werden", "Hungrig nach klarer Führung"];
           cap.innerText = labels[energySub] || "";
         }
       }
@@ -1296,7 +1552,7 @@
       activeSessionVoice = 'Enceladus';
       const vSelect = document.getElementById('session-voice-select');
       if (vSelect) vSelect.value = 'Enceladus';
-      showToast("Zucht-Preset gesetzt: Tiefe Männerstimme (Enceladus)");
+      showToast("Straf-Preset gesetzt: Tiefe Männerstimme (Enceladus)");
       testSelectedVoiceInStep2();
     }
 
@@ -1340,26 +1596,35 @@
       }
     }
 
+    // ==========================================
+    // PROZEDURALE WEB AUDIO GENERATOR ENGINE
+    // ==========================================
     function initAmbientAudioContext() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+
+      if (!ambientMasterGain || !ambientFilterNode) {
         ambientMasterGain = audioCtx.createGain();
-        ambientMasterGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        ambientMasterGain.gain.setValueAtTime(0.25, audioCtx.currentTime);
 
         ambientFilterNode = audioCtx.createBiquadFilter();
         ambientFilterNode.type = 'lowpass';
-        ambientFilterNode.frequency.setValueAtTime(450, audioCtx.currentTime);
+        ambientFilterNode.frequency.setValueAtTime(650, audioCtx.currentTime);
 
         ambientFilterNode.connect(ambientMasterGain);
         ambientMasterGain.connect(audioCtx.destination);
 
         try {
-          if (audioCtx.createMediaStreamDestination) {
+          if (audioCtx.createMediaStreamDestination && typeof audioCtx.createMediaStreamDestination === 'function') {
             ambientMediaStreamDest = audioCtx.createMediaStreamDestination();
             ambientMasterGain.connect(ambientMediaStreamDest);
             const airplayAudio = document.getElementById('ambient-airplay-audio');
-            if (airplayAudio) {
+            if (airplayAudio && ambientMediaStreamDest.stream) {
               airplayAudio.srcObject = ambientMediaStreamDest.stream;
               airplayAudio.play().catch(() => {});
             }
@@ -1372,6 +1637,7 @@
 
     function setSoundscapeStyle(style) {
       currentSoundscapeStyle = style;
+      soundscapeEnergyLevel = 2;
       ['velvet', 'bowls', 'ocean', 'beats'].forEach(st => {
         const btn = document.getElementById(`btn-style-${st}`);
         if (btn) {
@@ -1383,14 +1649,20 @@
       const selCockpit = document.getElementById('select-cockpit-soundscape');
       if (selCockpit) selCockpit.value = style;
 
-      const styleLabels = { velvet: "Velvet Pads", bowls: "432Hz Schalen", ocean: "Meeresrauschen", beats: "Dark Pulse" };
+      const styleLabels = { velvet: "Cinematic Velvet", bowls: "Klangtempel 432Hz", ocean: "Ozean-Symphonie", beats: "Dark Downtempo" };
       const nameEl = document.getElementById('cockpit-ambient-style-name');
       if (nameEl) nameEl.innerText = `Soundscape: ${styleLabels[style] || 'Ambient'}`;
+      updateAmbientIntensityDisplay();
 
       if (isAmbientPlaying) {
         stopAllSoundscapeNodes();
         startSoundscapeSynthesis();
       }
+    }
+
+    function updateAmbientIntensityDisplay() {
+      const el = document.getElementById('ambient-intensity-display');
+      if (el) el.innerText = `(Stufe ${soundscapeEnergyLevel}/4)`;
     }
 
     function toggleAmbientMusic() {
@@ -1413,7 +1685,8 @@
       startSoundscapeSynthesis();
       isAmbientPlaying = true;
       updateAmbientUI();
-      showToast(`Soundscape gestartet: ${currentSoundscapeStyle}`);
+      const styleLabels = { velvet: "Cinematic Velvet", bowls: "Klangtempel 432Hz", ocean: "Ozean-Symphonie", beats: "Dark Downtempo" };
+      showToast(`Musik gestartet: ${styleLabels[currentSoundscapeStyle] || currentSoundscapeStyle}`);
     }
 
     function pauseAmbientMusic() {
@@ -1421,11 +1694,11 @@
       stopAllSoundscapeNodes();
       isAmbientPlaying = false;
       updateAmbientUI();
-      showToast("Soundscape pausiert");
+      showToast("Musik pausiert");
     }
 
     function stopAllSoundscapeNodes() {
-      if (beatTimer) { clearInterval(beatTimer); beatTimer = null; }
+      if (musicalScoreInterval) { clearInterval(musicalScoreInterval); musicalScoreInterval = null; }
       activeSoundscapeNodes.forEach(node => {
         try {
           if (node.stop) node.stop();
@@ -1438,41 +1711,115 @@
     function startSoundscapeSynthesis() {
       stopAllSoundscapeNodes();
       initAmbientAudioContext();
+      if (!audioCtx || !ambientMasterGain || !ambientFilterNode) return;
+
       const now = audioCtx.currentTime;
 
+      // 1. CINEMATIC VELVET: Sanfte Akkordfolgen mit Glocken-Arpeggios
       if (currentSoundscapeStyle === 'velvet') {
-        const freqs = [146.83, 174.61, 220.00, 261.63, 329.63];
-        freqs.forEach((freq, idx) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = (idx % 2 === 0) ? 'sine' : 'triangle';
-          osc.frequency.setValueAtTime(freq, now);
+        const chordProgressions = [
+          [146.83, 174.61, 220.00, 261.63, 329.63],
+          [116.54, 174.61, 220.00, 261.63, 349.23],
+          [98.00, 146.83, 174.61, 220.00, 293.66],
+          [110.00, 164.81, 220.00, 293.66, 329.63]
+        ];
+        let currentChordIdx = 0;
 
-          gain.gain.setValueAtTime(0.04 / freqs.length, now);
-          osc.connect(gain);
-          gain.connect(ambientFilterNode);
-          osc.start();
-          activeSoundscapeNodes.push(osc, gain);
-        });
-        ambientFilterNode.frequency.setTargetAtTime(380, now, 1);
+        const bassOsc = audioCtx.createOscillator();
+        const bassGain = audioCtx.createGain();
+        bassOsc.type = 'triangle';
+        bassOsc.frequency.setValueAtTime(chordProgressions[0][0] / 2, now);
+        bassGain.gain.setValueAtTime(0.08 + (soundscapeEnergyLevel * 0.03), now);
+        bassOsc.connect(bassGain);
+        bassGain.connect(ambientFilterNode);
+        bassOsc.start();
+        activeSoundscapeNodes.push(bassOsc, bassGain);
 
-      } else if (currentSoundscapeStyle === 'bowls') {
-        const freqs = [108, 216, 432, 864];
-        freqs.forEach(freq => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
+        const padOscs = [audioCtx.createOscillator(), audioCtx.createOscillator(), audioCtx.createOscillator()];
+        const padGain = audioCtx.createGain();
+        padGain.gain.setValueAtTime(0.04 + (soundscapeEnergyLevel * 0.02), now);
+
+        padOscs.forEach((osc, idx) => {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now);
-          gain.gain.setValueAtTime(0.03, now);
-          osc.connect(gain);
-          gain.connect(ambientFilterNode);
+          osc.detune.setValueAtTime((idx - 1) * 7, now);
+          osc.connect(padGain);
           osc.start();
-          activeSoundscapeNodes.push(osc, gain);
+          activeSoundscapeNodes.push(osc);
         });
-        ambientFilterNode.frequency.setTargetAtTime(600, now, 1);
+        padGain.connect(ambientFilterNode);
+        activeSoundscapeNodes.push(padGain);
 
+        musicalScoreInterval = setInterval(() => {
+          if (!audioCtx || !isAmbientPlaying) return;
+          currentChordIdx = (currentChordIdx + 1) % chordProgressions.length;
+          const chord = chordProgressions[currentChordIdx];
+          const t = audioCtx.currentTime;
+
+          bassOsc.frequency.setTargetAtTime(chord[0] / 2, t, 1.2);
+          padOscs.forEach((osc, idx) => {
+            osc.frequency.setTargetAtTime(chord[idx % chord.length], t, 1.5);
+          });
+
+          if (soundscapeEnergyLevel >= 2) {
+            const bellOsc = audioCtx.createOscillator();
+            const bellGain = audioCtx.createGain();
+            const note = chord[Math.floor(Math.random() * chord.length)] * (Math.random() > 0.5 ? 2 : 1);
+
+            bellOsc.type = 'sine';
+            bellOsc.frequency.setValueAtTime(note, t);
+            bellGain.gain.setValueAtTime(0.03 + (soundscapeEnergyLevel * 0.015), t);
+            bellGain.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+
+            bellOsc.connect(bellGain);
+            bellGain.connect(ambientMasterGain);
+            bellOsc.start(t);
+            bellOsc.stop(t + 2.6);
+            bellOsc.onended = () => {
+              try { bellOsc.disconnect(); bellGain.disconnect(); } catch (e) {}
+            };
+          }
+        }, 5800);
+
+      // 2. KLANGTEMPEL 432Hz: Meditative Schalenanschläge
+      } else if (currentSoundscapeStyle === 'bowls') {
+        const bowlFrequencies = [108, 216, 432, 648, 864];
+        const masterDrone = audioCtx.createOscillator();
+        const droneGain = audioCtx.createGain();
+
+        masterDrone.type = 'sine';
+        masterDrone.frequency.setValueAtTime(108, now);
+        droneGain.gain.setValueAtTime(0.06, now);
+        masterDrone.connect(droneGain);
+        droneGain.connect(ambientFilterNode);
+        masterDrone.start();
+        activeSoundscapeNodes.push(masterDrone, droneGain);
+
+        musicalScoreInterval = setInterval(() => {
+          if (!audioCtx || !isAmbientPlaying) return;
+          const t = audioCtx.currentTime;
+          const freq = bowlFrequencies[Math.floor(Math.random() * bowlFrequencies.length)];
+
+          const strikeOsc = audioCtx.createOscillator();
+          const strikeGain = audioCtx.createGain();
+
+          strikeOsc.type = 'sine';
+          strikeOsc.frequency.setValueAtTime(freq, t);
+          strikeGain.gain.setValueAtTime(0.06 + (soundscapeEnergyLevel * 0.02), t);
+          strikeGain.gain.exponentialRampToValueAtTime(0.0005, t + 4.8);
+
+          strikeOsc.connect(strikeGain);
+          strikeGain.connect(ambientMasterGain);
+          strikeOsc.start(t);
+          strikeOsc.stop(t + 5.0);
+
+          strikeOsc.onended = () => {
+            try { strikeOsc.disconnect(); strikeGain.disconnect(); } catch (e) {}
+          };
+        }, 6500);
+
+      // 3. OZEAN-SYMPHONIE: Brandungswellen
       } else if (currentSoundscapeStyle === 'ocean') {
-        const bufferSize = audioCtx.sampleRate * 3;
+        const bufferSize = audioCtx.sampleRate * 4;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
         let b0 = 0, b1 = 0, b2 = 0;
@@ -1483,75 +1830,128 @@
           b2 = 0.86 * b2 + white * 0.25;
           output[i] = (b0 + b1 + b2) * 0.25;
         }
-        const whiteNoise = audioCtx.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-        whiteNoise.loop = true;
 
-        const noiseFilter = audioCtx.createBiquadFilter();
-        noiseFilter.type = 'lowpass';
-        noiseFilter.frequency.setValueAtTime(280, now);
+        const waveSource = audioCtx.createBufferSource();
+        waveSource.buffer = noiseBuffer;
+        waveSource.loop = true;
 
-        whiteNoise.connect(noiseFilter);
-        noiseFilter.connect(ambientMasterGain);
-        whiteNoise.start();
-        activeSoundscapeNodes.push(whiteNoise, noiseFilter);
+        const waveFilter = audioCtx.createBiquadFilter();
+        waveFilter.type = 'lowpass';
+        waveFilter.frequency.setValueAtTime(220, now);
 
-      } else if (currentSoundscapeStyle === 'beats') {
-        const subOsc = audioCtx.createOscillator();
-        subOsc.type = 'sine';
-        subOsc.frequency.setValueAtTime(55, now);
-        subOsc.connect(ambientMasterGain);
-        subOsc.start();
-        activeSoundscapeNodes.push(subOsc);
+        const waveGain = audioCtx.createGain();
+        waveGain.gain.setValueAtTime(0.08, now);
 
-        beatTimer = setInterval(() => {
+        waveSource.connect(waveFilter);
+        waveFilter.connect(waveGain);
+        waveGain.connect(ambientMasterGain);
+        waveSource.start();
+        activeSoundscapeNodes.push(waveSource, waveFilter, waveGain);
+
+        let wavePhase = 0;
+        musicalScoreInterval = setInterval(() => {
           if (!audioCtx || !isAmbientPlaying) return;
-          const kickOsc = audioCtx.createOscillator();
-          const kickGain = audioCtx.createGain();
+          wavePhase += 0.35;
+          const t = audioCtx.currentTime;
+          const swell = Math.sin(wavePhase) * 0.5 + 0.5;
+          const targetCutoff = 140 + (swell * (220 + soundscapeEnergyLevel * 80));
+          const targetGain = 0.06 + (swell * (0.08 + soundscapeEnergyLevel * 0.04));
+
+          waveFilter.frequency.setTargetAtTime(targetCutoff, t, 1.2);
+          waveGain.gain.setTargetAtTime(targetGain, t, 1.2);
+        }, 1200);
+
+      // 4. DARK DOWNTEMPO: Chillout Groove mit 808-Kick
+      } else if (currentSoundscapeStyle === 'beats') {
+        const subBass = audioCtx.createOscillator();
+        subBass.type = 'sine';
+        subBass.frequency.setValueAtTime(55, now);
+        const subGain = audioCtx.createGain();
+        subGain.gain.setValueAtTime(0.09 + (soundscapeEnergyLevel * 0.03), now);
+        subBass.connect(subGain);
+        subGain.connect(ambientMasterGain);
+        subBass.start();
+        activeSoundscapeNodes.push(subBass, subGain);
+
+        let beatStep = 0;
+        const bpmInterval = Math.max(450, 720 - (soundscapeEnergyLevel * 80));
+
+        musicalScoreInterval = setInterval(() => {
+          if (!audioCtx || !isAmbientPlaying) return;
+          beatStep = (beatStep + 1) % 8;
           const t = audioCtx.currentTime;
 
-          kickOsc.frequency.setValueAtTime(120, t);
-          kickOsc.frequency.exponentialRampToValueAtTime(38, t + 0.18);
-          kickGain.gain.setValueAtTime(0.35, t);
-          kickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.22);
+          if (beatStep === 0 || beatStep === 4) {
+            const kickOsc = audioCtx.createOscillator();
+            const kickGain = audioCtx.createGain();
 
-          kickOsc.connect(kickGain);
-          kickGain.connect(ambientMasterGain);
-          kickOsc.start(t);
-          kickOsc.stop(t + 0.25);
+            kickOsc.frequency.setValueAtTime(105, t);
+            kickOsc.frequency.exponentialRampToValueAtTime(36, t + 0.16);
+            kickGain.gain.setValueAtTime(0.24 + (soundscapeEnergyLevel * 0.06), t);
+            kickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
 
-          kickOsc.onended = () => {
-            try {
-              kickOsc.disconnect();
-              kickGain.disconnect();
-            } catch (e) {}
-          };
-        }, 500);
+            kickOsc.connect(kickGain);
+            kickGain.connect(ambientMasterGain);
+            kickOsc.start(t);
+            kickOsc.stop(t + 0.24);
+            kickOsc.onended = () => {
+              try { kickOsc.disconnect(); kickGain.disconnect(); } catch (e) {}
+            };
+          }
+
+          if (soundscapeEnergyLevel >= 2 && beatStep % 2 === 1) {
+            const hatOsc = audioCtx.createOscillator();
+            const hatGain = audioCtx.createGain();
+            hatOsc.type = 'square';
+            hatOsc.frequency.setValueAtTime(3800, t);
+            hatGain.gain.setValueAtTime(0.015, t);
+            hatGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+            hatOsc.connect(hatGain);
+            hatGain.connect(ambientFilterNode);
+            hatOsc.start(t);
+            hatOsc.stop(t + 0.05);
+            hatOsc.onended = () => {
+              try { hatOsc.disconnect(); hatGain.disconnect(); } catch (e) {}
+            };
+          }
+        }, bpmInterval);
       }
     }
 
     function adjustAmbientEnergy(mode) {
       if (!isAmbientPlaying) startAmbientMusic();
       initAmbientAudioContext();
-      const now = audioCtx.currentTime;
 
       if (mode === 'energy') {
-        if (currentSoundscapeStyle !== 'beats') {
-          setSoundscapeStyle('beats');
+        if (soundscapeEnergyLevel < 4) {
+          soundscapeEnergyLevel++;
+          showToast(`Energetischer: ${getSoundscapeIntensityLabel()}`);
         } else {
-          ambientMasterGain.gain.setTargetAtTime(0.28, now, 1);
-          ambientFilterNode.frequency.setTargetAtTime(650, now, 1);
+          showToast("Maximale Intensität für diese Soundscape erreicht.");
         }
-        showToast("Energetischer: Beat-Puls & Frequenzen angehoben");
       } else {
-        if (currentSoundscapeStyle === 'beats') {
-          setSoundscapeStyle('velvet');
+        if (soundscapeEnergyLevel > 1) {
+          soundscapeEnergyLevel--;
+          showToast(`Ruhiger: ${getSoundscapeIntensityLabel()}`);
         } else {
-          setSoundscapeStyle('ocean');
+          showToast("Sanftester Pegel für diese Soundscape erreicht.");
         }
-        ambientMasterGain.gain.setTargetAtTime(0.14, now, 1.5);
-        ambientFilterNode.frequency.setTargetAtTime(220, now, 1.5);
-        showToast("Ruhiger: Sanftes Rauschen & Entlastung");
+      }
+      updateAmbientIntensityDisplay();
+      if (isAmbientPlaying) {
+        startSoundscapeSynthesis();
+      }
+    }
+
+    function getSoundscapeIntensityLabel() {
+      if (currentSoundscapeStyle === 'ocean') {
+        return soundscapeEnergyLevel >= 3 ? "Wuchtigere Brandungswellen" : "Sanftes, seichtes Wellenplätschern";
+      } else if (currentSoundscapeStyle === 'beats') {
+        return soundscapeEnergyLevel >= 3 ? "Treibenderer Downtempo-Groove" : "Entspannter, minimalistischer Puls";
+      } else if (currentSoundscapeStyle === 'bowls') {
+        return soundscapeEnergyLevel >= 3 ? "Dichtere Klangschalen-Harmonien" : "Lange Stille & sanfte Obertöne";
+      } else {
+        return soundscapeEnergyLevel >= 3 ? "Präsentere Streicher & Arpeggio-Glocken" : "Gedämpfte, samtige Akkorde";
       }
     }
 
@@ -1563,20 +1963,19 @@
       const ind = document.getElementById('cockpit-ambient-indicator');
 
       if (icon) icon.innerText = isAmbientPlaying ? "⏸" : "🎵";
-      if (label) label.innerText = isAmbientPlaying ? "Aktiv" : "Sound";
-      if (btnSetup) btnSetup.innerText = isAmbientPlaying ? "⏸ Sound stoppen" : "▶ Sound starten";
+      if (label) label.innerText = isAmbientPlaying ? "Aktiv" : "Musik";
+      if (btnSetup) btnSetup.innerText = isAmbientPlaying ? "⏸ Musik pausieren" : "▶ Musik starten";
       if (btnCockpit) btnCockpit.innerText = isAmbientPlaying ? "⏸ Pause" : "▶ Play";
       if (ind) ind.className = `w-2 h-2 rounded-full ${isAmbientPlaying ? 'bg-brand-500' : 'bg-slate-600'}`;
     }
 
     function updateAmbientPhaseModulation() {
-      if (!isAmbientPlaying || !ambientFilterNode || !audioCtx) return;
+      if (!isAmbientPlaying || !audioCtx) return;
       const phase = currentSelectedPlaybook[liveStepIndex]?.phase || "Warm-up";
-
       if (phase === 'Warm-up') {
-        setSoundscapeStyle('bowls');
-      } else if (phase === 'Machtaufbau') {
         setSoundscapeStyle('velvet');
+      } else if (phase === 'Machtaufbau') {
+        setSoundscapeStyle('bowls');
       } else if (phase === 'Katharsis') {
         setSoundscapeStyle('beats');
       } else if (phase === 'Aftercare') {
@@ -1584,6 +1983,9 @@
       }
     }
 
+    // ==========================================
+    // GEMINI TTS & SPRACHAUSGABE
+    // ==========================================
     async function playSensualGeminiVoice(numText, voiceOverride = null, isPreview = false) {
       if (previewAudioTimeout) {
         clearTimeout(previewAudioTimeout);
@@ -1597,16 +1999,16 @@
         return playAudioUrlWithCallback(ttsAudioCache[cacheKey], isPreview);
       }
 
-      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
-      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
+      const storedKey = getGeminiApiKey();
+      const hasRealKey = storedKey.length >= 20 && !storedKey.includes('DEIN_KEY');
 
       if (hasRealKey) {
         try {
-          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`;
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(storedKey)}`;
           const isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
           const instruction = isMale
-            ? `Befiehl mit einer extrem tiefen, rauen, dominanten, strengen Männerstimme auf Deutsch kurz und trocken: ${numText}`
-            : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, warmen Frauenstimme auf Deutsch langsam: ${numText}`;
+            ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme auf Deutsch kurz, trocken und autoritär: ${numText}`
+            : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, erotischen Frauenstimme auf Deutsch langsam: ${numText}`;
 
           const response = await fetch(apiUrl, {
             method: 'POST',
@@ -1639,61 +2041,11 @@
             }
           }
         } catch (err) {
-          console.debug("Gemini API Netzwerk-Fallback", err);
+          console.debug("Gemini TTS API Netzwerkfehler", err);
         }
       }
 
-      return playStudioFallbackSpeech(numText, voiceToUse, isPreview);
-    }
-
-    function playStudioFallbackSpeech(text, voiceName, isPreview) {
-      return new Promise((resolve) => {
-        if (!('speechSynthesis' in window)) {
-          resolve();
-          return;
-        }
-
-        window.speechSynthesis.cancel();
-
-        const cleanText = String(text).replace(/[0-9]+/g, (match) => {
-          const numWords = { '1': 'Eins', '2': 'Zwei', '3': 'Drei', '4': 'Vier', '5': 'Fünf', '6': 'Sechs', '7': 'Sieben', '8': 'Acht', '9': 'Neun', '10': 'Zehn' };
-          return numWords[match] || match;
-        });
-
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'de-DE';
-
-        const isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
-
-        if (isMale) {
-          utterance.pitch = 0.72;
-          utterance.rate = 0.82;
-        } else {
-          utterance.pitch = 0.84;
-          utterance.rate = 0.78;
-        }
-
-        const voices = window.speechSynthesis.getVoices();
-        const deVoices = voices.filter(v => v.lang.startsWith('de'));
-        if (deVoices.length > 0) {
-          const selected = isMale 
-            ? (deVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('stefan') || v.name.toLowerCase().includes('martin')) || deVoices[0])
-            : (deVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('anna') || v.name.toLowerCase().includes('petra') || v.name.toLowerCase().includes('katja') || v.name.toLowerCase().includes('siri')) || deVoices[0]);
-          if (selected) utterance.voice = selected;
-        }
-
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
-
-        if (isPreview) {
-          previewAudioTimeout = setTimeout(() => {
-            window.speechSynthesis.cancel();
-            resolve();
-          }, 5000);
-        }
-
-        window.speechSynthesis.speak(utterance);
-      });
+      return Promise.resolve();
     }
 
     function playAudioUrlWithCallback(url, isPreview = false) {
@@ -1711,7 +2063,7 @@
         masterAudio.onerror = () => resolve();
 
         masterAudio.play().catch(e => {
-          console.debug("Audio-Wiedergabe blockiert oder unterbrochen", e);
+          console.debug("Audio-Wiedergabe unterbrochen", e);
           resolve();
         });
 
@@ -1721,53 +2073,6 @@
             resolve();
           }, 5000);
         }
-      });
-    }
-
-    function preloadCountdownVoiceSnippets() {
-      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
-      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
-      if (!hasRealKey) return;
-
-      const voice = activeSessionVoice || 'Despina';
-      [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].forEach((num, idx) => {
-        setTimeout(async () => {
-          const cacheKey = `${voice}_${num}`;
-          if (ttsAudioCache[cacheKey]) return;
-          try {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`;
-            const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
-            const instruction = isMale
-              ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme auf Deutsch kurz und trocken: ${num}`
-              : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme auf Deutsch langsam: ${num}`;
-
-            const response = await fetch(apiUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: instruction }] }],
-                generationConfig: {
-                  responseModalities: ["AUDIO"],
-                  speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
-                }
-              })
-            });
-
-            if (response.ok) {
-              const result = await response.json();
-              const part = result?.candidates?.[0]?.content?.parts?.[0];
-              const audioData = part?.inlineData?.data;
-              const mimeType = part?.inlineData?.mimeType;
-              if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-                const pcmData = base64ToArrayBuffer(audioData);
-                const pcm16 = new Int16Array(pcmData);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                ttsAudioCache[cacheKey] = URL.createObjectURL(wavBlob);
-              }
-            }
-          } catch (e) {}
-        }, idx * 600);
       });
     }
 
@@ -1797,36 +2102,57 @@
       }
 
       if (isAmbientPlaying) {
-        if (activeArousalLevel >= 8) {
-          if (currentSoundscapeStyle !== 'beats') setSoundscapeStyle('beats');
-        } else if (activeArousalLevel <= 4) {
-          if (currentSoundscapeStyle === 'beats') setSoundscapeStyle('velvet');
+        if (activeArousalLevel >= 8 && soundscapeEnergyLevel < 3) {
+          adjustAmbientEnergy('energy');
+        } else if (activeArousalLevel <= 3 && soundscapeEnergyLevel > 2) {
+          adjustAmbientEnergy('calm');
         }
       }
 
       if (isTopVoiceAssistActive) {
         const now = Date.now();
-        if (now - lastArousalSpokenTime > 1400) {
+        if (now - lastArousalSpokenTime > 1800) {
           lastArousalSpokenTime = now;
           speakContextualArousalGuidance(activeArousalLevel);
         }
       }
     }
 
-    function speakContextualArousalGuidance(lvl) {
+    function generateDynamicArousalPhrase(lvl) {
       const isSelf = (edgingStimulationBy === 'bottom_self');
-      let phrase = "";
-      if (lvl <= 3) {
-        phrase = isSelf ? "Ganz ruhig streichen. Lass die Erregung langsam ansteigen." : "Spüre die Berührungen. Atme gleichmäßig und ruhig.";
-      } else if (lvl <= 5) {
-        phrase = isSelf ? "Gleichmäßiges Tempo halten. Verweile genau auf diesem Niveau." : "Atme tief in den Bauch. Halte die Wärme auf diesem Plateau.";
-      } else if (lvl <= 7) {
-        phrase = isSelf ? "Fester zupacken. Bring dich näher heran, aber diszipliniert." : "Spüre den Druck. Keine hastigen Bewegungen.";
-      } else if (lvl <= 9) {
-        phrase = isSelf ? "Kurz vor der Kante. Sofort verlangsamen. Keine unkontrollierte Bewegung." : "Gefahrenzone. Beherrsche deinen Körper. Noch nicht kommen.";
-      } else {
-        phrase = isSelf ? "Sofort Hände weg! Nicht berühren. Reglos ausatmen!" : "Kante erreicht. Stillhalten. Alle Muskeln entspannen.";
-      }
+      const subName = names[subPartner] || 'Bottom';
+      const edgeContext = edgeCount > 0 ? `nach ${edgeCount} Kanten` : "im ersten Aufbau";
+
+      const phrasesByLevel = {
+        low: [
+          isSelf ? `Ganz ruhig streichen, ${subName}. Lass die Erregung gleichmäßig aufkeimen.` : `Spüre die Berührungen. Atme ruhig in den Bauch und nimm jeden Hauch auf.`,
+          isSelf ? `Sanfte Kreisbewegungen. Beherrsche dein Tempo.` : `Lass dich fallen. Der Rhythmus gehört ganz deinem Führenden.`
+        ],
+        plateau: [
+          isSelf ? `Gleichmäßiges Tempo halten, ${subName}. Bleibe exakt auf diesem Plateau.` : `Atme gleichmäßig. Halte die Glut genau auf diesem Niveau und zappele nicht.`,
+          isSelf ? `Nicht beschleunigen. Spüre das pulsierende Plateau ${edgeContext}.` : `Halte den Blickkontakt. Diese Wärme gehört jetzt ausgehalten.`
+        ],
+        high: [
+          isSelf ? `Fester zupacken. Bring dich näher an die Schwelle, aber ohne Hast.` : `Spüre den wachsenden Druck. Keine unbedachte Bewegung ohne Erlaubnis.`,
+          isSelf ? `Stufe ${lvl}. Jeder Griff muss sitzen. Gehorche deinen Impulsen diszipliniert.` : `Die Atmung wird schwerer. Bleibe fokussiert, wir gehen gemeinsam an die Kante.`
+        ],
+        edgeZone: [
+          isSelf ? `Kurz vor der Kante! Sofort verlangsamen, ${subName}. Kein einziger unbedachter Stoß!` : `Gefahrenzone! Beherrsche deinen Körper. Du kommst erst, wenn ich es befehle!`,
+          isSelf ? `Halt dich zurück! Spüre die Kante zittern, aber überschreite sie nicht!` : `Stillhalten! Atme den Drang aus. Du bleibst genau vor der Schwelle stehen!`
+        ]
+      };
+
+      let pool = phrasesByLevel.low;
+      if (lvl >= 8) pool = phrasesByLevel.edgeZone;
+      else if (lvl >= 6) pool = phrasesByLevel.high;
+      else if (lvl >= 4) pool = phrasesByLevel.plateau;
+
+      const randomIdx = Math.floor(Math.random() * pool.length);
+      return pool[randomIdx];
+    }
+
+    function speakContextualArousalGuidance(lvl) {
+      const phrase = generateDynamicArousalPhrase(lvl);
       playSensualGeminiVoice(phrase);
     }
 
@@ -1837,12 +2163,22 @@
       const hitsEl = document.getElementById('edging-total-hits');
       if (hitsEl) hitsEl.innerText = edgeCount;
 
-      if (isAmbientPlaying) setSoundscapeStyle('ocean');
+      if (isAmbientPlaying && soundscapeEnergyLevel > 1) {
+        adjustAmbientEnergy('calm');
+      }
 
       showToast(`KANTE #${edgeCount} erreicht! Stimulation stoppen.`);
       recordLiveEvent("edge_reached", `Kante #${edgeCount} erreicht (Stufe ${activeArousalLevel})`, true);
       startCooldownBreathingTimer();
-      playSensualGeminiVoice("Kante. Hände weg und stillhalten.");
+
+      const subName = names[subPartner] || 'Bottom';
+      const edgePhrases = [
+        `Kante Nummer ${edgeCount}! Hände sofort weg, ${subName}, und reglos ausatmen.`,
+        `Stopp! Kante ${edgeCount} erreicht. Alle Muskeln lockern und stillhalten.`,
+        `Sehr brav an der Kante gehalten. Jetzt Hände weg und abkühlen lassen.`
+      ];
+      const chosen = edgePhrases[(edgeCount - 1) % edgePhrases.length];
+      playSensualGeminiVoice(chosen);
     }
 
     function startEdgeIntervalTicker() {
@@ -1890,11 +2226,13 @@
       resetSpeechCountdown();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       if (isAmbientPlaying) {
-        setSoundscapeStyle('beats');
         adjustAmbientEnergy('energy');
       }
       const isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
-      const phrase = isMale ? "Jetzt. Lass alles fallen. Nimm dir deinen Höhepunkt!" : "Ja! Genau so. Hol dir alles und komm für mich!";
+      const subName = names[subPartner] || 'Bottom';
+      const phrase = isMale
+        ? `Jetzt, ${subName}! Lass alles fallen und nimm dir deinen Höhepunkt!`
+        : `Ja! Genau so... Hol dir alles und komm jetzt für mich, ${subName}!`;
       playSensualGeminiVoice(phrase);
       showToast("Höhepunkt sofort freigegeben!");
       recordLiveEvent("orgasm_release", "Höhepunkt sofort durch Top freigegeben", true);
@@ -1935,7 +2273,7 @@
         if (disp) disp.innerText = "0";
         if (isAmbientPlaying) adjustAmbientEnergy('energy');
         const isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
-        const phrase = isMale ? "Jetzt! Krampfe aus!" : "Komm! Lass alles los!";
+        const phrase = isMale ? "Jetzt! Krampfe aus und nimm dir alles!" : "Komm! Lass alles los und genieße es!";
         await playSensualGeminiVoice(phrase);
         isCountdownActive = false;
         showToast("Orgasmus freigegeben!");
@@ -1951,7 +2289,6 @@
 
       if (isEdgingCountdownPaused) {
         if (masterAudio) masterAudio.pause();
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       } else {
         runBreathPacedCountdownLoop();
       }
@@ -1964,7 +2301,6 @@
       currentEdgingCountdown = 10;
       const masterAudio = document.getElementById('master-voice-audio');
       if (masterAudio) masterAudio.pause();
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       const disp = document.getElementById('countdown-display');
       if (disp) disp.innerText = "10";
       document.getElementById('countdown-wrapper')?.classList.add('hidden');
@@ -1974,73 +2310,78 @@
       unlockAudioEngineOnUserGesture();
       resetSpeechCountdown();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
+      const subName = names[subPartner] || 'Bottom';
+
       if (type === 'ruined') {
-        if (isAmbientPlaying) setSoundscapeStyle('velvet');
-        playSensualGeminiVoice("Hände weg! Sofort stillhalten. Kein Reiben mehr. Vielleicht beim nächsten Mal.");
+        const phrase = `Hände weg, ${subName}! Sofort stillhalten... Kein Reiben mehr. Zucken ohne Erleichterung. ... Vielleicht beim nächsten Mal.`;
+        playSensualGeminiVoice(phrase);
         showToast("Ruined Orgasm vollstreckt!");
         recordLiveEvent("orgasm_ruined", "Ruined Orgasm (Zucken ohne Erleichterung)", true);
       } else if (type === 'denial') {
-        if (isAmbientPlaying) setSoundscapeStyle('ocean');
-        playSensualGeminiVoice("Schluss für heute. Stillhalten und abkühlen. Du bleibst ungelöst.");
+        const phrase = `Schluss für heute, ${subName}. Tief durchatmen und abkühlen. Du bleibst ungelöst.`;
+        playSensualGeminiVoice(phrase);
         showToast("Lustverweigerung (Denial) angeordnet!");
         recordLiveEvent("orgasm_denial", "Lustverweigerung (Denial) vollzogen", true);
       }
     }
 
+    // ==========================================
+    // BESTRAFUNG & WIZARD ENGINE
+    // ==========================================
     const creativeGenerators = {
       1: {
         1: [
           { title: "Andächtige Handauflage mit Zähl-Innehalten", desc: "Warme Handflächenschläge auf das entblößte Gesäß, jeweils unterbrochen von 30 Sekunden stummer Versenkung. Der Bottom muss nach jedem Schlag tief in den Bauchraum ausatmen." },
-          { title: "Stiefelspitzen-Tippen & Demuts-Prüfung", desc: "Die lederne Stiefelspitze wird auf die Wange oder das Kinn des knienden Bottoms gelegt; er muss den Kopf andächtig anlehnen und vollkommen stillhalten." },
+          { title: "Kinn-Führung & Demuts-Prüfung", desc: "Zwei Finger heben das Kinn des knienden Bottoms an; er muss dem Blickkontakt der Herrin standhalten und vollkommen stillhalten." },
           { title: "Selbstvollzug: Eigene Handspanks im aufrechten Stand", desc: "Der Bottom steht mit geschlossenen Beinen aufrecht vor dem Sessel des Tops und versohlt sich selbst mit der flachen Hand auf die Gesäßmuskeln. Der Top beurteilt die Lautstärke und Lautfolge." }
         ],
         2: [
-          { title: "Stiletto-Absatz-Arretierung in Gesäßmuskel", desc: "Der spitze Absatz des High Heels wird mit präzisem, spürbarem Druck in den oberen fleischigen Gesäßmuskel gebohrt. Der Bottom muss auf Knien verharren und den Schmerzpunkt ohne Zucken aushalten." },
-          { title: "Selbstvollzug: Eigene Lederriemen-Hiebe auf die Oberschenkel", desc: "Der Bottom sitzt mit dem Rücken zur Wand und führt den gefalteten Lederriemen eigenhändig auf die fleischige Oberschenkelaußenseite. Der Top zählt mit; bei zu zaghaften Treffern wird der Zähler zurückgesetzt." },
-          { title: "Rhythmische Caning-Serien mit Zähl-Innehalten", desc: "Präzise gesetzte Hiebe mit der Reitgerte oder dem Leder-Paddle, unterbrochen von 20 Sekunden Reglosigkeit. Nach jedem Treffer formuliert der Bottom: 'Danke für die Zurechtweisung'." }
+          { title: "Gefalteter Ledergürtel mit Zählung", desc: "Satte Hiebe mit dem gefalteten Lederriemen auf die fleischige Gesäßpartie. Nach jedem Hieb muss laut der Treffer gezählt werden." },
+          { title: "Selbstvollzug: Eigene Lederriemen-Hiebe auf die Oberschenkel", desc: "Der Bottom sitzt mit dem Rücken zur Wand und führt den gefalteten Lederriemen eigenhändig auf die fleischige Oberschenkelaußenseite. Der Top zählt mit." },
+          { title: "Rhythmische Schlagserien mit Zähl-Innehalten", desc: "Präzise gesetzte Hiebe mit dem Holzspachtel oder Leder-Paddle, unterbrochen von 20 Sekunden Reglosigkeit." }
         ],
         3: [
-          { title: "Punktueller Stiletto-Bohrreiz mit Kälte-Kontrast", desc: "Der Stiletto-Absatz bohrt sich tief in die fleischige Oberschenkelinnenseite, gefolgt von einem eisgekühlten Metallstab auf die Druckstelle. Strikter Befehl zur absoluten Reglosigkeit." },
-          { title: "Selbstvollzug: Eigenhändiges Setzen von Kleeblatt-Klemmen", desc: "Der Bottom muss sich vor den Augen des Tops eigenhändig Kleeblatt-Klemmen an die eigenen Brustwarzen setzen und die Stellschrauben auf Geheiß der Herrin stufenweise anziehen." },
-          { title: "Cane-Linien mit Atemwegs-Synchronisation", desc: "Scharfe, brennende Hautreize mit der Reitgerte, exakt auf den Ausatemtakt gesetzt. Verlangt vom Bottom absolute Beherrschung des Zuckreflexes trotz intensiven Schmerzreizes." }
+          { title: "Punktueller Kältekick mit Eiswürfeln auf Rötung", desc: "Harte Hiebe mit dem Paddle, gefolgt von schmelzendem Eis direkt auf die heiße Druckstelle. Strikter Befehl zur absoluten Reglosigkeit." },
+          { title: "Selbstvollzug: Eigenhändiges Setzen von Wäscheklammern", desc: "Der Bottom muss sich vor den Augen des Tops eigenhändig Wäscheklammern an die eigenen Brustwarzen setzen und auf Geheiß der Herrin verharren." },
+          { title: "Cane-Linien mit Atemwegs-Synchronisation", desc: "Scharfe, brennende Hautreize mit der Reitgerte, exakt auf den Ausatemtakt gesetzt. Verlangt absolute Beherrschung des Zuckreflexes." }
         ]
       },
       2: {
         1: [
-          { title: "Seiza auf rauem Sisal-Teppich", desc: "Aufrechter traditioneller Fersensitz mit kerzengerader Wirbelsäule und auf den Oberschenkeln ruhenden Handflächen. Schult die innere Sammlung und zentriert die Atmung." },
-          { title: "Demütige Vorbeuge unter herabreichendem Stiefel", desc: "Der Oberkörper liegt flach am Boden, die Wange berührt die Matte, während der Stiefel der Herrin auf dem Nacken ruht." }
+          { title: "Seiza auf rauem Sisal-Teppich", desc: "Aufrechter traditioneller Fersensitz mit kerzengerader Wirbelsäule und auf den Oberschenkeln ruhenden Handflächen." },
+          { title: "Demütige Vorbeuge am Bettrand", desc: "Der Oberkörper liegt flach auf der Matratzenkante auf, während die Beine geschlossen am Boden stehen." }
         ],
         2: [
-          { title: "Goreanische Kaya-Position unter Stiletto-Aufsicht", desc: "Ein Knie ruht am Boden, das andere Bein im 90-Grad-Winkel. Der Absatz der Herrin ruht drohend wenige Millimeter über dem Schambein." },
-          { title: "Vorbeuge über gepolstertem Holzpferd oder Sessellehne", desc: "Der Brustkorb liegt flach auf der Polsterung auf, das Becken ist im 45-Grad-Winkel angehoben, das Gesäß vollkommen exponiert. Füße geschlossen am Boden." }
+          { title: "Goreanische Kaya-Position", desc: "Ein Knie ruht am Boden, das andere Bein im 90-Grad-Winkel aufgestellt. Der Blick bleibt starr auf die Knie des Tops gerichtet." },
+          { title: "Vorbeuge über gepolsterter Sessellehne", desc: "Der Brustkorb liegt flach auf der Polsterung auf, das Becken ist im 45-Grad-Winkel angehoben, das Gesäß vollkommen exponiert." }
         ],
         3: [
-          { title: "Strenge Pranger-Standhaltung mit überstrecktem Nacken", desc: "Aufrechter Stand mit schulterbreit geöffneten Beinen vor der Wand oder dem Pranger. Das Kinn wird leicht angehoben, sodass der Nacken vollkommen schutzlos bleibt." },
-          { title: "Schwebendes Knie-Halten (Nadu ohne Fersenkontakt)", desc: "Freies Knien, bei dem das Gesäß drei Zentimeter über den Fersen in der Luft gehalten werden muss. Erfordert anhaltende Muskelspannung der Oberschenkel." }
+          { title: "Strenge Pranger-Standhaltung mit überstrecktem Nacken", desc: "Aufrechter Stand mit schulterbreit geöffneten Beinen vor der Wand oder dem Türrahmen. Das Kinn wird leicht angehoben." },
+          { title: "Schwebendes Knie-Halten (Nadu ohne Fersenkontakt)", desc: "Freies Knien, bei dem das Gesäß drei Zentimeter über den Fersen in der Luft gehalten werden muss. Erfordert Muskelspannung." }
         ]
       },
       3: {
         1: [
-          { title: "Weiche Satin-Handgelenkschlingen vor dem Körper", desc: "Gepolsterte Bänder schließen die Handgelenke sanft vor der Brust zusammen. Verhindert unbedachte Griffbewegungen, erlaubt aber das Halten des Drop-Tuchs." },
-          { title: "Lockere Knöchel-Manschetten mit Verbindungssteg", desc: "Lederriemen an beiden Knöcheln, verbunden durch eine kurze Kette. Erlaubt vorsichtiges Trippeln im Raum, unterbindet jedoch raumgreifende Schritte." }
+          { title: "Weiche Seidenschal-Fesselung vor dem Körper", desc: "Seidentuch schließt die Handgelenke sanft vor der Brust zusammen. Verhindert unbedachte Griffbewegungen, erlaubt Halten des Drop-Tuchs." },
+          { title: "Lockere Knöchel-Manschetten mit Verbindungssteg", desc: "Lederriemen an beiden Knöcheln, verbunden durch eine kurze Kette. Erlaubt vorsichtiges Trippeln im Raum." }
         ],
         2: [
-          { title: "Kreuz-Manschetten mit Oberschenkel-Arretierung", desc: "Handgelenke mit breiten Lederbändern gekreuzt hinter dem Rücken verschlossen. Ein kurzer Verbindungssteg koppelt sie direkt an die Oberschenkelriemen." },
-          { title: "Shibari-Brustkreuz mit Daumenschlaufen (Takate Kote)", desc: "Drei Lagen geöltes Juteseil über Brustbein und Schultern ziehen die Schulterblätter zusammen. Die Hände sind handlungsunfähig arretiert." }
+          { title: "Kreuz-Manschetten hinter dem Rücken", desc: "Handgelenke mit breiten Lederbändern gekreuzt hinter dem Rücken verschlossen." },
+          { title: "Shibari-Brustkreuz mit Daumenschlaufen (Takate Kote)", desc: "Drei Lagen geöltes Juteseil über Brustbein und Schultern ziehen die Schulterblätter zusammen." }
         ],
         3: [
-          { title: "Stuhl-Kopplung mit Hand-zu-Knöchel-Kreuzung", desc: "Rechte Hand am linken Knöchel, linke Hand am rechten Knöchel an den Stuhlbeinen arretiert. Der Oberkörper ist starr nach vorne geneigt." },
-          { title: "Starre Spreizstangen-Fixierung am Bettpfosten", desc: "Die Beine werden durch eine 80-Zentimeter-Edelstahlstange geöffnet gehalten und zusätzlich an den Bettpfosten gesichert. Schließen anatomisch unmöglich." }
+          { title: "Stuhl-Kopplung mit Hand-zu-Knöchel-Kreuzung", desc: "Rechte Hand am linken Knöchel, linke Hand am rechten Knöchel an den Stuhlbeinen arretiert." },
+          { title: "Starre Spreizstangen-Fixierung am Bettpfosten", desc: "Die Beine werden durch eine 80-Zentimeter-Edelstahlstange geöffnet gehalten. Schließen unmöglich." }
         ]
       },
       4: {
         1: [
-          { title: "Blickdichte Schlafbrille mit Stimmgabel-Grounding", desc: "Kein Knebel im Mund für uneingeschränkte Sauerstoffzufuhr, jedoch vollständige Verdunklung. Der Top setzt in Intervallen eine Stimmgabel an Schlüsselbein und Brustbein an." },
+          { title: "Blickdichte Schlafbrille mit Stimmgabel-Grounding", desc: "Kein Knebel im Mund für uneingeschränkte Sauerstoffzufuhr, jedoch vollständige Verdunklung. Top setzt Stimmgabel an Schlüsselbein an." },
           { title: "Mund-Schweigegebot unter federleichtem Seidentuch", desc: "Kein fester Knebel zwischen den Zähnen; ein leichtes Seidentuch über dem Mund signalisiert das strikte Verbot unaufgeforderter Worte." }
         ],
         2: [
-          { title: "Offener Ringknebel mit Speichelfang-Schale & Zwangsschlucken", desc: "Ein Silikon-Ringknebel hält den Mund starr geöffnet. Der austretende Speichel wird in einem Glasschälchen gesammelt und dem Bottom als Zeichen vollkommener Hingabe am Ende des Zuchtzyklus mit dem Löffel zurückgegeben." },
-          { title: "Stiefel-Knebel-Kombination mit Kiefer-Fixierung", desc: "Ein weicher Tuchknebel dämpft jeden Laut, während die Stiefelspitze des Tops sanft unter das Kinn geschoben wird, um den Blick nach oben zu zwingen." }
+          { title: "Offener Ringknebel mit Speichelfang-Schale", desc: "Ein Silikon-Ringknebel hält den Mund starr geöffnet. Der austretende Speichelfluss wird andächtig gesammelt." },
+          { title: "Weicher Tuchknebel mit Kiefer-Fixierung", desc: "Ein weiches Gästehandtuch dämpft jeden Laut, während die Stimme des Tops die Regie führt." }
         ],
         3: [
           { title: "Silikon-Ballknebel mit Leder-Kinnriemen (Max. 15 Min.)", desc: "Ein 45-Millimeter-Silikonball füllt den Mundraum lückenlos aus und erzwingt stummes Atmen durch die Nase. Drop-Tuch zwingend in der Hand." },
@@ -2051,8 +2392,6 @@
 
     function openIncidentDisciplineModal() {
       wizardCurrentStage = 1;
-      const inputEl = document.getElementById('incident-top-custom-reason');
-      if (inputEl) inputEl.value = '';
 
       [1, 2, 3, 4].forEach(stage => {
         creativeRotationIndex[stage] = Math.floor(Math.random() * 100);
@@ -2063,6 +2402,7 @@
 
       updateWizardStageView();
       analyzeTopReasonLive();
+      checkLiveWizardConstraints();
       document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
     }
 
@@ -2080,11 +2420,15 @@
         }
       });
       analyzeTopReasonLive();
+      rerollCreativeForStage(1);
       renderStageCards(1);
+      checkLiveWizardConstraints();
     }
 
     function handleReasonLiveInput(val) {
       analyzeTopReasonLive();
+      rerollCreativeForStage(1);
+      checkLiveWizardConstraints();
     }
 
     function analyzeTopReasonLive() {
@@ -2093,21 +2437,40 @@
       const ratEl = document.getElementById('top-assist-rationale');
       if (!titleEl || !ratEl) return;
 
-      if (inputVal.includes('widerspr') || inputVal.includes('frech') || selectedInfraction === 'mouth') {
-        titleEl.innerText = "Vergehen des Mundes & Respektlosigkeit";
-        ratEl.innerText = "Empfehlung: Begrenzung der Lautäußerung. Ringknebel mit Speichelfang oder Mitzählen erzwingt Demut.";
-      } else if (inputVal.includes('zappel') || inputVal.includes('halt') || selectedInfraction === 'posture') {
-        titleEl.innerText = "Haltungsdisziplin & motorische Unruhe";
-        ratEl.innerText = "Empfehlung: Starre Vorbeuge oder Kaya-Haltung. Muskelanspannung zwingt den Geist zur Ruhe.";
-      } else if (inputVal.includes('selbst') || selectedInfraction === 'self_discipline') {
-        titleEl.innerText = "Selbstvollzug unter autoritärer Aufsicht";
-        ratEl.innerText = "Empfehlung: Der Bottom vollzieht die Hiebe im aufrechten Stand oder setzt Klemmen eigenhändig.";
-      } else if (inputVal.includes('spritz') || inputVal.includes('wichs') || selectedInfraction === 'orgasm') {
-        titleEl.innerText = "Unerlaubte Lust & Keuschheitsbruch";
-        ratEl.innerText = "Empfehlung: Verwahrung im Zeittresor (48h) und Thuddy Impact zur Umlenkung der Erregung.";
+      if (inputVal.length > 0) {
+        if (inputVal.includes('widerspr') || inputVal.includes('frech') || inputVal.includes('laut') || selectedInfraction === 'mouth') {
+          titleEl.innerText = `Anlass erfasst: Vergehen des Mundes („${inputVal.slice(0, 30)}...“)`;
+          ratEl.innerText = "Empfehlung: Begrenzung der Lautäußerung. Ringknebel mit Speichelfang oder Mitzählen erzwingt Demut.";
+        } else if (inputVal.includes('zappel') || inputVal.includes('halt') || inputVal.includes('unruhig') || selectedInfraction === 'posture') {
+          titleEl.innerText = `Anlass erfasst: Haltungsdisziplin („${inputVal.slice(0, 30)}...“)`;
+          ratEl.innerText = "Empfehlung: Starre Vorbeuge oder Kaya-Haltung. Muskelanspannung zwingt den Geist zur Ruhe.";
+        } else if (inputVal.includes('selbst') || selectedInfraction === 'self_discipline') {
+          titleEl.innerText = `Anlass erfasst: Selbstvollzug („${inputVal.slice(0, 30)}...“)`;
+          ratEl.innerText = "Empfehlung: Der Bottom vollzieht die Hiebe im aufrechten Stand oder setzt Klammern eigenhändig.";
+        } else if (inputVal.includes('spritz') || inputVal.includes('wichs') || inputVal.includes('orgasm') || selectedInfraction === 'orgasm') {
+          titleEl.innerText = `Anlass erfasst: Unerlaubte Lust („${inputVal.slice(0, 30)}...“)`;
+          ratEl.innerText = "Empfehlung: Keuschheitsverlängerung (48h) und Thuddy Impact zur Umlenkung der Erregung.";
+        } else {
+          titleEl.innerText = `Konkreter Anlass: „${inputVal.slice(0, 35)}...“`;
+          ratEl.innerText = "Empfehlung: Formale Abbitte auf Knien, gefolgt von Handspanking zur Wiederherstellung der Hierarchie.";
+        }
       } else {
-        titleEl.innerText = "Pflichtversäumnis & Alltagsordnung";
-        ratEl.innerText = "Empfehlung: Formale Abbitte auf Knien, gefolgt von Handspanking zur Wiederherstellung der Hierarchie.";
+        if (selectedInfraction === 'mouth') {
+          titleEl.innerText = "Kategorie: Widerrede & vorlautes Verhalten";
+          ratEl.innerText = "Empfehlung: Disziplinierung des Mundes durch Schweigegebot oder Mitzählen.";
+        } else if (selectedInfraction === 'posture') {
+          titleEl.innerText = "Kategorie: Haltungsfehler & motorische Unruhe";
+          ratEl.innerText = "Empfehlung: Fixierte Vorbeuge oder Seiza auf Teppich.";
+        } else if (selectedInfraction === 'orgasm') {
+          titleEl.innerText = "Kategorie: Unerlaubte Lust & Keuschheitsbruch";
+          ratEl.innerText = "Empfehlung: Entzug der Befriedigung und Verlängerung der Wartezeit.";
+        } else if (selectedInfraction === 'self_discipline') {
+          titleEl.innerText = "Kategorie: Selbstvollzug unter Aufsicht";
+          ratEl.innerText = "Empfehlung: Eigenhändige Spanks oder Klemmen unter den Augen des Tops.";
+        } else {
+          titleEl.innerText = "Kategorie: Pflichtversäumnis & Alltagsordnung";
+          ratEl.innerText = "Empfehlung: Formale Abbitte auf Knien, gefolgt von Spanking.";
+        }
       }
     }
 
@@ -2122,6 +2485,7 @@
       });
       rerollCreativeForStage(stage);
       renderStageCards(stage);
+      checkLiveWizardConstraints();
     }
 
     function getBottomHighKinksSummary() {
@@ -2158,39 +2522,49 @@
       }
 
       renderStageCards(stage);
+      checkLiveWizardConstraints();
       requestAiCreativeExpansion(stage, sev);
     }
 
     async function requestAiCreativeExpansion(stage, sev) {
-      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
-      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
+      const storedKey = getGeminiApiKey();
+      const hasRealKey = storedKey.length >= 20 && !storedKey.includes('DEIN_KEY');
       if (!hasRealKey) return;
 
-      const reason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
-      const stageNames = { 1: "Zucht-Hauptstrafe", 2: "Körperhaltung", 3: "Fesselung/Fixierung", 4: "Sensorik/Knebel" };
+      const customReason = (document.getElementById('incident-top-custom-reason')?.value || '').trim();
+      const reason = customReason.length > 0 ? customReason : selectedInfraction;
+      const stageNames = { 1: "Haupt-Bestrafung", 2: "Körperhaltung", 3: "Fesselung/Fixierung", 4: "Sensorik/Knebel" };
       const sevLabels = { 1: "mild", 2: "spürbar", 3: "streng" };
 
-      const act1 = selectedStageChoice[1]?.data?.title || "Zuchtmaßnahme";
+      const act1 = selectedStageChoice[1]?.data?.title || "Bestrafungsmaßnahme";
       const posture2 = selectedStageChoice[2]?.data?.title || "Haltung";
       const bondage3 = selectedStageChoice[3]?.data?.title || "Fixierung";
       const bottomKinks = getBottomHighKinksSummary();
 
-      let contextDescription = `Vergehen: "${reason}". Bisher gewählt: Stufe 1 = [${act1}].`;
+      const activeTools = (typeof window.getActiveSessionEquipment === "function") 
+        ? window.getActiveSessionEquipment(activeEquipmentIds).map(t => t.name).join(", ")
+        : "Nackte Hände, Gürtel, Krawatte, Eiswürfel, Holzlöffel, Bettkante, Fußboden";
+
+      let contextDescription = `Konkreter Anlass / Vergehen: "${reason}". Bisher gewählt: Stufe 1 = [${act1}].`;
       if (stage >= 3) contextDescription += ` Stufe 2 Haltung = [${posture2}].`;
       if (stage >= 4) contextDescription += ` Stufe 3 Fixierung = [${bondage3}].`;
-      contextDescription += ` Bottom Vorlieben & Kinks: [${bottomKinks}].`;
+      contextDescription += ` Bottom Vorlieben: [${bottomKinks}].`;
 
       const nonce = `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+      const modelToUse = activeDiscoveredModel || "gemini-2.5-flash";
 
       try {
         const prompt = `Du bist eine erfahrene, kreative BDSM-Autorin und Domina. Erstelle eine tiefgreifende, hochgradig szene-authentische und kreative BDSM-Empfehlung für "${stageNames[stage]}" im Härtegrad "${sevLabels[sev]}".
-WICHTIGSTE REGELN:
-1. Wenn "Selbstvollzug" gewählt ist, MUSS die Handlung anatomisch und physikalisch plausibel sein (z.B. Selbst-Spanking im aufrechten Stand vor dem Sessel, Riemenhiebe auf die Oberschenkel, eigenhändiges Anlegen von Klemmen oder Knebel). Schlage NIEMALS anatomisch unmöglichen Unsinn vor wie "sich selbst über die Knie legen".
-2. Wenn der Bottom Kinks wie Stiefel, High Heels, Fußdruck, Speichel, Demütigung oder Impact hoch bewertet hat, binde diese organisch ein.
+WICHTIGSTE PHYSIKALISCHE & MATERIELLE GESETZE:
+1. ERLAUBTE GEGENSTÄNDE: Nutze AUSSCHLIESSLICH Dinge aus folgender Liste vorhandener Utensilien: [${activeTools}]. Universale Dinge (Hände, Fußboden, Bettkante, Stuhl, Wand, Mitzählen) dürfen IMMER genutzt werden. Schlage NIEMALS Dinge vor, die nicht vorhanden sind (z.B. kein Pranger oder Andreaskreuz, wenn nur Bett und Hände da sind)!
+2. PHYSIKALISCHE VERTENSCHLUSS-PRÜFUNG:
+   - Wenn der Bottom die Hände auf dem Rücken gefesselt hat, ist SELBSTVOLLZUG PHYSIKALISCH UNMÖGLICH. Schlage in dem Fall niemals vor, dass er sich selbst schlägt!
+   - Wenn der Bottom geknebelt ist, ist LAUTES MITZÄHLEN UNMÖGLICH. Schlage dann nur stummes Aushalten oder Abklopfen vor!
+3. Beziehe den konkreten Anlass "${reason}" zwingend logisch in die Maßnahme ein.
 Kontext: ${contextDescription}. Seed: ${nonce}.
 Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)", "desc": "Zwei bis drei präzise Sätze zur Ausführung, Körperhaltung und psychologischen Wirkung."}`;
 
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${encodeURIComponent(storedKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2216,10 +2590,34 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
             if (selectedStageChoice[stage]?.type === 'creative') {
               selectedStageChoice[stage].data = currentCreativeData[stage];
             }
+
+            checkLiveWizardConstraints();
             renderStageCards(stage);
           }
         }
       } catch (e) {}
+    }
+
+    function checkLiveWizardConstraints() {
+      if (typeof window.validateDisciplineSetup !== "function") return;
+
+      const currentSetup = {
+        action: selectedStageChoice[1]?.data,
+        posture: selectedStageChoice[2]?.data,
+        bondage: selectedStageChoice[3]?.data,
+        sensory: selectedStageChoice[4]?.data
+      };
+
+      const result = window.validateDisciplineSetup(currentSetup);
+      const warnBox = document.getElementById('wizard-conflict-warning');
+      const warnText = document.getElementById('wizard-conflict-text');
+
+      if (!result.isValid && warnBox && warnText) {
+        warnText.innerText = result.conflicts[0] || "Physikalischer Konflikt korrigiert.";
+        warnBox.classList.remove('hidden');
+      } else if (warnBox) {
+        warnBox.classList.add('hidden');
+      }
     }
 
     function renderStageCards(stage) {
@@ -2341,6 +2739,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
         const found = items.find(it => it.id === idOrIdx) || items[0];
         selectedStageChoice[stage] = { type: 'catalog', data: found };
       }
+      checkLiveWizardConstraints();
       renderStageCards(stage);
     }
 
@@ -2354,7 +2753,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
       });
 
       const subEl = document.getElementById('wizard-stage-subtitle');
-      const stageNames = ["", "Vergehen & Zucht-Maßnahme", "Körperhaltung", "Fesselung & Fixierung", "Sensorik & Knebel", "Vollzugs-Übersicht"];
+      const stageNames = ["", "Vergehen, Anlass & Bestrafungs-Maßnahme", "Körperhaltung", "Fesselung & Fixierung", "Sensorik & Knebel", "Vollzugs-Übersicht"];
       if (subEl) subEl.innerText = `Stufe ${wizardCurrentStage} von 5: ${stageNames[wizardCurrentStage]}`;
 
       const btnPrev = document.getElementById('btn-prev-wizard');
@@ -2367,6 +2766,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
 
       if (wizardCurrentStage <= 4) renderStageCards(wizardCurrentStage);
       if (wizardCurrentStage === 5) renderStage5Summary();
+      checkLiveWizardConstraints();
     }
 
     function nextWizardStage() {
@@ -2403,14 +2803,15 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
       const breakdownEl = document.getElementById('summary-discipline-breakdown');
       if (!breakdownEl) return;
 
-      const act1 = selectedStageChoice[1]?.data?.title || "Zucht-Maßnahme";
+      const act1 = selectedStageChoice[1]?.data?.title || "Bestrafungs-Maßnahme";
       const pos2 = selectedStageChoice[2]?.data?.title || "Aufrechte Haltung";
       const fix3 = selectedStageChoice[3]?.data?.title || "Handfesseln";
       const gag4 = selectedStageChoice[4]?.data?.title || "Schweigegebot";
-      const reason = document.getElementById('incident-top-custom-reason')?.value || "Ungehorsam";
+      const customReason = (document.getElementById('incident-top-custom-reason')?.value || '').trim();
+      const reason = customReason.length > 0 ? customReason : "Ungehorsam";
 
       breakdownEl.innerHTML = `
-        <div class="p-2 rounded-xl bg-slate-900 border border-slate-800"><strong>Vergehen:</strong> ${escapeHtml(reason)}</div>
+        <div class="p-2 rounded-xl bg-slate-900 border border-slate-800"><strong>Konkreter Anlass:</strong> ${escapeHtml(reason)}</div>
         <div class="p-2 rounded-xl bg-slate-900 border border-slate-800"><strong>1. Maßnahme:</strong> ${escapeHtml(act1)} (Stufe ${stageSeverities[1]})</div>
         <div class="p-2 rounded-xl bg-slate-900 border border-slate-800"><strong>2. Haltung:</strong> ${escapeHtml(pos2)} (Stufe ${stageSeverities[2]})</div>
         <div class="p-2 rounded-xl bg-slate-900 border border-slate-800"><strong>3. Fixierung:</strong> ${escapeHtml(fix3)} (Stufe ${stageSeverities[3]})</div>
@@ -2419,16 +2820,17 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     }
 
     function applyConfiguredDiscipline() {
-      const act1 = selectedStageChoice[1]?.data?.title || "Zucht-Maßnahme";
+      const act1 = selectedStageChoice[1]?.data?.title || "Bestrafungs-Maßnahme";
       const pos2 = selectedStageChoice[2]?.data?.title || "Haltung";
       const fix3 = selectedStageChoice[3]?.data?.title || "Fixierung";
       const gag4 = selectedStageChoice[4]?.data?.title || "Sensorik";
-      const reason = document.getElementById('incident-top-custom-reason')?.value || "Ungehorsam";
+      const customReason = (document.getElementById('incident-top-custom-reason')?.value || '').trim();
+      const reason = customReason.length > 0 ? customReason : "Ungehorsam";
 
-      const summaryText = `Zucht vollzogen: [${act1}] in [${pos2}] mit [${fix3}] und [${gag4}] wegen: "${reason}"`;
+      const summaryText = `Bestrafung vollzogen: [${act1}] in [${pos2}] mit [${fix3}] und [${gag4}] wegen: "${reason}"`;
       recordLiveEvent("discipline_executed", summaryText, true);
 
-      showToast("Zucht-Ritual vollzogen & im Logbuch erfasst");
+      showToast("Bestrafungs-Ritual vollzogen & im Logbuch erfasst");
       closeIncidentDisciplineModal();
     }
 
@@ -2867,6 +3269,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     window.addEventListener('DOMContentLoaded', () => {
       initSessionPortal();
       setTimeout(initVoiceSettings, 200);
+      setTimeout(initEquipmentStaging, 300);
     });
   </script>
 </body>
