@@ -14,6 +14,7 @@
   'use strict';
 
   var onboardAnatState = { A: 'penis', B: 'vulva' };
+  var onboardSharingLevel = 3;
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -312,6 +313,7 @@
     }
 
     updateAccountAnatomyUI(curUser, anatomy);
+    updateAccountSharingUI(curUser);
 
     var aiToggle = document.getElementById('account-ai-toggle');
     if (aiToggle) {
@@ -392,6 +394,78 @@
         btnMyPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       }
     }
+  }
+
+  function getSharingLevel(user) {
+    try {
+      var stored = localStorage.getItem('kompass_sharing_level_' + user);
+      if (stored) {
+        var num = parseInt(stored, 10);
+        if (num >= 1 && num <= 4) return num;
+      }
+    } catch (e) {}
+    return 3; // Standard: Duldung & Buße (Note 2-5)
+  }
+
+  function updateAccountSharingUI(curUser) {
+    var currentLevel = getSharingLevel(curUser);
+    var badge = document.getElementById('account-sharing-badge');
+    var labels = [
+      "",
+      "Stufe 1: Nur Doppel-5er",
+      "Stufe 2: Bis Neugier (3–5)",
+      "Stufe 3: Buße & Duldung (2–5)",
+      "Stufe 4: Offenes Buch (1–5)"
+    ];
+
+    if (badge) badge.innerText = labels[currentLevel] || "Stufe 3";
+
+    [1, 2, 3, 4].forEach(function(lvl) {
+      var btn = document.getElementById('btn-share-level-' + lvl);
+      if (btn) {
+        if (lvl === currentLevel) {
+          btn.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md";
+        } else {
+          btn.className = "p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
+        }
+      }
+    });
+  }
+
+  function selectAccountSharingLevel(lvl) {
+    var curUser = window.currentUser || 'A';
+    try {
+      localStorage.setItem('kompass_sharing_level_' + curUser, lvl.toString());
+      if (window.CloudSync) window.CloudSync.trigger();
+    } catch (e) {}
+
+    updateAccountSharingUI(curUser);
+    var desc = [
+      "",
+      "Stufe 1 aktiv: Nur beiderseitige Volltreffer (Doppel-5er) werden geteilt.",
+      "Stufe 2 aktiv: Freigabe bis Neugier (Note 3–5).",
+      "Stufe 3 aktiv: Buße & Duldung freigegeben (Note 2–5).",
+      "Stufe 4 aktiv: Radikale Transparenz (Alle Noten 1–5)."
+    ];
+    showToast(desc[lvl] || "Freigabestufe aktualisiert ✓");
+  }
+
+  function setOnboardingSharingLevel(lvl) {
+    onboardSharingLevel = lvl;
+    var lbl = document.getElementById('onboard-sharing-label');
+    var labels = ["", "1. Nur Doppel-5er", "2. Bis Neugier (3–5)", "3. Buße & Duldung (Standard)", "4. Offenes Buch (1–5)"];
+    if (lbl) lbl.innerText = labels[lvl] || "Stufe " + lvl;
+
+    [1, 2, 3, 4].forEach(function(l) {
+      var btn = document.getElementById('onboard-share-' + l);
+      if (btn) {
+        if (l === lvl) {
+          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        } else {
+          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
+        }
+      }
+    });
   }
 
   function selectAccountAnatomy(who, type) {
@@ -757,6 +831,7 @@
     try {
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
+      localStorage.setItem('kompass_sharing_level_' + curUser, (onboardSharingLevel || 3).toString());
       localStorage.setItem('kompass_onboarding_done', 'true');
     } catch (e) {}
 
@@ -825,6 +900,8 @@
   window.updateCurrentUserName = updateCurrentUserName;
   window.updateCurrentUserEmail = updateCurrentUserEmail;
   window.selectAccountAnatomy = selectAccountAnatomy;
+  window.selectAccountSharingLevel = selectAccountSharingLevel;
+  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
   window.toggleAccountAiActive = toggleAccountAiActive;
   window.toggleThemeInAccount = toggleThemeInAccount;
   window.saveGeminiKeyInAccount = saveGeminiKeyInAccount;
