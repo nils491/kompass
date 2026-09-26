@@ -3,7 +3,8 @@
  * High-Speed KI-Kink- & BDSM-Recherche Engine (100% Live-KI-Analyse).
  * 
  * - Keine statischen / vorrecherchierten Festwerte: Jede Anfrage wird live von der KI generiert
- * - Reines JSON-Streaming (unter 250 Tokens) für typische Antwortzeiten von 1,5 bis 3,5 Sekunden
+ * - Reines JSON-Streaming für typische Antwortzeiten von 1,5 bis 3,5 Sekunden
+ * - Optimiert mit minimalem Thinking-Level für Gemini 3.8 und Budget 0 für 2.5
  * - Automatischer Reset der Suchmaske beim Schließen des Modals
  * - Barrierefreies 3-Säulen-Dashboard (Definition & Sicherheit, Top/Bottom-Psychologie, Top-Leitfaden)
  */
@@ -172,7 +173,6 @@
       return;
     }
 
-    // High-Tech Lade-Zustand rendern
     if (container) {
       container.innerHTML = `
         <div class="p-8 text-center space-y-4 theme-panel rounded-3xl border border-purple-800/40 shadow-xl bg-gradient-to-b from-purple-950/20 to-noir-950">
@@ -182,7 +182,7 @@
           </div>
           <div class="space-y-1.5">
             <strong class="text-xs text-white block font-black">Live-Analyse: "${escapeHtml(cleanTerm)}"</strong>
-            <p class="text-[11px] text-purple-300">Gemini 3.8 Flash generiert Definition, Psychologie & Best Practice...</p>
+            <p class="text-[11px] text-purple-300">Gemini generiert Definition, Psychologie & Best Practice...</p>
           </div>
         </div>
       `;
@@ -191,7 +191,6 @@
     var apiKey = getGeminiApiKey();
     var startTime = Date.now();
 
-    // Kompakter Prompt für schnellste strukturierte JSON-Ausgabe
     var prompt = `Du bist ein erfahrener, traumasensibler BDSM- und Sexualaufklärer.
 Erkläre die Praktik "${cleanTerm}" ${contextDesc ? `(Kontext: "${contextDesc}")` : ''} für ein aufgeklärtes deutsches Paar.
 
@@ -210,37 +209,64 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
   ]
 }`;
 
-    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash'];
+    // Modell-Konfigurationen: Pro Modelltyp die passende Spezifikation
+    var candidates = [
+      {
+        model: 'gemini-3.8-flash',
+        genConfig: {
+          temperature: 0.2,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "minimal" }
+        }
+      },
+      {
+        model: 'gemini-3.7-flash',
+        genConfig: {
+          temperature: 0.2,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "minimal" }
+        }
+      },
+      {
+        model: 'gemini-2.5-flash',
+        genConfig: {
+          temperature: 0.2,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      }
+    ];
+
     var success = false;
     var lastError = "Keine Verbindung zum KI-Dienst";
 
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function() { controller.abort(); }, 16000);
-
-    for (var m = 0; m < candidateModels.length; m++) {
-      var targetModel = candidateModels[m];
+    for (var m = 0; m < candidates.length; m++) {
+      var candidate = candidates[m];
+      var targetModel = candidate.model;
       var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + targetModel + ':generateContent?key=' + encodeURIComponent(apiKey);
 
       var payload = {
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.25,
-          responseMimeType: "application/json"
-        }
+        generationConfig: candidate.genConfig
       };
+
+      // Pro Einzelanfrage 7 Sekunden Timeout statt 16 Sekunden Warten
+      var attemptController = new AbortController();
+      var attemptTimeout = setTimeout(function() { attemptController.abort(); }, 7000);
 
       try {
         var resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-          signal: controller.signal
+          signal: attemptController.signal
         });
+        clearTimeout(attemptTimeout);
 
         if (resp.ok) {
           var resData = await resp.json();
           var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-          var parsedData;
+          var parsedData = null;
           try {
             parsedData = JSON.parse(rawJson);
           } catch (pe) {
@@ -249,7 +275,6 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
           }
 
           if (parsedData && parsedData.definition) {
-            clearTimeout(timeoutId);
             var duration = ((Date.now() - startTime) / 1000).toFixed(1);
             sessionSearchCache[cacheKey] = { data: parsedData, model: targetModel, duration: duration };
             if (container) {
@@ -264,15 +289,14 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
           if (resp.status === 429) break;
         }
       } catch (e) {
+        clearTimeout(attemptTimeout);
         if (e.name === 'AbortError') {
-          lastError = "Zeitüberschreitung (Timeout nach 16s). Bitte erneut versuchen.";
-          break;
+          lastError = "Zeitüberschreitung beim Modell " + targetModel + ". Nächster Versuch...";
+          continue;
         }
         lastError = e.message || "Netzwerkfehler";
       }
     }
-
-    clearTimeout(timeoutId);
 
     if (!success && container) {
       container.innerHTML = `
@@ -314,7 +338,6 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
       modal.style.display = 'none';
     }
 
-    // Automatischer Reset: Eingabefeld leeren & Startansicht wiederherstellen
     var input = document.getElementById('lexikon-search-input');
     if (input) input.value = '';
     var container = document.getElementById('lexikon-entries-container');
