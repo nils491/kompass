@@ -314,16 +314,16 @@
               <span class="text-[10.5px] text-slate-400">Eigene Spotify / Apple Music Playlist ODER generative Soundscapes</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="selectMusicSourceWrapper('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
+              <button type="button" onclick="selectMusicSourceWrapper('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
                 Eigene Playlist
               </button>
-              <button type="button" onclick="selectMusicSourceWrapper('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
+              <button type="button" onclick="selectMusicSourceWrapper('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
                 Generativ
               </button>
             </div>
           </div>
 
-          <div id="music-panel-own" class="space-y-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
+          <div id="music-panel-own" class="hidden space-y-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
             <div class="flex items-center justify-between gap-2">
               <span class="text-slate-300 font-bold text-[11px]">Eure Lieblings-Playlist starten:</span>
               <span class="text-[9.5px] text-purple-300 font-mono">Audio-Ducking aktiv</span>
@@ -339,7 +339,7 @@
             </div>
           </div>
 
-          <div id="music-panel-synth" class="hidden space-y-2">
+          <div id="music-panel-synth" class="space-y-2">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button type="button" onclick="setSoundscapeStyleWrapper('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
                 <span>Cinematic Velvet</span>
