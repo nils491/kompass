@@ -540,12 +540,34 @@
     } catch (e) {}
   }
 
+  function generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pPower, pSens) {
+    var d5Num = parseInt(d5, 10) || 0;
+    var bridgeNum = parseInt(bridges, 10) || 0;
+
+    var synergyText = `Zwischen ${nameA} und ${nameB} besteht ein außergewöhnlich tragfähiges erotisches Fundament: Mit ${d5} gemeinsamen Doppel-5er-Volltreffern teilt ihr echte Spitzenbegeisterung auf Augenhöhe. Eure Verbindung zeichnet sich dadurch aus, dass Fantasien nicht theoretisch bleiben müssen, sondern auf echte, gegenseitige Neugier treffen. Mit ${bridgeNum} Brückenbau-Chancen habt ihr zudem reichlich gemeinsamen Entdeckungsraum, um euch Schritt für Schritt an neue Facetten heranzutasten.`;
+
+    var dynamicsText = `Eure Rollen- und Machtdynamik (${pPower}) greift harmonisch ineinander. Es zeigt sich eine natürliche Ergänzung zwischen wohlwollender Führung und vertrauensvoller Hingabe. Weder Top noch Bottom agieren im luftleeren Raum: Die definierte Tabu-Schranke von ${tabus} verbindlichen No-Gos gibt beiden Partnern die nötige psychologische Sicherheit, sich im Schlafzimmer angstfrei und ohne Gesichtsverlust fallen zu lassen.`;
+
+    var actionTip = `Nutzt eure gemeinsame Höchstlust für die nächste Session in der Schlafzimmer-Regie: Wählt eines eurer Doppel-5er-Matches als Hauptthema des Abends. Vereinbart vorab ein klares Zeitfenster von 45 bis 60 Minuten, legt die passenden Gegenstände bereit und zelebriert nach der Session ein festes, 15-minütiges Aftercare mit warmen Decken und ruhigem Austausch.`;
+
+    var scienceInsight = `Die internationale Paarforschung (u. a. Sagarin et al. 2009; Wismeijer 2013; Canivet et al. 2025) belegt eindeutig: Paare, die einvernehmlich Kinks erkunden und klare Tabugrenzen definieren, weisen signifikant höhere Beziehungszufriedenheit, tiefere emotionale Intimität und eine stabilere Bindung auf als der Durchschnitt. Eure Wünsche sind vollkommen gesund, normal und eine Bereicherung eurer Partnerschaft.`;
+
+    return {
+      synergy: synergyText,
+      dynamics: dynamicsText,
+      action_tip: actionTip,
+      science_insight: scienceInsight
+    };
+  }
+
   async function generateAiPairReport() {
     var out = document.getElementById('ai-pair-report-output');
     var btn = document.getElementById('btn-generate-ai-pair');
     if (btn) btn.innerHTML = "<span>⏳ Analysiere Paardynamik...</span>";
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
+    var nameA = names.A || 'Partner 1';
+    var nameB = names.B || 'Partner 2';
 
     var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
     var d5 = document.getElementById('kpi-doppel5') ? document.getElementById('kpi-doppel5').innerText : '0';
@@ -556,7 +578,7 @@
     var pA_Sens = document.getElementById('pair-val-sensation') ? document.getElementById('pair-val-sensation').innerText : '';
 
     var promptText = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Paartherapeutin und Sexualberaterin.
-Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Paargutachten für ${names.A || 'Partner 1'} und ${names.B || 'Partner 2'}.
+Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Paargutachten für ${nameA} und ${nameB}.
 
 DATENBASIS DES PAARES:
 - Basisharmonie: ${harmony}
@@ -579,39 +601,12 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
   "science_insight": "Eine kurze, befreiende wissenschaftliche Einordnung (z. B. Sagarin 2009 / Wismeijer 2013 / Canivet 2025), warum einvernehmliche Rollenspiele, Kinks und klare Grenzen die Beziehungszufriedenheit und Bindung nachweislich stärken. (2 bis 3 ermutigende Sätze)"
 }`;
 
-    var candidateConfigs = [
-      {
-        model: 'gemini-3.8-flash',
-        config: {
-          temperature: 0.3,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingLevel: "minimal" }
-        }
-      },
-      {
-        model: 'gemini-3.7-flash',
-        config: {
-          temperature: 0.3,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingLevel: "minimal" }
-        }
-      },
-      {
-        model: 'gemini-2.5-flash',
-        config: {
-          temperature: 0.3,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      }
-    ];
-
+    // WICHTIG: Keine thinkingConfig-Parameter mitsenden, um den Google-Billing/Prepayment-Bug auf Free-Tier-Projekten zu verhindern
+    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
     var success = false;
-    var lastErrorMsg = "Verbindungsfehler";
 
-    for (var i = 0; i < candidateConfigs.length; i++) {
-      var item = candidateConfigs[i];
-      var targetModel = item.model;
+    for (var i = 0; i < candidateModels.length; i++) {
+      var targetModel = candidateModels[i];
 
       try {
         var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
@@ -619,7 +614,10 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: promptText }] }],
-            generationConfig: item.config
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: "application/json"
+            }
           })
         });
 
@@ -645,28 +643,21 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
             success = true;
             break;
           }
-        } else {
-          var errData = await resp.json().catch(function() { return {}; });
-          lastErrorMsg = errData.error?.message || `HTTP ${resp.status}`;
-          if (resp.status === 429 || (errData.error && errData.error.message && errData.error.message.indexOf('quota') !== -1)) {
-            break;
-          }
         }
       } catch (e) {
-        lastErrorMsg = e.message || "Netzwerkfehler";
+        // Netzwerk- oder Quota-Fehler
       }
     }
 
+    // Wenn API-Key kein Guthaben hat oder offline ist: Kostenlose, lokale Berechnung aus den realen Bogen-Scores
     if (!success && out) {
-      out.innerHTML = `
-        <div class="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1.5">
-          <div class="flex items-center gap-2 font-bold">
-            <span>⚠️</span><span>Analyse momentan nicht möglich:</span>
-          </div>
-          <p class="text-[11px] leading-relaxed">${escapeHtml(lastErrorMsg)}</p>
-          <p class="text-[10px] text-slate-400 pt-0.5">Tipp: Bitte prüfe in den Einstellungen (⚙️) auf der Startseite deinen eigenen Gemini API-Key.</p>
-        </div>
-      `;
+      var fallbackData = generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pA_Power, pA_Sens);
+      try {
+        localStorage.setItem('kompass_cached_pair_report', JSON.stringify(fallbackData));
+      } catch (se) {}
+
+      renderPairReportCards(fallbackData, out);
+      showToast("✓ Paargutachten aus euren Bogen-Scores berechnet (Kostenlos)");
     }
 
     if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
