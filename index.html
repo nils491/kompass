@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Intim-Kompass | Dashboard & Zentrale</title>
+  <title>Kink- & Beziehungs-Kompass | Start-Hub & KI-Zentrale</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -13,13 +13,6 @@
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
-      }
-
-      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-        document.addEventListener('DOMContentLoaded', () => {
-          const lock = document.getElementById('site-lockscreen');
-          if (lock) lock.classList.add('hidden');
-        });
       }
     })();
 
@@ -42,10 +35,10 @@
             noir: {
               950: '#000000',
               900: '#05070c',
-              850: '#0c1017',
-              800: '#121722',
-              700: '#1a2232',
-              600: '#26334a',
+              850: '#0a0e17',
+              800: '#101726',
+              700: '#172238',
+              600: '#233454',
             }
           }
         }
@@ -65,7 +58,6 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: var(--sat);
       padding-bottom: var(--sab);
       padding-left: var(--sal);
       padding-right: var(--sar);
@@ -74,18 +66,6 @@
     html.dark body { background-color: #000000 !important; color: #f8fafc !important; }
     html.dark .theme-card { background-color: #060911 !important; border-color: #172033 !important; color: #f8fafc !important; }
     html.dark .theme-panel { background-color: #0b111e !important; border-color: #1e2b44 !important; color: #e2e8f0 !important; }
-    html.dark .bg-white { background-color: #060911 !important; color: #f8fafc !important; }
-    html.dark .bg-slate-50, html.dark .bg-slate-50\/70 { background-color: #0b111e !important; color: #e2e8f0 !important; }
-    html.dark .bg-slate-100 { background-color: #121a2c !important; color: #f8fafc !important; }
-    html.dark .border-slate-200, html.dark .border-slate-300 { border-color: #172033 !important; }
-    html.dark .text-slate-900, html.dark .text-slate-800 { color: #f8fafc !important; }
-    html.dark .text-slate-700 { color: #cbd5e1 !important; }
-    html.dark .text-slate-600, html.dark .text-slate-500 { color: #94a3b8 !important; }
-    html.dark input[type="text"], html.dark input[type="email"], html.dark input[type="password"], html.dark textarea { 
-      background-color: #0b111e !important; 
-      border-color: #1e2b44 !important; 
-      color: #f8fafc !important; 
-    }
 
     html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
     html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
@@ -93,113 +73,62 @@
 
     .touch-btn {
       min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
     }
     .touch-btn:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
-  <script>
-    function verifySitePassword() {
-      const input = document.getElementById('site-pw-input');
-      const err = document.getElementById('pw-error-hint');
-      const lock = document.getElementById('site-lockscreen');
-      if (!input) return;
-
-      if (input.value.trim() === 'Bommelchen!') {
-        sessionStorage.setItem('kompass_unlocked', 'true');
-        if (lock) lock.classList.add('hidden');
-        if (err) err.classList.add('hidden');
-        if (typeof showToast === 'function') showToast("Erfolgreich entsperrt");
-        if (typeof checkOnboardingStatus === 'function') checkOnboardingStatus();
-        if (typeof updateHubUI === 'function') updateHubUI();
-      } else {
-        if (err) err.classList.remove('hidden');
-      }
-    }
-  </script>
 </head>
-<body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <!-- VORAB-ENTSPERRTER AUDIO-PLAYER FÜR iOS & SAFARI -->
-  <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
+  <audio id="master-voice-audio" playsinline class="hidden"></audio>
 
-  <!-- SPERRBILDSCHIRM (PASSWORT) -->
-  <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
-      <div class="w-14 h-14 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-2xl shadow-inner">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-      </div>
-      <div class="space-y-1.5">
-        <h2 class="text-lg font-extrabold text-white tracking-tight">Privater Beziehungs-Kompass</h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Geschützter Intimbereich. Bitte autorisiere den Zugang:
-        </p>
-      </div>
-      <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." onkeydown="if(event.key==='Enter') verifySitePassword()" class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition min-h-[46px]">
-        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-md transition touch-btn">
-          Entsperren & Fortfahren
-        </button>
-        <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-    </div>
-  </div>
-  <script>
-    if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-      const lock = document.getElementById('site-lockscreen');
-      if (lock) lock.classList.add('hidden');
-    }
-  </script>
-
-  <!-- HEADER NAVIGATION -->
-  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-slate-900 shadow-sm">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
-      <!-- ZEILE 1: LOGO & ESSENTIELLE AKTIONEN -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <button type="button" onclick="handleLogoClick()" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Navigation: Zurück zum Fragebogen oder Start-Hub">
+        <a href="#view=hub" onclick="switchMainView('hub')" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zum Hub">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-brand-200" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" class="opacity-50" />
-              <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.5" class="opacity-60" />
-              <path d="M12 5.5L14.2 12l-2.2 6.5L9.8 12z" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6" />
-              <circle cx="12" cy="1.5" fill="#f43f5e" />
-            </svg>
+            <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
           <div class="truncate">
             <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none truncate text-white">Intim-Kompass</h1>
-              <span id="header-hub-indicator" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">HUB AKTIV</span>
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Kink-Kompass</h1>
+              <span id="hub-ai-badge" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">KI AKTIV</span>
             </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-sub-caption">Erkenntnis & Paardynamik</span>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5">Start-Hub & Paar-Zentrale</span>
           </div>
-        </button>
+        </a>
 
-        <!-- Schnell-Aktionen rechts (Mindesthöhe 44px) -->
+        <!-- PROFIL-SWITCHER -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800/80 text-brand-200 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Schlafzimmer-Cockpit">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
-          </a>
-          <button type="button" onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Persönliche Tabus anzeigen">
-            <span class="text-[10px] font-black uppercase">Tabus</span> <span id="header-tabu-count" class="px-1.5 py-0.2 rounded bg-rose-900 text-rose-200 text-[10px] font-mono">0</span>
+          <div class="flex items-center p-0.5 rounded-xl theme-panel border text-xs">
+            <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
+              <span id="user-display-A">Partner 1</span>
+            </button>
+            <button type="button" onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
+              <span id="user-display-B">Partner 2</span>
+            </button>
+          </div>
+
+          <button type="button" onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Tabu-Charta anzeigen">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span id="header-tabu-count">0</span>
           </button>
-          <button type="button" onclick="openAccountModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition touch-btn" title="Profile, Partner-Sync & Einstellungen">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          <button type="button" onclick="openAccountModal()" class="p-2 theme-panel border text-slate-300 hover:text-white rounded-xl text-xs flex items-center transition touch-btn" title="Einstellungen">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </button>
         </div>
       </div>
 
-      <!-- ZEILE 2: DURCHGÄNGIGE HORIZONTAL WISCHBARE APP-TABS -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
-        <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </button>
-        <button type="button" onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <button type="button" onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Fragebogen</span>
         </button>
         <button type="button" onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
@@ -211,23 +140,27 @@
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Paar-Analyse</span>
         </a>
+        <a href="session.html" class="px-3 py-1.5 rounded-xl text-pink-400 hover:text-pink-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Cockpit</span>
+        </a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
+  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
-    <!-- VIEW 0: START-HUB (DASHBOARD) -->
-    <section id="view-hub" class="hidden space-y-5">
-      <div class="theme-card p-5 sm:p-7 rounded-3xl border shadow-xl relative overflow-hidden">
-        <div class="absolute -right-12 -top-12 w-48 h-48 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="max-w-xl space-y-2 relative z-10">
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800 inline-block">
-            Kommandoebene
+    <!-- VIEW 1: START-HUB (DASHBOARD) -->
+    <section id="view-hub" class="space-y-5">
+      <div class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl relative overflow-hidden bg-gradient-to-r from-noir-900 via-brand-950/20 to-noir-900">
+        <div class="max-w-2xl space-y-2 relative z-10">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">
+            Willkommen im Paar-Zentrum
           </span>
-          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Kompass-Dashboard</h2>
-          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Geschützter Raum für Erkenntnis, somatische Sicherheit und erotische Führung. Wählt direkt den gewünschten Bereich:
+          <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight">
+            Euer persönlicher Kink- & Beziehungs-Kompass
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Ein evidenzbasiertes, traumasensibles Werkzeug zur schamfreien Erkundung eurer Vorlieben, Tabus und gemeinsamen Erotik.
           </p>
         </div>
       </div>
@@ -310,12 +243,28 @@
               <span class="text-[10px] font-bold text-pink-400 bg-pink-950 px-2 py-0.5 rounded-full border border-pink-800">Schlafzimmer</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
-              Geführtes 4-Phasen-Drehbuch, D/s-Zuchtrechner, Vital-Timer und Aftercare-Logbuch.
+              Geführtes 4-Phasen-Drehbuch, Bestrafungs-Konfigurator, Vital-Timer und Aftercare-Logbuch.
             </p>
           </div>
         </a>
 
-        <!-- Kachel 6: BEDINGTE KI-ZENTRALE (Nur sichtbar wenn in ⚙️ aktiviert) -->
+        <!-- Kachel 6: TOY-VERWALTUNG (UNSER SCHRANK) -->
+        <button type="button" onclick="openToyManagementModal()" class="theme-card hover:border-purple-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
+          <div class="w-11 h-11 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            06
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm font-extrabold text-white group-hover:text-purple-300 transition-colors">Toy-Verwaltung</strong>
+              <span id="hub-toy-count-badge" class="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">Inventar</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für das Cockpit.
+            </p>
+          </div>
+        </button>
+
+        <!-- Kachel 7: BEDINGTE KI-ZENTRALE -->
         <div id="hub-tile-ai" class="hidden theme-card border-purple-500/60 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group shadow-md flex items-start gap-3.5 bg-purple-950/20">
           <div class="w-11 h-11 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             KI
@@ -337,442 +286,283 @@
       </div>
     </section>
 
-    <!-- VIEW 1: FRAGEBOGEN -->
-    <section id="view-survey" class="space-y-4">
-      
-      <!-- NUTZER-LEISTE & FORTSCHRITT -->
-      <div class="theme-card p-3 sm:p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
-        <div class="flex items-center gap-1.5 text-xs font-bold">
-          <span class="text-slate-400">Aktives Profil:</span>
-          <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border">
-            <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs touch-btn">
-              <span id="user-display-A">Partner 1</span>
-            </button>
-            <button type="button" onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-400 hover:text-white touch-btn">
-              <span id="user-display-B">Partner 2</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 flex-1 sm:flex-initial justify-end">
-          <div class="w-28 sm:w-40 bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-            <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-rose-500 h-full transition-all duration-300" style="width: 0%"></div>
-          </div>
-          <span id="progress-text" class="text-[10px] font-mono text-slate-400 font-bold whitespace-nowrap">0 %</span>
-        </div>
-      </div>
-
-      <!-- KAPITEL-KOPF -->
-      <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-xs">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+    <!-- VIEW 2: FRAGEBOGEN -->
+    <section id="view-survey" class="hidden space-y-4">
+      <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div class="flex items-center gap-2">
-            <button type="button" onclick="toggleChapterQuickGrid()" id="chapter-badge" class="px-2.5 py-1 rounded-full text-[10.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800/80 touch-btn cursor-pointer hover:bg-brand-900/60 transition" title="Klicken für Kapitelübersicht">
+            <button type="button" onclick="toggleChapterQuickGrid()" id="chapter-badge" class="px-3 py-1 rounded-xl text-xs font-black bg-brand-950 text-brand-300 border border-brand-800 touch-btn">
               Kapitel 0 / 35 ▾
             </button>
-            <span class="text-[10.5px] text-slate-400 font-bold" id="chapter-items-count">5 Praktiken</span>
+            <h2 id="chapter-title" class="text-sm sm:text-base font-extrabold text-white truncate">Lade Kapitel...</h2>
           </div>
-
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="toggleChapterQuickGrid()" class="px-2.5 py-1 rounded-xl theme-panel border text-slate-300 hover:text-white text-xs font-bold transition touch-btn">
-              Verzeichnis
-            </button>
-            <button type="button" id="btn-prev-chapter" onclick="prevChapter()" class="px-3 py-1 rounded-xl theme-panel border text-slate-300 hover:text-white text-xs font-bold transition touch-btn">
-              ← Zurück
-            </button>
-            <button type="button" id="btn-next-chapter" onclick="nextChapter()" class="px-3 py-1 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-extrabold transition touch-btn shadow-xs">
-              Weiter →
-            </button>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-slate-400" id="chapter-items-count">0 Praktiken</span>
           </div>
         </div>
 
-        <div class="space-y-1">
-          <h2 class="text-base sm:text-lg font-black text-white tracking-tight" id="chapter-title">Lade Kapitel...</h2>
-          <p class="text-xs text-slate-400 leading-relaxed" id="chapter-desc">Beschreibung wird geladen...</p>
+        <p id="chapter-desc" class="text-xs text-slate-300 leading-relaxed">Beschreibung des Kapitels...</p>
+
+        <!-- PROGRESS BAR -->
+        <div class="space-y-1 pt-1">
+          <div class="flex justify-between text-[10px] font-mono text-slate-400">
+            <span>Gesamtfortschritt</span>
+            <span id="progress-text">0 %</span>
+          </div>
+          <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
+            <div id="progress-bar-fill" class="bg-brand-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
         </div>
 
-        <!-- SCHNELLWAHL-RASTER (EINKLAPPBAR) -->
-        <div id="chapter-quick-grid" class="hidden pt-2 border-t border-slate-800 space-y-2">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direktsprung in ein Kapitel:</span>
-          <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1.5 text-[10px]"></div>
-        </div>
-      </div>
-
-      <!-- FILTER- & SUCHE-LEISTE -->
-      <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
-          <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl font-bold bg-brand-700 text-white shadow-xs transition whitespace-nowrap touch-btn">
+        <!-- FILTER LEISTE -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+          <button type="button" onclick="setSurveyFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
             Alle
           </button>
-          <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-slate-300 hover:text-white transition whitespace-nowrap touch-btn">
+          <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
             Unbeantwortet
           </button>
-          <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-slate-300 hover:text-white transition whitespace-nowrap touch-btn">
-            4–5 Favoriten
+          <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
+            Favoriten (4–5)
           </button>
-          <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-rose-300 hover:text-white transition whitespace-nowrap touch-btn">
+          <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
             Tabus (1)
           </button>
-          <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-purple-300 hover:text-white transition whitespace-nowrap touch-btn">
+          <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">
             Hemmschwelle
           </button>
         </div>
-
-        <div class="relative flex-1 sm:flex-initial sm:w-48">
-          <input type="text" oninput="handleSurveySearch(this.value)" placeholder="Im Kapitel suchen..." class="w-full text-xs px-3 py-1.5 theme-panel border rounded-xl focus:outline-none focus:border-brand-500 text-white placeholder-slate-500">
-        </div>
       </div>
 
-      <!-- KARTEN-CONTAINER DES FRAGEBOGENS -->
+      <!-- SCHNELLWAHL-OVERLAY -->
+      <div id="chapter-quick-grid" class="hidden theme-card rounded-3xl p-4 border shadow-xl space-y-3">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <strong class="text-xs text-white">Kapitel-Direktsprung:</strong>
+          <button onclick="toggleChapterQuickGrid()" class="text-slate-400 hover:text-white text-xs">Schließen ✕</button>
+        </div>
+        <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1.5 text-[11px] max-h-60 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- FRAGEBOGEN-ITEMS CONTAINER -->
       <div id="survey-items-container" class="space-y-3"></div>
 
-      <!-- WEITER-BUTTON UNTEN -->
-      <div class="pt-2 flex justify-end">
-        <button type="button" id="btn-next-chapter-bottom" onclick="nextChapter()" class="w-full sm:w-auto px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black rounded-2xl shadow-lg transition touch-btn flex items-center justify-center gap-2">
-          <span>Nächstes Kapitel</span>
-          <span>→</span>
+      <!-- NAVIGATION UNTEN -->
+      <div class="flex items-center justify-between pt-2">
+        <button type="button" onclick="prevChapter()" id="btn-prev-chapter" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          ← Vorheriges Kapitel
+        </button>
+        <button type="button" onclick="nextChapter()" id="btn-next-chapter-bottom" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Nächstes Kapitel →
         </button>
       </div>
-
     </section>
 
-    <!-- VIEW 2: SICHERHEITS- & KONSENS-KODEX -->
+    <!-- VIEW 3: SICHERHEITS-KODEX -->
     <section id="view-safety" class="hidden space-y-4">
-      <div class="theme-card p-5 sm:p-6 rounded-3xl border border-teal-500/40 space-y-2 shadow-xl">
-        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-teal-950 text-teal-300 border border-teal-800 inline-block">
-          Konsens-Fundament
-        </span>
-        <h2 class="text-base sm:text-lg font-black text-white tracking-tight">Verbindlicher Sicherheits- & Konsens-Kodex</h2>
-        <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
-          Hier bewertet ihr nicht mit Noten (0–5), sondern trefft verbindliche Vereinbarungen für Notfälle, Safewords, Zucht und Aftercare.
-        </p>
+      <div class="theme-card rounded-3xl p-5 sm:p-6 border border-teal-500/40 shadow-sm space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-teal-400"></span>
+          <div>
+            <h2 class="text-base font-extrabold text-white">Sicherheits-Kodex & Konsens-Vereinbarungen</h2>
+            <p class="text-xs text-slate-300">Definiert verbindliche Standards für eure gemeinsame Sicherheit im Schlafzimmer.</p>
+          </div>
+        </div>
       </div>
-
       <div id="safety-configurator-full-container" class="space-y-4"></div>
-
-      <div class="pt-3 flex justify-between items-center">
-        <button type="button" onclick="switchMainView('survey')" class="px-4 py-2.5 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          ← Zurück zum Fragebogen
-        </button>
-        <button type="button" onclick="switchMainView('single')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Weiter zu Mein Profil →
-        </button>
-      </div>
     </section>
 
-    <!-- VIEW 3: MEIN PROFIL & PSYCHOLOGISCHE INDIVIDUALANALYSE -->
+    <!-- VIEW 4: MEIN PROFIL & PSYCHOLOGISCHE ANALYSE -->
     <section id="view-single" class="hidden space-y-4">
-      
-      <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-400 font-bold">Psychologisches Profil für:</span>
-          <strong class="text-sm font-black text-white" id="single-profile-name">Partner 1</strong>
-        </div>
-        <span class="text-[10px] text-brand-300 bg-brand-950 px-2.5 py-1 rounded-full border border-brand-800 font-bold">
-          35+ Studien Basis
-        </span>
-      </div>
-
-      <!-- LEERZUSTAND BEI ZU WENIG ANTWORTEN -->
-      <div id="single-empty-state" class="theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 text-sm font-black mx-auto flex items-center justify-center">
-          03
-        </div>
-        <h3 class="text-base font-extrabold text-white">Profil noch im Aufbau</h3>
-        <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-          Bitte beantworte mindestens einige Fragen im Fragebogen, damit deine psychologische Individualanalyse berechnet werden kann.
+      <div id="single-empty-state" class="theme-card rounded-3xl p-8 text-center space-y-3 border">
+        <span class="w-4 h-4 rounded-full bg-indigo-500 mx-auto block"></span>
+        <h3 class="text-base font-extrabold text-white">Noch keine Profil-Daten verfügbar</h3>
+        <p class="text-xs text-slate-400 max-w-md mx-auto">
+          Bitte beantworte zuerst einige Kapitel im Fragebogen, um deine psychologischen Antriebssäulen und das Archetypen-Radar zu berechnen.
         </p>
-        <button type="button" onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 text-white font-bold rounded-xl text-xs touch-btn shadow-xs">
-          Jetzt Fragen beantworten →
+        <button onclick="switchMainView('survey')" class="px-5 py-2.5 bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn">
+          Zum Fragebogen wechseln →
         </button>
       </div>
 
-      <!-- VOLLSTÄNDIGER INHALT WENN BEANTWORTET -->
       <div id="single-content-state" class="hidden space-y-4">
-        
+        <div class="theme-card rounded-3xl p-4 sm:p-5 border flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-black uppercase text-indigo-400 block tracking-wider">Persönliche Auswertung</span>
+            <h2 class="text-base font-black text-white" id="single-profile-name">Partner 1</h2>
+          </div>
+          <span class="px-3 py-1 rounded-xl bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs font-bold">Aktiv</span>
+        </div>
+
+        <!-- RADAR & SÄULEN -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- SPINNENDIAGRAMM (RADAR) -->
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-2 shadow-xs">
-            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
-              <span>Erotisches Archetypen-Radar</span>
-              <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
-            </h3>
-            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
+          <div class="theme-card rounded-3xl p-5 border space-y-2">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Erotisches Archetypen-Radar</h3>
+            <div class="relative h-64 w-full">
               <canvas id="singleRadarChart"></canvas>
             </div>
           </div>
 
-          <!-- DIE 5 PSYCHOLOGISCHEN MOTIVATIONS-SÄULEN -->
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-xs flex flex-col justify-between">
-            <div class="space-y-1">
-              <h3 class="text-xs sm:text-sm font-bold text-white">Die 5 psychologischen Motivations-Säulen</h3>
-              <p class="text-[11px] text-slate-400">Verteilung deiner inneren Antriebe (bereinigt um 0-Werte):</p>
-            </div>
-
+          <div class="theme-card rounded-3xl p-5 border space-y-3">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Die 5 psychologischen Motivations-Säulen</h3>
             <div class="space-y-2.5 text-xs">
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
+                  <span>Macht & Hingabe (D/s)</span>
                   <span id="bar-val-power">0 %</span>
                 </div>
-                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
                   <div id="bar-fill-power" class="bg-indigo-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
+                  <span>Sensorik & Schmerz (Impact/Shibari)</span>
                   <span id="bar-val-sensation">0 %</span>
                 </div>
-                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
                   <div id="bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Fürsorge & Geborgenheit (Caregiver, Praise, Nurturing)</span>
+                  <span>Fürsorge & Geborgenheit (Caregiver)</span>
                   <span id="bar-val-nurturing">0 %</span>
                 </div>
-                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
                   <div id="bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Tabubruch & Mentaler Kick (CNC, Trance, Verhör)</span>
+                  <span>Tabubruch & Mentaler Kick (CNC)</span>
                   <span id="bar-val-thrill">0 %</span>
                 </div>
-                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
                   <div id="bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
               <div>
                 <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Visuelle Erotik & Lingerie (Dessous, Latex, Fetisch)</span>
+                  <span>Visuelle Erotik & Lingerie</span>
                   <span id="bar-val-visual">0 %</span>
                 </div>
-                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
                   <div id="bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
                 </div>
               </div>
             </div>
-            <div class="text-[10px] text-slate-500 italic">Echtzeit-Berechnung aus deinen Bogen-Antworten</div>
           </div>
         </div>
 
-        <!-- WISSENSCHAFTLICHES GUTACHTEN (50% STUDIEN + 50% DATEN) -->
-        <div class="theme-card p-5 rounded-3xl border space-y-3 shadow-xs">
-          <div class="border-b border-slate-800 pb-2">
-            <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Psychologische Fundierung</span>
-            <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">
-              Neurobiologische Analyse deines Profils
-            </h3>
-            <p class="text-xs text-slate-400">Empirisch fundiert anhand der 35+ wissenschaftlichen Studien</p>
-          </div>
-          <div id="single-interpretation-box" class="space-y-3 text-xs leading-relaxed text-slate-300"></div>
-        </div>
-
-        <!-- HIGHLIGHTS & TABUS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div class="theme-card p-4 rounded-2xl border border-emerald-500/30 space-y-2">
-            <strong class="text-emerald-300 font-bold block flex items-center gap-1.5">
-              Deine absoluten Favoriten (Note 5):
-            </strong>
-            <div id="single-high-prio-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
-          </div>
-          <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2">
-            <strong class="text-rose-300 font-bold block flex items-center gap-1.5">
-              Deine persönlichen No-Gos (Note 1):
-            </strong>
-            <div id="single-tabus-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
-          </div>
-        </div>
-
-        <!-- DER ORIGINAL-SCHAM-ENTLASTUNGSTEXT (ABSCHLUSSBOTSCHAFT) -->
-        <div class="theme-panel p-5 sm:p-6 rounded-3xl border border-brand-800/60 space-y-2.5 shadow-md bg-gradient-to-br from-brand-950/40 via-noir-900 to-black">
-          <div class="flex items-center gap-2">
-            <h4 class="text-xs sm:text-sm font-black text-brand-200 uppercase tracking-wider">
-              Ein Wort zur Normalität & Schamfreiheit
-            </h4>
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed font-normal">
-            Du bist vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie dir im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.
-          </p>
-        </div>
-
+        <!-- GUTACHTEN & SCHAM-ENTLASTUNG -->
+        <div id="single-interpretation-box" class="space-y-4"></div>
       </div>
-
     </section>
 
   </main>
 
-  <!-- MODAL: ACCOUNT-, SYNC- & KI-EINSTELLUNGEN -->
-  <div id="modal-account" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Profile, Sync & KI-Settings</h3>
-            <p class="text-[10px] text-slate-400">Verwaltung für <span id="account-active-username" class="text-brand-300 font-bold">Partner 1</span></p>
-          </div>
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
+  <div id="modal-toy-management" class="hidden fixed inset-0 z-[130] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-purple-900/60 pb-3 flex-shrink-0">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Toy-Verwaltung (Unser Schrank)</h3>
+          <p class="text-[10px] text-purple-300">Wählt aus, welche BDSM-Tools & Gegenstände ihr tatsächlich besitzt</p>
         </div>
+        <button onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- SCHNELLAUSWAHL & FILTER -->
+      <div class="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          <button type="button" onclick="filterToyManagementCat('all')" id="btn-toy-cat-all" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn">Alle</button>
+          <button type="button" onclick="filterToyManagementCat('household')" id="btn-toy-cat-household" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Haushalt</button>
+          <button type="button" onclick="filterToyManagementCat('bondage')" id="btn-toy-cat-bondage" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Fesselung</button>
+          <button type="button" onclick="filterToyManagementCat('impact')" id="btn-toy-cat-impact" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Impact</button>
+          <button type="button" onclick="filterToyManagementCat('sensory')" id="btn-toy-cat-sensory" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Sensorik</button>
+          <button type="button" onclick="filterToyManagementCat('cbt_clamps')" id="btn-toy-cat-cbt_clamps" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">CBT/Klemmen</button>
+          <button type="button" onclick="filterToyManagementCat('toys_anal')" id="btn-toy-cat-toys_anal" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Toys/Anal</button>
+          <button type="button" onclick="filterToyManagementCat('special')" id="btn-toy-cat-special" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">Spezial</button>
+        </div>
+
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button type="button" onclick="presetToyManagement('household_only')" class="px-2.5 py-1 rounded-lg theme-panel border text-slate-300 text-[10px] font-bold touch-btn">Nur Haushalt</button>
+          <button type="button" onclick="presetToyManagement('all')" class="px-2.5 py-1 rounded-lg bg-purple-950 border border-purple-800 text-purple-200 text-[10px] font-bold touch-btn">Alles aktivieren</button>
+          <button type="button" onclick="presetToyManagement('none')" class="px-2.5 py-1 rounded-lg theme-panel border text-rose-400 text-[10px] font-bold touch-btn">Leeren</button>
+        </div>
+      </div>
+
+      <!-- OMNIPRÄSENTE KONSTANTEN BANNER -->
+      <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[10.5px] text-slate-300 flex items-center justify-between flex-shrink-0">
+        <span><strong>Immer verfügbar:</strong> Nackte Hände, Fußboden, Bett, Wand, Stuhl, Kissen & Stimme</span>
+        <span class="text-emerald-400 font-bold">Immer aktiv ✓</span>
+      </div>
+
+      <!-- ITEM LISTE -->
+      <div id="toy-management-grid" class="flex-1 overflow-y-auto pr-1 space-y-1.5 max-h-72"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between flex-shrink-0">
+        <span class="text-slate-400 text-[11px]">Im Schrank aktiviert: <strong id="toy-management-active-count" class="text-white">0</strong> Gegenstände</span>
+        <button type="button" onclick="closeToyManagementModal()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Speichern & Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCOUNT SETTINGS -->
+  <div id="modal-account" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
         <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- BEREICH 1: PROFIL & ANATOMIE -->
       <div class="space-y-3">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">1. Mein Profil</span>
-        <div class="space-y-2">
-          <input type="text" id="account-name-input" placeholder="Mein Name..." onchange="updateCurrentUserName(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          <input type="email" id="account-email-input" placeholder="Meine E-Mail (für Notfall-Backup)..." onchange="updateCurrentUserEmail(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+        <div class="space-y-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Mein Name / Rufname:</label>
+          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
         </div>
 
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <div>
-            <span class="text-[10px] text-slate-400 block mb-1">Meine Anatomie:</span>
-            <div class="flex gap-1">
-              <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
-              <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
-            </div>
-          </div>
-          <div>
-            <span class="text-[10px] text-slate-400 block mb-1">Partner-Anatomie:</span>
-            <div class="flex gap-1">
-              <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
-              <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BEREICH 2: GEMINI KI-INTEGRATION (BYOK) -->
-      <div class="space-y-3 pt-3 border-t border-slate-800">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 block">2. KI-Zentrale & Sprachausgabe</span>
-          <span class="text-[9px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">gemini-2.5-flash-preview-tts</span>
+        <div class="space-y-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Gemini API-Key:</label>
+          <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="API-Key hinterlegen..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white font-mono">
         </div>
 
-        <!-- Schalter für KI-Aktivierung -->
-        <div class="p-3 bg-purple-950/30 border border-purple-900/60 rounded-2xl flex items-center justify-between gap-3">
-          <div>
-            <strong class="text-white block text-xs">KI-Funktionen im Kompass aktivieren</strong>
-            <p class="text-[10.5px] text-slate-400 mt-0.5">Schaltet KI-Gutachten, intelligente Regieanweisungen und Gemini-TTS frei.</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
-            <input type="checkbox" id="ai-enabled-toggle" onchange="toggleAiFeatures(this.checked)" class="sr-only peer">
-            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-          </label>
-        </div>
-
-        <!-- Stimmauswahl für Sprachausgabe MIT 5s PROBEHÖREN -->
-        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800">
-          <div class="flex justify-between items-center text-[10.5px]">
-            <span class="text-slate-300 font-bold">Standard-Stimme für Sprachausgabe:</span>
-            <button type="button" id="btn-preview-settings" onclick="testSelectedVoiceInSettings()" class="text-purple-300 font-bold hover:underline flex items-center gap-1">
-              <span>Probehören (5s)</span>
-            </button>
-          </div>
-          <select id="setting-tts-voice-select" onchange="saveAppVoiceSelection(this.value)" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium focus:border-purple-500">
-            <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina – Empfohlen)</option>
-            <option value="Aoede">Fordernd-klare Herrin (Aoede)</option>
-            <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus – Zucht)</option>
-            <option value="Fenrir">Rauher Zuchtmeister (Fenrir)</option>
-          </select>
-          <span class="text-[9.5px] text-slate-500 block">Wird im Schlafzimmer-Cockpit, Edging-Remote und bei Sprachansagen genutzt.</span>
-        </div>
-
-        <!-- API-Key Eingabefeld (Vorkonfiguriert) -->
-        <div class="space-y-1.5">
-          <div class="flex justify-between items-center text-[10px]">
-            <span class="text-slate-300 font-bold">Gemini API-Key (Im Browser hinterlegt):</span>
-            <button type="button" onclick="testGeminiApiKeyConnection()" class="text-purple-300 underline font-bold hover:text-purple-200">
-              Verbindung testen ↗
-            </button>
-          </div>
-          <input type="password" id="account-gemini-key-input" onchange="saveGeminiApiKey(this.value)" placeholder="Gemini API Key..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white font-mono">
-          <span id="gemini-key-status" class="text-[10px] text-slate-500 block">Vorkonfiguriert & lokal verschlüsselt.</span>
-        </div>
-      </div>
-
-      <!-- BEREICH 3: DATENSCHUTZ & TESTDATEN -->
-      <div class="space-y-2.5 pt-3 border-t border-slate-800">
-        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">3. Daten & Werkzeuge</span>
-        <div class="flex flex-col gap-2">
-          <button type="button" onclick="generateRandomTestData()" class="w-full py-2.5 theme-panel hover:border-slate-600 text-slate-300 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
-            Zufällige Testdaten für dieses Profil einspielen
-          </button>
-          <button type="button" onclick="sendBackupEmail()" class="w-full py-2.5 theme-panel hover:border-slate-600 text-slate-300 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
-            Sicherungs-Link per E-Mail senden
-          </button>
-        </div>
-
-        <div id="reset-trigger-area" class="pt-1">
-          <button type="button" onclick="showResetConfirmation()" class="text-rose-400 text-[11px] font-bold hover:underline">
-            Profil für <span id="reset-current-username">Partner 1</span> vollständig leeren
-          </button>
-        </div>
-
-        <div id="reset-confirmation-box" class="hidden p-3 rounded-2xl bg-rose-950/40 border border-rose-800 space-y-2">
-          <p class="text-[11px] text-rose-200 font-bold">Möchtest du wirklich alle Antworten für dieses Profil unwiderruflich löschen?</p>
-          <div class="flex gap-2">
-            <button type="button" onclick="resetCurrentUserProfile()" class="px-3 py-1.5 bg-rose-600 text-white font-bold rounded-xl text-xs touch-btn">
-              Ja, alles leeren
-            </button>
-            <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 theme-panel text-slate-300 font-bold rounded-xl text-xs touch-btn">
-              Abbrechen
+        <div class="space-y-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Bevorzugte Stimme:</label>
+          <div class="flex items-center gap-2">
+            <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="flex-1 text-xs p-2 theme-panel border rounded-xl text-white">
+              <option value="Despina">Sinnliche Frauenstimme (Despina)</option>
+              <option value="Aoede">Fordernde Herrin (Aoede)</option>
+              <option value="Enceladus">Tiefe Männerstimme (Enceladus)</option>
+              <option value="Fenrir">Autoritäre Männerstimme (Fenrir)</option>
+            </select>
+            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="px-3 py-2 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-xs font-bold touch-btn">
+              Probe (5s)
             </button>
           </div>
         </div>
       </div>
 
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeAccountModal()" class="px-5 py-2.5 bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Fertig & Schließen
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button onclick="closeAccountModal()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn">
+          Fertig
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TABU-CHARTA (ZWEIGETEILT: TOP-AUSFÜHRUNG VS. BOTTOM-SCHUTZ) -->
-  <div id="modal-tabus" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/50 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-rose-900/60 pb-3 flex-shrink-0">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
-          <p class="text-[10px] text-rose-300">Ausführungs-Limits des Tops vs. Schutz-Schranken des Bottoms</p>
-        </div>
-        <button onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="tabu-modal-list"></div>
-
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <span class="text-[10px] text-slate-500">Diese Handlungen lösen sofortiges ROT aus.</span>
-        <button onclick="closeTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn transition">
-          Verstanden & Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: KINK-LEXIKON -->
-  <div id="modal-lexikon" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-xl w-full border border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Kink- & BDSM-Lexikon</h3>
-          <p class="text-[10px] text-slate-400">Begriffe, Abkürzungen und Praktiken sachlich erklärt</p>
-        </div>
+  <!-- MODAL: LEXIKON -->
+  <div id="modal-lexikon" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-xl w-full border border-slate-800 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-extrabold text-white">BDSM- & Kink-Lexikon</h3>
         <button onclick="closeLexikonModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
-
-      <div class="space-y-3 flex-1 overflow-y-auto pr-1">
-        <div class="relative">
-          <input type="text" id="lexikon-search-input" oninput="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Pegging, Safeword, Aftercare)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-        </div>
-        <div id="lexikon-entries-container" class="space-y-2"></div>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
+      <input type="text" id="lexikon-search-input" oninput="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Pegging, CBT, Safe Word)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+      <div id="lexikon-entries-container" class="space-y-2 overflow-y-auto flex-1 pr-1 max-h-72"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
         <button onclick="closeLexikonModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
           Schließen
         </button>
@@ -780,293 +570,233 @@
     </div>
   </div>
 
-  <!-- MODAL: ERST-SETUP & ONBOARDING-WIZARD -->
-  <div id="modal-onboarding" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-brand-500/40 p-6 space-y-5 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center text-sm font-black shadow-inner">
-            01
-          </div>
-          <div>
-            <h3 class="text-base font-extrabold text-white">Willkommen im Kompass</h3>
-            <p class="text-[10.5px] text-slate-400" id="onboard-step-caption">Schritt 1 / 3: Eure Profile</p>
-          </div>
+  <!-- MODAL: TABU-CHARTA -->
+  <div id="modal-tabus" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
+          <p class="text-[10px] text-rose-300">Ausführungs-Limits (Top) vs. Schutzgrenzen (Bottom)</p>
         </div>
-        <span class="text-xs font-mono font-bold text-brand-400" id="onboard-step-badge">1 / 3</span>
+        <button onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
-
-      <!-- SCHRITT 1: NAMEN & ANATOMIE -->
-      <div id="onboard-step-1" class="space-y-4">
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Gebt eure Namen oder Kosenamen an und wählt eure Anatomie, damit der Fragebogen sich automatisch euren Körpern anpasst:
-        </p>
-
-        <div class="space-y-3">
-          <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
-            <span class="text-[11px] font-bold text-indigo-300 block">Profil 1:</span>
-            <input type="text" id="onboard-name-a" placeholder="Name Partner 1..." value="Partner 1" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-semibold">
-            <div class="flex gap-2">
-              <button type="button" onclick="setOnboardAnat('A', 'penis')" id="onboard-anat-a-penis" class="flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn">Penis</button>
-              <button type="button" onclick="setOnboardAnat('A', 'vulva')" id="onboard-anat-a-vulva" class="flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn">Vulva</button>
-            </div>
-          </div>
-
-          <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
-            <span class="text-[11px] font-bold text-purple-300 block">Profil 2:</span>
-            <input type="text" id="onboard-name-b" placeholder="Name Partner 2..." value="Partner 2" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-semibold">
-            <div class="flex gap-2">
-              <button type="button" onclick="setOnboardAnat('B', 'penis')" id="onboard-anat-b-penis" class="flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn">Penis</button>
-              <button type="button" onclick="setOnboardAnat('B', 'vulva')" id="onboard-anat-b-vulva" class="flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn">Vulva</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-2 flex justify-end">
-          <button type="button" onclick="nextOnboardStep(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Weiter zu KI & Stimme →
-          </button>
-        </div>
+      <div id="tabu-modal-list" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn">
+          Verstanden & Schließen
+        </button>
       </div>
-
-      <!-- SCHRITT 2: KI & SPRACHAUSGABE MIT 5s PROBEHÖREN -->
-      <div id="onboard-step-2" class="hidden space-y-4">
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Der Kompass verfügt über eine Gemini-KI-Integration für psychologische Gutachten und neurale Sprachausgabe beim Edging:
-        </p>
-
-        <div class="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-900/60 space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <strong class="text-xs text-white block">KI-Unterstützung aktivieren</strong>
-              <span class="text-[10px] text-slate-400">Generiert maßgeschneiderte Zuchtrituale & Tiefenanalysen</span>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
-              <input type="checkbox" id="onboard-ai-toggle" checked class="sr-only peer">
-              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-            </label>
-          </div>
-
-          <div class="space-y-1.5 pt-2 border-t border-purple-900/40">
-            <div class="flex justify-between items-center text-[10px]">
-              <span class="text-slate-300 font-bold">Standard-Stimme für den Countdown:</span>
-              <button type="button" id="btn-preview-onboard" onclick="testOnboardVoice()" class="text-purple-300 font-bold hover:underline">
-                Probehören (5s)
-              </button>
-            </div>
-            <select id="onboard-voice-select" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
-              <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina – Empfohlen)</option>
-              <option value="Aoede">Fordernde Herrin (Aoede)</option>
-              <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus – Zucht)</option>
-              <option value="Fenrir">Rauher Zuchtmeister (Fenrir)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="pt-2 flex justify-between items-center">
-          <button type="button" onclick="nextOnboardStep(1)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-            ← Zurück
-          </button>
-          <button type="button" onclick="nextOnboardStep(3)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Weiter zur Sicherheits-Übersicht →
-          </button>
-        </div>
-      </div>
-
-      <!-- SCHRITT 3: SCHUTZ & ABSCHLUSS -->
-      <div id="onboard-step-3" class="hidden space-y-4">
-        <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 space-y-2">
-          <strong class="text-xs text-teal-200 block flex items-center gap-1.5">
-            100 % Lokale Diskretion & Konsens
-          </strong>
-          <p class="text-[11px] text-slate-300 leading-relaxed">
-            Eure Daten bleiben verschlüsselt in eurem eigenen Browser. Tabus (Note 1) werden von der KI ausnahmslos gesperrt.
-          </p>
-        </div>
-
-        <p class="text-xs text-slate-300">
-          Ihr beginnt mit <strong>Kapitel 0 (Somatische Sicherheit & Vertrauen)</strong> und füllt dann nacheinander die erotischen Praktiken aus.
-        </p>
-
-        <div class="pt-2 flex justify-between items-center">
-          <button type="button" onclick="nextOnboardStep(2)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-            ← Zurück
-          </button>
-          <button type="button" onclick="completeOnboarding()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Jetzt starten
-          </button>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
+  <!-- EXTERNE DATENQUELLEN -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
   <script src="js/app.js"></script>
 
   <script>
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-    const ttsIndexCache = {};
+    let toyManagementCurrentCat = 'all';
     let sampleVoiceTimeout = null;
-    let isIndexAudioUnlocked = false;
+    let ttsIndexCache = {};
+    let indexAudioCtx = null;
 
-    function unlockIndexAudio() {
-      if (isIndexAudioUnlocked) return;
-      isIndexAudioUnlocked = true;
+    function getGeminiApiKey() {
+      try {
+        const stored = localStorage.getItem('kompass_gemini_api_key');
+        if (stored && stored.trim().length > 10) return stored.trim();
+      } catch (e) {}
+      return DEFAULT_PRESET_GEMINI_KEY;
+    }
+
+    function unlockAudioEngineOnUserGesture() {
+      if (!indexAudioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) indexAudioCtx = new AudioContextClass();
+      }
+      if (indexAudioCtx && indexAudioCtx.state === 'suspended') {
+        indexAudioCtx.resume();
+      }
       const masterAudio = document.getElementById('master-voice-audio');
-      if (masterAudio) {
-        masterAudio.play().then(() => masterAudio.pause()).catch(() => {});
+      if (masterAudio && masterAudio.paused && !masterAudio.src) {
+        masterAudio.play().catch(() => {});
       }
     }
 
-    window.addEventListener('click', unlockIndexAudio, { once: true });
-    window.addEventListener('touchstart', unlockIndexAudio, { once: true });
+    function updateHubUI() {
+      const prog = (typeof getGlobalProgressData === 'function') ? getGlobalProgressData('A') : { pct: 0 };
+      const badge = document.getElementById('hub-survey-pct-badge');
+      if (badge) badge.innerText = `${prog.pct} %`;
 
-    function base64ToArrayBuffer(base64) {
-      const binaryString = window.atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+      const aiActive = (localStorage.getItem('kompass_ai_active') === 'true');
+      const aiBadge = document.getElementById('hub-ai-badge');
+      const aiTile = document.getElementById('hub-tile-ai');
+      if (aiBadge) {
+        if (aiActive) aiBadge.classList.remove('hidden');
+        else aiBadge.classList.add('hidden');
       }
-      return bytes.buffer;
+      if (aiTile) {
+        if (aiActive) aiTile.classList.remove('hidden');
+        else aiTile.classList.add('hidden');
+      }
+
+      updateHubToyCount();
     }
 
-    function pcmToWav(pcm16Data, sampleRate) {
-      const numChannels = 1;
-      const byteRate = sampleRate * numChannels * 2;
-      const blockAlign = numChannels * 2;
-      const dataSize = pcm16Data.length * 2;
-      const buffer = new ArrayBuffer(44 + dataSize);
-      const view = new DataView(buffer);
-
-      function writeString(view, offset, string) {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      }
-
-      writeString(view, 0, 'RIFF');
-      view.setUint32(4, 36 + dataSize, true);
-      writeString(view, 8, 'WAVE');
-      writeString(view, 12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, numChannels, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, byteRate, true);
-      view.setUint16(32, blockAlign, true);
-      view.setUint16(34, 16, true);
-      writeString(view, 36, 'data');
-      view.setUint32(40, dataSize, true);
-
-      let offset = 44;
-      for (let i = 0; i < pcm16Data.length; i++, offset += 2) {
-        view.setInt16(offset, pcm16Data[i], true);
-      }
-
-      return new Blob([view], { type: 'audio/wav' });
+    function openToyManagementModal() {
+      renderToyManagementGrid();
+      document.getElementById('modal-toy-management')?.classList.remove('hidden');
     }
 
-    function checkAppOnboarding() {
-      const onboarded = localStorage.getItem('kompass_onboarded_v2');
-      if (!onboarded) {
-        document.getElementById('modal-onboarding')?.classList.remove('hidden');
-      }
+    function closeToyManagementModal() {
+      document.getElementById('modal-toy-management')?.classList.add('hidden');
+      updateHubToyCount();
     }
 
-    let onboardAnat = { A: 'penis', B: 'vulva' };
-
-    function setOnboardAnat(user, anat) {
-      onboardAnat[user] = anat;
-      const pBtn = document.getElementById(`onboard-anat-${user.toLowerCase()}-penis`);
-      const vBtn = document.getElementById(`onboard-anat-${user.toLowerCase()}-vulva`);
-      if (pBtn && vBtn) {
-        if (anat === 'penis') {
-          pBtn.className = "flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn";
-          vBtn.className = "flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn";
-        } else {
-          vBtn.className = "flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn";
-          pBtn.className = "flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn";
-        }
-      }
-    }
-
-    function nextOnboardStep(step) {
-      [1, 2, 3].forEach(s => {
-        const el = document.getElementById(`onboard-step-${s}`);
-        if (el) {
-          if (s === step) el.classList.remove('hidden');
-          else el.classList.add('hidden');
+    function filterToyManagementCat(cat) {
+      toyManagementCurrentCat = cat;
+      ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(c => {
+        const btn = document.getElementById(`btn-toy-cat-${c}`);
+        if (btn) {
+          if (c === cat) btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn";
+          else btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn";
         }
       });
-      const cap = document.getElementById('onboard-step-caption');
-      const badge = document.getElementById('onboard-step-badge');
-      if (badge) badge.innerText = `${step} / 3`;
-      if (cap) {
-        const titles = ["", "Schritt 1 / 3: Eure Profile", "Schritt 2 / 3: KI & Sprachausgabe", "Schritt 3 / 3: Sicherheit & Start"];
-        cap.innerText = titles[step] || "";
+      renderToyManagementGrid();
+    }
+
+    function getOwnedToyIds() {
+      try {
+        const stored = localStorage.getItem('kompass_active_equipment_ids');
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+      const catalog = window.equipmentCatalog || [];
+      return catalog.filter(i => i.defaultPresent).map(i => i.id);
+    }
+
+    function saveOwnedToyIds(ids) {
+      try {
+        localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(ids));
+      } catch (e) {}
+      updateHubToyCount();
+    }
+
+    function updateHubToyCount() {
+      const ids = getOwnedToyIds();
+      const badge = document.getElementById('hub-toy-count-badge');
+      if (badge) badge.innerText = `${ids.length} Toys`;
+    }
+
+    function toggleToyOwned(id) {
+      let ids = getOwnedToyIds();
+      if (ids.includes(id)) {
+        ids = ids.filter(i => i !== id);
+      } else {
+        ids.push(id);
       }
+      saveOwnedToyIds(ids);
+      renderToyManagementGrid();
     }
 
-    function testOnboardVoice() {
-      unlockIndexAudio();
-      const v = document.getElementById('onboard-voice-select')?.value || 'Despina';
-      const btn = document.getElementById('btn-preview-onboard');
-      if (btn) btn.innerText = "⏳ Lädt...";
-      playSampleTtsVoice(v).then(() => {
-        if (btn) btn.innerText = "Probehören (5s)";
-      });
+    function presetToyManagement(preset) {
+      const catalog = window.equipmentCatalog || [];
+      let ids = [];
+      if (preset === 'all') {
+        ids = catalog.map(i => i.id);
+        showToast("Alle Gegenstände im Schrank aktiviert");
+      } else if (preset === 'household_only') {
+        ids = catalog.filter(i => i.category === 'household').map(i => i.id);
+        showToast("Nur Haushaltsgegenstände aktiviert");
+      } else {
+        ids = [];
+        showToast("Toy-Inventar geleert");
+      }
+      saveOwnedToyIds(ids);
+      renderToyManagementGrid();
     }
 
-    function testSelectedVoiceInSettings() {
-      unlockIndexAudio();
-      const v = document.getElementById('setting-tts-voice-select')?.value || 'Despina';
-      const btn = document.getElementById('btn-preview-settings');
-      if (btn) btn.innerText = "⏳ Lädt...";
-      playSampleTtsVoice(v).then(() => {
-        if (btn) btn.innerText = "Probehören (5s)";
-      });
+    function renderToyManagementGrid() {
+      const grid = document.getElementById('toy-management-grid');
+      const countEl = document.getElementById('toy-management-active-count');
+      const catalog = window.equipmentCatalog || [];
+      const owned = getOwnedToyIds();
+      if (!grid) return;
+
+      const filtered = (toyManagementCurrentCat === 'all')
+        ? catalog
+        : catalog.filter(i => i.category === toyManagementCurrentCat);
+
+      grid.innerHTML = filtered.map(item => {
+        const isOwned = owned.includes(item.id);
+        return `
+          <div onclick="toggleToyOwned('${item.id}')" class="p-2.5 rounded-xl border flex items-center justify-between gap-2 cursor-pointer touch-btn transition-all ${isOwned ? 'bg-purple-950/40 border-purple-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs truncate">${escapeHtml(item.name)}</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-900 text-slate-400 border border-slate-800 flex-shrink-0">Kap. ${item.chapters ? item.chapters.join(', ') : ''}</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5 truncate font-normal">${escapeHtml(item.desc)}</p>
+            </div>
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 ${isOwned ? 'bg-purple-600 text-white shadow-xs' : 'theme-panel text-slate-600 border border-slate-800'}">
+              ${isOwned ? '✓' : '○'}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (countEl) countEl.innerText = owned.length;
     }
 
-    function saveAppVoiceSelection(voice) {
-      localStorage.setItem('kompass_tts_voice', voice);
-      showToast(`Stimme gespeichert: ${voice}`);
-      preloadIndexVoiceSample(voice);
+    function saveGeminiKeyInAccount(val) {
+      localStorage.setItem('kompass_gemini_api_key', (val || '').trim());
+      showToast("API-Key gespeichert");
+    }
+
+    function saveVoiceInAccount(val) {
+      localStorage.setItem('kompass_session_voice', val);
+      showToast(`Stimme gespeichert: ${val}`);
+    }
+
+    function playVoicePreviewInAccount() {
+      unlockAudioEngineOnUserGesture();
+      const sel = document.getElementById('account-voice-select');
+      const voice = sel ? sel.value : 'Despina';
+      playSampleTtsVoice(voice);
     }
 
     async function playSampleTtsVoice(voice) {
-      unlockIndexAudio();
-
       if (sampleVoiceTimeout) {
         clearTimeout(sampleVoiceTimeout);
         sampleVoiceTimeout = null;
       }
 
+      const btn = document.getElementById('btn-acc-voice-preview');
+      if (btn) btn.innerText = "⏳ Lädt...";
+
       const cacheKey = `sample_${voice}`;
       if (ttsIndexCache[cacheKey]) {
+        if (btn) btn.innerText = "Probe (5s)";
         return playSampleAudioUrl(ttsIndexCache[cacheKey]);
       }
 
-      const apiKey = localStorage.getItem('kompass_gemini_api_key');
-      const hasValidFormat = apiKey && apiKey.startsWith('AIzaSy');
+      const apiKey = getGeminiApiKey();
+      const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
+      const textToSpeak = isMale ? "Fünf. Stillhalten und gehorchen." : "Fünf. Spüre die Hitze.";
 
-      if (hasValidFormat) {
-        const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
-        const instruction = isMale
-          ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme langsam: Fünf. Stillhalten und gehorchen.`
-          : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme langsam: Fünf. Spüre die Hitze.`;
+      const candidateModels = ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts"];
 
+      for (let i = 0; i < candidateModels.length; i++) {
+        const modelName = candidateModels[i];
         try {
-          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: instruction }] }],
+              contents: [{ parts: [{ text: textToSpeak }] }],
               generationConfig: {
                 responseModalities: ["AUDIO"],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
@@ -1078,225 +808,130 @@
             const data = await resp.json();
             const part = data?.candidates?.[0]?.content?.parts?.[0];
             const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType;
+            const mimeType = part?.inlineData?.mimeType || "";
 
-            if (audioData && mimeType && mimeType.startsWith("audio/")) {
-              const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-              const pcmData = base64ToArrayBuffer(audioData);
-              const pcm16 = new Int16Array(pcmData);
-              const wavBlob = pcmToWav(pcm16, sampleRate);
+            if (audioData) {
+              const rawBuffer = base64ToArrayBuffer(audioData);
+              const rawBytes = new Uint8Array(rawBuffer);
+              let wavBlob;
+
+              if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
+                wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
+              } else {
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+                const pcm16 = new Int16Array(rawBuffer);
+                wavBlob = pcmToWav(pcm16, sampleRate);
+              }
+
               const url = URL.createObjectURL(wavBlob);
               ttsIndexCache[cacheKey] = url;
+              if (btn) btn.innerText = "Probe (5s)";
               return playSampleAudioUrl(url);
             }
           }
         } catch (e) {
-          console.debug("TTS Sample API Fallback", e);
+          console.debug(`TTS Probehören Fehler mit ${modelName}:`, e);
         }
       }
 
-      // Sofortiger Studio-Fallback: Keine Blockade, kein Warten
-      return playStudioFallbackSpeechSample(voice);
-    }
-
-    function playStudioFallbackSpeechSample(voiceName) {
-      return new Promise((resolve) => {
-        if (!('speechSynthesis' in window)) {
-          resolve();
-          return;
-        }
-
-        window.speechSynthesis.cancel();
-        const isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
-        const phrase = isMale ? "Fünf. Stillhalten und gehorchen." : "Fünf. Spüre die Hitze.";
-
-        const utterance = new SpeechSynthesisUtterance(phrase);
-        utterance.lang = 'de-DE';
-
-        if (isMale) {
-          utterance.pitch = 0.72;
-          utterance.rate = 0.82;
-        } else {
-          utterance.pitch = 0.84;
-          utterance.rate = 0.78;
-        }
-
-        const voices = window.speechSynthesis.getVoices();
-        const deVoices = voices.filter(v => v.lang.startsWith('de'));
-        if (deVoices.length > 0) {
-          const selected = isMale
-            ? (deVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('stefan')) || deVoices[0])
-            : (deVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('anna') || v.name.toLowerCase().includes('siri')) || deVoices[0]);
-          if (selected) utterance.voice = selected;
-        }
-
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
-
-        sampleVoiceTimeout = setTimeout(() => {
-          window.speechSynthesis.cancel();
-          resolve();
-        }, 5000);
-
-        window.speechSynthesis.speak(utterance);
-      });
+      if (btn) btn.innerText = "Probe (5s)";
+      showToast("⚠️ Sprachausgabe konnte nicht geladen werden. Bitte API-Key prüfen.");
+      return Promise.resolve();
     }
 
     function playSampleAudioUrl(url) {
       return new Promise((resolve) => {
-        const masterAudio = document.getElementById('master-voice-audio');
-        if (!masterAudio) {
-          resolve();
-          return;
-        }
-
-        masterAudio.pause();
-        masterAudio.src = url;
-
-        masterAudio.onended = () => resolve();
-        masterAudio.onerror = () => resolve();
-
-        masterAudio.play().catch(() => resolve());
+        const audio = document.getElementById('master-voice-audio');
+        if (!audio) { resolve(); return; }
+        audio.pause();
+        audio.src = url;
+        audio.onended = () => resolve();
+        audio.onerror = () => resolve();
+        audio.play().catch(() => resolve());
 
         sampleVoiceTimeout = setTimeout(() => {
-          masterAudio.pause();
+          audio.pause();
           resolve();
         }, 5000);
       });
     }
 
-    function preloadIndexVoiceSample(voice) {
-      const cacheKey = `sample_${voice}`;
-      if (!ttsIndexCache[cacheKey]) {
-        playSampleTtsVoice(voice).catch(() => {});
+    function base64ToArrayBuffer(base64) {
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      return bytes.buffer;
     }
 
-    function completeOnboarding() {
-      const nameA = document.getElementById('onboard-name-a')?.value?.trim() || 'Partner 1';
-      const nameB = document.getElementById('onboard-name-b')?.value?.trim() || 'Partner 2';
-      const aiActive = document.getElementById('onboard-ai-toggle')?.checked ?? true;
-      const voice = document.getElementById('onboard-voice-select')?.value || 'Despina';
+    function pcmToWav(pcmData, sampleRate) {
+      const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+      const view = new DataView(buffer);
 
-      names.A = nameA;
-      names.B = nameB;
-      anatomy.A = onboardAnat.A;
-      anatomy.B = onboardAnat.B;
-
-      localStorage.setItem('kompass_names', JSON.stringify(names));
-      localStorage.setItem('kompass_anatomy', JSON.stringify(anatomy));
-      localStorage.setItem('kompass_ai_active', aiActive ? 'true' : 'false');
-      localStorage.setItem('kompass_tts_voice', voice);
-      localStorage.setItem('kompass_onboarded_v2', 'true');
-
-      document.getElementById('modal-onboarding')?.classList.add('hidden');
-      updateCurrentUserUI();
-      initAiKeyPreset();
-      showToast("Setup abgeschlossen");
-    }
-
-    function initAiKeyPreset() {
-      const stored = localStorage.getItem('kompass_gemini_api_key');
-      if (!stored) {
-        localStorage.setItem('kompass_gemini_api_key', DEFAULT_PRESET_GEMINI_KEY);
-      }
-      const keyInput = document.getElementById('account-gemini-key-input');
-      if (keyInput) {
-        keyInput.value = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      }
-      const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
-      const aiToggle = document.getElementById('ai-enabled-toggle');
-      if (aiToggle) aiToggle.checked = isAiActive;
-
-      const voiceSelect = document.getElementById('setting-tts-voice-select');
-      const savedVoice = localStorage.getItem('kompass_tts_voice') || 'Despina';
-      if (voiceSelect) voiceSelect.value = savedVoice;
-
-      updateHubAiTileVisibility();
-      preloadIndexVoiceSample(savedVoice);
-    }
-
-    function saveGeminiApiKey(val) {
-      const clean = (val || '').trim();
-      localStorage.setItem('kompass_gemini_api_key', clean || DEFAULT_PRESET_GEMINI_KEY);
-      showToast("Gemini API-Key aktualisiert");
-    }
-
-    function toggleAiFeatures(enabled) {
-      localStorage.setItem('kompass_ai_active', enabled ? 'true' : 'false');
-      updateHubAiTileVisibility();
-      showToast(enabled ? "KI-Funktionen aktiviert" : "KI-Funktionen deaktiviert");
-    }
-
-    function updateHubAiTileVisibility() {
-      const tile = document.getElementById('hub-tile-ai');
-      const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
-      if (tile) {
-        if (isAiActive) tile.classList.remove('hidden');
-        else tile.classList.add('hidden');
-      }
-    }
-
-    async function testGeminiApiKeyConnection() {
-      const key = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      const statusEl = document.getElementById('gemini-key-status');
-      if (statusEl) {
-        statusEl.className = "text-[10px] text-amber-400 block animate-pulse";
-        statusEl.innerText = "⏳ Prüfe Verbindung zu Gemini...";
-      }
-
-      try {
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash?key=${encodeURIComponent(key)}`);
-        if (resp.ok) {
-          if (statusEl) {
-            statusEl.className = "text-[10px] text-emerald-400 block font-bold";
-            statusEl.innerText = "✓ Verbindung erfolgreich hergestellt";
-          }
-          showToast("Verbindung zu Gemini erfolgreich");
-        } else {
-          if (statusEl) {
-            statusEl.className = "text-[10px] text-rose-400 block font-bold";
-            statusEl.innerText = "Verbindung fehlgeschlagen: Key prüfen";
-          }
-        }
-      } catch (err) {
-        if (statusEl) {
-          statusEl.className = "text-[10px] text-rose-400 block font-bold";
-          statusEl.innerText = "Netzwerkfehler beim Verbindungstest";
+      function writeString(offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
         }
       }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + pcmData.length * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, pcmData.length * 2, true);
+
+      let offset = 44;
+      for (let i = 0; i < pcmData.length; i++) {
+        view.setInt16(offset, pcmData[i], true);
+        offset += 2;
+      }
+
+      return new Blob([view], { type: 'audio/wav' });
     }
 
-    function handleLogoClick() {
-      const prog = (typeof getGlobalProgressData === 'function') ? getGlobalProgressData() : { pct: 0 };
-      const isComplete = (prog.pct >= 100);
-      const hubInd = document.getElementById('header-hub-indicator');
+    function showToast(msg) {
+      const c = document.getElementById('toast-container');
+      if (!c) return;
+      const el = document.createElement('div');
+      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+      el.innerText = msg;
+      c.appendChild(el);
 
-      if (isComplete) {
-        if (hubInd) hubInd.classList.remove('hidden');
-        switchMainView('hub');
-      } else {
-        switchMainView('survey');
-      }
+      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+      setTimeout(() => {
+        el.classList.add('opacity-0');
+        setTimeout(() => { el.remove(); }, 300);
+      }, 2500);
     }
 
-    function updateHubUI() {
-      const prog = (typeof getGlobalProgressData === 'function') ? getGlobalProgressData() : { pct: 0 };
-      const hubPctBadge = document.getElementById('hub-survey-pct-badge');
-      if (hubPctBadge) hubPctBadge.innerText = `${prog.pct} %`;
-
-      const hubInd = document.getElementById('header-hub-indicator');
-      if (hubInd) {
-        if (prog.pct >= 100) hubInd.classList.remove('hidden');
-        else hubInd.classList.add('hidden');
-      }
-      updateHubAiTileVisibility();
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      initAiKeyPreset();
-      setTimeout(updateHubUI, 200);
-      setTimeout(checkAppOnboarding, 400);
+      setTimeout(updateHubUI, 150);
+      const accVoice = document.getElementById('account-voice-select');
+      const savedV = localStorage.getItem('kompass_session_voice');
+      if (accVoice && savedV) accVoice.value = savedV;
+      const accKey = document.getElementById('account-gemini-key');
+      const savedK = localStorage.getItem('kompass_gemini_api_key');
+      if (accKey) accKey.value = savedK || getGeminiApiKey();
     });
   </script>
 </body>
