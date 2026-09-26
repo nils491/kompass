@@ -18,7 +18,7 @@
   var ttsAudioCache = {};
   var isPreloading = false;
   var previewTimeout = null;
-  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
+  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
@@ -149,9 +149,8 @@
     };
 
     var candidateModels = [
-      activeDiscoveredTtsModel || "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash-preview-tts"
+      activeDiscoveredTtsModel || "gemini-2.5-flash-preview-tts",
+      "gemini-3.1-flash-tts-preview"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
@@ -264,6 +263,12 @@
    */
   async function preloadCountdownSnippets(voiceName) {
     if (isPreloading) return;
+
+    var apiKey = getGeminiApiKey();
+    if (!apiKey || apiKey.length < 20 || apiKey.startsWith('AQ.')) {
+      return;
+    }
+
     isPreloading = true;
 
     var activeVoice = voiceName || localStorage.getItem('kompass_session_voice') || 'Despina';
@@ -277,10 +282,13 @@
       var key = activeVoice + "_" + phrase.trim();
       if (!ttsAudioCache[key]) {
         try {
-          await generateAndCacheSnippet(phrase, activeVoice);
+          var success = await generateAndCacheSnippet(phrase, activeVoice);
+          if (!success) {
+            break;
+          }
           await new Promise(function(r) { setTimeout(r, 200); });
         } catch (e) {
-          console.debug("Preload snippet error for:", phrase, e);
+          break;
         }
       }
     }
@@ -290,7 +298,7 @@
 
   async function generateAndCacheSnippet(text, voiceToUse) {
     var apiKey = getGeminiApiKey();
-    if (!apiKey || apiKey.length < 10) return;
+    if (!apiKey || apiKey.length < 20 || apiKey.startsWith('AQ.')) return false;
 
     var payload = {
       systemInstruction: {
@@ -308,9 +316,8 @@
     };
 
     var candidateModels = [
-      activeDiscoveredTtsModel || "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash-preview-tts"
+      activeDiscoveredTtsModel || "gemini-2.5-flash-preview-tts",
+      "gemini-3.1-flash-tts-preview"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
@@ -346,13 +353,12 @@
             var cacheKey = voiceToUse + "_" + text.trim();
             ttsAudioCache[cacheKey] = blobUrl;
             activeDiscoveredTtsModel = model;
-            break;
+            return true;
           }
         }
-      } catch (e) {
-        console.debug("Preload snippet error with model " + model + ":", e);
-      }
+      } catch (e) {}
     }
+    return false;
   }
 
   window.SessionVoice = {
