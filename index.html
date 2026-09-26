@@ -472,6 +472,41 @@
       </div>
     </section>
 
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
+  <div id="modal-toy-management" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-xl w-full border border-purple-500/40 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold">🧰</div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Toy-Verwaltung (Unser Schrank)</h3>
+            <p class="text-[10px] text-purple-300">Aktiviere, was ihr wirklich zu Hause besitzt</p>
+          </div>
+        </div>
+        <button onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- Schnellwahl Buttons & Filter -->
+      <div class="flex items-center justify-between gap-1 flex-wrap border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1 rounded-lg bg-purple-950 border border-purple-800 text-purple-200 text-[10px] font-bold touch-btn">Alles an</button>
+          <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-bold touch-btn">Nur Haushalt</button>
+          <button type="button" onclick="presetToyManagement('none')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-[10px] font-bold touch-btn">Leeren</button>
+        </div>
+      </div>
+
+      <!-- Kategoriefilter -->
+      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 border-b border-slate-800/80">
+        <button type="button" onclick="filterToyManagementCat('all')" id="btn-toy-cat-all" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn">Alle</button>
+        <button type="button" onclick="filterToyManagementCat('household')" id="btn-toy-cat-household" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🏠 Haushalt</button>
+        <button type="button" onclick="filterToyManagementCat('bondage')" id="btn-toy-cat-bondage" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">⛓️ Fesselung</button>
+        <button type="button" onclick="filterToyManagementCat('impact')" id="btn-toy-cat-impact" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">✋ Impact</button>
+        <button type="button" onclick="filterToyManagementCat('sensory')" id="btn-toy-cat-sensory" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🙈 Sensorik</button>
+        <button type="button" onclick="filterToyManagementCat('cbt_clamps')" id="btn-toy-cat-cbt_clamps" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">⚡ CBT/Käfig</button>
+        <button type="button" onclick="filterToyManagementCat('toys_anal')" id="btn-toy-cat-toys_anal" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🍑 Toys</button>
+        <button type="button" onclick="filterToyManagementCat('special')" id="btn-toy-cat-special" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn">🕯️ Spezial</button>
+      </div>
+
       <!-- Item liste -->
       <div id="toy-management-grid" class="flex-1 overflow-y-auto pr-1 space-y-1.5 max-h-72"></div>
 
