@@ -640,6 +640,72 @@
   // 4. ONBOARDING
   // ==========================================
 
+  var currentOnboardStep = 1;
+
+  async function ensureOnboardPairCode() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    var code = state.pairCode;
+
+    // Wenn noch kein Paar-Code existiert, erzeugen wir ihn hier automatisch geräuschlos im Hintergrund
+    if (!code && window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
+      try {
+        code = await window.CloudSync.createRoom();
+      } catch (e) {
+        console.warn("Konnte Paar-Raum im Onboarding nicht vorab erstellen:", e);
+      }
+    }
+
+    var codeEl = document.getElementById('onboard-code-display');
+    if (codeEl && code) {
+      codeEl.innerText = code;
+    }
+    return code;
+  }
+
+  function goToOnboardStep(step) {
+    currentOnboardStep = step;
+
+    [1, 2, 3].forEach(function(s) {
+      var pane = document.getElementById('onboard-step-' + s);
+      var dot = document.getElementById('dot-step-' + s);
+      if (pane) {
+        if (s === step) pane.classList.remove('hidden');
+        else pane.classList.add('hidden');
+      }
+      if (dot) {
+        if (s === step) dot.className = "w-2 h-2 rounded-full bg-brand-500";
+        else if (s < step) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        else dot.className = "w-2 h-2 rounded-full bg-slate-700";
+      }
+    });
+
+    var badge = document.getElementById('onboard-step-badge');
+    if (badge) badge.innerText = "Schritt " + step + " von 3";
+
+    if (step === 2) {
+      ensureOnboardPairCode();
+    }
+  }
+
+  function copyOnboardCode() {
+    var codeEl = document.getElementById('onboard-code-display');
+    var code = (codeEl ? codeEl.innerText : '').trim();
+    if (!code || code === 'KOMPASS-000') {
+      showToast("⏳ Code wird noch initialisiert...");
+      return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(function() {
+        showToast("📋 Paar-Code " + code + " kopiert! Bitte sicher notieren.");
+      }).catch(function() {
+        window.prompt("Kopiere deinen Paar-Code:", code);
+      });
+    } else {
+      window.prompt("Kopiere deinen Paar-Code:", code);
+    }
+  }
+
   function setOnboardingAnatomy(who, type) {
     onboardAnatState[who] = type;
     var btnPenis = document.getElementById('onboard-anat-' + who + '-penis');
@@ -688,7 +754,7 @@
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Willkommen " + chosenName + "! Tippe auf [↑] 'Zum Home-Bildschirm' für schnellen App-Zugriff 📱");
+    showToast("Willkommen " + chosenName + "! Dein Zugang ist einsatzbereit 🚀");
   }
 
   // ==========================================
@@ -703,8 +769,11 @@
     if (!isDone && !hasNames && !hasAnswers) {
       var modal = document.getElementById('modal-onboarding');
       if (modal) {
+        goToOnboardStep(1);
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+        // Code im Hintergrund direkt generieren, damit er bei Schritt 2 sofort dasteht
+        ensureOnboardPairCode();
       }
     } else if (!isDone) {
       try { localStorage.setItem('kompass_onboarding_done', 'true'); } catch (e) {}
@@ -760,5 +829,7 @@
   window.setOnboardingAnatomy = setOnboardingAnatomy;
   window.closeOnboardingModal = closeOnboardingModal;
   window.completeOnboarding = completeOnboarding;
+  window.goToOnboardStep = goToOnboardStep;
+  window.copyOnboardCode = copyOnboardCode;
 
 })(window);
