@@ -356,38 +356,53 @@
     var wrap = document.getElementById('countdown-wrapper');
     if (panel) panel.classList.add('hidden');
     if (wrap) wrap.classList.remove('hidden');
+
     currentEdgingCountdown = 10;
     isCountdownActive = true;
     isEdgingCountdownPaused = false;
     countdownRunId++;
-    runBreathPacedCountdownLoop(countdownRunId);
+
+    var disp = document.getElementById('countdown-display');
+    if (disp) disp.innerText = "10";
+
+    // Ein einziger zusammenhängender, geführter Atemsatz statt 11 einzelner API-Calls!
+    // Dadurch wird das Free-Tier-Kontingent (15 Anfragen/Min) geschont und der Ton bricht niemals ab.
+    var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
+    var fullCountdownText = "Zehn... tief durchatmen... Neun... Acht... Sieben... Sechs... Fünf... spüre die Hitze, " + subName + "... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+
+    currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Geführter Atem-Countdown gestartet" });
+
+    // Visueller Sekundenzähler läuft synchron mit
+    runVisualCountdownTicker(countdownRunId);
+
+    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      window.SessionVoice.play(fullCountdownText).then(function() {
+        if (disp) disp.innerText = "KOMMEN!";
+        setTimeout(function() {
+          if (wrap) wrap.classList.add('hidden');
+        }, 4000);
+      });
+    }
   }
 
-  async function runBreathPacedCountdownLoop(runId) {
+  async function runVisualCountdownTicker(runId) {
     var disp = document.getElementById('countdown-display');
-    while (isCountdownActive && currentEdgingCountdown > 0 && runId === countdownRunId) {
+    var ticker = 10;
+
+    while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
       if (isEdgingCountdownPaused) {
-        await new Promise(function(r) { setTimeout(r, 400); });
+        await new Promise(function(r) { setTimeout(r, 300); });
         continue;
       }
-
-      if (disp) disp.innerText = currentEdgingCountdown;
-      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-        await window.SessionVoice.play(currentEdgingCountdown.toString());
-      } else {
-        await new Promise(function(r) { setTimeout(r, 1100); });
-      }
-
-      await new Promise(function(r) { setTimeout(r, 400); });
-      currentEdgingCountdown--;
+      if (disp) disp.innerText = ticker;
+      // Ein 2,2-Sekunden-Intervall entspricht exakt dem natürlichen Sprech- und Atemtempo
+      await new Promise(function(r) { setTimeout(r, 2200); });
+      ticker--;
     }
 
-    if (currentEdgingCountdown <= 0 && runId === countdownRunId) {
+    if (ticker <= 0 && runId === countdownRunId) {
       if (disp) disp.innerText = "KOMMEN!";
       currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
-      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-        await window.SessionVoice.play("Jetzt kommen! Lass alles los!");
-      }
       setTimeout(function() {
         var wrap = document.getElementById('countdown-wrapper');
         if (wrap) wrap.classList.add('hidden');
@@ -399,6 +414,11 @@
     isEdgingCountdownPaused = !isEdgingCountdownPaused;
     var btn = document.getElementById('btn-pause-countdown');
     if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
+    if (isEdgingCountdownPaused) {
+      if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
+        window.SessionVoice.stop();
+      }
+    }
   }
 
   function resetSpeechCountdown() {
@@ -407,6 +427,9 @@
     var wrap = document.getElementById('countdown-wrapper');
     if (wrap) wrap.classList.add('hidden');
     currentEdgingCountdown = 10;
+    if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
+      window.SessionVoice.stop();
+    }
   }
 
   function finalizeEdgingDecision(decision) {
