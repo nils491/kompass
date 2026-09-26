@@ -482,9 +482,11 @@
     if (btn) btn.innerText = "⏳ Analysiere...";
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
+    
     var activeModel = localStorage.getItem('kompass_discovered_model');
-    if (!activeModel || activeModel.indexOf('2.5') !== -1) {
+    if (!activeModel || activeModel.indexOf('2.5') !== -1 || activeModel.indexOf('omni') !== -1) {
       activeModel = 'gemini-3.8-flash';
+      try { localStorage.setItem('kompass_discovered_model', activeModel); } catch (e) {}
     }
 
     var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
@@ -500,26 +502,49 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
 - Tonfall: Empathisch, respektvoll, normalisierend, wissenschaftlich fundiert, 0% moralisierend.
 - Antwortformat: 3 prägnante HTML-Absätze mit Überschriften (1. Neurobiologische Kopplung & Bindung, 2. Somatische Entlastung vs. Führung, 3. Konkrete Empfehlung für die nächste Session in der Regie). Nutze saubere Tailwind-Klassen wie text-slate-300, text-xs, font-bold, space-y-2.`;
 
-    try {
-      var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
-      });
+    var candidateModels = [];
+    if (activeModel && activeModel.indexOf('omni') === -1 && activeModel.indexOf('2.5') === -1) {
+      candidateModels.push(activeModel);
+    }
+    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
+    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
 
-      if (resp.ok) {
-        var data = await resp.json();
-        var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
-        if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '').trim();
-        showToast("✓ Tiefenpsychologisches Gutachten erstellt!");
-      } else {
-        var errData = await resp.json().catch(function() { return {}; });
-        if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Fehler bei der KI-Analyse: ${escapeHtml(errData.error?.message || `HTTP ${resp.status}`)}</p>`;
+    var success = false;
+    var lastErrorMsg = "Verbindungsfehler";
+
+    for (var i = 0; i < candidateModels.length; i++) {
+      var currentModel = candidateModels[i];
+      try {
+        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }]
+          })
+        });
+
+        if (resp.ok) {
+          var data = await resp.json();
+          var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
+          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '').trim();
+          showToast("✓ Tiefenpsychologisches Gutachten erstellt (" + currentModel + ")");
+          try { localStorage.setItem('kompass_discovered_model', currentModel); } catch (e) {}
+          success = true;
+          break;
+        } else {
+          var errData = await resp.json().catch(function() { return {}; });
+          lastErrorMsg = errData.error?.message || `HTTP ${resp.status}`;
+        }
+      } catch (e) {
+        lastErrorMsg = e.message || "Netzwerkfehler";
       }
-    } catch (e) {
-      if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler bei der KI-Analyse.</p>`;
+    }
+
+    if (!success && out) {
+      out.innerHTML = `<div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">
+        <strong class="block font-bold">⚠️ Fehler bei der KI-Analyse:</strong>
+        <p class="text-[11px]">${escapeHtml(lastErrorMsg)}</p>
+      </div>`;
     }
 
     if (btn) btn.innerText = "✨ Gutachten neu berechnen";
