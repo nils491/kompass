@@ -268,6 +268,20 @@
     setupInitialPlaybook();
   }
 
+  function selectSessionMode(mode) {
+    if (window.SessionLive && typeof window.SessionLive.selectMode === 'function') {
+      window.SessionLive.selectMode(mode);
+    } else {
+      if (mode === 'guided') {
+        goToPortalStepSafe(3);
+      } else {
+        if (typeof window.startLiveSessionWrapper === 'function') {
+          window.startLiveSessionWrapper();
+        }
+      }
+    }
+  }
+
   function getGeminiApiKey() {
     try {
       var stored = localStorage.getItem('kompass_gemini_api_key');
@@ -559,6 +573,7 @@
     init: initStaging,
     selectRoleSetup: selectPortalRoleSetup,
     goToStep: goToPortalStepSafe,
+    selectMode: selectSessionMode,
     switchStagingTab: switchStagingTab,
     toggleEquipment: toggleStagingEquipment,
     selectPreset: selectEquipmentPreset,
@@ -576,6 +591,7 @@
   // Globale Aliase für Inline-HTML-Event-Handler
   window.selectPortalRoleSetup = selectPortalRoleSetup;
   window.goToPortalStepSafe = goToPortalStepSafe;
+  window.selectSessionMode = selectSessionMode;
   window.switchStagingTab = switchStagingTab;
   window.toggleStagingEquipment = toggleStagingEquipment;
   window.selectEquipmentPreset = selectEquipmentPreset;
