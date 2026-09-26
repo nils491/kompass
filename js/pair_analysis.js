@@ -18,6 +18,7 @@
 
   var names = { A: 'Partner 1', B: 'Partner 2' };
   var anatomy = { A: 'penis', B: 'vulva' };
+  var sharingLevels = { A: 3, B: 3 };
   var answers = { A: {}, B: {} };
   var safetyConfig = { A: {}, B: {} };
   var sessionDiary = [];
@@ -32,6 +33,11 @@
       var ans = localStorage.getItem('kompass_answers');
       var sc = localStorage.getItem('kompass_safety_config');
       var dia = localStorage.getItem('kompass_session_diary');
+
+      var slA = localStorage.getItem('kompass_sharing_level_A');
+      var slB = localStorage.getItem('kompass_sharing_level_B');
+      if (slA) sharingLevels.A = parseInt(slA, 10) || 3;
+      if (slB) sharingLevels.B = parseInt(slB, 10) || 3;
 
       if (nm && nm !== 'null') names = JSON.parse(nm);
       if (an && an !== 'null') anatomy = JSON.parse(an);
@@ -79,6 +85,9 @@
     var allChapters = window.surveyChapters || [];
     var ansA = answers.A || {};
     var ansB = answers.B || {};
+
+    var lvlA = sharingLevels.A || 3;
+    var lvlB = sharingLevels.B || 3;
 
     var totalEvaluated = 0;
     var totalHarmonicPoints = 0;
@@ -130,35 +139,73 @@
         addPillarPoints(ch.id, bR2, pillarsB);
         addPillarMax(ch.id);
 
-        // 1. Doppel-5er (Dedupliziert)
+        // ========================================================
+        // 1. DAS ABSOLUTE SICHERHEITS-VETO: TABU-ERMITTLUNG (NOTE 1)
+        // Tabus werden IMMER und unabhängig von Freigabestufen ermittelt!
+        // ========================================================
+        var hasTabuA = (aR1 === 1 || aR2 === 1);
+        var hasTabuB = (bR1 === 1 || bR2 === 1);
+
+        if (hasTabuA || hasTabuB) {
+          var whoTabu = [];
+          if (hasTabuA) whoTabu.push(names.A || 'Partner 1');
+          if (hasTabuB) whoTabu.push(names.B || 'Partner 2');
+          if (!seenTabus.has(it.id)) {
+            seenTabus.add(it.id);
+            tabuList.push({ item: it, chapter: ch, who: whoTabu.join(' & ') });
+          }
+          // SICHERHEITS-VETO: Wenn einer ein Tabu gesetzt hat,
+          // darf es NIEMALS als Doppel-Match oder Brücke auftauchen!
+          return;
+        }
+
+        // ========================================================
+        // 2. DOPPEL-5ER (Beiderseitige Höchstlust - ab Stufe 1 erlaubt)
+        // ========================================================
         var isD5 = (aR1 === 5 && bR2 === 5) || (aR2 === 5 && bR1 === 5) || (aR1 === 5 && bR1 === 5) || (aR2 === 5 && bR2 === 5);
         if (isD5 && !seenDoppel5.has(it.id)) {
           seenDoppel5.add(it.id);
           doppel5List.push({ item: it, chapter: ch });
         }
 
-        // 2. Brückenbau (5 trifft Note 2 oder 3) (Dedupliziert)
-        var isBridge = (aR1 === 5 && (bR2 === 2 || bR2 === 3)) || (bR1 === 5 && (aR2 === 2 || aR2 === 3)) ||
-                       (aR2 === 5 && (bR1 === 2 || bR1 === 3)) || (bR2 === 5 && (aR1 === 2 || aR1 === 3));
-        if (isBridge && !seenBridges.has(it.id)) {
+        // ========================================================
+        // 3. BRÜCKENBAU-CHANCEN (5 trifft 2 oder 3)
+        // Schamschutz: Nur sichtbar, wenn der Partner mit der Note 2/3
+        // dies über seine Freigabestufe erlaubt hat!
+        // - Note 3 (Neugier) verlangt sharingLevel >= 2
+        // - Note 2 (Buße/Duldung) verlangt sharingLevel >= 3
+        // ========================================================
+        var bridgePermitted = false;
+
+        // Fall A: A will 5, B hat 2 oder 3
+        if ((aR1 === 5 || aR2 === 5) && (bR1 === 2 || bR1 === 3 || bR2 === 2 || bR2 === 3)) {
+          var bScore = Math.max(bR1 || 0, bR2 || 0);
+          if (bScore === 3 && lvlB >= 2) bridgePermitted = true;
+          if (bScore === 2 && lvlB >= 3) bridgePermitted = true;
+          if (lvlB === 4) bridgePermitted = true;
+        }
+
+        // Fall B: B will 5, A hat 2 oder 3
+        if ((bR1 === 5 || bR2 === 5) && (aR1 === 2 || aR1 === 3 || aR2 === 2 || aR2 === 3)) {
+          var aScore = Math.max(aR1 || 0, aR2 || 0);
+          if (aScore === 3 && lvlA >= 2) bridgePermitted = true;
+          if (aScore === 2 && lvlA >= 3) bridgePermitted = true;
+          if (lvlA === 4) bridgePermitted = true;
+        }
+
+        if (bridgePermitted && !seenBridges.has(it.id) && !seenDoppel5.has(it.id)) {
           seenBridges.add(it.id);
           bridgesList.push({ item: it, chapter: ch });
         }
 
-        // 3. Komplementäre Passung (Aktiv trifft Passiv >= 4) (Dedupliziert)
+        // ========================================================
+        // 4. KOMPLEMENTÄRE PASSUNG (Aktiv trifft Passiv >= 4)
+        // Beide Partner haben mindestens Reizvoll (4) vergeben.
+        // ========================================================
         var isComp = (aR1 >= 4 && bR2 >= 4) || (bR1 >= 4 && aR2 >= 4);
         if (isComp && !seenComp.has(it.id)) {
           seenComp.add(it.id);
           compList.push({ item: it, chapter: ch });
-        }
-
-        // 4. Tabus (Note 1) mit genauer Partnernennung
-        var whoTabu = [];
-        if (aR1 === 1 || aR2 === 1) whoTabu.push(names.A || 'Partner 1');
-        if (bR1 === 1 || bR2 === 1) whoTabu.push(names.B || 'Partner 2');
-        if (whoTabu.length > 0 && !seenTabus.has(it.id)) {
-          seenTabus.add(it.id);
-          tabuList.push({ item: it, chapter: ch, who: whoTabu.join(' & ') });
         }
 
         // Harmonie-Berechnung
