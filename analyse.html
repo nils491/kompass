@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Wissenschaftliche Paar- & KI-Tiefenanalyse</title>
+  <title>Paar-Analyse & Synergie-Kompass | Kink-Kompass</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -35,10 +35,10 @@
             noir: {
               950: '#000000',
               900: '#05070c',
-              850: '#0c1017',
-              800: '#121722',
-              700: '#1a2232',
-              600: '#26334a',
+              850: '#0a0e17',
+              800: '#101726',
+              700: '#172238',
+              600: '#233454',
             }
           }
         }
@@ -58,7 +58,6 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: var(--sat);
       padding-bottom: var(--sab);
       padding-left: var(--sal);
       padding-right: var(--sar);
@@ -74,59 +73,33 @@
 
     .touch-btn {
       min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
     }
     .touch-btn:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <div id="site-lockscreen" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
-      <div class="w-16 h-16 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-3xl shadow-inner">
-        🔒
-      </div>
-      <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Paar-Analyse geschützt</h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Bitte gib das Zugangspasswort ein, um die vertrauliche psychologische Paaranalyse zu öffnen.
-        </p>
-      </div>
-      <div class="space-y-3">
-        <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." onkeydown="if(event.key==='Enter') verifySitePassword()" class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition min-h-[46px]">
-        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-sm shadow-md transition touch-btn">
-          Entsperren & Fortfahren
-        </button>
-        <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
-      </div>
-    </div>
-  </div>
-
-  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-slate-900 shadow-sm">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zur Zentrale">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zum Hub">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            📊
+            <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
           <div class="truncate">
             <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar- & Tiefenanalyse</h1>
-              <span id="ai-active-badge-header" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">KI AKTIV</span>
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Analyse</h1>
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-amber-950 text-amber-300 border border-amber-800 uppercase flex-shrink-0">SYNERGIE</span>
             </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="analysis-names-subtitle">Lade Profile...</span>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-pair-names">Partner 1 & Partner 2</span>
           </div>
         </a>
 
@@ -134,857 +107,458 @@
           <a href="index.html#view=survey" class="px-2.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs flex items-center gap-1 transition touch-btn shadow-xs" title="Zurück zum Fragebogen">
             <span>📝</span> <span class="hidden sm:inline text-[11px]">Fragebogen</span>
           </a>
-          <a href="session.html" class="p-2 sm:px-2.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Schlafzimmer-Cockpit">
-            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
+          <a href="session.html" class="p-2 sm:px-2.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Schlafzimmer-Regie">
+            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Regie</span>
           </a>
         </div>
       </div>
 
+      <!-- MAIN NAVIGATION -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>🏛️</span> <span>Start-Hub</span>
+          <span>Start-Hub</span>
         </a>
         <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>📝</span> <span>Fragebogen</span>
+          <span>Fragebogen</span>
         </a>
         <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>🛡️</span> <span>Sicherheits-Kodex</span>
+          <span>Sicherheits-Kodex</span>
         </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>👤</span> <span>Mein Profil</span>
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-indigo-400 hover:text-indigo-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Mein Profil</span>
         </a>
-        <span class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
-          <span>📊</span> <span>Paar-Analyse</span>
+        <span class="px-3 py-1.5 rounded-xl bg-amber-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
+          <span>Paar-Analyse</span>
         </span>
+        <a href="session.html" class="px-3 py-1.5 rounded-xl text-pink-400 hover:text-pink-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Regie</span>
+        </a>
       </nav>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
-    <div id="gate-analyse-incomplete" class="hidden theme-card rounded-3xl p-8 text-center space-y-5 border border-rose-500/30 shadow-2xl">
-      <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-3xl mx-auto flex items-center justify-center shadow-inner">
+    <!-- PASSWORT-GATEWAY -->
+    <div id="password-gate" class="theme-card rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
+      <div class="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-300 flex items-center justify-center text-2xl mx-auto shadow-inner">
         🔒
       </div>
-      <div class="max-w-md mx-auto space-y-2">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Auswertung noch nicht verfügbar</h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Die Paar- und Tiefenanalyse basiert auf euren persönlichen Bewertungen. Bitte füllt zuerst beide die ersten Kapitel im Fragebogen aus.
+      <div>
+        <h2 class="text-base sm:text-lg font-black text-white">Gemeinsames Paar-Passwort</h2>
+        <p class="text-xs text-slate-400 mt-1">
+          Gebt euer vereinbartes Passwort ein, um die vertrauliche Paarauswertung zu entschlüsseln.
         </p>
       </div>
-      <a href="index.html#view=survey" class="inline-block px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl text-xs shadow-md transition touch-btn">
-        Jetzt zum Fragebogen wechseln →
-      </a>
-    </div>
-
-    <div id="analyse-workspace-container" class="space-y-5">
-
-      <div class="grid grid-cols-2 gap-1.5 p-1 theme-panel rounded-2xl border text-xs font-bold max-w-md mx-auto shadow-xs">
-        <button type="button" onclick="switchAnalysisTab('pair')" id="tab-pair" class="py-2.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center justify-center gap-1.5 touch-btn">
-          <span>👥</span> <span>Paar-Synergie & Matches</span>
-        </button>
-        <button type="button" onclick="switchAnalysisTab('self')" id="tab-self" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 touch-btn">
-          <span>🧠</span> <span>Psychologische Individualanalyse</span>
+      <div class="space-y-2">
+        <input type="password" id="gate-password-input" placeholder="Passwort eingeben..." class="w-full text-xs p-3 theme-panel border rounded-xl text-white text-center font-mono">
+        <button type="button" onclick="unlockAnalysisGate()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Paar-Analyse freischalten →
         </button>
       </div>
+    </div>
 
-      <section id="view-pair-analysis" class="space-y-5">
-        <div id="pair-locked-banner" class="hidden theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
-          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-2xl mx-auto flex items-center justify-center">
-            🔒
-          </div>
-          <h3 class="text-base font-extrabold text-white">Paar-Analyse ist noch geschützt</h3>
-          <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-            Die gemeinsame Gegenüberstellung wird freigeschaltet, sobald <strong>beide Partner</strong> ihre Bewertungen abgegeben haben.
+    <!-- ANALYSE-INHALT -->
+    <div id="analysis-content" class="hidden space-y-5">
+
+      <!-- HERO BANNER MIT PAAR-NAMEN & HARMONIE -->
+      <div class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl relative overflow-hidden bg-gradient-to-r from-noir-900 via-amber-950/20 to-noir-900">
+        <div class="max-w-2xl space-y-2 relative z-10">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
+            Evidenzbasierte Paardynamik
+          </span>
+          <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight" id="hero-pair-title">
+            Synergie-Auswertung für Partner 1 & Partner 2
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Berechnet aus über 35 empirischen Studien (u. a. Sagarin 2009, Wismeijer 2013, Canivet 2025). Schnittmengen, Brückenbau-Chancen und Schutzgrenzen auf einen Blick.
           </p>
-          <a href="index.html#view=survey" class="inline-block px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs shadow-md transition touch-btn">
-            Zum Fragebogen zurückkehren →
-          </a>
+        </div>
+      </div>
+
+      <!-- 4 KERN-KPIS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Basis-Harmonie</span>
+          <div class="text-xl sm:text-2xl font-black text-amber-400 font-mono" id="kpi-harmony">0 %</div>
+          <span class="text-[10px] text-slate-400 leading-tight block">Berechnet aus 35 Kapiteln</span>
         </div>
 
-        <div id="pair-unlocked-content" class="space-y-5">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harmonie-Match</span>
-              <span class="text-2xl font-black text-white" id="kpi-harmony">0 %</span>
-              <span class="text-[10px] text-slate-400 block">Gemeinsame Basis</span>
-            </div>
-            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Doppel-5er Volltreffer</span>
-              <span class="text-2xl font-black text-emerald-400" id="kpi-doppel5">0</span>
-              <span class="text-[10px] text-emerald-400/80 block">Beidseitige Leidenschaft</span>
-            </div>
-            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
-              <span class="text-2xl font-black text-amber-400" id="kpi-bridges">0</span>
-              <span class="text-[10px] text-amber-400/80 block">Wunsch trifft Neugier</span>
-            </div>
-            <div class="theme-card p-3.5 rounded-2xl border space-y-0.5 shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Absolute Tabus</span>
-              <span class="text-2xl font-black text-rose-400" id="kpi-tabus">0</span>
-              <span class="text-[10px] text-rose-400/80 block">Top- & Bottom-Schranken</span>
-            </div>
-          </div>
-
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border border-teal-500/40 space-y-3 shadow-xs">
-            <div class="flex items-center justify-between border-b border-teal-500/20 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">📜</span>
-                <div>
-                  <h3 class="text-xs sm:text-sm font-bold text-teal-300">Unser verbindlicher Konsens- & Sicherheits-Kodex</h3>
-                  <p class="text-[10px] text-slate-400">Das Fundament eurer gemeinsamen Sessions (Verbindlich vereinbarte Schutzregeln)</p>
-                </div>
-              </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/40">Vereinbart</span>
-            </div>
-            <div id="safety-codex-display" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs"></div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-2 shadow-xs">
-              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                    <span>⚡</span> Paar-Synergie im Radar
-                  </h3>
-                  <p class="text-[10.5px] text-slate-400">Vergleich der 9 erotischen Hauptdimensionen</p>
-                </div>
-                <div class="flex items-center gap-2.5 text-[11px] font-bold">
-                  <span class="text-indigo-400" id="legend-name-A">🔵 Partner 1</span>
-                  <span class="text-purple-400" id="legend-name-B">🟣 Partner 2</span>
-                </div>
-              </div>
-              <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-                <canvas id="pairRadarCanvas"></canvas>
-              </div>
-            </div>
-
-            <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-xs flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Wissenschaftliches Gutachten</span>
-                    <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">Neuro-psychologische Komplementarität</h3>
-                  </div>
-                  <button type="button" id="btn-trigger-ai-pair" onclick="generateAiPairReport()" class="hidden px-2.5 py-1 rounded-xl bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-200 text-[10.5px] font-bold transition touch-btn flex items-center gap-1">
-                    <span>✨</span> <span>KI-Gutachten aktualisieren</span>
-                  </button>
-                </div>
-                <div id="pair-scientific-gutachten" class="space-y-2 text-xs leading-relaxed text-slate-300 max-h-72 overflow-y-auto pr-1 pt-2"></div>
-              </div>
-              <div class="text-[9.5px] text-slate-500 pt-2 border-t border-slate-800/80">
-                50 % Peer-Reviewed Studien (35+ Studien) + 50 % reale Paar-Testergebnisse
-              </div>
-            </div>
-          </div>
-
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border border-amber-500/30 space-y-3 shadow-xs">
-            <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
-              <div>
-                <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Psychologischer Gesprächs-Katalysator</span>
-                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">💬 Brückenbau: Wünsche ohne Rechtfertigungsdruck besprechen</h3>
-              </div>
-              <span class="text-[10.5px] text-amber-300 font-bold" id="bridges-count-badge">0 Brücken</span>
-            </div>
-            <div id="bridges-interactive-container" class="space-y-2"></div>
-          </div>
-
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border border-emerald-500/30 space-y-3 shadow-xs">
-            <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
-              <div>
-                <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Beidseitige Leidenschaft</span>
-                <h3 class="text-xs sm:text-sm font-bold text-white mt-0.5">⭐ Eure gemeinsamen Doppel-5er Volltreffer</h3>
-              </div>
-              <span class="text-[10.5px] text-emerald-300 font-bold" id="doppel5-count-badge">0 Volltreffer</span>
-            </div>
-            <div id="doppel5-interactive-container" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
-          </div>
-
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border border-pink-500/40 space-y-3 shadow-xs">
-            <div class="flex items-center justify-between border-b border-pink-500/20 pb-2">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">📖</span>
-                <div>
-                  <h3 class="text-xs sm:text-sm font-bold text-pink-300">Erotisches Logbuch & Beziehungs-Historie</h3>
-                  <p class="text-[10px] text-slate-400">Aus dem Schlafzimmer-Begleiter übernommene Sessions, Live-Aktionen & Dual-Feedback</p>
-                </div>
-              </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40" id="diary-total-count-badge">0 Einträge</span>
-            </div>
-            <div id="pair-session-diary-container" class="space-y-2.5 text-xs"></div>
-          </div>
-
-          <div class="theme-panel p-5 sm:p-6 rounded-3xl border border-brand-800/60 space-y-2.5 shadow-md bg-gradient-to-br from-brand-950/40 via-noir-900 to-black">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">🕊️</span>
-              <h4 class="text-xs sm:text-sm font-black text-brand-200 uppercase tracking-wider">
-                Ein Wort zur Normalität & Schamfreiheit
-              </h4>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed font-normal">
-              Ihr seid vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie euch im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="view-self-analysis" class="space-y-5 hidden">
-        <div class="theme-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-xs">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400 font-bold">Wissenschaftliche Individualanalyse für:</span>
-            <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border text-xs font-bold">
-              <button type="button" onclick="setSelfAnalysisUser('A')" id="btn-self-A" class="px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs touch-btn">Partner 1</button>
-              <button type="button" onclick="setSelfAnalysisUser('B')" id="btn-self-B" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition touch-btn">Partner 2</button>
-            </div>
-          </div>
-          <span class="text-[11px] text-slate-400 font-mono" id="self-answered-stat">0 Fragen bewertet</span>
+        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
+          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Doppel-5er Matches</span>
+          <div class="text-xl sm:text-2xl font-black text-emerald-400 font-mono" id="kpi-doppel5">0</div>
+          <span class="text-[10px] text-slate-400 leading-tight block">Gemeinsame Höchstlust</span>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-2 shadow-xs">
-            <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
-              <span>🕸️ Erotisches Archetypen-Radar</span>
-              <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
-            </h3>
-            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-              <canvas id="selfRadarCanvas"></canvas>
-            </div>
-          </div>
-
-          <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-xs flex flex-col justify-between">
-            <div class="space-y-1">
-              <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
-              <p class="text-[11px] text-slate-400">Verteilung deiner inneren Antriebe (bereinigt um 0-Werte):</p>
-            </div>
-            <div class="space-y-2.5 text-xs">
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Macht & Hingabe (D/s, Führung, Dienst)</span>
-                  <span id="self-bar-val-power">0 %</span>
-                </div>
-                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                  <div id="self-bar-fill-power" class="bg-indigo-500 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Sensorik & Schmerz (Impact, Shibari, Kälte/Hitze)</span>
-                  <span id="self-bar-val-sensation">0 %</span>
-                </div>
-                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                  <div id="self-bar-fill-sensation" class="bg-rose-500 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Fürsorge & Geborgenheit (Caregiver, Nurturing)</span>
-                  <span id="self-bar-val-nurturing">0 %</span>
-                </div>
-                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                  <div id="self-bar-fill-nurturing" class="bg-teal-500 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Tabubruch & Mentaler Kick (CNC, Verhör)</span>
-                  <span id="self-bar-val-thrill">0 %</span>
-                </div>
-                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                  <div id="self-bar-fill-thrill" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                  <span>Visuelle Erotik & Lingerie (CFNM, Leder)</span>
-                  <span id="self-bar-val-visual">0 %</span>
-                </div>
-                <div class="w-full theme-panel h-2 rounded-full overflow-hidden">
-                  <div id="self-bar-fill-visual" class="bg-purple-500 h-full rounded-full transition-all" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-            <div class="text-[10px] text-slate-400 italic">Echtzeit-Berechnung aus den individuellen Antworten</div>
-          </div>
+        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
+          <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
+          <div class="text-xl sm:text-2xl font-black text-indigo-400 font-mono" id="kpi-bridges">0</div>
+          <span class="text-[10px] text-slate-400 leading-tight block">Wunsch trifft Note 2/3</span>
         </div>
 
-        <div class="theme-card p-5 rounded-3xl border space-y-3 shadow-xs">
+        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
+          <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">Aktive Tabus</span>
+          <div class="text-xl sm:text-2xl font-black text-rose-400 font-mono" id="kpi-tabus">0</div>
+          <span class="text-[10px] text-slate-400 leading-tight block">Verbindliche No-Gos</span>
+        </div>
+      </div>
+
+      <!-- RADAR & VERGLEICH DER MOTIVATIONS-SÄULEN -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Paar-Synergie-Radar</h3>
+            <span class="text-[10px] font-mono text-amber-300">A vs. B</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="pairRadarChart"></canvas>
+          </div>
+        </div>
+
+        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Vergleich der 5 Motivations-Säulen</h3>
+            <span class="text-[10px] font-mono text-slate-400">Prozentual</span>
+          </div>
+          <div class="space-y-2.5 text-xs">
             <div>
-              <span class="text-[10px] font-black uppercase tracking-wider text-brand-400">Psychologische Fundierung</span>
-              <h3 class="text-sm sm:text-base font-extrabold text-white mt-0.5">
-                Woher deine Vorlieben kommen & wie sie im Kopf funktionieren
-              </h3>
-              <p class="text-xs text-slate-400">Empirische Analyse gestützt auf 35+ wissenschaftliche Studien</p>
+              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                <span>Macht & Hingabe (D/s)</span>
+                <span id="pair-val-power" class="text-indigo-400 font-mono">0% / 0%</span>
+              </div>
+              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
+                <div id="pair-bar-A-power" class="bg-indigo-500 h-full transition-all" style="width: 0%"></div>
+                <div id="pair-bar-B-power" class="bg-purple-500 h-full transition-all" style="width: 0%"></div>
+              </div>
             </div>
-            <button type="button" id="btn-trigger-ai-self" onclick="generateAiSelfReport()" class="hidden px-2.5 py-1 rounded-xl bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-200 text-[10.5px] font-bold transition touch-btn flex items-center gap-1">
-              <span>✨</span> <span>KI-Profil aktualisieren</span>
+
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                <span>Sensorik & Schmerz (Impact/Shibari)</span>
+                <span id="pair-val-sensation" class="text-rose-400 font-mono">0% / 0%</span>
+              </div>
+              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
+                <div id="pair-bar-A-sensation" class="bg-rose-500 h-full transition-all" style="width: 0%"></div>
+                <div id="pair-bar-B-sensation" class="bg-pink-500 h-full transition-all" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                <span>Fürsorge & Geborgenheit (Caregiver)</span>
+                <span id="pair-val-nurturing" class="text-teal-400 font-mono">0% / 0%</span>
+              </div>
+              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
+                <div id="pair-bar-A-nurturing" class="bg-teal-500 h-full transition-all" style="width: 0%"></div>
+                <div id="pair-bar-B-nurturing" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                <span>Tabubruch & Mentaler Kick (CNC)</span>
+                <span id="pair-val-thrill" class="text-amber-400 font-mono">0% / 0%</span>
+              </div>
+              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
+                <div id="pair-bar-A-thrill" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
+                <div id="pair-bar-B-thrill" class="bg-orange-500 h-full transition-all" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
+                <span>Visuelle Erotik & Ästhetik</span>
+                <span id="pair-val-visual" class="text-indigo-300 font-mono">0% / 0%</span>
+              </div>
+              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
+                <div id="pair-bar-A-visual" class="bg-indigo-400 h-full transition-all" style="width: 0%"></div>
+                <div id="pair-bar-B-visual" class="bg-fuchsia-500 h-full transition-all" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KI-PAARGUTACHTEN (DYNAMISCHES MODELL) -->
+      <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-500/50 shadow-xl space-y-3 bg-purple-950/10">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-900/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧠</span>
+            <div>
+              <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches KI-Paargutachten</h3>
+              <p class="text-[10px] text-purple-300">50 % empirische Studien · 50 % eure reale Paardynamik</p>
+            </div>
+          </div>
+          <button type="button" onclick="generateAiPairReport()" id="btn-generate-ai-pair" class="px-4 py-2 bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">
+            <span>✨ Gutachten generieren</span>
+          </button>
+        </div>
+
+        <div id="ai-pair-report-output" class="text-xs leading-relaxed text-slate-300 space-y-3">
+          <p class="italic text-slate-400">
+            Klickt auf „Gutachten generieren“, um eine fundierte tiefenpsychologische Auswertung eurer gemeinsamen Schnittmengen, Rollenpassungen und Entlastungspotenziale über Gemini abzurufen.
+          </p>
+        </div>
+      </div>
+
+      <!-- DETAIL-LISTEN (MATCHES, BRÜCKEN, TABUS) -->
+      <div class="theme-card rounded-3xl p-5 border space-y-4 shadow-xl">
+        <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-2">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Praktiken-Detailanalyse</h3>
+          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+            <button type="button" onclick="switchPairDetailFilter('doppel5')" id="filter-pair-doppel5" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
+              ⭐ Doppel-5er (<span id="count-pair-doppel5">0</span>)
+            </button>
+            <button type="button" onclick="switchPairDetailFilter('bridges')" id="filter-pair-bridges" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
+              💡 Brückenbau (<span id="count-pair-bridges">0</span>)
+            </button>
+            <button type="button" onclick="switchPairDetailFilter('complementary')" id="filter-pair-complementary" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
+              ⚡ Top/Bottom-Passung (<span id="count-pair-comp">0</span>)
+            </button>
+            <button type="button" onclick="switchPairDetailFilter('tabus')" id="filter-pair-tabus" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
+              ⛔ Tabu-Schranken (<span id="count-pair-tabus">0</span>)
             </button>
           </div>
-          <div id="self-scientific-deep-analysis" class="space-y-3 text-xs leading-relaxed text-slate-300"></div>
         </div>
 
-        <div class="theme-panel p-5 sm:p-6 rounded-3xl border border-brand-800/60 space-y-2.5 shadow-md bg-gradient-to-br from-brand-950/40 via-noir-900 to-black">
-          <div class="flex items-center gap-2">
-            <span class="text-xl">🕊️</span>
-            <h4 class="text-xs sm:text-sm font-black text-brand-200 uppercase tracking-wider">
-              Ein Wort zur Normalität & Schamfreiheit
-            </h4>
+        <div id="pair-detail-items-container" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs"></div>
+      </div>
+
+      <!-- SICHERHEITS-KODEX VEREINBARUNGS-ABGLEICH -->
+      <div class="theme-card rounded-3xl p-5 border border-teal-500/40 space-y-3 shadow-xl">
+        <div class="flex items-center gap-2 border-b border-teal-900/60 pb-2">
+          <span class="text-lg">🛡️</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Sicherheits-Kodex Abgleich</h3>
+            <p class="text-[10px] text-teal-300">Konsensprüfung eurer Sicherheitsstandards</p>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed font-normal">
-            Du bist vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie dir im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.
-          </p>
         </div>
-      </section>
+        <div id="safety-consensus-list" class="space-y-2 text-xs"></div>
+      </div>
+
+      <!-- SESSION-TAGEBUCH AUS DER SCHLAFZIMMER-REGIE -->
+      <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Session-Logbuch aus der Regie</h3>
+            <p class="text-[10px] text-slate-400">Dokumentierte Abende, Edges und beidseitiges Aftercare-Feedback</p>
+          </div>
+          <a href="session.html" class="text-brand-400 hover:underline font-bold text-xs">
+            Neue Session starten ↗
+          </a>
+        </div>
+        <div id="analysis-session-diary-container" class="space-y-2 text-xs"></div>
+      </div>
+
+      <!-- SCHAM-ENTLASTUNG & ABSCHLUSSWORT -->
+      <div class="theme-card rounded-3xl p-6 border border-brand-500/40 bg-gradient-to-br from-brand-950/30 to-noir-900 space-y-2 shadow-xl">
+        <strong class="text-brand-300 font-extrabold text-xs uppercase tracking-wider block">
+          Ein Wort zur Normalität & Schamfreiheit (Canivet et al., 2025; Wismeijer, 2013)
+        </strong>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Ihr seid vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie euch im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.
+        </p>
+      </div>
 
     </div>
-  </main>
 
-  <footer class="border-t border-slate-900 theme-card px-4 py-4 text-center text-xs text-slate-500">
-    🔒 100 % Lokale Verschlüsselung im Browser. Keine Cloud, kein Tracking.
-  </footer>
+  </main>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
+  <!-- EXTERNE DATENQUELLEN -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
 
   <script>
-    let activeAnalysisTab = 'pair';
-    let selfUser = 'A';
     let names = { A: 'Partner 1', B: 'Partner 2' };
     let anatomy = { A: 'penis', B: 'vulva' };
     let answers = { A: {}, B: {} };
-    let notes = { A: {}, B: {} };
-    let shameFlags = { A: {}, B: {} };
     let safetyConfig = { A: {}, B: {} };
-    let customKinks = [];
+    let sessionDiary = [];
     let pairRadarChartInstance = null;
-    let selfRadarChartInstance = null;
+    let activeDetailFilter = 'doppel5';
 
-    const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-
-    function verifySitePassword() {
-      const input = document.getElementById('site-pw-input');
-      const err = document.getElementById('pw-error-hint');
-      const lock = document.getElementById('site-lockscreen');
-      if (!input) return;
-
-      if (input.value.trim() === 'Bommelchen!') {
-        sessionStorage.setItem('kompass_unlocked', 'true');
-        if (lock) lock.classList.add('hidden');
-        if (err) err.classList.add('hidden');
-        initAnalysisApp();
-      } else {
-        if (err) err.classList.remove('hidden');
-      }
-    }
-
-    function checkSiteLockscreen() {
-      const lock = document.getElementById('site-lockscreen');
-      if (!lock) return true;
-      if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-        lock.classList.add('hidden');
-        return true;
-      } else {
-        lock.classList.remove('hidden');
-        return false;
-      }
-    }
-
-    function initAnalysisApp() {
-      loadStorageData();
-      applySavedTheme();
-      updateAiIndicators();
-      if (!checkSurveyDataGate()) return;
-      updateNamesDisplay();
-      renderPairAnalysis();
-      renderSelfAnalysis();
-    }
-
-    function updateAiIndicators() {
-      const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
-      const badge = document.getElementById('ai-active-badge-header');
-      const btnPair = document.getElementById('btn-trigger-ai-pair');
-      const btnSelf = document.getElementById('btn-trigger-ai-self');
-
-      if (badge) {
-        if (isAiActive) badge.classList.remove('hidden');
-        else badge.classList.add('hidden');
-      }
-      if (btnPair) {
-        if (isAiActive) btnPair.classList.remove('hidden');
-        else btnPair.classList.add('hidden');
-      }
-      if (btnSelf) {
-        if (isAiActive) btnSelf.classList.remove('hidden');
-        else btnSelf.classList.add('hidden');
-      }
-    }
-
-    function checkSurveyDataGate() {
-      ensureAnalysisDataIntegrity();
-      const countA = Object.keys(answers.A || {}).length;
-      const countB = Object.keys(answers.B || {}).length;
-      const gate = document.getElementById('gate-analyse-incomplete');
-      const container = document.getElementById('analyse-workspace-container');
-
-      if (countA < 5 || countB < 5) {
-        if (gate) {
-          gate.classList.remove('hidden');
-          const h2 = gate.querySelector('h2');
-          const p = gate.querySelector('p');
-          if (h2) {
-            h2.innerText = (countA < 5 && countB < 5) 
-              ? "Fragebogen noch von beiden unvollständig" 
-              : `Warte auf ${countA < 5 ? (names.A || 'Partner 1') : (names.B || 'Partner 2')}`;
-          }
-          if (p) {
-            p.innerText = "Die Paar- und Tiefenanalyse wird freigeschaltet, sobald BEIDE Partner mindestens 5 Praktiken im Fragebogen bewertet haben.";
-          }
-        }
-        if (container) container.classList.add('hidden');
-        return false;
-      } else {
-        if (gate) gate.classList.add('hidden');
-        if (container) container.classList.remove('hidden');
-        return true;
-      }
-    }
-
-    function ensureAnalysisDataIntegrity() {
-      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
-      if (!answers.A || typeof answers.A !== 'object') answers.A = {};
-      if (!answers.B || typeof answers.B !== 'object') answers.B = {};
-      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
-      if (!names.A) names.A = 'Partner 1';
-      if (!names.B) names.B = 'Partner 2';
-      if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
-      if (!safetyConfig.A || typeof safetyConfig.A !== 'object') safetyConfig.A = {};
-      if (!safetyConfig.B || typeof safetyConfig.B !== 'object') safetyConfig.B = {};
-    }
-
-    function loadStorageData() {
+    function loadAnalysisData() {
       try {
-        const a = localStorage.getItem('kompass_answers');
-        const n = localStorage.getItem('kompass_notes');
-        const sh = localStorage.getItem('kompass_shame');
-        const sc = localStorage.getItem('kompass_safety_config');
-        const ck = localStorage.getItem('kompass_custom_kinks');
         const nm = localStorage.getItem('kompass_names');
         const an = localStorage.getItem('kompass_anatomy');
+        const ans = localStorage.getItem('kompass_answers');
+        const sc = localStorage.getItem('kompass_safety_config');
+        const dia = localStorage.getItem('kompass_session_diary');
 
-        if (a) answers = JSON.parse(a);
-        if (n) notes = JSON.parse(n);
-        if (sh) shameFlags = JSON.parse(sh);
-        if (sc) safetyConfig = JSON.parse(sc);
-        if (ck) customKinks = JSON.parse(ck);
         if (nm) names = JSON.parse(nm);
         if (an) anatomy = JSON.parse(an);
+        if (ans) answers = JSON.parse(ans);
+        if (sc) safetyConfig = JSON.parse(sc);
+        if (dia) sessionDiary = JSON.parse(dia);
       } catch (e) {
-        console.error("Fehler beim Laden:", e);
+        console.error("Analysis data load error", e);
       }
-      ensureAnalysisDataIntegrity();
+
+      const pNames = document.getElementById('header-pair-names');
+      if (pNames) pNames.innerText = `${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
+      const heroTitle = document.getElementById('hero-pair-title');
+      if (heroTitle) heroTitle.innerText = `Synergie-Auswertung für ${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
     }
 
-    function applySavedTheme() {
-      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
-      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-    }
+    function unlockAnalysisGate() {
+      const input = document.getElementById('gate-password-input');
+      const val = (input ? input.value : '').trim();
 
-    function updateNamesDisplay() {
-      const sub = document.getElementById('analysis-names-subtitle');
-      const lA = document.getElementById('legend-name-A');
-      const lB = document.getElementById('legend-name-B');
-      const bA = document.getElementById('btn-self-A');
-      const bB = document.getElementById('btn-self-B');
-
-      if (sub) sub.innerText = `${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
-      if (lA) lA.innerText = `🔵 ${names.A || 'Partner 1'}`;
-      if (lB) lB.innerText = `🟣 ${names.B || 'Partner 2'}`;
-      if (bA) bA.innerText = names.A || 'Partner 1';
-      if (bB) bB.innerText = names.B || 'Partner 2';
-    }
-
-    function switchAnalysisTab(tab) {
-      activeAnalysisTab = tab;
-      const viewPair = document.getElementById('view-pair-analysis');
-      const viewSelf = document.getElementById('view-self-analysis');
-      const btnPair = document.getElementById('tab-pair');
-      const btnSelf = document.getElementById('tab-self');
-
-      if (tab === 'pair') {
-        viewPair.classList.remove('hidden');
-        viewSelf.classList.add('hidden');
-        btnPair.className = "py-2.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center justify-center gap-1.5 touch-btn";
-        btnSelf.className = "py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 touch-btn";
-        renderPairAnalysis();
+      if (val === 'Bommelchen!' || val.toLowerCase() === 'bommelchen') {
+        document.getElementById('password-gate')?.classList.add('hidden');
+        document.getElementById('analysis-content')?.classList.remove('hidden');
+        computePairMetrics();
+        showToast("✓ Paar-Analyse erfolgreich freigeschaltet!");
       } else {
-        viewPair.classList.add('hidden');
-        viewSelf.classList.remove('hidden');
-        btnSelf.className = "py-2.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center justify-center gap-1.5 touch-btn";
-        btnPair.className = "py-2.5 rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5 touch-btn";
-        renderSelfAnalysis();
+        showToast("⚠️ Ungültiges Passwort. Bitte versucht es erneut.");
       }
     }
 
-    function setSelfAnalysisUser(u) {
-      selfUser = u;
-      const bA = document.getElementById('btn-self-A');
-      const bB = document.getElementById('btn-self-B');
-      if (u === 'A') {
-        bA.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs touch-btn";
-        bB.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition touch-btn";
-      } else {
-        bB.className = "px-3 py-1.5 rounded-lg bg-brand-700 text-white transition shadow-xs touch-btn";
-        bA.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition touch-btn";
-      }
-      renderSelfAnalysis();
-    }
-
-    function renderPairAnalysis() {
-      const hasA = answers.A && Object.keys(answers.A).length > 0;
-      const hasB = answers.B && Object.keys(answers.B).length > 0;
-
-      const lockedBanner = document.getElementById('pair-locked-banner');
-      const unlockedContent = document.getElementById('pair-unlocked-content');
-
-      if (!hasA || !hasB) {
-        if (lockedBanner) lockedBanner.classList.remove('hidden');
-        if (unlockedContent) unlockedContent.classList.add('hidden');
-        return;
-      }
-
-      if (lockedBanner) lockedBanner.classList.add('hidden');
-      if (unlockedContent) unlockedContent.classList.remove('hidden');
-
-      renderSafetyCodexDisplay();
-
+    function computePairMetrics() {
+      loadAnalysisData();
       const allChapters = window.surveyChapters || [];
-      let totalMatchesEvaluated = 0;
-      let positiveMatchesCount = 0;
+      const ansA = answers.A || {};
+      const ansB = answers.B || {};
+
+      let totalEvaluated = 0;
+      let totalHarmonicPoints = 0;
+
       let doppel5List = [];
       let bridgesList = [];
-      let tabusList = [];
+      let compList = [];
+      let tabuList = [];
+
+      let pillarsA = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
+      let pillarsB = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
+      let maxPillars = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
 
       allChapters.forEach(ch => {
         (ch.items || []).forEach(it => {
           if (it.type === 'choice') return;
-          const aR1 = answers.A ? answers.A[`it_${it.id}_r1`] : undefined;
-          const aR2 = answers.A ? answers.A[`it_${it.id}_r2`] : undefined;
-          const bR1 = answers.B ? answers.B[`it_${it.id}_r1`] : undefined;
-          const bR2 = answers.B ? answers.B[`it_${it.id}_r2`] : undefined;
 
-          // Richtungsabhängige Tabu-Prüfung statt pauschaler Disqualifikation
-          const tabuAtoB = (aR1 === 1 || bR2 === 1);
-          const tabuBtoA = (bR1 === 1 || aR2 === 1);
+          const aR1 = ansA[`it_${it.id}_r1`];
+          const aR2 = ansA[`it_${it.id}_r2`];
+          const bR1 = ansB[`it_${it.id}_r1`];
+          const bR2 = ansB[`it_${it.id}_r2`];
 
+          // Säulen-Zuordnung
+          const addPill = (cId, val, target) => {
+            if (typeof val === 'number' && val > 0) {
+              if ([21, 22, 23, 29].includes(cId)) target.power += val;
+              else if ([13, 14, 16, 17, 31].includes(cId)) target.sensation += val;
+              else if ([19, 30].includes(cId)) target.nurturing += val;
+              else if ([18, 20, 24, 25].includes(cId)) target.thrill += val;
+              else if ([9, 10, 11].includes(cId)) target.visual += val;
+            }
+          };
+
+          const addMax = (cId) => {
+            if ([21, 22, 23, 29].includes(cId)) maxPillars.power += 10;
+            else if ([13, 14, 16, 17, 31].includes(cId)) maxPillars.sensation += 10;
+            else if ([19, 30].includes(cId)) maxPillars.nurturing += 10;
+            else if ([18, 20, 24, 25].includes(cId)) maxPillars.thrill += 10;
+            else if ([9, 10, 11].includes(cId)) maxPillars.visual += 10;
+          };
+
+          addPill(ch.id, aR1, pillarsA);
+          addPill(ch.id, aR2, pillarsA);
+          addPill(ch.id, bR1, pillarsB);
+          addPill(ch.id, bR2, pillarsB);
+          addMax(ch.id);
+
+          // 1. Doppel-5er
+          if ((aR1 === 5 && bR2 === 5) || (aR2 === 5 && bR1 === 5) || (aR1 === 5 && bR1 === 5) || (aR2 === 5 && bR2 === 5)) {
+            doppel5List.push({ item: it, chapter: ch });
+          }
+
+          // 2. Brückenbau (5 trifft 2 oder 3)
+          if ((aR1 === 5 && (bR2 === 2 || bR2 === 3)) || (bR1 === 5 && (aR2 === 2 || aR2 === 3)) ||
+              (aR2 === 5 && (bR1 === 2 || bR1 === 3)) || (bR2 === 5 && (aR1 === 2 || aR1 === 3))) {
+            bridgesList.push({ item: it, chapter: ch });
+          }
+
+          // 3. Komplementäre Passung (Aktiv trifft Passiv >= 4)
+          if ((aR1 >= 4 && bR2 >= 4) || (bR1 >= 4 && aR2 >= 4)) {
+            compList.push({ item: it, chapter: ch });
+          }
+
+          // 4. Tabus (Note 1)
           if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-            tabusList.push(it);
+            tabuList.push({ item: it, chapter: ch, who: (aR1 === 1 || aR2 === 1) ? names.A : names.B });
           }
 
-          // Konstellation 1: A führt, B empfängt
-          if (!tabuAtoB) {
-            if (aR1 === 5 && bR2 === 5) doppel5List.push({ item: it, lead: names.A, recv: names.B, roleLead: it.r1, roleRecv: it.r2 });
-            if (aR1 >= 4 && (bR2 === 2 || bR2 === 3)) bridgesList.push({ item: it, wishUser: names.A, wishScore: aR1, partnerUser: names.B, partnerScore: bR2, roleWish: it.r1, rolePartner: it.r2 });
-            if (aR1 !== undefined && bR2 !== undefined) {
-              totalMatchesEvaluated++;
-              if (aR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
-            }
+          // Harmonie-Berechnung
+          if (typeof aR1 === 'number' && typeof bR2 === 'number') {
+            totalEvaluated++;
+            totalHarmonicPoints += Math.max(0, 5 - Math.abs(aR1 - bR2));
           }
-
-          // Konstellation 2: B führt, A empfängt
-          if (!tabuBtoA) {
-            if (bR1 === 5 && aR2 === 5) doppel5List.push({ item: it, lead: names.B, recv: names.A, roleLead: it.r1, roleRecv: it.r2 });
-            if (bR1 >= 4 && (aR2 === 2 || aR2 === 3)) bridgesList.push({ item: it, wishUser: names.B, wishScore: bR1, partnerUser: names.A, partnerScore: aR2, roleWish: it.r1, rolePartner: it.r2 });
-            if (bR1 !== undefined && aR2 !== undefined) {
-              totalMatchesEvaluated++;
-              if (bR1 >= 3 && bR2 >= 3) positiveMatchesCount++;
-            }
+          if (typeof bR1 === 'number' && typeof aR2 === 'number') {
+            totalEvaluated++;
+            totalHarmonicPoints += Math.max(0, 5 - Math.abs(bR1 - aR2));
           }
         });
       });
 
-      const harmonyPct = totalMatchesEvaluated > 0 ? Math.round((positiveMatchesCount / totalMatchesEvaluated) * 100) : 0;
-      document.getElementById('kpi-harmony').innerText = `${harmonyPct} %`;
-      document.getElementById('kpi-doppel5').innerText = doppel5List.length;
-      document.getElementById('kpi-bridges').innerText = bridgesList.length;
-      document.getElementById('kpi-tabus').innerText = tabusList.length;
+      const harmonyPct = totalEvaluated > 0 ? Math.round((totalHarmonicPoints / (totalEvaluated * 5)) * 100) : 0;
 
-      document.getElementById('bridges-count-badge').innerText = `${bridgesList.length} Brücken`;
-      document.getElementById('doppel5-count-badge').innerText = `${doppel5List.length} Volltreffer`;
+      // KPIs ins DOM schreiben
+      const kpiHar = document.getElementById('kpi-harmony');
+      const kpiD5 = document.getElementById('kpi-doppel5');
+      const kpiBri = document.getElementById('kpi-bridges');
+      const kpiTab = document.getElementById('kpi-tabus');
 
-      renderPairScientificGutachten(harmonyPct, doppel5List.length, bridgesList.length);
-      renderBridgesUI(bridgesList);
-      renderDoppel5UI(doppel5List);
-      renderPairSessionDiaryUI();
-      renderPairRadar();
+      if (kpiHar) kpiHar.innerText = `${harmonyPct} %`;
+      if (kpiD5) kpiD5.innerText = doppel5List.length;
+      if (kpiBri) kpiBri.innerText = bridgesList.length;
+      if (kpiTab) kpiTab.innerText = tabuList.length;
+
+      // Filter-Zähler
+      const cD5 = document.getElementById('count-pair-doppel5');
+      const cBri = document.getElementById('count-pair-bridges');
+      const cComp = document.getElementById('count-pair-comp');
+      const cTab = document.getElementById('count-pair-tabus');
+
+      if (cD5) cD5.innerText = doppel5List.length;
+      if (cBri) cBri.innerText = bridgesList.length;
+      if (cComp) cComp.innerText = compList.length;
+      if (cTab) cTab.innerText = tabuList.length;
+
+      // Säulen-Balken berechnen
+      renderPillarBars(pillarsA, pillarsB, maxPillars);
+      renderPairRadarChart();
+      renderPairDetailList({ doppel5List, bridgesList, compList, tabuList });
+      renderSafetyConsensus();
+      renderAnalysisSessionDiary();
     }
 
-    function renderSafetyCodexDisplay() {
-      const c = document.getElementById('safety-codex-display');
-      if (!c) return;
+    function renderPillarBars(pA, pB, max) {
+      const setPairBar = (id) => {
+        const valA = max[id] > 0 ? Math.round((pA[id] / max[id]) * 100) : 0;
+        const valB = max[id] > 0 ? Math.round((pB[id] / max[id]) * 100) : 0;
 
-      const labels = {
-        emergency_tools: {
-          title: "Sicherheits-Cutter",
-          safer_default: "cutter_mandatory",
-          map: {
-            cutter_mandatory: "✂️ Pflicht bei jeder Fesselung",
-            cutter_shibari: "🪢 Nur bei Seil-Shibari",
-            cutter_velcro_only: "🩹 Nur Klettfesseln"
-          }
-        },
-        safeword: {
-          title: "Safeword-System",
-          safer_default: "traffic",
-          map: {
-            traffic: "🚦 Ampel (Grün/Gelb/Rot)",
-            code_word: "🌵 Code-Wort ('Kaktus')",
-            intuitive: "💬 Intuitive Absprache"
-          }
-        },
-        gag_signal: {
-          title: "Knebel-Signal",
-          safer_default: "drop_cloth",
-          map: {
-            drop_cloth: "🪨 Drop-Tuch in der Hand",
-            fist_tap: "✊ Faust 3s / 3x Klopfen",
-            bell_rattle: "🔔 Glöckchen / Rassel"
-          }
-        },
-        vital_checks: {
-          title: "Vital- & Nervenschutz",
-          safer_default: "pulse_15min",
-          map: {
-            pulse_15min: "⏱️ 15-Min-Pulsprüfung",
-            pulse_as_needed: "👂 Nach Gefühl & Zuruf"
-          }
-        },
-        disobedience: {
-          title: "Ungehorsam & Zucht",
-          safer_default: "talk_only",
-          map: {
-            spanking: "✋ Handspanking über Knie",
-            formal_corner: "🧘 Ecke stehen & Abbitte",
-            chores_ban: "🧹 Hausarbeit / Handy-Verbot",
-            talk_only: "💬 Reine Klärung im Gespräch"
-          }
-        },
-        aftercare: {
-          title: "Aftercare-Schwerpunkt",
-          safer_default: "warmth",
-          map: {
-            warmth: "🛌 Decken, Tee & Halten",
-            praise_words: "💖 Verbales Lob ('Praise')",
-            bath_care: "🛁 Bad & Einbalsamieren"
-          }
-        }
+        const valEl = document.getElementById(`pair-val-${id}`);
+        const barA = document.getElementById(`pair-bar-A-${id}`);
+        const barB = document.getElementById(`pair-bar-B-${id}`);
+
+        if (valEl) valEl.innerText = `${names.A || 'A'}: ${valA}% | ${names.B || 'B'}: ${valB}%`;
+        if (barA) barA.style.width = `${valA / 2}%`;
+        if (barB) barB.style.width = `${valB / 2}%`;
       };
 
-      const cfgA = safetyConfig.A || {};
-      const cfgB = safetyConfig.B || {};
-      const hasConfigB = Object.keys(cfgB).length > 0;
-      const nameA = names.A || 'Partner 1';
-      const nameB = names.B || 'Partner 2';
-
-      let html = '';
-      Object.keys(labels).forEach(k => {
-        const item = labels[k];
-        const valA = cfgA[k] || Object.keys(item.map)[0];
-        const rawValB = cfgB[k];
-
-        if (!hasConfigB || rawValB === undefined) {
-          html += `
-            <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-              <div class="flex justify-between items-center">
-                <strong class="text-white text-xs font-bold">${item.title}</strong>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">
-                  ⏳ ${escapeHtml(nameB)} offen
-                </span>
-              </div>
-              <p class="text-[11px] text-slate-300">${item.map[valA] || 'Standard'}</p>
-              <p class="text-[10px] text-slate-500 italic">Noch nicht von ${escapeHtml(nameB)} bestätigt</p>
-            </div>
-          `;
-        } else {
-          const valB = rawValB;
-          const isMatch = (valA === valB);
-          const textA = item.map[valA] || "Standard vereinbart";
-          const textB = item.map[valB] || textA;
-          const saferChoice = item.map[item.safer_default] || textA;
-
-          html += `
-            <div class="p-3 rounded-2xl ${isMatch ? 'bg-teal-950/40 border border-teal-800/60' : 'bg-amber-950/40 border border-amber-800/60'} space-y-1">
-              <div class="flex justify-between items-center">
-                <strong class="text-white text-xs font-bold">${item.title}</strong>
-                <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${isMatch ? 'bg-teal-900 text-teal-300' : 'bg-amber-900 text-amber-200'}">
-                  ${isMatch ? '✓ Vereinbart' : '⚠️ Abweichung'}
-                </span>
-              </div>
-              <p class="text-[11px] text-white font-medium">${textA}</p>
-              ${!isMatch ? `
-                <div class="pt-1 border-t border-amber-900/40 text-[10px] space-y-0.5">
-                  <p class="text-amber-300">${escapeHtml(nameB)} bevorzugt: <strong>${textB}</strong></p>
-                  <p class="text-teal-300 italic">🛡️ Sicherheits-Konsens: Es gilt vorerst die vorsichtigere Regelung (<em>${saferChoice}</em>).</p>
-                </div>
-              ` : ''}
-            </div>
-          `;
-        }
-      });
-
-      c.innerHTML = html;
+      ['power', 'sensation', 'nurturing', 'thrill', 'visual'].forEach(setPairBar);
     }
 
-    function renderPairScientificGutachten(harmony, d5Count, bridgeCount) {
-      const c = document.getElementById('pair-scientific-gutachten');
-      if (!c) return;
-
-      const cachedAi = sessionStorage.getItem('kompass_ai_pair_cache');
-      if (cachedAi && localStorage.getItem('kompass_ai_active') === 'true') {
-        c.innerHTML = cachedAi;
-        return;
-      }
-
-      // Evidenzbasierte 50/50 Offline-Auswertung
-      c.innerHTML = `
-        <div class="space-y-2">
-          <p>
-            Basierend auf dem <strong>Actor-Partner Interdependence Model (Velten & Margraf, 2017)</strong> weist eure Partnerschaft eine <strong>${harmony} %ige Basis-Harmonie</strong> auf. Mit <strong>${d5Count} Doppel-5er Volltreffern</strong> verfügt ihr über ein starkes neuronales Belohnungsfundament, das bei beiden Partnern Dopamin und Oxytocin ohne Schwellenängste freisetzt.
-          </p>
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-            <strong class="text-brand-300 font-bold block text-xs">🧠 Neuro-psychologische Passung:</strong>
-            <p class="text-[11px]">
-              Eure Rollenverteilung dockt komplementär aneinander an: Die Lust des aktiven Parts an achtsamer Verantwortung (<em>Topspace-Flow</em> nach Wismeijer, 2013) ermöglicht dem passiven Part das angstfreie Abschalten des präfrontalen Kortex (<em>transiente Hypofrontalität</em> nach Sagarin et al., 2009).
-            </p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-            <strong class="text-amber-300 font-bold block text-xs">🌉 Wachstums- & Triggerzonen (Gottman, 2015):</strong>
-            <p class="text-[11px]">
-              Ihr habt <strong>${bridgeCount} Brückenbau-Positionen</strong>. Hier treffen hohe Wünsche auf vorsichtige Bereitschaft (Note 2/3). Folgt dem Prinzip der <em>somatischen Sicherheit (van der Kolk, 2014)</em>: Erkundet diese Zonen nur mit festem Handdrück-Signal und niemals an Tagen mit hohem Alltagsstress.
-            </p>
-          </div>
-        </div>
-      `;
-    }
-
-    async function generateAiPairReport() {
-      const container = document.getElementById('pair-scientific-gutachten');
-      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800 text-center space-y-2 animate-pulse">
-          <span class="text-xl block">✨</span>
-          <strong class="text-purple-200 block text-xs">Gemini analysiert eure Paar-Daten...</strong>
-          <p class="text-[10.5px] text-slate-400">Verknüpfe 35+ Studien mit euren Doppel-5ern, Brücken und Kapitel-0-Angaben.</p>
-        </div>
-      `;
-
-      try {
-        const harmony = document.getElementById('kpi-harmony')?.innerText || '0 %';
-        const d5 = document.getElementById('kpi-doppel5')?.innerText || '0';
-        const bridges = document.getElementById('kpi-bridges')?.innerText || '0';
-
-        const promptText = `
-Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Erstelle ein maßgeschneidertes, tiefenpsychologisches Paargutachten für zwei Partner:
-- Basis-Harmonie: ${harmony}
-- Doppel-5er Volltreffer: ${d5}
-- Brückenbau-Chancen (Wunsch trifft Note 2/3): ${bridges}
-- Orientierung: 50% empirische Wissenschaft (beziehe dich präzise auf Sagarin 2009, Wismeijer 2013, Canivet 2025, van der Kolk 2014) und 50% konkrete Paardynamik.
-- Tonfall: Empathisch, respektvoll, normalisierend, wissenschaftlich fundiert, 0% moralisierend.
-- Antwortformat: 3 prägnante HTML-Absätze mit Überschriften (z.B. 1. Neurobiologische Kopplung, 2. Somatisches Vertrauen, 3. Empfehlung für die nächste Session). Nutze saubere Tailwind-Klassen text-slate-300, text-xs, font-bold etc.`;
-
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-
-        if (!resp.ok) throw new Error("API-Anfrage fehlgeschlagen");
-        const data = await resp.json();
-        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        if (output) {
-          const cleanHtml = output.replace(/```html/g, '').replace(/```/g, '').trim();
-          sessionStorage.setItem('kompass_ai_pair_cache', cleanHtml);
-          container.innerHTML = cleanHtml;
-          showToast("✨ KI-Paargutachten erfolgreich generiert!");
-        } else {
-          throw new Error("Leere Antwort erhalten");
-        }
-      } catch (err) {
-        console.warn("KI-Fehler, nutze Offline-Auswertung:", err);
-        sessionStorage.removeItem('kompass_ai_pair_cache');
-        renderPairScientificGutachten(75, 4, 3);
-        showToast("⚠️ KI offline – Evidenzbasierte Analyse geladen");
-      }
-    }
-
-    function renderBridgesUI(list) {
-      const c = document.getElementById('bridges-interactive-container');
-      if (!c) return;
-
-      if (list.length === 0) {
-        c.innerHTML = '<p class="text-slate-400 italic text-center py-2">Keine offenen Brückenpunkte vorhanden.</p>';
-        return;
-      }
-
-      c.innerHTML = list.slice(0, 8).map(b => `
-        <div class="p-3.5 rounded-2xl theme-panel border border-amber-500/30 space-y-2 shadow-xs">
-          <div class="flex items-center justify-between gap-2">
-            <strong class="text-xs sm:text-sm text-white">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Wunsch (${b.wishScore}) trifft Bereitschaft (${b.partnerScore})
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(b.item.desc)}</p>
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/60 text-[11px] space-y-1">
-            <span class="text-amber-300 font-bold block">💡 Gesprächs-Leitfaden für ${escapeHtml(b.wishUser)}:</span>
-            <p class="text-slate-300 italic">„Ich wünsche mir '${escapeHtml(b.roleWish)}'. Du hast dafür eine vorsichtige Bereitschaft signalisiert. Welche Rahmenbedingungen oder Sicherheitszeichen brauchst du, damit wir uns ganz behutsam herantasten können?“</p>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderDoppel5UI(list) {
-      const c = document.getElementById('doppel5-interactive-container');
-      if (!c) return;
-
-      if (list.length === 0) {
-        c.innerHTML = '<p class="text-slate-400 italic col-span-2 text-center py-2">Noch keine beidseitigen Doppel-5er erfasst.</p>';
-        return;
-      }
-
-      c.innerHTML = list.slice(0, 10).map(d => `
-        <div class="p-3 rounded-2xl theme-panel border border-emerald-500/30 space-y-1.5 shadow-xs">
-          <div class="flex items-center justify-between">
-            <strong class="text-xs text-emerald-200">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
-            <span class="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">⭐ 5 & 5</span>
-          </div>
-          <p class="text-[10.5px] text-slate-300 leading-snug">${escapeHtml(d.item.desc)}</p>
-          <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-800">
-            <span>🔵 <strong>${escapeHtml(d.lead)} als Top:</strong> ${escapeHtml(d.roleLead)}</span><br>
-            <span>🟣 <strong>${escapeHtml(d.recv)} als Bottom:</strong> ${escapeHtml(d.roleRecv)}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderPairRadar() {
-      const canvas = document.getElementById('pairRadarCanvas');
+    function renderPairRadarChart() {
+      const canvas = document.getElementById('pairRadarChart');
       if (!canvas || typeof Chart === 'undefined') return;
 
       if (pairRadarChartInstance) {
-        try { pairRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
+        try { pairRadarChartInstance.destroy(); } catch (e) {}
       }
-      const isDark = document.documentElement.classList.contains('dark');
-      const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
-      const labelColor = isDark ? '#cbd5e1' : '#334155';
 
       const dimensions = [
         { label: 'Körperzonen', chapters: [1, 12] },
@@ -999,363 +573,18 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
       ];
 
       const allChapters = window.surveyChapters || [];
+      const ansA = answers.A || {};
+      const ansB = answers.B || {};
 
-      function calculateScores(userKey) {
-        const uAnswers = answers[userKey] || {};
-        return dimensions.map(dim => {
-          let earned = 0;
-          let possible = 0;
-          dim.chapters.forEach(cId => {
-            const ch = allChapters.find(c => c.id === cId);
-            if (ch && ch.items) {
-              ch.items.forEach(it => {
-                if (it.type !== 'choice') {
-                  const s1 = uAnswers[`it_${it.id}_r1`];
-                  const s2 = uAnswers[`it_${it.id}_r2`];
-                  // 0 (Entfällt) nicht in das Verhältnis einrechnen
-                  if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
-                  if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
-                }
-              });
-            }
-          });
-          return possible > 0 ? Math.round((earned / possible) * 100) : 0;
-        });
-      }
-
-      const scoresA = calculateScores('A');
-      const scoresB = calculateScores('B');
-
-      try {
-        pairRadarChartInstance = new Chart(canvas, {
-          type: 'radar',
-          data: {
-            labels: dimensions.map(d => d.label),
-            datasets: [
-              {
-                label: names.A || 'Partner 1',
-                data: scoresA,
-                backgroundColor: 'rgba(99, 102, 241, 0.25)',
-                borderColor: 'rgba(99, 102, 241, 1)',
-                borderWidth: 2
-              },
-              {
-                label: names.B || 'Partner 2',
-                data: scoresB,
-                backgroundColor: 'rgba(168, 85, 247, 0.25)',
-                borderColor: 'rgba(168, 85, 247, 1)',
-                borderWidth: 2
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              r: {
-                angleLines: { color: gridColor },
-                grid: { color: gridColor },
-                pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
-                ticks: { display: false, max: 100, min: 0 }
-              }
-            },
-            plugins: { legend: { display: false } }
-          }
-        });
-      } catch (e) {
-        console.warn("Radar Chart Error:", e);
-      }
-    }
-
-    function renderPairSessionDiaryUI() {
-      const container = document.getElementById('pair-session-diary-container');
-      const badge = document.getElementById('diary-total-count-badge');
-      if (!container) return;
-
-      let diary = [];
-      try {
-        diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
-      } catch (e) {
-        diary = [];
-      }
-
-      if (badge) badge.innerText = `${diary.length} ${diary.length === 1 ? 'Eintrag' : 'Einträge'}`;
-
-      if (!Array.isArray(diary) || diary.length === 0) {
-        container.innerHTML = `
-          <div class="p-6 text-center text-slate-400 italic space-y-1.5 theme-panel rounded-2xl border border-slate-800">
-            <span class="text-2xl block">🕯️</span>
-            <p>Noch keine Sessions im Tagebuch eingetragen.</p>
-            <p class="text-[10.5px] text-slate-500">Startet eine Runde im <a href="session.html" class="text-brand-400 underline font-semibold">Session-Begleiter</a> – dort könnt ihr im Aftercare euer Feedback direkt für die Paaranalyse speichern.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = diary.map(entry => `
-        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-2.5">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-pink-950 text-pink-300 border border-pink-800/80">
-                ${escapeHtml(entry.mode || 'Session')}
-              </span>
-              <span class="text-slate-400 text-[10.5px] font-mono">${escapeHtml(entry.date)}</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-pink-400 font-black font-mono">⚡ Intensität: ${entry.intensity || 7}/10</span>
-              <button onclick="deletePairDiaryEntry('${entry.id}')" class="text-slate-500 hover:text-rose-400 p-1 text-[11px]" title="Eintrag löschen">🗑️</button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
-            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">👑 <strong>Top:</strong> ${escapeHtml(entry.top)}</div>
-            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🧎 <strong>Bottom:</strong> ${escapeHtml(entry.bottom)}</div>
-            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">⏱️ <strong>Dauer:</strong> ${entry.durationMinutes || 0} Min.</div>
-            <div class="p-1.5 rounded-xl bg-slate-900/70 border border-slate-800">🎢 <strong>Edges:</strong> ${entry.edgeCount || 0}</div>
-          </div>
-
-          <!-- DUAL FEEDBACK IN DER ANALYSE -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/60">
-            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
-              <strong class="text-white block text-[10px] uppercase tracking-wider">👑 Feedback von ${escapeHtml(entry.top)} (Top):</strong>
-              <p class="text-slate-200 mt-0.5">${entry.topFeedback ? escapeHtml(entry.topFeedback) : '<span class="text-slate-500 italic">Noch kein Feedback hinterlegt</span>'}</p>
-            </div>
-
-            <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px]">
-              <strong class="text-brand-300 block text-[10px] uppercase tracking-wider">🧎 Feedback von ${escapeHtml(entry.bottom)} (Bottom):</strong>
-              <p class="text-slate-200 mt-0.5">${entry.bottomFeedback ? escapeHtml(entry.bottomFeedback) : '<span class="text-slate-500 italic">Noch kein Feedback hinterlegt</span>'}</p>
-            </div>
-          </div>
-
-          <!-- BEWERTUNGEN EINZELNER AKTIONEN -->
-          ${(entry.events && entry.events.length > 0) ? `
-            <div class="pt-1 border-t border-slate-800/80 space-y-1">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Protokollierte Aktionen & Bewertungen:</span>
-              <div class="space-y-1 max-h-40 overflow-y-auto pr-1">
-                ${entry.events.map(ev => {
-                  const isAction = (ev.type === 'action');
-                  return `
-                    <div class="p-1.5 rounded-lg bg-slate-950/80 border border-slate-800/60 text-[10.5px] flex items-center justify-between gap-1.5">
-                      <div class="flex items-center gap-1.5 min-w-0 truncate">
-                        <span class="text-slate-500 font-mono text-[9px] flex-shrink-0">${ev.time}</span>
-                        <span class="text-slate-300 truncate">${escapeHtml(ev.label)}</span>
-                      </div>
-                      ${isAction ? `
-                        <div class="flex items-center gap-1 flex-shrink-0 text-[10px]">
-                          <span title="Top-Bewertung">${ev.ratings?.top === 'like' ? '👍 (Top)' : (ev.ratings?.top === 'dislike' ? '👎 (Top)' : '⚪')}</span>
-                          <span class="text-slate-700">|</span>
-                          <span title="Bottom-Bewertung">${ev.ratings?.sub === 'like' ? '👍 (Sub)' : (ev.ratings?.sub === 'dislike' ? '👎 (Sub)' : '⚪')}</span>
-                        </div>
-                      ` : ''}
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
-    }
-
-    function deletePairDiaryEntry(sessionId) {
-      try {
-        let diary = JSON.parse(localStorage.getItem('kompass_session_diary') || '[]');
-        diary = diary.filter(e => e.id !== sessionId);
-        localStorage.setItem('kompass_session_diary', JSON.stringify(diary));
-        renderPairSessionDiaryUI();
-        showToast("Session aus dem gemeinsamen Logbuch entfernt.");
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function renderSelfAnalysis() {
-      const uAnswers = answers[selfUser] || {};
-      const answeredCount = Object.keys(uAnswers).length;
-      const statEl = document.getElementById('self-answered-stat');
-      if (statEl) statEl.innerText = `${answeredCount} Fragen bewertet`;
-
-      let pPower = 0, pSensation = 0, pNurturing = 0, pThrill = 0, pVisual = 0;
-      let cPower = 0, cSensation = 0, cNurturing = 0, cThrill = 0, cVisual = 0;
-      let totalTop = 0, totalBottom = 0, cTop = 0, cBottom = 0;
-
-      (window.surveyChapters || []).forEach(ch => {
-        (ch.items || []).forEach(it => {
-          const v1 = uAnswers[`it_${it.id}_r1`];
-          const v2 = uAnswers[`it_${it.id}_r2`];
-          if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
-          if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
-
-          const addPts = (val) => {
-            if (typeof val === 'number' && val > 0) {
-              if ([21, 22, 23, 29].includes(ch.id)) { pPower += val; cPower += 5; }
-              else if ([13, 14, 16, 17, 31].includes(ch.id)) { pSensation += val; cSensation += 5; }
-              else if ([19, 30].includes(ch.id)) { pNurturing += val; cNurturing += 5; }
-              else if ([18, 20, 24, 25].includes(ch.id)) { pThrill += val; cThrill += 5; }
-              else if ([9, 10, 11].includes(ch.id)) { pVisual += val; cVisual += 5; }
-            }
-          };
-          addPts(v1);
-          addPts(v2);
-        });
-      });
-
-      const setBar = (key, cur, max) => {
-        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-        const vEl = document.getElementById(`self-bar-val-${key}`);
-        const fEl = document.getElementById(`self-bar-fill-${key}`);
-        if (vEl) vEl.innerText = `${pct} %`;
-        if (fEl) fEl.style.width = `${pct}%`;
-        return pct;
-      };
-
-      const pctPower = setBar('power', pPower, cPower);
-      const pctSensation = setBar('sensation', pSensation, cSensation);
-      const pctNurturing = setBar('nurturing', pNurturing, cNurturing);
-      const pctThrill = setBar('thrill', pThrill, cThrill);
-      const pctVisual = setBar('visual', pVisual, cVisual);
-
-      renderSelfScientificDeepAnalysis({
-        pctPower, pctSensation, pctNurturing, pctThrill, pctVisual,
-        avgTop: cTop > 0 ? (totalTop / cTop) : 0,
-        avgBottom: cBottom > 0 ? (totalBottom / cBottom) : 0,
-        shameCount: Object.keys((shameFlags && shameFlags[selfUser]) || {}).length
-      });
-
-      renderSelfRadar();
-    }
-
-    function renderSelfScientificDeepAnalysis(metrics) {
-      const box = document.getElementById('self-scientific-deep-analysis');
-      if (!box) return;
-
-      const isSub = metrics.avgBottom > metrics.avgTop;
-      const isTop = metrics.avgTop > metrics.avgBottom;
-      const currentUserName = names[selfUser] || (selfUser === 'A' ? 'Partner 1' : 'Partner 2');
-
-      const traumaExp = (answers[selfUser] && answers[selfUser]['it_901_choice']) || 'none';
-      const traumaFrame = (answers[selfUser] && answers[selfUser]['it_903_choice']) || 'safety_first';
-
-      let traumaNote = "";
-      if (traumaExp === 'trauma' || traumaExp === 'boundary') {
-        traumaNote = `
-          <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 space-y-1.5">
-            <strong class="text-teal-200 block text-xs flex items-center gap-1.5">
-              <span>🛡️</span> Somatisches Vertrauen & Re-Integration (van der Kolk, 2014)
-            </strong>
-            <p class="text-[11px] text-teal-100/90 leading-relaxed">
-              Deine Vorerfahrungen erfordern einen verbindlichen Schutzraum. Dein gewählter Rahmen (${traumaFrame === 'mastery' ? 'Kink-Mastery' : 'Sicherheits-Fokus'}) fungiert als neuronale Re-Stabilisierung: Echte Freiwilligkeit unter festen Notfall-Ampeln ermöglicht es deinem Nervensystem, alte Ohnmachtserfahrungen durch aktive Selbstwirksamkeit (Agency) zu überschreiben.
-            </p>
-          </div>
-        `;
-      }
-
-      box.innerHTML = `
-        <div class="space-y-3">
-          ${traumaNote}
-          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
-            <strong class="text-indigo-200 block text-xs">1. Psychodynamischer Kern für ${escapeHtml(currentUserName)}:</strong>
-            <p class="text-[11px] text-slate-300 leading-relaxed">
-              ${isSub ? 'Als überwiegend hingebender Part (Bottom) dient die Erotik für dich als kognitiver Entlastungsraum (<em>transiente Hypofrontalität</em> nach Sagarin et al., 2009). Du kannst den ständigen Planungs- und Verantwortungsdruck des Alltags abstreifen und durch das Gefühl von bedingungslosem Gehaltensein tiefe psychische Erholung finden.' : (isTop ? 'Als führender Part (Top) schöpft dein Gehirn Erregung aus empathischer Verantwortung und Präsenz (<em>Topspace-Flow</em> nach Wismeijer & van Assen, 2013). Deine Führung ist keine Willkür, sondern das Geschenk eines sicheren Erlebnisses für dein Gegenüber.' : 'Als Switcher besitzt dein Nervensystem eine flexible emotionale Schwingungsbreite: Je nach Alltagsbelastung kannst du zwischen empathischer Führung und tiefer Hingabe wechseln.')}
-            </p>
-          </div>
-
-          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
-            <strong class="text-rose-200 block text-xs">2. Somatische Reizverarbeitung (Wuyts et al., 2021):</strong>
-            <p class="text-[11px] text-slate-300 leading-relaxed">
-              Mit einem Sensorik-Wert von ${metrics.pctSensation} % und einem Macht-Wert von ${metrics.pctPower} % nutzt dein Nervensystem gezielte physische Reize (Spanking, Fesselung, Temperatur) als endogene Opiat-Ausschüttung. Um einen hormonellen Subdrop oder Topdrop zu verhindern, ist eine ausgedehnte Aftercare-Phase (Wärme und Stille) essenziell.
-            </p>
-          </div>
-
-          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
-            <strong class="text-amber-200 block text-xs">3. Handlungsleitfaden für deine Partnerschaft:</strong>
-            <ul class="text-[11px] text-slate-300 space-y-1 list-disc pl-4">
-              <li><strong>Eigene Erlaubnis:</strong> ${metrics.shameCount} Praktiken sind als Hemmschwelle markiert. Erlaube dir, dass Fantasien harmlos sind und keinen Umsetzungszwang bedeuten.</li>
-              <li><strong>Gelbe Signale aktiv nutzen:</strong> Warte nicht bis zur Überlastung, sondern drossle das Tempo frühzeitig.</li>
-              <li><strong>Reflexionsfrage:</strong> „Welches Bedürfnis steht heute im Vordergrund – Abschalten, Spüren oder reine Geborgenheit?“</li>
-            </ul>
-          </div>
-        </div>
-      `;
-    }
-
-    async function generateAiSelfReport() {
-      const container = document.getElementById('self-scientific-deep-analysis');
-      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800 text-center space-y-2 animate-pulse">
-          <span class="text-xl block">✨</span>
-          <strong class="text-purple-200 block text-xs">Gemini erstellt dein persönliches Tiefenprofil...</strong>
-          <p class="text-[10.5px] text-slate-400">Verknüpfe empirische Studien mit deinen Antworten.</p>
-        </div>
-      `;
-
-      try {
-        const currentUserName = names[selfUser] || 'Person';
-        const promptText = `Du bist eine führende klinische Sexualpsychologin. Erstelle eine tiefenpsychologische Individualanalyse für ${currentUserName} im Umfang von ca. 350-450 Wörtern basierend auf 50% empirischen Studien (Sagarin 2009, Wismeijer 2013, Canivet 2025, van der Kolk 2014) und 50% konkreter Praxis (D/s, Schmerz-Endorphine, Scham-Entlastung). Antworte in 3 strukturierten HTML-Absätzen mit Tailwind-Klassen.`;
-
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-        });
-
-        if (!resp.ok) throw new Error("API-Fehler");
-        const data = await resp.json();
-        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        if (output) {
-          const cleanHtml = output.replace(/```html/g, '').replace(/```/g, '').trim();
-          container.innerHTML = cleanHtml;
-          showToast("✨ Individuelles KI-Profil erfolgreich erstellt!");
-        } else {
-          throw new Error("Leere Antwort");
-        }
-      } catch (e) {
-        showToast("⚠️ KI offline – Evidenzbasierte Analyse geladen");
-        renderSelfAnalysis();
-      }
-    }
-
-    function renderSelfRadar() {
-      const canvas = document.getElementById('selfRadarCanvas');
-      if (!canvas || typeof Chart === 'undefined') return;
-
-      if (selfRadarChartInstance) {
-        try { selfRadarChartInstance.destroy(); } catch (e) { console.warn(e); }
-      }
-      const isDark = document.documentElement.classList.contains('dark');
-      const gridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.6)';
-      const labelColor = isDark ? '#cbd5e1' : '#334155';
-
-      const dimensions = [
-        { label: 'Körperzonen', chapters: [1, 12] },
-        { label: 'Romantik', chapters: [2, 3] },
-        { label: 'Keuschheit', chapters: [7, 8] },
-        { label: 'Shibari', chapters: [13, 14] },
-        { label: 'Sinnesentzug', chapters: [15] },
-        { label: 'Impact', chapters: [16] },
-        { label: 'Primal', chapters: [18] },
-        { label: 'Caregiver', chapters: [19] },
-        { label: 'Trance', chapters: [30] }
-      ];
-
-      const allChapters = window.surveyChapters || [];
-      const uAnswers = answers[selfUser] || {};
-
-      const scores = dimensions.map(dim => {
-        let earned = 0;
-        let possible = 0;
+      const calcScores = (targetAns) => dimensions.map(dim => {
+        let earned = 0, possible = 0;
         dim.chapters.forEach(cId => {
           const ch = allChapters.find(c => c.id === cId);
           if (ch && ch.items) {
             ch.items.forEach(it => {
               if (it.type !== 'choice') {
-                const s1 = uAnswers[`it_${it.id}_r1`];
-                const s2 = uAnswers[`it_${it.id}_r2`];
-                // 0 (Entfällt) nicht in den Teiler einrechnen
+                const s1 = targetAns[`it_${it.id}_r1`];
+                const s2 = targetAns[`it_${it.id}_r2`];
                 if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
                 if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
               }
@@ -1365,37 +594,235 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
         return possible > 0 ? Math.round((earned / possible) * 100) : 0;
       });
 
+      const dataA = calcScores(ansA);
+      const dataB = calcScores(ansB);
+
       try {
-        selfRadarChartInstance = new Chart(canvas, {
+        pairRadarChartInstance = new Chart(canvas, {
           type: 'radar',
           data: {
             labels: dimensions.map(d => d.label),
-            datasets: [{
-              label: names[selfUser] || 'Profil',
-              data: scores,
-              backgroundColor: 'rgba(225, 29, 72, 0.25)',
-              borderColor: 'rgba(225, 29, 72, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(225, 29, 72, 1)'
-            }]
+            datasets: [
+              {
+                label: names.A || 'Partner 1',
+                data: dataA,
+                backgroundColor: 'rgba(225, 29, 72, 0.25)',
+                borderColor: 'rgba(225, 29, 72, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(225, 29, 72, 1)'
+              },
+              {
+                label: names.B || 'Partner 2',
+                data: dataB,
+                backgroundColor: 'rgba(147, 51, 234, 0.25)',
+                borderColor: 'rgba(147, 51, 234, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(147, 51, 234, 1)'
+              }
+            ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
               r: {
-                angleLines: { color: gridColor },
-                grid: { color: gridColor },
-                pointLabels: { color: labelColor, font: { size: 10, weight: 'bold' } },
+                angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
+                grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                pointLabels: { color: '#cbd5e1', font: { size: 10, weight: 'bold' } },
                 ticks: { display: false, max: 100, min: 0 }
               }
             },
-            plugins: { legend: { display: false } }
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { color: '#e2e8f0', font: { size: 10, weight: 'bold' } }
+              }
+            }
           }
         });
       } catch (e) {
-        console.warn("Self Radar Chart Error:", e);
+        console.warn("Chart creation error", e);
       }
+    }
+
+    function switchPairDetailFilter(filter) {
+      activeDetailFilter = filter;
+      ['doppel5', 'bridges', 'complementary', 'tabus'].forEach(f => {
+        const btn = document.getElementById(`filter-pair-${f}`);
+        if (btn) {
+          if (f === filter) btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
+          else btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
+        }
+      });
+      computePairMetrics();
+    }
+
+    function renderPairDetailList(data) {
+      const container = document.getElementById('pair-detail-items-container');
+      if (!container) return;
+
+      let list = [];
+      let emptyMsg = "Keine Einträge für diesen Filter vorhanden.";
+
+      if (activeDetailFilter === 'doppel5') {
+        list = data.doppel5List.map(d => `
+          <div class="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-800 text-emerald-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">⭐ Doppel-5er</span>
+            </div>
+            <p class="text-[11px] text-slate-300">${escapeHtml(d.item.desc)}</p>
+            <span class="text-[10px] text-slate-400 block">Kapitel ${d.chapter.id}: ${escapeHtml(d.chapter.title)}</span>
+          </div>
+        `);
+      } else if (activeDetailFilter === 'bridges') {
+        list = data.bridgesList.map(b => `
+          <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-800 text-indigo-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">💡 Brücke (Wunsch trifft 2/3)</span>
+            </div>
+            <p class="text-[11px] text-slate-300">${escapeHtml(b.item.desc)}</p>
+            <span class="text-[10px] text-slate-400 block">Kapitel ${b.chapter.id}: ${escapeHtml(b.chapter.title)}</span>
+          </div>
+        `);
+      } else if (activeDetailFilter === 'complementary') {
+        list = data.compList.map(c => `
+          <div class="p-3 rounded-2xl bg-amber-950/30 border border-amber-800 text-amber-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs">${c.item.id}. ${escapeHtml(c.item.title)}</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">⚡ Top/Bottom Match</span>
+            </div>
+            <p class="text-[11px] text-slate-300">${escapeHtml(c.item.desc)}</p>
+            <span class="text-[10px] text-slate-400 block">Kapitel ${c.chapter.id}: ${escapeHtml(c.chapter.title)}</span>
+          </div>
+        `);
+      } else {
+        list = data.tabuList.map(t => `
+          <div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">⛔ Grenze von ${t.who}</span>
+            </div>
+            <p class="text-[11px] text-slate-300">${escapeHtml(t.item.desc)}</p>
+            <span class="text-[10px] text-rose-300 font-semibold block">⚠️ Bei Sessions strikt ausschließen</span>
+          </div>
+        `);
+      }
+
+      container.innerHTML = list.join('') || `<p class="text-slate-500 italic text-center py-4">${emptyMsg}</p>`;
+    }
+
+    function renderSafetyConsensus() {
+      const container = document.getElementById('safety-consensus-list');
+      if (!container) return;
+
+      const cfgA = safetyConfig.A || {};
+      const cfgB = safetyConfig.B || {};
+      const modules = [
+        { label: "Sicherheits-Cutter", key: "emergency_tools" },
+        { label: "Safeword-System", key: "safeword" },
+        { label: "Drop-Tuch / Knebel-Signal", key: "gag_signal" },
+        { label: "15-Minuten Vital-Check", key: "vital_checks" },
+        { label: "Aftercare-Schwerpunkt", key: "aftercare" },
+        { label: "24-Stunden Check-in", key: "checkin_24h" }
+      ];
+
+      container.innerHTML = modules.map(m => {
+        const valA = cfgA[m.key] || 'Nicht gewählt';
+        const valB = cfgB[m.key] || 'Nicht gewählt';
+        const isMatch = valA === valB && valA !== 'Nicht gewählt';
+
+        return `
+          <div class="p-2.5 rounded-xl border flex items-center justify-between ${isMatch ? 'bg-teal-950/30 border-teal-800' : 'theme-panel border-slate-800'}">
+            <div>
+              <strong class="text-white block text-xs">${m.label}:</strong>
+              <span class="text-[10.5px] text-slate-400">${names.A || 'A'}: ${valA} | ${names.B || 'B'}: ${valB}</span>
+            </div>
+            <span class="text-xs font-bold ${isMatch ? 'text-teal-300' : 'text-amber-400'}">
+              ${isMatch ? '✓ Konsens' : '⚠️ Abweichung'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAnalysisSessionDiary() {
+      const container = document.getElementById('analysis-session-diary-container');
+      if (!container) return;
+
+      if (!sessionDiary || sessionDiary.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-400 italic space-y-1.5 theme-panel rounded-2xl border border-slate-800">
+            <span class="text-2xl block">🕯️</span>
+            <p>Noch keine Sessions im Tagebuch eingetragen.</p>
+            <p class="text-[10.5px] text-slate-500">Startet eine Runde in der <a href="session.html" class="text-brand-400 underline font-semibold">Schlafzimmer-Regie</a> – dort könnt ihr im Aftercare euer Feedback direkt für die Paaranalyse speichern.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = sessionDiary.map(entry => `
+        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+            <strong class="text-white text-xs">${escapeHtml(entry.date)} (${entry.mode || 'Session'})</strong>
+            <span class="text-pink-400 font-mono font-bold text-[11px]">Stufe ${entry.intensity || 7}/10 · ${entry.edgeCount || 0} Edges</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[10.5px] text-slate-300">
+            <div>👑 Top: ${escapeHtml(entry.top || 'Top')}</div>
+            <div>🧎 Bottom: ${escapeHtml(entry.bottom || 'Bottom')}</div>
+          </div>
+          ${entry.topFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-brand-300">Top-Feedback:</strong> ${escapeHtml(entry.topFeedback)}</div>` : ''}
+          ${entry.bottomFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-indigo-300">Bottom-Feedback:</strong> ${escapeHtml(entry.bottomFeedback)}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function generateAiPairReport() {
+      const out = document.getElementById('ai-pair-report-output');
+      const btn = document.getElementById('btn-generate-ai-pair');
+      if (btn) btn.innerText = "⏳ Analysiere...";
+
+      const apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
+      const activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-2.5-flash';
+
+      const harmony = document.getElementById('kpi-harmony')?.innerText || '0 %';
+      const d5 = document.getElementById('kpi-doppel5')?.innerText || '0';
+      const bridges = document.getElementById('kpi-bridges')?.innerText || '0';
+
+      const promptText = `
+Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Erstelle ein maßgeschneidertes, tiefenpsychologisches Paargutachten für ${names.A || 'Partner 1'} und ${names.B || 'Partner 2'}:
+- Basis-Harmonie: ${harmony}
+- Doppel-5er Volltreffer: ${d5}
+- Brückenbau-Chancen (Wunsch trifft Note 2/3): ${bridges}
+- Orientierung: 50% empirische Wissenschaft (beziehe dich präzise auf Sagarin 2009, Wismeijer 2013, Canivet 2025, van der Kolk 2014) und 50% konkrete Paardynamik.
+- Tonfall: Empathisch, respektvoll, normalisierend, wissenschaftlich fundiert, 0% moralisierend.
+- Antwortformat: 3 prägnante HTML-Absätze mit Überschriften (1. Neurobiologische Kopplung & Bindung, 2. Somatische Entlastung vs. Führung, 3. Konkrete Empfehlung für die nächste Session in der Regie). Nutze saubere Tailwind-Klassen wie text-slate-300, text-xs, font-bold, space-y-2.`;
+
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }]
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
+          showToast("✓ Tiefenpsychologisches Gutachten erstellt!");
+        } else {
+          const errData = await resp.json().catch(() => ({}));
+          if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Fehler bei der KI-Analyse: ${errData.error?.message || resp.status}</p>`;
+        }
+      } catch (e) {
+        if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler bei der KI-Analyse.</p>`;
+      }
+
+      if (btn) btn.innerText = "✨ Gutachten neu berechnen";
     }
 
     function showToast(msg) {
@@ -1424,10 +851,7 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      const isUnlocked = checkSiteLockscreen();
-      if (isUnlocked) {
-        initAnalysisApp();
-      }
+      loadAnalysisData();
     });
   </script>
 </body>
