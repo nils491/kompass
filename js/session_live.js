@@ -1,6 +1,6 @@
 /**
  * js/session_live.js
- * Modul für das Live-Cockpit, Timer, Edging-Fernbedienung, Vagus-Atmung & Aftercare.
+ * Modul für das Live-Cockpit: Timer, Drehbuch-Navigation, Safewords, Vagus-Atmung & Aftercare.
  */
 
 (function(window) {
@@ -15,21 +15,7 @@
 
   var currentSessionLog = [];
   var sessionDiary = [];
-
   var liveStepIndex = 0;
-  var activeArousalLevel = 5;
-  var edgingStimulationBy = 'top';
-  var edgeCount = 0;
-  var lastEdgeTimestamp = null;
-  var lastEdgeIntervalTimer = null;
-  var cooldownTimerInterval = null;
-  var cooldownSecondsRemaining = 45;
-  var targetEdgingDuration = 10;
-  var currentEdgingCountdown = 10;
-  var isCountdownActive = false;
-  var isEdgingCountdownPaused = false;
-  var countdownRunId = 0;
-  var countdownVoiceMode = 'gemini'; // 'gemini' oder 'self'
 
   // Zen & Vagus-Atmung
   var zenBreathInterval = null;
@@ -255,32 +241,6 @@
     }
   }
 
-  function scrollToEdgingPanel() {
-    var panel = document.getElementById('edging-cockpit-panel');
-    if (panel) {
-      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-
-  function setCountdownVoiceMode(mode) {
-    countdownVoiceMode = mode;
-    var bSelf = document.getElementById('btn-voice-mode-self');
-    var bGemini = document.getElementById('btn-voice-mode-gemini');
-    var lbl = document.getElementById('label-current-voice-mode');
-
-    if (mode === 'self') {
-      if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition bg-indigo-950/60 border-indigo-500 shadow-md";
-      if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
-      if (lbl) { lbl.innerText = "Top spricht selbst"; lbl.className = "text-[10px] font-mono text-indigo-300 font-bold"; }
-      showToast("Modus: Top spricht den Countdown selbst 🗣️");
-    } else {
-      if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md";
-      if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
-      if (lbl) { lbl.innerText = "Gemini spricht laut"; lbl.className = "text-[10px] font-mono text-purple-300 font-bold"; }
-      showToast("Modus: Gemini-App-Stimme spricht ins Zimmer 🔊");
-    }
-  }
-
   function nextLiveStep() {
     var playbook = window.currentSelectedPlaybook || [];
     if (liveStepIndex < playbook.length - 1) {
@@ -304,259 +264,6 @@
     if (!step) return;
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(step.title + ". " + step.desc);
-    }
-  }
-
-  function setEdgingStimulator(stim) {
-    edgingStimulationBy = stim;
-    var bTop = document.getElementById('btn-stim-top');
-    var bBottom = document.getElementById('btn-stim-bottom');
-
-    if (stim === 'top') {
-      if (bTop) bTop.className = "px-3 py-1.5 rounded-xl border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
-      if (bBottom) bBottom.className = "px-3 py-1.5 rounded-xl border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
-    } else {
-      if (bBottom) bBottom.className = "px-3 py-1.5 rounded-xl border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn";
-      if (bTop) bTop.className = "px-3 py-1.5 rounded-xl border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
-    }
-  }
-
-  function handleArousalSliderTouch(val) {
-    activeArousalLevel = parseInt(val, 10);
-    var badge = document.getElementById('arousal-level-badge');
-    var labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Kante", "Kante"];
-    if (badge) badge.innerText = "Stufe " + activeArousalLevel + " / 10 (" + (labels[activeArousalLevel] || '') + ")";
-
-    if (activeArousalLevel >= 8 && window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
-      window.SessionAudio.adjustEnergy('energy');
-    }
-
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function' && Math.random() < 0.35) {
-      var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
-      var phrase = "";
-      if (activeArousalLevel <= 3) phrase = "Ganz ruhig atmen, " + subName + ". Wir bauen die Spannung langsam auf.";
-      else if (activeArousalLevel <= 6) phrase = (edgingStimulationBy === 'bottom_self') ? ("Gleichmäßig weiterberühren, " + subName + ". Halt das Plateau.") : "Spüre meine Berührung. Lass dich ganz darauf ein.";
-      else if (activeArousalLevel <= 9) phrase = (edgingStimulationBy === 'bottom_self') ? "Langsamer werden! Hände kurz anhalten, wenn es zu nah wird." : ("Gefahrenzone, " + subName + ". Kein Zucken. Du kommst erst auf mein Zeichen.");
-      else phrase = "Stillhalten! Kante erreicht!";
-      window.SessionVoice.play(phrase);
-    }
-  }
-
-  function registerEdgeReachedWrapper() {
-    edgeCount++;
-    lastEdgeTimestamp = Date.now();
-    var hitsEl = document.getElementById('edging-total-hits');
-    if (hitsEl) hitsEl.innerText = edgeCount;
-
-    currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Edge #" + edgeCount + " erreicht (Stufe 10)" });
-    showToast("Edge #" + edgeCount + " registriert!");
-    startLastEdgeTimer();
-    startCooldownBreathingTimer();
-
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
-    }
-  }
-
-  function startLastEdgeTimer() {
-    if (lastEdgeIntervalTimer) clearInterval(lastEdgeIntervalTimer);
-    var disp = document.getElementById('time-since-last-edge');
-    lastEdgeIntervalTimer = setInterval(function() {
-      if (!lastEdgeTimestamp) return;
-      var diff = Math.floor((Date.now() - lastEdgeTimestamp) / 1000);
-      var m = Math.floor(diff / 60);
-      var s = diff % 60;
-      if (disp) disp.innerText = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-    }, 1000);
-  }
-
-  function startCooldownBreathingTimer() {
-    if (cooldownTimerInterval) clearInterval(cooldownTimerInterval);
-    cooldownSecondsRemaining = 45;
-    var btn = document.getElementById('btn-cooldown-timer');
-
-    cooldownTimerInterval = setInterval(function() {
-      if (cooldownSecondsRemaining > 0) {
-        cooldownSecondsRemaining--;
-        if (btn) btn.innerText = cooldownSecondsRemaining + "s Abkühlen";
-      } else {
-        clearInterval(cooldownTimerInterval);
-        if (btn) btn.innerText = "Abgekühlt ✓";
-        setTimeout(function() { if (btn) btn.innerText = "45s Abkühlen"; }, 2500);
-      }
-    }, 1000);
-  }
-
-  function openReleaseChoiceModal() {
-    var panel = document.getElementById('release-choice-subpanel');
-    if (panel) panel.classList.toggle('hidden');
-  }
-
-  function executeReleaseImmediate() {
-    currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (Sofort)" });
-    var panel = document.getElementById('release-choice-subpanel');
-    if (panel) panel.classList.add('hidden');
-    showToast("Sofortige Freigabe erteilt!");
-
-    if (countdownVoiceMode === 'self') {
-      showToast("🗣️ Sprich jetzt: 'Jetzt! Lass alles los und komm für mich!'");
-    } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
-    }
-  }
-
-  function setCountdownDuration(seconds) {
-    targetEdgingDuration = parseInt(seconds, 10) || 10;
-    var durLabel = document.getElementById('selected-countdown-duration-label');
-    var btnLabel = document.getElementById('btn-cd-label-sec');
-    if (durLabel) durLabel.innerText = targetEdgingDuration + "s";
-    if (btnLabel) btnLabel.innerText = targetEdgingDuration + "s";
-
-    [5, 10, 20, 30].forEach(function(s) {
-      var btn = document.getElementById('btn-cd-dur-' + s);
-      if (btn) {
-        if (s === targetEdgingDuration) {
-          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn";
-        } else {
-          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
-        }
-      }
-    });
-  }
-
-  function buildDynamicCountdownSpeechText(durationSeconds, subName) {
-    var name = subName || 'mein Schatz';
-    if (durationSeconds === 5) {
-      return "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
-    }
-    if (durationSeconds === 20) {
-      return "Zwanzig... stillhalten, " + name + "... Achtzehn... Sechzehn... tief in den Bauchraum atmen... Vierzehn... Zwölf... Zehn... Neun... Acht... Sieben... Sechs... Fünf... spüre das Glühen... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
-    }
-    if (durationSeconds === 30) {
-      return "Dreißig Sekunden an der Kante... nicht bewegen, " + name + "... Fünfundzwanzig... spüre jeden Herzschlag... Zwanzig... langsam ausatmen... Fünfzehn... halte die Spannung... Zehn... Neun... Acht... Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
-    }
-    // Standard: 10 Sekunden
-    return "Zehn... tief durchatmen... Neun... Acht... Sieben... Sechs... Fünf... spüre die Hitze, " + name + "... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
-  }
-
-  function executeReleaseWithCountdown() {
-    var panel = document.getElementById('release-choice-subpanel');
-    var wrap = document.getElementById('countdown-wrapper');
-    var cueText = document.getElementById('countdown-cue-text');
-    if (panel) panel.classList.add('hidden');
-    if (wrap) wrap.classList.remove('hidden');
-
-    currentEdgingCountdown = targetEdgingDuration;
-    isCountdownActive = true;
-    isEdgingCountdownPaused = false;
-    countdownRunId++;
-
-    var disp = document.getElementById('countdown-display');
-    if (disp) disp.innerText = currentEdgingCountdown.toString();
-
-    if (cueText) {
-      cueText.innerText = (countdownVoiceMode === 'self') 
-        ? "Sprich jetzt laut im Takt mit..." 
-        : "Gemini spricht den Takt...";
-    }
-
-    var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
-    var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
-
-    currentSessionLog.push({ 
-      type: "action", 
-      time: getFormattedTimeNow(), 
-      label: "Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]" 
-    });
-
-    runVisualCountdownTicker(countdownRunId, targetEdgingDuration);
-
-    if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play(fullCountdownText).then(function() {
-        if (disp) disp.innerText = "KOMMEN!";
-        if (cueText) cueText.innerText = "Erlaubnis erteilt!";
-        setTimeout(function() {
-          if (wrap) wrap.classList.add('hidden');
-        }, 4000);
-      });
-    }
-  }
-
-  async function runVisualCountdownTicker(runId, totalSeconds) {
-    var disp = document.getElementById('countdown-display');
-    var cueText = document.getElementById('countdown-cue-text');
-    var ticker = totalSeconds;
-
-    var stepMs = (totalSeconds === 5) ? 1400 : (totalSeconds === 10 ? 2200 : (totalSeconds === 20 ? 1500 : 1600));
-
-    while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
-      if (isEdgingCountdownPaused) {
-        await new Promise(function(r) { setTimeout(r, 300); });
-        continue;
-      }
-      if (disp) disp.innerText = ticker;
-      await new Promise(function(r) { setTimeout(r, stepMs); });
-      ticker--;
-    }
-
-    if (ticker <= 0 && runId === countdownRunId) {
-      if (disp) disp.innerText = "KOMMEN!";
-      if (cueText) {
-        cueText.innerText = (countdownVoiceMode === 'self') 
-          ? "Sprich jetzt: 'JETZT KOMMEN!'" 
-          : "Erlaubnis erteilt!";
-      }
-      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (" + totalSeconds + "s beendet)" });
-      setTimeout(function() {
-        var wrap = document.getElementById('countdown-wrapper');
-        if (wrap) wrap.classList.add('hidden');
-      }, 4000);
-    }
-  }
-
-  function pauseSpeechCountdown() {
-    isEdgingCountdownPaused = !isEdgingCountdownPaused;
-    var btn = document.getElementById('btn-pause-countdown');
-    if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
-    if (isEdgingCountdownPaused) {
-      if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
-        window.SessionVoice.stop();
-      }
-    }
-  }
-
-  function resetSpeechCountdown() {
-    isCountdownActive = false;
-    countdownRunId++;
-    var wrap = document.getElementById('countdown-wrapper');
-    if (wrap) wrap.classList.add('hidden');
-    currentEdgingCountdown = 10;
-    if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
-      window.SessionVoice.stop();
-    }
-  }
-
-  function finalizeEdgingDecision(decision) {
-    var time = getFormattedTimeNow();
-    if (decision === 'ruined') {
-      currentSessionLog.push({ type: "action", time: time, label: "Ruined Orgasm angeordnet" });
-      showToast("Ruined Orgasm vollzogen!");
-      if (countdownVoiceMode === 'self') {
-        showToast("🗣️ Sprich jetzt: 'Hände weg! Stillhalten und auskrampfen!'");
-      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-        window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
-      }
-    } else if (decision === 'denial') {
-      currentSessionLog.push({ type: "action", time: time, label: "Lustverweigerung (Denial)" });
-      showToast("Orgasmus verweigert!");
-      if (window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
-        window.SessionAudio.adjustEnergy('calm');
-      }
-      if (countdownVoiceMode === 'self') {
-        showToast("🗣️ Sprich jetzt: 'Schluss für heute. Du bleibst ungelöst.'");
-      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-        window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
-      }
     }
   }
 
@@ -600,7 +307,6 @@
     var txt = document.getElementById('breath-text');
 
     if (zenBreathPhase === 0) {
-      // 4s Einatmen
       if (circle) {
         circle.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
         circle.style.transform = 'scale(1.35)';
@@ -611,14 +317,12 @@
         runZenBreathStep();
       }, 4000);
     } else if (zenBreathPhase === 1) {
-      // 7s Halten
       if (txt) txt.innerText = "Atem halten (7s)";
       zenBreathInterval = setTimeout(function() {
         zenBreathPhase = 2;
         runZenBreathStep();
       }, 7000);
     } else {
-      // 8s Ausatmen
       if (circle) {
         circle.style.transition = 'transform 8s cubic-bezier(0.4, 0, 0.2, 1)';
         circle.style.transform = 'scale(1)';
@@ -687,6 +391,10 @@
     var topFeed = (topFeedEl ? topFeedEl.value : '') || '';
     var subFeed = (subFeedEl ? subFeedEl.value : '') || '';
 
+    var totalEdges = (window.SessionEdging && typeof window.SessionEdging.getEdgeCount === 'function')
+      ? window.SessionEdging.getEdgeCount()
+      : 0;
+
     var sessionEntry = {
       id: "sess_" + Date.now(),
       date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
@@ -695,7 +403,7 @@
       top: (window.names && window.names[window.topPartner]) || 'Top',
       bottom: (window.names && window.names[window.subPartner]) || 'Bottom',
       durationMinutes: Math.max(1, Math.round((sessionTotalSeconds - sessionRemainingSeconds) / 60)),
-      edgeCount: edgeCount,
+      edgeCount: totalEdges,
       topFeedback: topFeed,
       bottomFeedback: subFeed,
       events: currentSessionLog
@@ -899,19 +607,6 @@
     speakStep: speakCurrentLiveStep,
     nextStep: nextLiveStep,
     prevStep: prevLiveStep,
-    scrollToEdging: scrollToEdgingPanel,
-    setVoiceMode: setCountdownVoiceMode,
-    setStimulator: setEdgingStimulator,
-    handleArousal: handleArousalSliderTouch,
-    registerEdge: registerEdgeReachedWrapper,
-    startCooldown: startCooldownBreathingTimer,
-    openReleaseChoice: openReleaseChoiceModal,
-    executeReleaseImmediate: executeReleaseImmediate,
-    executeReleaseCountdown: executeReleaseWithCountdown,
-    setCountdownDuration: setCountdownDuration,
-    pauseCountdown: pauseSpeechCountdown,
-    resetCountdown: resetSpeechCountdown,
-    finalizeDecision: finalizeEdgingDecision,
     openZen: openZenAtemModal,
     closeZen: closeZenAtemModal,
     selectZenMode: selectZenMode,
@@ -936,18 +631,6 @@
   window.nextLiveStep = nextLiveStep;
   window.prevLiveStep = prevLiveStep;
   window.speakCurrentLiveStep = speakCurrentLiveStep;
-  window.scrollToEdgingPanel = scrollToEdgingPanel;
-  window.setCountdownVoiceMode = setCountdownVoiceMode;
-  window.setEdgingStimulator = setEdgingStimulator;
-  window.handleArousalSliderTouch = handleArousalSliderTouch;
-  window.registerEdgeReachedWrapper = registerEdgeReachedWrapper;
-  window.startCooldownBreathingTimer = startCooldownBreathingTimer;
-  window.setCountdownDuration = setCountdownDuration;
-  window.executeReleaseImmediate = executeReleaseImmediate;
-  window.executeReleaseWithCountdown = executeReleaseWithCountdown;
-  window.pauseSpeechCountdown = pauseSpeechCountdown;
-  window.resetSpeechCountdown = resetSpeechCountdown;
-  window.finalizeEdgingDecision = finalizeEdgingDecision;
   window.openZenAtemModal = openZenAtemModal;
   window.closeZenAtemModal = closeZenAtemModal;
   window.selectZenMode = selectZenMode;
