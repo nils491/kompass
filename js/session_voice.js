@@ -4,11 +4,11 @@
  * 
  * Features:
  * - 100% reine Gemini-TTS-Sprachausgabe (Despina, Aoede, Enceladus, Fenrir)
- * - KEIN Browser-Web-Speech-Fallback mehr: Die ungeliebte Roboterstimme wurde restlos entfernt!
- * - Klare Toast-Rückmeldungen, falls ein API-Key fehlt oder Google ein Quota-Limit meldet
- * - 0-ms-Pre-Caching für Countdown (1-10) und Sofort-Kommandos im Speicher
- * - Strenger 5-Sekunden-Autostopp beim Probehören
- * - Sanftes Audio-Ducking während Sprachausgaben
+ * - KEIN Browser-Web-Speech-Fallback: Monotone Roboterstimme bleibt dauerhaft aus.
+ * - Klare, verständliche Toast-Meldung bei Google Prepay- oder Quota-Problemen.
+ * - 0-ms-Pre-Caching für Countdown (1-10) und Sofort-Kommandos im Speicher.
+ * - Strenger 5-Sekunden-Autostopp beim Probehören.
+ * - Sanftes Audio-Ducking während Sprachausgaben.
  */
 
 (function(window) {
@@ -19,7 +19,7 @@
   var isPreloading = false;
   var previewTimeout = null;
   var isVoiceCurrentlyPlaying = false;
-  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
+  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
@@ -45,7 +45,7 @@
     setTimeout(function() {
       el.classList.add('opacity-0');
       setTimeout(function() { el.remove(); }, 300);
-    }, 3500);
+    }, 4500);
   }
 
   function updatePreviewButtons(state) {
@@ -134,12 +134,10 @@
     var rawBuffer = base64ToArrayBuffer(audioBase64);
     var rawBytes = new Uint8Array(rawBuffer);
 
-    // 1. Fertiger RIFF/WAV Header
     if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
       return new Blob([rawBytes], { type: 'audio/wav' });
     }
 
-    // 2. MP3 / OGG
     if (mimeType.indexOf('mp3') !== -1 || mimeType.indexOf('mpeg') !== -1) {
       return new Blob([rawBytes], { type: 'audio/mp3' });
     }
@@ -147,7 +145,6 @@
       return new Blob([rawBytes], { type: 'audio/ogg' });
     }
 
-    // 3. Raw PCM 16-Bit -> zu WAV kapseln
     var rateMatch = mimeType.match(/rate=(\d+)/);
     var sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
     var pcm16 = new Int16Array(rawBuffer);
@@ -185,7 +182,7 @@
 
     if (isPreview) updatePreviewButtons('loading');
 
-    // 1. Sofort-Cache prüfen (0 ms)
+    // 1. Sofort-Cache (0 ms)
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
@@ -194,20 +191,20 @@
 
     if (!apiKey || apiKey.length < 10) {
       updatePreviewButtons('idle');
-      showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte in den Einstellungen (⚙️) eintragen.");
+      showToast("⚠️ Bitte hinterlege deinen kostenlosen Gemini API-Key in den Einstellungen (⚙️).");
       return;
     }
 
-    // 2. Kaskade der Gemini TTS-Modelle
+    // 2. Kaskade der Gemini TTS-fähigen Modelle
     var candidateModels = [
       activeDiscoveredTtsModel,
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
       "gemini-3.8-flash",
-      "gemini-2.5-flash-preview-tts"
+      "gemini-2.5-flash"
     ];
 
-    var success = false;
+    var isPrepaymentDepleted = false;
     var lastErrorMessage = "";
 
     for (var i = 0; i < candidateModels.length; i++) {
@@ -246,7 +243,6 @@
             ttsAudioCache[cacheKey] = blobUrl;
             activeDiscoveredTtsModel = model;
 
-            success = true;
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
         } else {
@@ -254,9 +250,8 @@
           var msg = errData.error?.message || ("HTTP " + resp.status);
           lastErrorMessage = msg;
 
-          // Google Prepayment Fehler abfangen
           if (resp.status === 402 || resp.status === 429 || msg.indexOf('prepayment credits are depleted') !== -1) {
-            lastErrorMessage = "Google meldet: Prepayment-Credits erschöpft oder Billing erforderlich.";
+            isPrepaymentDepleted = true;
             break;
           }
         }
@@ -265,14 +260,17 @@
       }
     }
 
-    // Wenn alle TTS-Modelle fehlgeschlagen sind:
     updatePreviewButtons('idle');
     if (typeof window.applyAudioDucking === 'function') {
       window.applyAudioDucking(false);
     }
 
-    // KEINE Computerstimme abspielen! Stattdessen saubere Toast-Meldung:
-    showToast("⚠️ Gemini Voice (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
+    // Verständliche Hilfestellung bei Prepayment-Fehler
+    if (isPrepaymentDepleted) {
+      showToast("💡 Der aktuelle API-Key hat kein Guthaben. Erstelle auf aistudio.google.com kostenlos einen neuen Key in einem Projekt ohne Billing und trage ihn in ⚙️ ein.");
+    } else {
+      showToast("⚠️ Gemini Voice (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
+    }
   }
 
   function playAudioUrlDirectly(url, isPreview) {
@@ -362,8 +360,8 @@
   async function generateAndCacheSnippet(text, voiceToUse, apiKey) {
     var candidateModels = [
       activeDiscoveredTtsModel,
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
       "gemini-3.8-flash"
     ];
 
