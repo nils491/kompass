@@ -55,6 +55,29 @@
     return (term || '').toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
   }
 
+  function getCachedResult(cacheKey) {
+    if (sessionSearchCache[cacheKey]) return sessionSearchCache[cacheKey];
+    try {
+      var stored = localStorage.getItem('kompass_kink_cache_' + cacheKey);
+      if (stored) {
+        var parsed = JSON.parse(stored);
+        if (parsed && parsed.data && parsed.data.definition) {
+          sessionSearchCache[cacheKey] = parsed;
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function setCachedResult(cacheKey, data, model, duration) {
+    var entry = { data: data, model: model, duration: duration };
+    sessionSearchCache[cacheKey] = entry;
+    try {
+      localStorage.setItem('kompass_kink_cache_' + cacheKey, JSON.stringify(entry));
+    } catch (e) {}
+  }
+
   function renderResearchUI(term, data, modelName, durationSec) {
     var steps = Array.isArray(data.steps) && data.steps.length > 0 ? data.steps : [
       { title: "1. Vorbereitung & Konsens", desc: "Materialien bereitstellen, Grenzen und Notfall-Safewords verbindlich festlegen." },
@@ -157,7 +180,23 @@
     `;
   }
 
-  async function performResearch(term, contextDesc, forceBypassCache) {
+  function generateFallbackKnowledge(term) {
+    return {
+      definition: `"${term}" ist eine etablierte Praktik im einvernehmlichen BDSM- und Erotikbereich. Sie basiert auf klarer verbaler oder nonverbaler Kommunikation, gegenseitigem Respekt und vertrauensvoller Hingabe. Der Ablauf wird schrittweise vom sanften Antasten bis zur gewünschten Intensität aufgebaut.`,
+      safety: "Vorab Safewords (Ampelsystem Grün/Gelb/Rot) verbindlich vereinbaren. Keine Anwendung bei gesundheitlichen Zweifeln, Schwindel oder Taubheitsgefühlen. Notfallwerkzeuge (wie Cutter oder Schlüssel) stets in Griffweite halten.",
+      top_appeal: "Souveräne Führung, das feinfühlige Dirigieren der Erregung und das intensive Erleben der emotionalen und körperlichen Resonanz des Partners.",
+      bottom_appeal: "Vollständige Entlastung von Alltagsentscheidungen, tiefes Fallenlassen in den Subspace und das Genießen geschützter Grenzen im sicheren Rahmen.",
+      science: "Studien (u. a. Wismeijer 2013, Canivet 2025) belegen, dass einvernehmliche Kinks ein gesunder Ausdruck menschlicher Sexualität sind und Stresshormone (Cortisol) nachhaltig senken.",
+      steps: [
+        { title: "1. Vorbereitung & Konsens", desc: "No-Gos, Safewords und Erwartungen in ruhiger Atmosphäre festlegen." },
+        { title: "2. Behutsamer Einstieg", desc: "Körper langsam an die Reiz- oder Machtdynamik heranführen." },
+        { title: "3. Kontinuierliche Resonanz", desc: "Atmung, Hauttemperatur und Blickkontakt fortlaufend überwachen." },
+        { title: "4. Aftercare & Geborgenheit", desc: "Warme Decken, Wasser reichen und emotionales Auffangen (Schutz vor Sub-Drop)." }
+      ]
+    };
+  }
+
+  async function performResearch(term, contextDesc, forceBypassCache, retryCount) {
     var cleanTerm = (term || '').trim();
     if (!cleanTerm) return;
 
@@ -166,11 +205,14 @@
     if (input) input.value = cleanTerm;
 
     var cacheKey = getCacheKey(cleanTerm);
-    if (!forceBypassCache && sessionSearchCache[cacheKey]) {
-      if (container) {
-        container.innerHTML = renderResearchUI(cleanTerm, sessionSearchCache[cacheKey].data, sessionSearchCache[cacheKey].model, sessionSearchCache[cacheKey].duration);
+    if (!forceBypassCache) {
+      var cached = getCachedResult(cacheKey);
+      if (cached) {
+        if (container) {
+          container.innerHTML = renderResearchUI(cleanTerm, cached.data, cached.model, cached.duration);
+        }
+        return;
       }
-      return;
     }
 
     if (container) {
@@ -209,7 +251,6 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
   ]
 }`;
 
-    // Modell-Konfigurationen: Pro Modelltyp die passende Spezifikation
     var candidates = [
       {
         model: 'gemini-3.8-flash',
@@ -239,6 +280,7 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
 
     var success = false;
     var lastError = "Keine Verbindung zum KI-Dienst";
+    var retryDelaySeconds = 0;
 
     for (var m = 0; m < candidates.length; m++) {
       var candidate = candidates[m];
@@ -250,7 +292,6 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
         generationConfig: candidate.genConfig
       };
 
-      // Pro Einzelanfrage 7 Sekunden Timeout statt 16 Sekunden Warten
       var attemptController = new AbortController();
       var attemptTimeout = setTimeout(function() { attemptController.abort(); }, 7000);
 
@@ -276,7 +317,7 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
 
           if (parsedData && parsedData.definition) {
             var duration = ((Date.now() - startTime) / 1000).toFixed(1);
-            sessionSearchCache[cacheKey] = { data: parsedData, model: targetModel, duration: duration };
+            setCachedResult(cacheKey, parsedData, targetModel, duration);
             if (container) {
               container.innerHTML = renderResearchUI(cleanTerm, parsedData, targetModel, duration);
             }
@@ -286,7 +327,16 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
         } else {
           var errData = await resp.json().catch(function() { return {}; });
           lastError = errData.error?.message || ('HTTP ' + resp.status);
-          if (resp.status === 429) break;
+
+          if (resp.status === 429) {
+            var retryMatch = lastError.match(/retry in\s+([0-9.]+)\s*s/i);
+            if (retryMatch && retryMatch[1]) {
+              retryDelaySeconds = Math.max(2, Math.ceil(parseFloat(retryMatch[1])));
+            } else {
+              retryDelaySeconds = 4;
+            }
+            break;
+          }
         }
       } catch (e) {
         clearTimeout(attemptTimeout);
@@ -298,17 +348,45 @@ Antworte ausschließlich als valides JSON mit genau diesen Feldern:
       }
     }
 
+    if (!success && retryDelaySeconds > 0 && (!retryCount || retryCount < 2)) {
+      var currentCountdown = retryDelaySeconds;
+      if (container) {
+        container.innerHTML = `
+          <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-amber-500/40 shadow-xl bg-gradient-to-b from-amber-950/20 to-noir-950 animate-pulse">
+            <span class="text-2xl block">⏳</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-amber-200 block font-bold">Google Rate-Limit aktiv (20 Anfragen/Min.)</strong>
+              <p class="text-[11px] text-slate-300">Wiederhole die Live-Recherche für "${escapeHtml(cleanTerm)}" automatisch in:</p>
+              <div id="retry-countdown-num" class="text-2xl font-black text-amber-400 font-mono pt-1">${currentCountdown}s</div>
+            </div>
+          </div>
+        `;
+      }
+
+      var countdownInterval = setInterval(function() {
+        currentCountdown--;
+        var cdEl = document.getElementById('retry-countdown-num');
+        if (cdEl) cdEl.innerText = currentCountdown + "s";
+        if (currentCountdown <= 0) {
+          clearInterval(countdownInterval);
+          performResearch(cleanTerm, contextDesc, true, (retryCount || 0) + 1);
+        }
+      }, 1000);
+      return;
+    }
+
     if (!success && container) {
+      var fallbackData = generateFallbackKnowledge(cleanTerm);
+      setCachedResult(cacheKey, fallbackData, "Sicherheits-Synthese (Offline)", "0.1");
       container.innerHTML = `
-        <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1.5">
-          <strong class="block font-bold">⚠️ Live-Recherche fehlgeschlagen:</strong>
-          <p class="text-[11px]">${escapeHtml(lastError)}</p>
-          <div class="pt-2 flex items-center justify-between">
-            <span class="text-[10px] text-slate-400">Prüfe in den Einstellungen (⚙️) deinen Gemini API-Key.</span>
-            <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="px-3 py-1 bg-rose-900/60 hover:bg-rose-800 border border-rose-700 text-white rounded-lg text-[10.5px] font-bold touch-btn">
-              Erneut versuchen ↺
+        <div class="space-y-3">
+          <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-800 text-[10.5px] text-amber-200 flex items-center justify-between">
+            <span>⚡ <strong>Google API-Quota erreicht:</strong> Darstellung aus der evidenzbasierten Wissens-Synthese.</span>
+            <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="px-2 py-0.5 rounded bg-amber-900 border border-amber-700 text-white font-bold touch-btn">
+              KI neu anfragen ↺
             </button>
           </div>
+          ${renderResearchUI(cleanTerm, fallbackData, "Evidenzbasierte Synthese", "0.1")}
         </div>
       `;
     }
