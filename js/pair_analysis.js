@@ -510,46 +510,108 @@
   async function generateAiPairReport() {
     var out = document.getElementById('ai-pair-report-output');
     var btn = document.getElementById('btn-generate-ai-pair');
-    if (btn) btn.innerText = "⏳ Analysiere...";
+    if (btn) btn.innerHTML = "<span>⏳ Analysiere Paardynamik...</span>";
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
 
     var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
     var d5 = document.getElementById('kpi-doppel5') ? document.getElementById('kpi-doppel5').innerText : '0';
     var bridges = document.getElementById('kpi-bridges') ? document.getElementById('kpi-bridges').innerText : '0';
+    var tabus = document.getElementById('kpi-tabus') ? document.getElementById('kpi-tabus').innerText : '0';
 
-    var promptText = `
-Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Erstelle ein maßgeschneidertes, tiefenpsychologisches Paargutachten für ${names.A || 'Partner 1'} und ${names.B || 'Partner 2'}:
-- Basis-Harmonie: ${harmony}
-- Doppel-5er Volltreffer: ${d5}
-- Brückenbau-Chancen (Wunsch trifft Note 2/3): ${bridges}
-- Orientierung: 50% empirische Wissenschaft (beziehe dich präzise auf Sagarin 2009, Wismeijer 2013, Canivet 2025, van der Kolk 2014) und 50% konkrete Paardynamik.
-- Tonfall: Empathisch, respektvoll, normalisierend, wissenschaftlich fundiert, 0% moralisierend.
-- Antwortformat: 3 prägnante HTML-Absätze mit Überschriften (1. Neurobiologische Kopplung & Bindung, 2. Somatische Entlastung vs. Führung, 3. Konkrete Empfehlung für die nächste Session in der Regie). Nutze saubere Tailwind-Klassen wie text-slate-300, text-xs, font-bold, space-y-2.`;
+    var pA_Power = document.getElementById('pair-val-power') ? document.getElementById('pair-val-power').innerText : '';
+    var pA_Sens = document.getElementById('pair-val-sensation') ? document.getElementById('pair-val-sensation').innerText : '';
 
-    var candidateModels = await resolveAvailableTextModels(apiKey);
+    var promptText = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Paartherapeutin und Sexualberaterin.
+Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Paargutachten für ${names.A || 'Partner 1'} und ${names.B || 'Partner 2'}.
+
+DATENBASIS DES PAARES:
+- Basisharmonie: ${harmony}
+- Gemeinsame Höchstlust (Doppel-5er Matches): ${d5}
+- Brückenbau-Chancen (Wunsch trifft Neugier/Duldung): ${bridges}
+- Definierte Tabu-Schutzschranken: ${tabus}
+- Macht-Verteilung: ${pA_Power}
+- Sensorik/Schmerz: ${pA_Sens}
+
+TONFALL & FORMULIERUNG:
+- Sprich die beiden direkt, warm und wertschätzend als Paar an ("Ihr beide...", "Zwischen euch...").
+- Vermeide kaltes Fachchinesisch oder medizinische Distanz! Übersetze psychologische Erkenntnisse in lebendige, greifbare Sprache, die Lust auf gemeinsame Entdeckungen macht.
+- Keine moralischen Bewertungen. Feiere ihre Offenheit und Bestätigung ihrer Grenzen.
+
+Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
+{
+  "synergy": "Wo liegt die größte emotionale und erotische Kraft der beiden? Welche Leidenschaften verbinden sie am stärksten? (3 bis 5 bildhafte Sätze)",
+  "dynamics": "Wie greifen Führung (Top) und Hingabe (Bottom) bei den beiden ineinander? Wie ergänzen sie sich gegenseitig? (3 bis 5 feinfühlige Sätze)",
+  "action_tip": "Ein konkreter, spielerischer Vorschlag für ihre nächste gemeinsame Session in der Schlafzimmer-Regie, der ihre Stärken aufgreift. (3 bis 4 inspirierende Sätze)",
+  "science_insight": "Eine kurze, befreiende wissenschaftliche Einordnung (z. B. Sagarin 2009 / Wismeijer 2013 / Canivet 2025), warum einvernehmliche Rollenspiele, Kinks und klare Grenzen die Beziehungszufriedenheit und Bindung nachweislich stärken. (2 bis 3 ermutigende Sätze)"
+}`;
+
+    var candidateConfigs = [
+      {
+        model: 'gemini-3.8-flash',
+        config: {
+          temperature: 0.3,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "minimal" }
+        }
+      },
+      {
+        model: 'gemini-3.7-flash',
+        config: {
+          temperature: 0.3,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "minimal" }
+        }
+      },
+      {
+        model: 'gemini-2.5-flash',
+        config: {
+          temperature: 0.3,
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      }
+    ];
+
     var success = false;
     var lastErrorMsg = "Verbindungsfehler";
 
-    for (var i = 0; i < candidateModels.length; i++) {
-      var currentModel = candidateModels[i];
+    for (var i = 0; i < candidateConfigs.length; i++) {
+      var item = candidateConfigs[i];
+      var targetModel = item.model;
+
       try {
-        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: item.config
           })
         });
 
         if (resp.ok) {
-          var data = await resp.json();
-          var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
-          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '').trim();
-          showToast("✓ Tiefenpsychologisches Gutachten erstellt (" + currentModel + ")");
-          try { localStorage.setItem('kompass_discovered_model', currentModel); } catch (e) {}
-          success = true;
-          break;
+          var resData = await resp.json();
+          var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+          var parsedData = null;
+
+          try {
+            parsedData = JSON.parse(rawJson);
+          } catch (pe) {
+            var match = rawJson.match(/\{[\s\S]*\}/);
+            parsedData = match ? JSON.parse(match[0]) : null;
+          }
+
+          if (parsedData && parsedData.synergy) {
+            try {
+              localStorage.setItem('kompass_cached_pair_report', JSON.stringify(parsedData));
+            } catch (se) {}
+
+            renderPairReportCards(parsedData, out);
+            showToast("✓ Paargutachten erfolgreich berechnet (" + targetModel + ")");
+            success = true;
+            break;
+          }
         } else {
           var errData = await resp.json().catch(function() { return {}; });
           lastErrorMsg = errData.error?.message || `HTTP ${resp.status}`;
@@ -563,13 +625,18 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
     }
 
     if (!success && out) {
-      out.innerHTML = `<div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">
-        <strong class="block font-bold">⚠️ Fehler bei der KI-Analyse:</strong>
-        <p class="text-[11px]">${escapeHtml(lastErrorMsg)}</p>
-      </div>`;
+      out.innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1.5">
+          <div class="flex items-center gap-2 font-bold">
+            <span>⚠️</span><span>Analyse momentan nicht möglich:</span>
+          </div>
+          <p class="text-[11px] leading-relaxed">${escapeHtml(lastErrorMsg)}</p>
+          <p class="text-[10px] text-slate-400 pt-0.5">Tipp: Bitte prüfe in den Einstellungen (⚙️) auf der Startseite deinen eigenen Gemini API-Key.</p>
+        </div>
+      `;
     }
 
-    if (btn) btn.innerText = "✨ Gutachten neu berechnen";
+    if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
   }
 
   function showToast(msg) {
