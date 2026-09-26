@@ -34,7 +34,7 @@
 
   var isTopVoiceAssistActive = false;
   var activeSessionVoice = 'Despina';
-  var activeDiscoveredModel = "gemini-2.5-flash"; 
+  var activeDiscoveredModel = "gemini-3.8-flash"; 
 
   var currentStagingCategory = 'household';
   var activeEquipmentIds = [];
@@ -241,7 +241,12 @@
       if (va) isTopVoiceAssistActive = (va === 'true');
 
       var dm = localStorage.getItem('kompass_discovered_model');
-      if (dm) activeDiscoveredModel = dm;
+      if (dm && dm.indexOf('2.5') === -1) {
+        activeDiscoveredModel = dm;
+      } else {
+        activeDiscoveredModel = "gemini-3.8-flash";
+        try { localStorage.setItem('kompass_discovered_model', activeDiscoveredModel); } catch (e) {}
+      }
 
       var pl = localStorage.getItem('kompass_custom_playlist_url');
       var plInput = document.getElementById('custom-playlist-link-input');
@@ -452,11 +457,15 @@
           return m.supportedGenerationMethods && 
             m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
             m.name.indexOf('flash') !== -1 &&
-            m.name.indexOf('tts') === -1;
+            m.name.indexOf('tts') === -1 &&
+            m.name.indexOf('2.5') === -1;
         });
         if (contentModels.length > 0) {
           contentModels.sort(function(a, b) { return b.name.localeCompare(a.name); });
           activeDiscoveredModel = contentModels[0].name.replace('models/', '');
+          localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
+        } else {
+          activeDiscoveredModel = "gemini-3.8-flash";
           localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
         }
 
