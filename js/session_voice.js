@@ -16,12 +16,10 @@
   // Privater Voice-State
   var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var ttsAudioCache = {};
-  var preloadedCountdowns = {};
   var isPreloading = false;
   var previewTimeout = null;
   var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceContext = null;
-
 
   function getGeminiApiKey() {
     try {
@@ -45,7 +43,6 @@
       masterAudio.play().catch(function() {});
     }
   }
-
 
   function base64ToArrayBuffer(base64) {
     var binaryString = window.atob(base64);
@@ -90,7 +87,6 @@
     return new Blob([view], { type: 'audio/wav' });
   }
 
-
   function stopActiveVoicePlayback() {
     if (previewTimeout) {
       clearTimeout(previewTimeout);
@@ -115,7 +111,7 @@
     var voiceToUse = voiceOverride || savedVoice;
     var cacheKey = voiceToUse + "_" + text.trim();
 
-    // 1. Instant Playback aus dem Memory-Cache (0 ms Latenz!)
+    // 1. Instant Playback aus dem Memory-Cache (0 ms Latenz)
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
@@ -206,7 +202,6 @@
     return Promise.resolve();
   }
 
-
   function playAudioUrlDirectly(url, isPreview) {
     return new Promise(function(resolve) {
       stopActiveVoicePlayback();
@@ -263,7 +258,6 @@
     });
   }
 
-
   /**
    * Lädt die Zahlen 1 bis 10 und Standard-Kommandos im Hintergrund vor.
    * Dadurch gibt es beim Edging-Countdown und Kanten-Befehlen 0 ms Verzögerung.
@@ -283,10 +277,8 @@
       var key = activeVoice + "_" + phrase.trim();
       if (!ttsAudioCache[key]) {
         try {
-          // Asynchron im Hintergrund cachen ohne Wiedergabe
           await generateAndCacheSnippet(phrase, activeVoice);
-          // Kurze Pause, um API-Rate-Limits nicht zu überlasten
-          await new Promise(function(r) { setTimeout(r, 250); });
+          await new Promise(function(r) { setTimeout(r, 200); });
         } catch (e) {
           console.debug("Preload snippet error for:", phrase, e);
         }
@@ -294,7 +286,6 @@
     }
 
     isPreloading = false;
-    console.log("✓ Core-Voice-Snippets erfolgreich im Memory-Cache hinterlegt (0ms Latenz bereit).");
   }
 
   async function generateAndCacheSnippet(text, voiceToUse) {
@@ -334,9 +325,9 @@
 
         if (resp.ok) {
           var data = await resp.json();
-          var part = data?.candidates?.[0]?.content?.parts?.[0];
-          var audioBase64 = part?.inlineData?.data;
-          var mimeType = part?.inlineData?.mimeType || "";
+          var part = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0];
+          var audioBase64 = part && part.inlineData && part.inlineData.data;
+          var mimeType = (part && part.inlineData && part.inlineData.mimeType) || "";
 
           if (audioBase64) {
             var rawBuffer = base64ToArrayBuffer(audioBase64);
