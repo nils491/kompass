@@ -105,6 +105,12 @@
         </a>
 
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+          <!-- Cloud-Sync Header-Indikator -->
+          <button type="button" onclick="openCloudSyncModal()" id="btn-cloud-sync-header" class="px-2.5 py-1.5 rounded-xl theme-panel border border-slate-800 text-xs font-bold flex items-center gap-1.5 transition touch-btn" title="Cloud-Synchronisations-Status anzeigen">
+            <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span id="cloud-sync-status-text" class="hidden sm:inline text-[10.5px] text-slate-300">Lokal</span>
+          </button>
+
           <div class="flex items-center p-0.5 rounded-xl theme-panel border text-xs">
             <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
               <span id="user-display-A">Partner 1</span>
@@ -254,6 +260,22 @@
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
               Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für die Regie.
+            </p>
+          </div>
+        </button>
+
+        <!-- Kachel 07: Cloud-Synchronisation & Gerätekopplung -->
+        <button type="button" onclick="openCloudSyncModal()" class="theme-card hover:border-sky-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
+          <div class="w-11 h-11 rounded-2xl bg-sky-950/80 border border-sky-800 text-sky-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            07
+          </div>
+          <div class="flex-1 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm font-extrabold text-white group-hover:text-sky-300 transition-colors">Cloud & Kopplung</strong>
+              <span id="hub-sync-status-badge" class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">Lokal</span>
+            </div>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              Echtzeit-Synchronisation zwischen zwei Handys. 256-Bit Ende-zu-Ende verschlüsselt.
             </p>
           </div>
         </button>
@@ -680,12 +702,100 @@
     </div>
   </div>
 
+  <!-- MODAL: CLOUD-SYNCHRONISATION & GERÄTEKOPPLUNG -->
+  <div id="modal-cloud-sync" style="display: none;" onclick="if(event.target===this) closeCloudSyncModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-sky-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-sky-900/60 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-950 border border-sky-800 text-sky-300 flex items-center justify-center text-sm font-black">☁️</div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Gerätekopplung & Cloud-Sync</h3>
+            <p class="text-[10px] text-sky-300">256-Bit Ende-zu-Ende-Verschlüsselung (E2EE)</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudSyncModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- STATUS-ANZEIGE -->
+      <div id="cloud-sync-status-card" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] text-slate-400 block">Aktueller Verbindungsstatus:</span>
+          <strong id="cloud-sync-state-label" class="text-white text-xs">Nicht gekoppelt (Nur lokaler Speicher)</strong>
+        </div>
+        <span id="cloud-sync-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400">Offline</span>
+      </div>
+
+      <!-- KOPPEL-OPTIONEN (WENN NICHT GEKOPPELT) -->
+      <div id="cloud-sync-setup-panel" class="space-y-3">
+        <!-- OPTION A: RAUM ERSTELLEN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <strong class="text-white block text-xs">Option A: Neues Paar-Zimmer eröffnen</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">Erzeugt einen 6-stelligen Code für euch zwei. Dein Partner muss diesen Code nur auf seinem Handy eingeben.</p>
+          <button type="button" onclick="handleCreatePairRoom()" id="btn-create-pair-room" class="w-full py-2.5 bg-sky-900 hover:bg-sky-800 text-sky-100 font-extrabold rounded-xl text-xs touch-btn">
+            ✨ Paar-Code jetzt erstellen
+          </button>
+        </div>
+
+        <!-- OPTION B: CODE BEIM PARTNER EINGEBEN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <strong class="text-white block text-xs">Option B: Mit bestehendem Paar-Code verbinden</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">Tippe den Code ein, den dein Partner auf seinem Handy erstellt hat:</p>
+          <input type="text" id="input-pair-code" placeholder="z. B. KOMPASS-842" class="w-full text-xs p-2.5 theme-panel border border-slate-700 rounded-xl text-white font-mono tracking-wider text-center uppercase">
+          
+          <div class="flex items-center gap-1.5 pt-1">
+            <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[10.5px] touch-btn">
+              Als Partner 1 verbinden
+            </button>
+            <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[10.5px] touch-btn">
+              Als Partner 2 verbinden
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BEREITS GEKOPPELT (PANEL) -->
+      <div id="cloud-sync-active-panel" class="hidden space-y-3">
+        <div class="p-4 rounded-2xl bg-sky-950/30 border border-sky-800 text-sky-200 space-y-2 text-center">
+          <span class="text-2xl block">🔒</span>
+          <span class="text-[10.5px] text-slate-400 block">Euer gemeinsamer Paar-Code:</span>
+          <div id="active-pair-code-display" class="text-xl font-black font-mono tracking-wider text-white bg-slate-950 py-1.5 px-3 rounded-xl border border-sky-900 inline-block">
+            KOMPASS-000
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-snug">
+            Alle Antworten, Sicherheits-Absprachen und Logbucheinträge werden automatisch und unlesbar verschlüsselt im Hintergrund abgeglichen.
+          </p>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="handleManualSyncNow()" class="flex-1 py-2.5 bg-sky-900 hover:bg-sky-800 text-white font-extrabold rounded-xl text-xs touch-btn">
+            🔄 Jetzt manuell abgleichen
+          </button>
+          <button type="button" onclick="handleDisconnectPairing()" class="px-3 py-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 font-bold text-xs touch-btn">
+            Trennen
+          </button>
+        </div>
+      </div>
+
+      <!-- SICHERHEITSHINWEIS -->
+      <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+        🛡️ <strong>Zero-Knowledge-Garantie:</strong> Der Paar-Code fungiert direkt als kryptographischer Schlüssel (PBKDF2 / AES-GCM 256-Bit). Kein Serverbetreiber kann eure Antworten im Klartext lesen.
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeCloudSyncModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          Fertig & Schließen
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
+  <script src="js/cloud_sync.js?v=4.0"></script>
   <script src="js/session_voice.js?v=3.8"></script>
   <script src="js/hub_toys.js?v=3.8"></script>
   <script src="js/kink_research.js?v=3.8"></script>
