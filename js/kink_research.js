@@ -1,5 +1,5 @@
 /**
- *  
+ * js/kink_research.js
  * Spezialisiertes Modul für dynamische KI-Kink- & BDSM-Recherche.
  * 
  * Features:
@@ -53,7 +53,7 @@
   }
 
   function getCacheKey(term) {
-    return 'kompass_kink_cache_' + term.toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
+    return 'kompass_kink_cache_' + (term || '').toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
   }
 
   function getCachedResult(term) {
@@ -79,9 +79,6 @@
     } catch (e) {}
   }
 
-  /**
-   * Führt die Gemini-Recherche durch
-   */
   async function performResearch(term, contextDesc) {
     var cleanTerm = (term || '').trim();
     if (!cleanTerm) return;
@@ -98,7 +95,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1">
               <span>⚡ Aus lokalem Cache geladen (0 ms Latenz)</span>
-              <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm)}')" class="text-purple-400 hover:text-white font-bold">Neu recherchieren ↺</button>
+              <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-white font-bold">Neu recherchieren ↺</button>
             </div>
             ${cached.html}
           </div>
@@ -111,7 +108,7 @@
     if (container) {
       container.innerHTML = `
         <div class="p-6 text-center space-y-3 theme-panel rounded-2xl border border-purple-900/50">
-          <div class="w-8 h-8 border-3 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div class="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <div>
             <strong class="text-xs text-white block">KI recherchiert zu: "${escapeHtml(cleanTerm)}"</strong>
             <p class="text-[10.5px] text-purple-300 mt-0.5">Analysiert Ablauf, psychologischen Reiz und Sicherheitsregeln...</p>
@@ -121,7 +118,12 @@
     }
 
     var apiKey = getGeminiApiKey();
-    var activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-2.5-flash';
+    var discoveredModel = localStorage.getItem('kompass_discovered_model');
+    var candidateModels = [];
+
+    if (discoveredModel) candidateModels.push(discoveredModel);
+    candidateModels.push('gemini-2.5-flash');
+    candidateModels.push('gemini-2.0-flash');
 
     var prompt = `
 Du bist ein erfahrener, einfühlsamer und traumasensibler BDSM- und Sexualaufklärer.
@@ -149,54 +151,56 @@ Erstelle eine strukturierte, schamfreie und bildhafte Aufklärung in genau 3 Abs
 Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerten. Gib nur den HTML-Code zurück.
 `;
 
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + activeModel + ':generateContent?key=' + encodeURIComponent(apiKey), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
+    var lastError = "Unbekannter Fehler";
+    var success = false;
 
-      if (resp.ok) {
-        var data = await resp.json();
-        var rawHtml = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        var cleanContent = rawHtml.replace(/```html/g, '').replace(/```/g, '').trim();
+    for (var i = 0; i < candidateModels.length; i++) {
+      var model = candidateModels[i];
+      try {
+        var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+        var resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
 
-        setCachedResult(cleanTerm, cleanContent);
+        if (resp.ok) {
+          var data = await resp.json();
+          var rawHtml = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          var cleanContent = rawHtml.replace(/```html/g, '').replace(/```/g, '').trim();
 
-        if (container) {
-          container.innerHTML = `
-            <div class="space-y-3">
-              <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1">
-                <span>✨ Frisch recherchiert & im Cache gesichert</span>
-                <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm)}')" class="text-purple-400 hover:text-white font-bold">Neu recherchieren ↺</button>
+          setCachedResult(cleanTerm, cleanContent);
+
+          if (container) {
+            container.innerHTML = `
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1">
+                  <span>✨ Frisch recherchiert & im Cache gesichert</span>
+                  <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-white font-bold">Neu recherchieren ↺</button>
+                </div>
+                ${cleanContent}
               </div>
-              ${cleanContent}
-            </div>
-          `;
+            `;
+          }
+          success = true;
+          break;
+        } else {
+          var errData = await resp.json().catch(function() { return {}; });
+          lastError = errData.error?.message || ('HTTP ' + resp.status);
         }
-      } else {
-        var errData = await resp.json().catch(function() { return {}; });
-        var errMsg = errData.error?.message || ('HTTP ' + resp.status);
-        if (container) {
-          container.innerHTML = `
-            <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">
-              <strong class="block font-bold">⚠️ Fehler bei der Recherche:</strong>
-              <p class="text-[11px]">${escapeHtml(errMsg)}</p>
-              <p class="text-[10px] text-slate-400 mt-2">Prüfe in den Einstellungen (⚙️) deinen Gemini API-Key.</p>
-            </div>
-          `;
-        }
+      } catch (e) {
+        lastError = e.message || "Netzwerkfehler";
       }
-    } catch (e) {
-      if (container) {
-        container.innerHTML = `
-          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs">
-            <strong>⚠️ Netzwerkfehler:</strong> Bitte Internetverbindung prüfen.
-          </div>
-        `;
-      }
+    }
+
+    if (!success && container) {
+      container.innerHTML = `
+        <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">
+          <strong class="block font-bold">⚠️ Fehler bei der Recherche:</strong>
+          <p class="text-[11px]">${escapeHtml(lastError)}</p>
+          <p class="text-[10px] text-slate-400 mt-2">Prüfe in den Einstellungen (⚙️) deinen Gemini API-Key.</p>
+        </div>
+      `;
     }
   }
 
@@ -223,13 +227,13 @@ Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerte
     container.innerHTML = `
       <div class="p-5 text-center space-y-2.5 theme-panel rounded-2xl border border-slate-800">
         <span class="text-2xl block">🔍</span>
-        <strong class="text-xs text-white block">Gib oben einen beliebigen Begriff ein oder klicke auf ein Thema:</strong>
+        <strong class="text-xs text-white block">Gib oben einen Begriff ein oder wähle ein Thema:</strong>
         <div class="flex flex-wrap gap-1.5 justify-center pt-1">
-          <button type="button" onclick="KinkResearch.open('Breast-Smothering')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Breast-Smothering</button>
-          <button type="button" onclick="KinkResearch.open('Takate Kote (Armbox)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Takate Kote</button>
+          <button type="button" onclick="KinkResearch.open('Sensuelles Breast-Smothering')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Breast-Smothering</button>
+          <button type="button" onclick="KinkResearch.open('Takate Kote (Klassische Armbox)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Takate Kote</button>
           <button type="button" onclick="KinkResearch.open('Ruined Orgasm')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Ruined Orgasm</button>
-          <button type="button" onclick="KinkResearch.open('CBT (Ball Stretcher)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">CBT</button>
-          <button type="button" onclick="KinkResearch.open('Bratting & Bändigen')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Bratting</button>
+          <button type="button" onclick="KinkResearch.open('CBT (Ball Stretcher & Hodenringe)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">CBT</button>
+          <button type="button" onclick="KinkResearch.open('Bratting & spielerisches Bändigen')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Bratting</button>
           <button type="button" onclick="KinkResearch.open('Pegging')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Pegging</button>
         </div>
       </div>
