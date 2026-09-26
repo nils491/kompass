@@ -2,6 +2,7 @@
  * js/hub_modals.js
  * Zentraler Controller für alle Dialoge und Einstellungen in index.html:
  * - Profil- & Account-Einstellungen (Rufname, Anatomie, Gemini-Key, Theme, Backup, Reset)
+ * - Toy-Verwaltung (Robuste Weiche zu HubToys)
  * - BDSM- & Kink-Lexikon (Volltextsuche & Anbindung an KinkResearch)
  * - Tabu-Charta (Note-1-Schutzschranken beider Partner)
  * - Erst-Onboarding für neue Paare
@@ -86,12 +87,18 @@
     if (resetTrigger) resetTrigger.classList.remove('hidden');
 
     var modal = document.getElementById('modal-account');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
   }
 
   function closeAccountModal() {
     var modal = document.getElementById('modal-account');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
   }
 
@@ -336,7 +343,34 @@
   }
 
   // ==========================================
-  // 2. TABU-CHARTA MODAL
+  // 2. TOY-VERWALTUNG MODAL (ROBUSTE WEICHE)
+  // ==========================================
+  function openToyManagementModal() {
+    if (window.HubToys && typeof window.HubToys.open === 'function') {
+      window.HubToys.open();
+    } else {
+      var modal = document.getElementById('modal-toy-management');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
+    }
+  }
+
+  function closeToyManagementModal() {
+    if (window.HubToys && typeof window.HubToys.close === 'function') {
+      window.HubToys.close();
+    } else {
+      var modal = document.getElementById('modal-toy-management');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+  }
+
+  // ==========================================
+  // 3. TABU-CHARTA MODAL
   // ==========================================
   function openTabuModal() {
     var container = document.getElementById('tabu-modal-list');
@@ -386,23 +420,32 @@
     }
 
     var modal = document.getElementById('modal-tabus');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
   }
 
   function closeTabuModal() {
     var modal = document.getElementById('modal-tabus');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
   }
 
   // ==========================================
-  // 3. LEXIKON & KI-KINK-RECHERCHE MODAL
+  // 4. LEXIKON & KI-KINK-RECHERCHE MODAL
   // ==========================================
   function openLexikonModal(initialTerm) {
     if (window.KinkResearch && typeof window.KinkResearch.open === 'function') {
       window.KinkResearch.open(initialTerm);
     } else {
       var modal = document.getElementById('modal-lexikon');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
     }
   }
 
@@ -411,12 +454,15 @@
       window.KinkResearch.close();
     } else {
       var modal = document.getElementById('modal-lexikon');
-      if (modal) modal.classList.add('hidden');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
     }
   }
 
   // ==========================================
-  // 4. ERST-ONBOARDING MODAL
+  // 5. ERST-ONBOARDING MODAL
   // ==========================================
   function setOnboardingAnatomy(user, anat) {
     onboardAnatState[user] = anat;
@@ -448,7 +494,10 @@
     } catch (e) {}
 
     var modal = document.getElementById('modal-onboarding');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
 
     var dispA = document.getElementById('user-display-A');
     var dispB = document.getElementById('user-display-B');
@@ -463,7 +512,10 @@
     var isConfigured = localStorage.getItem('kompass_onboarding_done');
     if (!isConfigured) {
       var modal = document.getElementById('modal-onboarding');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
     }
   });
 
@@ -484,6 +536,8 @@
   window.showResetConfirmation = showResetConfirmation;
   window.cancelResetConfirmation = cancelResetConfirmation;
   window.resetCurrentUserProfile = resetCurrentUserProfile;
+  window.openToyManagementModal = openToyManagementModal;
+  window.closeToyManagementModal = closeToyManagementModal;
   window.openTabuModal = openTabuModal;
   window.closeTabuModal = closeTabuModal;
   window.openLexikonModal = openLexikonModal;
