@@ -123,12 +123,12 @@
       return Promise.resolve();
     }
 
-    // 2. Kandidaten-Liste aktueller, verlässlicher Google-Modelle (Kein 1.5 mehr!)
+    // 2. Kandidaten-Liste moderner Google-TTS- und Flash-Modelle (Gemini 3.8 Standard)
     var candidateModels = [
       activeDiscoveredTtsModel,
       "gemini-3.8-flash-tts",
       "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash"
+      "gemini-3.8-flash"
     ];
 
     var lastErrorMessage = "Unbekannter API-Fehler";
@@ -138,30 +138,47 @@
       var model = candidateModels[i];
       if (!model) continue;
 
-      // PAYLOAD-AUFBAU
-      var payload = {
-        contents: [{
-          parts: [{ text: text.trim() }]
-        }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: {
-                voiceName: voiceToUse
+      // PAYLOAD-AUFBAU: Spezifische Struktur für reine TTS-Modelle vs. Multimodal-Flash
+      var payload;
+      var isDedicatedTts = (model.indexOf('-tts') !== -1);
+
+      if (isDedicatedTts) {
+        payload = {
+          contents: [{
+            role: "user",
+            parts: [{ text: text.trim() }]
+          }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: {
+              voiceConfig: {
+                voice: voiceToUse
               }
             }
           }
-        }
-      };
-
-      if (model.indexOf('-tts') === -1) {
-        payload.systemInstruction = {
-          parts: [{
-            text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen und füge kein Wort hinzu."
-          }]
         };
-        payload.contents[0].parts[0].text = "Lies exakt diesen Text vor: \"" + text.trim() + "\"";
+      } else {
+        payload = {
+          contents: [{
+            role: "user",
+            parts: [{ text: "Lies exakt diesen Text vor: \"" + text.trim() + "\"" }]
+          }],
+          systemInstruction: {
+            parts: [{
+              text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen und füge kein Wort hinzu."
+            }]
+          },
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: voiceToUse
+                }
+              }
+            }
+          }
+        };
       }
 
       try {
@@ -315,26 +332,35 @@
       activeDiscoveredTtsModel,
       "gemini-3.8-flash-tts",
       "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash"
+      "gemini-3.8-flash"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
       if (!model) continue;
 
-      var payload = {
-        contents: [{ parts: [{ text: text.trim() }] }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
-        }
-      };
+      var payload;
+      var isDedicatedTts = (model.indexOf('-tts') !== -1);
 
-      if (model.indexOf('-tts') === -1) {
-        payload.systemInstruction = {
-          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Lies das Wort kurz vor." }]
+      if (isDedicatedTts) {
+        payload = {
+          contents: [{ parts: [{ text: text.trim() }] }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { voice: voiceToUse } }
+          }
         };
-        payload.contents[0].parts[0].text = "Lies exakt: \"" + text.trim() + "\"";
+      } else {
+        payload = {
+          contents: [{ parts: [{ text: "Lies exakt: \"" + text.trim() + "\"" }] }],
+          systemInstruction: {
+            parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Lies das Wort kurz vor." }]
+          },
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
+          }
+        };
       }
 
       try {
