@@ -31,6 +31,17 @@
     self_discipline: { label: "Selbstvollzug", hint: "Der Bottom führt die Zucht unter den Augen des Tops selbst aus." }
   };
 
+  function getBottomSharingLevel(subKey) {
+    try {
+      var stored = localStorage.getItem('kompass_sharing_level_' + subKey);
+      if (stored) {
+        var num = parseInt(stored, 10);
+        if (num >= 1 && num <= 4) return num;
+      }
+    } catch (e) {}
+    return 3; // Standard: Buße & Duldung freigegeben (Note 2-5)
+  }
+
   function getBottomQuestionnaireMatches(infractionCat, severity) {
     var subKey = (typeof window.subPartner !== 'undefined') ? window.subPartner : 'A';
     var allAnswers = {};
@@ -47,6 +58,15 @@
       } catch (e) {}
     }
 
+    var sharingLevel = getBottomSharingLevel(subKey);
+    // Bestimme die Mindestnote basierend auf der Freigabestufe des Bottoms:
+    // Stufe 1: Nur 4 und 5 (Reine Lust / Doppel-Match)
+    // Stufe 2: Ab Note 3 (Neugier)
+    // Stufe 3 & 4: Ab Note 2 (Echte Buße & Duldung freigegeben)
+    var minRequiredScore = 2;
+    if (sharingLevel === 1) minRequiredScore = 4;
+    else if (sharingLevel === 2) minRequiredScore = 3;
+
     var chapters = window.surveyChapters || [];
     var matches = [];
 
@@ -62,11 +82,12 @@
           if (item.type === 'choice') return;
           var rating = allAnswers['it_' + item.id + '_r2'];
 
-          if (typeof rating === 'number' && rating >= 2 && rating <= 5) {
+          // Strikter Ausschluss von Tabus (Note 1) & Einhaltung der Freigabestufe
+          if (typeof rating === 'number' && rating >= minRequiredScore && rating <= 5) {
             matches.push({
               item: item,
               rating: rating,
-              badge: formatRatingBadge(rating)
+              badge: formatRatingBadge(rating, sharingLevel)
             });
           }
         });
@@ -80,11 +101,11 @@
     return matches;
   }
 
-  function formatRatingBadge(score) {
+  function formatRatingBadge(score, sharingLvl) {
     if (score === 5) return "⭐ Note 5: Kink-Favorit (Lustvoll)";
     if (score === 4) return "✨ Note 4: Reizvoll (Spürbare Lust)";
     if (score === 3) return "💡 Note 3: Neugierig (Gesprächsbedarf)";
-    if (score === 2) return "🎁 Note 2: Echte Buße (Duldung / Strafe)";
+    if (score === 2) return "🎁 Note 2: Echte Buße (Duldung für den Top)";
     return "";
   }
 
