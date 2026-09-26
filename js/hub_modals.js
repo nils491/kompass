@@ -194,8 +194,19 @@
 
   function openCloudSyncModal() {
     var modal = document.getElementById('modal-cloud-sync');
-    if (!modal) return;
-    updateCloudSyncUI();
+    if (!modal) {
+      console.error("Modal #modal-cloud-sync nicht im DOM gefunden.");
+      return;
+    }
+
+    try {
+      if (typeof updateCloudSyncUI === 'function') {
+        updateCloudSyncUI();
+      }
+    } catch (e) {
+      console.warn("Fehler beim Vorab-Aktualisieren der Sync-UI:", e);
+    }
+
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
   }
@@ -206,7 +217,9 @@
       modal.classList.add('hidden');
       modal.style.display = 'none';
     }
-    updateCloudSyncUI();
+    if (typeof updateCloudSyncUI === 'function') {
+      updateCloudSyncUI();
+    }
   }
 
   async function handleCreatePairRoom() {
