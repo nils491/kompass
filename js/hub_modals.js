@@ -365,14 +365,10 @@
   }
 
   function updateAccountAnatomyUI(curUser, anatomy) {
-    var otherUser = (curUser === 'A') ? 'B' : 'A';
     var myAnat = (anatomy && anatomy[curUser]) || 'penis';
-    var partAnat = (anatomy && anatomy[otherUser]) || 'vulva';
 
     var btnMyPenis = document.getElementById('acc-anat-my-penis');
     var btnMyVulva = document.getElementById('acc-anat-my-vulva');
-    var btnPartPenis = document.getElementById('acc-anat-part-penis');
-    var btnPartVulva = document.getElementById('acc-anat-part-vulva');
 
     if (btnMyPenis && btnMyVulva) {
       if (myAnat === 'penis') {
@@ -383,25 +379,13 @@
         btnMyPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       }
     }
-
-    if (btnPartPenis && btnPartVulva) {
-      if (partAnat === 'penis') {
-        btnPartPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-indigo-950 border-indigo-500 text-white touch-btn";
-        btnPartVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      } else {
-        btnPartVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-indigo-950 border-indigo-500 text-white touch-btn";
-        btnPartPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      }
-    }
   }
 
   function selectAccountAnatomy(who, type) {
     var curUser = window.currentUser || 'A';
-    var otherUser = (curUser === 'A') ? 'B' : 'A';
-    var targetKey = (who === 'me') ? curUser : otherUser;
 
     if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[targetKey] = type;
+    window.anatomy[curUser] = type;
 
     try {
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
@@ -409,7 +393,7 @@
 
     updateAccountAnatomyUI(curUser, window.anatomy);
     if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
+    showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
   }
 
   function toggleAccountAiActive(active) {
@@ -503,49 +487,6 @@
     showToast("E-Mail-Programm für Backup geöffnet 📤");
   }
 
-  function generateRandomTestData() {
-    var chapters = window.surveyChapters || [];
-    if (chapters.length === 0) {
-      showToast("⚠️ Kapitel noch nicht geladen");
-      return;
-    }
-
-    if (!window.answers) window.answers = { A: {}, B: {} };
-    if (!window.answers.A) window.answers.A = {};
-    if (!window.answers.B) window.answers.B = {};
-
-    chapters.forEach(function(ch) {
-      (ch.items || []).forEach(function(it) {
-        if (it.type === 'choice') {
-          if (it.options && it.options.length > 0) {
-            var randOptA = it.options[Math.floor(Math.random() * it.options.length)].val;
-            var randOptB = it.options[Math.floor(Math.random() * it.options.length)].val;
-            window.answers.A['it_' + it.id + '_choice'] = randOptA;
-            window.answers.B['it_' + it.id + '_choice'] = randOptB;
-          }
-        } else {
-          var weights = [1, 2, 3, 3, 4, 4, 5, 5];
-          window.answers.A['it_' + it.id + '_r1'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.A['it_' + it.id + '_r2'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.B['it_' + it.id + '_r1'] = weights[Math.floor(Math.random() * weights.length)];
-          window.answers.B['it_' + it.id + '_r2'] = weights[Math.floor(Math.random() * weights.length)];
-        }
-      });
-    });
-
-    try {
-      localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
-    } catch (e) {}
-
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
-    if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
-    if (window.CloudSync) window.CloudSync.trigger();
-
-    closeAccountModal();
-    showToast("🎲 Zufällige Testdaten für beide Partner generiert!");
-  }
-
   function showResetConfirmation() {
     var curUser = window.currentUser || 'A';
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
@@ -567,6 +508,8 @@
 
   function resetCurrentUserProfile() {
     var curUser = window.currentUser || 'A';
+    var userName = (window.names && window.names[curUser]) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+
     if (!window.answers) window.answers = { A: {}, B: {} };
     window.answers[curUser] = {};
 
@@ -582,7 +525,7 @@
     if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
     if (window.CloudSync) window.CloudSync.trigger();
 
-    showToast("Profil von " + (window.names?.[curUser] || 'Partner') + " zurückgesetzt");
+    showToast("Profil von " + userName + " vollständig gelöscht 🗑️");
   }
 
   // ==========================================
@@ -704,11 +647,11 @@
 
     if (btnPenis && btnVulva) {
       if (type === 'penis') {
-        btnPenis.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnVulva.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       } else {
-        btnVulva.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnPenis.className = "flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
       }
     }
   }
@@ -722,14 +665,15 @@
   }
 
   function completeOnboarding() {
-    var nameAInput = document.getElementById('onboard-name-A');
-    var nameBInput = document.getElementById('onboard-name-B');
+    var curUser = window.currentUser || 'A';
+    var nameInput = document.getElementById('onboard-name-A');
+    var chosenName = (nameInput && nameInput.value.trim()) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-    var nameA = (nameAInput && nameAInput.value.trim()) || 'Partner 1';
-    var nameB = (nameBInput && nameBInput.value.trim()) || 'Partner 2';
+    if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
+    window.names[curUser] = chosenName;
 
-    window.names = { A: nameA, B: nameB };
-    window.anatomy = { A: onboardAnatState.A, B: onboardAnatState.B };
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+    window.anatomy[curUser] = onboardAnatState.A || 'penis';
 
     try {
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
@@ -739,14 +683,12 @@
 
     closeOnboardingModal();
 
-    var dispA = document.getElementById('user-display-A');
-    var dispB = document.getElementById('user-display-B');
-    if (dispA) dispA.innerText = nameA;
-    if (dispB) dispB.innerText = nameB;
+    var disp = document.getElementById('user-display-' + curUser);
+    if (disp) disp.innerText = chosenName;
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Willkommen! Profile eingerichtet ✓");
+    showToast("Willkommen " + chosenName + "! Dein Profil ist eingerichtet ✓");
   }
 
   // ==========================================
@@ -808,7 +750,6 @@
   window.saveVoiceInAccount = saveVoiceInAccount;
   window.playVoicePreviewInAccount = playVoicePreviewInAccount;
   window.sendBackupEmail = sendBackupEmail;
-  window.generateRandomTestData = generateRandomTestData;
   window.showResetConfirmation = showResetConfirmation;
   window.cancelResetConfirmation = cancelResetConfirmation;
   window.resetCurrentUserProfile = resetCurrentUserProfile;
