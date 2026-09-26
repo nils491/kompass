@@ -313,7 +313,7 @@
           <div class="flex items-center justify-between">
             <div>
               <strong class="text-white block text-xs">Musikalische Untermalung</strong>
-              <span class="text-[10.5px] text-slate-400">Eigene Spotify / Apple Music Playlist ODER generative Soundscapes</span>
+              <span class="text-[10.5px] text-slate-400">100% rauschfreie Soundscapes oder eigene Playlist</span>
             </div>
             <div class="flex gap-1">
               <button type="button" onclick="selectMusicSourceWrapper('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
@@ -341,24 +341,33 @@
             </div>
           </div>
 
-          <div id="music-panel-synth" class="space-y-2">
+          <div id="music-panel-synth" class="space-y-2.5">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" onclick="setSoundscapeStyleWrapper('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('velvet')" id="btn-style-velvet" class="p-2.5 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn shadow-md">
                 <span>Cinematic Velvet</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Akkord-Filmmusik</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Warme Analog-Pads & Bells</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('bowls')" id="btn-style-bowls" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Klangtempel 432Hz</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen & Om</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-                <span>Ozean-Symphonie</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Dynamische Ebbe & Flut</span>
+              <button type="button" onclick="setSoundscapeStyleWrapper('ocean')" id="btn-style-ocean" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+                <span>Sinnliche Nachtbrise</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Atmende Harmoniewellen</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('beats')" id="btn-style-beats" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Dark Downtempo</span>
-                <span class="block text-[9px] text-slate-400 font-normal">808 Erotik-Grooves</span>
+                <span class="block text-[9px] text-slate-400 font-normal">Slow-Beat 56 BPM & Rhodes</span>
               </button>
+            </div>
+
+            <!-- LAUTSTÄRKEN-REGLER -->
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 text-xs">
+              <span class="text-slate-300 font-bold flex items-center gap-1.5 flex-shrink-0">
+                <span>🔊</span><span>Lautstärke:</span>
+              </span>
+              <input type="range" min="0" max="1" step="0.05" value="0.7" oninput="setMasterAudioVolume(this.value)" class="flex-1 accent-brand-500 h-2 rounded-lg cursor-pointer">
+              <span id="ambient-volume-label" class="font-mono text-brand-300 font-bold w-10 text-right flex-shrink-0">70%</span>
             </div>
           </div>
 
