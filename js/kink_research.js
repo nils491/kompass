@@ -120,51 +120,51 @@
     var apiKey = getGeminiApiKey();
 
     var prompt = `
-Du bist ein erfahrener, einfühlsamer und traumasensibler BDSM- und Sexualaufklärer.
-Erkläre den folgenden Begriff bzw. die sexuelle/BDSM-Praktik für ein aufgeklärtes Paar:
+Du bist ein erfahrener, traumasensibler BDSM- und Sexualaufklärer sowie Paartherapeut.
+Erkläre den folgenden Begriff bzw. die sexuelle/BDSM-Praktik für ein aufgeklärtes Paar auf Deutsch:
 Begriff: "${cleanTerm}"
 ${contextDesc ? `Zusatzkontext aus dem Fragebogen: "${contextDesc}"` : ''}
 
-Erstelle eine strukturierte, schamfreie und bildhafte Aufklärung in genau 3 Absätzen (formatiert mit sauberen Tailwind-Klassen):
+Erstelle eine strukturierte, schamfreie, fundierte und bildhafte Aufklärung (genau formatiert mit Tailwind-Klassen als reines HTML, keine Markdown-Fences):
 
-1. <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-1">
-     <strong class="text-indigo-300 text-xs block">💡 1. Was ist das genau? (Ablauf & Bild)</strong>
-     <p class="text-slate-300 text-[11px] leading-relaxed">...</p>
+1. <div class="p-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-2">
+     <strong class="text-indigo-300 text-xs block font-extrabold">💡 1. Was ist das & Sicherheitsmerkmale (5–15 Sätze)</strong>
+     <p class="text-slate-300 text-[11px] leading-relaxed">
+       [Hier in zusammenhängenden 5 bis maximal 15 Sätzen: Präzise, bildhafte und schamfreie Erklärung der Praktik sowie aller dazugehörigen physischen & psychologischen Sicherheitsmerkmale, Risikozonen, Safeword-Regeln und Notfallvorkehrungen – oder der transparente Hinweis, falls die Praktik ohne physische Risiken auskommt.]
+     </p>
    </div>
 
-2. <div class="p-3 rounded-2xl bg-brand-950/30 border border-brand-900/60 space-y-1">
-     <strong class="text-brand-300 text-xs block">🧠 2. Psychologischer Reiz & Scham-Entlastung (Warum erregt das?)</strong>
-     <p class="text-slate-300 text-[11px] leading-relaxed">...</p>
+2. <div class="p-3.5 rounded-2xl bg-brand-950/30 border border-brand-900/60 space-y-2 mt-2.5">
+     <strong class="text-brand-300 text-xs block font-extrabold">🧠 2. Sexueller Reiz für Top & Bottom (Warum Menschen darauf stehen)</strong>
+     <div class="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+       <div class="p-2 rounded-xl bg-slate-900/70 border border-brand-950">
+         <strong class="text-rose-300 block mb-0.5">👑 Reiz für den Top (Führung & Macht):</strong>
+         [Was macht diese Praktik für den aktiven/führenden Part sexuell und psychologisch erregend (z. B. Dominanz, Kontrolle, akustische Reize, Hingabe des Partners sehen)?]
+       </div>
+       <div class="p-2 rounded-xl bg-slate-900/70 border border-indigo-950">
+         <strong class="text-indigo-300 block mb-0.5">🧎 Reiz für den Bottom (Hingabe & Empfangen):</strong>
+         [Was reizt den empfangenden/sich hingebenden Part daran (z. B. Loslassen von Alltagsverantwortung, sensorische Überwältigung, Schmerzlust, Unterwerfung)?]
+       </div>
+       <div class="text-slate-400 text-[10.5px] italic pt-1 border-t border-brand-900/40">
+         ✨ <strong>Warum Menschen darauf stehen:</strong> [Wissenschaftliche, psychologische & neurobiologische Normalisierung (Scham-Entlastung).]
+       </div>
+     </div>
    </div>
 
-3. <div class="p-3 rounded-2xl bg-teal-950/30 border border-teal-900/60 space-y-1">
-     <strong class="text-teal-300 text-xs block">🛡️ 3. Sicherheit, Risiken & Spielregeln (Dos & Don'ts)</strong>
-     <p class="text-slate-300 text-[11px] leading-relaxed">...</p>
+3. <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-900/60 space-y-2 mt-2.5">
+     <strong class="text-teal-300 text-xs block font-extrabold">📋 3. Best Practice: Anleitung für den Top (Schritt-für-Schritt)</strong>
+     <ul class="space-y-1.5 text-[11px] text-slate-300 leading-relaxed list-disc list-inside">
+       <li><strong class="text-teal-200">1. Vorbereitung & Konsens:</strong> [Was klärt und bereitet der Top vorab vor (Equipment, Tabus, Safewords)?]</li>
+       <li><strong class="text-teal-200">2. Einstieg & Steigerung:</strong> [Wie baut der Top die Intensität behutsam und kontrolliert auf, ohne zu überfordern?]</li>
+       <li><strong class="text-teal-200">3. Führung & Feedback:</strong> [Worauf achtet der Top währenddessen kontinuierlich (Atmung, Vitalität, nonverbale Signale)?]</li>
+       <li><strong class="text-teal-200">4. Ausklang & Aftercare:</strong> [Wie wird die Praktik sicher beendet und der Partner emotional & körperlich aufgefangen?]</li>
+     </ul>
    </div>
 
-Wichtig: Wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerten. Gib nur den HTML-Code zurück.
+Wichtig: Ausschließlich auf Deutsch, wissenschaftlich fundiert, normalisierend, 0% Moralisieren oder Abwerten. Gib nur den HTML-Code zurück.
 `;
 
-    var candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
-    try {
-      var modelResp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
-      if (modelResp.ok) {
-        var modelData = await modelResp.json();
-        var discovered = (modelData.models || []).filter(function(m) {
-          return m.supportedGenerationMethods &&
-            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
-            m.name.indexOf('tts') === -1 &&
-            m.name.indexOf('omni') === -1 &&
-            m.name.indexOf('image') === -1 &&
-            m.name.indexOf('video') === -1 &&
-            m.name.indexOf('embed') === -1;
-        }).map(function(m) { return m.name.replace('models/', ''); });
-        if (discovered.length > 0) candidateModels = discovered;
-      }
-    } catch (e) {}
-
-    var lastError = "Unbekannter Fehler";
-    var success = false;
+    var candidateModels = await resolveAvailableTextModels(apiKey);
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
