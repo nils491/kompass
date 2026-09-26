@@ -277,8 +277,10 @@
     var act = wizardState.selectedChoices[1]?.title || 'Bestrafung vollzogen';
     var nowTime = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
-    if (Array.isArray(window.currentSessionLog)) {
+    if (window.currentSessionLog && Array.isArray(window.currentSessionLog)) {
       window.currentSessionLog.push({ type: "action", time: nowTime, label: "Bestrafung: " + act });
+    } else {
+      window.currentSessionLog = [{ type: "action", time: nowTime, label: "Bestrafung: " + act }];
     }
 
     closeModal();
