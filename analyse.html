@@ -86,7 +86,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
@@ -151,7 +150,7 @@
         </p>
       </div>
       <div class="space-y-2">
-        <input type="password" id="gate-password-input" placeholder="Passwort eingeben..." class="w-full text-xs p-3 theme-panel border rounded-xl text-white text-center font-mono">
+        <input type="password" id="gate-password-input" onkeydown="if(event.key==='Enter') unlockAnalysisGate()" placeholder="Passwort eingeben..." class="w-full text-xs p-3 theme-panel border rounded-xl text-white text-center font-mono">
         <button type="button" onclick="unlockAnalysisGate()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
           Paar-Analyse freischalten →
         </button>
@@ -398,6 +397,9 @@
         console.error("Analysis data load error", e);
       }
 
+      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+
       const pNames = document.getElementById('header-pair-names');
       if (pNames) pNames.innerText = `${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}`;
       const heroTitle = document.getElementById('hero-pair-title');
@@ -409,6 +411,10 @@
       const val = (input ? input.value : '').trim();
 
       if (val === 'Bommelchen!' || val.toLowerCase() === 'bommelchen') {
+        try {
+          sessionStorage.setItem('kompass_gate_unlocked', 'true');
+        } catch (e) {}
+
         document.getElementById('password-gate')?.classList.add('hidden');
         document.getElementById('analysis-content')?.classList.remove('hidden');
         computePairMetrics();
@@ -431,6 +437,11 @@
       let bridgesList = [];
       let compList = [];
       let tabuList = [];
+
+      let seenDoppel5 = new Set();
+      let seenBridges = new Set();
+      let seenComp = new Set();
+      let seenTabus = new Set();
 
       let pillarsA = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
       let pillarsB = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
@@ -470,25 +481,35 @@
           addPill(ch.id, bR2, pillarsB);
           addMax(ch.id);
 
-          // 1. Doppel-5er
-          if ((aR1 === 5 && bR2 === 5) || (aR2 === 5 && bR1 === 5) || (aR1 === 5 && bR1 === 5) || (aR2 === 5 && bR2 === 5)) {
+          // 1. Doppel-5er (Dedupliziert)
+          const isD5 = (aR1 === 5 && bR2 === 5) || (aR2 === 5 && bR1 === 5) || (aR1 === 5 && bR1 === 5) || (aR2 === 5 && bR2 === 5);
+          if (isD5 && !seenDoppel5.has(it.id)) {
+            seenDoppel5.add(it.id);
             doppel5List.push({ item: it, chapter: ch });
           }
 
-          // 2. Brückenbau (5 trifft 2 oder 3)
-          if ((aR1 === 5 && (bR2 === 2 || bR2 === 3)) || (bR1 === 5 && (aR2 === 2 || aR2 === 3)) ||
-              (aR2 === 5 && (bR1 === 2 || bR1 === 3)) || (bR2 === 5 && (aR1 === 2 || aR1 === 3))) {
+          // 2. Brückenbau (5 trifft 2 oder 3) (Dedupliziert)
+          const isBridge = (aR1 === 5 && (bR2 === 2 || bR2 === 3)) || (bR1 === 5 && (aR2 === 2 || aR2 === 3)) ||
+                           (aR2 === 5 && (bR1 === 2 || bR1 === 3)) || (bR2 === 5 && (aR1 === 2 || aR1 === 3));
+          if (isBridge && !seenBridges.has(it.id)) {
+            seenBridges.add(it.id);
             bridgesList.push({ item: it, chapter: ch });
           }
 
-          // 3. Komplementäre Passung (Aktiv trifft Passiv >= 4)
-          if ((aR1 >= 4 && bR2 >= 4) || (bR1 >= 4 && aR2 >= 4)) {
+          // 3. Komplementäre Passung (Aktiv trifft Passiv >= 4) (Dedupliziert)
+          const isComp = (aR1 >= 4 && bR2 >= 4) || (bR1 >= 4 && aR2 >= 4);
+          if (isComp && !seenComp.has(it.id)) {
+            seenComp.add(it.id);
             compList.push({ item: it, chapter: ch });
           }
 
-          // 4. Tabus (Note 1)
-          if (aR1 === 1 || aR2 === 1 || bR1 === 1 || bR2 === 1) {
-            tabuList.push({ item: it, chapter: ch, who: (aR1 === 1 || aR2 === 1) ? names.A : names.B });
+          // 4. Tabus (Note 1) mit genauer Partnernennung
+          let whoTabu = [];
+          if (aR1 === 1 || aR2 === 1) whoTabu.push(names.A || 'Partner 1');
+          if (bR1 === 1 || bR2 === 1) whoTabu.push(names.B || 'Partner 2');
+          if (whoTabu.length > 0 && !seenTabus.has(it.id)) {
+            seenTabus.add(it.id);
+            tabuList.push({ item: it, chapter: ch, who: whoTabu.join(' & ') });
           }
 
           // Harmonie-Berechnung
@@ -672,7 +693,7 @@
               <strong class="text-white text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
               <span class="text-[9.5px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">⭐ Doppel-5er</span>
             </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(d.item.desc)}</p>
+            <p class="text-[11px] text-slate-300">${escapeHtml(d.item.desc || '')}</p>
             <span class="text-[10px] text-slate-400 block">Kapitel ${d.chapter.id}: ${escapeHtml(d.chapter.title)}</span>
           </div>
         `);
@@ -683,7 +704,7 @@
               <strong class="text-white text-xs">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
               <span class="text-[9.5px] px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">💡 Brücke (Wunsch trifft 2/3)</span>
             </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(b.item.desc)}</p>
+            <p class="text-[11px] text-slate-300">${escapeHtml(b.item.desc || '')}</p>
             <span class="text-[10px] text-slate-400 block">Kapitel ${b.chapter.id}: ${escapeHtml(b.chapter.title)}</span>
           </div>
         `);
@@ -694,7 +715,7 @@
               <strong class="text-white text-xs">${c.item.id}. ${escapeHtml(c.item.title)}</strong>
               <span class="text-[9.5px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">⚡ Top/Bottom Match</span>
             </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(c.item.desc)}</p>
+            <p class="text-[11px] text-slate-300">${escapeHtml(c.item.desc || '')}</p>
             <span class="text-[10px] text-slate-400 block">Kapitel ${c.chapter.id}: ${escapeHtml(c.chapter.title)}</span>
           </div>
         `);
@@ -703,9 +724,9 @@
           <div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 space-y-1">
             <div class="flex items-center justify-between">
               <strong class="text-white text-xs">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">⛔ Grenze von ${t.who}</span>
+              <span class="text-[9.5px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">⛔ Grenze von ${escapeHtml(t.who)}</span>
             </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(t.item.desc)}</p>
+            <p class="text-[11px] text-slate-300">${escapeHtml(t.item.desc || '')}</p>
             <span class="text-[10px] text-rose-300 font-semibold block">⚠️ Bei Sessions strikt ausschließen</span>
           </div>
         `);
@@ -738,7 +759,7 @@
           <div class="p-2.5 rounded-xl border flex items-center justify-between ${isMatch ? 'bg-teal-950/30 border-teal-800' : 'theme-panel border-slate-800'}">
             <div>
               <strong class="text-white block text-xs">${m.label}:</strong>
-              <span class="text-[10.5px] text-slate-400">${names.A || 'A'}: ${valA} | ${names.B || 'B'}: ${valB}</span>
+              <span class="text-[10.5px] text-slate-400">${escapeHtml(names.A || 'A')}: ${escapeHtml(valA)} | ${escapeHtml(names.B || 'B')}: ${escapeHtml(valB)}</span>
             </div>
             <span class="text-xs font-bold ${isMatch ? 'text-teal-300' : 'text-amber-400'}">
               ${isMatch ? '✓ Konsens' : '⚠️ Abweichung'}
@@ -766,7 +787,7 @@
       container.innerHTML = sessionDiary.map(entry => `
         <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-2">
           <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-            <strong class="text-white text-xs">${escapeHtml(entry.date)} (${entry.mode || 'Session'})</strong>
+            <strong class="text-white text-xs">${escapeHtml(entry.date)} (${escapeHtml(entry.mode || 'Session')})</strong>
             <span class="text-pink-400 font-mono font-bold text-[11px]">Stufe ${entry.intensity || 7}/10 · ${entry.edgeCount || 0} Edges</span>
           </div>
           <div class="grid grid-cols-2 gap-2 text-[10.5px] text-slate-300">
@@ -812,11 +833,11 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
         if (resp.ok) {
           const data = await resp.json();
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
+          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '').trim();
           showToast("✓ Tiefenpsychologisches Gutachten erstellt!");
         } else {
           const errData = await resp.json().catch(() => ({}));
-          if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Fehler bei der KI-Analyse: ${errData.error?.message || resp.status}</p>`;
+          if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Fehler bei der KI-Analyse: ${escapeHtml(errData.error?.message || `HTTP ${resp.status}`)}</p>`;
         }
       } catch (e) {
         if (out) out.innerHTML = `<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler bei der KI-Analyse.</p>`;
@@ -852,6 +873,13 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
 
     window.addEventListener('DOMContentLoaded', () => {
       loadAnalysisData();
+      try {
+        if (sessionStorage.getItem('kompass_gate_unlocked') === 'true') {
+          document.getElementById('password-gate')?.classList.add('hidden');
+          document.getElementById('analysis-content')?.classList.remove('hidden');
+          computePairMetrics();
+        }
+      } catch (e) {}
     });
   </script>
 </body>
