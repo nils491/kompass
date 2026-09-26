@@ -207,7 +207,7 @@
         : "theme-panel border-slate-800 text-slate-300 hover:border-slate-700";
 
       return `
-        <button type="button" onclick="SessionDiscipline.selectOption(${stage}, '${opt.id}', '${escapeAttr(opt.title)}', '${escapeAttr(opt.desc)}')" class="w-full p-3 rounded-2xl border text-left transition touch-btn ${activeClass}">
+        <button type="button" onclick="SessionDiscipline.selectOption(${stage}, '${opt.id}')" class="w-full p-3 rounded-2xl border text-left transition touch-btn ${activeClass}">
           <div class="flex items-center justify-between">
             <strong class="text-xs text-white">${escapeText(opt.title)}</strong>
             <span class="text-xs ${isSel ? 'text-brand-300' : 'text-slate-600'}">${isSel ? '✓' : '○'}</span>
@@ -358,8 +358,14 @@
       });
       renderStageCards(stage);
     },
-    selectOption: function(stage, id, title, desc) {
-      wizardState.selectedChoices[stage] = { id: id, title: title, desc: desc };
+    selectOption: function(stage, id) {
+      var options = getStageOptions(stage);
+      for (var i = 0; i < options.length; i++) {
+        if (options[i].id === id) {
+          wizardState.selectedChoices[stage] = options[i];
+          break;
+        }
+      }
       renderStageCards(stage);
     },
     apply: applyDisciplineOrder
