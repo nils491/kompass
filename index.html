@@ -766,8 +766,27 @@
           </p>
         </div>
 
-        <div class="flex gap-2">
-          <button type="button" onclick="handleManualSyncNow()" class="flex-1 py-2.5 bg-sky-900 hover:bg-sky-800 text-white font-extrabold rounded-xl text-xs touch-btn">
+        <!-- 1-KLICK-EINLADUNG FÜR DIE PARTNERIN -->
+        <div class="p-3.5 rounded-2xl theme-panel border border-sky-800/80 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white block">Partnerin per Direkt-Link einladen:</strong>
+            <span class="text-[9.5px] font-bold text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded border border-sky-800">1-Klick</span>
+          </div>
+          <p class="text-[10.5px] text-slate-400 leading-snug">
+            Sende deiner Partnerin diesen Link. Sie muss nur darauf tippen – die Kopplung und Entschlüsselung erfolgt auf ihrem Handy vollautomatisch ohne Code-Eingabe!
+          </p>
+          <div class="flex gap-1.5 pt-0.5">
+            <button type="button" onclick="handleShareInviteLink()" id="btn-share-invite-link" class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs touch-btn flex items-center justify-center gap-1.5 shadow-md">
+              <span>📤</span><span>Link teilen (WhatsApp etc.)</span>
+            </button>
+            <button type="button" onclick="handleCopyInviteLink()" id="btn-copy-invite-link" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs touch-btn" title="In Zwischenablage kopieren">
+              Kopieren 📋
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="handleManualSyncNow()" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-extrabold rounded-xl text-xs touch-btn">
             🔄 Jetzt manuell abgleichen
           </button>
           <button type="button" onclick="handleDisconnectPairing()" class="px-3 py-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 font-bold text-xs touch-btn">
