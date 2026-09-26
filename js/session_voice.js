@@ -4,11 +4,11 @@
  * 
  * Features:
  * - 100% reine Gemini-TTS-Sprachausgabe (Despina, Aoede, Enceladus, Fenrir)
- * - KEIN Browser-Web-Speech-Fallback: Monotone Roboterstimme bleibt dauerhaft aus.
- * - Klare, verständliche Toast-Meldung bei Google Prepay- oder Quota-Problemen.
- * - 0-ms-Pre-Caching für Countdown (1-10) und Sofort-Kommandos im Speicher.
- * - Strenger 5-Sekunden-Autostopp beim Probehören.
- * - Sanftes Audio-Ducking während Sprachausgaben.
+ * - Keine aggressive Vorab-Erschöpfung des 15-RPM-Free-Tier-Kontingents
+ * - Echtzeit-Erkennung neu eingegebener Keys direkt aus dem DOM & Speicher
+ * - Strikte Trennung von HTTP 402 (Billing) und HTTP 429 (Rate-Limit)
+ * - 0-ms-Audio-Cache für bereits generierte Ansagen
+ * - Sanftes Audio-Ducking während Sprachausgaben
  */
 
 (function(window) {
@@ -23,10 +23,25 @@
   var voiceContext = null;
 
   function getGeminiApiKey() {
+    // 1. Zuerst prüfen, ob der Nutzer gerade live einen Key im Feld eingetippt hat
+    var liveInput = document.getElementById('session-gemini-key-input') || document.getElementById('account-gemini-key');
+    if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
+      var liveVal = liveInput.value.trim();
+      if (liveVal !== DEFAULT_PRESET_GEMINI_KEY) {
+        try { localStorage.setItem('kompass_gemini_api_key', liveVal); } catch (e) {}
+        return liveVal;
+      }
+    }
+
+    // 2. Gespeicherten Key aus localStorage laden
     try {
       var stored = localStorage.getItem('kompass_gemini_api_key');
-      if (stored && stored.trim().length > 10) return stored.trim();
+      if (stored && stored.trim().length > 10 && stored.trim() !== DEFAULT_PRESET_GEMINI_KEY) {
+        return stored.trim();
+      }
     } catch (e) {}
+
+    // 3. Fallback auf Default-Key
     return DEFAULT_PRESET_GEMINI_KEY;
   }
 
@@ -178,11 +193,14 @@
 
     var savedVoice = localStorage.getItem('kompass_session_voice') || 'Despina';
     var voiceToUse = voiceOverride || savedVoice;
-    var cacheKey = voiceToUse + "_" + text.trim();
+    var cleanText = (text || '').trim();
+    if (!cleanText) return;
+
+    var cacheKey = voiceToUse + "_" + cleanText;
 
     if (isPreview) updatePreviewButtons('loading');
 
-    // 1. Sofort-Cache (0 ms)
+    // 1. Sofort-Cache (0 ms & 0 API-Aufrufe)
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
@@ -191,7 +209,7 @@
 
     if (!apiKey || apiKey.length < 10) {
       updatePreviewButtons('idle');
-      showToast("⚠️ Bitte hinterlege deinen kostenlosen Gemini API-Key in den Einstellungen (⚙️).");
+      showToast("⚠️ Bitte hinterlege deinen kostenlosen Gemini API-Key in Schritt 2 oder Einstellungen (⚙️).");
       return;
     }
 
@@ -200,11 +218,12 @@
       activeDiscoveredTtsModel,
       "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
-      "gemini-3.8-flash",
+      "gemini-3.8-flash-lite-tts",
       "gemini-2.5-flash"
     ];
 
     var isPrepaymentDepleted = false;
+    var isRateLimited = false;
     var lastErrorMessage = "";
 
     for (var i = 0; i < candidateModels.length; i++) {
@@ -212,7 +231,7 @@
       if (!model) continue;
 
       var payload = {
-        contents: [{ role: "user", parts: [{ text: text.trim() }] }],
+        contents: [{ role: "user", parts: [{ text: cleanText }] }],
         generationConfig: {
           responseModalities: ["AUDIO"],
           speechConfig: {
@@ -250,9 +269,16 @@
           var msg = errData.error?.message || ("HTTP " + resp.status);
           lastErrorMessage = msg;
 
-          if (resp.status === 402 || resp.status === 429 || msg.indexOf('prepayment credits are depleted') !== -1) {
+          // Echter Billing-/Prepayment-Fehler (HTTP 402)
+          if (resp.status === 402 || msg.indexOf('prepayment credits are depleted') !== -1) {
             isPrepaymentDepleted = true;
             break;
+          }
+
+          // Rate-Limit (HTTP 429) -> Nicht sofort abbrechen, sondern nächstes Modell versuchen
+          if (resp.status === 429) {
+            isRateLimited = true;
+            continue;
           }
         }
       } catch (e) {
@@ -265,9 +291,14 @@
       window.applyAudioDucking(false);
     }
 
-    // Verständliche Hilfestellung bei Prepayment-Fehler
     if (isPrepaymentDepleted) {
-      showToast("💡 Der aktuelle API-Key hat kein Guthaben. Erstelle auf aistudio.google.com kostenlos einen neuen Key in einem Projekt ohne Billing und trage ihn in ⚙️ ein.");
+      if (apiKey === DEFAULT_PRESET_GEMINI_KEY) {
+        showToast("💡 Bitte trage deinen eigenen kostenlosen Key in Schritt 2 ein (der Standard-Demo-Key ist erschöpft).");
+      } else {
+        showToast("💡 Google meldet: Projekt verlangt Billing. Erstelle auf aistudio.google.com kostenlos einen Key in einem Projekt OHNE Cloud-Billing.");
+      }
+    } else if (isRateLimited) {
+      showToast("⏳ Google Free-Tier Limit (15 Anfragen/Min.) erreicht. Bitte 3–4 Sekunden warten...");
     } else {
       showToast("⚠️ Gemini Voice (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
     }
@@ -330,78 +361,9 @@
   }
 
   async function preloadCountdownSnippets(voiceName) {
-    if (isPreloading) return;
-
-    var apiKey = getGeminiApiKey();
-    if (!apiKey || apiKey.length < 10) return;
-
-    isPreloading = true;
-    var activeVoice = voiceName || localStorage.getItem('kompass_session_voice') || 'Despina';
-    var numbers = ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"];
-    var commands = ["Kante!", "Stillhalten!", "Jetzt kommen!", "Ruhe!"];
-
-    var queue = numbers.concat(commands);
-
-    for (var i = 0; i < queue.length; i++) {
-      var phrase = queue[i];
-      var key = activeVoice + "_" + phrase.trim();
-      if (!ttsAudioCache[key]) {
-        try {
-          var success = await generateAndCacheSnippet(phrase, activeVoice, apiKey);
-          if (!success) break;
-          await new Promise(function(r) { setTimeout(r, 200); });
-        } catch (e) { break; }
-      }
-    }
-
-    isPreloading = false;
-  }
-
-  async function generateAndCacheSnippet(text, voiceToUse, apiKey) {
-    var candidateModels = [
-      activeDiscoveredTtsModel,
-      "gemini-2.5-flash-preview-tts",
-      "gemini-3.8-flash-tts",
-      "gemini-3.8-flash"
-    ];
-
-    for (var i = 0; i < candidateModels.length; i++) {
-      var model = candidateModels[i];
-      if (!model) continue;
-
-      var payload = {
-        contents: [{ role: "user", parts: [{ text: text.trim() }] }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
-        }
-      };
-
-      try {
-        var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
-        var resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (resp.ok) {
-          var data = await resp.json();
-          var part = data?.candidates?.[0]?.content?.parts?.[0];
-          var audioBase64 = part?.inlineData?.data;
-          var mimeType = part?.inlineData?.mimeType || "audio/pcm;rate=24000";
-
-          if (audioBase64) {
-            var wavBlob = decodeAudioPayload(audioBase64, mimeType);
-            var blobUrl = URL.createObjectURL(wavBlob);
-            var cacheKey = voiceToUse + "_" + text.trim();
-            ttsAudioCache[cacheKey] = blobUrl;
-            return true;
-          }
-        }
-      } catch (e) {}
-    }
-    return false;
+    // Bewusst deaktiviert: Massenhaftes Vorladen beim Start verbraucht das gesamte
+    // 15-RPM-Kontingent des Free Tiers, bevor die Session überhaupt begonnen hat.
+    return;
   }
 
   window.SessionVoice = {
