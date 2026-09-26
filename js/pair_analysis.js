@@ -482,7 +482,10 @@
     if (btn) btn.innerText = "⏳ Analysiere...";
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
-    var activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-2.5-flash';
+    var activeModel = localStorage.getItem('kompass_discovered_model');
+    if (!activeModel || activeModel.indexOf('2.5') !== -1) {
+      activeModel = 'gemini-3.8-flash';
+    }
 
     var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
     var d5 = document.getElementById('kpi-doppel5') ? document.getElementById('kpi-doppel5').innerText : '0';
