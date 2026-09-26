@@ -4,7 +4,7 @@
  * 
  * Features:
  * - 0-ms-Pre-Caching für Countdown (1-10) & Sofort-Kommandos im Speicher
- * - Strikte System-Instruction gegen KI-Monologe / Plaudern
+ * - Intelligente Payload-Weiche (verhindert HTTP 400 bei TTS-Modellen)
  * - Dynamische Gemini-TTS-Modellkaskade mit automatischer RIFF-WAV-Erkennung
  * - Strenger 5-Sekunden-Autostopp beim Probehören
  * - Fallback-Sicherheit ohne Stummschaltung
@@ -18,7 +18,7 @@
   var ttsAudioCache = {};
   var isPreloading = false;
   var previewTimeout = null;
-  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
+  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
@@ -102,7 +102,7 @@
 
   /**
    * Spielt einen Text mit der Gemini-Stimme ab.
-   * Nutzt strikte systemInstruction, um JEDES Monologisieren oder Chat-Antworten zu verhindern.
+   * Nutzt intelligente Payload-Erstellung abhängig vom Modell.
    */
   async function playSensualGeminiVoice(text, voiceOverride, isPreview) {
     stopActiveVoicePlayback();
@@ -124,38 +124,48 @@
       return Promise.resolve();
     }
 
-    // STRIKTE SYSTEM-INSTRUCTION: Zwingt Gemini in den reinen TTS-Modus
-    var payload = {
-      systemInstruction: {
-        parts: [{
-          text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen, führe kein Gespräch und füge kein einziges Wort hinzu."
-        }]
-      },
-      contents: [{
-        parts: [{
-          text: "Lies exakt diesen Text vor: \"" + text.trim() + "\""
-        }]
-      }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: {
-              voiceName: voiceToUse
-            }
-          }
-        }
-      }
-    };
-
+    // 2. Kandidaten-Liste aktueller Google-Modelle
     var candidateModels = [
-      activeDiscoveredTtsModel || "gemini-2.5-flash",
-      "gemini-2.5-flash-tts",
-      "gemini-3.8-flash-tts"
+      activeDiscoveredTtsModel,
+      "gemini-3.8-flash-tts", 
+      "gemini-1.5-flash"
     ];
+
+    var lastErrorMessage = "Unbekannter API-Fehler";
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
+      if (!model) continue;
+
+      // STRIKTER PAYLOAD-AUFBAU:
+      // Dedizierte TTS-Modelle dürfen KEINE systemInstruction erhalten (HTTP 400)
+      var payload = {
+        contents: [{
+          parts: [{ text: text.trim() }]
+        }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voiceToUse
+              }
+            }
+          }
+        }
+      };
+
+      if (model.indexOf('-tts') === -1) {
+        // Fallback für reine LLM-Modelle (wie gemini-1.5-flash):
+        // Hier BRAUCHEN wir die systemInstruction, damit es nicht monologisiert.
+        payload.systemInstruction = {
+          parts: [{
+            text: "Du bist eine reine Text-to-Speech-Stimme für eine private Paar-Session. Deine EINZIGE Aufgabe ist es, den vorgegebenen Text exakt, sinnlich und mit natürlicher Betonung auf Deutsch vorzulesen. Antworte NIEMALS auf den Text, stelle keine Fragen und füge kein Wort hinzu."
+          }]
+        };
+        payload.contents[0].parts[0].text = "Lies exakt diesen Text vor: \"" + text.trim() + "\"";
+      }
+
       try {
         var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
         var resp = await fetch(url, {
@@ -186,19 +196,29 @@
 
             var blobUrl = URL.createObjectURL(wavBlob);
             ttsAudioCache[cacheKey] = blobUrl;
-            activeDiscoveredTtsModel = model;
+            activeDiscoveredTtsModel = model; // Erfolgreiches Modell merken
 
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
+        } else {
+          var errData = await resp.json().catch(function(){ return {}; });
+          lastErrorMessage = errData.error?.message || "HTTP " + resp.status;
+          console.debug("Voice model (" + model + ") failed:", lastErrorMessage);
         }
       } catch (e) {
-        console.debug("Voice model attempt failed:", model, e);
+        lastErrorMessage = e.message || "Netzwerkfehler";
+        console.debug("Network error for voice model:", model, e);
       }
     }
 
     if (typeof window.showToast === 'function') {
-      window.showToast("Sprachausgabe konnte nicht geladen werden.");
+      window.showToast("⚠️ Sprachausgabe Fehler: " + lastErrorMessage);
     }
+    
+    // Fallback UI-Reset für Probehören
+    var btn = document.getElementById('btn-acc-voice-preview');
+    if (btn) btn.innerText = "Probe (5s)";
+    
     return Promise.resolve();
   }
 
@@ -237,15 +257,21 @@
       }
 
       audio.play().then(function() {
+        // UI Update für Probehören
+        var btn = document.getElementById('btn-acc-voice-preview');
+        if (btn && isPreview) btn.innerText = "⏹ Stopp";
+
         // Bei erfolgreichem Start: 5s Hard-Stop für Probehören
         if (isPreview) {
           previewTimeout = setTimeout(function() {
             stopActiveVoicePlayback();
+            if (btn) btn.innerText = "Probe (5s)";
             cleanup();
           }, 5000);
         }
       }).catch(function(err) {
         console.debug("Audio play blocked by browser:", err);
+        if (typeof window.showToast === 'function') window.showToast("Bitte klicke auf die Seite, um Audio freizugeben.");
         cleanup();
       });
 
@@ -254,6 +280,8 @@
         if (typeof window.applyAudioDucking === 'function') {
           window.applyAudioDucking(false);
         }
+        var btn = document.getElementById('btn-acc-voice-preview');
+        if (btn && isPreview) btn.innerText = "Probe (5s)";
       }, { once: true });
     });
   }
@@ -287,7 +315,7 @@
           if (!success) {
             break;
           }
-          await new Promise(function(r) { setTimeout(r, 200); });
+          await new Promise(function(r) { setTimeout(r, 300); });
         } catch (e) {
           break;
         }
@@ -301,29 +329,34 @@
     var apiKey = getGeminiApiKey();
     if (!apiKey || apiKey.length < 20 || apiKey.startsWith('AQ.')) return false;
 
-    var payload = {
-      systemInstruction: {
-        parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Deine EINZIGE Aufgabe ist es, das vorgegebene Wort kurz, trocken und präzise auf Deutsch vorzulesen. Antworte niemals und füge kein Wort hinzu." }]
-      },
-      contents: [{
-        parts: [{ text: "Sprich exakt: \"" + text + "\"" }]
-      }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
-        }
-      }
-    };
-
     var candidateModels = [
-      activeDiscoveredTtsModel || "gemini-2.5-flash",
-      "gemini-2.5-flash-tts",
-      "gemini-3.8-flash-tts"
+      activeDiscoveredTtsModel,
+      "gemini-3.8-flash-tts",
+      "gemini-1.5-flash"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
+      if (!model) continue;
+
+      var payload = {
+        contents: [{
+          parts: [{ text: text.trim() }]
+        }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
+          }
+        }
+      };
+
+      if (model.indexOf('-tts') === -1) {
+        payload.systemInstruction = {
+          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Deine EINZIGE Aufgabe ist es, das vorgegebene Wort kurz, trocken und präzise auf Deutsch vorzulesen." }]
+        };
+      }
+
       try {
         var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
         var resp = await fetch(url, {
