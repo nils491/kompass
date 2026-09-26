@@ -1,12 +1,14 @@
 /**
  * js/session_staging.js
- * Modul für Vorbereitung, Staging & Drehbuch-Generierung in der Schlafzimmer-Regie.
+ * Modul für die Vorbereitungsphase der Schlafzimmer-Regie (Schritte 1 bis 3).
  * 
  * Beinhaltet:
- * - Setup-Schritt 1: Rollenverteilung (Top/Bottom)
- * - Setup-Schritt 2: Tagesform, Energie & Nachttisch-Staging (Ausrüstung)
- * - Setup-Schritt 3: 4-Phasen-Drehbuch-Generator & Playbook-Prüfung
- * - Gemini API-Key & Modell-Verwaltung für die Session
+ * - Schritt 1: Rollenverteilung (Standard Top/Bottom vs. Rollenwechsel)
+ * - Schritt 2: Tagesform-Check-in (Energie Top / Hingabe Bottom / Härtegrad 1–10)
+ * - Schritt 2: Nachttisch-Staging (Equipment-Filter, Schrank-Kategorien, Presets)
+ * - Schritt 2: Musik- & Audio-Konfiguration (Eigene Playlists / Ambient-Soundscapes)
+ * - Schritt 2: Top-Sprachassistenz-Setup (Gemini 3.8 Modell-Erkennung, Stimme & Probehören)
+ * - Schritt 3: Dynamischer 4-Phasen-Drehbuch-Generator mit Würfel-Funktion & Vorschau
  */
 
 (function(window) {
@@ -16,45 +18,17 @@
   var portalSelectedRoleSetup = 'default';
   var topPartner = 'B';
   var subPartner = 'A';
-  var sessionDepth = 7;
   var currentStagingCategory = 'household';
   var activeEquipmentIds = [];
   var currentSelectedPlaybook = [];
+  var sessionDepth = 7;
 
   var names = { A: 'Partner 1', B: 'Partner 2' };
   var anatomy = { A: 'penis', B: 'vulva' };
   var answers = { A: {}, B: {} };
-  var activeSessionVoice = 'Despina';
   var isTopVoiceAssistActive = false;
+  var activeSessionVoice = 'Despina';
   var activeDiscoveredModel = "gemini-3.8-flash";
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
-      return;
-    }
-    var c = document.getElementById('toast-container');
-    if (!c) return;
-    var el = document.createElement('div');
-    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-    el.innerText = msg;
-    c.appendChild(el);
-    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-    setTimeout(function() {
-      el.classList.add('opacity-0');
-      setTimeout(function() { el.remove(); }, 300);
-    }, 2500);
-  }
 
   function loadStagingData() {
     try {
@@ -77,7 +51,7 @@
       if (va) isTopVoiceAssistActive = (va === 'true');
 
       var dm = localStorage.getItem('kompass_discovered_model');
-      if (dm && dm.indexOf('2.5') === -1) {
+      if (dm && dm.indexOf('2.5') === -1 && dm.indexOf('omni') === -1 && dm.indexOf('image') === -1 && dm.indexOf('video') === -1) {
         activeDiscoveredModel = dm;
       } else {
         activeDiscoveredModel = "gemini-3.8-flash";
@@ -90,22 +64,24 @@
       var plBtn = document.getElementById('btn-launch-external-music');
       if (plBtn && pl) plBtn.href = pl.startsWith('http') ? pl : ('https://' + pl);
     } catch (e) {
-      console.error("Staging Data load error", e);
+      console.error("Staging Data Load Error:", e);
     }
 
     if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
-    if (!activeEquipmentIds || !Array.isArray(activeEquipmentIds)) activeEquipmentIds = [];
-
-    if (activeEquipmentIds.length === 0) {
+    if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
+    if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+    if (!answers.A) answers.A = {};
+    if (!answers.B) answers.B = {};
+    if (!activeEquipmentIds || !Array.isArray(activeEquipmentIds) || activeEquipmentIds.length === 0) {
       var catalog = window.equipmentCatalog || [];
       activeEquipmentIds = catalog.filter(function(i) { return i.defaultPresent; }).map(function(i) { return i.id; });
     }
 
     window.names = names;
+    window.answers = answers;
     window.topPartner = topPartner;
     window.subPartner = subPartner;
     window.sessionDepth = sessionDepth;
-    window.activeEquipmentIds = activeEquipmentIds;
     window.isTopVoiceAssistActive = isTopVoiceAssistActive;
   }
 
@@ -118,11 +94,13 @@
       topPartner = 'A';
       subPartner = 'B';
     }
-    window.subPartner = subPartner;
     window.topPartner = topPartner;
+    window.subPartner = subPartner;
     updatePortalRoleCards();
     setupInitialPlaybook();
-    if (typeof window.updateHeaderTabuCounter === 'function') window.updateHeaderTabuCounter();
+    if (typeof window.updateHeaderTabuCounter === 'function') {
+      window.updateHeaderTabuCounter();
+    }
   }
 
   function updatePortalRoleCards() {
@@ -167,6 +145,7 @@
         else el.classList.add('hidden');
       }
     });
+
     try {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
@@ -179,8 +158,11 @@
     ['household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(function(c) {
       var btn = document.getElementById('btn-stag-tab-' + c);
       if (btn) {
-        if (c === cat) btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
-        else btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
+        if (c === cat) {
+          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
+        } else {
+          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
+        }
       }
     });
     renderEquipmentStagingGrid();
@@ -206,7 +188,7 @@
     grid.innerHTML = filtered.map(function(item) {
       var isChecked = activeEquipmentIds.indexOf(item.id) !== -1;
       return `
-        <button type="button" onclick="SessionStaging.toggleEquipment('${item.id}')" class="p-2.5 rounded-xl border text-left transition-all touch-btn block ${isChecked ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
+        <button type="button" onclick="toggleStagingEquipment('${item.id}')" class="p-2.5 rounded-xl border text-left transition-all touch-btn block ${isChecked ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
           <div class="flex items-center justify-between">
             <span class="truncate text-[10.5px]">${escapeHtml(item.name)}</span>
             <span class="text-[9.5px] ml-1 flex-shrink-0 ${isChecked ? 'text-brand-300' : 'text-slate-600'}">${isChecked ? '✓' : '○'}</span>
@@ -221,23 +203,24 @@
     try {
       localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(activeEquipmentIds));
     } catch (e) {}
-    window.activeEquipmentIds = activeEquipmentIds;
   }
 
   function toggleStagingEquipment(id) {
-    if (activeEquipmentIds.indexOf(id) !== -1) {
-      activeEquipmentIds = activeEquipmentIds.filter(function(i) { return i !== id; });
+    var idx = activeEquipmentIds.indexOf(id);
+    if (idx !== -1) {
+      activeEquipmentIds.splice(idx, 1);
     } else {
       activeEquipmentIds.push(id);
     }
     renderEquipmentStagingGrid();
+    setupInitialPlaybook();
   }
 
   function selectEquipmentPreset(preset) {
     var catalog = window.equipmentCatalog || [];
     if (preset === 'bare') {
       activeEquipmentIds = [];
-      showToast("Bereitgelegt: Nur nackte Hände & Schlafzimmer");
+      showToast("Bereitgelegt: Nur nackte Hände & Bett");
     } else if (preset === 'household') {
       activeEquipmentIds = catalog.filter(function(i) { return i.category === 'household'; }).map(function(i) { return i.id; });
       showToast("Bereitgelegt: Alle Haushaltsgegenstände");
@@ -246,6 +229,7 @@
       showToast("Bereitgelegt: Gesamte Ausrüstung");
     }
     renderEquipmentStagingGrid();
+    setupInitialPlaybook();
   }
 
   function updateCheckinEnergy(userRole, val) {
@@ -270,6 +254,7 @@
   function updateSessionDepth(val) {
     sessionDepth = parseInt(val, 10);
     window.sessionDepth = sessionDepth;
+
     var badge = document.getElementById('label-session-depth');
     var desc = document.getElementById('desc-session-depth');
     var labels = ["", "Sanftes Vorspiel", "Zarte Führung", "Sinnlicher Einstieg", "Spürbare Macht", "Klare Unterwerfung", "Fordernde Disziplin", "Intensive Führung", "Strenge Zucht", "Tiefe Hingabe", "Grenzerfahrung"];
@@ -281,6 +266,129 @@
       else desc.innerText = "Strikte Hierarchie, intensive Impact-Reize und lückenlose Kontrolle.";
     }
     setupInitialPlaybook();
+  }
+
+  function getGeminiApiKey() {
+    try {
+      var stored = localStorage.getItem('kompass_gemini_api_key');
+      if (stored && stored.trim().length > 10) return stored.trim();
+    } catch (e) {}
+    return DEFAULT_PRESET_GEMINI_KEY;
+  }
+
+  function saveSessionGeminiKey(val) {
+    var trimmed = (val || '').trim();
+    try {
+      localStorage.setItem('kompass_gemini_api_key', trimmed);
+      showToast("Gemini Key gespeichert");
+      testGeminiConnectionInSession(false);
+      if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+        window.SessionVoice.preloadCore(activeSessionVoice);
+      }
+    } catch (e) {}
+  }
+
+  async function testGeminiConnectionInSession(silent) {
+    var key = getGeminiApiKey();
+    if (!silent) showToast("⏳ Ermittle unterstützte Gemini-Modelle...");
+    var badge = document.getElementById('gemini-active-model-badge');
+
+    try {
+      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(key));
+      if (resp.ok) {
+        var data = await resp.json();
+        var modelsList = data.models || [];
+
+        var contentModels = modelsList.filter(function(m) { 
+          return m.supportedGenerationMethods && 
+            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
+            m.name.indexOf('flash') !== -1 &&
+            m.name.indexOf('tts') === -1 &&
+            m.name.indexOf('2.5') === -1 &&
+            m.name.indexOf('omni') === -1 &&
+            m.name.indexOf('image') === -1 &&
+            m.name.indexOf('video') === -1;
+        });
+
+        if (contentModels.length > 0) {
+          var preferred = contentModels.find(function(m) { return m.name.indexOf('3.8-flash') !== -1 && m.name.indexOf('lite') === -1; });
+          activeDiscoveredModel = preferred ? preferred.name.replace('models/', '') : contentModels[0].name.replace('models/', '');
+          localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
+        } else {
+          activeDiscoveredModel = "gemini-3.8-flash";
+          localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
+        }
+
+        if (badge) badge.innerText = "Modell: " + activeDiscoveredModel;
+        if (!silent) showToast("✓ Verbunden! Modell: " + activeDiscoveredModel + " aktiv.");
+        return true;
+      } else {
+        var errData = await resp.json().catch(function() { return {}; });
+        var errMsg = errData.error?.message || ("Status " + resp.status);
+        if (!silent) showToast("⚠️ Verbindungsfehler: " + errMsg);
+      }
+    } catch (e) {
+      if (!silent) showToast("⚠️ Netzwerkfehler beim Verbindungstest");
+    }
+
+    if (badge) badge.innerText = "Modell: " + activeDiscoveredModel;
+    return false;
+  }
+
+  function changeSessionVoice(val) {
+    activeSessionVoice = val;
+    localStorage.setItem('kompass_session_voice', val);
+    showToast("Stimme gewechselt: " + val);
+    if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+      window.SessionVoice.preloadCore(val);
+    }
+  }
+
+  function toggleTopVoiceAssistance(checked) {
+    isTopVoiceAssistActive = checked;
+    window.isTopVoiceAssistActive = checked;
+    localStorage.setItem('kompass_voice_assist_active', checked ? 'true' : 'false');
+    var ind = document.getElementById('cockpit-voice-active-indicator');
+    if (ind) {
+      if (checked) ind.classList.remove('hidden');
+      else ind.classList.add('hidden');
+    }
+    showToast(checked ? "Akustische Führung aktiviert" : "Akustische Führung stummgeschaltet");
+  }
+
+  function applyPunishmentVoicePreset() {
+    activeSessionVoice = 'Enceladus';
+    var sel = document.getElementById('session-voice-select');
+    if (sel) sel.value = 'Enceladus';
+    isTopVoiceAssistActive = true;
+    window.isTopVoiceAssistActive = true;
+    var tog = document.getElementById('session-voice-assist-toggle');
+    if (tog) tog.checked = true;
+    localStorage.setItem('kompass_session_voice', 'Enceladus');
+    localStorage.setItem('kompass_voice_assist_active', 'true');
+    showToast("Straf-Preset aktiv: Tiefe Männerstimme (Enceladus)");
+    testGeminiVoiceSample();
+  }
+
+  function testGeminiVoiceSample() {
+    if (window.SessionVoice) {
+      if (typeof window.SessionVoice.isPlaying === 'function' && window.SessionVoice.isPlaying()) {
+        window.SessionVoice.stop();
+        return;
+      }
+      if (typeof window.SessionVoice.unlock === 'function') {
+        window.SessionVoice.unlock();
+      }
+    }
+
+    var isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
+    var sampleText = isMale
+      ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
+      : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
+
+    if (window.SessionVoice && window.SessionVoice.play) {
+      window.SessionVoice.play(sampleText, activeSessionVoice, true);
+    }
   }
 
   function shuffleArray(array) {
@@ -296,8 +404,8 @@
   }
 
   function setupInitialPlaybook() {
-    var topName = names[topPartner] || 'Top';
-    var subName = names[subPartner] || 'Bottom';
+    var topName = (names && names[topPartner]) || 'Top';
+    var subName = (names && names[subPartner]) || 'Bottom';
 
     var activeTools = (typeof window.getActiveSessionEquipment === "function") 
       ? window.getActiveSessionEquipment(activeEquipmentIds).map(function(t) { return t.name; })
@@ -395,12 +503,56 @@
     showToast("Drehbuch frisch zusammengestellt");
   }
 
+  function showToast(msg) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
+      return;
+    }
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var el = document.createElement('div');
+    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+    el.innerText = msg;
+    c.appendChild(el);
+    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+    setTimeout(function() {
+      el.classList.add('opacity-0');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2500);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   function initStaging() {
     loadStagingData();
     updatePortalRoleCards();
     setupInitialPlaybook();
     updateStagingTabCounters();
     renderEquipmentStagingGrid();
+
+    var vSelect = document.getElementById('session-voice-select');
+    var vToggle = document.getElementById('session-voice-assist-toggle');
+    var keyInput = document.getElementById('session-gemini-key-input');
+    var badge = document.getElementById('gemini-active-model-badge');
+
+    if (vSelect) vSelect.value = activeSessionVoice;
+    if (vToggle) vToggle.checked = isTopVoiceAssistActive;
+    if (keyInput) keyInput.value = getGeminiApiKey();
+    if (badge && activeDiscoveredModel) badge.innerText = "Modell: " + activeDiscoveredModel;
+
+    testGeminiConnectionInSession(true);
+
+    if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
+      window.SessionVoice.preloadCore(activeSessionVoice);
+    }
   }
 
   window.SessionStaging = {
@@ -412,11 +564,16 @@
     selectPreset: selectEquipmentPreset,
     updateEnergy: updateCheckinEnergy,
     updateDepth: updateSessionDepth,
-    rerollPlaybook: rerollPlaybook,
-    getPlaybook: function() { return currentSelectedPlaybook; }
+    saveGeminiKey: saveSessionGeminiKey,
+    testGeminiConnection: testGeminiConnectionInSession,
+    changeVoice: changeSessionVoice,
+    toggleVoiceAssist: toggleTopVoiceAssistance,
+    applyPunishmentVoicePreset: applyPunishmentVoicePreset,
+    testVoiceSample: testGeminiVoiceSample,
+    rerollPlaybook: rerollPlaybook
   };
 
-  // Globale Handler für HTML
+  // Globale Aliase für Inline-HTML-Event-Handler
   window.selectPortalRoleSetup = selectPortalRoleSetup;
   window.goToPortalStepSafe = goToPortalStepSafe;
   window.switchStagingTab = switchStagingTab;
@@ -424,6 +581,18 @@
   window.selectEquipmentPreset = selectEquipmentPreset;
   window.updateCheckinEnergy = updateCheckinEnergy;
   window.updateSessionDepth = updateSessionDepth;
+  window.saveSessionGeminiKey = saveSessionGeminiKey;
+  window.testGeminiConnectionInSession = testGeminiConnectionInSession;
+  window.changeSessionVoice = changeSessionVoice;
+  window.toggleTopVoiceAssistance = toggleTopVoiceAssistance;
+  window.applyPunishmentVoicePreset = applyPunishmentVoicePreset;
+  window.testGeminiVoiceSample = testGeminiVoiceSample;
   window.rerollPlaybook = rerollPlaybook;
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initStaging);
+  } else {
+    initStaging();
+  }
 
 })(window);
