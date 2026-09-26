@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kink- & Beziehungs-Kompass | Dashboard & Intim-Zentrale</title>
+  <title>Intim-Kompass | Dashboard & Zentrale</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -91,7 +91,6 @@
     html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
     html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
 
-    /* Touch-Optimierung für iPhone 15 Pro (Mindestfläche 44-48px) */
     .touch-btn {
       min-height: 44px;
       display: inline-flex;
@@ -102,13 +101,8 @@
     .touch-btn:active {
       transform: scale(0.97);
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
   <script>
     function verifySitePassword() {
@@ -121,7 +115,7 @@
         sessionStorage.setItem('kompass_unlocked', 'true');
         if (lock) lock.classList.add('hidden');
         if (err) err.classList.add('hidden');
-        if (typeof showToast === 'function') showToast("Erfolgreich entsperrt!");
+        if (typeof showToast === 'function') showToast("Erfolgreich entsperrt");
         if (typeof checkOnboardingStatus === 'function') checkOnboardingStatus();
         if (typeof updateHubUI === 'function') updateHubUI();
       } else {
@@ -135,18 +129,18 @@
   <!-- SPERRBILDSCHIRM (PASSWORT) -->
   <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
-      <div class="w-16 h-16 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-3xl shadow-inner">
-        🔒
+      <div class="w-14 h-14 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 mx-auto flex items-center justify-center text-2xl shadow-inner">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
       </div>
       <div class="space-y-1.5">
-        <h2 class="text-xl font-extrabold text-white tracking-tight">Privater Beziehungs-Kompass</h2>
+        <h2 class="text-lg font-extrabold text-white tracking-tight">Privater Beziehungs-Kompass</h2>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Diese Seite enthält persönliche Intimbereiche. Bitte gib das Zugangspasswort ein.
+          Geschützter Intimbereich. Bitte autorisiere den Zugang:
         </p>
       </div>
       <div class="space-y-3">
         <input type="password" id="site-pw-input" placeholder="Passwort eingeben..." onkeydown="if(event.key==='Enter') verifySitePassword()" class="w-full text-center px-4 py-3 theme-panel border rounded-xl text-sm font-semibold tracking-wider text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition min-h-[46px]">
-        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-sm shadow-md transition touch-btn">
+        <button onclick="verifySitePassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-md transition touch-btn">
           Entsperren & Fortfahren
         </button>
         <p id="pw-error-hint" class="hidden text-xs text-rose-500 font-bold">Passwort ungültig. Bitte erneut versuchen.</p>
@@ -179,20 +173,20 @@
               <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none truncate text-white">Intim-Kompass</h1>
               <span id="header-hub-indicator" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-brand-950 text-brand-300 border border-brand-800 uppercase flex-shrink-0">HUB AKTIV</span>
             </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-sub-caption">Erkenntnis & Hetero-Dynamik</span>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-sub-caption">Erkenntnis & Paardynamik</span>
           </div>
         </button>
 
         <!-- Schnell-Aktionen rechts (Mindesthöhe 44px) -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <a href="session.html" class="px-2.5 py-1.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800/80 text-brand-200 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Schlafzimmer-Cockpit">
-            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span class="hidden sm:inline text-[11px]">Cockpit</span>
           </a>
-          <button type="button" onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Persönliche Tabus anzeigen">
-            <span>⛔</span> <span id="header-tabu-count">0</span>
+          <button type="button" onclick="openTabuModal()" class="px-2.5 py-1.5 bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Persönliche Tabus anzeigen">
+            <span class="text-[10px] font-black uppercase">Tabus</span> <span id="header-tabu-count" class="px-1.5 py-0.2 rounded bg-rose-900 text-rose-200 text-[10px] font-mono">0</span>
           </button>
-          <button type="button" onclick="openAccountModal()" class="p-2 theme-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition touch-btn" title="Profile, Partner-Sync & KI-Settings">
-            <span>⚙️</span>
+          <button type="button" onclick="openAccountModal()" class="px-2.5 py-1.5 theme-panel hover:border-slate-700 text-slate-300 font-bold rounded-xl text-xs transition touch-btn" title="Profile, Partner-Sync & Einstellungen">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </div>
@@ -200,19 +194,19 @@
       <!-- ZEILE 2: DURCHGÄNGIGE HORIZONTAL WISCHBARE APP-TABS -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>🏛️</span> <span>Start-Hub</span>
+          <span>Start-Hub</span>
         </button>
         <button type="button" onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>📝</span> <span>Fragebogen</span>
+          <span>Fragebogen</span>
         </button>
         <button type="button" onclick="switchMainView('safety')" id="nav-btn-safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>🛡️</span> <span>Sicherheits-Kodex</span>
+          <span>Sicherheits-Kodex</span>
         </button>
         <button type="button" onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>👤</span> <span>Mein Profil</span>
+          <span>Mein Profil</span>
         </button>
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>📊</span> <span>Paar-Analyse</span>
+          <span>Paar-Analyse</span>
         </a>
       </nav>
     </div>
@@ -226,11 +220,11 @@
         <div class="absolute -right-12 -top-12 w-48 h-48 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="max-w-xl space-y-2 relative z-10">
           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-950 text-brand-300 border border-brand-800 inline-block">
-            Zentrale Kommandoebene
+            Kommandoebene
           </span>
-          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Willkommen im Kompass-Dashboard</h2>
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Kompass-Dashboard</h2>
           <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Euer geschützter Raum für Erkenntnis, somatische Sicherheit und erotische Führung. Wählt direkt den gewünschten Bereich:
+            Geschützter Raum für Erkenntnis, somatische Sicherheit und erotische Führung. Wählt direkt den gewünschten Bereich:
           </p>
         </div>
       </div>
@@ -240,12 +234,12 @@
         
         <!-- Kachel 1: Fragebogen -->
         <button type="button" onclick="switchMainView('survey')" class="theme-card hover:border-brand-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
-          <div class="w-12 h-12 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            📝
+          <div class="w-11 h-11 rounded-2xl bg-brand-950/80 border border-brand-800 text-brand-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            01
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-brand-300 transition-colors">1. Fragebogen</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-brand-300 transition-colors">Fragebogen</strong>
               <span id="hub-survey-pct-badge" class="text-[10px] font-mono font-bold text-brand-400 bg-brand-950 px-2 py-0.5 rounded-full border border-brand-800">0 %</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -256,12 +250,12 @@
 
         <!-- Kachel 2: Sicherheits-Kodex -->
         <button type="button" onclick="switchMainView('safety')" class="theme-card hover:border-teal-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
-          <div class="w-12 h-12 rounded-2xl bg-teal-950/80 border border-teal-800 text-teal-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            🛡️
+          <div class="w-11 h-11 rounded-2xl bg-teal-950/80 border border-teal-800 text-teal-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            02
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-teal-300 transition-colors">2. Sicherheits-Kodex</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-teal-300 transition-colors">Sicherheits-Kodex</strong>
               <span class="text-[10px] font-bold text-teal-400 bg-teal-950 px-2 py-0.5 rounded-full border border-teal-800">6 Module</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -272,12 +266,12 @@
 
         <!-- Kachel 3: Mein Profil -->
         <button type="button" onclick="switchMainView('single')" class="theme-card hover:border-indigo-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
-          <div class="w-12 h-12 rounded-2xl bg-indigo-950/80 border border-indigo-800 text-indigo-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            👤
+          <div class="w-11 h-11 rounded-2xl bg-indigo-950/80 border border-indigo-800 text-indigo-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            03
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition-colors">3. Mein Profil</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-indigo-300 transition-colors">Mein Profil</strong>
               <span class="text-[10px] font-bold text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded-full border border-indigo-800">Individual</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -288,12 +282,12 @@
 
         <!-- Kachel 4: Paar-Analyse -->
         <a href="analyse.html" class="theme-card hover:border-amber-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
-          <div class="w-12 h-12 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            📊
+          <div class="w-11 h-11 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            04
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-amber-300 transition-colors">4. Paar-Analyse</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-amber-300 transition-colors">Paar-Analyse</strong>
               <span class="text-[10px] font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-amber-800">Synergie</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -302,14 +296,14 @@
           </div>
         </a>
 
-        <!-- Kachel 5: Session-Begleiter -->
+        <!-- Kachel 5: Session-Cockpit -->
         <a href="session.html" class="theme-card hover:border-pink-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
-          <div class="w-12 h-12 rounded-2xl bg-pink-950/80 border border-pink-800 text-pink-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            🕯️
+          <div class="w-11 h-11 rounded-2xl bg-pink-950/80 border border-pink-800 text-pink-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            05
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-pink-300 transition-colors">5. Session-Cockpit</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-pink-300 transition-colors">Session-Cockpit</strong>
               <span class="text-[10px] font-bold text-pink-400 bg-pink-950 px-2 py-0.5 rounded-full border border-pink-800">Schlafzimmer</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -320,12 +314,12 @@
 
         <!-- Kachel 6: BEDINGTE KI-ZENTRALE (Nur sichtbar wenn in ⚙️ aktiviert) -->
         <div id="hub-tile-ai" class="hidden theme-card border-purple-500/60 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group shadow-md flex items-start gap-3.5 bg-purple-950/20">
-          <div class="w-12 h-12 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-            ✨
+          <div class="w-11 h-11 rounded-2xl bg-purple-950/80 border border-purple-800 text-purple-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
+            KI
           </div>
           <div class="flex-1 space-y-1.5">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-purple-300 transition-colors">KI-Zentrale (Gemini)</strong>
+              <strong class="text-sm font-extrabold text-white group-hover:text-purple-300 transition-colors">KI-Zentrale</strong>
               <span class="text-[10px] font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">Aktiv</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
@@ -349,10 +343,10 @@
           <span class="text-slate-400">Aktives Profil:</span>
           <div class="flex items-center gap-1 theme-panel p-1 rounded-xl border">
             <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 bg-white text-indigo-700 shadow-xs touch-btn">
-              <span id="user-display-A">Partner 1 (♂️)</span>
+              <span id="user-display-A">Partner 1</span>
             </button>
             <button type="button" onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 text-slate-400 hover:text-white touch-btn">
-              <span id="user-display-B">Partner 2 (♀️)</span>
+              <span id="user-display-B">Partner 2</span>
             </button>
           </div>
         </div>
@@ -377,7 +371,7 @@
 
           <div class="flex items-center gap-1.5">
             <button type="button" onclick="toggleChapterQuickGrid()" class="px-2.5 py-1 rounded-xl theme-panel border text-slate-300 hover:text-white text-xs font-bold transition touch-btn">
-              📑 Verzeichnis
+              Verzeichnis
             </button>
             <button type="button" id="btn-prev-chapter" onclick="prevChapter()" class="px-3 py-1 rounded-xl theme-panel border text-slate-300 hover:text-white text-xs font-bold transition touch-btn">
               ← Zurück
@@ -407,16 +401,16 @@
             Alle
           </button>
           <button type="button" onclick="setSurveyFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-slate-300 hover:text-white transition whitespace-nowrap touch-btn">
-            ⏳ Unbeantwortet
+            Unbeantwortet
           </button>
           <button type="button" onclick="setSurveyFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-slate-300 hover:text-white transition whitespace-nowrap touch-btn">
-            ⭐ 4–5 Favoriten
+            4–5 Favoriten
           </button>
           <button type="button" onclick="setSurveyFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-rose-300 hover:text-white transition whitespace-nowrap touch-btn">
-            ⛔ Tabus (1)
+            Tabus (1)
           </button>
           <button type="button" onclick="setSurveyFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl font-bold theme-panel border text-purple-300 hover:text-white transition whitespace-nowrap touch-btn">
-            🙈 Hemmschwelle
+            Hemmschwelle
           </button>
         </div>
 
@@ -444,9 +438,9 @@
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-teal-950 text-teal-300 border border-teal-800 inline-block">
           Konsens-Fundament
         </span>
-        <h2 class="text-base sm:text-lg font-black text-white tracking-tight">Unser verbindlicher Sicherheits- & Konsens-Kodex</h2>
+        <h2 class="text-base sm:text-lg font-black text-white tracking-tight">Verbindlicher Sicherheits- & Konsens-Kodex</h2>
         <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
-          Hier bewertet ihr nicht mit Noten (0–5), sondern vereinbart verbindliche Spielregeln für Notfälle, Safewords, Zucht und Aftercare.
+          Hier bewertet ihr nicht mit Noten (0–5), sondern trefft verbindliche Vereinbarungen für Notfälle, Safewords, Zucht und Aftercare.
         </p>
       </div>
 
@@ -477,8 +471,8 @@
 
       <!-- LEERZUSTAND BEI ZU WENIG ANTWORTEN -->
       <div id="single-empty-state" class="theme-card rounded-3xl p-8 text-center space-y-4 border shadow-sm">
-        <div class="w-16 h-16 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 text-2xl mx-auto flex items-center justify-center">
-          ⏳
+        <div class="w-12 h-12 rounded-2xl bg-brand-950/60 border border-brand-800 text-brand-300 text-sm font-black mx-auto flex items-center justify-center">
+          03
         </div>
         <h3 class="text-base font-extrabold text-white">Profil noch im Aufbau</h3>
         <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
@@ -496,7 +490,7 @@
           <!-- SPINNENDIAGRAMM (RADAR) -->
           <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-2 shadow-xs">
             <h3 class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
-              <span>🕸️ Erotisches Archetypen-Radar</span>
+              <span>Erotisches Archetypen-Radar</span>
               <span class="text-[10px] text-slate-400 font-normal">9 Dimensionen</span>
             </h3>
             <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
@@ -507,7 +501,7 @@
           <!-- DIE 5 PSYCHOLOGISCHEN MOTIVATIONS-SÄULEN -->
           <div class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 shadow-xs flex flex-col justify-between">
             <div class="space-y-1">
-              <h3 class="text-xs sm:text-sm font-bold text-white">📊 Die 5 psychologischen Motivations-Säulen</h3>
+              <h3 class="text-xs sm:text-sm font-bold text-white">Die 5 psychologischen Motivations-Säulen</h3>
               <p class="text-[11px] text-slate-400">Verteilung deiner inneren Antriebe (bereinigt um 0-Werte):</p>
             </div>
 
@@ -578,13 +572,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
           <div class="theme-card p-4 rounded-2xl border border-emerald-500/30 space-y-2">
             <strong class="text-emerald-300 font-bold block flex items-center gap-1.5">
-              <span>⭐</span> Deine absoluten Favoriten (Note 5):
+              Deine absoluten Favoriten (Note 5):
             </strong>
             <div id="single-high-prio-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
           </div>
           <div class="theme-card p-4 rounded-2xl border border-rose-500/30 space-y-2">
             <strong class="text-rose-300 font-bold block flex items-center gap-1.5">
-              <span>⛔</span> Deine persönlichen No-Gos (Note 1):
+              Deine persönlichen No-Gos (Note 1):
             </strong>
             <div id="single-tabus-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
           </div>
@@ -593,7 +587,6 @@
         <!-- DER ORIGINAL-SCHAM-ENTLASTUNGSTEXT (ABSCHLUSSBOTSCHAFT) -->
         <div class="theme-panel p-5 sm:p-6 rounded-3xl border border-brand-800/60 space-y-2.5 shadow-md bg-gradient-to-br from-brand-950/40 via-noir-900 to-black">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🕊️</span>
             <h4 class="text-xs sm:text-sm font-black text-brand-200 uppercase tracking-wider">
               Ein Wort zur Normalität & Schamfreiheit
             </h4>
@@ -614,7 +607,6 @@
     <div class="theme-card rounded-3xl max-w-lg w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <span class="text-xl">⚙️</span>
           <div>
             <h3 class="text-sm font-extrabold text-white">Profile, Sync & KI-Settings</h3>
             <p class="text-[10px] text-slate-400">Verwaltung für <span id="account-active-username" class="text-brand-300 font-bold">Partner 1</span></p>
@@ -635,15 +627,15 @@
           <div>
             <span class="text-[10px] text-slate-400 block mb-1">Meine Anatomie:</span>
             <div class="flex gap-1">
-              <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">♂️ Penis</button>
-              <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">♀️ Vulva</button>
+              <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
+              <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
             </div>
           </div>
           <div>
             <span class="text-[10px] text-slate-400 block mb-1">Partner-Anatomie:</span>
             <div class="flex gap-1">
-              <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">♂️ Penis</button>
-              <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">♀️ Vulva</button>
+              <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
+              <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
             </div>
           </div>
         </div>
@@ -652,15 +644,15 @@
       <!-- BEREICH 2: GEMINI KI-INTEGRATION (BYOK) -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
         <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 block">2. KI-Zentrale (Google Gemini)</span>
-          <span class="text-[9px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">gemini-2.5-flash</span>
+          <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 block">2. KI-Zentrale & Sprachausgabe</span>
+          <span class="text-[9px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">gemini-2.5-flash-preview-tts</span>
         </div>
 
         <!-- Schalter für KI-Aktivierung -->
         <div class="p-3 bg-purple-950/30 border border-purple-900/60 rounded-2xl flex items-center justify-between gap-3">
           <div>
             <strong class="text-white block text-xs">KI-Funktionen im Kompass aktivieren</strong>
-            <p class="text-[10.5px] text-slate-400 mt-0.5">Blendet die KI-Kachel im Start-Hub ein & aktiviert Gutachten.</p>
+            <p class="text-[10.5px] text-slate-400 mt-0.5">Schaltet KI-Gutachten, intelligente Regieanweisungen und Gemini-TTS frei.</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
             <input type="checkbox" id="ai-enabled-toggle" onchange="toggleAiFeatures(this.checked)" class="sr-only peer">
@@ -668,16 +660,33 @@
           </label>
         </div>
 
+        <!-- Stimmauswahl für Sprachausgabe MIT 5s PROBEHÖREN -->
+        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800">
+          <div class="flex justify-between items-center text-[10.5px]">
+            <span class="text-slate-300 font-bold">Standard-Stimme für Sprachausgabe:</span>
+            <button type="button" id="btn-preview-settings" onclick="testSelectedVoiceInSettings()" class="text-purple-300 font-bold hover:underline flex items-center gap-1">
+              <span>Probehören (5s)</span>
+            </button>
+          </div>
+          <select id="setting-tts-voice-select" onchange="saveAppVoiceSelection(this.value)" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium focus:border-purple-500">
+            <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina – Empfohlen)</option>
+            <option value="Aoede">Fordernd-klare Herrin (Aoede)</option>
+            <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus – Zucht)</option>
+            <option value="Fenrir">Rauher Zuchtmeister (Fenrir)</option>
+          </select>
+          <span class="text-[9.5px] text-slate-500 block">Wird im Schlafzimmer-Cockpit, Edging-Remote und bei Sprachansagen genutzt.</span>
+        </div>
+
         <!-- API-Key Eingabefeld (Vorkonfiguriert) -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center text-[10px]">
-            <span class="text-slate-300 font-bold">Gemini API-Key (In deinem Browser gespeichert):</span>
+            <span class="text-slate-300 font-bold">Gemini API-Key (Im Browser hinterlegt):</span>
             <button type="button" onclick="testGeminiApiKeyConnection()" class="text-purple-300 underline font-bold hover:text-purple-200">
               Verbindung testen ↗
             </button>
           </div>
           <input type="password" id="account-gemini-key-input" onchange="saveGeminiApiKey(this.value)" placeholder="Gemini API Key..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white font-mono">
-          <span id="gemini-key-status" class="text-[10px] text-slate-500 block">Vorkonfiguriert & lokal gesichert.</span>
+          <span id="gemini-key-status" class="text-[10px] text-slate-500 block">Vorkonfiguriert & lokal verschlüsselt.</span>
         </div>
       </div>
 
@@ -686,16 +695,16 @@
         <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">3. Daten & Werkzeuge</span>
         <div class="flex flex-col gap-2">
           <button type="button" onclick="generateRandomTestData()" class="w-full py-2.5 theme-panel hover:border-slate-600 text-slate-300 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
-            <span>🎲</span> <span>Zufällige realistische Testdaten für dieses Profil einspielen</span>
+            Zufällige Testdaten für dieses Profil einspielen
           </button>
           <button type="button" onclick="sendBackupEmail()" class="w-full py-2.5 theme-panel hover:border-slate-600 text-slate-300 font-bold rounded-xl text-xs transition touch-btn flex items-center justify-center gap-1.5">
-            <span>✉️</span> <span>Sicherungs-Link per E-Mail senden</span>
+            Sicherungs-Link per E-Mail senden
           </button>
         </div>
 
         <div id="reset-trigger-area" class="pt-1">
           <button type="button" onclick="showResetConfirmation()" class="text-rose-400 text-[11px] font-bold hover:underline">
-            ⚠️ Profil für <span id="reset-current-username">Partner 1</span> vollständig leeren
+            Profil für <span id="reset-current-username">Partner 1</span> vollständig leeren
           </button>
         </div>
 
@@ -724,12 +733,9 @@
   <div id="modal-tabus" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/50 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-rose-900/60 pb-3 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">⛔</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Unsere persönliche Tabu-Charta</h3>
-            <p class="text-[10px] text-rose-300">Zweigeteilte Übersicht: Ausführungs-Limits vs. Schutzschranken</p>
-          </div>
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
+          <p class="text-[10px] text-rose-300">Ausführungs-Limits des Tops vs. Schutz-Schranken des Bottoms</p>
         </div>
         <button onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
@@ -749,27 +755,146 @@
   <div id="modal-lexikon" class="hidden fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-xl w-full border border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">📖</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Kink- & BDSM-Lexikon</h3>
-            <p class="text-[10px] text-slate-400">Begriffe, Abkürzungen und Praktiken sachlich erklärt</p>
-          </div>
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Kink- & BDSM-Lexikon</h3>
+          <p class="text-[10px] text-slate-400">Begriffe, Abkürzungen und Praktiken sachlich erklärt</p>
         </div>
         <button onclick="closeLexikonModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <div class="space-y-2 flex-shrink-0">
-        <input type="text" id="lexikon-search-input" oninput="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Shibari, Subspace, SSC)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+      <div class="space-y-3 flex-1 overflow-y-auto pr-1">
+        <div class="relative">
+          <input type="text" id="lexikon-search-input" oninput="filterLexikon(this.value)" placeholder="Begriff suchen (z. B. Pegging, Safeword, Aftercare)..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+        </div>
+        <div id="lexikon-entries-container" class="space-y-2"></div>
       </div>
-
-      <div class="space-y-2 overflow-y-auto flex-1 pr-1" id="lexikon-entries-container"></div>
 
       <div class="pt-2 border-t border-slate-800 flex justify-end flex-shrink-0">
         <button onclick="closeLexikonModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
           Schließen
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ERST-SETUP & ONBOARDING-WIZARD -->
+  <div id="modal-onboarding" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-brand-500/40 p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center text-sm font-black shadow-inner">
+            01
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Willkommen im Kompass</h3>
+            <p class="text-[10.5px] text-slate-400" id="onboard-step-caption">Schritt 1 / 3: Eure Profile</p>
+          </div>
+        </div>
+        <span class="text-xs font-mono font-bold text-brand-400" id="onboard-step-badge">1 / 3</span>
+      </div>
+
+      <!-- SCHRITT 1: NAMEN & ANATOMIE -->
+      <div id="onboard-step-1" class="space-y-4">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Gebt eure Namen oder Kosenamen an und wählt eure Anatomie, damit der Fragebogen sich automatisch euren Körpern anpasst:
+        </p>
+
+        <div class="space-y-3">
+          <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
+            <span class="text-[11px] font-bold text-indigo-300 block">Profil 1:</span>
+            <input type="text" id="onboard-name-a" placeholder="Name Partner 1..." value="Partner 1" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-semibold">
+            <div class="flex gap-2">
+              <button type="button" onclick="setOnboardAnat('A', 'penis')" id="onboard-anat-a-penis" class="flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn">Penis</button>
+              <button type="button" onclick="setOnboardAnat('A', 'vulva')" id="onboard-anat-a-vulva" class="flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn">Vulva</button>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
+            <span class="text-[11px] font-bold text-purple-300 block">Profil 2:</span>
+            <input type="text" id="onboard-name-b" placeholder="Name Partner 2..." value="Partner 2" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-semibold">
+            <div class="flex gap-2">
+              <button type="button" onclick="setOnboardAnat('B', 'penis')" id="onboard-anat-b-penis" class="flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn">Penis</button>
+              <button type="button" onclick="setOnboardAnat('B', 'vulva')" id="onboard-anat-b-vulva" class="flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn">Vulva</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="button" onclick="nextOnboardStep(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+            Weiter zu KI & Stimme →
+          </button>
+        </div>
+      </div>
+
+      <!-- SCHRITT 2: KI & SPRACHAUSGABE MIT 5s PROBEHÖREN -->
+      <div id="onboard-step-2" class="hidden space-y-4">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Der Kompass verfügt über eine Gemini-KI-Integration für psychologische Gutachten und neurale Sprachausgabe beim Edging:
+        </p>
+
+        <div class="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-900/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <strong class="text-xs text-white block">KI-Unterstützung aktivieren</strong>
+              <span class="text-[10px] text-slate-400">Generiert maßgeschneiderte Zuchtrituale & Tiefenanalysen</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+              <input type="checkbox" id="onboard-ai-toggle" checked class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+
+          <div class="space-y-1.5 pt-2 border-t border-purple-900/40">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-slate-300 font-bold">Standard-Stimme für den Countdown:</span>
+              <button type="button" id="btn-preview-onboard" onclick="testOnboardVoice()" class="text-purple-300 font-bold hover:underline">
+                Probehören (5s)
+              </button>
+            </div>
+            <select id="onboard-voice-select" class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
+              <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina – Empfohlen)</option>
+              <option value="Aoede">Fordernde Herrin (Aoede)</option>
+              <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus – Zucht)</option>
+              <option value="Fenrir">Rauher Zuchtmeister (Fenrir)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-between items-center">
+          <button type="button" onclick="nextOnboardStep(1)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Zurück
+          </button>
+          <button type="button" onclick="nextOnboardStep(3)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+            Weiter zur Sicherheits-Übersicht →
+          </button>
+        </div>
+      </div>
+
+      <!-- SCHRITT 3: SCHUTZ & ABSCHLUSS -->
+      <div id="onboard-step-3" class="hidden space-y-4">
+        <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 space-y-2">
+          <strong class="text-xs text-teal-200 block flex items-center gap-1.5">
+            100 % Lokale Diskretion & Konsens
+          </strong>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            Eure Daten bleiben verschlüsselt in eurem eigenen Browser. Tabus (Note 1) werden von der KI ausnahmslos gesperrt.
+          </p>
+        </div>
+
+        <p class="text-xs text-slate-300">
+          Ihr beginnt mit <strong>Kapitel 0 (Somatische Sicherheit & Vertrauen)</strong> und füllt dann nacheinander die erotischen Praktiken aus.
+        </p>
+
+        <div class="pt-2 flex justify-between items-center">
+          <button type="button" onclick="nextOnboardStep(2)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+            ← Zurück
+          </button>
+          <button type="button" onclick="completeOnboarding()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+            Jetzt starten
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -781,8 +906,231 @@
   <script src="js/app.js"></script>
 
   <script>
-    // Standard-Key direkt vorkonfiguriert
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+    const ttsIndexCache = {};
+    let sampleVoiceAudio = null;
+    let sampleVoiceTimeout = null;
+
+    function base64ToArrayBuffer(base64) {
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function pcmToWav(pcm16Data, sampleRate) {
+      const numChannels = 1;
+      const byteRate = sampleRate * numChannels * 2;
+      const blockAlign = numChannels * 2;
+      const dataSize = pcm16Data.length * 2;
+      const buffer = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(buffer);
+
+      function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + dataSize, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, byteRate, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, dataSize, true);
+
+      let offset = 44;
+      for (let i = 0; i < pcm16Data.length; i++, offset += 2) {
+        view.setInt16(offset, pcm16Data[i], true);
+      }
+
+      return new Blob([view], { type: 'audio/wav' });
+    }
+
+    function checkAppOnboarding() {
+      const onboarded = localStorage.getItem('kompass_onboarded_v2');
+      if (!onboarded) {
+        document.getElementById('modal-onboarding')?.classList.remove('hidden');
+      }
+    }
+
+    let onboardAnat = { A: 'penis', B: 'vulva' };
+
+    function setOnboardAnat(user, anat) {
+      onboardAnat[user] = anat;
+      const pBtn = document.getElementById(`onboard-anat-${user.toLowerCase()}-penis`);
+      const vBtn = document.getElementById(`onboard-anat-${user.toLowerCase()}-vulva`);
+      if (pBtn && vBtn) {
+        if (anat === 'penis') {
+          pBtn.className = "flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn";
+          vBtn.className = "flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn";
+        } else {
+          vBtn.className = "flex-1 py-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-200 text-xs font-bold touch-btn";
+          pBtn.className = "flex-1 py-2 rounded-xl border theme-panel text-slate-400 text-xs touch-btn";
+        }
+      }
+    }
+
+    function nextOnboardStep(step) {
+      [1, 2, 3].forEach(s => {
+        const el = document.getElementById(`onboard-step-${s}`);
+        if (el) {
+          if (s === step) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      });
+      const cap = document.getElementById('onboard-step-caption');
+      const badge = document.getElementById('onboard-step-badge');
+      if (badge) badge.innerText = `${step} / 3`;
+      if (cap) {
+        const titles = ["", "Schritt 1 / 3: Eure Profile", "Schritt 2 / 3: KI & Sprachausgabe", "Schritt 3 / 3: Sicherheit & Start"];
+        cap.innerText = titles[step] || "";
+      }
+    }
+
+    function testOnboardVoice() {
+      const v = document.getElementById('onboard-voice-select')?.value || 'Despina';
+      const btn = document.getElementById('btn-preview-onboard');
+      if (btn) btn.innerText = "⏳ Lädt...";
+      playSampleTtsVoice(v).then(() => {
+        if (btn) btn.innerText = "Probehören (5s)";
+      });
+    }
+
+    function testSelectedVoiceInSettings() {
+      const v = document.getElementById('setting-tts-voice-select')?.value || 'Despina';
+      const btn = document.getElementById('btn-preview-settings');
+      if (btn) btn.innerText = "⏳ Lädt...";
+      playSampleTtsVoice(v).then(() => {
+        if (btn) btn.innerText = "Probehören (5s)";
+      });
+    }
+
+    function saveAppVoiceSelection(voice) {
+      localStorage.setItem('kompass_tts_voice', voice);
+      showToast(`Stimme gespeichert: ${voice}`);
+      preloadIndexVoiceSample(voice);
+    }
+
+    async function playSampleTtsVoice(voice) {
+      if (sampleVoiceAudio) {
+        sampleVoiceAudio.pause();
+        sampleVoiceAudio = null;
+      }
+      if (sampleVoiceTimeout) {
+        clearTimeout(sampleVoiceTimeout);
+        sampleVoiceTimeout = null;
+      }
+
+      const cacheKey = `sample_${voice}`;
+      if (ttsIndexCache[cacheKey]) {
+        return playSampleAudioUrl(ttsIndexCache[cacheKey]);
+      }
+
+      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
+      const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
+      const instruction = isMale
+        ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme langsam: Fünf. Stillhalten und gehorchen.`
+        : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme langsam: Fünf. Spüre die Hitze.`;
+
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: instruction }] }],
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+            }
+          })
+        });
+
+        if (!resp.ok) throw new Error("TTS Request failed");
+        const data = await resp.json();
+        const part = data?.candidates?.[0]?.content?.parts?.[0];
+        const audioData = part?.inlineData?.data;
+        const mimeType = part?.inlineData?.mimeType;
+
+        if (audioData && mimeType && mimeType.startsWith("audio/")) {
+          const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+          const pcmData = base64ToArrayBuffer(audioData);
+          const pcm16 = new Int16Array(pcmData);
+          const wavBlob = pcmToWav(pcm16, sampleRate);
+          const url = URL.createObjectURL(wavBlob);
+          ttsIndexCache[cacheKey] = url;
+          return playSampleAudioUrl(url);
+        }
+      } catch (e) {
+        console.debug("TTS Sample failed", e);
+      }
+      return Promise.resolve();
+    }
+
+    function playSampleAudioUrl(url) {
+      return new Promise((resolve) => {
+        sampleVoiceAudio = new Audio(url);
+        sampleVoiceAudio.onended = () => {
+          sampleVoiceAudio = null;
+          resolve();
+        };
+        sampleVoiceAudio.onerror = () => {
+          sampleVoiceAudio = null;
+          resolve();
+        };
+
+        sampleVoiceAudio.play().catch(() => resolve());
+
+        // Strikter 5-Sekunden Hard-Stop
+        sampleVoiceTimeout = setTimeout(() => {
+          if (sampleVoiceAudio) {
+            sampleVoiceAudio.pause();
+            sampleVoiceAudio = null;
+          }
+          resolve();
+        }, 5000);
+      });
+    }
+
+    function preloadIndexVoiceSample(voice) {
+      const cacheKey = `sample_${voice}`;
+      if (!ttsIndexCache[cacheKey]) {
+        playSampleTtsVoice(voice).catch(() => {});
+      }
+    }
+
+    function completeOnboarding() {
+      const nameA = document.getElementById('onboard-name-a')?.value?.trim() || 'Partner 1';
+      const nameB = document.getElementById('onboard-name-b')?.value?.trim() || 'Partner 2';
+      const aiActive = document.getElementById('onboard-ai-toggle')?.checked ?? true;
+      const voice = document.getElementById('onboard-voice-select')?.value || 'Despina';
+
+      names.A = nameA;
+      names.B = nameB;
+      anatomy.A = onboardAnat.A;
+      anatomy.B = onboardAnat.B;
+
+      localStorage.setItem('kompass_names', JSON.stringify(names));
+      localStorage.setItem('kompass_anatomy', JSON.stringify(anatomy));
+      localStorage.setItem('kompass_ai_active', aiActive ? 'true' : 'false');
+      localStorage.setItem('kompass_tts_voice', voice);
+      localStorage.setItem('kompass_onboarded_v2', 'true');
+
+      document.getElementById('modal-onboarding')?.classList.add('hidden');
+      updateCurrentUserUI();
+      initAiKeyPreset();
+      showToast("Setup abgeschlossen");
+    }
 
     function initAiKeyPreset() {
       const stored = localStorage.getItem('kompass_gemini_api_key');
@@ -796,19 +1144,25 @@
       const isAiActive = localStorage.getItem('kompass_ai_active') === 'true';
       const aiToggle = document.getElementById('ai-enabled-toggle');
       if (aiToggle) aiToggle.checked = isAiActive;
+
+      const voiceSelect = document.getElementById('setting-tts-voice-select');
+      const savedVoice = localStorage.getItem('kompass_tts_voice') || 'Despina';
+      if (voiceSelect) voiceSelect.value = savedVoice;
+
       updateHubAiTileVisibility();
+      preloadIndexVoiceSample(savedVoice);
     }
 
     function saveGeminiApiKey(val) {
       const clean = (val || '').trim();
       localStorage.setItem('kompass_gemini_api_key', clean || DEFAULT_PRESET_GEMINI_KEY);
-      showToast("Gemini API-Key aktualisiert!");
+      showToast("Gemini API-Key aktualisiert");
     }
 
     function toggleAiFeatures(enabled) {
       localStorage.setItem('kompass_ai_active', enabled ? 'true' : 'false');
       updateHubAiTileVisibility();
-      showToast(enabled ? "✨ KI-Funktionen aktiviert!" : "KI-Funktionen deaktiviert.");
+      showToast(enabled ? "KI-Funktionen aktiviert" : "KI-Funktionen deaktiviert");
     }
 
     function updateHubAiTileVisibility() {
@@ -825,7 +1179,7 @@
       const statusEl = document.getElementById('gemini-key-status');
       if (statusEl) {
         statusEl.className = "text-[10px] text-amber-400 block animate-pulse";
-        statusEl.innerText = "⏳ Prüfe Verbindung zu Google Gemini (gemini-2.5-flash)...";
+        statusEl.innerText = "⏳ Prüfe Verbindung zu Gemini...";
       }
 
       try {
@@ -833,19 +1187,19 @@
         if (resp.ok) {
           if (statusEl) {
             statusEl.className = "text-[10px] text-emerald-400 block font-bold";
-            statusEl.innerText = "✓ Verbindung erfolgreich hergestellt! Modell einsatzbereit.";
+            statusEl.innerText = "✓ Verbindung erfolgreich hergestellt";
           }
-          showToast("✓ Verbindung zu Gemini erfolgreich!");
+          showToast("Verbindung zu Gemini erfolgreich");
         } else {
           if (statusEl) {
             statusEl.className = "text-[10px] text-rose-400 block font-bold";
-            statusEl.innerText = "⚠️ Verbindung fehlgeschlagen: Bitte API-Key prüfen.";
+            statusEl.innerText = "Verbindung fehlgeschlagen: Key prüfen";
           }
         }
       } catch (err) {
         if (statusEl) {
           statusEl.className = "text-[10px] text-rose-400 block font-bold";
-          statusEl.innerText = "⚠️ Netzwerkfehler beim Verbindungstest.";
+          statusEl.innerText = "Netzwerkfehler beim Verbindungstest";
         }
       }
     }
@@ -879,6 +1233,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       initAiKeyPreset();
       setTimeout(updateHubUI, 200);
+      setTimeout(checkAppOnboarding, 400);
     });
   </script>
 </body>
