@@ -10,7 +10,7 @@
  * - Tabu-Schranken mit präziser Namensnennung
  * - Radar-Chart (Chart.js) und Motivations-Säulen
  * - Konsensabgleich des Sicherheits-Kodex
- * - Tiefenpsychologisches KI-Paargutachten über Google Gemini
+ * - Schnelles, warmherziges KI-Paargutachten (JSON-Modus, <2.5s)
  */
 
 (function(window) {
@@ -210,6 +210,9 @@
     renderPairDetailList(cachedAnalysisMetrics);
     renderSafetyConsensus();
     renderAnalysisSessionDiary();
+
+    // Gespeichertes Paargutachten sofort laden falls vorhanden
+    loadCachedPairReport();
   }
 
   function renderPillarBars(pA, pB, max) {
@@ -476,35 +479,65 @@
     }).join('');
   }
 
-  async function resolveAvailableTextModels(apiKey) {
-    var fallbackList = ['gemini-3.8-flash', 'gemini-3.7-flash'];
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
-      if (resp.ok) {
-        var data = await resp.json();
-        var models = (data.models || []).filter(function(m) {
-          return m.supportedGenerationMethods &&
-            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
-            m.name.indexOf('tts') === -1 &&
-            m.name.indexOf('omni') === -1 &&
-            m.name.indexOf('image') === -1 &&
-            m.name.indexOf('video') === -1 &&
-            m.name.indexOf('embed') === -1;
-        }).map(function(m) {
-          return m.name.replace('models/', '');
-        });
+  function renderPairReportCards(report, container) {
+    if (!container || !report) return;
 
-        if (models.length > 0) {
-          models.sort(function(a, b) {
-            var aScore = (a.indexOf('3.8') !== -1 ? 20 : 0) + (a.indexOf('3.7') !== -1 ? 10 : 0) + (a.indexOf('flash') !== -1 ? 5 : 0);
-            var bScore = (b.indexOf('3.8') !== -1 ? 20 : 0) + (b.indexOf('3.7') !== -1 ? 10 : 0) + (b.indexOf('flash') !== -1 ? 5 : 0);
-            return bScore - aScore;
-          });
-          return models;
+    container.innerHTML = `
+      <div class="space-y-3 animate-fade-in text-xs leading-relaxed">
+        <!-- 1. SYNERGIE & GEMEINSAME MAGIE -->
+        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wide border-b border-indigo-900/60 pb-1.5">
+            <span class="text-base">💫</span>
+            <span>1. Eure gemeinsame Magie & Schnittmengen</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.synergy || '')}</p>
+        </div>
+
+        <!-- 2. ROLLEN & MACHTDYNAMIK -->
+        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-purple-300 font-extrabold text-xs uppercase tracking-wide border-b border-purple-900/60 pb-1.5">
+            <span class="text-base">⚖️</span>
+            <span>2. Eure Rollen- & Machtdynamik (Top & Bottom)</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.dynamics || '')}</p>
+        </div>
+
+        <!-- 3. KONKRETER IMPULS FÜR DIE NÄCHSTE SESSION -->
+        <div class="p-4 rounded-2xl bg-brand-950/30 border border-brand-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-brand-300 font-extrabold text-xs uppercase tracking-wide border-b border-brand-900/60 pb-1.5">
+            <span class="text-base">🕯️</span>
+            <span>3. Konkrete Idee für eure nächste Session</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.action_tip || '')}</p>
+        </div>
+
+        <!-- 4. WISSENSCHAFTLICHE NORMALISIERUNG -->
+        <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800/60 text-slate-300 space-y-1">
+          <div class="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
+            <span>🛡️</span>
+            <span>Wissenschaftliche Bestärkung & Normalität:</span>
+          </div>
+          <p class="text-[10.5px] leading-relaxed">${escapeHtml(report.science_insight || '')}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function loadCachedPairReport() {
+    var out = document.getElementById('ai-pair-report-output');
+    var btn = document.getElementById('btn-generate-ai-pair');
+    if (!out) return;
+
+    try {
+      var cached = localStorage.getItem('kompass_cached_pair_report');
+      if (cached) {
+        var parsed = JSON.parse(cached);
+        if (parsed && parsed.synergy) {
+          renderPairReportCards(parsed, out);
+          if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
         }
       }
     } catch (e) {}
-    return fallbackList;
   }
 
   async function generateAiPairReport() {
@@ -673,7 +706,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
     showToast: showToast
   };
 
-  // Global aliases for inline HTML event handlers
+  // Globale Aliase für HTML-Event-Handler
   window.unlockAnalysisGate = unlockAnalysisGate;
   window.switchPairDetailFilter = switchPairDetailFilter;
   window.generateAiPairReport = generateAiPairReport;
