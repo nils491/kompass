@@ -70,14 +70,24 @@
   }
 
   function openToyManagementModal() {
-    renderToyManagementGrid();
     var modal = document.getElementById('modal-toy-management');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
+    try {
+      renderToyManagementGrid();
+    } catch (e) {
+      console.error("Fehler beim Rendern des Toy-Grids:", e);
+    }
   }
 
   function closeToyManagementModal() {
     var modal = document.getElementById('modal-toy-management');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
     updateHubToyCount();
   }
 
