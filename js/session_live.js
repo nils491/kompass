@@ -1,12 +1,11 @@
 /**
  * js/session_live.js
- * Modul für das Live-Cockpit, Timer, Edging-Fernbedienung & Aftercare.
+ * Modul für das Live-Cockpit, Timer, Edging-Fernbedienung, Vagus-Atmung & Aftercare.
  */
 
 (function(window) {
   'use strict';
 
-  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var currentSessionMode = 'guided';
   var sessionRemainingSeconds = 3600;
   var sessionTotalSeconds = 3600;
@@ -29,6 +28,10 @@
   var isCountdownActive = false;
   var isEdgingCountdownPaused = false;
   var countdownRunId = 0;
+
+  // Zen & Vagus-Atmung
+  var zenBreathInterval = null;
+  var zenBreathPhase = 0; // 0: Einatmen (4s), 1: Halten (7s), 2: Ausatmen (8s)
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -72,30 +75,6 @@
     window.currentSessionLog = currentSessionLog;
   }
 
-  function toggleAmbientMusicWrapper() { if (window.SessionAudio && window.SessionAudio.toggle) window.SessionAudio.toggle(); }
-  function setSoundscapeStyleWrapper(style) { if (window.SessionAudio && window.SessionAudio.setStyle) window.SessionAudio.setStyle(style); }
-  function adjustAmbientEnergyWrapper(dir) { if (window.SessionAudio && window.SessionAudio.adjustEnergy) window.SessionAudio.adjustEnergy(dir); }
-  function selectMusicSourceWrapper(src) { if (window.SessionAudio && window.SessionAudio.selectSource) window.SessionAudio.selectSource(src); }
-  function saveCustomPlaylistLinkWrapper(val) {
-    var link = (val || '').trim();
-    try {
-      localStorage.setItem('kompass_custom_playlist_url', link);
-      var btn = document.getElementById('btn-launch-external-music');
-      if (btn && link) btn.href = link.startsWith('http') ? link : ('https://' + link);
-      showToast("Playlist-Link hinterlegt");
-    } catch (e) {}
-  }
-
-  function openIncidentDisciplineModalWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.open) window.SessionDiscipline.open(); }
-  function closeIncidentDisciplineModalWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.close) window.SessionDiscipline.close(); }
-  function selectIncidentCategoryWrapper(cat) { if (window.SessionDiscipline && window.SessionDiscipline.selectCategory) window.SessionDiscipline.selectCategory(cat); }
-  function handleReasonLiveInputWrapper(val) { if (window.SessionDiscipline && window.SessionDiscipline.handleReasonInput) window.SessionDiscipline.handleReasonInput(val); }
-  function setStageSeverityWrapper(stage, sev) { if (window.SessionDiscipline && window.SessionDiscipline.setSeverity) window.SessionDiscipline.setSeverity(stage, sev); }
-  function prevWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.prevStage) window.SessionDiscipline.prevStage(); }
-  function nextWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.nextStage) window.SessionDiscipline.nextStage(); }
-  function rerollCurrentWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.rerollStage) window.SessionDiscipline.rerollStage(); }
-  function applyConfiguredDisciplineWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.apply) window.SessionDiscipline.apply(); }
-
   function triggerSafewordWrapper(color) {
     var ind = document.getElementById('safeword-red-indicator');
     var time = getFormattedTimeNow();
@@ -107,15 +86,23 @@
     } else if (color === 'yellow') {
       currentSessionLog.push({ type: "safeword", time: time, label: "Safeword GELB: Tempo drosseln" });
       showToast("⚠️ GELB ausgelöst: Tempo drosseln!");
-      if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
-      if (window.isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Gelb registriert. Tempo drosseln und durchatmen.");
+      if (window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
+        window.SessionAudio.adjustEnergy('calm');
+      }
+      if (window.isTopVoiceAssistActive && window.SessionVoice) {
+        window.SessionVoice.play("Gelb registriert. Tempo drosseln und durchatmen.");
+      }
     } else {
       currentSessionLog.push({ type: "safeword", time: time, label: "Safeword ROT: Sofort-Abbruch" });
       if (ind) ind.classList.add('animate-ping');
       isSessionPaused = true;
-      if (window.SessionAudio && window.SessionAudio.stopAll) window.SessionAudio.stopAll();
+      if (window.SessionAudio && typeof window.SessionAudio.stopAll === 'function') {
+        window.SessionAudio.stopAll();
+      }
       showToast("🛑 ROT AUSGELÖST: Sofortiger Stillstand!");
-      if (window.isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Halt. Sofortiger Stopp aller Handlungen.");
+      if (window.isTopVoiceAssistActive && window.SessionVoice) {
+        window.SessionVoice.play("Halt. Sofortiger Stopp aller Handlungen.");
+      }
       setTimeout(function() { if (ind) ind.classList.remove('animate-ping'); }, 4000);
     }
   }
@@ -132,8 +119,12 @@
   }
 
   function startLiveSessionWrapper() {
-    if (window.SessionVoice && window.SessionVoice.unlock) window.SessionVoice.unlock();
-    if (window.SessionAudio && window.SessionAudio.ensureGraph) window.SessionAudio.ensureGraph();
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+    if (window.SessionAudio && typeof window.SessionAudio.ensureGraph === 'function') {
+      window.SessionAudio.ensureGraph();
+    }
     acquireScreenWakeLock();
 
     var pContainer = document.getElementById('portal-setup-container');
@@ -176,7 +167,7 @@
 
     showToast("Live-Cockpit: " + (currentSessionMode === 'free' ? 'Freier Flow' : 'Geführtes Drehbuch') + " gestartet ✓");
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice) {
+    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       var topName = (window.names && window.names[window.topPartner]) || 'Top';
       window.SessionVoice.play("Session begonnen. " + topName + " übernimmt ab jetzt die Führung.");
     }
@@ -260,7 +251,7 @@
     var playbook = window.currentSelectedPlaybook || [];
     var step = playbook[liveStepIndex];
     if (!step) return;
-    if (window.SessionVoice && window.SessionVoice.play) {
+    if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(step.title + ". " + step.desc);
     }
   }
@@ -285,11 +276,11 @@
     var labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Kante", "Kante"];
     if (badge) badge.innerText = "Stufe " + activeArousalLevel + " / 10 (" + (labels[activeArousalLevel] || '') + ")";
 
-    if (activeArousalLevel >= 8 && window.SessionAudio && window.SessionAudio.adjustEnergy) {
+    if (activeArousalLevel >= 8 && window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
       window.SessionAudio.adjustEnergy('energy');
     }
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play && Math.random() < 0.35) {
+    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function' && Math.random() < 0.35) {
       var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
       var phrase = "";
       if (activeArousalLevel <= 3) phrase = "Ganz ruhig atmen, " + subName + ". Wir bauen die Spannung langsam auf.";
@@ -311,7 +302,7 @@
     startLastEdgeTimer();
     startCooldownBreathingTimer();
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice) {
+    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
     }
   }
@@ -355,7 +346,7 @@
     var panel = document.getElementById('release-choice-subpanel');
     if (panel) panel.classList.add('hidden');
     showToast("Sofortige Freigabe erteilt!");
-    if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
     }
   }
@@ -381,7 +372,7 @@
       }
 
       if (disp) disp.innerText = currentEdgingCountdown;
-      if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         await window.SessionVoice.play(currentEdgingCountdown.toString());
       } else {
         await new Promise(function(r) { setTimeout(r, 1100); });
@@ -394,7 +385,7 @@
     if (currentEdgingCountdown <= 0 && runId === countdownRunId) {
       if (disp) disp.innerText = "KOMMEN!";
       currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
-      if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         await window.SessionVoice.play("Jetzt kommen! Lass alles los!");
       }
       setTimeout(function() {
@@ -423,14 +414,16 @@
     if (decision === 'ruined') {
       currentSessionLog.push({ type: "action", time: time, label: "Ruined Orgasm angeordnet" });
       showToast("Ruined Orgasm vollzogen!");
-      if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
       }
     } else if (decision === 'denial') {
       currentSessionLog.push({ type: "action", time: time, label: "Lustverweigerung (Denial)" });
       showToast("Orgasmus verweigert!");
-      if (window.SessionAudio && window.SessionAudio.adjustEnergy) window.SessionAudio.adjustEnergy('calm');
-      if (window.isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+      if (window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
+        window.SessionAudio.adjustEnergy('calm');
+      }
+      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
       }
     }
@@ -438,11 +431,73 @@
 
   function openZenAtemModal() { 
     var m = document.getElementById('modal-session-zen'); 
-    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; } 
+    if (m) { 
+      m.classList.remove('hidden'); 
+      m.style.display = 'flex'; 
+    } 
+    startZenBreathCycle();
   }
+
   function closeZenAtemModal() { 
     var m = document.getElementById('modal-session-zen'); 
-    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
+    if (m) { 
+      m.classList.add('hidden'); 
+      m.style.display = 'none'; 
+    } 
+    stopZenBreathCycle();
+  }
+
+  function startZenBreathCycle() {
+    stopZenBreathCycle();
+    zenBreathPhase = 0;
+    runZenBreathStep();
+  }
+
+  function stopZenBreathCycle() {
+    if (zenBreathInterval) {
+      clearTimeout(zenBreathInterval);
+      zenBreathInterval = null;
+    }
+    var circle = document.getElementById('breath-circle');
+    var txt = document.getElementById('breath-text');
+    if (circle) circle.style.transform = 'scale(1)';
+    if (txt) txt.innerText = "Einatmen (4s)";
+  }
+
+  function runZenBreathStep() {
+    var circle = document.getElementById('breath-circle');
+    var txt = document.getElementById('breath-text');
+
+    if (zenBreathPhase === 0) {
+      // 4s Einatmen
+      if (circle) {
+        circle.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
+        circle.style.transform = 'scale(1.35)';
+      }
+      if (txt) txt.innerText = "Einatmen (4s)";
+      zenBreathInterval = setTimeout(function() {
+        zenBreathPhase = 1;
+        runZenBreathStep();
+      }, 4000);
+    } else if (zenBreathPhase === 1) {
+      // 7s Halten
+      if (txt) txt.innerText = "Atem halten (7s)";
+      zenBreathInterval = setTimeout(function() {
+        zenBreathPhase = 2;
+        runZenBreathStep();
+      }, 7000);
+    } else {
+      // 8s Ausatmen
+      if (circle) {
+        circle.style.transition = 'transform 8s cubic-bezier(0.4, 0, 0.2, 1)';
+        circle.style.transform = 'scale(1)';
+      }
+      if (txt) txt.innerText = "Langsam ausatmen (8s)";
+      zenBreathInterval = setTimeout(function() {
+        zenBreathPhase = 0;
+        runZenBreathStep();
+      }, 8000);
+    }
   }
 
   function selectZenMode(mode) {
@@ -456,18 +511,24 @@
       if (bTrance) bTrance.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
       if (vBreath) vBreath.classList.remove('hidden');
       if (vTrance) vTrance.classList.add('hidden');
+      startZenBreathCycle();
     } else {
       if (bTrance) bTrance.className = "p-2.5 rounded-xl border bg-purple-950 border-purple-500 text-white font-bold text-center touch-btn";
       if (bBreath) bBreath.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
       if (vTrance) vTrance.classList.remove('hidden');
       if (vBreath) vBreath.classList.add('hidden');
+      stopZenBreathCycle();
     }
   }
 
   function playGuidedTranceInduction() {
-    if (window.SessionVoice && window.SessionVoice.unlock) window.SessionVoice.unlock();
-    if (window.SessionAudio && window.SessionAudio.ensureGraph) window.SessionAudio.ensureGraph();
-    if (window.SessionVoice && window.SessionVoice.play) {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+    if (window.SessionAudio && typeof window.SessionAudio.ensureGraph === 'function') {
+      window.SessionAudio.ensureGraph();
+    }
+    if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Schließe die Augen. Atme tief in den Bauchraum aus. Lass die Schultern sinken und spüre das feste Gehaltensein.");
     }
   }
@@ -475,12 +536,18 @@
   function endSessionToAftercare() {
     isSessionPaused = true;
     var m = document.getElementById('modal-session-aftercare');
-    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
+    if (m) { 
+      m.classList.remove('hidden'); 
+      m.style.display = 'flex'; 
+    }
   }
 
   function closeAftercareModal() { 
-    var m = document.getElementById('modal-session-aftercare');
-    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
+    var m = document.getElementById('modal-session-aftercare'); 
+    if (m) { 
+      m.classList.add('hidden'); 
+      m.style.display = 'none'; 
+    } 
   }
 
   function completeSessionAndExit() {
@@ -506,8 +573,12 @@
     sessionDiary.unshift(sessionEntry);
     try { localStorage.setItem('kompass_session_diary', JSON.stringify(sessionDiary)); } catch (e) {}
 
-    if (window.SessionAudio && window.SessionAudio.stopAll) window.SessionAudio.stopAll();
-    if (window.SessionVoice && window.SessionVoice.stop) window.SessionVoice.stop();
+    if (window.SessionAudio && typeof window.SessionAudio.stopAll === 'function') {
+      window.SessionAudio.stopAll();
+    }
+    if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
+      window.SessionVoice.stop();
+    }
     releaseScreenWakeLock();
     window.location.href = "analyse.html";
   }
@@ -515,12 +586,18 @@
   function openSessionDiaryModal() {
     renderSessionDiaryEntries();
     var m = document.getElementById('modal-session-diary');
-    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
+    if (m) { 
+      m.classList.remove('hidden'); 
+      m.style.display = 'flex'; 
+    }
   }
 
   function closeSessionDiaryModal() { 
-    var m = document.getElementById('modal-session-diary');
-    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
+    var m = document.getElementById('modal-session-diary'); 
+    if (m) { 
+      m.classList.add('hidden'); 
+      m.style.display = 'none'; 
+    } 
   }
 
   function renderSessionDiaryEntries() {
@@ -568,12 +645,18 @@
   function openSessionTabuModal() {
     renderSessionTabuList();
     var m = document.getElementById('modal-session-tabus');
-    if (m) { m.classList.remove('hidden'); m.style.display = 'flex'; }
+    if (m) { 
+      m.classList.remove('hidden'); 
+      m.style.display = 'flex'; 
+    }
   }
 
   function closeSessionTabuModal() { 
-    var m = document.getElementById('modal-session-tabus');
-    if (m) { m.classList.add('hidden'); m.style.display = 'none'; } 
+    var m = document.getElementById('modal-session-tabus'); 
+    if (m) { 
+      m.classList.add('hidden'); 
+      m.style.display = 'none'; 
+    } 
   }
 
   function renderSessionTabuList() {
@@ -710,20 +793,6 @@
   };
 
   // Direktanbindungen an window für alle inline onclick-Attribute
-  window.toggleAmbientMusicWrapper = toggleAmbientMusicWrapper;
-  window.setSoundscapeStyleWrapper = setSoundscapeStyleWrapper;
-  window.adjustAmbientEnergyWrapper = adjustAmbientEnergyWrapper;
-  window.selectMusicSourceWrapper = selectMusicSourceWrapper;
-  window.saveCustomPlaylistLinkWrapper = saveCustomPlaylistLinkWrapper;
-  window.openIncidentDisciplineModalWrapper = openIncidentDisciplineModalWrapper;
-  window.closeIncidentDisciplineModalWrapper = closeIncidentDisciplineModalWrapper;
-  window.selectIncidentCategoryWrapper = selectIncidentCategoryWrapper;
-  window.handleReasonLiveInputWrapper = handleReasonLiveInputWrapper;
-  window.setStageSeverityWrapper = setStageSeverityWrapper;
-  window.prevWizardStageWrapper = prevWizardStageWrapper;
-  window.nextWizardStageWrapper = nextWizardStageWrapper;
-  window.rerollCurrentWizardStageWrapper = rerollCurrentWizardStageWrapper;
-  window.applyConfiguredDisciplineWrapper = applyConfiguredDisciplineWrapper;
   window.triggerSafewordWrapper = triggerSafewordWrapper;
   window.selectSessionMode = selectSessionMode;
   window.startLiveSessionWrapper = startLiveSessionWrapper;
