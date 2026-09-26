@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Schlafzimmer-Cockpit | Intim-Kompass</title>
+  <title>Schlafzimmer-Regie | Intim-Kompass</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function() {
@@ -85,9 +85,11 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- Audio Elemente für TTS und Ambient -->
   <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
   <audio id="ambient-airplay-audio" x-webkit-airplay="allow" class="hidden"></audio>
 
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
@@ -97,7 +99,7 @@
           </div>
           <div class="truncate">
             <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Schlafzimmer-Cockpit</h1>
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Schlafzimmer-Regie</h1>
               <span id="session-active-badge" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-950 text-rose-300 border border-rose-800 uppercase flex-shrink-0">SESSION AKTIV</span>
             </div>
             <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="session-roles-subtitle">Lade Session...</span>
@@ -105,7 +107,7 @@
         </a>
 
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
+          <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
             <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Musik</span>
           </button>
           <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Audio-Ausgabe">
@@ -123,6 +125,7 @@
         </div>
       </div>
 
+      <!-- MAIN NAVIGATION -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
@@ -137,12 +140,13 @@
           <span>Paar-Analyse</span>
         </a>
         <span class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
-          <span>Cockpit</span>
+          <span>Regie</span>
         </span>
       </nav>
     </div>
   </header>
 
+  <!-- MAIN WRAPPER -->
   <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
     <div id="unrated-sessions-banner" class="hidden p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 flex items-center justify-between gap-3 text-xs shadow-md">
@@ -161,6 +165,7 @@
       </div>
     </div>
 
+    <!-- SETUP CONTAINER -->
     <div id="portal-setup-container" class="space-y-4">
 
       <div id="portal-step-1" class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl space-y-4">
@@ -180,7 +185,7 @@
               <div class="text-white font-extrabold text-xs">Top (Führung): <span id="portal-name-top-def" class="text-brand-300 font-bold">Partner 2</span></div>
               <div class="text-slate-300 font-semibold text-xs mt-0.5">Bottom (Hingabe): <span id="portal-name-sub-def" class="text-indigo-300 font-bold">Partner 1</span></div>
             </div>
-            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 2 lenkt Rituale, Tempo und Bestrafung; Partner 1 empfängt und lässt los.</p>
+            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 2 lenkt Rituale, Tempo und Disziplin; Partner 1 empfängt und lässt los.</p>
           </button>
 
           <button type="button" onclick="selectPortalRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
@@ -197,7 +202,7 @@
         </div>
 
         <div class="pt-2 border-t border-slate-800 flex justify-end">
-          <button type="button" onclick="goToPortalStep(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="goToPortalStepSafe(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Weiter zu Tagesform & Equipment →
           </button>
         </div>
@@ -210,7 +215,7 @@
             <h2 class="text-base sm:text-lg font-black text-white">Tagesform, Equipment & Musik</h2>
             <p class="text-xs text-slate-400">Passe das Setting genau auf den heutigen Abend an.</p>
           </div>
-          <button type="button" onclick="goToPortalStep(1)" class="text-xs text-slate-400 hover:text-white font-bold touch-btn">
+          <button type="button" onclick="goToPortalStepSafe(1)" class="text-xs text-slate-400 hover:text-white font-bold touch-btn">
             ← Rollen ändern
           </button>
         </div>
@@ -244,11 +249,12 @@
           <p class="text-[10.5px] text-slate-400 leading-snug" id="desc-session-depth">Feste Führung mit spürbaren Reizen und klarer Disziplinierung.</p>
         </div>
 
+        <!-- NACHTTISCH-STAGING -->
         <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
             <div>
               <strong class="text-white block text-xs">Ausrüstung für heute Abend (Nachttisch-Staging)</strong>
-              <p class="text-[10.5px] text-slate-400">Wählt aus eurem Schrank, was für die Session bereitliegt (KI nutzt nur aktivierte Toys)</p>
+              <p class="text-[10.5px] text-slate-400">Wählt aus eurem Schrank, was bereitliegt (KI nutzt nur aktivierte Toys)</p>
             </div>
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="selectEquipmentPreset('bare')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[10px] font-bold touch-btn">
@@ -300,6 +306,7 @@
           </div>
         </div>
 
+        <!-- MUSIK-SEKTION -->
         <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
           <div class="flex items-center justify-between">
             <div>
@@ -307,10 +314,10 @@
               <span class="text-[10.5px] text-slate-400">Eigene Spotify / Apple Music Playlist ODER generative Soundscapes</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="SessionAudio.selectSource('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
+              <button type="button" onclick="selectMusicSourceWrapper('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
                 Eigene Playlist
               </button>
-              <button type="button" onclick="SessionAudio.selectSource('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
+              <button type="button" onclick="selectMusicSourceWrapper('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
                 Generativ
               </button>
             </div>
@@ -322,10 +329,10 @@
               <span class="text-[9.5px] text-purple-300 font-mono">Audio-Ducking aktiv</span>
             </div>
             <p class="text-[10.5px] text-slate-400 leading-snug">
-              Startet eure Playlist in Spotify oder Apple Music. Die Gemini-Sprachführung legt sich bei Ansagen und Countdowns harmonisch über eure Musik.
+              Startet eure Musik in Spotify oder Apple Music. Die Gemini-Sprachführung dämpft bei Ansagen eure Musik automatisch sanft ab.
             </p>
             <div class="flex items-center gap-2">
-              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
+              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." onchange="saveCustomPlaylistLinkWrapper(this.value)" class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
               <a id="btn-launch-external-music" href="https://open.spotify.com" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-600 text-emerald-200 font-bold text-[10.5px] flex items-center gap-1 touch-btn">
                 App öffnen ↗
               </a>
@@ -334,19 +341,19 @@
 
           <div id="music-panel-synth" class="hidden space-y-2">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" onclick="SessionAudio.setStyle('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
                 <span>Cinematic Velvet</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Akkord-Filmmusik</span>
               </button>
-              <button type="button" onclick="SessionAudio.setStyle('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Klangtempel 432Hz</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen</span>
               </button>
-              <button type="button" onclick="SessionAudio.setStyle('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Ozean-Symphonie</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Dynamische Ebbe & Flut</span>
               </button>
-              <button type="button" onclick="SessionAudio.setStyle('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="setSoundscapeStyleWrapper('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Dark Downtempo</span>
                 <span class="block text-[9px] text-slate-400 font-normal">808 Erotik-Grooves</span>
               </button>
@@ -355,13 +362,13 @@
 
           <div class="flex items-center justify-between pt-1 border-t border-slate-800">
             <div class="flex items-center gap-1.5">
-              <button type="button" onclick="SessionAudio.toggle()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
+              <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
                 ▶ Audio starten
               </button>
-              <button type="button" onclick="SessionAudio.adjustEnergy('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
+              <button type="button" onclick="adjustAmbientEnergyWrapper('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
                 ➖ Ruhiger
               </button>
-              <button type="button" onclick="SessionAudio.adjustEnergy('energy')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs touch-btn">
+              <button type="button" onclick="adjustAmbientEnergyWrapper('energy')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs touch-btn">
                 ➕ Energetischer
               </button>
             </div>
@@ -371,6 +378,7 @@
           </div>
         </div>
 
+        <!-- SPRACHASSISTENZ -->
         <div class="p-4 rounded-2xl bg-purple-950/20 border border-purple-900/50 space-y-3 text-xs">
           <div class="flex items-center justify-between">
             <div>
@@ -387,7 +395,7 @@
             <div class="space-y-1">
               <div class="flex justify-between items-center text-[10.5px]">
                 <span class="text-slate-300 font-bold">Stimme für Sprachansagen:</span>
-                <button type="button" id="btn-preview-step2" onclick="testSelectedVoiceInStep2()" class="text-purple-300 font-bold hover:underline">
+                <button type="button" id="btn-preview-step2" onclick="testGeminiVoiceSample()" class="text-purple-300 font-bold hover:underline">
                   🔊 Probehören (5s)
                 </button>
               </div>
@@ -440,7 +448,7 @@
                 <strong class="text-sm font-extrabold text-white">Freier Flow & Bestrafungs-Werkzeuge</strong>
                 <span class="text-xs font-bold text-slate-400">Flexibel</span>
               </div>
-              <p class="text-[11px] text-slate-400">Direktes Schlafzimmer-Cockpit mit freiem Timer, Musik-Umschaltung, Edging und Notfall-Ampel.</p>
+              <p class="text-[11px] text-slate-400">Direktes Regiepult mit freiem Timer, Musik-Umschaltung, Edging und Notfall-Ampel.</p>
             </button>
           </div>
         </div>
@@ -461,10 +469,10 @@
         <div id="playbook-preview-container" class="space-y-2.5 text-xs max-h-80 overflow-y-auto pr-1"></div>
 
         <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-          <button type="button" onclick="goToPortalStep(2)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+          <button type="button" onclick="goToPortalStepSafe(2)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
             ← Zurück zu Tagesform
           </button>
-          <button type="button" onclick="startLiveSession()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="startLiveSessionWrapper()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
             Session jetzt starten
           </button>
         </div>
@@ -473,7 +481,8 @@
     </div>
 
     <div id="cockpit-live-container" class="hidden space-y-4">
-
+      
+      <!-- HAUPT-TIMER -->
       <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-xl flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl bg-brand-950 border border-brand-800/80 text-brand-400 flex items-center justify-center text-xl font-black font-mono shadow-inner">
@@ -507,19 +516,20 @@
         </div>
       </div>
 
+      <!-- SAFEWORD-AMPEL & BESTRAFUNG -->
       <div class="space-y-2">
         <div class="grid grid-cols-3 gap-2 text-xs">
-          <button type="button" onclick="triggerSafeword('green')" class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-800 text-emerald-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-emerald-900/40">
+          <button type="button" onclick="triggerSafewordWrapper('green')" class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-800 text-emerald-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-emerald-900/40">
             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
             <span>GRÜN (Gut)</span>
           </button>
 
-          <button type="button" onclick="triggerSafeword('yellow')" class="p-3 rounded-2xl bg-amber-950/40 border border-amber-800 text-amber-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-amber-900/40">
+          <button type="button" onclick="triggerSafewordWrapper('yellow')" class="p-3 rounded-2xl bg-amber-950/40 border border-amber-800 text-amber-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-amber-900/40">
             <span class="w-3 h-3 rounded-full bg-amber-500"></span>
             <span>GELB (Sanfter)</span>
           </button>
 
-          <button type="button" onclick="triggerSafeword('red')" class="p-3 rounded-2xl bg-rose-950/60 border border-rose-800 text-rose-200 font-black flex items-center justify-center gap-2 touch-btn hover:bg-rose-900">
+          <button type="button" onclick="triggerSafewordWrapper('red')" class="p-3 rounded-2xl bg-rose-950/60 border border-rose-800 text-rose-200 font-black flex items-center justify-center gap-2 touch-btn hover:bg-rose-900">
             <span id="safeword-red-indicator" class="w-3 h-3 rounded-full bg-rose-600"></span>
             <span>ROT (Sofort-Halt)</span>
           </button>
@@ -530,12 +540,13 @@
             <strong class="text-white block">Top-Assistenz & Bestrafungs-Konfigurator</strong>
             <span class="text-[10.5px] text-slate-400">Vergehen erfassen, Haltung & Bestrafung kontextuell berechnen</span>
           </div>
-          <button type="button" onclick="SessionDiscipline.open()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="openIncidentDisciplineModalWrapper()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Bestrafung anordnen ⚖
           </button>
         </div>
       </div>
 
+      <!-- SOUNDSCAPE STEUERUNG -->
       <div class="p-3 rounded-2xl theme-panel border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
           <span id="cockpit-ambient-indicator" class="w-2 h-2 rounded-full bg-slate-600"></span>
@@ -543,24 +554,25 @@
           <span class="text-[9.5px] text-slate-400 font-mono" id="ambient-intensity-display">(Stufe 2/4)</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <select id="select-cockpit-soundscape" onchange="SessionAudio.setStyle(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
+          <select id="select-cockpit-soundscape" onchange="setSoundscapeStyleWrapper(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
             <option value="velvet">Cinematic Velvet</option>
             <option value="bowls">Klangtempel 432Hz</option>
             <option value="ocean">Ozean-Symphonie</option>
             <option value="beats">Dark Downtempo</option>
           </select>
-          <button type="button" onclick="SessionAudio.toggle()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
+          <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
             ▶ Play
           </button>
-          <button type="button" onclick="SessionAudio.adjustEnergy('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
+          <button type="button" onclick="adjustAmbientEnergyWrapper('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
             ➖ Ruhiger
           </button>
-          <button type="button" onclick="SessionAudio.adjustEnergy('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
+          <button type="button" onclick="adjustAmbientEnergyWrapper('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
             ➕ Energetischer
           </button>
         </div>
       </div>
 
+      <!-- GEFÜHRTES DREHBUCH CONTAINER -->
       <div id="guided-step-container" class="theme-card rounded-3xl p-5 sm:p-6 border shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <div class="flex items-center gap-2">
@@ -598,6 +610,7 @@
         </div>
       </div>
 
+      <!-- EDGING COCKPIT PANEL -->
       <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 sm:p-6 border border-pink-900/50 shadow-2xl space-y-4 bg-gradient-to-b from-noir-950 to-pink-950/15">
         <div class="flex items-center justify-between border-b border-pink-900/40 pb-3">
           <div>
@@ -605,9 +618,6 @@
             <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Musik live</p>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" id="btn-test-edging-voice" onclick="testSelectedVoiceInStep2()" class="px-2.5 py-1 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 text-[10.5px] font-bold touch-btn">
-              Stimme testen (5s)
-            </button>
             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-800">
               Edges: <span id="edging-total-hits">0</span>
             </span>
@@ -641,7 +651,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button type="button" onclick="registerEdgeReached()" class="p-4 rounded-2xl bg-gradient-to-r from-pink-900 to-rose-700 hover:from-pink-800 hover:to-rose-600 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2.5 touch-btn active:scale-95">
+          <button type="button" onclick="registerEdgeReachedWrapper()" class="p-4 rounded-2xl bg-gradient-to-r from-pink-900 to-rose-700 hover:from-pink-800 hover:to-rose-600 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2.5 touch-btn active:scale-95">
             <span>KANTE ERREICHT! (Edge)</span>
           </button>
 
@@ -700,7 +710,8 @@
     </div>
 
   </main>
-
+  
+  <!-- MODAL: ZEN ATEM & VAGUS -->
   <div id="modal-session-zen" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border border-teal-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
       <div class="flex items-center justify-between border-b border-teal-900/60 pb-3">
@@ -747,6 +758,7 @@
     </div>
   </div>
 
+  <!-- MODAL: INCIDENT DISCIPLINE (WIZARD) -->
   <div id="modal-incident-discipline" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-brand-800/80 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
@@ -754,7 +766,7 @@
           <h3 class="text-sm font-extrabold text-white">Top-Assistenz & Bestrafungs-Konfigurator</h3>
           <p class="text-[10px] text-slate-400" id="wizard-stage-subtitle">Stufe 1 von 5: Vergehen, Anlass & Maßnahme</p>
         </div>
-        <button onclick="SessionDiscipline.close()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+        <button onclick="closeIncidentDisciplineModalWrapper()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
       <div id="wizard-conflict-warning" class="hidden p-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-200 text-[10.5px] flex items-center gap-2">
@@ -763,15 +775,16 @@
       </div>
 
       <div class="flex-1 overflow-y-auto pr-1 space-y-3" id="wizard-content-container">
+        <!-- STUFE 1 -->
         <div id="wizard-stage-1" class="space-y-3">
           <div class="space-y-1.5">
             <span class="text-slate-300 font-bold text-xs block">1. Kategorie des Vergehens:</span>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
-              <button type="button" onclick="SessionDiscipline.selectCategory('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
-              <button type="button" onclick="SessionDiscipline.selectCategory('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltungsfehler</button>
-              <button type="button" onclick="SessionDiscipline.selectCategory('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Unerlaubte Lust</button>
-              <button type="button" onclick="SessionDiscipline.selectCategory('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflichtversäumnis</button>
-              <button type="button" onclick="SessionDiscipline.selectCategory('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-purple-300 touch-btn">Selbstvollzug</button>
+              <button type="button" onclick="selectIncidentCategoryWrapper('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
+              <button type="button" onclick="selectIncidentCategoryWrapper('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltungsfehler</button>
+              <button type="button" onclick="selectIncidentCategoryWrapper('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Unerlaubte Lust</button>
+              <button type="button" onclick="selectIncidentCategoryWrapper('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflichtversäumnis</button>
+              <button type="button" onclick="selectIncidentCategoryWrapper('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-purple-300 touch-btn">Selbstvollzug</button>
             </div>
           </div>
 
@@ -780,7 +793,7 @@
               <span class="text-slate-300 font-bold text-xs">2. Konkreter Anlass / Schilderung:</span>
               <span class="text-[9.5px] text-slate-400">Live-Analyse aktiv</span>
             </div>
-            <input type="text" id="incident-top-custom-reason" oninput="SessionDiscipline.handleReasonInput(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+            <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInputWrapper(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
           </div>
 
           <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-1">
@@ -794,15 +807,16 @@
           <div class="flex items-center justify-between border-t border-slate-800 pt-2">
             <span class="font-bold text-slate-300 text-xs">Härtegrad der Bestrafung:</span>
             <div class="flex gap-1">
-              <button type="button" onclick="SessionDiscipline.setSeverity(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(1, 3)" id="sev-btn-1-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="setStageSeverityWrapper(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="setStageSeverityWrapper(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="setStageSeverityWrapper(1, 3)" id="sev-btn-1-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
 
           <div id="stage-1-cards-container" class="space-y-2"></div>
         </div>
 
+        <!-- STUFE 2 -->
         <div id="wizard-stage-2" class="hidden space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div>
@@ -810,14 +824,15 @@
               <span class="text-[10px] text-slate-400">Wie der Bottom während des Rituals verharren muss</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="SessionDiscipline.setSeverity(2, 1)" id="sev-btn-2-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(2, 2)" id="sev-btn-2-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(2, 3)" id="sev-btn-2-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="setStageSeverityWrapper(2, 1)" id="sev-btn-2-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="setStageSeverityWrapper(2, 2)" id="sev-btn-2-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="setStageSeverityWrapper(2, 3)" id="sev-btn-2-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-2-cards-container" class="space-y-2"></div>
         </div>
 
+        <!-- STUFE 3 -->
         <div id="wizard-stage-3" class="hidden space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div>
@@ -825,14 +840,15 @@
               <span class="text-[10px] text-slate-400">Verhindert unruhiges Ausweichen</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="SessionDiscipline.setSeverity(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="setStageSeverityWrapper(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="setStageSeverityWrapper(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="setStageSeverityWrapper(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-3-cards-container" class="space-y-2"></div>
         </div>
 
+        <!-- STUFE 4 -->
         <div id="wizard-stage-4" class="hidden space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div>
@@ -840,14 +856,15 @@
               <span class="text-[10px] text-slate-400">Mund und Augen während der Bestrafung (Max. 15 Minuten)</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="SessionDiscipline.setSeverity(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(4, 2)" id="sev-btn-4-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="SessionDiscipline.setSeverity(4, 3)" id="sev-btn-4-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="setStageSeverityWrapper(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="setStageSeverityWrapper(4, 2)" id="sev-btn-4-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="setStageSeverityWrapper(4, 3)" id="sev-btn-4-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-4-cards-container" class="space-y-2"></div>
         </div>
 
+        <!-- STUFE 5 -->
         <div id="wizard-stage-5" class="hidden space-y-3">
           <div class="p-3.5 rounded-2xl bg-brand-950/40 border border-brand-800/80 space-y-2">
             <strong class="text-white text-xs block">Vollzugs-Protokoll: Dieses Ritual wurde konfiguriert:</strong>
@@ -855,7 +872,7 @@
           </div>
           <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
             <span class="text-slate-300 text-[11px]">Bestrafung jetzt offiziell ausrufen & im Log dokumentieren:</span>
-            <button type="button" onclick="SessionDiscipline.apply()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            <button type="button" onclick="applyConfiguredDisciplineWrapper()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
               Strafe anwenden ⚖
             </button>
           </div>
@@ -863,14 +880,14 @@
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <button type="button" onclick="SessionDiscipline.prevStage()" id="btn-prev-wizard" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        <button type="button" onclick="prevWizardStageWrapper()" id="btn-prev-wizard" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
           ← Zurück
         </button>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="SessionDiscipline.rerollStage()" id="btn-reroll-wizard" class="px-3 py-2 bg-slate-900 border border-slate-700 text-brand-300 font-bold rounded-xl text-xs touch-btn">
+          <button type="button" onclick="rerollCurrentWizardStageWrapper()" id="btn-reroll-wizard" class="px-3 py-2 bg-slate-900 border border-slate-700 text-brand-300 font-bold rounded-xl text-xs touch-btn">
             Neu würfeln
           </button>
-          <button type="button" onclick="SessionDiscipline.nextStage()" id="btn-next-wizard" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="nextWizardStageWrapper()" id="btn-next-wizard" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Weiter →
           </button>
         </div>
@@ -878,6 +895,7 @@
     </div>
   </div>
 
+  <!-- MODAL: AFTERCARE -->
   <div id="modal-session-aftercare" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-lg w-full border border-teal-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
       <div class="flex items-center justify-between border-b border-teal-900/60 pb-3">
@@ -902,7 +920,7 @@
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
         <button type="button" onclick="closeAftercareModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Im Cockpit bleiben
+          Im Begleiter bleiben
         </button>
         <button type="button" onclick="completeSessionAndExit()" class="px-5 py-2 bg-teal-800 hover:bg-teal-700 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
           Session abschließen
@@ -911,6 +929,7 @@
     </div>
   </div>
 
+  <!-- MODAL: LOGBUCH -->
   <div id="modal-session-diary" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -931,6 +950,7 @@
     </div>
   </div>
 
+  <!-- MODAL: TABUS -->
   <div id="modal-session-tabus" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
@@ -951,14 +971,16 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
+  <!-- EXTERNE DATENQUELLEN & MODULE -->
+  <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-
   <script src="js/session_voice.js"></script>
   <script src="js/session_discipline.js"></script>
   <script src="js/session_audio.js"></script>
 
+  <!-- INLINE LOGIK -->
   <script>
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
     let portalSelectedRoleSetup = 'default';
@@ -979,7 +1001,7 @@
 
     let isTopVoiceAssistActive = false;
     let activeSessionVoice = 'Despina';
-    let activeDiscoveredModel = "gemini-2.5-flash";
+    let activeDiscoveredModel = "gemini-3.8-flash-tts"; 
 
     let currentStagingCategory = 'household';
     let activeEquipmentIds = [];
@@ -1000,6 +1022,112 @@
     let liveStepIndex = 0;
     let sessionDepth = 7;
 
+    // DATA INTEGRITY FALLBACK
+    function ensureSessionDataIntegrity() {
+      if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+      if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
+      if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
+      if (!answers.A) answers.A = {};
+      if (!answers.B) answers.B = {};
+      if (!sessionDiary || !Array.isArray(sessionDiary)) sessionDiary = [];
+      if (!activeEquipmentIds || !Array.isArray(activeEquipmentIds)) activeEquipmentIds = [];
+    }
+
+    // SICHERE WRAPPER FÜR EXTERNE MODULE
+    function toggleAmbientMusicWrapper() { if (window.SessionAudio && window.SessionAudio.toggle) window.SessionAudio.toggle(); }
+    function setSoundscapeStyleWrapper(style) { if (window.SessionAudio && window.SessionAudio.setStyle) window.SessionAudio.setStyle(style); }
+    function adjustAmbientEnergyWrapper(dir) { if (window.SessionAudio && window.SessionAudio.adjustEnergy) window.SessionAudio.adjustEnergy(dir); }
+    function selectMusicSourceWrapper(src) { if (window.SessionAudio && window.SessionAudio.selectSource) window.SessionAudio.selectSource(src); }
+    function saveCustomPlaylistLinkWrapper(val) {
+      const link = (val || '').trim();
+      try {
+        localStorage.setItem('kompass_custom_playlist_url', link);
+        const btn = document.getElementById('btn-launch-external-music');
+        if (btn && link) btn.href = link.startsWith('http') ? link : `https://${link}`;
+        showToast("Playlist-Link hinterlegt");
+      } catch (e) {}
+    }
+
+    function openIncidentDisciplineModalWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.open) window.SessionDiscipline.open(); }
+    function closeIncidentDisciplineModalWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.close) window.SessionDiscipline.close(); }
+    function selectIncidentCategoryWrapper(cat) { if (window.SessionDiscipline && window.SessionDiscipline.selectCategory) window.SessionDiscipline.selectCategory(cat); }
+    function handleReasonLiveInputWrapper(val) { if (window.SessionDiscipline && window.SessionDiscipline.handleReasonInput) window.SessionDiscipline.handleReasonInput(val); }
+    function setStageSeverityWrapper(stage, sev) { if (window.SessionDiscipline && window.SessionDiscipline.setSeverity) window.SessionDiscipline.setSeverity(stage, sev); }
+    function prevWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.prevStage) window.SessionDiscipline.prevStage(); }
+    function nextWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.nextStage) window.SessionDiscipline.nextStage(); }
+    function rerollCurrentWizardStageWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.rerollStage) window.SessionDiscipline.rerollStage(); }
+    function applyConfiguredDisciplineWrapper() { if (window.SessionDiscipline && window.SessionDiscipline.apply) window.SessionDiscipline.apply(); }
+    
+    function triggerSafewordWrapper(color) {
+      const ind = document.getElementById('safeword-red-indicator');
+      const time = getFormattedTimeNow();
+
+      if (color === 'green') {
+        currentSessionLog.push({ type: "safeword", time, label: "Safeword GRÜN: Bestätigung" });
+        showToast("GRÜN bestätigt: Alles in bester Ordnung");
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Grün. Sehr gut.");
+      } else if (color === 'yellow') {
+        currentSessionLog.push({ type: "safeword", time, label: "Safeword GELB: Tempo drosseln" });
+        showToast("⚠️ GELB ausgelöst: Tempo drosseln!");
+        if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Gelb registriert. Tempo drosseln und durchatmen.");
+      } else {
+        currentSessionLog.push({ type: "safeword", time, label: "Safeword ROT: Sofort-Abbruch" });
+        if (ind) ind.classList.add('animate-ping');
+        isSessionPaused = true;
+        if (window.SessionAudio && window.SessionAudio.stopAll) window.SessionAudio.stopAll();
+        showToast("🛑 ROT AUSGELÖST: Sofortiger Stillstand!");
+        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Halt. Sofortiger Stopp aller Handlungen.");
+        setTimeout(() => ind?.classList.remove('animate-ping'), 4000);
+      }
+    }
+
+    function registerEdgeReachedWrapper() {
+      edgeCount++;
+      lastEdgeTimestamp = Date.now();
+      const hitsEl = document.getElementById('edging-total-hits');
+      if (hitsEl) hitsEl.innerText = edgeCount;
+
+      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: `Edge #${edgeCount} erreicht (Stufe 10)` });
+      showToast(`Edge #${edgeCount} registriert!`);
+      startLastEdgeTimer();
+      startCooldownBreathingTimer();
+
+      if (isTopVoiceAssistActive && window.SessionVoice) {
+        window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
+      }
+    }
+
+    function startLiveSessionWrapper() {
+      if (window.SessionVoice && window.SessionVoice.unlock) window.SessionVoice.unlock();
+      if (window.SessionAudio && window.SessionAudio.ensureGraph) window.SessionAudio.ensureGraph();
+      acquireScreenWakeLock();
+
+      document.getElementById('portal-setup-container')?.classList.add('hidden');
+      document.getElementById('cockpit-live-container')?.classList.remove('hidden');
+      document.getElementById('session-active-badge')?.classList.remove('hidden');
+
+      if (currentSessionMode === 'free') {
+        document.getElementById('guided-step-container')?.classList.add('hidden');
+      } else {
+        document.getElementById('guided-step-container')?.classList.remove('hidden');
+        renderLiveStep();
+      }
+
+      sessionRemainingSeconds = sessionTotalSeconds = 3600;
+      isSessionPaused = false;
+      startSessionTimer();
+
+      currentSessionLog = [
+        { type: "system", time: getFormattedTimeNow(), label: "Session gestartet" }
+      ];
+
+      if (isTopVoiceAssistActive && window.SessionVoice) {
+        const topName = names[topPartner] || 'Top';
+        window.SessionVoice.play(`Session begonnen. ${topName} übernimmt ab jetzt die Führung.`);
+      }
+    }
+
     function initSessionPortal() {
       loadSessionStorageData();
       updatePortalRoleCards();
@@ -1016,27 +1144,41 @@
     function loadSessionStorageData() {
       try {
         const nm = localStorage.getItem('kompass_names');
-        const an = localStorage.getItem('kompass_anatomy');
-        const ans = localStorage.getItem('kompass_answers');
-        const dia = localStorage.getItem('kompass_session_diary');
-        const eq = localStorage.getItem('kompass_active_equipment_ids');
-        const v = localStorage.getItem('kompass_session_voice');
-        const va = localStorage.getItem('kompass_voice_assist_active');
-        const dm = localStorage.getItem('kompass_discovered_model');
+        if (nm && nm !== 'null') names = JSON.parse(nm);
 
-        if (nm) names = JSON.parse(nm);
-        if (an) anatomy = JSON.parse(an);
-        if (ans) answers = JSON.parse(ans);
-        if (dia) sessionDiary = JSON.parse(dia);
-        if (eq) activeEquipmentIds = JSON.parse(eq);
+        const an = localStorage.getItem('kompass_anatomy');
+        if (an && an !== 'null') anatomy = JSON.parse(an);
+
+        const ans = localStorage.getItem('kompass_answers');
+        if (ans && ans !== 'null') answers = JSON.parse(ans);
+
+        const dia = localStorage.getItem('kompass_session_diary');
+        if (dia && dia !== 'null') sessionDiary = JSON.parse(dia);
+
+        const eq = localStorage.getItem('kompass_active_equipment_ids');
+        if (eq && eq !== 'null') activeEquipmentIds = JSON.parse(eq);
+
+        const v = localStorage.getItem('kompass_session_voice');
         if (v) activeSessionVoice = v;
+
+        const va = localStorage.getItem('kompass_voice_assist_active');
         if (va) isTopVoiceAssistActive = (va === 'true');
+
+        const dm = localStorage.getItem('kompass_discovered_model');
         if (dm) activeDiscoveredModel = dm;
+
+        const pl = localStorage.getItem('kompass_custom_playlist_url');
+        const plInput = document.getElementById('custom-playlist-link-input');
+        if (plInput && pl) plInput.value = pl;
+        const plBtn = document.getElementById('btn-launch-external-music');
+        if (plBtn && pl) plBtn.href = pl.startsWith('http') ? pl : `https://${pl}`;
       } catch (e) {
         console.error("Data load error", e);
       }
 
-      if (!Array.isArray(activeEquipmentIds) || activeEquipmentIds.length === 0) {
+      ensureSessionDataIntegrity();
+
+      if (activeEquipmentIds.length === 0) {
         const catalog = window.equipmentCatalog || [];
         activeEquipmentIds = catalog.filter(i => i.defaultPresent).map(i => i.id);
       }
@@ -1099,15 +1241,24 @@
       }
     }
 
-    function goToPortalStep(step) {
-      [1, 2, 3].forEach(s => {
-        const el = document.getElementById(`portal-step-${s}`);
-        if (el) {
-          if (s === step) el.classList.remove('hidden');
-          else el.classList.add('hidden');
+    function goToPortalStepSafe(step) {
+      try {
+        [1, 2, 3].forEach(s => {
+          const el = document.getElementById(`portal-step-${s}`);
+          if (el) {
+            if (s === step) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+          }
+        });
+        
+        try {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (scrollEx) {
+          window.scrollTo(0, 0); // Fallback für Iframes, die behavior:smooth nicht unterstützen
         }
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        console.error("Step Nav Error:", e);
+      }
     }
 
     function switchStagingTab(cat) {
@@ -1211,9 +1362,7 @@
     }
 
     async function testGeminiConnectionInSession(silent = false) {
-      const key = (window.SessionVoice && window.SessionVoice.getApiKey) 
-        ? window.SessionVoice.getApiKey() 
-        : getGeminiApiKey();
+      const key = getGeminiApiKey();
       if (!silent) showToast("⏳ Ermittle unterstützte Gemini-Modelle...");
       const badge = document.getElementById('gemini-active-model-badge');
 
@@ -1259,7 +1408,7 @@
 
       if (vSelect) vSelect.value = activeSessionVoice;
       if (vToggle) vToggle.checked = isTopVoiceAssistActive;
-      if (keyInput) keyInput.value = (window.SessionVoice && window.SessionVoice.getApiKey) ? window.SessionVoice.getApiKey() : getGeminiApiKey();
+      if (keyInput) keyInput.value = getGeminiApiKey();
       if (badge && activeDiscoveredModel) badge.innerText = `Modell: ${activeDiscoveredModel}`;
 
       testGeminiConnectionInSession(true);
@@ -1286,17 +1435,6 @@
       showToast(checked ? "Akustische Führung aktiviert" : "Akustische Führung stummgeschaltet");
     }
 
-    function testSelectedVoiceInStep2() {
-      if (window.SessionVoice) window.SessionVoice.unlock();
-      const isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
-      const sampleText = isMale
-        ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
-        : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
-      if (window.SessionVoice) {
-        window.SessionVoice.play(sampleText, activeSessionVoice, true);
-      }
-    }
-
     function applyPunishmentVoicePreset() {
       activeSessionVoice = 'Enceladus';
       const sel = document.getElementById('session-voice-select');
@@ -1308,7 +1446,18 @@
       localStorage.setItem('kompass_session_voice', 'Enceladus');
       localStorage.setItem('kompass_voice_assist_active', 'true');
       showToast("Straf-Preset aktiv: Tiefe Männerstimme (Enceladus)");
-      testSelectedVoiceInStep2();
+      testGeminiVoiceSample();
+    }
+
+    function testGeminiVoiceSample() {
+      if (window.SessionVoice && window.SessionVoice.unlock) window.SessionVoice.unlock();
+      const isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
+      const sampleText = isMale
+        ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
+        : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
+      if (window.SessionVoice && window.SessionVoice.play) {
+        window.SessionVoice.play(sampleText, activeSessionVoice, true);
+      }
     }
 
     function triggerAirPlayPicker() {
@@ -1316,7 +1465,7 @@
       if (airplayAudio && typeof airplayAudio.webkitShowPlaybackTargetPicker === 'function') {
         airplayAudio.webkitShowPlaybackTargetPicker();
       } else {
-        showToast("AirPlay über Kontrollzentrum des iPhones steuern");
+        showToast("AirPlay über Kontrollzentrum des Geräts steuern");
       }
     }
 
@@ -1353,9 +1502,9 @@
     function selectSessionMode(mode) {
       currentSessionMode = mode;
       if (mode === 'guided') {
-        goToPortalStep(3);
+        goToPortalStepSafe(3);
       } else {
-        startLiveSession();
+        startLiveSessionWrapper();
       }
     }
 
@@ -1454,36 +1603,6 @@
       showToast("Drehbuch frisch zusammengestellt");
     }
 
-    function startLiveSession() {
-      if (window.SessionVoice) window.SessionVoice.unlock();
-      if (window.SessionAudio) window.SessionAudio.ensureGraph();
-      acquireScreenWakeLock();
-
-      document.getElementById('portal-setup-container')?.classList.add('hidden');
-      document.getElementById('cockpit-live-container')?.classList.remove('hidden');
-      document.getElementById('session-active-badge')?.classList.remove('hidden');
-
-      if (currentSessionMode === 'free') {
-        document.getElementById('guided-step-container')?.classList.add('hidden');
-      } else {
-        document.getElementById('guided-step-container')?.classList.remove('hidden');
-        renderLiveStep();
-      }
-
-      sessionRemainingSeconds = sessionTotalSeconds = 3600;
-      isSessionPaused = false;
-      startSessionTimer();
-
-      currentSessionLog = [
-        { type: "system", time: getFormattedTimeNow(), label: "Session gestartet" }
-      ];
-
-      if (isTopVoiceAssistActive && window.SessionVoice) {
-        const topName = names[topPartner] || 'Top';
-        window.SessionVoice.play(`Session begonnen. ${topName} übernimmt ab jetzt die Führung.`);
-      }
-    }
-
     function startSessionTimer() {
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
       sessionTimerInterval = setInterval(() => {
@@ -1559,32 +1678,8 @@
     function speakCurrentLiveStep() {
       const step = currentSelectedPlaybook[liveStepIndex];
       if (!step) return;
-      if (window.SessionVoice) {
+      if (window.SessionVoice && window.SessionVoice.play) {
         window.SessionVoice.play(`${step.title}. ${step.desc}`);
-      }
-    }
-
-    function triggerSafeword(color) {
-      const ind = document.getElementById('safeword-red-indicator');
-      const time = getFormattedTimeNow();
-
-      if (color === 'green') {
-        currentSessionLog.push({ type: "safeword", time, label: "Safeword GRÜN: Bestätigung" });
-        showToast("GRÜN bestätigt: Alles in bester Ordnung");
-        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Grün. Sehr gut.");
-      } else if (color === 'yellow') {
-        currentSessionLog.push({ type: "safeword", time, label: "Safeword GELB: Tempo drosseln" });
-        showToast("⚠️ GELB ausgelöst: Tempo drosseln!");
-        if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
-        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Gelb registriert. Tempo drosseln und durchatmen.");
-      } else {
-        currentSessionLog.push({ type: "safeword", time, label: "Safeword ROT: Sofort-Abbruch" });
-        if (ind) ind.classList.add('animate-ping');
-        isSessionPaused = true;
-        if (window.SessionAudio) window.SessionAudio.stopAll();
-        showToast("🛑 ROT AUSGELÖST: Sofortiger Stillstand!");
-        if (isTopVoiceAssistActive && window.SessionVoice) window.SessionVoice.play("Halt. Sofortiger Stopp aller Handlungen.");
-        setTimeout(() => ind?.classList.remove('animate-ping'), 4000);
       }
     }
 
@@ -1608,51 +1703,18 @@
       const labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Kante", "Kante"];
       if (badge) badge.innerText = `Stufe ${activeArousalLevel} / 10 (${labels[activeArousalLevel] || ''})`;
 
-      if (activeArousalLevel >= 8 && window.SessionAudio) {
+      if (activeArousalLevel >= 8 && window.SessionAudio && window.SessionAudio.adjustEnergy) {
         window.SessionAudio.adjustEnergy('energy');
       }
 
-      if (isTopVoiceAssistActive && window.SessionVoice && Math.random() < 0.35) {
-        const phrase = generateDynamicArousalPhrase(activeArousalLevel);
+      if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play && Math.random() < 0.35) {
+        const subName = names[subPartner] || 'Bottom';
+        let phrase = "";
+        if (activeArousalLevel <= 3) phrase = `Ganz ruhig atmen, ${subName}. Wir bauen die Spannung langsam auf.`;
+        else if (activeArousalLevel <= 6) phrase = (edgingStimulationBy === 'bottom_self') ? `Gleichmäßig weiterberühren, ${subName}. Halt das Plateau.` : `Spüre meine Berührung. Lass dich ganz darauf ein.`;
+        else if (activeArousalLevel <= 9) phrase = (edgingStimulationBy === 'bottom_self') ? `Langsamer werden! Hände kurz anhalten, wenn es zu nah wird.` : `Gefahrenzone, ${subName}. Kein Zucken. Du kommst erst auf mein Zeichen.`;
+        else phrase = `Stillhalten! Kante erreicht!`;
         window.SessionVoice.play(phrase);
-      }
-    }
-
-    function generateDynamicArousalPhrase(level) {
-      const subName = names[subPartner] || 'Bottom';
-      if (level <= 3) {
-        return `Ganz ruhig atmen, ${subName}. Wir bauen die Spannung langsam auf.`;
-      } else if (level <= 6) {
-        return (edgingStimulationBy === 'bottom_self') 
-          ? `Gleichmäßig weiterberühren, ${subName}. Halt das Plateau.`
-          : `Spüre meine Berührung. Lass dich ganz darauf ein.`;
-      } else if (level <= 9) {
-        return (edgingStimulationBy === 'bottom_self')
-          ? `Langsamer werden! Hände kurz anhalten, wenn es zu nah wird.`
-          : `Gefahrenzone, ${subName}. Kein Zucken. Du kommst erst auf mein Zeichen.`;
-      } else {
-        return `Stillhalten! Kante erreicht!`;
-      }
-    }
-
-    function registerEdgeReached() {
-      edgeCount++;
-      lastEdgeTimestamp = Date.now();
-      const hitsEl = document.getElementById('edging-total-hits');
-      if (hitsEl) hitsEl.innerText = edgeCount;
-
-      currentSessionLog.push({ 
-        type: "action", 
-        time: getFormattedTimeNow(), 
-        label: `Edge #${edgeCount} erreicht (Stufe 10)` 
-      });
-
-      showToast(`Edge #${edgeCount} registriert!`);
-      startLastEdgeTimer();
-      startCooldownBreathingTimer();
-
-      if (isTopVoiceAssistActive && window.SessionVoice) {
-        window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
       }
     }
 
@@ -1673,4 +1735,331 @@
       cooldownSecondsRemaining = 45;
       const btn = document.getElementById('btn-cooldown-timer');
 
-      co
+      cooldownTimerInterval = setInterval(() => {
+        if (cooldownSecondsRemaining > 0) {
+          cooldownSecondsRemaining--;
+          if (btn) btn.innerText = `${cooldownSecondsRemaining}s Abkühlen`;
+        } else {
+          clearInterval(cooldownTimerInterval);
+          if (btn) btn.innerText = "Abgekühlt ✓";
+          setTimeout(() => { if (btn) btn.innerText = "45s Abkühlen"; }, 2500);
+        }
+      }, 1000);
+    }
+
+    function openReleaseChoiceModal() {
+      const panel = document.getElementById('release-choice-subpanel');
+      panel?.classList.toggle('hidden');
+    }
+
+    function executeReleaseImmediate() {
+      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (Sofort)" });
+      document.getElementById('release-choice-subpanel')?.classList.add('hidden');
+      showToast("Sofortige Freigabe erteilt!");
+      if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+        window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
+      }
+    }
+
+    function executeReleaseWithCountdown() {
+      document.getElementById('release-choice-subpanel')?.classList.add('hidden');
+      document.getElementById('countdown-wrapper')?.classList.remove('hidden');
+      currentEdgingCountdown = 10;
+      isCountdownActive = true;
+      isEdgingCountdownPaused = false;
+      countdownRunId++;
+      runBreathPacedCountdownLoop(countdownRunId);
+    }
+
+    async function runBreathPacedCountdownLoop(runId) {
+      const disp = document.getElementById('countdown-display');
+      while (isCountdownActive && currentEdgingCountdown > 0 && runId === countdownRunId) {
+        if (isEdgingCountdownPaused) {
+          await new Promise(r => setTimeout(r, 400));
+          continue;
+        }
+
+        if (disp) disp.innerText = currentEdgingCountdown;
+        if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+          await window.SessionVoice.play(currentEdgingCountdown.toString());
+        } else {
+          await new Promise(r => setTimeout(r, 1100));
+        }
+
+        await new Promise(r => setTimeout(r, 400));
+        currentEdgingCountdown--;
+      }
+
+      if (currentEdgingCountdown <= 0 && runId === countdownRunId) {
+        if (disp) disp.innerText = "KOMMEN!";
+        currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
+        if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+          await window.SessionVoice.play("Jetzt kommen! Lass alles los!");
+        }
+        setTimeout(() => {
+          document.getElementById('countdown-wrapper')?.classList.add('hidden');
+        }, 4000);
+      }
+    }
+
+    function pauseSpeechCountdown() {
+      isEdgingCountdownPaused = !isEdgingCountdownPaused;
+      const btn = document.getElementById('btn-pause-countdown');
+      if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
+    }
+
+    function resetSpeechCountdown() {
+      isCountdownActive = false;
+      countdownRunId++;
+      document.getElementById('countdown-wrapper')?.classList.add('hidden');
+      currentEdgingCountdown = 10;
+    }
+
+    function finalizeEdgingDecision(decision) {
+      const time = getFormattedTimeNow();
+      if (decision === 'ruined') {
+        currentSessionLog.push({ type: "action", time, label: "Ruined Orgasm angeordnet" });
+        showToast("Ruined Orgasm vollzogen!");
+        if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+          window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
+        }
+      } else if (decision === 'denial') {
+        currentSessionLog.push({ type: "action", time, label: "Lustverweigerung (Denial)" });
+        showToast("Orgasmus verweigert!");
+        if (window.SessionAudio && window.SessionAudio.adjustEnergy) window.SessionAudio.adjustEnergy('calm');
+        if (isTopVoiceAssistActive && window.SessionVoice && window.SessionVoice.play) {
+          window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
+        }
+      }
+    }
+
+    function openZenAtemModal() { document.getElementById('modal-session-zen')?.classList.remove('hidden'); }
+    function closeZenAtemModal() { document.getElementById('modal-session-zen')?.classList.add('hidden'); }
+
+    function selectZenMode(mode) {
+      const bBreath = document.getElementById('btn-zen-mode-breath');
+      const bTrance = document.getElementById('btn-zen-mode-trance');
+      const vBreath = document.getElementById('zen-view-breath');
+      const vTrance = document.getElementById('zen-view-trance');
+
+      if (mode === 'breath') {
+        if(bBreath) bBreath.className = "p-2.5 rounded-xl border bg-teal-950 border-teal-500 text-white font-bold text-center touch-btn";
+        if(bTrance) bTrance.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
+        vBreath?.classList.remove('hidden');
+        vTrance?.classList.add('hidden');
+      } else {
+        if(bTrance) bTrance.className = "p-2.5 rounded-xl border bg-purple-950 border-purple-500 text-white font-bold text-center touch-btn";
+        if(bBreath) bBreath.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
+        vTrance?.classList.remove('hidden');
+        vBreath?.classList.add('hidden');
+      }
+    }
+
+    function playGuidedTranceInduction() {
+      if (window.SessionVoice && window.SessionVoice.unlock) window.SessionVoice.unlock();
+      if (window.SessionAudio && window.SessionAudio.ensureGraph) window.SessionAudio.ensureGraph();
+      if (window.SessionVoice && window.SessionVoice.play) {
+        window.SessionVoice.play("Schließe die Augen. Atme tief in den Bauchraum aus. Lass die Schultern sinken und spüre das feste Gehaltensein.");
+      }
+    }
+
+    function endSessionToAftercare() {
+      isSessionPaused = true;
+      document.getElementById('modal-session-aftercare')?.classList.remove('hidden');
+    }
+
+    function closeAftercareModal() { document.getElementById('modal-session-aftercare')?.classList.add('hidden'); }
+
+    function completeSessionAndExit() {
+      const topFeed = document.getElementById('aftercare-top-feedback')?.value || '';
+      const subFeed = document.getElementById('aftercare-sub-feedback')?.value || '';
+
+      const sessionEntry = {
+        id: `sess_${Date.now()}`,
+        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        mode: currentSessionMode === 'guided' ? 'Geführt' : 'Freier Flow',
+        intensity: sessionDepth,
+        top: names[topPartner] || 'Top',
+        bottom: names[subPartner] || 'Bottom',
+        durationMinutes: Math.max(1, Math.round((sessionTotalSeconds - sessionRemainingSeconds) / 60)),
+        edgeCount,
+        topFeedback: topFeed,
+        bottomFeedback: subFeed,
+        events: currentSessionLog
+      };
+
+      sessionDiary.unshift(sessionEntry);
+      try { localStorage.setItem('kompass_session_diary', JSON.stringify(sessionDiary)); } catch (e) {}
+
+      if (window.SessionAudio && window.SessionAudio.stopAll) window.SessionAudio.stopAll();
+      if (window.SessionVoice && window.SessionVoice.stop) window.SessionVoice.stop();
+      releaseScreenWakeLock();
+      window.location.href = "analyse.html";
+    }
+
+    function openSessionDiaryModal() {
+      renderSessionDiaryEntries();
+      document.getElementById('modal-session-diary')?.classList.remove('hidden');
+    }
+
+    function closeSessionDiaryModal() { document.getElementById('modal-session-diary')?.classList.add('hidden'); }
+
+    function renderSessionDiaryEntries() {
+      const c = document.getElementById('session-diary-entries-container');
+      if (!c) return;
+
+      if (sessionDiary.length === 0) {
+        c.innerHTML = '<p class="text-slate-500 italic text-center py-4">Noch keine Sessions im Logbuch verzeichnet.</p>';
+        return;
+      }
+
+      c.innerHTML = sessionDiary.map(entry => `
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="font-bold text-white">${escapeHtml(entry.date)} (${entry.mode})</span>
+            <span class="text-pink-400 font-mono font-bold">Stufe ${entry.intensity}/10</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[10.5px] text-slate-300">
+            <div>👑 Top: ${escapeHtml(entry.top)}</div>
+            <div>🧎 Bottom: ${escapeHtml(entry.bottom)}</div>
+            <div>⏱️ Dauer: ${entry.durationMinutes} Min</div>
+            <div>🎢 Edges: ${entry.edgeCount || 0}</div>
+          </div>
+          ${entry.topFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong>Top:</strong> ${escapeHtml(entry.topFeedback)}</div>` : ''}
+          ${entry.bottomFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong>Bottom:</strong> ${escapeHtml(entry.bottomFeedback)}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function openSessionTabuModal() {
+      renderSessionTabuList();
+      document.getElementById('modal-session-tabus')?.classList.remove('hidden');
+    }
+
+    function closeSessionTabuModal() { document.getElementById('modal-session-tabus')?.classList.add('hidden'); }
+
+    function renderSessionTabuList() {
+      const c = document.getElementById('session-tabu-list-container');
+      if (!c) return;
+
+      const allChapters = window.surveyChapters || [];
+      const uAnswersTop = answers[topPartner] || {};
+      const uAnswersSub = answers[subPartner] || {};
+
+      let topTabus = [];
+      let subTabus = [];
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type !== 'choice') {
+            if (uAnswersTop[`it_${it.id}_r1`] === 1) topTabus.push({ item: it, role: it.r1 });
+            if (uAnswersSub[`it_${it.id}_r2`] === 1) subTabus.push({ item: it, role: it.r2 });
+          }
+        });
+      });
+
+      c.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900 space-y-1.5">
+            <strong class="text-indigo-200 block text-xs">Ausführungs-Grenzen (${names[topPartner] || 'Top'}):</strong>
+            ${topTabus.length > 0 ? topTabus.map(t => `
+              <div class="p-2 rounded-lg bg-slate-900 text-[10.5px] border border-indigo-950">
+                <span class="text-white block font-bold">${t.item.title}</span>
+                <span class="text-indigo-300 text-[9.5px]">⛔ Ausführung abgelehnt</span>
+              </div>
+            `).join('') : '<p class="text-slate-500 italic text-[10.5px]">Keine Ausführungs-Limits hinterlegt.</p>'}
+          </div>
+
+          <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900 space-y-1.5">
+            <strong class="text-rose-200 block text-xs">Schutz-Schranken (${names[subPartner] || 'Bottom'}):</strong>
+            ${subTabus.length > 0 ? subTabus.map(t => `
+              <div class="p-2 rounded-lg bg-slate-900 text-[10.5px] border border-rose-950">
+                <span class="text-white block font-bold">${t.item.title}</span>
+                <span class="text-rose-300 text-[9.5px]">🛑 Sofort-ROT bei Empfang</span>
+              </div>
+            `).join('') : '<p class="text-slate-500 italic text-[10.5px]">Keine Schutz-Schranken hinterlegt.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function checkUnratedSessions() {
+      const banner = document.getElementById('unrated-sessions-banner');
+      if (!banner) return;
+      const unrated = sessionDiary.some(s => !s.topFeedback || !s.bottomFeedback);
+      if (unrated) banner.classList.remove('hidden');
+      else banner.classList.add('hidden');
+    }
+
+    function dismissUnratedBanner() { document.getElementById('unrated-sessions-banner')?.classList.add('hidden'); }
+
+    function updateHeaderTabuCounter() {
+      const el = document.getElementById('session-tabu-counter');
+      if (!el) return;
+      const allChapters = window.surveyChapters || [];
+      const uAnswersTop = answers[topPartner] || {};
+      const uAnswersSub = answers[subPartner] || {};
+      let count = 0;
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type !== 'choice') {
+            if (uAnswersTop[`it_${it.id}_r1`] === 1) count++;
+            if (uAnswersSub[`it_${it.id}_r2`] === 1) count++;
+          }
+        });
+      });
+      el.innerText = count;
+    }
+
+    async function acquireScreenWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          screenWakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (e) { console.debug("WakeLock nicht verfügbar", e); }
+    }
+
+    function releaseScreenWakeLock() {
+      if (screenWakeLock) {
+        screenWakeLock.release().catch(() => {});
+        screenWakeLock = null;
+      }
+    }
+
+    function getFormattedTimeNow() { return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); }
+
+    function showToast(msg) {
+      const c = document.getElementById('toast-container');
+      if (!c) return;
+      const el = document.createElement('div');
+      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+      el.innerText = msg;
+      c.appendChild(el);
+
+      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+      setTimeout(() => {
+        el.classList.add('opacity-0');
+        setTimeout(() => { el.remove(); }, 300);
+      }, 2500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function bootstrapSessionPortal() {
+      initSessionPortal();
+      setTimeout(initVoiceSettings, 150);
+      setTimeout(initEquipmentStaging, 250);
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', bootstrapSessionPortal);
+    } else {
+      bootstrapSessionPortal();
+    }
+  </script>
+</body>
+</html>
