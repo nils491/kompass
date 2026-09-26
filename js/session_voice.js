@@ -3,11 +3,12 @@
  * Spezialisiertes Sprach- und Audio-Modul für das Schlafzimmer-Cockpit.
  * 
  * Features:
+ * - 100% reine Gemini-TTS-Sprachausgabe (Despina, Aoede, Enceladus, Fenrir)
+ * - Roboterstimme (Web Speech API) wird standardmäßig unterdrückt
+ * - Multi-Format-Audio-Decoder (WAV, MP3, OGG und Raw-PCM)
  * - 0-ms-Pre-Caching für Countdown (1-10) & Sofort-Kommandos im Speicher
- * - Resiliente Gemini-3.8-TTS-Kaskade mit schnellem Fallback
- * - Zuverlässige native Sprachausgabe (Web Speech API) bei Server-Überlastung oder ungültigem Key
- * - Universelle Button-Synchronisation (Start-Hub & Schlafzimmer-Regie)
- * - Autoplay-Unlocker mit sicherem Puffer für iOS Safari & Chrome
+ * - Resiliente Gemini-TTS-Kaskade (2.5-flash-preview-tts, 3.8-flash-tts, 3.8-flash-lite-tts)
+ * - Sichere Fehleranzeige statt unbemerktem Umschalten auf die Computerstimme
  * - Strenger 5-Sekunden-Autostopp beim Probehören
  */
 
@@ -19,7 +20,7 @@
   var isPreloading = false;
   var previewTimeout = null;
   var isVoiceCurrentlyPlaying = false;
-  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
+  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
@@ -28,6 +29,24 @@
       if (stored && stored.trim().length > 10) return stored.trim();
     } catch (e) {}
     return DEFAULT_PRESET_GEMINI_KEY;
+  }
+
+  function showToast(msg) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
+      return;
+    }
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var el = document.createElement('div');
+    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+    el.innerText = msg;
+    c.appendChild(el);
+    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+    setTimeout(function() {
+      el.classList.add('opacity-0');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2800);
   }
 
   function updatePreviewButtons(state) {
@@ -63,16 +82,9 @@
       document.body.appendChild(masterAudio);
     }
 
-    // 1-Millisekunde unhörbares Audio für die Autoplay-Aktivierung im Browser
     if (masterAudio && (!masterAudio.src || masterAudio.src.startsWith('data:'))) {
       masterAudio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
       masterAudio.play().catch(function() {});
-    }
-
-    if ('speechSynthesis' in window) {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
     }
   }
 
@@ -119,6 +131,30 @@
     return new Blob([view], { type: 'audio/wav' });
   }
 
+  function decodeAudioPayload(audioBase64, mimeType) {
+    var rawBuffer = base64ToArrayBuffer(audioBase64);
+    var rawBytes = new Uint8Array(rawBuffer);
+
+    // 1. Bereits fertiger RIFF/WAV-Header
+    if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
+      return new Blob([rawBytes], { type: 'audio/wav' });
+    }
+
+    // 2. MP3 oder OGG Header
+    if (mimeType.indexOf('mp3') !== -1 || mimeType.indexOf('mpeg') !== -1) {
+      return new Blob([rawBytes], { type: 'audio/mp3' });
+    }
+    if (mimeType.indexOf('ogg') !== -1) {
+      return new Blob([rawBytes], { type: 'audio/ogg' });
+    }
+
+    // 3. Raw PCM 16-Bit -> zu WAV verpacken
+    var rateMatch = mimeType.match(/rate=(\d+)/);
+    var sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+    var pcm16 = new Int16Array(rawBuffer);
+    return pcmToWav(pcm16, sampleRate);
+  }
+
   function stopActiveVoicePlayback() {
     isVoiceCurrentlyPlaying = false;
     if (previewTimeout) {
@@ -130,95 +166,10 @@
       audio.pause();
       audio.currentTime = 0;
     }
-    if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
     updatePreviewButtons('idle');
     if (typeof window.applyAudioDucking === 'function') {
       window.applyAudioDucking(false);
     }
-  }
-
-  function speakNativeBrowserVoice(text, voiceToUse, isPreview) {
-    return new Promise(function(resolve) {
-      if (!('speechSynthesis' in window)) {
-        updatePreviewButtons('idle');
-        resolve();
-        return;
-      }
-
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-
-      isVoiceCurrentlyPlaying = true;
-      if (isPreview) updatePreviewButtons('playing');
-
-      if (typeof window.applyAudioDucking === 'function') {
-        window.applyAudioDucking(true);
-      }
-
-      var utterance = new SpeechSynthesisUtterance(text.trim());
-      utterance.lang = 'de-DE';
-
-      var isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
-      utterance.pitch = isMale ? 0.75 : 1.05;
-      utterance.rate = 0.92;
-
-      // 40ms Verzögerung, um den Chrome cancel()-Bug zu umgehen
-      setTimeout(function() {
-        try {
-          var voices = window.speechSynthesis.getVoices() || [];
-          var deVoices = voices.filter(function(v) { return v.lang && v.lang.toLowerCase().startsWith('de'); });
-          if (deVoices.length > 0) {
-            if (isMale) {
-              var mVoice = deVoices.find(function(v) {
-                var n = v.name.toLowerCase();
-                return n.includes('male') || n.includes('stefan') || n.includes('martin') || n.includes('markus') || n.includes('jannik');
-              });
-              utterance.voice = mVoice || deVoices[0];
-            } else {
-              var fVoice = deVoices.find(function(v) {
-                var n = v.name.toLowerCase();
-                return n.includes('female') || n.includes('anna') || n.includes('katja') || n.includes('marlene') || n.includes('hedda');
-              });
-              utterance.voice = fVoice || deVoices[0];
-            }
-          }
-        } catch (e) {}
-
-        var finished = false;
-        function done() {
-          if (finished) return;
-          finished = true;
-          isVoiceCurrentlyPlaying = false;
-          if (previewTimeout) {
-            clearTimeout(previewTimeout);
-            previewTimeout = null;
-          }
-          if (typeof window.applyAudioDucking === 'function') {
-            window.applyAudioDucking(false);
-          }
-          updatePreviewButtons('idle');
-          resolve();
-        }
-
-        utterance.onend = done;
-        utterance.onerror = done;
-
-        if (isPreview) {
-          previewTimeout = setTimeout(function() {
-            stopActiveVoicePlayback();
-            done();
-          }, 5000);
-        }
-
-        window.speechSynthesis.speak(utterance);
-      }, 40);
-    });
   }
 
   async function playSensualGeminiVoice(text, voiceOverride, isPreview) {
@@ -235,24 +186,29 @@
 
     if (isPreview) updatePreviewButtons('loading');
 
-    // 1. Instant Playback aus dem Memory-Cache (0 ms Latenz)
+    // 1. 0-ms Cache
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
 
     var apiKey = getGeminiApiKey();
-    // Wenn kein gültiger Key hinterlegt ist: nativer Fallback
     if (!apiKey || apiKey.length < 10) {
-      return speakNativeBrowserVoice(text, voiceToUse, isPreview);
+      updatePreviewButtons('idle');
+      showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte in den Einstellungen (⚙️) prüfen.");
+      return;
     }
 
-    // 2. Kaskade moderner TTS-Modelle
+    // 2. Kaskade verlässlicher TTS-Modelle
     var candidateModels = [
       activeDiscoveredTtsModel,
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
       "gemini-3.8-flash-lite-tts",
-      "gemini-3.8-flash"
+      "gemini-2.5-pro-preview-tts"
     ];
+
+    var success = false;
+    var lastError = "Verbindungsfehler";
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
@@ -287,39 +243,32 @@
           var data = await resp.json();
           var part = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0];
           var audioBase64 = part && part.inlineData && part.inlineData.data;
-          var mimeType = (part && part.inlineData && part.inlineData.mimeType) || "";
+          var mimeType = (part && part.inlineData && part.inlineData.mimeType) || "audio/pcm;rate=24000";
 
           if (audioBase64) {
-            var rawBuffer = base64ToArrayBuffer(audioBase64);
-            var rawBytes = new Uint8Array(rawBuffer);
-            var wavBlob;
-
-            if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
-              wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
-            } else {
-              var sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-              var pcm16 = new Int16Array(rawBuffer);
-              wavBlob = pcmToWav(pcm16, sampleRate);
-            }
-
+            var wavBlob = decodeAudioPayload(audioBase64, mimeType);
             var blobUrl = URL.createObjectURL(wavBlob);
             ttsAudioCache[cacheKey] = blobUrl;
             activeDiscoveredTtsModel = model;
 
+            success = true;
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
-        } else if (resp.status === 400 || resp.status === 403) {
-          // Key unberechtigt oder ungültig
-          console.warn("Gemini TTS HTTP " + resp.status + ", wechsle zu Systemstimme.");
-          break;
+        } else {
+          var errData = await resp.json().catch(function() { return {}; });
+          lastError = errData.error?.message || ("HTTP " + resp.status);
+          if (resp.status === 429) break;
         }
       } catch (e) {
-        break;
+        lastError = e.message || "Netzwerkfehler";
       }
     }
 
-    // 3. Nahtloser Fallback auf die native Stimme bei Google-High-Demand / Offline
-    return speakNativeBrowserVoice(text, voiceToUse, isPreview);
+    updatePreviewButtons('idle');
+    if (!success) {
+      console.warn("Gemini Voice Fehlgeschlagen:", lastError);
+      showToast("⚠️ Gemini Voice: " + lastError);
+    }
   }
 
   function playAudioUrlDirectly(url, isPreview) {
@@ -385,7 +334,6 @@
     if (!apiKey || apiKey.length < 10 || apiKey.startsWith('AQ.')) return;
 
     isPreloading = true;
-
     var activeVoice = voiceName || localStorage.getItem('kompass_session_voice') || 'Despina';
     var numbers = ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"];
     var commands = ["Kante!", "Stillhalten!", "Jetzt kommen!", "Ruhe!"];
@@ -399,7 +347,7 @@
         try {
           var success = await generateAndCacheSnippet(phrase, activeVoice, apiKey);
           if (!success) break;
-          await new Promise(function(r) { setTimeout(r, 250); });
+          await new Promise(function(r) { setTimeout(r, 200); });
         } catch (e) { break; }
       }
     }
@@ -410,38 +358,22 @@
   async function generateAndCacheSnippet(text, voiceToUse, apiKey) {
     var candidateModels = [
       activeDiscoveredTtsModel,
+      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
-      "gemini-3.8-flash"
+      "gemini-3.8-flash-lite-tts"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
       if (!model) continue;
 
-      var payload;
-      var isDedicatedTts = (model.indexOf('-tts') !== -1);
-
-      if (isDedicatedTts) {
-        payload = {
-          contents: [{ parts: [{ text: text.trim() }] }],
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: { voiceConfig: { voice: voiceToUse } }
-          }
-        };
-      } else {
-        payload = {
-          contents: [{ parts: [{ text: "Lies exakt: \"" + text.trim() + "\"" }] }],
-          systemInstruction: {
-            parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Lies das Wort kurz vor." }]
-          },
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
-          }
-        };
-      }
+      var payload = {
+        contents: [{ role: "user", parts: [{ text: text.trim() }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } } }
+        }
+      };
 
       try {
         var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
@@ -455,21 +387,10 @@
           var data = await resp.json();
           var part = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0];
           var audioBase64 = part && part.inlineData && part.inlineData.data;
-          var mimeType = (part && part.inlineData && part.inlineData.mimeType) || "";
+          var mimeType = (part && part.inlineData && part.inlineData.mimeType) || "audio/pcm;rate=24000";
 
           if (audioBase64) {
-            var rawBuffer = base64ToArrayBuffer(audioBase64);
-            var rawBytes = new Uint8Array(rawBuffer);
-            var wavBlob;
-
-            if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
-              wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
-            } else {
-              var sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-              var pcm16 = new Int16Array(rawBuffer);
-              wavBlob = pcmToWav(pcm16, sampleRate);
-            }
-
+            var wavBlob = decodeAudioPayload(audioBase64, mimeType);
             var blobUrl = URL.createObjectURL(wavBlob);
             var cacheKey = voiceToUse + "_" + text.trim();
             ttsAudioCache[cacheKey] = blobUrl;
@@ -480,12 +401,6 @@
       } catch (e) {}
     }
     return false;
-  }
-
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = function() {
-      try { window.speechSynthesis.getVoices(); } catch (e) {}
-    };
   }
 
   window.SessionVoice = {
