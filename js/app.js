@@ -781,7 +781,7 @@
   }
 
   async function resolveAvailableTextModels(apiKey) {
-    var fallbackList = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+    var fallbackList = ['gemini-3.8-flash', 'gemini-3.7-flash'];
     try {
       var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
       if (resp.ok) {
@@ -799,10 +799,10 @@
         });
 
         if (models.length > 0) {
-          // Bevorzuge moderne Flash-Modelle
+          // Bevorzuge moderne 3.8 / 3.7 Flash-Modelle
           models.sort(function(a, b) {
-            var aScore = (a.indexOf('flash') !== -1 ? 10 : 0) + (a.indexOf('2.0') !== -1 ? 5 : 0);
-            var bScore = (b.indexOf('flash') !== -1 ? 10 : 0) + (b.indexOf('2.0') !== -1 ? 5 : 0);
+            var aScore = (a.indexOf('3.8') !== -1 ? 20 : 0) + (a.indexOf('3.7') !== -1 ? 10 : 0) + (a.indexOf('flash') !== -1 ? 5 : 0);
+            var bScore = (b.indexOf('3.8') !== -1 ? 20 : 0) + (b.indexOf('3.7') !== -1 ? 10 : 0) + (b.indexOf('flash') !== -1 ? 5 : 0);
             return bScore - aScore;
           });
           return models;
