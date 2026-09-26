@@ -119,13 +119,20 @@
 
     var apiKey = getGeminiApiKey();
     var discoveredModel = localStorage.getItem('kompass_discovered_model');
+    
+    // Bereinigung: Veraltete 2.5- oder Free-Tier-Quota-Null-Modelle (Omni, Video, Image) strikt entfernen
+    if (!discoveredModel || discoveredModel.indexOf('2.5') !== -1 || discoveredModel.indexOf('omni') !== -1 || discoveredModel.indexOf('image') !== -1 || discoveredModel.indexOf('video') !== -1) {
+      discoveredModel = 'gemini-3.8-flash';
+      try { localStorage.setItem('kompass_discovered_model', discoveredModel); } catch (e) {}
+    }
+
     var candidateModels = [];
 
-    if (discoveredModel && discoveredModel.indexOf('2.5') === -1) {
+    if (discoveredModel && discoveredModel.indexOf('2.5') === -1 && discoveredModel.indexOf('omni') === -1 && discoveredModel.indexOf('image') === -1 && discoveredModel.indexOf('video') === -1) {
       candidateModels.push(discoveredModel);
     }
-    candidateModels.push('gemini-3.8-flash');
-    candidateModels.push('gemini-3.8-flash-lite');
+    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
+    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
 
     var prompt = `
 Du bist ein erfahrener, einfühlsamer und traumasensibler BDSM- und Sexualaufklärer.
