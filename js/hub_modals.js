@@ -104,6 +104,94 @@
     }
   }
 
+  function getInviteUrlForPartner() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    var code = state.pairCode || '';
+    if (!code) return window.location.href;
+
+    // Zielrolle für die Partnerin ist immer das Gegenüber (meist Partner B)
+    var targetRole = (state.role === 'A') ? 'B' : 'A';
+    var baseUrl = window.location.origin + window.location.pathname;
+    return baseUrl + '?pair=' + encodeURIComponent(code) + '&role=' + targetRole + '#view=hub';
+  }
+
+  async function handleShareInviteLink() {
+    var state = window.CloudSync ? window.CloudSync.getState() : {};
+    if (!state.pairCode) {
+      showToast("⚠️ Bitte erstelle zuerst einen Paar-Code.");
+      return;
+    }
+
+    var inviteUrl = getInviteUrlForPartner();
+    var shareData = {
+      title: "Unser Kink- & Beziehungs-Kompass",
+      text: "Hier ist unser sicherer Paar-Zugang für den Kink-Kompass. Tippe einfach auf den Link, um dich direkt mit mir zu verbinden:",
+      url: inviteUrl
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        showToast("Einladung geteilt ✓");
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          handleCopyInviteLink();
+        }
+      }
+    } else {
+      handleCopyInviteLink();
+    }
+  }
+
+  function handleCopyInviteLink() {
+    var inviteUrl = getInviteUrlForPartner();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(inviteUrl).then(function() {
+        showToast("📋 Einladungslink in Zwischenablage kopiert! Jetzt in WhatsApp einfügen.");
+      }).catch(function() {
+        promptInviteLinkFallback(inviteUrl);
+      });
+    } else {
+      promptInviteLinkFallback(inviteUrl);
+    }
+  }
+
+  function promptInviteLinkFallback(url) {
+    window.prompt("Kopiere diesen Einladungslink für deine Partnerin:", url);
+  }
+
+  async function checkUrlForAutoPairing() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var pairCode = params.get('pair');
+      var role = params.get('role') || 'B';
+
+      if (pairCode && pairCode.trim().length >= 5) {
+        var cleanCode = pairCode.trim().toUpperCase();
+        showToast("⏳ Einladungslink erkannt: Verbinde automatisch mit " + cleanCode + "...");
+
+        if (window.CloudSync) {
+          try {
+            await window.CloudSync.joinRoom(cleanCode, role);
+            if (typeof window.setCurrentUser === 'function') {
+              window.setCurrentUser(role);
+            }
+            updateCloudSyncUI();
+            showToast("✓ Erfolgreich als " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " gekoppelt!");
+
+            // Saubere URL ohne störende Query-Parameter wiederherstellen
+            var cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#view=hub');
+            window.history.replaceState({}, document.title, cleanUrl);
+          } catch (e) {
+            showToast("⚠️ Automatische Kopplung fehlgeschlagen: " + (e.message || "Code abgelaufen"));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Fehler beim Prüfen von Auto-Pairing Parametern:", e);
+    }
+  }
+
   function openCloudSyncModal() {
     var modal = document.getElementById('modal-cloud-sync');
     if (!modal) return;
@@ -686,6 +774,9 @@
       });
       setTimeout(updateCloudSyncUI, 150);
     }
+
+    // Beim Laden prüfen, ob der Aufruf über einen Partner-Einladungslink kam
+    setTimeout(checkUrlForAutoPairing, 250);
   }
 
   if (document.readyState === 'loading') {
@@ -701,6 +792,8 @@
   window.handleJoinPairRoom = handleJoinPairRoom;
   window.handleManualSyncNow = handleManualSyncNow;
   window.handleDisconnectPairing = handleDisconnectPairing;
+  window.handleShareInviteLink = handleShareInviteLink;
+  window.handleCopyInviteLink = handleCopyInviteLink;
   window.updateCloudSyncUI = updateCloudSyncUI;
 
   window.openAccountModal = openAccountModal;
