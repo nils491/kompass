@@ -57,7 +57,6 @@
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      padding-top: var(--sat);
       padding-bottom: var(--sab);
       padding-left: var(--sal);
       padding-right: var(--sar);
@@ -71,12 +70,12 @@
     html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
     html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
 
+    /* Touch-Ergonomie: Mindestens 44px Klickfläche ohne Container-Deformation */
     .touch-btn {
       min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
     }
     .touch-btn:active {
       transform: scale(0.98);
@@ -87,13 +86,12 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <!-- VORAB-ENTSPERRTER AUDIO-PLAYER FÜR iOS & AIRPLAY -->
   <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
   <audio id="ambient-airplay-audio" x-webkit-airplay="allow" class="hidden"></audio>
 
-  <!-- HEADER -->
-  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-slate-900 shadow-sm">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2 space-y-1.5">
+  <!-- HEADER MIT ECHTER NOTCH- / DYNAMIC ISLAND-ABDECKUNG -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
         <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zum Hub">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -108,18 +106,21 @@
           </div>
         </a>
 
-        <!-- SCHNELLE STEUERUNG RECHTS: SOUND, LOGBUCH & TABUS -->
+        <!-- SCHNELLE STEUERUNG RECHTS: SOUND, AIRPLAY, LOGBUCH & TABUS -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <button type="button" onclick="toggleAmbientMusic()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Ambient-Sound starten/pausieren">
             <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Sound</span>
           </button>
-          <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Lautsprecher">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Audio-Ausgabe">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1" />
+              <polygon points="12 15 17 21 7 21 12 15" fill="currentColor" stroke="none" />
+            </svg>
           </button>
           <button type="button" onclick="openSessionDiaryModal()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Logbuch öffnen">
             <span class="text-xs font-mono">LOG</span>
           </button>
-          <button type="button" onclick="openSessionTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Tabu-Charta">
+          <button type="button" onclick="openSessionTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Tabu-Charta anzeigen">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span id="session-tabu-counter">0</span>
           </button>
         </div>
@@ -178,7 +179,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <!-- VARIANTE 1 (STANDARD: P2 = TOP, P1 = BOTTOM) -->
-          <button type="button" onclick="selectPortalRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md">
+          <button type="button" onclick="selectPortalRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full">
             <div class="flex items-center justify-between">
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-900 text-brand-200">Standard</span>
               <span class="text-sm font-bold text-brand-300" id="badge-role-default">✓ Aktiv</span>
@@ -191,7 +192,7 @@
           </button>
 
           <!-- VARIANTE 2 (ROLLENWECHSEL: P1 = TOP, P2 = BOTTOM) -->
-          <button type="button" onclick="selectPortalRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700">
+          <button type="button" onclick="selectPortalRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
             <div class="flex items-center justify-between">
               <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">Rollenwechsel</span>
               <span class="text-sm font-bold text-slate-500" id="badge-role-reversed">○</span>
@@ -348,7 +349,7 @@
         <div class="pt-2 border-t border-slate-800 space-y-2">
           <span class="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider block">Spielmodus wählen:</span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <button type="button" onclick="selectSessionMode('guided')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn bg-brand-950/20 border-brand-500 hover:border-brand-400 shadow-md">
+            <button type="button" onclick="selectSessionMode('guided')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn bg-brand-950/20 border-brand-500 hover:border-brand-400 shadow-md block w-full">
               <div class="flex items-center justify-between">
                 <strong class="text-sm font-extrabold text-white">Geführtes 4-Phasen-Drehbuch</strong>
                 <span class="text-xs font-bold text-brand-300">Empfohlen</span>
@@ -356,7 +357,7 @@
               <p class="text-[11px] text-slate-400">Strukturierter Ablauf von Warm-up über Machtaufbau bis Katharsis und Aftercare.</p>
             </button>
 
-            <button type="button" onclick="selectSessionMode('free')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700">
+            <button type="button" onclick="selectSessionMode('free')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
               <div class="flex items-center justify-between">
                 <strong class="text-sm font-extrabold text-white">Freier Flow & Zucht-Werkzeuge</strong>
                 <span class="text-xs font-bold text-slate-400">Flexibel</span>
@@ -582,7 +583,7 @@
               <span class="text-[10px] text-slate-400 block">Zeit seit letzter Kante:</span>
               <span id="time-since-last-edge" class="text-lg font-mono font-black text-white">00:00</span>
             </div>
-            <button type="button" onclick="startCooldownBreathingTimer()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-teal-300 font-bold text-xs touch-btn">
+            <button type="button" id="btn-cooldown-timer" onclick="startCooldownBreathingTimer()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-teal-300 font-bold text-xs touch-btn">
               45s Abkühlen
             </button>
           </div>
@@ -918,11 +919,15 @@
     let edgeCount = 0;
     let lastEdgeTimestamp = null;
     let lastEdgeIntervalTimer = null;
+    let cooldownTimerInterval = null;
+    let cooldownSecondsRemaining = 0;
     let currentEdgingCountdown = 10;
     let isCountdownActive = false;
     let isEdgingCountdownPaused = false;
+    let countdownRunId = 0;
 
     let currentSessionLog = [];
+    let screenWakeLock = null;
 
     // AUDIO & PERSISTENTER WEB-AUDIO STACK FÜR iOS & HYBRID-TTS
     const ttsAudioCache = {};
@@ -960,6 +965,30 @@
       { phase: "Aftercare", title: "Lösen der Fesseln & Wärmedecke", desc: "Alle Fixierungen lösen. In warme Decken wickeln und warmes Wasser reichen.", top: "Balsamiere beanspruchte Hautstellen ein und halte deinen Partner.", sub: "Kuschele dich tief ein und genieße die Geborgenheit." },
       { phase: "Aftercare", title: "Stille & Somatischer Ausklang", desc: "Mindestens 15 Minuten wortlose Ruhe und Nähe.", top: "Bleibe präsent und schenke Wärme.", sub: "Lass alle Gefühle und Tränen frei fließen." }
     ];
+
+    async function acquireScreenWakeLock() {
+      try {
+        if ('wakeLock' in navigator && !screenWakeLock) {
+          screenWakeLock = await navigator.wakeLock.request('screen');
+          screenWakeLock.addEventListener('release', () => { screenWakeLock = null; });
+        }
+      } catch (err) {
+        console.debug("Wake Lock nicht verfügbar", err);
+      }
+    }
+
+    function releaseScreenWakeLock() {
+      if (screenWakeLock) {
+        screenWakeLock.release().catch(() => {});
+        screenWakeLock = null;
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !document.getElementById('cockpit-live-container')?.classList.contains('hidden')) {
+        acquireScreenWakeLock();
+      }
+    });
 
     function base64ToArrayBuffer(base64) {
       const binaryString = window.atob(base64);
@@ -1011,18 +1040,16 @@
       if (isAudioEngineUnlocked) return;
       isAudioEngineUnlocked = true;
 
-      // Web Audio Context entsperren
       try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!audioCtx) audioCtx = new AudioContextClass();
         if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
+          audioCtx.resume().catch(() => {});
         }
       } catch (e) {
-        console.debug("AudioContext unlock", e);
+        console.debug("AudioContext Unlock", e);
       }
 
-      // Master HTML5 Audio Element für Safari entsperren
       const masterAudio = document.getElementById('master-voice-audio');
       if (masterAudio) {
         masterAudio.play().then(() => {
@@ -1048,12 +1075,11 @@
         if (sc) safetyConfig = JSON.parse(sc);
         if (d) sessionDiary = JSON.parse(d);
       } catch (e) {
-        console.warn("Storage parse error", e);
+        console.warn("Speicher-Ladefehler", e);
       }
 
       selectPortalRoleSetup('default');
 
-      // Fragebogen-Präferenz Musik aus Kapitel 2 Pos. 23 ermitteln
       const musicChoiceA = answers.A ? answers.A['it_23_choice'] : null;
       const musicChoiceB = answers.B ? answers.B['it_23_choice'] : null;
       if (musicChoiceA === 'music' || musicChoiceB === 'music') {
@@ -1065,7 +1091,6 @@
       }
       setSoundscapeStyle(currentSoundscapeStyle);
 
-      // Durchschnittliche Dauer berechnen
       if (Array.isArray(sessionDiary) && sessionDiary.length > 0) {
         const validDurations = sessionDiary.map(s => s.durationMinutes).filter(d => typeof d === 'number' && d > 5 && d < 240);
         if (validDurations.length > 0) {
@@ -1080,7 +1105,25 @@
       updateTimerDisplay();
       renderPlaybookPreview();
       checkUnratedSessions();
+      updateSessionTabuCounter();
       preloadCountdownVoiceSnippets();
+    }
+
+    function updateSessionTabuCounter() {
+      const allChapters = window.surveyChapters || [];
+      let totalTabuCount = 0;
+      ['A', 'B'].forEach(u => {
+        const uAnswers = answers[u] || {};
+        allChapters.forEach(ch => {
+          (ch.items || []).forEach(it => {
+            if (it.type === 'choice') return;
+            if (uAnswers[`it_${it.id}_r1`] === 1) totalTabuCount++;
+            if (uAnswers[`it_${it.id}_r2`] === 1) totalTabuCount++;
+          });
+        });
+      });
+      const el = document.getElementById('session-tabu-counter');
+      if (el) el.innerText = totalTabuCount;
     }
 
     function selectPortalRoleSetup(setup) {
@@ -1097,16 +1140,16 @@
       if (setup === 'default') {
         topPartner = 'B';
         subPartner = 'A';
-        if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md";
-        if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700";
+        if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
+        if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
         if (badgeDef) { badgeDef.innerText = "✓ Aktiv"; badgeDef.className = "text-sm font-bold text-brand-300"; }
         if (badgeRev) { badgeRev.innerText = "○"; badgeRev.className = "text-sm font-bold text-slate-500"; }
         if (subTitle) subTitle.innerText = `Top: ${name2} · Bottom: ${name1}`;
       } else {
         topPartner = 'A';
         subPartner = 'B';
-        if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md";
-        if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700";
+        if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
+        if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
         if (badgeRev) { badgeRev.innerText = "✓ Aktiv"; badgeRev.className = "text-sm font-bold text-brand-300"; }
         if (badgeDef) { badgeDef.innerText = "○"; badgeDef.className = "text-sm font-bold text-slate-500"; }
         if (subTitle) subTitle.innerText = `Top: ${name1} · Bottom: ${name2}`;
@@ -1280,7 +1323,11 @@
       const airplayAudio = document.getElementById('ambient-airplay-audio');
       const btn = document.getElementById('btn-airplay-picker');
       if (airplayAudio && window.WebKitPlaybackTargetAvailabilityEvent && btn) {
-        btn.classList.remove('hidden');
+        airplayAudio.addEventListener('webkitplaybacktargetavailabilitychanged', function(event) {
+          if (event.availability === 'available') {
+            btn.classList.remove('hidden');
+          }
+        });
       }
     }
 
@@ -1318,7 +1365,7 @@
             }
           }
         } catch (e) {
-          console.debug("AirPlay stream fallback", e);
+          console.debug("AirPlay Stream Fallback", e);
         }
       }
     }
@@ -1350,7 +1397,7 @@
       unlockAudioEngineOnUserGesture();
       initAmbientAudioContext();
       if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+        audioCtx.resume().catch(() => {});
       }
 
       if (isAmbientPlaying) {
@@ -1394,7 +1441,6 @@
       const now = audioCtx.currentTime;
 
       if (currentSoundscapeStyle === 'velvet') {
-        // Sinnliche Akkord-Pads (D-Moll-9 Chords: D3, F3, A3, C4, E4)
         const freqs = [146.83, 174.61, 220.00, 261.63, 329.63];
         freqs.forEach((freq, idx) => {
           const osc = audioCtx.createOscillator();
@@ -1411,7 +1457,6 @@
         ambientFilterNode.frequency.setTargetAtTime(380, now, 1);
 
       } else if (currentSoundscapeStyle === 'bowls') {
-        // 432 Hz Obertöne & Klangschalen
         const freqs = [108, 216, 432, 864];
         freqs.forEach(freq => {
           const osc = audioCtx.createOscillator();
@@ -1427,7 +1472,6 @@
         ambientFilterNode.frequency.setTargetAtTime(600, now, 1);
 
       } else if (currentSoundscapeStyle === 'ocean') {
-        // Warmes Meeresrauschen (Generiertes Pink/Brown Noise über AudioBuffer)
         const bufferSize = audioCtx.sampleRate * 3;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -1453,7 +1497,6 @@
         activeSoundscapeNodes.push(whiteNoise, noiseFilter);
 
       } else if (currentSoundscapeStyle === 'beats') {
-        // Dark Pulse: Sub-Bass Drone + 120-BPM synthetischer Kick
         const subOsc = audioCtx.createOscillator();
         subOsc.type = 'sine';
         subOsc.frequency.setValueAtTime(55, now);
@@ -1469,13 +1512,20 @@
 
           kickOsc.frequency.setValueAtTime(120, t);
           kickOsc.frequency.exponentialRampToValueAtTime(38, t + 0.18);
-          kickGain.gain.setValueAtTime(0.4, t);
+          kickGain.gain.setValueAtTime(0.35, t);
           kickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.22);
 
           kickOsc.connect(kickGain);
           kickGain.connect(ambientMasterGain);
           kickOsc.start(t);
           kickOsc.stop(t + 0.25);
+
+          kickOsc.onended = () => {
+            try {
+              kickOsc.disconnect();
+              kickGain.disconnect();
+            } catch (e) {}
+          };
         }, 500);
       }
     }
@@ -1535,8 +1585,6 @@
     }
 
     async function playSensualGeminiVoice(numText, voiceOverride = null, isPreview = false) {
-      unlockAudioEngineOnUserGesture();
-
       if (previewAudioTimeout) {
         clearTimeout(previewAudioTimeout);
         previewAudioTimeout = null;
@@ -1545,37 +1593,33 @@
       const voiceToUse = voiceOverride || activeSessionVoice || 'Despina';
       const cacheKey = `${voiceToUse}_${numText}`;
 
-      // 1. Wenn gecached: Sofort ohne Verzögerung abspielen
       if (ttsAudioCache[cacheKey]) {
         return playAudioUrlWithCallback(ttsAudioCache[cacheKey], isPreview);
       }
 
-      const storedKey = localStorage.getItem('kompass_gemini_api_key');
-      const hasValidFormat = storedKey && storedKey.startsWith('AIzaSy');
+      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
+      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
 
-      // 2. Versuch: Gemini TTS via API, falls echter Gemini-Key vorhanden
-      if (hasValidFormat) {
+      if (hasRealKey) {
         try {
-          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(storedKey)}`;
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`;
           const isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
           const instruction = isMale
-            ? `Befiehl mit einer extrem tiefen, rauen, dominanten, strengen und langsamen Männerstimme auf Deutsch kurz und trocken: ${numText}`
-            : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, warmen und ruhigen Frauenstimme auf Deutsch langsam: ${numText}`;
-
-          const payload = {
-            contents: [{ parts: [{ text: instruction }] }],
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
-              }
-            }
-          };
+            ? `Befiehl mit einer extrem tiefen, rauen, dominanten, strengen Männerstimme auf Deutsch kurz und trocken: ${numText}`
+            : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, warmen Frauenstimme auf Deutsch langsam: ${numText}`;
 
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: instruction }] }],
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
+                }
+              }
+            })
           });
 
           if (response.ok) {
@@ -1595,11 +1639,10 @@
             }
           }
         } catch (err) {
-          console.debug("Gemini API Network Fallback", err);
+          console.debug("Gemini API Netzwerk-Fallback", err);
         }
       }
 
-      // 3. Ausfallsicherer Studio-Voice-Fallback (Keine Stille!)
       return playStudioFallbackSpeech(numText, voiceToUse, isPreview);
     }
 
@@ -1612,7 +1655,6 @@
 
         window.speechSynthesis.cancel();
 
-        // Reine Zahlen und Text filtern
         const cleanText = String(text).replace(/[0-9]+/g, (match) => {
           const numWords = { '1': 'Eins', '2': 'Zwei', '3': 'Drei', '4': 'Vier', '5': 'Fünf', '6': 'Sechs', '7': 'Sieben', '8': 'Acht', '9': 'Neun', '10': 'Zehn' };
           return numWords[match] || match;
@@ -1623,7 +1665,6 @@
 
         const isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
 
-        // Sinnliche / Dominante Intonation (Langsam, tief, ruhig)
         if (isMale) {
           utterance.pitch = 0.72;
           utterance.rate = 0.82;
@@ -1632,7 +1673,6 @@
           utterance.rate = 0.78;
         }
 
-        // Beste deutsche Stimme selektieren
         const voices = window.speechSynthesis.getVoices();
         const deVoices = voices.filter(v => v.lang.startsWith('de'));
         if (deVoices.length > 0) {
@@ -1671,7 +1711,7 @@
         masterAudio.onerror = () => resolve();
 
         masterAudio.play().catch(e => {
-          console.debug("Audio play blocked", e);
+          console.debug("Audio-Wiedergabe blockiert oder unterbrochen", e);
           resolve();
         });
 
@@ -1685,14 +1725,49 @@
     }
 
     function preloadCountdownVoiceSnippets() {
+      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
+      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
+      if (!hasRealKey) return;
+
       const voice = activeSessionVoice || 'Despina';
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].forEach((num, idx) => {
-        setTimeout(() => {
+        setTimeout(async () => {
           const cacheKey = `${voice}_${num}`;
-          if (!ttsAudioCache[cacheKey]) {
-            playSensualGeminiVoice(num.toString(), voice, false);
-          }
-        }, idx * 1200);
+          if (ttsAudioCache[cacheKey]) return;
+          try {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`;
+            const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
+            const instruction = isMale
+              ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme auf Deutsch kurz und trocken: ${num}`
+              : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme auf Deutsch langsam: ${num}`;
+
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: instruction }] }],
+                generationConfig: {
+                  responseModalities: ["AUDIO"],
+                  speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+                }
+              })
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              const part = result?.candidates?.[0]?.content?.parts?.[0];
+              const audioData = part?.inlineData?.data;
+              const mimeType = part?.inlineData?.mimeType;
+              if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                ttsAudioCache[cacheKey] = URL.createObjectURL(wavBlob);
+              }
+            }
+          } catch (e) {}
+        }, idx * 600);
       });
     }
 
@@ -1721,7 +1796,6 @@
         badge.innerText = `Stufe ${activeArousalLevel} / 10 (${labels[activeArousalLevel] || ''})`;
       }
 
-      // Live-Kopplung an die Musik: Bei 8+ wird es energetischer
       if (isAmbientPlaying) {
         if (activeArousalLevel >= 8) {
           if (currentSoundscapeStyle !== 'beats') setSoundscapeStyle('beats');
@@ -1730,11 +1804,12 @@
         }
       }
 
-      // Direkte Sprachreaktion
-      const now = Date.now();
-      if (now - lastArousalSpokenTime > 1400) {
-        lastArousalSpokenTime = now;
-        speakContextualArousalGuidance(activeArousalLevel);
+      if (isTopVoiceAssistActive) {
+        const now = Date.now();
+        if (now - lastArousalSpokenTime > 1400) {
+          lastArousalSpokenTime = now;
+          speakContextualArousalGuidance(activeArousalLevel);
+        }
       }
     }
 
@@ -1783,11 +1858,28 @@
     }
 
     function startCooldownBreathingTimer() {
-      showToast("45s Abkühlphase gestartet");
+      if (cooldownTimerInterval) clearInterval(cooldownTimerInterval);
+      cooldownSecondsRemaining = 45;
+      const btn = document.getElementById('btn-cooldown-timer');
+      if (btn) btn.innerText = `45s Abkühlen...`;
+      showToast("45s Abkühl- & Atemphase gestartet");
       recordLiveEvent("cooldown_start", "45s Abkühl- & Atemphase", true);
+
+      cooldownTimerInterval = setInterval(() => {
+        cooldownSecondsRemaining--;
+        if (btn) {
+          if (cooldownSecondsRemaining > 0) {
+            btn.innerText = `${cooldownSecondsRemaining}s Atmen`;
+          } else {
+            btn.innerText = `Bereit ✓`;
+            clearInterval(cooldownTimerInterval);
+            cooldownTimerInterval = null;
+            showToast("Abkühlphase beendet – bereit für nächste Welle");
+          }
+        }
+      }, 1000);
     }
 
-    // TOP-FINISHER
     function openReleaseChoiceModal() {
       const panel = document.getElementById('release-choice-subpanel');
       if (panel) panel.classList.toggle('hidden');
@@ -1795,6 +1887,7 @@
 
     function executeReleaseImmediate() {
       unlockAudioEngineOnUserGesture();
+      resetSpeechCountdown();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       if (isAmbientPlaying) {
         setSoundscapeStyle('beats');
@@ -1814,25 +1907,30 @@
       currentEdgingCountdown = 10;
       isCountdownActive = true;
       isEdgingCountdownPaused = false;
+      const btnPause = document.getElementById('btn-pause-countdown');
+      if (btnPause) btnPause.innerText = "Pause";
       showToast("10s-Atem-Countdown gestartet");
       runBreathPacedCountdownLoop();
     }
 
     async function runBreathPacedCountdownLoop() {
+      const currentRunId = ++countdownRunId;
       while (isCountdownActive && !isEdgingCountdownPaused && currentEdgingCountdown > 0) {
+        if (currentRunId !== countdownRunId) break;
+
         const disp = document.getElementById('countdown-display');
         if (disp) disp.innerText = currentEdgingCountdown;
 
         await playSensualGeminiVoice(currentEdgingCountdown.toString());
 
-        if (!isCountdownActive || isEdgingCountdownPaused) break;
+        if (!isCountdownActive || isEdgingCountdownPaused || currentRunId !== countdownRunId) break;
         await new Promise(r => setTimeout(r, 850));
 
-        if (!isCountdownActive || isEdgingCountdownPaused) break;
+        if (!isCountdownActive || isEdgingCountdownPaused || currentRunId !== countdownRunId) break;
         currentEdgingCountdown--;
       }
 
-      if (currentEdgingCountdown === 0 && isCountdownActive && !isEdgingCountdownPaused) {
+      if (currentEdgingCountdown === 0 && isCountdownActive && !isEdgingCountdownPaused && currentRunId === countdownRunId) {
         const disp = document.getElementById('countdown-display');
         if (disp) disp.innerText = "0";
         if (isAmbientPlaying) adjustAmbientEnergy('energy');
@@ -1850,15 +1948,23 @@
       const btn = document.getElementById('btn-pause-countdown');
       if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
       const masterAudio = document.getElementById('master-voice-audio');
-      if (isEdgingCountdownPaused && masterAudio) masterAudio.pause();
+
+      if (isEdgingCountdownPaused) {
+        if (masterAudio) masterAudio.pause();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      } else {
+        runBreathPacedCountdownLoop();
+      }
     }
 
     function resetSpeechCountdown() {
+      countdownRunId++;
       isCountdownActive = false;
       isEdgingCountdownPaused = false;
       currentEdgingCountdown = 10;
       const masterAudio = document.getElementById('master-voice-audio');
       if (masterAudio) masterAudio.pause();
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       const disp = document.getElementById('countdown-display');
       if (disp) disp.innerText = "10";
       document.getElementById('countdown-wrapper')?.classList.add('hidden');
@@ -1866,6 +1972,7 @@
 
     function finalizeEdgingDecision(type) {
       unlockAudioEngineOnUserGesture();
+      resetSpeechCountdown();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       if (type === 'ruined') {
         if (isAmbientPlaying) setSoundscapeStyle('velvet');
@@ -1973,6 +2080,7 @@
         }
       });
       analyzeTopReasonLive();
+      renderStageCards(1);
     }
 
     function handleReasonLiveInput(val) {
@@ -2054,8 +2162,9 @@
     }
 
     async function requestAiCreativeExpansion(stage, sev) {
-      const storedKey = localStorage.getItem('kompass_gemini_api_key');
-      if (!storedKey || !storedKey.startsWith('AIzaSy')) return;
+      const storedKey = (localStorage.getItem('kompass_gemini_api_key') || '').trim();
+      const hasRealKey = storedKey.length >= 25 && !storedKey.includes('DEIN_KEY');
+      if (!hasRealKey) return;
 
       const reason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
       const stageNames = { 1: "Zucht-Hauptstrafe", 2: "Körperhaltung", 3: "Fesselung/Fixierung", 4: "Sensorik/Knebel" };
@@ -2081,7 +2190,7 @@ WICHTIGSTE REGELN:
 Kontext: ${contextDescription}. Seed: ${nonce}.
 Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)", "desc": "Zwei bis drei präzise Sätze zur Ausführung, Körperhaltung und psychologischen Wirkung."}`;
 
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(storedKey)}`, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(storedKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2110,9 +2219,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
             renderStageCards(stage);
           }
         }
-      } catch (e) {
-        // Fallback bleibt intakt
-      }
+      } catch (e) {}
     }
 
     function renderStageCards(stage) {
@@ -2137,14 +2244,13 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
         </div>
       `;
 
-      // 4 kuratierte Bogen-Optionen
       const items = getFilteredCatalogForStage(stage, stageSeverities[stage]);
       html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">`;
-      items.forEach((it, idx) => {
-        const isSelected = (selectedStageChoice[stage]?.type === 'catalog' && selectedStageChoice[stage]?.index === idx);
+      items.forEach((it) => {
+        const isSelected = (selectedStageChoice[stage]?.type === 'catalog' && selectedStageChoice[stage]?.data?.id === it.id);
         const subRatingBadge = getSubRatingBadgeHtml(it.id);
         html += `
-          <div onclick="selectWizardCard(${stage}, 'catalog', ${idx})" class="p-3 rounded-2xl border transition-all cursor-pointer touch-btn block ${isSelected ? 'bg-brand-950/40 border-brand-500 shadow-md' : 'theme-panel border-slate-800 hover:border-slate-700'}">
+          <div onclick="selectWizardCard(${stage}, 'catalog', ${it.id})" class="p-3 rounded-2xl border transition-all cursor-pointer touch-btn block ${isSelected ? 'bg-brand-950/40 border-brand-500 shadow-md' : 'theme-panel border-slate-800 hover:border-slate-700'}">
             <div class="flex items-center justify-between pb-1">
               <span class="text-[10px] font-bold text-slate-400">Position ${it.id}</span>
               <span class="text-[10.5px] font-bold ${isSelected ? 'text-brand-300' : 'text-slate-500'}">
@@ -2175,30 +2281,65 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
 
     function getFilteredCatalogForStage(stage, sev) {
       const allChapters = window.surveyChapters || [];
-      const stageChapterMap = { 1: [16, 23], 2: [14, 22], 3: [13, 14], 4: [15] };
-      const targetChapters = stageChapterMap[stage] || [16];
+      
+      let targetChapters = [16];
+      if (stage === 1) {
+        if (selectedInfraction === 'orgasm') targetChapters = [7, 8, 23];
+        else if (selectedInfraction === 'mouth') targetChapters = [23, 35, 15];
+        else if (selectedInfraction === 'duty') targetChapters = [22, 23, 29];
+        else if (selectedInfraction === 'self_discipline') targetChapters = [16, 23, 7];
+        else targetChapters = [16, 23];
+      } else if (stage === 2) {
+        targetChapters = [14, 22];
+      } else if (stage === 3) {
+        targetChapters = [13, 14];
+      } else if (stage === 4) {
+        targetChapters = [15];
+      }
+
       let matches = [];
+      const uAnswersSub = answers[subPartner] || {};
+      const uAnswersTop = answers[topPartner] || {};
 
       targetChapters.forEach(cId => {
         const ch = allChapters.find(c => c.id === cId);
         if (ch && ch.items) {
           ch.items.forEach(it => {
-            if (it.type !== 'choice') matches.push(it);
+            if (it.type !== 'choice') {
+              const isSubTabu = (uAnswersSub[`it_${it.id}_r2`] === 1);
+              const isTopTabu = (uAnswersTop[`it_${it.id}_r1`] === 1);
+              if (!isSubTabu && !isTopTabu) {
+                matches.push(it);
+              }
+            }
           });
         }
       });
+
+      if (matches.length === 0) {
+        allChapters.forEach(ch => {
+          (ch.items || []).forEach(it => {
+            if (it.type !== 'choice') {
+              const isSubTabu = (uAnswersSub[`it_${it.id}_r2`] === 1);
+              const isTopTabu = (uAnswersTop[`it_${it.id}_r1`] === 1);
+              if (!isSubTabu && !isTopTabu && matches.length < 4) matches.push(it);
+            }
+          });
+        });
+      }
 
       const offset = (catalogOffsets[stage] || 0) % Math.max(1, matches.length);
       const rotated = matches.slice(offset).concat(matches.slice(0, offset));
       return rotated.slice(0, 4);
     }
 
-    function selectWizardCard(stage, type, index) {
+    function selectWizardCard(stage, type, idOrIdx) {
       if (type === 'creative') {
         selectedStageChoice[stage] = { type: 'creative', data: currentCreativeData[stage] };
       } else {
         const items = getFilteredCatalogForStage(stage, stageSeverities[stage]);
-        selectedStageChoice[stage] = { type: 'catalog', index, data: items[index] };
+        const found = items.find(it => it.id === idOrIdx) || items[0];
+        selectedStageChoice[stage] = { type: 'catalog', data: found };
       }
       renderStageCards(stage);
     }
@@ -2231,7 +2372,9 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     function nextWizardStage() {
       if (wizardCurrentStage < 5) {
         wizardCurrentStage++;
-        if (wizardCurrentStage <= 4) rerollCreativeForStage(wizardCurrentStage);
+        if (wizardCurrentStage <= 4 && !selectedStageChoice[wizardCurrentStage]) {
+          rerollCreativeForStage(wizardCurrentStage);
+        }
         updateWizardStageView();
       } else {
         applyConfiguredDiscipline();
@@ -2294,9 +2437,14 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
       document.getElementById('cockpit-live-container')?.classList.remove('hidden');
       document.getElementById('session-active-badge')?.classList.remove('hidden');
 
+      acquireScreenWakeLock();
+
       liveStepIndex = 0;
       edgeCount = 0;
       currentSessionLog = [];
+      isSessionPaused = false;
+      const btnPause = document.getElementById('btn-pause-timer');
+      if (btnPause) btnPause.innerText = "Pause";
 
       recordLiveEvent("session_start", `Session gestartet (Modus: ${currentSessionMode === 'guided' ? 'Geführt' : 'Freier Flow'})`);
 
@@ -2336,6 +2484,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     }
 
     function addSessionMinutes(mins) {
+      sessionTotalSeconds += (mins * 60);
       sessionRemainingSeconds += (mins * 60);
       updateTimerDisplay();
       showToast(`+${mins} Minuten hinzugefügt`);
@@ -2381,6 +2530,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
         showToast("ROT: Sofortiger Abbruch & Schutzraum");
         recordLiveEvent("safeword_red", "Ampel ROT: Sofortiger Abbruch aller Handlungen", true);
         if (isTopVoiceAssistActive) playSensualGeminiVoice("Halt. Sofortiger Stopp.");
+        if (isAmbientPlaying) adjustAmbientEnergy('calm');
         endSessionToAftercare();
       }
     }
@@ -2515,10 +2665,16 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     }
 
     function completeSessionAndExit() {
+      stopAllSoundscapeNodes();
+      releaseScreenWakeLock();
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+      if (lastEdgeIntervalTimer) clearInterval(lastEdgeIntervalTimer);
+      if (cooldownTimerInterval) clearInterval(cooldownTimerInterval);
+
       const topFb = document.getElementById('aftercare-top-feedback')?.value || "";
       const subFb = document.getElementById('aftercare-sub-feedback')?.value || "";
 
-      const durationSecs = sessionTotalSeconds - sessionRemainingSeconds;
+      const durationSecs = Math.max(0, sessionTotalSeconds - sessionRemainingSeconds);
       const durationMins = Math.max(1, Math.round(durationSecs / 60));
 
       const entry = {
@@ -2546,7 +2702,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
       showToast("Session erfolgreich im Logbuch archiviert");
       setTimeout(() => {
         window.location.href = "analyse.html";
-      }, 1000);
+      }, 800);
     }
 
     function checkUnratedSessions() {
@@ -2619,16 +2775,60 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
 
     function openSessionTabuModal() {
       const c = document.getElementById('session-tabu-list-container');
+      const allChapters = window.surveyChapters || [];
+      const uAnswersTop = answers[topPartner] || {};
+      const uAnswersSub = answers[subPartner] || {};
+      const nameTop = names[topPartner] || 'Top';
+      const nameSub = names[subPartner] || 'Bottom';
+
+      let topTabus = [];
+      let subTabus = [];
+
+      allChapters.forEach(ch => {
+        (ch.items || []).forEach(it => {
+          if (it.type === 'choice') return;
+          if (uAnswersTop[`it_${it.id}_r1`] === 1) {
+            topTabus.push({ id: it.id, title: it.title, action: it.r1 });
+          }
+          if (uAnswersSub[`it_${it.id}_r2`] === 1) {
+            subTabus.push({ id: it.id, title: it.title, action: it.r2 });
+          }
+        });
+      });
+
       if (c) {
         c.innerHTML = `
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900 space-y-1">
-              <strong class="text-indigo-200 block text-xs">Ausführungs-Limits (Top):</strong>
-              <p class="text-slate-300 text-[11px]">Handlungen, die der aktive Part moralisch oder emotional nicht ausüben will.</p>
+            <div class="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-900/80 space-y-2">
+              <div class="flex items-center justify-between border-b border-indigo-800 pb-1.5">
+                <strong class="text-indigo-200 text-xs font-bold">Ausführungs-Limits (${escapeHtml(nameTop)} / Top):</strong>
+                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-indigo-900 text-indigo-300">${topTabus.length}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-300 leading-snug">Handlungen, die der Top keinesfalls ausüben wird:</p>
+              <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                ${topTabus.length > 0 ? topTabus.map(t => `
+                  <div class="p-2 rounded-xl bg-slate-900 border border-indigo-800/60 text-[11px]">
+                    <strong class="text-white block">${t.id}. ${escapeHtml(t.title)}</strong>
+                    <span class="text-indigo-300 text-[10px] block mt-0.5">⛔ Verweigert: ${escapeHtml(t.action)}</span>
+                  </div>
+                `).join('') : '<p class="text-slate-500 italic py-2">Keine Ausführungs-Limits hinterlegt.</p>'}
+              </div>
             </div>
-            <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900 space-y-1">
-              <strong class="text-rose-200 block text-xs">Schutz-Schranken (Bottom):</strong>
-              <p class="text-slate-300 text-[11px]">Reize, die der passive Part an seinem Körper keinesfalls empfangen kann (Sofort-ROT).</p>
+
+            <div class="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-900/80 space-y-2">
+              <div class="flex items-center justify-between border-b border-rose-800 pb-1.5">
+                <strong class="text-rose-200 text-xs font-bold">Schutz-Schranken (${escapeHtml(nameSub)} / Bottom):</strong>
+                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-rose-900 text-rose-300">${subTabus.length}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-300 leading-snug">Handlungen, die beim Bottom sofortiges ROT auslösen:</p>
+              <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                ${subTabus.length > 0 ? subTabus.map(t => `
+                  <div class="p-2 rounded-xl bg-slate-900 border border-rose-800/60 text-[11px]">
+                    <strong class="text-white block">${t.id}. ${escapeHtml(t.title)}</strong>
+                    <span class="text-rose-300 text-[10px] block mt-0.5">⛔ Tabu am Körper: ${escapeHtml(t.action)}</span>
+                  </div>
+                `).join('') : '<p class="text-slate-500 italic py-2">Keine Schutz-Schranken hinterlegt.</p>'}
+              </div>
             </div>
           </div>
         `;
