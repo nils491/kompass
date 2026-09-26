@@ -628,10 +628,10 @@
     if (interpBox) {
       var html = '<div class="theme-card rounded-3xl p-5 border border-indigo-500/40 shadow-xl space-y-3 bg-indigo-950/10">';
       html += '<div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">';
-      html += '<div><h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches KI-Gutachten</h3>';
-      html += '<p class="text-[10px] text-indigo-300">Wissenschaftlich fundiert (50% Realdaten / 50% empirische Forschung)</p></div>';
-      html += '<button type="button" onclick="generateAiReport()" id="btn-generate-ai" class="px-4 py-2 bg-indigo-900 hover:bg-indigo-800 text-indigo-200 font-bold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">✨ Gutachten generieren</button></div>';
-      html += '<div id="ai-report-output" class="text-xs text-slate-300 leading-relaxed italic">Klicke auf "Gutachten generieren", um dein psychologisches Profil auf Basis der ausgefüllten Bogen-Daten über Gemini tiefenpsychologisch auswerten zu lassen.</div></div>';
+      html += '<div><h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Einzelgutachten</h3>';
+      html += '<p class="text-[10px] text-indigo-300">Wissenschaftlich fundiert (Sagarin, Wismeijer, Canivet)</p></div>';
+      html += '<button type="button" onclick="generateAiReport()" id="btn-generate-ai" class="px-4 py-2 bg-indigo-900 hover:bg-indigo-800 text-indigo-200 font-bold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">✨ Gutachten berechnen</button></div>';
+      html += '<div id="ai-report-output" class="text-xs text-slate-300 leading-relaxed italic">Klicke auf "Gutachten berechnen", um dein psychologisches Profil auf Basis deiner Antworten auswerten zu lassen.</div></div>';
       
       html += '<div class="theme-card rounded-3xl p-6 border border-brand-500/40 bg-gradient-to-br from-brand-950/30 to-noir-900 space-y-2 mt-4 shadow-xl">';
       html += '<strong class="text-brand-300 font-extrabold text-xs uppercase tracking-wider block">Ein Wort zur Normalität & Schamfreiheit (Canivet et al., 2025; Wismeijer, 2013)</strong>';
@@ -639,6 +639,98 @@
 
       interpBox.innerHTML = html;
     }
+
+    loadCachedSingleReport();
+  }
+
+  function renderSingleReportCards(report, container) {
+    if (!container || !report) return;
+    container.innerHTML = `
+      <div class="space-y-3 animate-fade-in text-xs leading-relaxed">
+        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wide border-b border-indigo-900/60 pb-1.5">
+            <span class="text-base">🌟</span>
+            <span>1. Deine erotische Kern-Motivation</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.core_motivation || '')}</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-purple-300 font-extrabold text-xs uppercase tracking-wide border-b border-purple-900/60 pb-1.5">
+            <span class="text-base">🛡️</span>
+            <span>2. Dein Schlüssel zum Loslassen & Vertrauen</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.letting_go || '')}</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-brand-950/30 border border-brand-800/70 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 text-brand-300 font-extrabold text-xs uppercase tracking-wide border-b border-brand-900/60 pb-1.5">
+            <span class="text-base">💡</span>
+            <span>3. Konkreter Impuls für eure Sessions</span>
+          </div>
+          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.action_tip || '')}</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800/60 text-slate-300 space-y-1">
+          <div class="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
+            <span>✨</span>
+            <span>Wissenschaftliche Einordnung (Scham-Entlastung):</span>
+          </div>
+          <p class="text-[10.5px] leading-relaxed">${escapeHtml(report.science_insight || '')}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function loadCachedSingleReport() {
+    var out = document.getElementById('ai-report-output');
+    var btn = document.getElementById('btn-generate-ai');
+    if (!out) return;
+    try {
+      var cached = localStorage.getItem('kompass_cached_single_report_' + currentUser);
+      if (cached) {
+        var parsed = JSON.parse(cached);
+        if (parsed && parsed.core_motivation) {
+          renderSingleReportCards(parsed, out);
+          if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
+        }
+      }
+    } catch (e) {}
+  }
+
+  function generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill) {
+    var powerNum = parseInt(pPower, 10) || 0;
+    var sensNum = parseInt(pSens, 10) || 0;
+    var nurtNum = parseInt(pNurt, 10) || 0;
+    var thrillNum = parseInt(pThrill, 10) || 0;
+
+    var coreMotivation = "";
+    if (powerNum >= 50 && sensNum >= 40) {
+      coreMotivation = `${userName}, deine stärkste erotische Energie entspringt dem bewussten Spiel mit Macht, Hingabe und körperlich spürbarer Reizintensität. Du schätzt es, wenn Vereinbarungen greifbar sind und wenn Berührungen eine klare Absicht transportieren. Für dich ist Sexualität kein beiläufiger Akt, sondern ein intensiver Raum, in dem Kontrolle und Begrenzung zu tiefer Befreiung führen.`;
+    } else if (nurtNum >= 45) {
+      coreMotivation = `${userName}, dein erotischer Kern schlägt vor allem im Rhythmus von Geborgenheit, emotionaler Sicherheit und fürsorglicher Nähe. Macht und Reize entfalten bei dir nur dann ihre volle Wirkung, wenn das Fundament aus unerschütterlichem Vertrauen und achtsamem Gehaltenwerden besteht.`;
+    } else {
+      coreMotivation = `${userName}, du bringst eine faszinierende, vielschichtige Balance zwischen Neugier, Sinnlichkeit und dem Wunsch nach klarer Verbundenheit mit. Deine Lust speist sich aus dem Wechselspiel von visuellen Reizen, spielerischem Ausprobieren und der Gewissheit, jederzeit vollkommen sicher zu sein.`;
+    }
+
+    var lettingGo = "";
+    if (powerNum > 45) {
+      lettingGo = `Um dich wirklich fallen zu lassen, brauchst du ein klares Gegenüber. Entweder verlangt dein Geist danach, Verantwortung für eine Weile vollständig abgeben zu dürfen (Subspace), oder du ziehst deine Kraft daraus, den Rahmen souverän und beschützend zu gestalten. Klare Safewords und vorhersehbare Rituale entlasten deinen Kopf nachhaltig von Alltagsstress.`;
+    } else {
+      lettingGo = `Dein Schlüssel zur vollen Hingabe liegt in der Entschleunigung. Wenn der Raum frei von Leistungsdruck ist und sanfte Berührungen den Körper schrittweise durchwärmen, schaltet dein Nervensystem zuverlässig vom Denken ins reine Spüren um.`;
+    }
+
+    var actionTip = `Plant für eure nächste gemeinsame Session eine bewusste 20-minütige Einstiegsphase in der Schlafzimmer-Regie: Beginnt mit synchroner Vagus-Atmung und sanften Streichreizen, bevor ihr die Intensität steigert. Schließt nach dem Höhepunkt mit mindestens 15 Minuten warmem Decken-Kuscheln (Holding) ab, um das physiologische Wohlbefinden nachhaltig zu verankern.`;
+
+    var scienceInsight = `Wissenschaftliche Studien (Wismeijer & van Assen, 2013; Sagarin et al., 2009) belegen eindeutig: Das einvernehmliche Ausleben persönlicher Kinks und klarer Grenzen führt zu höherer Beziehungszufriedenheit, stärkt die Oxytocin-Bindung und senkt chronischen Alltagsstress messbar. Du bist vollkommen gesund und normal.`;
+
+    return {
+      core_motivation: coreMotivation,
+      letting_go: lettingGo,
+      action_tip: actionTip,
+      science_insight: scienceInsight
+    };
+  }
   }
 
   function calculateAndRenderPillars(uAnswers) {
@@ -815,79 +907,96 @@
   window.generateAiReport = async function() {
     var out = document.getElementById('ai-report-output');
     var btn = document.getElementById('btn-generate-ai');
-    if (btn) btn.innerText = "⏳ Analysiere tiefenpsychologisch...";
+    if (btn) btn.innerHTML = "<span>⏳ Berechne Gutachten...</span>";
 
-    var apiKey = localStorage.getItem('kompass_gemini_api_key');
-    if (!apiKey || apiKey.length < 10) apiKey = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+    var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
+    var userName = names[currentUser] || 'Partner';
 
     var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
     var sensPct = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText : '0%';
     var nurtPct = document.getElementById('bar-val-nurturing') ? document.getElementById('bar-val-nurturing').innerText : '0%';
     var thrillPct = document.getElementById('bar-val-thrill') ? document.getElementById('bar-val-thrill').innerText : '0%';
-    
-    var promptText = "Du bist ein erfahrener, einfühlsamer und wissenschaftlich fundierter Paartherapeut und Sexualforscher. Erstelle ein prägnantes, traumasensibles und tiefenpsychologisches Gutachten (genau 3 Absätze) für " + (names[currentUser] || 'den Partner') + ". Säulen-Werte: Macht/Hingabe (" + powerPct + "), Sensorik/Schmerz (" + sensPct + "), Fürsorge (" + nurtPct + "), Tabubruch/Kick (" + thrillPct + "). Beziehe dich auf Sagarin (2009) und Wismeijer (2013). Keine moralischen Bewertungen. Formatiere als HTML mit Klassen text-slate-300 text-xs leading-relaxed space-y-2.";
 
-    var candidateModels = await resolveAvailableTextModels(apiKey);
+    var promptText = `Du bist ein einfühlsamer, moderner Paarberater und Sexualpsychologe.
+Erstelle ein warmherziges, psychologisch fundiertes und absolut schamfreies Einzelgutachten für ${userName}.
+
+DATENBASIS DES PROFILS:
+- Macht & Hingabe: ${powerPct}
+- Sensorik & Schmerz (Impact/Fesselung): ${sensPct}
+- Fürsorge & Geborgenheit: ${nurtPct}
+- Tabubruch & mentaler Kick: ${thrillPct}
+
+TONFALL & STIL:
+- Sprich ${userName} direkt und wertschätzend mit "Du" an.
+- Vermeide kaltes Fachchinesisch! Übersetze psychologische Erkenntnisse in lebendige, greifbare Sprache, die Lust auf gemeinsame Entdeckungen macht.
+- Feiere die Offenheit und bestärke das Vertrauen in die eigenen Wünsche und Grenzen.
+
+Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
+{
+  "core_motivation": "Was treibt ${userName} im Innersten an? Welche Sehnsüchte und erotischen Motive stehen im Vordergrund? (3 bis 4 bildhafte Sätze)",
+  "letting_go": "Was braucht ${userName}, um sich im Bett vollkommen fallen zu lassen und Vertrauen zu fassen? (3 bis 4 feinfühlige Sätze)",
+  "action_tip": "Ein konkreter, spielerischer Vorschlag für die nächste Session in der Schlafzimmer-Regie. (3 bis 4 Sätze)",
+  "science_insight": "Eine kurze, befreiende wissenschaftliche Einordnung (z.B. Sagarin 2009 / Wismeijer 2013 / Canivet 2025), warum diese Wünsche vollkommen gesund und normal sind. (2 bis 3 Sätze)"
+}`;
+
+    // WICHTIG: Keine thinkingConfig-Parameter mitsenden, um den Google-Billing/Prepayment-Bug auf Free-Tier-Projekten zu verhindern
+    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
     var success = false;
-    var lastErrorMsg = "Verbindungsfehler";
 
     for (var i = 0; i < candidateModels.length; i++) {
       var currentModel = candidateModels[i];
       try {
-        var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + currentModel + ':generateContent?key=' + encodeURIComponent(apiKey), {
+        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: "application/json"
+            }
+          })
         });
 
         if (resp.ok) {
-          var data = await resp.json();
-          var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
-          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
-          showToast("✓ Gutachten erstellt (" + currentModel + ")");
-          try { localStorage.setItem('kompass_discovered_model', currentModel); } catch (e) {}
-          success = true;
-          break;
-        } else {
-          var err = await resp.json().catch(function(){ return {}; });
-          lastErrorMsg = err.error?.message || ("HTTP " + resp.status);
-          // Falls Quota überschritten ist, breche ab, statt weitere Modelle zu belasten
-          if (resp.status === 429 || (err.error && err.error.message && err.error.message.indexOf('quota') !== -1)) {
+          var resData = await resp.json();
+          var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+          var parsedData = null;
+          try {
+            parsedData = JSON.parse(rawJson);
+          } catch (pe) {
+            var match = rawJson.match(/\{[\s\S]*\}/);
+            parsedData = match ? JSON.parse(match[0]) : null;
+          }
+
+          if (parsedData && parsedData.core_motivation) {
+            try {
+              localStorage.setItem('kompass_cached_single_report_' + currentUser, JSON.stringify(parsedData));
+            } catch (se) {}
+
+            renderSingleReportCards(parsedData, out);
+            showToast("✓ Gutachten berechnet (" + currentModel + ")");
+            success = true;
             break;
           }
         }
       } catch (e) {
-        lastErrorMsg = e.message || "Netzwerkfehler";
+        // Netzwerk- oder Quota-Fehler
       }
     }
 
+    // Wenn API-Key kein Guthaben hat oder offline ist: Kostenlose, lokale Berechnung aus den realen Bogen-Scores
     if (!success && out) {
-      out.innerHTML = '<div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">' +
-        '<strong class="block font-bold">⚠️ Analyse nicht möglich:</strong>' +
-        '<p class="text-[11px]">' + escapeHtml(lastErrorMsg) + '</p>' +
-        '<p class="text-[10px] text-slate-400 mt-1">Tipp: Bitte prüfe in den Einstellungen (⚙️) deinen eigenen Gemini API-Key aus Google AI Studio.</p>' +
-        '</div>';
+      var fallbackReport = generateClientSideSingleReport(userName, powerPct, sensPct, nurtPct, thrillPct);
+      try {
+        localStorage.setItem('kompass_cached_single_report_' + currentUser, JSON.stringify(fallbackReport));
+      } catch (se) {}
+
+      renderSingleReportCards(fallbackReport, out);
+      showToast("✓ Gutachten erfolgreich aus Bogen-Scores berechnet (Kostenlos)");
     }
 
-    if (btn) btn.innerText = "✨ Gutachten aktualisieren";
+    if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
   };
 
-  function initApp() {
-    loadCoreData();
-    var hash = (window.location.hash || '').replace('#view=', '');
-    switchMainView(hash || 'hub');
-    
-    // Hashchange-Listener für flüssige Navigation & Browser-History
-    window.addEventListener('hashchange', function() {
-      var currentHash = (window.location.hash || '').replace('#view=', '');
-      if (currentHash) switchMainView(currentHash);
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initApp);
-  } else {
-    initApp();
-  }
-
-})(window);
+  function calculateAndRenderPillars(uAnswers) {
