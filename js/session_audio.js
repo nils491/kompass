@@ -1,12 +1,12 @@
 /**
  * js/session_audio.js
- * Spezialisiertes Ambient- und Klangsynthese-Modul für das Schlafzimmer-Cockpit.
+ * Spezialisiertes Ambient- und Klangsynthese-Modul für das Schlafzimmer-Cockpit & die Regie.
  * 
  * Features:
- * - Dynamische Klangwelten (Ozean mit LFO-Gezeiten, Velvet Chords, 432Hz Schalen, Dark Downtempo)
+ * - Dynamische Klangwelten: Cinematic Velvet, Klangtempel 432Hz, Ozean-Brandung (LFO), Dark Downtempo
  * - Situative Modulation des aktuellen Klangs (Stufen 1–4)
- * - Automatisches Audio-Ducking bei Gemini-Sprachausgabe
- * - Unterstützung für externe Playlists (Spotify / Apple Music)
+ * - Sanftes Audio-Ducking (Absenkung auf 20 %) bei Gemini-Sprachausgabe
+ * - Unterstützung externer Playlists (Spotify / Apple Music)
  * - Sichere Audio-Deallokation gegen Knacken und Speicherlecks
  */
 
@@ -18,7 +18,6 @@
     currentStyle: 'velvet', // 'velvet', 'bowls', 'ocean', 'beats'
     energyLevel: 2, // 1 (Sanft), 2 (Moderat), 3 (Intensiv), 4 (Ekstatisch)
     isPlaying: false,
-    customPlaylistUrl: '',
     duckingActive: false
   };
 
@@ -51,7 +50,7 @@
       filterNode.type = 'lowpass';
       filterNode.frequency.setValueAtTime(500, audioCtx.currentTime);
 
-      // Routing: Sound -> MasterGain -> DuckingGain -> Filter -> Speaker
+      // Routing: Sound -> MasterGain -> DuckingGain -> Filter -> Lautsprecher
       masterGain.connect(duckingGainNode);
       duckingGainNode.connect(filterNode);
       filterNode.connect(audioCtx.destination);
@@ -70,16 +69,20 @@
     } else {
       // Geschmeidig zurückblenden auf 100 % Lautstärke
       duckingGainNode.gain.cancelScheduledValues(now);
-      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.4);
+      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.40);
     }
   }
 
   function stopActiveOscillators() {
     activeOscillators.forEach(function(item) {
       try {
-        item.osc.stop();
-        item.osc.disconnect();
-        if (item.gain) item.gain.disconnect();
+        if (item.osc) {
+          item.osc.stop();
+          item.osc.disconnect();
+        }
+        if (item.gain) {
+          item.gain.disconnect();
+        }
       } catch (e) {}
     });
     activeOscillators = [];
@@ -96,7 +99,6 @@
   function stopAllGenerators() {
     stopActiveOscillators();
 
-    // 2. Rhythmische Intervalle löschen
     rhythmTimers.forEach(function(t) {
       clearInterval(t);
       clearTimeout(t);
@@ -119,6 +121,7 @@
     var chordIdx = 0;
 
     function applyChord(chordFreqs) {
+      // Wichtig: Nur Oszillatoren stoppen, NICHT die Taktung des Timers!
       stopActiveOscillators();
       var energyBoost = audioState.energyLevel * 0.04;
 
@@ -240,7 +243,7 @@
     var oceanGain = audioCtx.createGain();
     oceanGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
 
-    // LFO für Wellenbewegung: 0.08 Hz (ca. 12 Sekunden pro Welle)
+    // LFO für Wellenbewegung: ca. 12 Sekunden pro Welle
     var waveLfo = audioCtx.createOscillator();
     waveLfo.type = 'sine';
     var waveSpeed = 0.06 + (audioState.energyLevel * 0.02);
@@ -313,14 +316,12 @@
     if (!audioCtx || !filterNode || !masterGain) return;
     var now = audioCtx.currentTime;
 
-    // Filterfrequenz und Lautstärke dynamisch anpassen
-    var targetCutoff = 280 + (audioState.energyLevel * 320); // 600Hz bis 1560Hz
+    var targetCutoff = 280 + (audioState.energyLevel * 320);
     var targetVolume = 0.22 + (audioState.energyLevel * 0.07);
 
     filterNode.frequency.setTargetAtTime(targetCutoff, now, 0.6);
     masterGain.gain.setTargetAtTime(targetVolume, now, 0.4);
 
-    // Update Label im DOM falls vorhanden
     var disp = document.getElementById('ambient-intensity-display');
     if (disp) disp.innerText = "(Stufe " + audioState.energyLevel + "/4)";
   }
@@ -345,7 +346,6 @@
   function setSoundscapeStyle(style) {
     audioState.currentStyle = style;
 
-    // UI-Buttons synchronisieren
     ['velvet', 'bowls', 'ocean', 'beats'].forEach(function(s) {
       var btn = document.getElementById('btn-style-' + s);
       if (btn) {
@@ -456,7 +456,6 @@
     ensureGraph: ensureAudioGraph
   };
 
-  // Kompatibilitäts-Aliase für session.html Buttons
   window.toggleAmbientMusic = toggleAmbientMusic;
   window.setSoundscapeStyle = setSoundscapeStyle;
   window.adjustAmbientEnergy = adjustAmbientEnergy;
