@@ -16,6 +16,7 @@
   var currentUser = 'A';
   var currentChapterIndex = 0;
   var activeSurveyFilter = 'all';
+  var activeSurveyScope = 'chapter'; // 'chapter' oder 'global'
   var singleRadarChartInstance = null;
 
   var names = { A: 'Partner 1', B: 'Partner 2' };
@@ -31,6 +32,7 @@
   window.renderSingleProfile = renderSingleProfile;
   window.renderSafetyConfig = renderSafetyConfig;
   window.openItemResearch = openItemResearch;
+  window.setSurveyScope = setSurveyScope;
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -242,6 +244,22 @@
     }
   }
 
+  function setSurveyScope(scope) {
+    activeSurveyScope = scope;
+    var btnCh = document.getElementById('scope-btn-chapter');
+    var btnGl = document.getElementById('scope-btn-global');
+
+    if (scope === 'global') {
+      if (btnGl) btnGl.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn";
+      if (btnCh) btnCh.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+      showToast("🌍 Global-Modus aktiv: Filter durchsucht alle 36 Kapitel");
+    } else {
+      if (btnCh) btnCh.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn";
+      if (btnGl) btnGl.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+    }
+    renderSurveyChapter();
+  }
+
   function renderSurveyChapter() {
     var chapters = window.surveyChapters || [];
     if (chapters.length === 0) return;
@@ -257,13 +275,31 @@
     var btnPrev = document.getElementById('btn-prev-chapter');
     var btnNext = document.getElementById('btn-next-chapter-bottom');
 
-    if (badge) badge.innerText = "Kapitel " + chapter.id + " / " + (chapters.length - 1) + " ▾";
-    if (title) title.innerText = chapter.title;
-    if (desc) desc.innerText = chapter.desc;
+    var isGlobal = (activeSurveyScope === 'global');
 
-    if (btnPrev) btnPrev.style.visibility = (currentChapterIndex === 0) ? 'hidden' : 'visible';
+    if (badge) {
+      badge.innerText = isGlobal 
+        ? "🌍 Alle Kapitel ▾" 
+        : "Kapitel " + chapter.id + " / " + (chapters.length - 1) + " ▾";
+    }
+    if (title) {
+      title.innerText = isGlobal 
+        ? "Globale Übersicht (Alle 36 Kapitel)" 
+        : chapter.title;
+    }
+    if (desc) {
+      desc.innerText = isGlobal 
+        ? "Hier siehst du alle Fragen aus dem gesamten Fragebogen, die deinem aktuellen Filter entsprechen. Du kannst Antworten direkt hier vergeben oder ändern." 
+        : chapter.desc;
+    }
+
+    if (btnPrev) btnPrev.style.visibility = (isGlobal || currentChapterIndex === 0) ? 'hidden' : 'visible';
     if (btnNext) {
-      btnNext.innerText = (currentChapterIndex === chapters.length - 1) ? "Zum Profil →" : "Nächstes Kapitel →";
+      if (isGlobal) {
+        btnNext.innerText = "Zum Profil →";
+      } else {
+        btnNext.innerText = (currentChapterIndex === chapters.length - 1) ? "Zum Profil →" : "Nächstes Kapitel →";
+      }
     }
 
     var prog = getGlobalProgressData(currentUser);
@@ -272,7 +308,22 @@
     if (pText) pText.innerText = prog.pct + " %";
     if (pFill) pFill.style.width = prog.pct + "%";
 
-    var filteredItems = (chapter.items || []).filter(function(it) {
+    // Quell-Items: Entweder nur das aktuelle Kapitel oder alle 36 Kapitel
+    var sourceItemsWithChapter = [];
+    if (isGlobal) {
+      chapters.forEach(function(ch) {
+        (ch.items || []).forEach(function(it) {
+          sourceItemsWithChapter.push({ item: it, chapter: ch });
+        });
+      });
+    } else {
+      (chapter.items || []).forEach(function(it) {
+        sourceItemsWithChapter.push({ item: it, chapter: chapter });
+      });
+    }
+
+    var filteredList = sourceItemsWithChapter.filter(function(entry) {
+      var it = entry.item;
       if (activeSurveyFilter === 'all') return true;
       if (it.type === 'choice') {
         var aC = uAnswers['it_' + it.id + '_choice'];
@@ -289,20 +340,30 @@
     });
 
     var countEl = document.getElementById('chapter-items-count');
-    if (countEl) countEl.innerText = filteredItems.length + " Praktiken";
+    if (countEl) countEl.innerText = filteredList.length + " Praktiken";
 
     if (!container) return;
     
-    if (filteredItems.length === 0) {
-      container.innerHTML = '<div class="p-6 text-center text-slate-500 italic theme-panel rounded-2xl border">Keine Fragen für diesen Filter in diesem Kapitel vorhanden.</div>';
+    if (filteredList.length === 0) {
+      var emptyMsg = isGlobal
+        ? "Perfekt! Keine offenen Fragen für diesen Filter im gesamten Fragebogen gefunden."
+        : "Keine Fragen für diesen Filter in diesem Kapitel vorhanden.";
+      container.innerHTML = '<div class="p-6 text-center text-slate-400 italic theme-panel rounded-2xl border">' + escapeHtml(emptyMsg) + '</div>';
+      renderQuickGrid();
       return;
     }
 
     var html = '';
-    filteredItems.forEach(function(it) {
+    filteredList.forEach(function(entry) {
+      var it = entry.item;
+      var ch = entry.chapter;
+
       html += '<div class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4">';
       html += '<div class="flex items-start justify-between gap-2">';
       html += '  <div class="min-w-0 flex-1">';
+      if (isGlobal) {
+        html += '    <span class="inline-block px-2 py-0.5 mb-1 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono text-[9px] font-bold">Kapitel ' + ch.id + ': ' + escapeHtml(ch.title) + '</span>';
+      }
       html += '    <strong class="text-sm font-extrabold text-white block">' + escapeHtml(it.title) + '</strong>';
       html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
       html += '  </div>';
@@ -414,16 +475,66 @@
   function renderQuickGrid() {
     var container = document.getElementById('quick-grid-buttons');
     var chapters = window.surveyChapters || [];
+    var uAnswers = answers[currentUser] || {};
     if (!container) return;
 
     container.innerHTML = chapters.map(function(ch, idx) {
-      var isCur = (idx === currentChapterIndex);
-      var cls = isCur ? 'bg-brand-600 text-white font-bold border-brand-500' : 'theme-panel text-slate-300 border-slate-800 hover:border-slate-600';
-      return '<button type="button" onclick="window.jumpToChapter(' + idx + ')" class="p-2 rounded-xl border text-center transition touch-btn truncate ' + cls + '">K. ' + ch.id + '</button>';
+      var isCur = (idx === currentChapterIndex && activeSurveyScope === 'chapter');
+      var totalInCh = 0;
+      var answeredInCh = 0;
+      var hasTabuInCh = false;
+
+      (ch.items || []).forEach(function(it) {
+        if (it.type === 'choice') {
+          totalInCh++;
+          if (uAnswers['it_' + it.id + '_choice']) answeredInCh++;
+        } else {
+          totalInCh += 2;
+          var r1 = uAnswers['it_' + it.id + '_r1'];
+          var r2 = uAnswers['it_' + it.id + '_r2'];
+          if (typeof r1 === 'number') {
+            answeredInCh++;
+            if (r1 === 1) hasTabuInCh = true;
+          }
+          if (typeof r2 === 'number') {
+            answeredInCh++;
+            if (r2 === 1) hasTabuInCh = true;
+          }
+        }
+      });
+
+      var isComplete = (totalInCh > 0 && answeredInCh === totalInCh);
+      var pctCh = totalInCh > 0 ? Math.round((answeredInCh / totalInCh) * 100) : 0;
+
+      var cls = isCur 
+        ? 'bg-brand-600 text-white font-bold border-brand-500 shadow-md' 
+        : 'theme-panel text-slate-300 border-slate-800 hover:border-slate-600';
+
+      return `
+        <button type="button" onclick="window.jumpToChapter(${idx})" class="p-2 rounded-xl border text-left transition touch-btn flex flex-col justify-between ${cls}">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-[11px]">K. ${ch.id}</span>
+            <div class="flex items-center gap-1">
+              ${hasTabuInCh ? '<span class="w-1.5 h-1.5 rounded-full bg-rose-500" title="Tabu vorhanden"></span>' : ''}
+              ${isComplete ? '<span class="text-emerald-400 font-bold text-[10px]">✓</span>' : ''}
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[9px] text-slate-400 mt-1">
+            <span class="truncate pr-1">${escapeHtml(ch.title)}</span>
+            <span class="font-mono flex-shrink-0">${pctCh}%</span>
+          </div>
+        </button>
+      `;
     }).join('');
   }
 
   window.jumpToChapter = function(idx) {
+    activeSurveyScope = 'chapter';
+    var btnCh = document.getElementById('scope-btn-chapter');
+    var btnGl = document.getElementById('scope-btn-global');
+    if (btnCh) btnCh.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn";
+    if (btnGl) btnGl.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+
     currentChapterIndex = idx;
     var grid = document.getElementById('chapter-quick-grid');
     if (grid) grid.classList.add('hidden');
