@@ -126,6 +126,9 @@
 </head>
 <body class="min-h-screen selection:bg-brand-600 selection:text-white flex flex-col transition-colors duration-200">
 
+  <!-- VORAB-ENTSPERRTER AUDIO-PLAYER FÜR iOS & SAFARI -->
+  <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
+
   <!-- SPERRBILDSCHIRM (PASSWORT) -->
   <div id="site-lockscreen" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border text-center space-y-5">
@@ -908,8 +911,20 @@
   <script>
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
     const ttsIndexCache = {};
-    let sampleVoiceAudio = null;
     let sampleVoiceTimeout = null;
+    let isIndexAudioUnlocked = false;
+
+    function unlockIndexAudio() {
+      if (isIndexAudioUnlocked) return;
+      isIndexAudioUnlocked = true;
+      const masterAudio = document.getElementById('master-voice-audio');
+      if (masterAudio) {
+        masterAudio.play().then(() => masterAudio.pause()).catch(() => {});
+      }
+    }
+
+    window.addEventListener('click', unlockIndexAudio, { once: true });
+    window.addEventListener('touchstart', unlockIndexAudio, { once: true });
 
     function base64ToArrayBuffer(base64) {
       const binaryString = window.atob(base64);
@@ -999,6 +1014,7 @@
     }
 
     function testOnboardVoice() {
+      unlockIndexAudio();
       const v = document.getElementById('onboard-voice-select')?.value || 'Despina';
       const btn = document.getElementById('btn-preview-onboard');
       if (btn) btn.innerText = "⏳ Lädt...";
@@ -1008,6 +1024,7 @@
     }
 
     function testSelectedVoiceInSettings() {
+      unlockIndexAudio();
       const v = document.getElementById('setting-tts-voice-select')?.value || 'Despina';
       const btn = document.getElementById('btn-preview-settings');
       if (btn) btn.innerText = "⏳ Lädt...";
@@ -1023,10 +1040,8 @@
     }
 
     async function playSampleTtsVoice(voice) {
-      if (sampleVoiceAudio) {
-        sampleVoiceAudio.pause();
-        sampleVoiceAudio = null;
-      }
+      unlockIndexAudio();
+
       if (sampleVoiceTimeout) {
         clearTimeout(sampleVoiceTimeout);
         sampleVoiceTimeout = null;
@@ -1037,66 +1052,114 @@
         return playSampleAudioUrl(ttsIndexCache[cacheKey]);
       }
 
-      const apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
-      const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
-      const instruction = isMale
-        ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme langsam: Fünf. Stillhalten und gehorchen.`
-        : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme langsam: Fünf. Spüre die Hitze.`;
+      const apiKey = localStorage.getItem('kompass_gemini_api_key');
+      const hasValidFormat = apiKey && apiKey.startsWith('AIzaSy');
 
-      try {
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: instruction }] }],
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+      if (hasValidFormat) {
+        const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
+        const instruction = isMale
+          ? `Befiehl mit einer extrem tiefen, rauen, dominanten Männerstimme langsam: Fünf. Stillhalten und gehorchen.`
+          : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen Frauenstimme langsam: Fünf. Spüre die Hitze.`;
+
+        try {
+          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: instruction }] }],
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+              }
+            })
+          });
+
+          if (resp.ok) {
+            const data = await resp.json();
+            const part = data?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+              const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+              const pcmData = base64ToArrayBuffer(audioData);
+              const pcm16 = new Int16Array(pcmData);
+              const wavBlob = pcmToWav(pcm16, sampleRate);
+              const url = URL.createObjectURL(wavBlob);
+              ttsIndexCache[cacheKey] = url;
+              return playSampleAudioUrl(url);
             }
-          })
-        });
-
-        if (!resp.ok) throw new Error("TTS Request failed");
-        const data = await resp.json();
-        const part = data?.candidates?.[0]?.content?.parts?.[0];
-        const audioData = part?.inlineData?.data;
-        const mimeType = part?.inlineData?.mimeType;
-
-        if (audioData && mimeType && mimeType.startsWith("audio/")) {
-          const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-          const pcmData = base64ToArrayBuffer(audioData);
-          const pcm16 = new Int16Array(pcmData);
-          const wavBlob = pcmToWav(pcm16, sampleRate);
-          const url = URL.createObjectURL(wavBlob);
-          ttsIndexCache[cacheKey] = url;
-          return playSampleAudioUrl(url);
+          }
+        } catch (e) {
+          console.debug("TTS Sample API Fallback", e);
         }
-      } catch (e) {
-        console.debug("TTS Sample failed", e);
       }
-      return Promise.resolve();
+
+      // Sofortiger Studio-Fallback: Keine Blockade, kein Warten
+      return playStudioFallbackSpeechSample(voice);
+    }
+
+    function playStudioFallbackSpeechSample(voiceName) {
+      return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+          resolve();
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        const isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
+        const phrase = isMale ? "Fünf. Stillhalten und gehorchen." : "Fünf. Spüre die Hitze.";
+
+        const utterance = new SpeechSynthesisUtterance(phrase);
+        utterance.lang = 'de-DE';
+
+        if (isMale) {
+          utterance.pitch = 0.72;
+          utterance.rate = 0.82;
+        } else {
+          utterance.pitch = 0.84;
+          utterance.rate = 0.78;
+        }
+
+        const voices = window.speechSynthesis.getVoices();
+        const deVoices = voices.filter(v => v.lang.startsWith('de'));
+        if (deVoices.length > 0) {
+          const selected = isMale
+            ? (deVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('stefan')) || deVoices[0])
+            : (deVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('anna') || v.name.toLowerCase().includes('siri')) || deVoices[0]);
+          if (selected) utterance.voice = selected;
+        }
+
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+
+        sampleVoiceTimeout = setTimeout(() => {
+          window.speechSynthesis.cancel();
+          resolve();
+        }, 5000);
+
+        window.speechSynthesis.speak(utterance);
+      });
     }
 
     function playSampleAudioUrl(url) {
       return new Promise((resolve) => {
-        sampleVoiceAudio = new Audio(url);
-        sampleVoiceAudio.onended = () => {
-          sampleVoiceAudio = null;
+        const masterAudio = document.getElementById('master-voice-audio');
+        if (!masterAudio) {
           resolve();
-        };
-        sampleVoiceAudio.onerror = () => {
-          sampleVoiceAudio = null;
-          resolve();
-        };
+          return;
+        }
 
-        sampleVoiceAudio.play().catch(() => resolve());
+        masterAudio.pause();
+        masterAudio.src = url;
 
-        // Strikter 5-Sekunden Hard-Stop
+        masterAudio.onended = () => resolve();
+        masterAudio.onerror = () => resolve();
+
+        masterAudio.play().catch(() => resolve());
+
         sampleVoiceTimeout = setTimeout(() => {
-          if (sampleVoiceAudio) {
-            sampleVoiceAudio.pause();
-            sampleVoiceAudio = null;
-          }
+          masterAudio.pause();
           resolve();
         }, 5000);
       });
