@@ -3,10 +3,10 @@
  * Spezialisiertes Sprach- und Audio-Modul für das Schlafzimmer-Cockpit.
  * 
  * Features:
- * - Direkte Kaskade moderner Google Gemini TTS-Modelle (Despina, Aoede, Enceladus, Fenrir)
- * - Fängt "Prepayment credits depleted" & Quota-Fehler automatisch und unterbrechungsfrei ab
- * - Ausfallsicherer, intim modulierter Sprach-Modulator (verhindert Stille & metallische Standard-Roboter)
- * - 0-ms-Pre-Caching für Countdown (1-10) & Sofort-Kommandos im Speicher
+ * - 100% reine Gemini-TTS-Sprachausgabe (Despina, Aoede, Enceladus, Fenrir)
+ * - KEIN Browser-Web-Speech-Fallback mehr: Die ungeliebte Roboterstimme wurde restlos entfernt!
+ * - Klare Toast-Rückmeldungen, falls ein API-Key fehlt oder Google ein Quota-Limit meldet
+ * - 0-ms-Pre-Caching für Countdown (1-10) und Sofort-Kommandos im Speicher
  * - Strenger 5-Sekunden-Autostopp beim Probehören
  * - Sanftes Audio-Ducking während Sprachausgaben
  */
@@ -19,7 +19,7 @@
   var isPreloading = false;
   var previewTimeout = null;
   var isVoiceCurrentlyPlaying = false;
-  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
+  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
@@ -45,7 +45,7 @@
     setTimeout(function() {
       el.classList.add('opacity-0');
       setTimeout(function() { el.remove(); }, 300);
-    }, 3000);
+    }, 3500);
   }
 
   function updatePreviewButtons(state) {
@@ -53,12 +53,12 @@
     var b2 = document.getElementById('btn-preview-step2');
     
     if (b1) {
-      if (state === 'loading') b1.innerText = "⏳ Lädt...";
+      if (state === 'loading') b1.innerText = "⏳ Lädt Gemini...";
       else if (state === 'playing') b1.innerText = "⏹ Stopp";
       else b1.innerText = "Probe (5s)";
     }
     if (b2) {
-      if (state === 'loading') b2.innerText = "⏳ Lädt...";
+      if (state === 'loading') b2.innerText = "⏳ Lädt Gemini...";
       else if (state === 'playing') b2.innerText = "⏹ Stopp (5s)";
       else b2.innerText = "🔊 Probehören (5s)";
     }
@@ -165,87 +165,10 @@
       audio.pause();
       audio.currentTime = 0;
     }
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
     updatePreviewButtons('idle');
     if (typeof window.applyAudioDucking === 'function') {
       window.applyAudioDucking(false);
     }
-  }
-
-  function playSensualIntimacyVoice(text, voiceName, isPreview) {
-    return new Promise(function(resolve) {
-      if (!window.speechSynthesis) {
-        updatePreviewButtons('idle');
-        resolve();
-        return;
-      }
-
-      window.speechSynthesis.cancel();
-      isVoiceCurrentlyPlaying = true;
-      if (isPreview) updatePreviewButtons('playing');
-
-      if (typeof window.applyAudioDucking === 'function') {
-        window.applyAudioDucking(true);
-      }
-
-      var utter = new SpeechSynthesisUtterance(text.trim());
-      utter.lang = 'de-DE';
-
-      // Entschleunigte Atemfrequenz & warme, sonore Stimmlage
-      var isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
-      utter.rate = 0.85;  // Ruhig & entschleunigt
-      utter.pitch = isMale ? 0.76 : 0.92; // Tiefe, erotische Wärme statt schnelles Computer-Quäken
-
-      var voices = window.speechSynthesis.getVoices() || [];
-      var deVoices = voices.filter(function(v) { return v.lang && v.lang.indexOf('de') !== -1; });
-
-      if (deVoices.length > 0) {
-        var preferredVoice = isMale
-          ? deVoices.find(function(v) {
-              var n = v.name.toLowerCase();
-              return n.indexOf('markus') !== -1 || n.indexOf('male') !== -1 || n.indexOf('stefan') !== -1 || n.indexOf('martin') !== -1;
-            })
-          : deVoices.find(function(v) {
-              var n = v.name.toLowerCase();
-              return n.indexOf('anna') !== -1 || n.indexOf('female') !== -1 || n.indexOf('katja') !== -1 || n.indexOf('marlene') !== -1;
-            });
-        utter.voice = preferredVoice || deVoices[0];
-      }
-
-      utter.onend = function() {
-        isVoiceCurrentlyPlaying = false;
-        updatePreviewButtons('idle');
-        if (typeof window.applyAudioDucking === 'function') {
-          window.applyAudioDucking(false);
-        }
-        resolve();
-      };
-
-      utter.onerror = function() {
-        isVoiceCurrentlyPlaying = false;
-        updatePreviewButtons('idle');
-        if (typeof window.applyAudioDucking === 'function') {
-          window.applyAudioDucking(false);
-        }
-        resolve();
-      };
-
-      if (isPreview) {
-        previewTimeout = setTimeout(function() {
-          window.speechSynthesis.cancel();
-          isVoiceCurrentlyPlaying = false;
-          updatePreviewButtons('idle');
-          if (typeof window.applyAudioDucking === 'function') {
-            window.applyAudioDucking(false);
-          }
-          resolve();
-        }, 5000);
-      }
-
-      window.speechSynthesis.speak(utter);
-    });
   }
 
   async function playSensualGeminiVoice(text, voiceOverride, isPreview) {
@@ -269,16 +192,23 @@
 
     var apiKey = getGeminiApiKey();
 
-    // 2. Kaskade moderner TTS-Modelle
+    if (!apiKey || apiKey.length < 10) {
+      updatePreviewButtons('idle');
+      showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte in den Einstellungen (⚙️) eintragen.");
+      return;
+    }
+
+    // 2. Kaskade der Gemini TTS-Modelle
     var candidateModels = [
       activeDiscoveredTtsModel,
-      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts"
+      "gemini-3.8-flash-lite-tts",
+      "gemini-3.8-flash",
+      "gemini-2.5-flash-preview-tts"
     ];
 
     var success = false;
-    var isPrepaymentIssue = false;
+    var lastErrorMessage = "";
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
@@ -321,22 +251,28 @@
           }
         } else {
           var errData = await resp.json().catch(function() { return {}; });
-          var msg = errData.error?.message || "";
-          if (msg.indexOf('prepayment credits are depleted') !== -1 || resp.status === 429) {
-            isPrepaymentIssue = true;
+          var msg = errData.error?.message || ("HTTP " + resp.status);
+          lastErrorMessage = msg;
+
+          // Google Prepayment Fehler abfangen
+          if (resp.status === 402 || resp.status === 429 || msg.indexOf('prepayment credits are depleted') !== -1) {
+            lastErrorMessage = "Google meldet: Prepayment-Credits erschöpft oder Billing erforderlich.";
             break;
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        lastErrorMessage = e.message || "Netzwerkfehler";
+      }
     }
 
-    // Wenn der Key kein Guthaben hat (Prepayment depleted) oder offline ist:
-    if (!success) {
-      if (isPrepaymentIssue) {
-        showToast("💡 Tipp: Erstelle in Google AI Studio ein Projekt ohne Billing für kostenloses Gemini TTS.");
-      }
-      return playSensualIntimacyVoice(text, voiceToUse, isPreview);
+    // Wenn alle TTS-Modelle fehlgeschlagen sind:
+    updatePreviewButtons('idle');
+    if (typeof window.applyAudioDucking === 'function') {
+      window.applyAudioDucking(false);
     }
+
+    // KEINE Computerstimme abspielen! Stattdessen saubere Toast-Meldung:
+    showToast("⚠️ Gemini Voice (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
   }
 
   function playAudioUrlDirectly(url, isPreview) {
@@ -389,7 +325,7 @@
             cleanup();
           }, 5000);
         }
-      }).catch(function(err) {
+      }).catch(function() {
         cleanup();
       });
     });
@@ -426,8 +362,9 @@
   async function generateAndCacheSnippet(text, voiceToUse, apiKey) {
     var candidateModels = [
       activeDiscoveredTtsModel,
-      "gemini-2.5-flash-preview-tts",
-      "gemini-3.8-flash-tts"
+      "gemini-3.8-flash-tts",
+      "gemini-3.8-flash-lite-tts",
+      "gemini-3.8-flash"
     ];
 
     for (var i = 0; i < candidateModels.length; i++) {
