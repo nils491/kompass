@@ -1,15 +1,14 @@
 /**
  * js/kink_research.js
- * Spezialisiertes Modul für dynamische KI-Kink- & BDSM-Recherche.
+ * High-Speed KI-Kink- & BDSM-Recherche Engine.
  * 
- * Features:
- * - Dynamische Recherche beliebiger Praktiken & Begriffe über Google Gemini
- * - Lokales Caching im localStorage (0 ms Latenz & 0 Token-Verbrauch bei wiederholter Abfrage)
- * - Traumasensibler, schamfreier und wissenschaftlich fundierter Prompt (3-Säulen-Struktur)
- * - Schnelle Latenz: thinkingBudget: 0 schaltet langes internes Grübeln ab
- * - Direkte Anbindung an den Fragebogen (Klick auf '🔍 KI-Info' bei jeder Frage)
- * - Freie Suche mit Schnellauswahl-Chips im Recherche-Modal
- * - Automatischer Reset des Modals beim Schließen für die nächste Suche
+ * Performance-Optimierungen:
+ * - Direkter Fast-Path auf gemini-2.0-flash / gemini-1.5-flash ohne vorgeschaltetes GET /models
+ * - JSON-Modus (responseMimeType: application/json): Nur ~180 Tokens statt 800+ Tokens HTML
+ * - thinkingBudget: 0 schaltet das interne Grübeln komplett ab
+ * - Lokales Client-Side-Rendering des aufwendigen 3-Säulen-Designs in 0 ms
+ * - Persistentes localStorage-Caching für 0 ms Antwortzeit bei wiederholten Begriffen
+ * - Automatischer Reset beim Schließen des Modals
  */
 
 (function(window) {
@@ -17,7 +16,6 @@
 
   var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var memoryCache = {};
-  var cachedAvailableModels = null;
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -56,7 +54,7 @@
   }
 
   function getCacheKey(term) {
-    return 'kompass_kink_cache_' + (term || '').toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
+    return 'kompass_kink_cache_v2_' + (term || '').toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
   }
 
   function getCachedResult(term) {
@@ -73,49 +71,113 @@
     return null;
   }
 
-  function setCachedResult(term, html) {
+  function setCachedResult(term, data) {
     var key = getCacheKey(term);
-    var data = { term: term, html: html, timestamp: Date.now() };
-    memoryCache[key] = data;
+    var entry = { term: term, data: data, timestamp: Date.now() };
+    memoryCache[key] = entry;
     try {
-      localStorage.setItem(key, JSON.stringify(data));
+      localStorage.setItem(key, JSON.stringify(entry));
     } catch (e) {}
   }
 
-  async function resolveAvailableTextModels(apiKey) {
-    if (cachedAvailableModels && cachedAvailableModels.length > 0) {
-      return cachedAvailableModels;
-    }
-    var fallbackList = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
-      if (resp.ok) {
-        var data = await resp.json();
-        var models = (data.models || []).filter(function(m) {
-          return m.supportedGenerationMethods &&
-            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
-            m.name.indexOf('tts') === -1 &&
-            m.name.indexOf('omni') === -1 &&
-            m.name.indexOf('image') === -1 &&
-            m.name.indexOf('video') === -1 &&
-            m.name.indexOf('embed') === -1;
-        }).map(function(m) {
-          return m.name.replace('models/', '');
-        });
+  function renderResearchUI(term, data, fromCache, modelName) {
+    var steps = Array.isArray(data.steps) ? data.steps : [
+      { title: "Vorbereitung & Konsens", desc: "Materialien bereitlegen, Grenzen klären." },
+      { title: "Einstieg & Steigerung", desc: "Behutsamer Beginn und langsame Reizsteigerung." },
+      { title: "Führung & Feedback", desc: "Atmung, Signale und Muskelspannung beobachten." },
+      { title: "Ausklang & Aftercare", desc: "Warmes Halten, Decken und Trinken reichen." }
+    ];
 
-        if (models.length > 0) {
-          models.sort(function(a, b) {
-            var aScore = (a.indexOf('flash') !== -1 ? 10 : 0) + (a.indexOf('2.0') !== -1 ? 5 : 0);
-            var bScore = (b.indexOf('flash') !== -1 ? 10 : 0) + (b.indexOf('2.0') !== -1 ? 5 : 0);
-            return bScore - aScore;
-          });
-          cachedAvailableModels = models;
-          return models;
-        }
-      }
-    } catch (e) {}
-    cachedAvailableModels = fallbackList;
-    return fallbackList;
+    var statusHtml = fromCache
+      ? `<span class="flex items-center gap-1 text-amber-400 font-semibold">⚡ Sofort aus lokalem Cache (0 ms)</span>`
+      : `<span class="text-purple-300 font-semibold">✨ Frisch recherchiert (${escapeHtml(modelName || 'Gemini Turbo')})</span>`;
+
+    return `
+      <div class="space-y-3.5 animate-fade-in text-xs leading-relaxed">
+        <div class="flex items-center justify-between text-[10.5px] text-slate-400 border-b border-slate-800 pb-1.5">
+          ${statusHtml}
+          <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(term).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-purple-200 font-bold hover:underline">Neu recherchieren ↺</button>
+        </div>
+
+        <!-- SÄULE 1: WAS IST DAS & SICHERHEIT -->
+        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/60 shadow-md space-y-2.5">
+          <div class="flex items-center justify-between border-b border-indigo-900/60 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="text-base">💡</span>
+              <h4 class="text-indigo-200 font-extrabold text-xs uppercase tracking-wide">1. Was ist das & Sicherheitsmerkmale</h4>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-700/60">Definition</span>
+          </div>
+          <div class="space-y-2.5 text-slate-200 text-[11px] leading-relaxed">
+            <p>${escapeHtml(data.definition || '')}</p>
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-900/50 flex items-start gap-2.5">
+              <span class="text-indigo-400 text-base flex-shrink-0">🛡️</span>
+              <div class="flex-1">
+                <strong class="text-indigo-300 block text-[11px] font-bold">Sicherheit & Vorkehrungen:</strong>
+                <span class="text-slate-300 text-[10.5px]">${escapeHtml(data.safety || 'Keine spezifischen physischen Risiken. Gilt als sichere Praktik bei gegenseitigem Konsens.')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SÄULE 2: SEXUELLER REIZ FÜR TOP & BOTTOM -->
+        <div class="p-4 rounded-2xl bg-brand-950/30 border border-brand-900/60 shadow-md space-y-2.5">
+          <div class="flex items-center justify-between border-b border-brand-900/60 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🧠</span>
+              <h4 class="text-brand-300 font-extrabold text-xs uppercase tracking-wide">2. Sexueller Reiz (Warum Menschen darauf stehen)</h4>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-brand-900/60 text-brand-200 border border-brand-700/60">Psychologie</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px]">
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-rose-900/50 space-y-1">
+              <div class="flex items-center gap-1.5 text-rose-300 font-bold">
+                <span>👑</span><span>Reiz für den Top (Führung):</span>
+              </div>
+              <p class="text-slate-300 text-[10.5px] leading-normal">${escapeHtml(data.top_appeal || '')}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-indigo-900/50 space-y-1">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-bold">
+                <span>🧎</span><span>Reiz für den Bottom (Hingabe):</span>
+              </div>
+              <p class="text-slate-300 text-[10.5px] leading-normal">${escapeHtml(data.bottom_appeal || '')}</p>
+            </div>
+          </div>
+
+          ${data.science ? `
+            <div class="p-2.5 rounded-xl bg-purple-950/40 border border-purple-900/50 text-[10.5px] text-slate-300">
+              ✨ <strong class="text-purple-300 font-bold">Wissenschaftliche Einordnung:</strong> ${escapeHtml(data.science)}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- SÄULE 3: BEST PRACTICE ANLEITUNG FÜR DEN TOP -->
+        <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-900/60 shadow-md space-y-2.5">
+          <div class="flex items-center justify-between border-b border-teal-900/60 pb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📋</span>
+              <h4 class="text-teal-300 font-extrabold text-xs uppercase tracking-wide">3. Best Practice: Anleitung für den Top</h4>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-teal-900/60 text-teal-300 border border-teal-700/60">Schritt für Schritt</span>
+          </div>
+
+          <div class="space-y-2 text-[11px] text-slate-300">
+            ${steps.map(function(s, idx) {
+              return `
+                <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-900/80 border border-teal-950">
+                  <span class="w-5 h-5 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">${idx + 1}</span>
+                  <div>
+                    <strong class="text-teal-200 block text-[10.5px]">${escapeHtml(s.title || ('Schritt ' + (idx + 1)))}:</strong>
+                    <span class="text-slate-300 text-[10.5px]">${escapeHtml(s.desc || '')}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   async function performResearch(term, contextDesc) {
@@ -126,32 +188,24 @@
     var input = document.getElementById('lexikon-search-input');
     if (input) input.value = cleanTerm;
 
-    // 1. Aus Cache lesen (0 ms Latenz)
+    // 1. Sofort aus Cache (0 ms)
     var cached = getCachedResult(cleanTerm);
-    if (cached) {
+    if (cached && cached.data) {
       if (container) {
-        container.innerHTML = `
-          <div class="space-y-3 animate-fade-in">
-            <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1.5">
-              <span class="flex items-center gap-1"><span class="text-amber-400">⚡</span> Sofort aus lokalem Cache geladen (0 ms)</span>
-              <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-purple-200 font-bold hover:underline">Neu recherchieren ↺</button>
-            </div>
-            ${cached.html}
-          </div>
-        `;
+        container.innerHTML = renderResearchUI(cleanTerm, cached.data, true);
       }
       return;
     }
 
-    // 2. Schneller Lade-Zustand rendern
+    // 2. High-Tech Lade-Zustand rendern
     if (container) {
       container.innerHTML = `
-        <div class="p-8 text-center space-y-3 theme-panel rounded-3xl border border-purple-800/40 shadow-xl bg-gradient-to-b from-purple-950/20 to-noir-950">
-          <div class="relative w-10 h-10 mx-auto">
-            <div class="w-10 h-10 border-2 border-purple-500/20 border-t-purple-400 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-xs">✨</div>
+        <div class="p-8 text-center space-y-4 theme-panel rounded-3xl border border-purple-800/40 shadow-xl bg-gradient-to-b from-purple-950/20 to-noir-950">
+          <div class="relative w-12 h-12 mx-auto">
+            <div class="w-12 h-12 border-3 border-purple-500/20 border-t-purple-400 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-sm">⚡</div>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1.5">
             <strong class="text-xs text-white block font-black">Analysiere: "${escapeHtml(cleanTerm)}"</strong>
             <p class="text-[11px] text-purple-300">Wissenschaftliche Einordnung, Reizanalyse & Sicherheitsregeln werden aufbereitet...</p>
           </div>
@@ -161,102 +215,40 @@
 
     var apiKey = getGeminiApiKey();
 
-    var prompt = `
-Du bist ein erfahrener, traumasensibler BDSM- und Sexualaufklärer sowie Paartherapeut.
-Erkläre den Begriff bzw. die sexuelle/BDSM-Praktik für ein aufgeklärtes Paar auf Deutsch.
-Begriff: "${cleanTerm}"
-${contextDesc ? `Zusatzkontext aus dem Fragebogen: "${contextDesc}"` : ''}
+    // Ultraschlanker Prompt: Nur die reinen Text-Daten als JSON verlangen!
+    var prompt = `Du bist ein erfahrener, traumasensibler BDSM- und Sexualaufklärer sowie Paartherapeut.
+Erkläre die Praktik "${cleanTerm}" ${contextDesc ? `(Kontext: "${contextDesc}")` : ''} für ein aufgeklärtes Paar auf Deutsch.
 
-Erstelle eine ansprechende, grafisch strukturierte Aufklärung genau im folgenden HTML-Format (nur reines HTML, keine Markdown-Backticks):
+Antworte ausschließlich als valides JSON mit exakt dieser Struktur:
+{
+  "definition": "Hier in zusammenhängenden 5 bis 15 Sätzen die präzise, bildhafte und schamfreie Erklärung des Ablaufs und der Durchführung.",
+  "safety": "Konkrete physische/psychologische Risikozonen, Nerven, Durchblutung oder ausdrücklich der Hinweis, dass keine physischen Risiken bestehen.",
+  "top_appeal": "Was macht es für den führenden/aktiven Part erregend (z. B. Kontrolle, Reizmodulation, Hingabe des Partners)?",
+  "bottom_appeal": "Was reizt den empfangenden Part (z. B. mentale Entlastung von Alltagsverantwortung, Subspace, sensorische Überwältigung)?",
+  "science": "Kurze neurobiologische oder psychologische Entlastung von Schamgefühlen (warum Menschen darauf stehen).",
+  "steps": [
+    {"title": "Vorbereitung & Konsens", "desc": "Equipment bereitlegen, Grenzen und Safewords vorab klären."},
+    {"title": "Einstieg & Steigerung", "desc": "Wie die Intensität behutsam aufgebaut wird, ohne zu überfordern."},
+    {"title": "Führung & Feedback", "desc": "Worauf der Top kontinuierlich achtet (Atmung, Signale, Körperspannung)."},
+    {"title": "Ausklang & Aftercare", "desc": "Sicheres Beenden, Decken, Wärme und emotionales Auffangen."}
+  ]
+}`;
 
-<div class="space-y-3 text-xs leading-relaxed">
-  <!-- SÄULE 1: WAS IST DAS & SICHERHEIT -->
-  <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/60 shadow-md space-y-2.5">
-    <div class="flex items-center gap-2 border-b border-indigo-900/60 pb-1.5">
-      <span class="text-base">💡</span>
-      <h4 class="text-indigo-200 font-extrabold text-xs uppercase tracking-wide">1. Was ist das & Sicherheitsmerkmale</h4>
-    </div>
-    <div class="space-y-2 text-slate-200 text-[11px] leading-relaxed">
-      <p>[Hier in zusammenhängenden 5 bis maximal 15 Sätzen: Präzise, bildhafte und schamfreie Erklärung des Ablaufs und der Durchführung.]</p>
-      <div class="p-2.5 rounded-xl bg-slate-900/80 border border-indigo-900/40 flex items-start gap-2">
-        <span class="text-indigo-400 text-sm">🛡️</span>
-        <div>
-          <strong class="text-indigo-300 block text-[10.5px]">Sicherheit & Vorkehrungen:</strong>
-          <span class="text-slate-300 text-[10.5px]">[Konkrete physische & psychologische Risikozonen, Nervenverläufe, Durchblutung, Safewords oder der transparente Hinweis, falls die Praktik ohne physische Risiken auskommt.]</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SÄULE 2: SEXUELLER REIZ FÜR TOP & BOTTOM -->
-  <div class="p-4 rounded-2xl bg-brand-950/40 border border-brand-900/60 shadow-md space-y-2.5">
-    <div class="flex items-center gap-2 border-b border-brand-900/60 pb-1.5">
-      <span class="text-base">🧠</span>
-      <h4 class="text-brand-300 font-extrabold text-xs uppercase tracking-wide">2. Sexueller Reiz für Top & Bottom (Warum Menschen darauf stehen)</h4>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
-      <div class="p-2.5 rounded-xl bg-slate-900/80 border border-rose-900/50 space-y-1">
-        <div class="flex items-center gap-1.5 text-rose-300 font-bold">
-          <span>👑</span><span>Reiz für den Top (Führung & Macht):</span>
-        </div>
-        <p class="text-slate-300 text-[10.5px]">[Was macht es für den führenden/aktiven Part erregend (z. B. Kontrolle, Dominanz, Reizmodulation, akustische/visuelle Hingabe des Partners)?]</p>
-      </div>
-      <div class="p-2.5 rounded-xl bg-slate-900/80 border border-indigo-900/50 space-y-1">
-        <div class="flex items-center gap-1.5 text-indigo-300 font-bold">
-          <span>🧎</span><span>Reiz für den Bottom (Hingabe & Empfangen):</span>
-        </div>
-        <p class="text-slate-300 text-[10.5px]">[Was reizt den empfangenden Part (z. B. mentale Entlastung von Alltagsverantwortung, sensorische Überwältigung, Subspace, Schmerzlust)?]</p>
-      </div>
-    </div>
-    <div class="p-2.5 rounded-xl bg-purple-950/30 border border-purple-900/40 text-[10.5px] text-slate-300 italic">
-      ✨ <strong class="text-purple-300 not-italic">Wissenschaftliche Normalisierung:</strong> [Neurobiologische und psychologische Entlastung von Schamgefühlen.]
-    </div>
-  </div>
-
-  <!-- SÄULE 3: BEST PRACTICE ANLEITUNG FÜR DEN TOP -->
-  <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-900/60 shadow-md space-y-2.5">
-    <div class="flex items-center gap-2 border-b border-teal-900/60 pb-1.5">
-      <span class="text-base">📋</span>
-      <h4 class="text-teal-300 font-extrabold text-xs uppercase tracking-wide">3. Best Practice: Anleitung für den Top (Schritt-für-Schritt)</h4>
-    </div>
-    <div class="space-y-1.5 text-[11px] text-slate-300">
-      <div class="flex items-start gap-2 p-2 rounded-xl bg-slate-900/70">
-        <span class="w-4 h-4 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-        <div><strong class="text-teal-200">Vorbereitung & Konsens:</strong> [Equipment bereitlegen, Grenzen und Safewords vorab klären.]</div>
-      </div>
-      <div class="flex items-start gap-2 p-2 rounded-xl bg-slate-900/70">
-        <span class="w-4 h-4 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-        <div><strong class="text-teal-200">Einstieg & Steigerung:</strong> [Wie die Intensität behutsam aufgebaut wird, ohne den Partner zu überfordern.]</div>
-      </div>
-      <div class="flex items-start gap-2 p-2 rounded-xl bg-slate-900/70">
-        <span class="w-4 h-4 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-        <div><strong class="text-teal-200">Führung & Feedback:</strong> [Worauf der Top kontinuierlich achtet (Atmung, Muskelspannung, Augen, Signale).]</div>
-      </div>
-      <div class="flex items-start gap-2 p-2 rounded-xl bg-slate-900/70">
-        <span class="w-4 h-4 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-        <div><strong class="text-teal-200">Ausklang & Aftercare:</strong> [Sicheres Beenden, Decken, Wärme und emotionales Auffangen.]</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-Wichtig: Ausschließlich auf Deutsch, wissenschaftlich fundiert, normalisierend, 0% Moralisieren. Gib nur den HTML-Code ohne \`\`\`html oder \`\`\` zurück.
-`;
-
-    var candidateModels = await resolveAvailableTextModels(apiKey);
+    // Direkte Fast-Path-Kandidaten (kein langsames GET /models vorab!)
+    var fastModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
     var success = false;
     var lastError = "Keine Verbindung zum KI-Dienst";
 
-    for (var i = 0; i < candidateModels.length; i++) {
-      var model = candidateModels[i];
+    for (var i = 0; i < fastModels.length; i++) {
+      var model = fastModels[i];
       try {
         var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
-        
-        // Schnelligkeit: thinkingBudget: 0 schaltet das zeitfressende interne "Denken" der 2.5/Flash-Modelle ab
+
         var payload = {
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.2,
+            responseMimeType: "application/json",
             thinkingConfig: {
               thinkingBudget: 0
             }
@@ -269,7 +261,7 @@ Wichtig: Ausschließlich auf Deutsch, wissenschaftlich fundiert, normalisierend,
           body: JSON.stringify(payload)
         });
 
-        // Falls das Modell thinkingConfig nicht unterstützt, einmal ohne senden
+        // Falls Modell thinkingConfig nicht unterstützt, sofort ohne wiederholen
         if (!resp.ok && resp.status === 400) {
           delete payload.generationConfig.thinkingConfig;
           resp = await fetch(url, {
@@ -280,25 +272,24 @@ Wichtig: Ausschließlich auf Deutsch, wissenschaftlich fundiert, normalisierend,
         }
 
         if (resp.ok) {
-          var data = await resp.json();
-          var rawHtml = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          var cleanContent = rawHtml.replace(/```html/gi, '').replace(/```/g, '').trim();
-
-          setCachedResult(cleanTerm, cleanContent);
-
-          if (container) {
-            container.innerHTML = `
-              <div class="space-y-3">
-                <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-1.5">
-                  <span class="text-purple-300 font-semibold">✨ Frisch recherchiert & gesichert (${escapeHtml(model)})</span>
-                  <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-purple-200 font-bold hover:underline">Neu recherchieren ↺</button>
-                </div>
-                ${cleanContent}
-              </div>
-            `;
+          var resData = await resp.json();
+          var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+          var parsedData;
+          try {
+            parsedData = JSON.parse(rawJson);
+          } catch (pe) {
+            var match = rawJson.match(/\{[\s\S]*\}/);
+            parsedData = match ? JSON.parse(match[0]) : null;
           }
-          success = true;
-          break;
+
+          if (parsedData && parsedData.definition) {
+            setCachedResult(cleanTerm, parsedData);
+            if (container) {
+              container.innerHTML = renderResearchUI(cleanTerm, parsedData, false, model);
+            }
+            success = true;
+            break;
+          }
         } else {
           var errData = await resp.json().catch(function() { return {}; });
           lastError = errData.error?.message || ('HTTP ' + resp.status);
@@ -314,7 +305,10 @@ Wichtig: Ausschließlich auf Deutsch, wissenschaftlich fundiert, normalisierend,
         <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">
           <strong class="block font-bold">⚠️ Fehler bei der Recherche:</strong>
           <p class="text-[11px]">${escapeHtml(lastError)}</p>
-          <p class="text-[10px] text-slate-400 mt-2">Prüfe in den Einstellungen (⚙️) deinen Gemini API-Key.</p>
+          <div class="pt-2 flex items-center justify-between">
+            <span class="text-[10px] text-slate-400">Prüfe in den Einstellungen (⚙️) deinen Gemini API-Key.</span>
+            <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="px-3 py-1 bg-rose-900/60 hover:bg-rose-800 border border-rose-700 text-white rounded-lg text-[10.5px] font-bold touch-btn">Erneut versuchen ↺</button>
+          </div>
         </div>
       `;
     }
