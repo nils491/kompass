@@ -326,12 +326,6 @@ function initApp() {
   checkUrlHashData();
   ensureDataIntegrity();
 
-  if (sessionStorage.getItem('kompass_unlocked') === 'true') {
-    const lock = document.getElementById('site-lockscreen');
-    if (lock) lock.classList.add('hidden');
-    checkOnboardingStatus();
-  }
-
   updateCurrentUserUI();
   renderCurrentChapter();
   renderQuickGrid();
@@ -390,7 +384,6 @@ function loadFromLocalStorage() {
 function checkUrlHashData() {
   const hash = window.location.hash || '';
 
-  // 1. Direkte Ansichten-Navigation via Hash (#view=hub, #view=survey, #view=safety, #view=single)
   if (hash.includes('view=')) {
     if (hash.includes('view=hub')) {
       switchMainView('hub');
@@ -407,7 +400,6 @@ function checkUrlHashData() {
     }
   }
 
-  // 2. Verschlüsselte Antwortdaten laden
   if (!hash.startsWith('#data=')) return;
   try {
     const raw = hash.replace('#data=', '');
@@ -445,13 +437,11 @@ function switchMainView(viewId) {
   const btnSafety = document.getElementById('nav-btn-safety');
   const btnSingle = document.getElementById('nav-btn-single');
 
-  // Alle Ansichten ausblenden
   if (viewHub) viewHub.classList.add('hidden');
   if (viewSurvey) viewSurvey.classList.add('hidden');
   if (viewSafety) viewSafety.classList.add('hidden');
   if (viewSingle) viewSingle.classList.add('hidden');
 
-  // Alle Nav-Buttons zurücksetzen
   const inactiveBtnClass = "px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
   if (btnHub) btnHub.className = inactiveBtnClass;
   if (btnSurvey) btnSurvey.className = inactiveBtnClass;
@@ -689,7 +679,6 @@ function renderCurrentChapter() {
     });
   }
 
-  // Traumasensible Reflexion
   const currentRefl = (chapterReflections[currentUser] && chapterReflections[currentUser][ch.id]) || '';
   html += `
     <div class="theme-card border rounded-2xl p-4 shadow-xs space-y-2 mt-4">
@@ -1518,7 +1507,6 @@ function renderSingleAnalysis() {
     (ch.items || []).forEach(it => {
       const v1 = uAnswers[`it_${it.id}_r1`];
       const v2 = uAnswers[`it_${it.id}_r2`];
-      // 0 (Entfällt) wird aus Verhältnissen herausgehalten
       if (typeof v1 === 'number' && v1 > 0) { totalTop += v1; cTop++; }
       if (typeof v2 === 'number' && v2 > 0) { totalBottom += v2; cBottom++; }
 
@@ -1590,11 +1578,8 @@ function renderScientificGutachten(metrics) {
 
   const isSub = metrics.avgBottom > metrics.avgTop;
   const isTop = metrics.avgTop > metrics.avgBottom;
-  const userName = names[currentUser] || (currentUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-  // Auswertung von Kapitel 0 (Trauma & somatische Sicherheit)
   const traumaExp = (answers[currentUser] && answers[currentUser]['it_901_choice']) || 'none';
-  const traumaHeal = (answers[currentUser] && answers[currentUser]['it_902_choice']) || 'integrated';
   const traumaFrame = (answers[currentUser] && answers[currentUser]['it_903_choice']) || 'safety_first';
 
   let traumaInsight = "";
@@ -1615,7 +1600,6 @@ function renderScientificGutachten(metrics) {
     `;
   }
 
-  // Bestimmung der primären psychologischen Antriebssäule
   const pillars = [
     { name: "Macht & Hingabe (D/s)", val: metrics.pctPower, trait: "Sucht kognitive Entlastung durch klare Führung oder Sinnhaftigkeit durch Verantwortung." },
     { name: "Sensorik & Schmerz (Impact/Shibari)", val: metrics.pctSensation, trait: "Nutzt intensive taktile Hautreize zur körperlichen Erdung und somatischen Katharsis." },
@@ -1631,7 +1615,6 @@ function renderScientificGutachten(metrics) {
     <div class="space-y-4 text-xs leading-relaxed text-slate-300">
       ${traumaInsight}
 
-      <!-- ABSCHNITT 1: PSYCHODYNAMIK -->
       <div class="p-4 rounded-2xl theme-panel border border-indigo-500/40 space-y-2 bg-indigo-950/15">
         <div class="flex items-center justify-between border-b border-indigo-900/60 pb-1.5">
           <strong class="text-indigo-200 font-extrabold text-xs flex items-center gap-1.5">
@@ -1655,7 +1638,6 @@ function renderScientificGutachten(metrics) {
         </p>
       </div>
 
-      <!-- ABSCHNITT 2: NERWENSYSTEM & BIOCHEMIE -->
       <div class="p-4 rounded-2xl theme-panel border border-rose-500/40 space-y-2 bg-rose-950/15">
         <strong class="text-rose-200 font-extrabold text-xs block flex items-center gap-1.5">
           <span>⚡</span> 2. Nervensystem-Regulation & Katharsis (Porges Polyvagal-Theorie & Wuyts et al., 2021)
@@ -1673,7 +1655,6 @@ function renderScientificGutachten(metrics) {
         </ul>
       </div>
 
-      <!-- ABSCHNITT 3: SCHAM-RESILIENZ -->
       <div class="p-4 rounded-2xl theme-panel border border-purple-500/40 space-y-2 bg-purple-950/15">
         <div class="flex items-center justify-between border-b border-purple-900/60 pb-1.5">
           <strong class="text-purple-200 font-extrabold text-xs flex items-center gap-1.5">
@@ -1694,7 +1675,6 @@ function renderScientificGutachten(metrics) {
         </div>
       </div>
 
-      <!-- ABSCHNITT 4: PRAKTISCHER HANDLUNGSLEITFADEN -->
       <div class="p-4 rounded-2xl theme-panel border border-amber-500/40 space-y-2.5 bg-amber-950/15">
         <strong class="text-amber-200 font-extrabold text-xs block flex items-center gap-1.5">
           <span>🧭</span> 4. Wie du ganz konkret mit deiner Analyse arbeiten kannst
@@ -1757,7 +1737,6 @@ function renderSingleRadar() {
           if (it.type !== 'choice') {
             const s1 = uAnswers[`it_${it.id}_r1`];
             const s2 = uAnswers[`it_${it.id}_r2`];
-            // 0 = Entfällt: Nicht im Teiler werten
             if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
             if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
           }
