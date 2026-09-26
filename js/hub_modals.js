@@ -688,7 +688,7 @@
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Willkommen " + chosenName + "! Dein Profil ist eingerichtet ✓");
+    showToast("Willkommen " + chosenName + "! Tippe auf [↑] 'Zum Home-Bildschirm' für schnellen App-Zugriff 📱");
   }
 
   // ==========================================
