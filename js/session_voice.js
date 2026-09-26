@@ -4,9 +4,10 @@
  * 
  * Features:
  * - 0-ms-Pre-Caching für Countdown (1-10) & Sofort-Kommandos im Speicher
- * - Resiliente Gemini-3.8-TTS-Kaskade
- * - Automatischer, unterbrechungsfreier nativer Sprach-Fallback (Web Speech API) bei Google-Überlastung (503 / High Demand)
- * - Kein Abbruch des Countdowns bei Netzwerkschwankungen
+ * - Resiliente Gemini-3.8-TTS-Kaskade mit schnellem Fallback
+ * - Zuverlässige native Sprachausgabe (Web Speech API) bei Server-Überlastung oder ungültigem Key
+ * - Universelle Button-Synchronisation (Start-Hub & Schlafzimmer-Regie)
+ * - Autoplay-Unlocker mit sicherem Puffer für iOS Safari & Chrome
  * - Strenger 5-Sekunden-Autostopp beim Probehören
  */
 
@@ -17,6 +18,7 @@
   var ttsAudioCache = {};
   var isPreloading = false;
   var previewTimeout = null;
+  var isVoiceCurrentlyPlaying = false;
   var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceContext = null;
 
@@ -26,6 +28,22 @@
       if (stored && stored.trim().length > 10) return stored.trim();
     } catch (e) {}
     return DEFAULT_PRESET_GEMINI_KEY;
+  }
+
+  function updatePreviewButtons(state) {
+    var b1 = document.getElementById('btn-acc-voice-preview');
+    var b2 = document.getElementById('btn-preview-step2');
+    
+    if (b1) {
+      if (state === 'loading') b1.innerText = "⏳ Lädt...";
+      else if (state === 'playing') b1.innerText = "⏹ Stopp";
+      else b1.innerText = "Probe (5s)";
+    }
+    if (b2) {
+      if (state === 'loading') b2.innerText = "⏳ Lädt...";
+      else if (state === 'playing') b2.innerText = "⏹ Stopp (5s)";
+      else b2.innerText = "🔊 Probehören (5s)";
+    }
   }
 
   function unlockAudioPlaybackEngine() {
@@ -38,13 +56,23 @@
     }
 
     var masterAudio = document.getElementById('master-voice-audio');
-    if (masterAudio && masterAudio.paused && !masterAudio.src) {
+    if (!masterAudio) {
+      masterAudio = document.createElement('audio');
+      masterAudio.id = 'master-voice-audio';
+      masterAudio.className = 'hidden';
+      document.body.appendChild(masterAudio);
+    }
+
+    // 1-Millisekunde unhörbares Audio für die Autoplay-Aktivierung im Browser
+    if (masterAudio && (!masterAudio.src || masterAudio.src.startsWith('data:'))) {
+      masterAudio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
       masterAudio.play().catch(function() {});
     }
 
-    // Web Speech API im Browser vorab aktivieren
-    if ('speechSynthesis' in window && window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
     }
   }
 
@@ -92,6 +120,7 @@
   }
 
   function stopActiveVoicePlayback() {
+    isVoiceCurrentlyPlaying = false;
     if (previewTimeout) {
       clearTimeout(previewTimeout);
       previewTimeout = null;
@@ -100,25 +129,33 @@
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
-      audio.removeAttribute('src');
     }
-    if ('speechSynthesis' in window) {
+    if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
+    }
+    updatePreviewButtons('idle');
+    if (typeof window.applyAudioDucking === 'function') {
+      window.applyAudioDucking(false);
     }
   }
 
-  /**
-   * Zuverlässiger Fallback über die native Web Speech API des Browsers,
-   * falls die Gemini-Cloud temporär überlastet ist (High Demand / 503).
-   */
   function speakNativeBrowserVoice(text, voiceToUse, isPreview) {
     return new Promise(function(resolve) {
       if (!('speechSynthesis' in window)) {
+        updatePreviewButtons('idle');
         resolve();
         return;
       }
 
-      stopActiveVoicePlayback();
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
+      isVoiceCurrentlyPlaying = true;
+      if (isPreview) updatePreviewButtons('playing');
 
       if (typeof window.applyAudioDucking === 'function') {
         window.applyAudioDucking(true);
@@ -131,61 +168,72 @@
       utterance.pitch = isMale ? 0.75 : 1.05;
       utterance.rate = 0.92;
 
-      try {
-        var voices = window.speechSynthesis.getVoices() || [];
-        var deVoices = voices.filter(function(v) { return v.lang && v.lang.toLowerCase().startsWith('de'); });
-        if (deVoices.length > 0) {
-          if (isMale) {
-            var mVoice = deVoices.find(function(v) {
-              var n = v.name.toLowerCase();
-              return n.includes('male') || n.includes('stefan') || n.includes('martin') || n.includes('markus') || n.includes('jannik');
-            });
-            utterance.voice = mVoice || deVoices[0];
-          } else {
-            var fVoice = deVoices.find(function(v) {
-              var n = v.name.toLowerCase();
-              return n.includes('female') || n.includes('anna') || n.includes('katja') || n.includes('marlene') || n.includes('hedda');
-            });
-            utterance.voice = fVoice || deVoices[0];
+      // 40ms Verzögerung, um den Chrome cancel()-Bug zu umgehen
+      setTimeout(function() {
+        try {
+          var voices = window.speechSynthesis.getVoices() || [];
+          var deVoices = voices.filter(function(v) { return v.lang && v.lang.toLowerCase().startsWith('de'); });
+          if (deVoices.length > 0) {
+            if (isMale) {
+              var mVoice = deVoices.find(function(v) {
+                var n = v.name.toLowerCase();
+                return n.includes('male') || n.includes('stefan') || n.includes('martin') || n.includes('markus') || n.includes('jannik');
+              });
+              utterance.voice = mVoice || deVoices[0];
+            } else {
+              var fVoice = deVoices.find(function(v) {
+                var n = v.name.toLowerCase();
+                return n.includes('female') || n.includes('anna') || n.includes('katja') || n.includes('marlene') || n.includes('hedda');
+              });
+              utterance.voice = fVoice || deVoices[0];
+            }
           }
+        } catch (e) {}
+
+        var finished = false;
+        function done() {
+          if (finished) return;
+          finished = true;
+          isVoiceCurrentlyPlaying = false;
+          if (previewTimeout) {
+            clearTimeout(previewTimeout);
+            previewTimeout = null;
+          }
+          if (typeof window.applyAudioDucking === 'function') {
+            window.applyAudioDucking(false);
+          }
+          updatePreviewButtons('idle');
+          resolve();
         }
-      } catch (e) {}
 
-      var finished = false;
-      function done() {
-        if (finished) return;
-        finished = true;
-        if (typeof window.applyAudioDucking === 'function') {
-          window.applyAudioDucking(false);
+        utterance.onend = done;
+        utterance.onerror = done;
+
+        if (isPreview) {
+          previewTimeout = setTimeout(function() {
+            stopActiveVoicePlayback();
+            done();
+          }, 5000);
         }
-        var btn = document.getElementById('btn-acc-voice-preview');
-        if (btn && isPreview) btn.innerText = "Probe (5s)";
-        resolve();
-      }
 
-      utterance.onend = done;
-      utterance.onerror = done;
-
-      var btn = document.getElementById('btn-acc-voice-preview');
-      if (btn && isPreview) btn.innerText = "⏹ Stopp";
-
-      window.speechSynthesis.speak(utterance);
-
-      // Sicherheits-Timeout, falls die Sprachausgabe hängt
-      setTimeout(done, isPreview ? 5000 : 4000);
+        window.speechSynthesis.speak(utterance);
+      }, 40);
     });
   }
 
-  /**
-   * Spielt einen Text mit der Gemini-Stimme ab.
-   * Schlägt Gemini wegen Server-Überlastung fehl, übernimmt nahtlos die Browser-Stimme.
-   */
   async function playSensualGeminiVoice(text, voiceOverride, isPreview) {
+    if (isPreview && isVoiceCurrentlyPlaying) {
+      stopActiveVoicePlayback();
+      return;
+    }
+
     stopActiveVoicePlayback();
 
     var savedVoice = localStorage.getItem('kompass_session_voice') || 'Despina';
     var voiceToUse = voiceOverride || savedVoice;
     var cacheKey = voiceToUse + "_" + text.trim();
+
+    if (isPreview) updatePreviewButtons('loading');
 
     // 1. Instant Playback aus dem Memory-Cache (0 ms Latenz)
     if (ttsAudioCache[cacheKey]) {
@@ -193,7 +241,8 @@
     }
 
     var apiKey = getGeminiApiKey();
-    if (!apiKey || apiKey.length < 10) {
+    // Wenn kein Key oder Preset-Dummy-Key vorhanden ist: sofort nahtlos nativer Fallback!
+    if (!apiKey || apiKey.length < 10 || apiKey.startsWith('AQ.')) {
       return speakNativeBrowserVoice(text, voiceToUse, isPreview);
     }
 
@@ -284,8 +333,13 @@
 
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
+        } else if (resp.status === 400 || resp.status === 403) {
+          // Ungültiger API-Key oder fehlende Berechtigung: sofort abbrechen und Fallback nutzen
+          break;
         }
-      } catch (e) {}
+      } catch (e) {
+        break;
+      }
     }
 
     // 3. Nahtloser Fallback auf die native Stimme bei Google-High-Demand / Offline
@@ -298,9 +352,14 @@
 
       var audio = document.getElementById('master-voice-audio');
       if (!audio) {
-        resolve();
-        return;
+        audio = document.createElement('audio');
+        audio.id = 'master-voice-audio';
+        audio.className = 'hidden';
+        document.body.appendChild(audio);
       }
+
+      isVoiceCurrentlyPlaying = true;
+      if (isPreview) updatePreviewButtons('playing');
 
       audio.src = url;
       audio.currentTime = 0;
@@ -309,6 +368,7 @@
       function cleanup() {
         if (finished) return;
         finished = true;
+        isVoiceCurrentlyPlaying = false;
         if (previewTimeout) {
           clearTimeout(previewTimeout);
           previewTimeout = null;
@@ -318,8 +378,7 @@
         if (typeof window.applyAudioDucking === 'function') {
           window.applyAudioDucking(false);
         }
-        var btn = document.getElementById('btn-acc-voice-preview');
-        if (btn && isPreview) btn.innerText = "Probe (5s)";
+        updatePreviewButtons('idle');
         resolve();
       }
 
@@ -331,9 +390,6 @@
       }
 
       audio.play().then(function() {
-        var btn = document.getElementById('btn-acc-voice-preview');
-        if (btn && isPreview) btn.innerText = "⏹ Stopp";
-
         if (isPreview) {
           previewTimeout = setTimeout(function() {
             stopActiveVoicePlayback();
@@ -346,15 +402,11 @@
     });
   }
 
-  /**
-   * Lädt die Zahlen 10 bis 1 und Sofortkommandos im Hintergrund vor,
-   * damit während des Edgings keine Latenz entsteht.
-   */
   async function preloadCountdownSnippets(voiceName) {
     if (isPreloading) return;
 
     var apiKey = getGeminiApiKey();
-    if (!apiKey || apiKey.length < 10) return;
+    if (!apiKey || apiKey.length < 10 || apiKey.startsWith('AQ.')) return;
 
     isPreloading = true;
 
@@ -454,7 +506,6 @@
     return false;
   }
 
-  // Beim Laden Stimmen der Web Speech API initialisieren
   if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = function() {
       try { window.speechSynthesis.getVoices(); } catch (e) {}
@@ -465,6 +516,7 @@
     play: playSensualGeminiVoice,
     stop: stopActiveVoicePlayback,
     unlock: unlockAudioPlaybackEngine,
+    isPlaying: function() { return isVoiceCurrentlyPlaying; },
     preloadCore: preloadCountdownSnippets,
     preloadSnippet: function(phrase, voiceName) {
       var v = voiceName || localStorage.getItem('kompass_session_voice') || 'Despina';
