@@ -105,7 +105,7 @@
         </a>
 
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <button type="button" onclick="toggleAmbientMusic()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
+          <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
             <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Musik</span>
           </button>
           <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Audio-Ausgabe">
@@ -307,10 +307,10 @@
               <span class="text-[10.5px] text-slate-400">Eigene Spotify / Apple Music Playlist ODER generative Soundscapes</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="selectMusicSource('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
+              <button type="button" onclick="SessionAudio.selectSource('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
                 Eigene Playlist
               </button>
-              <button type="button" onclick="selectMusicSource('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
+              <button type="button" onclick="SessionAudio.selectSource('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
                 Generativ
               </button>
             </div>
@@ -325,7 +325,7 @@
               Startet eure Playlist in Spotify oder Apple Music. Die Gemini-Sprachführung legt sich bei Ansagen und Countdowns harmonisch über eure Musik.
             </p>
             <div class="flex items-center gap-2">
-              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." onchange="saveCustomPlaylistLink(this.value)" class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
+              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
               <a id="btn-launch-external-music" href="https://open.spotify.com" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-600 text-emerald-200 font-bold text-[10.5px] flex items-center gap-1 touch-btn">
                 App öffnen ↗
               </a>
@@ -334,19 +334,19 @@
 
           <div id="music-panel-synth" class="hidden space-y-2">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" onclick="setSoundscapeStyle('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
+              <button type="button" onclick="SessionAudio.setStyle('velvet')" id="btn-style-velvet" class="p-2 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn">
                 <span>Cinematic Velvet</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Akkord-Filmmusik</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyle('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="SessionAudio.setStyle('bowls')" id="btn-style-bowls" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Klangtempel 432Hz</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyle('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="SessionAudio.setStyle('ocean')" id="btn-style-ocean" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Ozean-Symphonie</span>
                 <span class="block text-[9px] text-slate-400 font-normal">Dynamische Ebbe & Flut</span>
               </button>
-              <button type="button" onclick="setSoundscapeStyle('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <button type="button" onclick="SessionAudio.setStyle('beats')" id="btn-style-beats" class="p-2 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
                 <span>Dark Downtempo</span>
                 <span class="block text-[9px] text-slate-400 font-normal">808 Erotik-Grooves</span>
               </button>
@@ -355,13 +355,13 @@
 
           <div class="flex items-center justify-between pt-1 border-t border-slate-800">
             <div class="flex items-center gap-1.5">
-              <button type="button" onclick="toggleAmbientMusic()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
+              <button type="button" onclick="SessionAudio.toggle()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
                 ▶ Audio starten
               </button>
-              <button type="button" onclick="adjustAmbientEnergy('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
+              <button type="button" onclick="SessionAudio.adjustEnergy('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
                 ➖ Ruhiger
               </button>
-              <button type="button" onclick="adjustAmbientEnergy('energy')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs touch-btn">
+              <button type="button" onclick="SessionAudio.adjustEnergy('energy')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs touch-btn">
                 ➕ Energetischer
               </button>
             </div>
@@ -530,7 +530,7 @@
             <strong class="text-white block">Top-Assistenz & Bestrafungs-Konfigurator</strong>
             <span class="text-[10.5px] text-slate-400">Vergehen erfassen, Haltung & Bestrafung kontextuell berechnen</span>
           </div>
-          <button type="button" onclick="openIncidentDisciplineModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="SessionDiscipline.open()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Bestrafung anordnen ⚖
           </button>
         </div>
@@ -543,19 +543,19 @@
           <span class="text-[9.5px] text-slate-400 font-mono" id="ambient-intensity-display">(Stufe 2/4)</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <select id="select-cockpit-soundscape" onchange="setSoundscapeStyle(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
+          <select id="select-cockpit-soundscape" onchange="SessionAudio.setStyle(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
             <option value="velvet">Cinematic Velvet</option>
             <option value="bowls">Klangtempel 432Hz</option>
             <option value="ocean">Ozean-Symphonie</option>
             <option value="beats">Dark Downtempo</option>
           </select>
-          <button type="button" onclick="toggleAmbientMusic()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
+          <button type="button" onclick="SessionAudio.toggle()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
             ▶ Play
           </button>
-          <button type="button" onclick="adjustAmbientEnergy('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
+          <button type="button" onclick="SessionAudio.adjustEnergy('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
             ➖ Ruhiger
           </button>
-          <button type="button" onclick="adjustAmbientEnergy('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
+          <button type="button" onclick="SessionAudio.adjustEnergy('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
             ➕ Energetischer
           </button>
         </div>
@@ -605,7 +605,7 @@
             <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Musik live</p>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" id="btn-test-edging-voice" onclick="testGeminiVoiceSample()" class="px-2.5 py-1 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 text-[10.5px] font-bold touch-btn">
+            <button type="button" id="btn-test-edging-voice" onclick="testSelectedVoiceInStep2()" class="px-2.5 py-1 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 text-[10.5px] font-bold touch-btn">
               Stimme testen (5s)
             </button>
             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-800">
@@ -754,7 +754,7 @@
           <h3 class="text-sm font-extrabold text-white">Top-Assistenz & Bestrafungs-Konfigurator</h3>
           <p class="text-[10px] text-slate-400" id="wizard-stage-subtitle">Stufe 1 von 5: Vergehen, Anlass & Maßnahme</p>
         </div>
-        <button onclick="closeIncidentDisciplineModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+        <button onclick="SessionDiscipline.close()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
       <div id="wizard-conflict-warning" class="hidden p-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-200 text-[10.5px] flex items-center gap-2">
@@ -767,11 +767,11 @@
           <div class="space-y-1.5">
             <span class="text-slate-300 font-bold text-xs block">1. Kategorie des Vergehens:</span>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
-              <button type="button" onclick="selectIncidentCategory('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
-              <button type="button" onclick="selectIncidentCategory('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltungsfehler</button>
-              <button type="button" onclick="selectIncidentCategory('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Unerlaubte Lust</button>
-              <button type="button" onclick="selectIncidentCategory('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflichtversäumnis</button>
-              <button type="button" onclick="selectIncidentCategory('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-purple-300 touch-btn">Selbstvollzug</button>
+              <button type="button" onclick="SessionDiscipline.selectCategory('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
+              <button type="button" onclick="SessionDiscipline.selectCategory('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltungsfehler</button>
+              <button type="button" onclick="SessionDiscipline.selectCategory('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Unerlaubte Lust</button>
+              <button type="button" onclick="SessionDiscipline.selectCategory('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflichtversäumnis</button>
+              <button type="button" onclick="SessionDiscipline.selectCategory('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-purple-300 touch-btn">Selbstvollzug</button>
             </div>
           </div>
 
@@ -780,7 +780,7 @@
               <span class="text-slate-300 font-bold text-xs">2. Konkreter Anlass / Schilderung:</span>
               <span class="text-[9.5px] text-slate-400">Live-Analyse aktiv</span>
             </div>
-            <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInput(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+            <input type="text" id="incident-top-custom-reason" oninput="SessionDiscipline.handleReasonInput(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
           </div>
 
           <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-1">
@@ -794,9 +794,9 @@
           <div class="flex items-center justify-between border-t border-slate-800 pt-2">
             <span class="font-bold text-slate-300 text-xs">Härtegrad der Bestrafung:</span>
             <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverity(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverity(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverity(1, 3)" id="sev-btn-1-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(1, 3)" id="sev-btn-1-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
 
@@ -810,9 +810,9 @@
               <span class="text-[10px] text-slate-400">Wie der Bottom während des Rituals verharren muss</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverity(2, 1)" id="sev-btn-2-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverity(2, 2)" id="sev-btn-2-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverity(2, 3)" id="sev-btn-2-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(2, 1)" id="sev-btn-2-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(2, 2)" id="sev-btn-2-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(2, 3)" id="sev-btn-2-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-2-cards-container" class="space-y-2"></div>
@@ -825,9 +825,9 @@
               <span class="text-[10px] text-slate-400">Verhindert unruhiges Ausweichen</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverity(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverity(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverity(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-3-cards-container" class="space-y-2"></div>
@@ -840,9 +840,9 @@
               <span class="text-[10px] text-slate-400">Mund und Augen während der Bestrafung (Max. 15 Minuten)</span>
             </div>
             <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverity(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverity(4, 2)" id="sev-btn-4-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverity(4, 3)" id="sev-btn-4-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(4, 2)" id="sev-btn-4-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
+              <button type="button" onclick="SessionDiscipline.setSeverity(4, 3)" id="sev-btn-4-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
             </div>
           </div>
           <div id="stage-4-cards-container" class="space-y-2"></div>
@@ -855,7 +855,7 @@
           </div>
           <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
             <span class="text-slate-300 text-[11px]">Bestrafung jetzt offiziell ausrufen & im Log dokumentieren:</span>
-            <button type="button" onclick="applyConfiguredDiscipline()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            <button type="button" onclick="SessionDiscipline.apply()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
               Strafe anwenden ⚖
             </button>
           </div>
@@ -863,14 +863,14 @@
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <button type="button" onclick="prevWizardStage()" id="btn-prev-wizard" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        <button type="button" onclick="SessionDiscipline.prevStage()" id="btn-prev-wizard" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
           ← Zurück
         </button>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="rerollCurrentWizardStage()" id="btn-reroll-wizard" class="px-3 py-2 bg-slate-900 border border-slate-700 text-brand-300 font-bold rounded-xl text-xs touch-btn">
+          <button type="button" onclick="SessionDiscipline.rerollStage()" id="btn-reroll-wizard" class="px-3 py-2 bg-slate-900 border border-slate-700 text-brand-300 font-bold rounded-xl text-xs touch-btn">
             Neu würfeln
           </button>
-          <button type="button" onclick="nextWizardStage()" id="btn-next-wizard" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          <button type="button" onclick="SessionDiscipline.nextStage()" id="btn-next-wizard" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Weiter →
           </button>
         </div>
@@ -955,7 +955,6 @@
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
 
-  <!-- MODULARE SPEZIALISIERTE SESSION-ENGINES -->
   <script src="js/session_voice.js"></script>
   <script src="js/session_discipline.js"></script>
   <script src="js/session_audio.js"></script>
@@ -1009,7 +1008,6 @@
       checkUnratedSessions();
       updateHeaderTabuCounter();
 
-      // Pre-Caching für 0-ms-Countdown starten
       if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
         window.SessionVoice.preloadCore(activeSessionVoice);
       }
@@ -1043,7 +1041,6 @@
         activeEquipmentIds = catalog.filter(i => i.defaultPresent).map(i => i.id);
       }
 
-      // Globale Variablen für Submodule bereitstellen
       window.subPartner = subPartner;
       window.topPartner = topPartner;
       window.names = names;
@@ -1314,16 +1311,6 @@
       testSelectedVoiceInStep2();
     }
 
-    function testGeminiVoiceSample() {
-      if (window.SessionVoice) window.SessionVoice.unlock();
-      testSelectedVoiceInStep2();
-    }
-
-    function unlockAudioEngineOnUserGesture() {
-      if (window.SessionVoice) window.SessionVoice.unlock();
-      if (window.SessionAudio) window.SessionAudio.ensureGraph();
-    }
-
     function triggerAirPlayPicker() {
       const airplayAudio = document.getElementById('ambient-airplay-audio');
       if (airplayAudio && typeof airplayAudio.webkitShowPlaybackTargetPicker === 'function') {
@@ -1468,7 +1455,8 @@
     }
 
     function startLiveSession() {
-      unlockAudioEngineOnUserGesture();
+      if (window.SessionVoice) window.SessionVoice.unlock();
+      if (window.SessionAudio) window.SessionAudio.ensureGraph();
       acquireScreenWakeLock();
 
       document.getElementById('portal-setup-container')?.classList.add('hidden');
@@ -1632,7 +1620,6 @@
 
     function generateDynamicArousalPhrase(level) {
       const subName = names[subPartner] || 'Bottom';
-      const topName = names[topPartner] || 'Top';
       if (level <= 3) {
         return `Ganz ruhig atmen, ${subName}. Wir bauen die Spannung langsam auf.`;
       } else if (level <= 6) {
@@ -1686,567 +1673,4 @@
       cooldownSecondsRemaining = 45;
       const btn = document.getElementById('btn-cooldown-timer');
 
-      cooldownTimerInterval = setInterval(() => {
-        if (cooldownSecondsRemaining > 0) {
-          cooldownSecondsRemaining--;
-          if (btn) btn.innerText = `${cooldownSecondsRemaining}s Abkühlen`;
-        } else {
-          clearInterval(cooldownTimerInterval);
-          if (btn) btn.innerText = "Abgekühlt ✓";
-          setTimeout(() => { if (btn) btn.innerText = "45s Abkühlen"; }, 2500);
-        }
-      }, 1000);
-    }
-
-    function openReleaseChoiceModal() {
-      const panel = document.getElementById('release-choice-subpanel');
-      panel?.classList.toggle('hidden');
-    }
-
-    function executeReleaseImmediate() {
-      currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (Sofort)" });
-      document.getElementById('release-choice-subpanel')?.classList.add('hidden');
-      showToast("Sofortige Freigabe erteilt!");
-      if (isTopVoiceAssistActive && window.SessionVoice) {
-        window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
-      }
-    }
-
-    function executeReleaseWithCountdown() {
-      document.getElementById('release-choice-subpanel')?.classList.add('hidden');
-      document.getElementById('countdown-wrapper')?.classList.remove('hidden');
-      currentEdgingCountdown = 10;
-      isCountdownActive = true;
-      isEdgingCountdownPaused = false;
-      countdownRunId++;
-      runBreathPacedCountdownLoop(countdownRunId);
-    }
-
-    async function runBreathPacedCountdownLoop(runId) {
-      const disp = document.getElementById('countdown-display');
-      while (isCountdownActive && currentEdgingCountdown > 0 && runId === countdownRunId) {
-        if (isEdgingCountdownPaused) {
-          await new Promise(r => setTimeout(r, 400));
-          continue;
-        }
-
-        if (disp) disp.innerText = currentEdgingCountdown;
-        if (isTopVoiceAssistActive && window.SessionVoice) {
-          await window.SessionVoice.play(currentEdgingCountdown.toString());
-        } else {
-          await new Promise(r => setTimeout(r, 1100));
-        }
-
-        await new Promise(r => setTimeout(r, 400));
-        currentEdgingCountdown--;
-      }
-
-      if (currentEdgingCountdown <= 0 && runId === countdownRunId) {
-        if (disp) disp.innerText = "KOMMEN!";
-        currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (nach Countdown)" });
-        if (isTopVoiceAssistActive && window.SessionVoice) {
-          await window.SessionVoice.play("Jetzt kommen! Lass alles los!");
-        }
-        setTimeout(() => {
-          document.getElementById('countdown-wrapper')?.classList.add('hidden');
-        }, 4000);
-      }
-    }
-
-    function pauseSpeechCountdown() {
-      isEdgingCountdownPaused = !isEdgingCountdownPaused;
-      const btn = document.getElementById('btn-pause-countdown');
-      if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
-    }
-
-    function resetSpeechCountdown() {
-      isCountdownActive = false;
-      countdownRunId++;
-      document.getElementById('countdown-wrapper')?.classList.add('hidden');
-      currentEdgingCountdown = 10;
-    }
-
-    function finalizeEdgingDecision(decision) {
-      const time = getFormattedTimeNow();
-      if (decision === 'ruined') {
-        currentSessionLog.push({ type: "action", time, label: "Ruined Orgasm angeordnet" });
-        showToast("Ruined Orgasm vollzogen!");
-        if (isTopVoiceAssistActive && window.SessionVoice) {
-          window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
-        }
-      } else if (decision === 'denial') {
-        currentSessionLog.push({ type: "action", time, label: "Lustverweigerung (Denial)" });
-        showToast("Orgasmus verweigert!");
-        if (window.SessionAudio) window.SessionAudio.adjustEnergy('calm');
-        if (isTopVoiceAssistActive && window.SessionVoice) {
-          window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
-        }
-      }
-    }
-
-    function openZenAtemModal() {
-      document.getElementById('modal-session-zen')?.classList.remove('hidden');
-    }
-
-    function closeZenAtemModal() {
-      document.getElementById('modal-session-zen')?.classList.add('hidden');
-    }
-
-    function selectZenMode(mode) {
-      const bBreath = document.getElementById('btn-zen-mode-breath');
-      const bTrance = document.getElementById('btn-zen-mode-trance');
-      const vBreath = document.getElementById('zen-view-breath');
-      const vTrance = document.getElementById('zen-view-trance');
-
-      if (mode === 'breath') {
-        bBreath.className = "p-2.5 rounded-xl border bg-teal-950 border-teal-500 text-white font-bold text-center touch-btn";
-        bTrance.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
-        vBreath?.classList.remove('hidden');
-        vTrance?.classList.add('hidden');
-      } else {
-        bTrance.className = "p-2.5 rounded-xl border bg-purple-950 border-purple-500 text-white font-bold text-center touch-btn";
-        bBreath.className = "p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn";
-        vTrance?.classList.remove('hidden');
-        vBreath?.classList.add('hidden');
-      }
-    }
-
-    function playGuidedTranceInduction() {
-      unlockAudioEngineOnUserGesture();
-      playSensualGeminiVoice("Schließe die Augen. Atme tief in den Bauchraum aus. Lass die Schultern sinken und spüre das feste Gehaltensein.");
-    }
-
-    function openIncidentDisciplineModal() {
-      wizardCurrentStage = 1;
-      selectedStageChoice = { 1: null, 2: null, 3: null, 4: null };
-      showWizardStage(1);
-      renderDisciplineStageContent(1);
-      document.getElementById('modal-incident-discipline')?.classList.remove('hidden');
-    }
-
-    function closeIncidentDisciplineModal() {
-      document.getElementById('modal-incident-discipline')?.classList.add('hidden');
-    }
-
-    function showWizardStage(stage) {
-      wizardCurrentStage = stage;
-      [1, 2, 3, 4, 5].forEach(s => {
-        const el = document.getElementById(`wizard-stage-${s}`);
-        if (el) {
-          if (s === stage) el.classList.remove('hidden');
-          else el.classList.add('hidden');
-        }
-      });
-
-      const sub = document.getElementById('wizard-stage-subtitle');
-      const titles = [
-        "",
-        "Stufe 1 von 5: Vergehen, Anlass & Hauptmaßnahme",
-        "Stufe 2 von 5: Vorgeschriebene Körperhaltung",
-        "Stufe 3 von 5: Passende Fesselung & Arretierung",
-        "Stufe 4 von 5: Sensorische Kontrolle & Knebelung",
-        "Stufe 5 von 5: Vollzugs-Protokoll & Bestätigung"
-      ];
-      if (sub) sub.innerText = titles[stage] || "";
-
-      const btnPrev = document.getElementById('btn-prev-wizard');
-      const btnNext = document.getElementById('btn-next-wizard');
-      if (btnPrev) btnPrev.style.visibility = (stage === 1) ? 'hidden' : 'visible';
-      if (btnNext) btnNext.innerText = (stage === 5) ? "Fertig" : "Weiter →";
-
-      if (stage === 5) renderDisciplineSummary();
-      else renderDisciplineStageContent(stage);
-    }
-
-    function prevWizardStage() {
-      if (wizardCurrentStage > 1) {
-        showWizardStage(wizardCurrentStage - 1);
-      }
-    }
-
-    function nextWizardStage() {
-      if (wizardCurrentStage < 5) {
-        showWizardStage(wizardCurrentStage + 1);
-      } else {
-        closeIncidentDisciplineModal();
-      }
-    }
-
-    function rerollCurrentWizardStage() {
-      catalogOffsets[wizardCurrentStage] = (catalogOffsets[wizardCurrentStage] + 1) % 4;
-      renderDisciplineStageContent(wizardCurrentStage);
-    }
-
-    function selectIncidentCategory(cat) {
-      selectedInfraction = cat;
-      ['mouth', 'posture', 'orgasm', 'duty', 'self_discipline'].forEach(c => {
-        const btn = document.getElementById(`cat-btn-${c}`);
-        if (btn) {
-          if (c === cat) btn.className = "p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-          else btn.className = "p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn";
-        }
-      });
-      renderDisciplineStageContent(1);
-    }
-
-    function handleReasonLiveInput(val) {
-      const ratEl = document.getElementById('top-assist-rationale');
-      if (ratEl) {
-        ratEl.innerText = val.trim().length > 3 
-          ? `Anlass erfasst: "${val.trim()}". Berücksichtige Kontext bei Härte & Haltung.`
-          : "Wähle oder beschreibe ein Vergehen.";
-      }
-    }
-
-    function setStageSeverity(stage, sev) {
-      stageSeverities[stage] = sev;
-      [1, 2, 3].forEach(s => {
-        const btn = document.getElementById(`sev-btn-${stage}-${s}`);
-        if (btn) {
-          if (s === sev) btn.className = "px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-          else btn.className = "px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
-        }
-      });
-      renderDisciplineStageContent(stage);
-    }
-
-    function renderDisciplineStageContent(stage) {
-      const container = document.getElementById(`stage-${stage}-cards-container`);
-      if (!container) return;
-
-      const subName = names[subPartner] || 'Bottom';
-      const sev = stageSeverities[stage];
-
-      let options = [];
-      if (stage === 1) {
-        if (selectedInfraction === 'self_discipline') {
-          options = [
-            { id: "self_spank", title: "Eigenhändiges Stand-Spanking", desc: `${subName} versohlt sich selbst mit flacher Hand oder Riemen auf das Gesäß vor den Augen des Tops.` },
-            { id: "self_clamps", title: "Selbst-Klammerung der Brustwarzen", desc: `${subName} setzt sich eigenhändig Klammern an die Brustwarzen und verharrt still.` }
-          ];
-        } else {
-          options = [
-            { id: "hand_spank", title: "Handspanking über den Knien", desc: `15 bis 25 rhythmische Schläge mit flacher Hand auf das entblößte Gesäß von ${subName}.`, ratingBadge: "⭐ Kink-Favorit (Bottom liebt dies)" },
-            { id: "paddle_chastise", title: "Zucht mit dem Leder-Paddle", desc: `10 präzise gesetzte Hiebe mit dem schweren Leder-Paddle zur Durchwärmung.`, ratingBadge: "✨ Reizvoll (Lustvolle Strafe)" },
-            { id: "corner_chastise", title: "Formale Corner-Time & Besinnung", desc: `10 Minuten aufrechtes Stehen mit der Nase zur Wand vor dem Vollzug.`, ratingBadge: "🎁 Buße & Duldung (Echte Strafe)" },
-            { id: "belt_chastise", title: "Disziplinierung mit dem gefalteten Ledergürtel", desc: `8 bis 12 satte Hiebe auf die Gesäßmuskeln mit lautem Mitzählen.`, ratingBadge: "💡 Neugierig / Gesprächsbedarf" }
-          ];
-        }
-      } else if (stage === 2) {
-        options = [
-          { id: "hands_behind_back", title: "Aufrechter Kniestand (Hände am Rücken)", desc: `Aufrecht kniend, Kinn angehoben und Hände hinter dem Rücken verschränkt.` },
-          { id: "over_knees", title: "Quer über den Oberschenkeln des Tops", desc: `Flach über die Oberschenkel des Tops gelegt, Becken exponiert.` },
-          { id: "bed_edge_kneel", title: "Vorbeuge an der Bettkante", desc: `Becken auf der Matratzenkante aufliegend, Oberkörper tief gebeugt.` }
-        ];
-      } else if (stage === 3) {
-        options = [
-          { id: "leather_wrist_cuffs", title: "Leder-Handgelenksmanschetten", desc: "Hände hinter dem Rücken arretiert für verlässliche Bewegungslosigkeit." },
-          { id: "silk_tie_scarf", title: "Sanfte Fesselung mit Seidenschal", desc: "Handgelenke weich vor dem Körper mit dem Seidenschal verbunden." },
-          { id: "no_bondage", title: "Freie Haltung ohne Fesselung", desc: "Verharren durch reine Disziplin und Gehorsam." }
-        ];
-      } else if (stage === 4) {
-        options = [
-          { id: "soft_cloth_towel", title: "Weicher Tuchknebel", desc: "Gefaltetes Stofftuch zwischen den Zähnen zur Dämpfung." },
-          { id: "leather_blindfold_padded", title: "Blickdichte Leder-Augenmaske", desc: "Schaltet den Sehsinn vollständig ab für maximale innere Einkehr." },
-          { id: "no_sensory", title: "Keine sensorische Einschränkung", desc: "Volle visuelle und akustische Wahrnehmung." }
-        ];
-      }
-
-      container.innerHTML = options.map((opt, idx) => {
-        const isSel = selectedStageChoice[stage]?.id === opt.id || (!selectedStageChoice[stage] && idx === 0);
-        if (isSel && !selectedStageChoice[stage]) selectedStageChoice[stage] = opt;
-
-        return `
-          <button type="button" onclick="selectDisciplineOption(${stage}, '${opt.id}', '${escapeHtml(opt.title)}', '${escapeHtml(opt.desc)}')" class="w-full p-3 rounded-2xl border text-left transition touch-btn ${isSel ? 'bg-brand-950/40 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700'}">
-            <div class="flex items-center justify-between">
-              <strong class="text-xs text-white">${escapeHtml(opt.title)}</strong>
-              <span class="text-xs ${isSel ? 'text-brand-300' : 'text-slate-600'}">${isSel ? '✓' : '○'}</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">${escapeHtml(opt.desc)}</p>
-            ${opt.ratingBadge ? `<span class="inline-block mt-1 text-[9.5px] px-2 py-0.5 rounded bg-brand-950 text-brand-300 border border-brand-800 font-semibold">${opt.ratingBadge}</span>` : ''}
-          </button>
-        `;
-      }).join('');
-
-      runPhysicalConstraintValidation();
-    }
-
-    function selectDisciplineOption(stage, id, title, desc) {
-      selectedStageChoice[stage] = { id, title, desc };
-      renderDisciplineStageContent(stage);
-    }
-
-    function runPhysicalConstraintValidation() {
-      const currentSetup = {
-        action: selectedStageChoice[1],
-        posture: selectedStageChoice[2],
-        bondage: selectedStageChoice[3],
-        sensory: selectedStageChoice[4]
-      };
-
-      const warnBanner = document.getElementById('wizard-conflict-warning');
-      const warnText = document.getElementById('wizard-conflict-text');
-
-      if (typeof window.validateDisciplineSetup === 'function') {
-        const res = window.validateDisciplineSetup(currentSetup);
-        if (!res.isValid && res.conflicts.length > 0) {
-          if (warnBanner) warnBanner.classList.remove('hidden');
-          if (warnText) warnText.innerText = res.conflicts[0];
-          return;
-        }
-      }
-      if (warnBanner) warnBanner.classList.add('hidden');
-    }
-
-    function renderDisciplineSummary() {
-      const container = document.getElementById('summary-discipline-breakdown');
-      if (!container) return;
-
-      const act = selectedStageChoice[1]?.title || 'Standard-Bestrafung';
-      const pos = selectedStageChoice[2]?.title || 'Kniestand';
-      const bon = selectedStageChoice[3]?.title || 'Keine Fesselung';
-      const sen = selectedStageChoice[4]?.title || 'Keine sensorische Einschränkung';
-      const reason = document.getElementById('incident-top-custom-reason')?.value || 'Allgemeines Vergehen';
-
-      container.innerHTML = `
-        <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] space-y-1">
-          <div><strong class="text-amber-300">Anlass:</strong> ${escapeHtml(reason)}</div>
-          <div><strong class="text-white">1. Maßnahme:</strong> ${escapeHtml(act)}</div>
-          <div><strong class="text-white">2. Haltung:</strong> ${escapeHtml(pos)}</div>
-          <div><strong class="text-white">3. Fesselung:</strong> ${escapeHtml(bon)}</div>
-          <div><strong class="text-white">4. Sensorik:</strong> ${escapeHtml(sen)}</div>
-        </div>
-      `;
-    }
-
-    function applyConfiguredDiscipline() {
-      const act = selectedStageChoice[1]?.title || 'Bestrafung vollzogen';
-      const time = getFormattedTimeNow();
-      currentSessionLog.push({ type: "action", time, label: `Bestrafung: ${act}` });
-      closeIncidentDisciplineModal();
-      showToast("Bestrafung offiziell angeordnet & dokumentiert ⚖");
-
-      if (isTopVoiceAssistActive) {
-        playSensualGeminiVoice(`Bestrafung angeordnet. ${act}. Stillhalten und gehorchen.`);
-      }
-    }
-
-    function endSessionToAftercare() {
-      isSessionPaused = true;
-      document.getElementById('modal-session-aftercare')?.classList.remove('hidden');
-    }
-
-    function closeAftercareModal() {
-      document.getElementById('modal-session-aftercare')?.classList.add('hidden');
-    }
-
-    function completeSessionAndExit() {
-      const topFeed = document.getElementById('aftercare-top-feedback')?.value || '';
-      const subFeed = document.getElementById('aftercare-sub-feedback')?.value || '';
-
-      const sessionEntry = {
-        id: `sess_${Date.now()}`,
-        date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        mode: currentSessionMode === 'guided' ? 'Geführt' : 'Freier Flow',
-        intensity: sessionDepth,
-        top: names[topPartner] || 'Top',
-        bottom: names[subPartner] || 'Bottom',
-        durationMinutes: Math.max(1, Math.round((sessionTotalSeconds - sessionRemainingSeconds) / 60)),
-        edgeCount,
-        topFeedback: topFeed,
-        bottomFeedback: subFeed,
-        events: currentSessionLog
-      };
-
-      sessionDiary.unshift(sessionEntry);
-      try {
-        localStorage.setItem('kompass_session_diary', JSON.stringify(sessionDiary));
-      } catch (e) {}
-
-      if (window.SessionAudio) window.SessionAudio.stopAll();
-      if (window.SessionVoice) window.SessionVoice.stop();
-      releaseScreenWakeLock();
-      window.location.href = "analyse.html";
-    }
-
-    function openSessionDiaryModal() {
-      renderSessionDiaryEntries();
-      document.getElementById('modal-session-diary')?.classList.remove('hidden');
-    }
-
-    function closeSessionDiaryModal() {
-      document.getElementById('modal-session-diary')?.classList.add('hidden');
-    }
-
-    function renderSessionDiaryEntries() {
-      const c = document.getElementById('session-diary-entries-container');
-      if (!c) return;
-
-      if (sessionDiary.length === 0) {
-        c.innerHTML = '<p class="text-slate-500 italic text-center py-4">Noch keine Sessions im Logbuch verzeichnet.</p>';
-        return;
-      }
-
-      c.innerHTML = sessionDiary.map(entry => `
-        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-            <span class="font-bold text-white">${escapeHtml(entry.date)} (${entry.mode})</span>
-            <span class="text-pink-400 font-mono font-bold">Stufe ${entry.intensity}/10</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-[10.5px] text-slate-300">
-            <div>👑 Top: ${escapeHtml(entry.top)}</div>
-            <div>🧎 Bottom: ${escapeHtml(entry.bottom)}</div>
-            <div>⏱️ Dauer: ${entry.durationMinutes} Min</div>
-            <div>🎢 Edges: ${entry.edgeCount || 0}</div>
-          </div>
-          ${entry.topFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong>Top:</strong> ${escapeHtml(entry.topFeedback)}</div>` : ''}
-          ${entry.bottomFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong>Bottom:</strong> ${escapeHtml(entry.bottomFeedback)}</div>` : ''}
-        </div>
-      `).join('');
-    }
-
-    function openSessionTabuModal() {
-      renderSessionTabuList();
-      document.getElementById('modal-session-tabus')?.classList.remove('hidden');
-    }
-
-    function closeSessionTabuModal() {
-      document.getElementById('modal-session-tabus')?.classList.add('hidden');
-    }
-
-    function renderSessionTabuList() {
-      const c = document.getElementById('session-tabu-list-container');
-      if (!c) return;
-
-      const allChapters = window.surveyChapters || [];
-      const uAnswersTop = answers[topPartner] || {};
-      const uAnswersSub = answers[subPartner] || {};
-
-      let topTabus = [];
-      let subTabus = [];
-
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          if (it.type !== 'choice') {
-            if (uAnswersTop[`it_${it.id}_r1`] === 1) topTabus.push({ item: it, role: it.r1 });
-            if (uAnswersSub[`it_${it.id}_r2`] === 1) subTabus.push({ item: it, role: it.r2 });
-          }
-        });
-      });
-
-      c.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900 space-y-1.5">
-            <strong class="text-indigo-200 block text-xs">Ausführungs-Grenzen (${names[topPartner] || 'Top'}):</strong>
-            ${topTabus.length > 0 ? topTabus.map(t => `
-              <div class="p-2 rounded-lg bg-slate-900 text-[10.5px] border border-indigo-950">
-                <span class="text-white block font-bold">${t.item.title}</span>
-                <span class="text-indigo-300 text-[9.5px]">⛔ Ausführung abgelehnt</span>
-              </div>
-            `).join('') : '<p class="text-slate-500 italic text-[10.5px]">Keine Ausführungs-Limits hinterlegt.</p>'}
-          </div>
-
-          <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900 space-y-1.5">
-            <strong class="text-rose-200 block text-xs">Schutz-Schranken (${names[subPartner] || 'Bottom'}):</strong>
-            ${subTabus.length > 0 ? subTabus.map(t => `
-              <div class="p-2 rounded-lg bg-slate-900 text-[10.5px] border border-rose-950">
-                <span class="text-white block font-bold">${t.item.title}</span>
-                <span class="text-rose-300 text-[9.5px]">🛑 Sofort-ROT bei Empfang</span>
-              </div>
-            `).join('') : '<p class="text-slate-500 italic text-[10.5px]">Keine Schutz-Schranken hinterlegt.</p>'}
-          </div>
-        </div>
-      `;
-    }
-
-    function checkUnratedSessions() {
-      const banner = document.getElementById('unrated-sessions-banner');
-      if (!banner) return;
-      const unrated = sessionDiary.some(s => !s.topFeedback || !s.bottomFeedback);
-      if (unrated) banner.classList.remove('hidden');
-      else banner.classList.add('hidden');
-    }
-
-    function dismissUnratedBanner() {
-      document.getElementById('unrated-sessions-banner')?.classList.add('hidden');
-    }
-
-    function updateHeaderTabuCounter() {
-      const el = document.getElementById('session-tabu-counter');
-      if (!el) return;
-      const allChapters = window.surveyChapters || [];
-      const uAnswersTop = answers[topPartner] || {};
-      const uAnswersSub = answers[subPartner] || {};
-      let count = 0;
-
-      allChapters.forEach(ch => {
-        (ch.items || []).forEach(it => {
-          if (it.type !== 'choice') {
-            if (uAnswersTop[`it_${it.id}_r1`] === 1) count++;
-            if (uAnswersSub[`it_${it.id}_r2`] === 1) count++;
-          }
-        });
-      });
-      el.innerText = count;
-    }
-
-    async function acquireScreenWakeLock() {
-      try {
-        if ('wakeLock' in navigator) {
-          screenWakeLock = await navigator.wakeLock.request('screen');
-        }
-      } catch (e) {
-        console.debug("WakeLock nicht verfügbar", e);
-      }
-    }
-
-    function releaseScreenWakeLock() {
-      if (screenWakeLock) {
-        screenWakeLock.release().catch(() => {});
-        screenWakeLock = null;
-      }
-    }
-
-    function getFormattedTimeNow() {
-      return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function showToast(msg) {
-      const c = document.getElementById('toast-container');
-      if (!c) return;
-      const el = document.createElement('div');
-      el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-      el.innerText = msg;
-      c.appendChild(el);
-
-      setTimeout(() => { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-      setTimeout(() => {
-        el.classList.add('opacity-0');
-        setTimeout(() => { el.remove(); }, 300);
-      }, 2500);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function bootstrapSessionPortal() {
-      initSessionPortal();
-      setTimeout(initVoiceSettings, 150);
-      setTimeout(initEquipmentStaging, 250);
-    }
-
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', bootstrapSessionPortal);
-    } else {
-      bootstrapSessionPortal();
-    }
-  </script>
-</body>
-</html>
+      co
