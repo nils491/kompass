@@ -29,6 +29,7 @@
   var isCountdownActive = false;
   var isEdgingCountdownPaused = false;
   var countdownRunId = 0;
+  var countdownVoiceMode = 'gemini'; // 'gemini' oder 'self'
 
   // Zen & Vagus-Atmung
   var zenBreathInterval = null;
@@ -229,6 +230,55 @@
     if (topRole) topRole.innerText = step.top;
     if (subRole) subRole.innerText = step.sub;
     if (phasePill) phasePill.innerText = step.phase.split(':')[0];
+
+    // AUTOMATISCHE EDGING-ERKENNUNG IM DREHBUCH
+    var isEdgingStep = step.title.toLowerCase().indexOf('edging') !== -1 || 
+                       step.title.toLowerCase().indexOf('höhepunkt') !== -1 ||
+                       step.desc.toLowerCase().indexOf('kante') !== -1;
+
+    var callout = document.getElementById('guided-edging-callout');
+    var panel = document.getElementById('edging-cockpit-panel');
+    var focusBadge = document.getElementById('edging-focus-badge');
+
+    if (isEdgingStep) {
+      if (callout) callout.classList.remove('hidden');
+      if (panel) {
+        panel.classList.add('ring-2', 'ring-pink-500', 'border-pink-500');
+      }
+      if (focusBadge) focusBadge.classList.remove('hidden');
+    } else {
+      if (callout) callout.classList.add('hidden');
+      if (panel) {
+        panel.classList.remove('ring-2', 'ring-pink-500', 'border-pink-500');
+      }
+      if (focusBadge) focusBadge.classList.add('hidden');
+    }
+  }
+
+  function scrollToEdgingPanel() {
+    var panel = document.getElementById('edging-cockpit-panel');
+    if (panel) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function setCountdownVoiceMode(mode) {
+    countdownVoiceMode = mode;
+    var bSelf = document.getElementById('btn-voice-mode-self');
+    var bGemini = document.getElementById('btn-voice-mode-gemini');
+    var lbl = document.getElementById('label-current-voice-mode');
+
+    if (mode === 'self') {
+      if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition bg-indigo-950/60 border-indigo-500 shadow-md";
+      if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
+      if (lbl) { lbl.innerText = "Top spricht selbst"; lbl.className = "text-[10px] font-mono text-indigo-300 font-bold"; }
+      showToast("Modus: Top spricht den Countdown selbst 🗣️");
+    } else {
+      if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md";
+      if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
+      if (lbl) { lbl.innerText = "Gemini spricht laut"; lbl.className = "text-[10px] font-mono text-purple-300 font-bold"; }
+      showToast("Modus: Gemini-App-Stimme spricht ins Zimmer 🔊");
+    }
   }
 
   function nextLiveStep() {
@@ -347,7 +397,10 @@
     var panel = document.getElementById('release-choice-subpanel');
     if (panel) panel.classList.add('hidden');
     showToast("Sofortige Freigabe erteilt!");
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+
+    if (countdownVoiceMode === 'self') {
+      showToast("🗣️ Sprich jetzt: 'Jetzt! Lass alles los und komm für mich!'");
+    } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
     }
   }
@@ -389,6 +442,7 @@
   function executeReleaseWithCountdown() {
     var panel = document.getElementById('release-choice-subpanel');
     var wrap = document.getElementById('countdown-wrapper');
+    var cueText = document.getElementById('countdown-cue-text');
     if (panel) panel.classList.add('hidden');
     if (wrap) wrap.classList.remove('hidden');
 
@@ -400,20 +454,27 @@
     var disp = document.getElementById('countdown-display');
     if (disp) disp.innerText = currentEdgingCountdown.toString();
 
+    if (cueText) {
+      cueText.innerText = (countdownVoiceMode === 'self') 
+        ? "Sprich jetzt laut im Takt mit..." 
+        : "Gemini spricht den Takt...";
+    }
+
     var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
     var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
 
     currentSessionLog.push({ 
       type: "action", 
       time: getFormattedTimeNow(), 
-      label: "Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet" 
+      label: "Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]" 
     });
 
     runVisualCountdownTicker(countdownRunId, targetEdgingDuration);
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+    if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
         if (disp) disp.innerText = "KOMMEN!";
+        if (cueText) cueText.innerText = "Erlaubnis erteilt!";
         setTimeout(function() {
           if (wrap) wrap.classList.add('hidden');
         }, 4000);
@@ -423,9 +484,9 @@
 
   async function runVisualCountdownTicker(runId, totalSeconds) {
     var disp = document.getElementById('countdown-display');
+    var cueText = document.getElementById('countdown-cue-text');
     var ticker = totalSeconds;
 
-    // Dynamischer Zeittakt je nach Dauer
     var stepMs = (totalSeconds === 5) ? 1400 : (totalSeconds === 10 ? 2200 : (totalSeconds === 20 ? 1500 : 1600));
 
     while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
@@ -440,6 +501,11 @@
 
     if (ticker <= 0 && runId === countdownRunId) {
       if (disp) disp.innerText = "KOMMEN!";
+      if (cueText) {
+        cueText.innerText = (countdownVoiceMode === 'self') 
+          ? "Sprich jetzt: 'JETZT KOMMEN!'" 
+          : "Erlaubnis erteilt!";
+      }
       currentSessionLog.push({ type: "action", time: getFormattedTimeNow(), label: "Orgasmus-Freigabe (" + totalSeconds + "s beendet)" });
       setTimeout(function() {
         var wrap = document.getElementById('countdown-wrapper');
@@ -475,7 +541,9 @@
     if (decision === 'ruined') {
       currentSessionLog.push({ type: "action", time: time, label: "Ruined Orgasm angeordnet" });
       showToast("Ruined Orgasm vollzogen!");
-      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      if (countdownVoiceMode === 'self') {
+        showToast("🗣️ Sprich jetzt: 'Hände weg! Stillhalten und auskrampfen!'");
+      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
       }
     } else if (decision === 'denial') {
@@ -484,7 +552,9 @@
       if (window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
         window.SessionAudio.adjustEnergy('calm');
       }
-      if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      if (countdownVoiceMode === 'self') {
+        showToast("🗣️ Sprich jetzt: 'Schluss für heute. Du bleibst ungelöst.'");
+      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
       }
     }
@@ -829,6 +899,8 @@
     speakStep: speakCurrentLiveStep,
     nextStep: nextLiveStep,
     prevStep: prevLiveStep,
+    scrollToEdging: scrollToEdgingPanel,
+    setVoiceMode: setCountdownVoiceMode,
     setStimulator: setEdgingStimulator,
     handleArousal: handleArousalSliderTouch,
     registerEdge: registerEdgeReachedWrapper,
@@ -864,6 +936,8 @@
   window.nextLiveStep = nextLiveStep;
   window.prevLiveStep = prevLiveStep;
   window.speakCurrentLiveStep = speakCurrentLiveStep;
+  window.scrollToEdgingPanel = scrollToEdgingPanel;
+  window.setCountdownVoiceMode = setCountdownVoiceMode;
   window.setEdgingStimulator = setEdgingStimulator;
   window.handleArousalSliderTouch = handleArousalSliderTouch;
   window.registerEdgeReachedWrapper = registerEdgeReachedWrapper;
