@@ -87,6 +87,8 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- VORAB-ENTSPERRTER AUDIO-PLAYER FÜR iOS & AIRPLAY -->
+  <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
   <audio id="ambient-airplay-audio" x-webkit-airplay="allow" class="hidden"></audio>
 
   <!-- HEADER -->
@@ -922,12 +924,12 @@
 
     let currentSessionLog = [];
 
-    // AUDIO & GEMINI TTS CACHE
+    // AUDIO & PERSISTENTER WEB-AUDIO STACK FÜR iOS & HYBRID-TTS
     const ttsAudioCache = {};
-    let activeAudioSource = null;
     let previewAudioTimeout = null;
     let activeSessionVoice = 'Despina';
     let isTopVoiceAssistActive = false;
+    let isAudioEngineUnlocked = false;
 
     // SYNTHESIZED MULTI-SOUNDSCAPE ENGINE
     let audioCtx = null;
@@ -1004,6 +1006,33 @@
 
       return new Blob([view], { type: 'audio/wav' });
     }
+
+    function unlockAudioEngineOnUserGesture() {
+      if (isAudioEngineUnlocked) return;
+      isAudioEngineUnlocked = true;
+
+      // Web Audio Context entsperren
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch (e) {
+        console.debug("AudioContext unlock", e);
+      }
+
+      // Master HTML5 Audio Element für Safari entsperren
+      const masterAudio = document.getElementById('master-voice-audio');
+      if (masterAudio) {
+        masterAudio.play().then(() => {
+          masterAudio.pause();
+        }).catch(() => {});
+      }
+    }
+
+    window.addEventListener('click', unlockAudioEngineOnUserGesture, { once: true });
+    window.addEventListener('touchstart', unlockAudioEngineOnUserGesture, { once: true });
 
     function initSessionPortal() {
       try {
@@ -1229,6 +1258,7 @@
     }
 
     function testSelectedVoiceInStep2() {
+      unlockAudioEngineOnUserGesture();
       const btn = document.getElementById('btn-preview-step2');
       if (btn) btn.innerText = "⏳ Lädt...";
       const v = document.getElementById('session-voice-select')?.value || 'Despina';
@@ -1238,6 +1268,7 @@
     }
 
     function testGeminiVoiceSample() {
+      unlockAudioEngineOnUserGesture();
       const btn = document.getElementById('btn-test-edging-voice');
       if (btn) btn.innerText = "⏳ Lädt...";
       playSensualGeminiVoice("Fünf. Spüre die Hitze.", activeSessionVoice, true).then(() => {
@@ -1262,9 +1293,6 @@
       }
     }
 
-    // ==========================================
-    // POLYPHONIC AMBIENT & SOUNDSCAPE ENGINE
-    // ==========================================
     function initAmbientAudioContext() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -1319,6 +1347,7 @@
     }
 
     function toggleAmbientMusic() {
+      unlockAudioEngineOnUserGesture();
       initAmbientAudioContext();
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -1373,7 +1402,6 @@
           osc.type = (idx % 2 === 0) ? 'sine' : 'triangle';
           osc.frequency.setValueAtTime(freq, now);
 
-          // Subtiles langsames Atmen über LFO
           gain.gain.setValueAtTime(0.04 / freqs.length, now);
           osc.connect(gain);
           gain.connect(ambientFilterNode);
@@ -1448,7 +1476,7 @@
           kickGain.connect(ambientMasterGain);
           kickOsc.start(t);
           kickOsc.stop(t + 0.25);
-        }, 500); // 120 BPM Puls
+        }, 500);
       }
     }
 
@@ -1494,7 +1522,6 @@
     function updateAmbientPhaseModulation() {
       if (!isAmbientPlaying || !ambientFilterNode || !audioCtx) return;
       const phase = currentSelectedPlaybook[liveStepIndex]?.phase || "Warm-up";
-      const now = audioCtx.currentTime;
 
       if (phase === 'Warm-up') {
         setSoundscapeStyle('bowls');
@@ -1507,107 +1534,157 @@
       }
     }
 
-    // ==========================================
-    // GEMINI TTS & AUDIO-EVENT-CHAINING ENGINE
-    // ==========================================
     async function playSensualGeminiVoice(numText, voiceOverride = null, isPreview = false) {
-      try {
-        if (activeAudioSource) {
-          activeAudioSource.pause();
-          activeAudioSource = null;
-        }
-        if (previewAudioTimeout) {
-          clearTimeout(previewAudioTimeout);
-          previewAudioTimeout = null;
-        }
+      unlockAudioEngineOnUserGesture();
 
-        const voiceToUse = voiceOverride || activeSessionVoice || 'Despina';
-        const cacheKey = `${voiceToUse}_${numText}`;
+      if (previewAudioTimeout) {
+        clearTimeout(previewAudioTimeout);
+        previewAudioTimeout = null;
+      }
 
-        if (ttsAudioCache[cacheKey]) {
-          return playAudioUrlWithCallback(ttsAudioCache[cacheKey], isPreview);
-        }
+      const voiceToUse = voiceOverride || activeSessionVoice || 'Despina';
+      const cacheKey = `${voiceToUse}_${numText}`;
 
-        const storedKey = localStorage.getItem('kompass_gemini_api_key');
-        const apiKey = storedKey || "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`;
+      // 1. Wenn gecached: Sofort ohne Verzögerung abspielen
+      if (ttsAudioCache[cacheKey]) {
+        return playAudioUrlWithCallback(ttsAudioCache[cacheKey], isPreview);
+      }
 
-        const isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
-        const instruction = isMale
-          ? `Befiehl mit einer extrem tiefen, rauen, dominanten, strengen und langsamen Männerstimme auf Deutsch kurz und trocken: ${numText}`
-          : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, warmen und ruhigen Frauenstimme auf Deutsch langsam: ${numText}`;
+      const storedKey = localStorage.getItem('kompass_gemini_api_key');
+      const hasValidFormat = storedKey && storedKey.startsWith('AIzaSy');
 
-        const payload = {
-          contents: [{ parts: [{ text: instruction }] }],
-          generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: {
-              voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
+      // 2. Versuch: Gemini TTS via API, falls echter Gemini-Key vorhanden
+      if (hasValidFormat) {
+        try {
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(storedKey)}`;
+          const isMale = (voiceToUse === 'Enceladus' || voiceToUse === 'Fenrir');
+          const instruction = isMale
+            ? `Befiehl mit einer extrem tiefen, rauen, dominanten, strengen und langsamen Männerstimme auf Deutsch kurz und trocken: ${numText}`
+            : `Flüstere mit einer tiefen, dunklen, extrem sinnlichen, warmen und ruhigen Frauenstimme auf Deutsch langsam: ${numText}`;
+
+          const payload = {
+            contents: [{ parts: [{ text: instruction }] }],
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceToUse } }
+              }
+            }
+          };
+
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+              const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+              const pcmData = base64ToArrayBuffer(audioData);
+              const pcm16 = new Int16Array(pcmData);
+              const wavBlob = pcmToWav(pcm16, sampleRate);
+              const audioUrl = URL.createObjectURL(wavBlob);
+              ttsAudioCache[cacheKey] = audioUrl;
+              return playAudioUrlWithCallback(audioUrl, isPreview);
             }
           }
-        };
+        } catch (err) {
+          console.debug("Gemini API Network Fallback", err);
+        }
+      }
 
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+      // 3. Ausfallsicherer Studio-Voice-Fallback (Keine Stille!)
+      return playStudioFallbackSpeech(numText, voiceToUse, isPreview);
+    }
+
+    function playStudioFallbackSpeech(text, voiceName, isPreview) {
+      return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+          resolve();
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        // Reine Zahlen und Text filtern
+        const cleanText = String(text).replace(/[0-9]+/g, (match) => {
+          const numWords = { '1': 'Eins', '2': 'Zwei', '3': 'Drei', '4': 'Vier', '5': 'Fünf', '6': 'Sechs', '7': 'Sieben', '8': 'Acht', '9': 'Neun', '10': 'Zehn' };
+          return numWords[match] || match;
         });
 
-        if (!response.ok) throw new Error("TTS Request failed");
-        const result = await response.json();
-        const part = result?.candidates?.[0]?.content?.parts?.[0];
-        const audioData = part?.inlineData?.data;
-        const mimeType = part?.inlineData?.mimeType;
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'de-DE';
 
-        if (audioData && mimeType && mimeType.startsWith("audio/")) {
-          const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-          const pcmData = base64ToArrayBuffer(audioData);
-          const pcm16 = new Int16Array(pcmData);
-          const wavBlob = pcmToWav(pcm16, sampleRate);
-          const audioUrl = URL.createObjectURL(wavBlob);
-          ttsAudioCache[cacheKey] = audioUrl;
-          return playAudioUrlWithCallback(audioUrl, isPreview);
+        const isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
+
+        // Sinnliche / Dominante Intonation (Langsam, tief, ruhig)
+        if (isMale) {
+          utterance.pitch = 0.72;
+          utterance.rate = 0.82;
+        } else {
+          utterance.pitch = 0.84;
+          utterance.rate = 0.78;
         }
-      } catch (err) {
-        console.debug("Gemini TTS Audio Error", err);
-      }
-      return Promise.resolve();
+
+        // Beste deutsche Stimme selektieren
+        const voices = window.speechSynthesis.getVoices();
+        const deVoices = voices.filter(v => v.lang.startsWith('de'));
+        if (deVoices.length > 0) {
+          const selected = isMale 
+            ? (deVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('stefan') || v.name.toLowerCase().includes('martin')) || deVoices[0])
+            : (deVoices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('anna') || v.name.toLowerCase().includes('petra') || v.name.toLowerCase().includes('katja') || v.name.toLowerCase().includes('siri')) || deVoices[0]);
+          if (selected) utterance.voice = selected;
+        }
+
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+
+        if (isPreview) {
+          previewAudioTimeout = setTimeout(() => {
+            window.speechSynthesis.cancel();
+            resolve();
+          }, 5000);
+        }
+
+        window.speechSynthesis.speak(utterance);
+      });
     }
 
     function playAudioUrlWithCallback(url, isPreview = false) {
       return new Promise((resolve) => {
-        if (activeAudioSource) activeAudioSource.pause();
-        activeAudioSource = new Audio(url);
-
-        activeAudioSource.onended = () => {
-          activeAudioSource = null;
+        const masterAudio = document.getElementById('master-voice-audio');
+        if (!masterAudio) {
           resolve();
-        };
+          return;
+        }
 
-        activeAudioSource.onerror = () => {
-          activeAudioSource = null;
-          resolve();
-        };
+        masterAudio.pause();
+        masterAudio.src = url;
 
-        activeAudioSource.play().catch(e => {
+        masterAudio.onended = () => resolve();
+        masterAudio.onerror = () => resolve();
+
+        masterAudio.play().catch(e => {
           console.debug("Audio play blocked", e);
           resolve();
         });
 
         if (isPreview) {
           previewAudioTimeout = setTimeout(() => {
-            if (activeAudioSource) {
-              activeAudioSource.pause();
-              activeAudioSource = null;
-            }
+            masterAudio.pause();
             resolve();
-          }, 5000); // Exakter 5-Sekunden Hard-Stop
+          }, 5000);
         }
       });
     }
 
     function preloadCountdownVoiceSnippets() {
-      // Lädt die Zahlen 1 bis 10 im Hintergrund vor
       const voice = activeSessionVoice || 'Despina';
       [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].forEach((num, idx) => {
         setTimeout(() => {
@@ -1619,9 +1696,6 @@
       });
     }
 
-    // ==========================================
-    // EDGING-STEUERUNG & FINISHER
-    // ==========================================
     function setEdgingStimulator(mode) {
       edgingStimulationBy = mode;
       const bTop = document.getElementById('btn-stim-top');
@@ -1639,6 +1713,7 @@
 
     let lastArousalSpokenTime = 0;
     function handleArousalSliderTouch(val) {
+      unlockAudioEngineOnUserGesture();
       activeArousalLevel = parseInt(val, 10);
       const badge = document.getElementById('arousal-level-badge');
       if (badge) {
@@ -1681,12 +1756,12 @@
     }
 
     function registerEdgeReached() {
+      unlockAudioEngineOnUserGesture();
       edgeCount++;
       lastEdgeTimestamp = Date.now();
       const hitsEl = document.getElementById('edging-total-hits');
       if (hitsEl) hitsEl.innerText = edgeCount;
 
-      // Musik schaltet auf ruhiges Rauschen
       if (isAmbientPlaying) setSoundscapeStyle('ocean');
 
       showToast(`KANTE #${edgeCount} erreicht! Stimulation stoppen.`);
@@ -1719,6 +1794,7 @@
     }
 
     function executeReleaseImmediate() {
+      unlockAudioEngineOnUserGesture();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       if (isAmbientPlaying) {
         setSoundscapeStyle('beats');
@@ -1732,6 +1808,7 @@
     }
 
     function executeReleaseWithCountdown() {
+      unlockAudioEngineOnUserGesture();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       document.getElementById('countdown-wrapper')?.classList.remove('hidden');
       currentEdgingCountdown = 10;
@@ -1749,7 +1826,7 @@
         await playSensualGeminiVoice(currentEdgingCountdown.toString());
 
         if (!isCountdownActive || isEdgingCountdownPaused) break;
-        await new Promise(r => setTimeout(r, 850)); // Somatische Atempause
+        await new Promise(r => setTimeout(r, 850));
 
         if (!isCountdownActive || isEdgingCountdownPaused) break;
         currentEdgingCountdown--;
@@ -1772,20 +1849,23 @@
       isEdgingCountdownPaused = !isEdgingCountdownPaused;
       const btn = document.getElementById('btn-pause-countdown');
       if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
-      if (isEdgingCountdownPaused && activeAudioSource) activeAudioSource.pause();
+      const masterAudio = document.getElementById('master-voice-audio');
+      if (isEdgingCountdownPaused && masterAudio) masterAudio.pause();
     }
 
     function resetSpeechCountdown() {
       isCountdownActive = false;
       isEdgingCountdownPaused = false;
       currentEdgingCountdown = 10;
-      if (activeAudioSource) activeAudioSource.pause();
+      const masterAudio = document.getElementById('master-voice-audio');
+      if (masterAudio) masterAudio.pause();
       const disp = document.getElementById('countdown-display');
       if (disp) disp.innerText = "10";
       document.getElementById('countdown-wrapper')?.classList.add('hidden');
     }
 
     function finalizeEdgingDecision(type) {
+      unlockAudioEngineOnUserGesture();
       document.getElementById('release-choice-subpanel')?.classList.add('hidden');
       if (type === 'ruined') {
         if (isAmbientPlaying) setSoundscapeStyle('velvet');
@@ -1800,9 +1880,6 @@
       }
     }
 
-    // ==========================================
-    // PROCEDURAL & SZENE-KINK MATRIX
-    // ==========================================
     const creativeGenerators = {
       1: {
         1: [
@@ -1978,7 +2055,8 @@
 
     async function requestAiCreativeExpansion(stage, sev) {
       const storedKey = localStorage.getItem('kompass_gemini_api_key');
-      const apiKey = storedKey || "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+      if (!storedKey || !storedKey.startsWith('AIzaSy')) return;
+
       const reason = document.getElementById('incident-top-custom-reason')?.value || selectedInfraction;
       const stageNames = { 1: "Zucht-Hauptstrafe", 2: "Körperhaltung", 3: "Fesselung/Fixierung", 4: "Sensorik/Knebel" };
       const sevLabels = { 1: "mild", 2: "spürbar", 3: "streng" };
@@ -2003,7 +2081,7 @@ WICHTIGSTE REGELN:
 Kontext: ${contextDescription}. Seed: ${nonce}.
 Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)", "desc": "Zwei bis drei präzise Sätze zur Ausführung, Körperhaltung und psychologischen Wirkung."}`;
 
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(storedKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2033,7 +2111,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
           }
         }
       } catch (e) {
-        // Fallback bleibt erhalten
+        // Fallback bleibt intakt
       }
     }
 
@@ -2112,7 +2190,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
 
       const offset = (catalogOffsets[stage] || 0) % Math.max(1, matches.length);
       const rotated = matches.slice(offset).concat(matches.slice(0, offset));
-      return rotated.slice(0, 4); // Exakt 4 Bogen-Optionen
+      return rotated.slice(0, 4);
     }
 
     function selectWizardCard(stage, type, index) {
@@ -2211,9 +2289,6 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
       closeIncidentDisciplineModal();
     }
 
-    // ==========================================
-    // LIVE-SESSION STEUERUNG
-    // ==========================================
     function startLiveSession() {
       document.getElementById('portal-setup-container')?.classList.add('hidden');
       document.getElementById('cockpit-live-container')?.classList.remove('hidden');
@@ -2289,6 +2364,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     }
 
     function triggerSafeword(color) {
+      unlockAudioEngineOnUserGesture();
       const redInd = document.getElementById('safeword-red-indicator');
       if (color === 'green') {
         if (redInd) redInd.className = "w-3 h-3 rounded-full bg-rose-600";
@@ -2422,6 +2498,7 @@ Antworte STRICTLY im JSON-Format: {"title": "Prägnanter Titel (max 6 Wörter)",
     }
 
     function playGuidedTranceInduction() {
+      unlockAudioEngineOnUserGesture();
       showToast("Spiele geführte Trance-Induktion...");
       playSensualGeminiVoice("Schließe die Augen. Atme tief in den Bauchraum aus. Lass deine Schultern sinken und vertraue vollkommen.");
     }
