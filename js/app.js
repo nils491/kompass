@@ -23,6 +23,15 @@
   var answers = { A: {}, B: {} };
   var safetyConfig = { A: {}, B: {} };
 
+  // Globale Registrierungen SOFORT durchführen, damit Klicks nie ins Leere laufen
+  window.setCurrentUser = setCurrentUser;
+  window.switchMainView = switchMainView;
+  window.updateHubUI = updateHubUI;
+  window.renderSurveyChapter = renderSurveyChapter;
+  window.renderSingleProfile = renderSingleProfile;
+  window.renderSafetyConfig = renderSafetyConfig;
+  window.openItemResearch = openItemResearch;
+
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -31,6 +40,26 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function openItemResearch(itemId) {
+    var chapters = window.surveyChapters || [];
+    var foundItem = null;
+    for (var c = 0; c < chapters.length; c++) {
+      var items = chapters[c].items || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].id === itemId) {
+          foundItem = items[i];
+          break;
+        }
+      }
+      if (foundItem) break;
+    }
+    if (foundItem && window.KinkResearch && typeof window.KinkResearch.open === 'function') {
+      window.KinkResearch.open(foundItem.title, foundItem.desc);
+    } else if (window.KinkResearch) {
+      window.KinkResearch.open();
+    }
   }
 
   function showToast(msg) {
@@ -277,7 +306,7 @@
       html += '    <strong class="text-sm font-extrabold text-white block">' + escapeHtml(it.title) + '</strong>';
       html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
       html += '  </div>';
-      html += '  <button type="button" onclick="KinkResearch.open(\'' + escapeHtml(it.title).replace(/'/g, "\\'") + '\', \'' + escapeHtml(it.desc || '').replace(/'/g, "\\'") + '\')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn flex-shrink-0 shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
+      html += '  <button type="button" onclick="openItemResearch(' + it.id + ')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn flex-shrink-0 shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
       html += '    <span>🔍</span><span>KI-Info</span>';
       html += '  </button>';
       html += '</div>';
@@ -688,12 +717,11 @@
     var hash = (window.location.hash || '').replace('#view=', '');
     switchMainView(hash || 'hub');
     
-    window.setCurrentUser = setCurrentUser;
-    window.switchMainView = switchMainView;
-    window.updateHubUI = updateHubUI;
-    window.renderSurveyChapter = renderSurveyChapter;
-    window.renderSingleProfile = renderSingleProfile;
-    window.renderSafetyConfig = renderSafetyConfig;
+    // Hashchange-Listener für flüssige Navigation & Browser-History
+    window.addEventListener('hashchange', function() {
+      var currentHash = (window.location.hash || '').replace('#view=', '');
+      if (currentHash) switchMainView(currentHash);
+    });
   }
 
   if (document.readyState === 'loading') {
