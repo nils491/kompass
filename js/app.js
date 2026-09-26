@@ -7,7 +7,7 @@
  * - Dynamischen Fragebogen (35 Kapitel, Multi-Choice, Ratings 1-5, Filter, Quick-Grid)
  * - Direkte Anbindung an die dynamische KI-Recherche (KinkResearch.open)
  * - Psychologische 5-Säulen-Berechnung & Erotisches Archetypen-Radar (Chart.js)
- * - Tiefenpsychologisches KI-Einzelgutachten über Google Gemini
+ * - Tiefenpsychologisches KI-Einzelgutachten über Google Gemini (schneller JSON-Modus)
  */
 
 (function(window) {
@@ -308,7 +308,6 @@
     if (pText) pText.innerText = prog.pct + " %";
     if (pFill) pFill.style.width = prog.pct + "%";
 
-    // Quell-Items: Entweder nur das aktuelle Kapitel oder alle 36 Kapitel
     var sourceItemsWithChapter = [];
     if (isGlobal) {
       chapters.forEach(function(ch) {
@@ -731,7 +730,6 @@
       science_insight: scienceInsight
     };
   }
-  }
 
   function calculateAndRenderPillars(uAnswers) {
     var pillars = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
@@ -872,38 +870,6 @@
     }
   }
 
-  async function resolveAvailableTextModels(apiKey) {
-    var fallbackList = ['gemini-3.8-flash', 'gemini-3.7-flash'];
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
-      if (resp.ok) {
-        var data = await resp.json();
-        var models = (data.models || []).filter(function(m) {
-          return m.supportedGenerationMethods &&
-            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
-            m.name.indexOf('tts') === -1 &&
-            m.name.indexOf('omni') === -1 &&
-            m.name.indexOf('image') === -1 &&
-            m.name.indexOf('video') === -1 &&
-            m.name.indexOf('embed') === -1;
-        }).map(function(m) {
-          return m.name.replace('models/', '');
-        });
-
-        if (models.length > 0) {
-          // Bevorzuge moderne 3.8 / 3.7 Flash-Modelle
-          models.sort(function(a, b) {
-            var aScore = (a.indexOf('3.8') !== -1 ? 20 : 0) + (a.indexOf('3.7') !== -1 ? 10 : 0) + (a.indexOf('flash') !== -1 ? 5 : 0);
-            var bScore = (b.indexOf('3.8') !== -1 ? 20 : 0) + (b.indexOf('3.7') !== -1 ? 10 : 0) + (b.indexOf('flash') !== -1 ? 5 : 0);
-            return bScore - aScore;
-          });
-          return models;
-        }
-      }
-    } catch (e) {}
-    return fallbackList;
-  }
-
   window.generateAiReport = async function() {
     var out = document.getElementById('ai-report-output');
     var btn = document.getElementById('btn-generate-ai');
@@ -939,7 +905,6 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
   "science_insight": "Eine kurze, befreiende wissenschaftliche Einordnung (z.B. Sagarin 2009 / Wismeijer 2013 / Canivet 2025), warum diese Wünsche vollkommen gesund und normal sind. (2 bis 3 Sätze)"
 }`;
 
-    // WICHTIG: Keine thinkingConfig-Parameter mitsenden, um den Google-Billing/Prepayment-Bug auf Free-Tier-Projekten zu verhindern
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
     var success = false;
 
@@ -985,7 +950,6 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
       }
     }
 
-    // Wenn API-Key kein Guthaben hat oder offline ist: Kostenlose, lokale Berechnung aus den realen Bogen-Scores
     if (!success && out) {
       var fallbackReport = generateClientSideSingleReport(userName, powerPct, sensPct, nurtPct, thrillPct);
       try {
@@ -999,4 +963,21 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
     if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
   };
 
-  function calculateAndRenderPillars(uAnswers) {
+  function initApp() {
+    loadCoreData();
+    var hashView = (window.location.hash || '').replace('#view=', '') || 'hub';
+    if (['hub', 'survey', 'safety', 'single'].indexOf(hashView) !== -1) {
+      switchMainView(hashView);
+    } else {
+      switchMainView('hub');
+    }
+    updateHubUI();
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+
+})(window);
