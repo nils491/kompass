@@ -2,6 +2,7 @@
  * js/hub_modals.js
  * Vollständiger Controller für alle Modals und Einstellungen im Start-Hub:
  * - Profil & Account-Einstellungen (Name, E-Mail, Anatomie, Gemini-Key, Stimme)
+ * - Cloud-Synchronisations- & Multi-Device-Kopplungs-Steuerung
  * - Testdaten-Generator (Zufallsdaten für beide Partner zum sofortigen Testen)
  * - Profil-Reset mit Sicherheitsabfrage
  * - Tabu-Charta (Übersicht aller Note-1-Praktiken beider Partner)
@@ -41,6 +42,153 @@
       setTimeout(function() { el.remove(); }, 300);
     }, 2500);
   }
+
+  // ==========================================
+  // 1. CLOUD-SYNCHRONISATIONS-CONTROLLER
+  // ==========================================
+
+  function updateCloudSyncUI() {
+    if (!window.CloudSync) return;
+    var state = window.CloudSync.getState();
+
+    var dot = document.getElementById('cloud-sync-status-dot');
+    var txt = document.getElementById('cloud-sync-status-text');
+    var badgeHeader = document.getElementById('cloud-sync-badge');
+    var hubBadge = document.getElementById('hub-sync-status-badge');
+    var stateLabel = document.getElementById('cloud-sync-state-label');
+    var setupPanel = document.getElementById('cloud-sync-setup-panel');
+    var activePanel = document.getElementById('cloud-sync-active-panel');
+    var codeDisplay = document.getElementById('active-pair-code-display');
+
+    if (state.isPaired) {
+      if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+      if (txt) {
+        txt.innerText = state.status === 'syncing' ? "Synchronisiere..." : "Gekoppelt";
+        txt.className = "hidden sm:inline text-[10.5px] text-emerald-300 font-bold";
+      }
+      if (hubBadge) {
+        hubBadge.innerText = "Verbunden (" + state.pairCode + ")";
+        hubBadge.className = "text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800";
+      }
+      if (badgeHeader) {
+        badgeHeader.innerText = state.status === 'syncing' ? "Sync..." : "Live";
+        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
+      }
+      if (stateLabel) {
+        stateLabel.innerText = "Gekoppelt mit Code: " + state.pairCode;
+      }
+      if (codeDisplay) {
+        codeDisplay.innerText = state.pairCode;
+      }
+      if (setupPanel) setupPanel.classList.add('hidden');
+      if (activePanel) activePanel.classList.remove('hidden');
+    } else {
+      if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-500";
+      if (txt) {
+        txt.innerText = "Lokal";
+        txt.className = "hidden sm:inline text-[10.5px] text-slate-400";
+      }
+      if (hubBadge) {
+        hubBadge.innerText = "Lokal";
+        hubBadge.className = "text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800";
+      }
+      if (badgeHeader) {
+        badgeHeader.innerText = "Offline";
+        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400";
+      }
+      if (stateLabel) {
+        stateLabel.innerText = "Nicht gekoppelt (Nur lokaler Speicher)";
+      }
+      if (setupPanel) setupPanel.classList.remove('hidden');
+      if (activePanel) activePanel.classList.add('hidden');
+    }
+  }
+
+  function openCloudSyncModal() {
+    var modal = document.getElementById('modal-cloud-sync');
+    if (!modal) return;
+    updateCloudSyncUI();
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+
+  function closeCloudSyncModal() {
+    var modal = document.getElementById('modal-cloud-sync');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+    updateCloudSyncUI();
+  }
+
+  async function handleCreatePairRoom() {
+    var btn = document.getElementById('btn-create-pair-room');
+    if (btn) btn.innerText = "⏳ Erstelle sicheren Paar-Raum...";
+
+    try {
+      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
+      var newCode = await window.CloudSync.createRoom();
+      showToast("✨ Paar-Code erstellt: " + newCode);
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Fehler beim Erstellen: " + (e.message || "Netzwerkfehler"));
+    } finally {
+      if (btn) btn.innerText = "✨ Paar-Code jetzt erstellen";
+    }
+  }
+
+  async function handleJoinPairRoom(role) {
+    var input = document.getElementById('input-pair-code');
+    var code = (input ? input.value : '').trim().toUpperCase();
+
+    if (!code) {
+      showToast("Bitte gib den Paar-Code deines Partners ein.");
+      return;
+    }
+
+    showToast("⏳ Verbinde und entschlüssele Daten...");
+    try {
+      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
+      await window.CloudSync.joinRoom(code, role);
+
+      if (typeof window.setCurrentUser === 'function') {
+        window.setCurrentUser(role);
+      }
+
+      showToast("✓ Erfolgreich mit " + code + " gekoppelt!");
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Kopplung fehlgeschlagen: " + (e.message || "Code ungültig"));
+    }
+  }
+
+  async function handleManualSyncNow() {
+    showToast("🔄 Gleiche Daten mit der Cloud ab...");
+    try {
+      if (!window.CloudSync) return;
+      var success = await window.CloudSync.pull();
+      if (success) {
+        showToast("✓ Daten erfolgreich synchronisiert!");
+      } else {
+        showToast("✓ Lokale Daten aktuell!");
+      }
+      updateCloudSyncUI();
+    } catch (e) {
+      showToast("⚠️ Synchronisation fehlgeschlagen.");
+    }
+  }
+
+  function handleDisconnectPairing() {
+    if (window.CloudSync) {
+      window.CloudSync.disconnect();
+    }
+    showToast("Kopplung getrennt. Lokale Daten bleiben erhalten.");
+    updateCloudSyncUI();
+  }
+
+  // ==========================================
+  // 2. ACCOUNT & EINSTELLUNGEN
+  // ==========================================
 
   function openAccountModal() {
     var modal = document.getElementById('modal-account');
@@ -115,6 +263,7 @@
     if (dispB && curUser === 'B') dispB.innerText = cleanVal;
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    if (window.CloudSync) window.CloudSync.trigger();
     showToast("Name gespeichert: " + cleanVal);
   }
 
@@ -171,6 +320,7 @@
     } catch (e) {}
 
     updateAccountAnatomyUI(curUser, window.anatomy);
+    if (window.CloudSync) window.CloudSync.trigger();
     showToast("Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
   }
 
@@ -286,7 +436,6 @@
             window.answers.B['it_' + it.id + '_choice'] = randOptB;
           }
         } else {
-          // Realistische Zufallswerte (Gewichtung zu 3, 4, 5, gelegentlich 1 oder 2)
           var weights = [1, 2, 3, 3, 4, 4, 5, 5];
           window.answers.A['it_' + it.id + '_r1'] = weights[Math.floor(Math.random() * weights.length)];
           window.answers.A['it_' + it.id + '_r2'] = weights[Math.floor(Math.random() * weights.length)];
@@ -303,6 +452,7 @@
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
     if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
+    if (window.CloudSync) window.CloudSync.trigger();
 
     closeAccountModal();
     showToast("🎲 Zufällige Testdaten für beide Partner generiert!");
@@ -342,9 +492,14 @@
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
     if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
     if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
+    if (window.CloudSync) window.CloudSync.trigger();
 
     showToast("Profil von " + (window.names?.[curUser] || 'Partner') + " zurückgesetzt");
   }
+
+  // ==========================================
+  // 3. TABU-CHARTA & TOY-MANAGEMENT
+  // ==========================================
 
   function openTabuModal() {
     var modal = document.getElementById('modal-tabus');
@@ -450,6 +605,10 @@
     }
   }
 
+  // ==========================================
+  // 4. ONBOARDING
+  // ==========================================
+
   function setOnboardingAnatomy(who, type) {
     onboardAnatState[who] = type;
     var btnPenis = document.getElementById('onboard-anat-' + who + '-penis');
@@ -498,15 +657,19 @@
     if (dispB) dispB.innerText = nameB;
 
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    if (window.CloudSync) window.CloudSync.trigger();
     showToast("Willkommen! Profile eingerichtet ✓");
   }
 
-  window.addEventListener('DOMContentLoaded', function() {
+  // ==========================================
+  // INITIALISIERUNG & LISTENER
+  // ==========================================
+
+  function initHubModals() {
     var isDone = localStorage.getItem('kompass_onboarding_done');
     var hasNames = localStorage.getItem('kompass_names');
     var hasAnswers = localStorage.getItem('kompass_answers');
 
-    // Onboarding nur anzeigen, wenn der Nutzer wirklich völlig neu ist
     if (!isDone && !hasNames && !hasAnswers) {
       var modal = document.getElementById('modal-onboarding');
       if (modal) {
@@ -516,9 +679,30 @@
     } else if (!isDone) {
       try { localStorage.setItem('kompass_onboarding_done', 'true'); } catch (e) {}
     }
-  });
+
+    if (window.CloudSync) {
+      window.CloudSync.addListener(function(evt, data) {
+        updateCloudSyncUI();
+      });
+      setTimeout(updateCloudSyncUI, 150);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initHubModals);
+  } else {
+    initHubModals();
+  }
 
   // Globale Registrierungen für inline onclick-Attribute
+  window.openCloudSyncModal = openCloudSyncModal;
+  window.closeCloudSyncModal = closeCloudSyncModal;
+  window.handleCreatePairRoom = handleCreatePairRoom;
+  window.handleJoinPairRoom = handleJoinPairRoom;
+  window.handleManualSyncNow = handleManualSyncNow;
+  window.handleDisconnectPairing = handleDisconnectPairing;
+  window.updateCloudSyncUI = updateCloudSyncUI;
+
   window.openAccountModal = openAccountModal;
   window.closeAccountModal = closeAccountModal;
   window.updateCurrentUserName = updateCurrentUserName;
