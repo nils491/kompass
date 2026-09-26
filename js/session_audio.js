@@ -14,7 +14,7 @@
   'use strict';
 
   var audioState = {
-    activeSource: 'own', // 'own' (externe Playlist) oder 'synth' (generative Soundscape)
+    activeSource: 'synth', // 'synth' (generative Soundscape) als aktiver Standard für Sofort-Musik
     currentStyle: 'velvet', // 'velvet', 'bowls', 'ocean', 'beats'
     energyLevel: 2, // 1 (Sanft), 2 (Moderat), 3 (Intensiv), 4 (Ekstatisch)
     isPlaying: false,
@@ -387,12 +387,10 @@
     updatePlaybackUI();
 
     if (audioState.isPlaying) {
-      if (audioState.activeSource === 'synth') {
-        startCurrentSoundscapeEngine();
-      } else {
-        if (typeof window.showToast === 'function') {
-          window.showToast("Eigene Playlist aktiv (Audio-Ducking bereit)");
-        }
+      // Wenn Musik gestartet wird, immer die Soundscape-Engine aktivieren
+      startCurrentSoundscapeEngine();
+      if (typeof window.showToast === 'function') {
+        window.showToast("Soundscape aktiv: Cinematic Velvet 🎵");
       }
     } else {
       stopAllGenerators();
@@ -456,10 +454,15 @@
     ensureGraph: ensureAudioGraph
   };
 
+  // Direkte globale Verknüpfungen für alle HTML-Buttons
   window.toggleAmbientMusic = toggleAmbientMusic;
+  window.toggleAmbientMusicWrapper = toggleAmbientMusic;
   window.setSoundscapeStyle = setSoundscapeStyle;
+  window.setSoundscapeStyleWrapper = setSoundscapeStyle;
   window.adjustAmbientEnergy = adjustAmbientEnergy;
+  window.adjustAmbientEnergyWrapper = adjustAmbientEnergy;
   window.selectMusicSource = selectMusicSource;
+  window.selectMusicSourceWrapper = selectMusicSource;
   window.applyAudioDucking = applyAudioDucking;
   window.stopAllSoundscapeNodes = stopAllGenerators;
 
