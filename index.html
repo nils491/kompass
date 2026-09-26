@@ -142,6 +142,9 @@
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-pink-400 hover:text-pink-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Regie</span>
         </a>
+        <button type="button" onclick="KinkResearch.open()" class="px-3 py-1.5 rounded-xl text-purple-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>🔍 KI-Recherche</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -450,10 +453,231 @@
       </div>
     </section>
 
-  <div id="modal-toy-management" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+  </main>
+
+  <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="theme-card rounded-3xl max-w-xl w-full border border-purple-500/40 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
       <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold">🧰</div>
           <div>
             <h3 class="text-sm font-extrabold text-white">Toy-Verwaltung (Unser Schrank)</h3>
+            <p class="text-[10px] text-slate-400">Verwalte euer Equipment; die Schlafzimmer-Regie greift nur auf aktivierte Toys zu.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2 flex-wrap">
+        <span class="text-[11px] text-slate-300">Im Schrank vorhanden: <strong id="toy-management-active-count" class="text-purple-300 font-mono">0</strong></span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[10px] font-bold touch-btn">Alles da</button>
+          <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 text-[10px] font-bold touch-btn">Nur Haushalt</button>
+          <button type="button" onclick="presetToyManagement('none')" class="px-2 py-1 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-[10px] font-bold touch-btn">Leeren</button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+        <button type="button" onclick="filterToyManagementCat('all')" id="btn-toy-cat-all" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">Alle</button>
+        <button type="button" onclick="filterToyManagementCat('household')" id="btn-toy-cat-household" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🏠 Haushalt</button>
+        <button type="button" onclick="filterToyManagementCat('bondage')" id="btn-toy-cat-bondage" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">⛓️ Fesselung</button>
+        <button type="button" onclick="filterToyManagementCat('impact')" id="btn-toy-cat-impact" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">✋ Impact</button>
+        <button type="button" onclick="filterToyManagementCat('sensory')" id="btn-toy-cat-sensory" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🙈 Sensorik</button>
+        <button type="button" onclick="filterToyManagementCat('cbt_clamps')" id="btn-toy-cat-cbt_clamps" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">⚡ CBT</button>
+        <button type="button" onclick="filterToyManagementCat('toys_anal')" id="btn-toy-cat-toys_anal" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🍑 Toys</button>
+        <button type="button" onclick="filterToyManagementCat('special')" id="btn-toy-cat-special" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🕯️ Spezial</button>
+      </div>
+
+      <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto flex-1 pr-1"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeToyManagementModal()" class="px-4 py-2 bg-purple-900 hover:bg-purple-800 text-white font-extrabold rounded-xl text-xs touch-btn">Fertig & Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-account" style="display: none;" onclick="if(event.target===this) closeAccountModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
+          <p class="text-[10px] text-slate-400">Aktives Profil: <span id="account-active-username" class="text-brand-300 font-bold">Partner 1</span></p>
+        </div>
+        <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 block">Dein Rufname:</label>
+          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" placeholder="z. B. Alex" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 block">E-Mail für Backup-Versand:</label>
+          <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <div class="space-y-1">
+            <span class="text-[10.5px] font-bold text-slate-300 block">Deine Anatomie:</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
+              <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10.5px] font-bold text-slate-300 block">Partner-Anatomie:</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="selectAccountAnatomy('partner', 'penis')" id="acc-anat-part-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Penis</button>
+              <button type="button" onclick="selectAccountAnatomy('partner', 'vulva')" id="acc-anat-part-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold touch-btn">Vulva</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-900/50 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-white">Google Gemini KI-Zentrale</strong>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="account-ai-toggle" onchange="toggleAccountAiActive(this.checked)" class="sr-only peer">
+              <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">Gemini API-Key:</span>
+              <button type="button" onclick="testGeminiKeyInAccount()" class="text-purple-300 font-bold hover:underline">Verbindung prüfen ↗</button>
+            </div>
+            <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="Gemini API-Key hinterlegen..." class="w-full text-[10.5px] p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
+          <div class="flex items-center justify-between text-[11px]">
+            <strong class="text-white">Stimme für Audio-Führung:</strong>
+            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="text-purple-300 font-bold hover:underline">🔊 Probe (5s)</button>
+          </div>
+          <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
+            <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
+            <option value="Aoede">Fordernde Herrin (Aoede)</option>
+            <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
+            <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
+          </select>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+          <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold touch-btn">Design wechseln 🌓</button>
+          <button type="button" onclick="sendBackupEmail()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold touch-btn">Datensicherung 📤</button>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-amber-950/20 border border-amber-900/40 flex items-center justify-between gap-2">
+          <span class="text-[10.5px] text-slate-300">Zufällige Testdaten befüllen (für beide Partner):</span>
+          <button type="button" onclick="generateRandomTestData()" class="px-3 py-1.5 rounded-xl bg-amber-900/60 hover:bg-amber-800 border border-amber-700 text-amber-200 text-xs font-bold touch-btn">🎲 Würfeln</button>
+        </div>
+
+        <div id="reset-trigger-area" class="pt-2 border-t border-slate-800 flex justify-end">
+          <button type="button" onclick="showResetConfirmation()" class="text-rose-400 hover:text-rose-300 text-[11px] font-bold touch-btn">Profil zurücksetzen ⚠️</button>
+        </div>
+
+        <div id="reset-confirmation-box" class="hidden p-3.5 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 space-y-2">
+          <strong class="text-xs block">Wirklich alle Antworten von <span id="reset-current-username">Partner 1</span> löschen?</strong>
+          <p class="text-[10.5px] text-slate-300">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1 rounded-xl theme-panel border text-slate-300 text-xs touch-btn">Abbrechen</button>
+            <button type="button" onclick="resetCurrentUserProfile()" class="px-3 py-1 rounded-xl bg-rose-800 text-white font-bold text-xs touch-btn">Ja, löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-tabus" style="display: none;" onclick="if(event.target===this) closeTabuModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
+          <p class="text-[10px] text-rose-300">Alle Praktiken mit Bewertung 1 (Tabu) beider Partner</p>
+        </div>
+        <button onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+      <div id="tabu-modal-list" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-lexikon" style="display: none;" onclick="if(event.target===this) closeLexikonModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 p-5 space-y-3 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+      <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold">🔍</div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">KI-Kink-Recherche</h3>
+            <p class="text-[10px] text-purple-300">Traumasensible, schamfreie Aufklärung zu jeder erotischen Praktik</p>
+          </div>
+        </div>
+        <button onclick="closeLexikonModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="flex gap-2">
+        <input type="text" id="lexikon-search-input" onkeydown="if(event.key==='Enter') searchKinkResearch()" placeholder="Begriff eingeben (z. B. Takate Kote, Edging, Ruined Orgasm)..." class="flex-1 text-xs p-2.5 theme-panel border rounded-xl text-white">
+        <button type="button" onclick="searchKinkResearch()" class="px-4 py-2.5 bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold rounded-xl text-xs touch-btn">Recherchieren</button>
+      </div>
+
+      <div id="lexikon-entries-container" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button onclick="closeLexikonModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-onboarding" style="display: none;" onclick="if(event.target===this) closeOnboardingModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative">
+      <button type="button" onclick="closeOnboardingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold w-6 h-6 rounded-lg theme-panel border flex items-center justify-center touch-btn">✕</button>
+      <div class="text-center space-y-1">
+        <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Willkommen</span>
+        <h3 class="text-base font-black text-white">Richtet eure Profile ein</h3>
+        <p class="text-[11px] text-slate-400">Gebt eure Rufnamen und Anatomie an, um die Fragen perfekt anzupassen.</p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="p-3 rounded-2xl theme-panel border space-y-2">
+          <span class="font-bold text-white block">Partner 1:</span>
+          <input type="text" id="onboard-name-A" placeholder="Rufname Partner 1" value="Partner 1" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
+          <div class="flex gap-1 pt-0.5">
+            <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Penis</button>
+            <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Vulva</button>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl theme-panel border space-y-2">
+          <span class="font-bold text-white block">Partner 2:</span>
+          <input type="text" id="onboard-name-B" placeholder="Rufname Partner 2" value="Partner 2" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
+          <div class="flex gap-1 pt-0.5">
+            <button type="button" onclick="setOnboardingAnatomy('B', 'penis')" id="onboard-anat-B-penis" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Penis</button>
+            <button type="button" onclick="setOnboardingAnatomy('B', 'vulva')" id="onboard-anat-B-vulva" class="flex-1 py-1.5 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Vulva</button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" onclick="completeOnboarding()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+        Kompass starten →
+      </button>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
+
+  <script src="data/scientific_studies.js"></script>
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
+  <script src="js/session_voice.js"></script>
+  <script src="js/hub_toys.js"></script>
+  <script src="js/kink_research.js"></script>
+  <script src="js/hub_modals.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
