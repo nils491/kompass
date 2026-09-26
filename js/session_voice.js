@@ -316,39 +316,53 @@
       }
     };
 
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/" + activeDiscoveredTtsModel + ":generateContent?key=" + encodeURIComponent(apiKey);
-    var resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    var candidateModels = [
+      activeDiscoveredTtsModel || "gemini-3.8-flash-tts",
+      "gemini-3.8-flash-lite-tts",
+      "gemini-2.5-flash-preview-tts"
+    ];
 
-    if (resp.ok) {
-      var data = await resp.json();
-      var part = data?.candidates?.[0]?.content?.parts?.[0];
-      var audioBase64 = part?.inlineData?.data;
-      var mimeType = part?.inlineData?.mimeType || "";
+    for (var i = 0; i < candidateModels.length; i++) {
+      var model = candidateModels[i];
+      try {
+        var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
+        var resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      if (audioBase64) {
-        var rawBuffer = base64ToArrayBuffer(audioBase64);
-        var rawBytes = new Uint8Array(rawBuffer);
-        var wavBlob;
+        if (resp.ok) {
+          var data = await resp.json();
+          var part = data?.candidates?.[0]?.content?.parts?.[0];
+          var audioBase64 = part?.inlineData?.data;
+          var mimeType = part?.inlineData?.mimeType || "";
 
-        if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
-          wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
-        } else {
-          var sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-          var pcm16 = new Int16Array(rawBuffer);
-          wavBlob = pcmToWav(pcm16, sampleRate);
+          if (audioBase64) {
+            var rawBuffer = base64ToArrayBuffer(audioBase64);
+            var rawBytes = new Uint8Array(rawBuffer);
+            var wavBlob;
+
+            if (rawBytes[0] === 0x52 && rawBytes[1] === 0x49 && rawBytes[2] === 0x46 && rawBytes[3] === 0x46) {
+              wavBlob = new Blob([rawBytes], { type: 'audio/wav' });
+            } else {
+              var sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+              var pcm16 = new Int16Array(rawBuffer);
+              wavBlob = pcmToWav(pcm16, sampleRate);
+            }
+
+            var blobUrl = URL.createObjectURL(wavBlob);
+            var cacheKey = voiceToUse + "_" + text.trim();
+            ttsAudioCache[cacheKey] = blobUrl;
+            activeDiscoveredTtsModel = model;
+            break;
+          }
         }
-
-        var blobUrl = URL.createObjectURL(wavBlob);
-        var cacheKey = voiceToUse + "_" + text.trim();
-        ttsAudioCache[cacheKey] = blobUrl;
+      } catch (e) {
+        console.debug("Preload snippet error with model " + model + ":", e);
       }
     }
   }
-
 
   window.SessionVoice = {
     play: playSensualGeminiVoice,
