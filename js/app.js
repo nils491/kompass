@@ -401,11 +401,12 @@
   function renderRatingBlock(id, role, text, currentVal) {
     if (!text) return '';
     var colors = [
-      'bg-rose-950 border-rose-800 text-rose-300',      // 1 Tabu
-      'theme-panel border-slate-700 text-slate-300',    // 2 Eher Nein / Duldung
-      'bg-indigo-950 border-indigo-800 text-indigo-300', // 3 Neugierig
-      'bg-brand-900 border-brand-700 text-brand-100',    // 4 Reizvoll
-      'bg-brand-600 border-brand-500 text-white'         // 5 Favorit
+      'bg-slate-800 border-slate-600 text-slate-200',      // 0 Betrifft mich nicht / Entfällt
+      'bg-rose-950 border-rose-800 text-rose-300',        // 1 Tabu
+      'theme-panel border-slate-700 text-slate-300',      // 2 Eher Nein / Duldung
+      'bg-indigo-950 border-indigo-800 text-indigo-300',   // 3 Neugierig
+      'bg-brand-900 border-brand-700 text-brand-100',      // 4 Reizvoll
+      'bg-brand-600 border-brand-500 text-white'           // 5 Favorit
     ];
 
     var html = '<div class="space-y-1.5">';
@@ -413,13 +414,14 @@
     html += (role === 'r1' ? 'Aktiv: ' : 'Passiv: ') + escapeHtml(text) + '</span>';
     html += '<div class="flex gap-1">';
     
-    for (var i = 1; i <= 5; i++) {
+    for (var i = 0; i <= 5; i++) {
       var isSel = (currentVal === i);
-      var cls = isSel ? colors[i - 1] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60';
-      html += '<button type="button" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
+      var cls = isSel ? colors[i] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60 hover:opacity-100';
+      var tooltip = (i === 0) ? '0: Betrifft mich nicht / Entfällt' : (i === 1 ? '1: Tabu' : (i === 5 ? '5: Favorit' : 'Stufe ' + i));
+      html += '<button type="button" title="' + tooltip + '" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
     }
     html += '</div>';
-    html += '<div class="flex justify-between text-[9px] font-mono text-slate-500 px-1 mt-0.5"><span>⛔ Tabu (1)</span><span>Favorit (5) ⭐</span></div>';
+    html += '<div class="flex justify-between text-[9px] font-mono text-slate-500 px-1 mt-0.5"><span>⚪ 0: Betrifft nicht</span><span>⛔ 1: Tabu</span><span>⭐ 5: Favorit</span></div>';
     html += '</div>';
     return html;
   }
