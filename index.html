@@ -563,6 +563,35 @@
           </div>
         </div>
 
+        <!-- FREIGABESTUFE DER ANTWORTEN (4 STUFEN) -->
+        <div class="p-3.5 rounded-2xl theme-panel border space-y-2.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-white">Freigabestufe deiner Antworten</strong>
+            <span id="account-sharing-badge" class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Stufe 3: Duldung & Buße</span>
+          </div>
+          <p class="text-[10.5px] text-slate-400 leading-snug">
+            Bestimmt, wie weit dein Partner deine Bewertungen einsehen darf und worauf die Schlafzimmer-Regie (Strafen & Drehbuch) zugreift:
+          </p>
+          <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+            <button type="button" onclick="selectAccountSharingLevel(1)" id="btn-share-level-1" class="p-2.5 rounded-xl border text-left touch-btn transition">
+              <strong class="text-[11px] text-white block">1. Nur Doppel-5er</strong>
+              <span class="text-[9.5px] text-slate-400 block mt-0.5">Max. Schamschutz. Nur beiderseitige Favoriten.</span>
+            </button>
+            <button type="button" onclick="selectAccountSharingLevel(2)" id="btn-share-level-2" class="p-2.5 rounded-xl border text-left touch-btn transition">
+              <strong class="text-[11px] text-white block">2. Bis Neugier (3–5)</strong>
+              <span class="text-[9.5px] text-slate-400 block mt-0.5">Matches & Praktiken mit echtem Interesse.</span>
+            </button>
+            <button type="button" onclick="selectAccountSharingLevel(3)" id="btn-share-level-3" class="p-2.5 rounded-xl border text-left touch-btn transition">
+              <strong class="text-[11px] text-white block">3. Buße & Duldung (2–5)</strong>
+              <span class="text-[9.5px] text-slate-400 block mt-0.5">Standard: Erlaubt Zucht & Opfer für den Top.</span>
+            </button>
+            <button type="button" onclick="selectAccountSharingLevel(4)" id="btn-share-level-4" class="p-2.5 rounded-xl border text-left touch-btn transition">
+              <strong class="text-[11px] text-white block">4. Offenes Buch (1–5)</strong>
+              <span class="text-[9.5px] text-slate-400 block mt-0.5">Radikale Transparenz inkl. No-Gos.</span>
+            </button>
+          </div>
+        </div>
+
         <div class="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-900/50 space-y-2.5">
           <div class="flex items-center justify-between">
             <strong class="text-xs text-white">Google Gemini KI-Zentrale</strong>
@@ -718,6 +747,20 @@
               <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Penis</button>
               <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Vulva</button>
             </div>
+          </div>
+
+          <div class="space-y-1 pt-1 border-t border-slate-800">
+            <div class="flex justify-between items-center text-[10.5px]">
+              <span class="font-bold text-slate-300">Deine Freigabestufe:</span>
+              <span id="onboard-sharing-label" class="font-bold text-brand-300">Stufe 3 (Standard)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 pt-0.5">
+              <button type="button" onclick="setOnboardingSharingLevel(1)" id="onboard-share-1" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">1. Streng</button>
+              <button type="button" onclick="setOnboardingSharingLevel(2)" id="onboard-share-2" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">2. Neugier</button>
+              <button type="button" onclick="setOnboardingSharingLevel(3)" id="onboard-share-3" class="py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">3. Buße</button>
+              <button type="button" onclick="setOnboardingSharingLevel(4)" id="onboard-share-4" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">4. Offen</button>
+            </div>
+            <span class="text-[9.5px] text-slate-400 block pt-0.5">Stufe 3 erlaubt dem Partner, auch Dinge für die Zucht zu nutzen, die du ihm zuliebe duldest (Note 2).</span>
           </div>
         </div>
 
