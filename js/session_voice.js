@@ -19,6 +19,7 @@
   var isPreloading = false;
   var previewTimeout = null;
   var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
+  var voiceContext = null;
 
   function getGeminiApiKey() {
     try {
