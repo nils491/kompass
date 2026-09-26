@@ -593,6 +593,33 @@
           </select>
         </div>
 
+        <!-- ANLEITUNG: APP AUF DEM IPHONE / HOMESCREEN SPEICHERN -->
+        <div class="p-3.5 rounded-2xl bg-sky-950/20 border border-sky-900/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs text-sky-200 flex items-center gap-1.5">
+              <span>📱</span><span>Als App auf dem iPhone speichern</span>
+            </strong>
+            <span class="text-[9.5px] font-bold text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded border border-sky-800">Tipp</span>
+          </div>
+          <p class="text-[10.5px] text-slate-300 leading-snug">
+            So startest du den Kompass künftig wie eine echte App im Vollbildmodus ohne Browserleisten:
+          </p>
+          <div class="space-y-1.5 text-[10.5px] text-slate-300 pt-0.5">
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">1</span>
+              <span>In <strong>Safari</strong> unten auf das <strong>Teilen-Symbol</strong> <span class="font-mono text-sky-300">[↑]</span> tippen.</span>
+            </div>
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">2</span>
+              <span>Im Menü nach unten scrollen und <strong>„Zum Home-Bildschirm“</strong> wählen.</span>
+            </div>
+            <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+              <span class="w-5 h-5 rounded-md bg-sky-900 text-sky-200 font-bold flex items-center justify-center text-[10px] flex-shrink-0">3</span>
+              <span>Oben rechts auf <strong>„Hinzufügen“</strong> tippen – fertig!</span>
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
           <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold touch-btn">Design wechseln 🌓</button>
           <button type="button" onclick="sendBackupEmail()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold touch-btn">Datensicherung 📤</button>
@@ -662,7 +689,7 @@
   </div>
 
   <div id="modal-onboarding" style="display: none;" onclick="if(event.target===this) closeOnboardingModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-brand-500/50 p-6 space-y-4 shadow-2xl text-xs relative max-h-[92vh] overflow-y-auto">
       <button type="button" onclick="closeOnboardingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xs font-bold w-6 h-6 rounded-lg theme-panel border flex items-center justify-center touch-btn">✕</button>
       <div class="text-center space-y-1">
         <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">Willkommen</span>
@@ -681,6 +708,16 @@
               <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">Vulva</button>
             </div>
           </div>
+        </div>
+
+        <!-- IPHONE APP HINWEIS IM ONBOARDING -->
+        <div class="p-3 rounded-2xl bg-sky-950/30 border border-sky-900/60 space-y-1.5 text-slate-300">
+          <div class="flex items-center gap-1.5 text-sky-300 font-bold text-[11px]">
+            <span>📲</span><span>Als App auf deinem iPhone ablegen:</span>
+          </div>
+          <p class="text-[10.5px] leading-snug">
+            Tippe in <strong>Safari</strong> unten auf das Teilen-Symbol <strong class="text-sky-300 font-mono">[↑]</strong> und wähle <strong>„Zum Home-Bildschirm“</strong>. So bleibt dein Zugang dauerhaft wie eine vollwertige App gespeichert.
+          </p>
         </div>
       </div>
 
