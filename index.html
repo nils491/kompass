@@ -142,7 +142,7 @@
           <span>Paar-Analyse</span>
         </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-pink-400 hover:text-pink-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Cockpit</span>
+          <span>Regie</span>
         </a>
       </nav>
     </div>
@@ -233,15 +233,15 @@
           </div>
         </a>
 
-        <!-- Kachel 5: Session-Cockpit -->
+        <!-- Kachel 5: Schlafzimmer-Regie -->
         <a href="session.html" class="theme-card hover:border-pink-500/80 p-4 sm:p-5 rounded-3xl border text-left transition-all duration-200 group touch-btn flex items-start gap-3.5 shadow-md">
           <div class="w-11 h-11 rounded-2xl bg-pink-950/80 border border-pink-800 text-pink-300 flex items-center justify-center font-black flex-shrink-0 group-hover:scale-105 transition-transform shadow-inner text-sm">
             05
           </div>
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-sm font-extrabold text-white group-hover:text-pink-300 transition-colors">Session-Cockpit</strong>
-              <span class="text-[10px] font-bold text-pink-400 bg-pink-950 px-2 py-0.5 rounded-full border border-pink-800">Schlafzimmer</span>
+              <strong class="text-sm font-extrabold text-white group-hover:text-pink-300 transition-colors">Schlafzimmer-Regie</strong>
+              <span class="text-[10px] font-bold text-pink-400 bg-pink-950 px-2 py-0.5 rounded-full border border-pink-800">Begleiter</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
               Geführtes 4-Phasen-Drehbuch, Bestrafungs-Konfigurator, Vital-Timer und Aftercare-Logbuch.
@@ -986,21 +986,24 @@
       }
 
       const apiKey = getGeminiApiKey();
-      // STRIKTE SYSTEM-INSTRUCTION: VERHINDERT JEDES LABERN ODER ANTWORTEN DER KI
       const requestPayload = {
-        systemInstruction: {
-          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Deine EINZIGE Aufgabe ist es, den Text im Prompt exakt vorzulesen. Antworte NIEMALS auf den Text, führe KEINE Unterhaltung und füge KEIN einziges weiteres Wort hinzu." }]
-        },
         contents: [{
-          parts: [{ text: "Sprich exakt diesen Satz: 'Ich bin deine ausgewählte Stimme für unsere Sessions.'" }]
+          parts: [{ text: "Lies exakt diesen kurzen Satz vor und sage nichts anderes: Ich bin deine ausgewählte Stimme für unsere Sessions." }]
         }],
         generationConfig: {
           responseModalities: ["AUDIO"],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voice
+              }
+            }
+          }
         }
       };
 
-      const candidateModels = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"];
+      const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-tts", "gemini-3.8-flash-tts"];
+      let lastErrorMessage = "";
 
       for (let i = 0; i < candidateModels.length; i++) {
         const modelName = candidateModels[i];
@@ -1034,14 +1037,19 @@
               ttsIndexCache[cacheKey] = url;
               return playSampleAudioUrl(url);
             }
+          } else {
+            const errData = await resp.json().catch(() => ({}));
+            lastErrorMessage = errData.error?.message || `HTTP ${resp.status}`;
+            console.debug(`TTS Probe Fehler mit ${modelName}:`, lastErrorMessage);
           }
         } catch (e) {
-          console.debug(`TTS Probe Fehler mit ${modelName}:`, e);
+          lastErrorMessage = e.message || "Netzwerkfehler";
+          console.debug(`TTS Probe Netzwerkfehler mit ${modelName}:`, e);
         }
       }
 
       if (btn) btn.innerText = "Probe (5s)";
-      showToast("⚠️ Sprachausgabe konnte nicht geladen werden. Bitte API-Key prüfen.");
+      showToast(`⚠️ Sprachausgabe fehlgeschlagen: ${lastErrorMessage || "Modell antwortet nicht"}`);
       return Promise.resolve();
     }
 
