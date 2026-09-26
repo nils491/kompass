@@ -33,6 +33,7 @@
   window.renderSafetyConfig = renderSafetyConfig;
   window.openItemResearch = openItemResearch;
   window.setSurveyScope = setSurveyScope;
+  window.loadCoreData = loadCoreData;
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -124,6 +125,10 @@
       localStorage.setItem('kompass_safety_config', JSON.stringify(safetyConfig));
     } catch (e) {
       console.error("Fehler beim Speichern von Kerndaten:", e);
+    }
+    // Entprellte Hintergrund-Synchronisation mit der Cloud anstoßen
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
     }
   }
 
@@ -972,6 +977,20 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
       switchMainView('hub');
     }
     updateHubUI();
+
+    // Auf eingehende Cloud-Synchronisations-Ereignisse reagieren
+    if (window.CloudSync) {
+      window.CloudSync.addListener(function(evt) {
+        if (evt === 'data_received' || evt === 'paired') {
+          loadCoreData();
+          var curView = (window.location.hash || '').replace('#view=', '') || 'hub';
+          if (curView === 'survey') renderSurveyChapter();
+          else if (curView === 'single') renderSingleProfile();
+          else if (curView === 'safety') renderSafetyConfig();
+          updateHubUI();
+        }
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
