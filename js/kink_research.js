@@ -121,9 +121,11 @@
     var discoveredModel = localStorage.getItem('kompass_discovered_model');
     var candidateModels = [];
 
-    if (discoveredModel) candidateModels.push(discoveredModel);
-    candidateModels.push('gemini-2.5-flash');
-    candidateModels.push('gemini-2.0-flash');
+    if (discoveredModel && discoveredModel.indexOf('2.5') === -1) {
+      candidateModels.push(discoveredModel);
+    }
+    candidateModels.push('gemini-3.8-flash');
+    candidateModels.push('gemini-3.8-flash-lite');
 
     var prompt = `
 Du bist ein erfahrener, einfühlsamer und traumasensibler BDSM- und Sexualaufklärer.
