@@ -120,6 +120,7 @@
     var data = {
       names: { A: 'Partner 1', B: 'Partner 2' },
       anatomy: { A: 'penis', B: 'vulva' },
+      sharingLevels: { A: 3, B: 3 },
       answers: { A: {}, B: {} },
       safety: { A: {}, B: {} },
       activeEquipmentIds: [],
@@ -132,6 +133,12 @@
       if (n) data.names = JSON.parse(n);
       var a = localStorage.getItem('kompass_anatomy');
       if (a) data.anatomy = JSON.parse(a);
+      
+      var slA = localStorage.getItem('kompass_sharing_level_A');
+      if (slA) data.sharingLevels.A = parseInt(slA, 10) || 3;
+      var slB = localStorage.getItem('kompass_sharing_level_B');
+      if (slB) data.sharingLevels.B = parseInt(slB, 10) || 3;
+
       var ans = localStorage.getItem('kompass_answers');
       if (ans) data.answers = JSON.parse(ans);
       var sc = localStorage.getItem('kompass_safety_config');
@@ -152,6 +159,10 @@
     var merged = {
       names: Object.assign({}, local.names || {}, remote.names || {}),
       anatomy: Object.assign({}, local.anatomy || {}, remote.anatomy || {}),
+      sharingLevels: {
+        A: (remote.sharingLevels && remote.sharingLevels.A) || (local.sharingLevels && local.sharingLevels.A) || 3,
+        B: (remote.sharingLevels && remote.sharingLevels.B) || (local.sharingLevels && local.sharingLevels.B) || 3
+      },
       answers: {
         A: Object.assign({}, (local.answers && local.answers.A) || {}, (remote.answers && remote.answers.A) || {}),
         B: Object.assign({}, (local.answers && local.answers.B) || {}, (remote.answers && remote.answers.B) || {})
@@ -182,6 +193,10 @@
     try {
       localStorage.setItem('kompass_names', JSON.stringify(merged.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(merged.anatomy));
+      if (merged.sharingLevels) {
+        if (merged.sharingLevels.A) localStorage.setItem('kompass_sharing_level_A', merged.sharingLevels.A.toString());
+        if (merged.sharingLevels.B) localStorage.setItem('kompass_sharing_level_B', merged.sharingLevels.B.toString());
+      }
       localStorage.setItem('kompass_answers', JSON.stringify(merged.answers));
       localStorage.setItem('kompass_safety_config', JSON.stringify(merged.safety));
       localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(merged.activeEquipmentIds));
