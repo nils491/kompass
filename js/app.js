@@ -677,9 +677,11 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key');
     if (!apiKey || apiKey.length < 10) apiKey = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
+    // Veraltete 2.5- oder fehlerhafte Omni-Modelle aus dem Speicher bereinigen
     var activeModel = localStorage.getItem('kompass_discovered_model');
-    if (!activeModel || activeModel.indexOf('2.5') !== -1) {
+    if (!activeModel || activeModel.indexOf('2.5') !== -1 || activeModel.indexOf('omni') !== -1) {
       activeModel = 'gemini-3.8-flash';
+      try { localStorage.setItem('kompass_discovered_model', activeModel); } catch (e) {}
     }
 
     var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
@@ -689,24 +691,48 @@
     
     var promptText = "Du bist ein erfahrener, einfühlsamer und wissenschaftlich fundierter Paartherapeut und Sexualforscher. Erstelle ein prägnantes, traumasensibles und tiefenpsychologisches Gutachten (genau 3 Absätze) für " + (names[currentUser] || 'den Partner') + ". Säulen-Werte: Macht/Hingabe (" + powerPct + "), Sensorik/Schmerz (" + sensPct + "), Fürsorge (" + nurtPct + "), Tabubruch/Kick (" + thrillPct + "). Beziehe dich auf Sagarin (2009) und Wismeijer (2013). Keine moralischen Bewertungen. Formatiere als HTML mit Klassen text-slate-300 text-xs leading-relaxed space-y-2.";
 
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + activeModel + ':generateContent?key=' + encodeURIComponent(apiKey), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-      });
+    var candidateModels = [];
+    if (activeModel && activeModel.indexOf('omni') === -1 && activeModel.indexOf('2.5') === -1) {
+      candidateModels.push(activeModel);
+    }
+    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
+    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
 
-      if (resp.ok) {
-        var data = await resp.json();
-        var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
-        if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
-        showToast("✓ Gutachten erstellt");
-      } else {
-        var err = await resp.json().catch(function(){ return {}; });
-        if (out) out.innerHTML = '<p class="text-rose-400 font-bold">⚠️ Fehler: ' + (err.error?.message || resp.status) + '</p>';
+    var success = false;
+    var lastErrorMsg = "Verbindungsfehler";
+
+    for (var i = 0; i < candidateModels.length; i++) {
+      var currentModel = candidateModels[i];
+      try {
+        var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + currentModel + ':generateContent?key=' + encodeURIComponent(apiKey), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+
+        if (resp.ok) {
+          var data = await resp.json();
+          var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
+          if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
+          showToast("✓ Gutachten erstellt (" + currentModel + ")");
+          try { localStorage.setItem('kompass_discovered_model', currentModel); } catch (e) {}
+          success = true;
+          break;
+        } else {
+          var err = await resp.json().catch(function(){ return {}; });
+          lastErrorMsg = err.error?.message || ("HTTP " + resp.status);
+        }
+      } catch (e) {
+        lastErrorMsg = e.message || "Netzwerkfehler";
       }
-    } catch (e) {
-      if (out) out.innerHTML = '<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler beim Abrufen des Gutachtens.</p>';
+    }
+
+    if (!success && out) {
+      out.innerHTML = '<div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs space-y-1">' +
+        '<strong class="block font-bold">⚠️ Analyse nicht möglich:</strong>' +
+        '<p class="text-[11px]">' + escapeHtml(lastErrorMsg) + '</p>' +
+        '<p class="text-[10px] text-slate-400 mt-1">Tipp: Bitte prüfe in den Einstellungen (⚙️) deinen eigenen Gemini API-Key aus Google AI Studio.</p>' +
+        '</div>';
     }
 
     if (btn) btn.innerText = "✨ Gutachten aktualisieren";
