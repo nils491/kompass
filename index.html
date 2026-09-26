@@ -104,7 +104,7 @@
           </div>
         </a>
 
-        <!-- PROFIL-SWITCHER -->
+        <!-- PROFIL-SWITCHER & AKTIONEN -->
         <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           <div class="flex items-center p-0.5 rounded-xl theme-panel border text-xs">
             <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1 touch-btn">
@@ -118,12 +118,13 @@
           <button type="button" onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Tabu-Charta anzeigen">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span id="header-tabu-count">0</span>
           </button>
-          <button type="button" onclick="openAccountModal()" class="p-2 theme-panel border text-slate-300 hover:text-white rounded-xl text-xs flex items-center transition touch-btn" title="Einstellungen">
+          <button type="button" onclick="openAccountModal()" class="p-2 theme-panel border text-slate-300 hover:text-white rounded-xl text-xs flex items-center transition touch-btn" title="Einstellungen & Profil">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </button>
         </div>
       </div>
 
+      <!-- MAIN NAVIGATION -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
@@ -256,7 +257,7 @@
           <div class="flex-1 space-y-1">
             <div class="flex items-center justify-between">
               <strong class="text-sm font-extrabold text-white group-hover:text-purple-300 transition-colors">Toy-Verwaltung</strong>
-              <span id="hub-toy-count-badge" class="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">Inventar</span>
+              <span id="hub-toy-count-badge" class="text-[10px] font-mono font-bold text-purple-300 bg-purple-950 px-2 py-0.5 rounded-full border border-purple-800">0 Toys</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[11px]">
               Verwalte euren Spielzeugschrank, Alltagsgegenstände und BDSM-Equipment für das Cockpit.
@@ -454,6 +455,18 @@
           </div>
         </div>
 
+        <!-- HIGH-PRIO UND TABUS LISTEN -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="theme-card rounded-3xl p-4 border space-y-2">
+            <h4 class="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">⭐ Höchste Leidenschaften (5 von 5)</h4>
+            <div id="single-high-prio-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs"></div>
+          </div>
+          <div class="theme-card rounded-3xl p-4 border space-y-2">
+            <h4 class="text-xs font-extrabold text-rose-400 uppercase tracking-wider">⛔ Persönliche Grenzen & Tabus (1 von 5)</h4>
+            <div id="single-tabus-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs"></div>
+          </div>
+        </div>
+
         <!-- GUTACHTEN & SCHAM-ENTLASTUNG -->
         <div id="single-interpretation-box" class="space-y-4"></div>
       </div>
@@ -510,44 +523,141 @@
     </div>
   </div>
 
-  <!-- MODAL: ACCOUNT SETTINGS -->
+  <!-- MODAL: ACCOUNT SETTINGS (VOLLSTÄNDIG RESTAURIERT) -->
   <div id="modal-account" class="hidden fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-slate-800 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
+      
+      <!-- MODAL HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center font-bold">⚙️</div>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
+            <p class="text-[10px] text-slate-400">Aktives Profil: <strong id="account-active-username" class="text-brand-300">Partner 1</strong></p>
+          </div>
+        </div>
         <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <div class="space-y-3">
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-slate-400 uppercase">Mein Name / Rufname:</label>
-          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+      <!-- SCROLLABLE CONTENT BODY -->
+      <div class="space-y-3.5 overflow-y-auto pr-1 flex-1">
+        
+        <!-- 1. NAME & EMAIL -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mein Rufname:</label>
+            <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">E-Mail für Backup-Link:</label>
+            <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="name@beispiel.de" class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-slate-400 uppercase">Gemini API-Key:</label>
-          <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="API-Key hinterlegen..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white font-mono">
+        <!-- 2. ANATOMIE-WAHL -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Meine Anatomie:</label>
+            <div class="flex gap-1.5">
+              <button type="button" id="acc-anat-my-penis" onclick="selectAccountAnatomy('me', 'penis')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
+                ♂️ Penis
+              </button>
+              <button type="button" id="acc-anat-my-vulva" onclick="selectAccountAnatomy('me', 'vulva')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
+                ♀️ Vulva
+              </button>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Partner-Anatomie:</label>
+            <div class="flex gap-1.5">
+              <button type="button" id="acc-anat-part-penis" onclick="selectAccountAnatomy('partner', 'penis')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
+                ♂️ Penis
+              </button>
+              <button type="button" id="acc-anat-part-vulva" onclick="selectAccountAnatomy('partner', 'vulva')" class="flex-1 py-1.5 px-2 rounded-xl border theme-panel text-slate-300 text-[11px] font-bold touch-btn">
+                ♀️ Vulva
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-slate-400 uppercase">Bevorzugte Stimme:</label>
+        <!-- 3. KI-ZENTRALE AKTIVIEREN / DEAKTIVIEREN -->
+        <div class="p-3 rounded-2xl bg-purple-950/20 border border-purple-900/60 flex items-center justify-between gap-3">
+          <div>
+            <strong class="text-xs text-white block">KI-Zentrale aktivieren</strong>
+            <p class="text-[10px] text-purple-300">Schaltet Kachel & KI-Paargutachten im Kompass frei</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+            <input type="checkbox" id="account-ai-toggle" onchange="toggleAccountAiActive(this.checked)" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          </label>
+        </div>
+
+        <!-- 4. GEMINI API-KEY & STATUS -->
+        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Google Gemini API-Key:</label>
+            <button type="button" onclick="testGeminiKeyInAccount()" class="text-[10px] font-bold text-purple-300 hover:text-white">
+              Key prüfen ↗
+            </button>
+          </div>
+          <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="API-Key hinterlegen..." class="w-full text-xs p-2 theme-panel border rounded-xl text-white font-mono">
+        </div>
+
+        <!-- 5. BEVORZUGTE STIMME MIT STRENGEM 5S-PROBEHÖREN -->
+        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800/80">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Bevorzugte Stimme (TTS):</label>
           <div class="flex items-center gap-2">
-            <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="flex-1 text-xs p-2 theme-panel border rounded-xl text-white">
-              <option value="Despina">Sinnliche Frauenstimme (Despina)</option>
+            <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="flex-1 text-xs p-2 theme-panel border rounded-xl text-white font-medium">
+              <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
               <option value="Aoede">Fordernde Herrin (Aoede)</option>
-              <option value="Enceladus">Tiefe Männerstimme (Enceladus)</option>
-              <option value="Fenrir">Autoritäre Männerstimme (Fenrir)</option>
+              <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
+              <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
             </select>
-            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="px-3 py-2 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-xs font-bold touch-btn">
+            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="px-3.5 py-2 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 text-xs font-bold touch-btn flex-shrink-0">
               Probe (5s)
             </button>
           </div>
         </div>
+
+        <!-- 6. THEME, BACKUP & SCHNELLE TESTDATEN -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button type="button" onclick="toggleThemeInAccount()" class="p-2.5 rounded-xl theme-panel border text-slate-300 hover:text-white text-[11px] font-bold touch-btn">
+            🌓 Design wechseln
+          </button>
+          <button type="button" onclick="sendBackupEmail()" class="p-2.5 rounded-xl theme-panel border text-slate-300 hover:text-white text-[11px] font-bold touch-btn">
+            ✉️ Backup senden
+          </button>
+          <button type="button" onclick="generateRandomTestData()" class="p-2.5 rounded-xl bg-indigo-950/60 border border-indigo-800 text-indigo-300 text-[11px] font-bold touch-btn">
+            🎲 Testdaten füllen
+          </button>
+        </div>
+
+        <!-- 7. PROFIL ZURÜCKSETZEN MIT SICHERHEITS-ABFRAGE -->
+        <div class="pt-2 border-t border-slate-800/80">
+          <div id="reset-trigger-area">
+            <button type="button" onclick="showResetConfirmation()" class="text-rose-400 hover:text-rose-300 text-[10.5px] font-bold">
+              Profil von <span id="reset-current-username">Partner 1</span> zurücksetzen...
+            </button>
+          </div>
+          <div id="reset-confirmation-box" class="hidden p-3 rounded-2xl bg-rose-950/40 border border-rose-800 space-y-2">
+            <p class="text-[11px] text-rose-200 font-bold">Wirklich alle Antworten und Notizen dieses Profils unwiderruflich löschen?</p>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="resetCurrentUserProfile()" class="px-3 py-1.5 bg-rose-700 hover:bg-rose-600 text-white font-black rounded-lg text-xs touch-btn">
+                Ja, Profil leeren
+              </button>
+              <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 theme-panel border text-slate-300 font-bold rounded-lg text-xs touch-btn">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="pt-3 border-t border-slate-800 flex justify-end">
-        <button onclick="closeAccountModal()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn">
-          Fertig
+      <!-- MODAL FOOTER -->
+      <div class="pt-3 border-t border-slate-800 flex justify-end flex-shrink-0">
+        <button onclick="closeAccountModal()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          Fertig & Schließen
         </button>
       </div>
     </div>
@@ -601,6 +711,7 @@
   <script>
     const DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
     let toyManagementCurrentCat = 'all';
+    let isSampleVoicePlaying = false;
     let sampleVoiceTimeout = null;
     let ttsIndexCache = {};
     let indexAudioCtx = null;
@@ -643,6 +754,9 @@
         if (aiActive) aiTile.classList.remove('hidden');
         else aiTile.classList.add('hidden');
       }
+
+      const aiToggle = document.getElementById('account-ai-toggle');
+      if (aiToggle) aiToggle.checked = aiActive;
 
       updateHubToyCount();
     }
@@ -751,6 +865,42 @@
       if (countEl) countEl.innerText = owned.length;
     }
 
+    function toggleAccountAiActive(checked) {
+      localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
+      updateHubUI();
+      showToast(checked ? "KI-Zentrale aktiviert ✓" : "KI-Zentrale deaktiviert");
+    }
+
+    function toggleThemeInAccount() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('kompass_theme', 'light');
+        showToast("Helles Design aktiviert");
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('kompass_theme', 'dark');
+        showToast("Dunkles Design aktiviert");
+      }
+    }
+
+    async function testGeminiKeyInAccount() {
+      const keyInput = document.getElementById('account-gemini-key');
+      const key = (keyInput && keyInput.value.trim().length > 5) ? keyInput.value.trim() : getGeminiApiKey();
+      showToast("⏳ Prüfe API-Key bei Google...");
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+        if (resp.ok) {
+          showToast("✓ Verbindung erfolgreich! Key ist aktiv.");
+        } else {
+          const data = await resp.json().catch(() => ({}));
+          showToast(`⚠️ Fehler: ${data.error?.message || resp.status}`);
+        }
+      } catch (e) {
+        showToast("⚠️ Netzwerkfehler beim Key-Test");
+      }
+    }
+
     function saveGeminiKeyInAccount(val) {
       localStorage.setItem('kompass_gemini_api_key', (val || '').trim());
       showToast("API-Key gespeichert");
@@ -761,31 +911,59 @@
       showToast(`Stimme gespeichert: ${val}`);
     }
 
-    function playVoicePreviewInAccount() {
-      unlockAudioEngineOnUserGesture();
-      const sel = document.getElementById('account-voice-select');
-      const voice = sel ? sel.value : 'Despina';
-      playSampleTtsVoice(voice);
-    }
-
-    async function playSampleTtsVoice(voice) {
+    function stopSampleVoice() {
       if (sampleVoiceTimeout) {
         clearTimeout(sampleVoiceTimeout);
         sampleVoiceTimeout = null;
       }
+      const audio = document.getElementById('master-voice-audio');
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.removeAttribute('src');
+      }
+      const btn = document.getElementById('btn-acc-voice-preview');
+      if (btn) btn.innerText = "Probe (5s)";
+      isSampleVoicePlaying = false;
+    }
+
+    async function playVoicePreviewInAccount() {
+      if (isSampleVoicePlaying) {
+        stopSampleVoice();
+        showToast("Sprachprobe gestoppt");
+        return;
+      }
+      unlockAudioEngineOnUserGesture();
+      const sel = document.getElementById('account-voice-select');
+      const voice = sel ? sel.value : 'Despina';
+      await playSampleTtsVoice(voice);
+    }
+
+    async function playSampleTtsVoice(voice) {
+      stopSampleVoice();
 
       const btn = document.getElementById('btn-acc-voice-preview');
       if (btn) btn.innerText = "⏳ Lädt...";
 
-      const cacheKey = `sample_${voice}`;
+      const cacheKey = `sample_strict_${voice}`;
       if (ttsIndexCache[cacheKey]) {
-        if (btn) btn.innerText = "Probe (5s)";
         return playSampleAudioUrl(ttsIndexCache[cacheKey]);
       }
 
       const apiKey = getGeminiApiKey();
-      const isMale = (voice === 'Enceladus' || voice === 'Fenrir');
-      const textToSpeak = isMale ? "Fünf. Stillhalten und gehorchen." : "Fünf. Spüre die Hitze.";
+      // STRIKTE SYSTEM-INSTRUCTION: VERHINDERT JEDES LABERN ODER ANTWORTEN DER KI
+      const requestPayload = {
+        systemInstruction: {
+          parts: [{ text: "Du bist eine reine Text-to-Speech-Stimme. Deine EINZIGE Aufgabe ist es, den Text im Prompt exakt vorzulesen. Antworte NIEMALS auf den Text, führe KEINE Unterhaltung und füge KEIN einziges weiteres Wort hinzu." }]
+        },
+        contents: [{
+          parts: [{ text: "Sprich exakt diesen Satz: 'Ich bin deine ausgewählte Stimme für unsere Sessions.'" }]
+        }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+        }
+      };
 
       const candidateModels = ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts"];
 
@@ -795,13 +973,7 @@
           const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: textToSpeak }] }],
-              generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
-              }
-            })
+            body: JSON.stringify(requestPayload)
           });
 
           if (resp.ok) {
@@ -825,12 +997,11 @@
 
               const url = URL.createObjectURL(wavBlob);
               ttsIndexCache[cacheKey] = url;
-              if (btn) btn.innerText = "Probe (5s)";
               return playSampleAudioUrl(url);
             }
           }
         } catch (e) {
-          console.debug(`TTS Probehören Fehler mit ${modelName}:`, e);
+          console.debug(`TTS Probe Fehler mit ${modelName}:`, e);
         }
       }
 
@@ -841,18 +1012,29 @@
 
     function playSampleAudioUrl(url) {
       return new Promise((resolve) => {
+        stopSampleVoice();
         const audio = document.getElementById('master-voice-audio');
         if (!audio) { resolve(); return; }
-        audio.pause();
-        audio.src = url;
-        audio.onended = () => resolve();
-        audio.onerror = () => resolve();
-        audio.play().catch(() => resolve());
 
-        sampleVoiceTimeout = setTimeout(() => {
-          audio.pause();
+        isSampleVoicePlaying = true;
+        const btn = document.getElementById('btn-acc-voice-preview');
+        if (btn) btn.innerText = "⏹ Stopp";
+
+        audio.src = url;
+        audio.currentTime = 0;
+
+        const cleanup = () => {
+          stopSampleVoice();
           resolve();
-        }, 5000);
+        };
+
+        audio.onended = cleanup;
+        audio.onerror = cleanup;
+
+        audio.play().catch(() => cleanup());
+
+        // HARD 5-SEKUNDEN-TIMEOUT
+        sampleVoiceTimeout = setTimeout(cleanup, 5000);
       });
     }
 
