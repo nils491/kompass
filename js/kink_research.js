@@ -63,7 +63,11 @@
         var parsed = JSON.parse(stored);
         // Prüfen, ob der Cache noch einen alten generischen Text enthält
         if (parsed && parsed.data && parsed.data.definition) {
-          if (parsed.data.definition.indexOf('ist eine etablierte Praktik im einvernehmlichen') !== -1) {
+          if (
+            parsed.data.definition.indexOf('ist eine etablierte Praktik im einvernehmlichen') !== -1 ||
+            parsed.data.definition.indexOf('ist eine spezialisierte Praxis im einvernehmlichen') !== -1 ||
+            (cacheKey.indexOf('pegging') !== -1 && parsed.data.definition.indexOf('Prostata') === -1)
+          ) {
             return null; // Veralteten Standard-Cache verwerfen und frisch analysieren
           }
           sessionSearchCache[cacheKey] = parsed;
@@ -254,6 +258,23 @@
       };
     }
 
+    // 4. Spezifisch für Pegging & anale Penetration mit Strap-on
+    if (t.indexOf('pegging') !== -1 || t.indexOf('strap-on') !== -1 || t.indexOf('strap on') !== -1 || t.indexOf('strapon') !== -1) {
+      return {
+        definition: "Beim Pegging schnallt sich die Frau (oder der führende Top) ein eng anliegendes Gurtgeschirr (Harness aus Leder oder festem Nylon) um Becken und Gesäß, in dessen Metall- oder O-Ring ein Dildo arretiert ist, und penetriert damit den Mann rektal. Die Praxis verlangt eine millimetergenaue Ausrichtung auf den Schließmuskel und das Ansteuern der männlichen Prostata (der sogenannte P-Punkt an der vorderen Rektumwand in Richtung Schambein). Da der Enddarm keine Eigenbefeuchtung besitzt, basiert der Vorgang auf massiven Mengen Gleitgel und dem schrittweisen Entspannen des inneren und äußeren Schließmuskels. Die Haltung reicht von der klassischen Vierfüßler-Position (Doggy) über die Vorbeuge über Kissen bis hin zur Missionarstellung, bei der er die Beine spreizt und sie frontal eindringt.",
+        safety: "Niemals mit Gewalt oder trocken eindringen: Der Rektumbereich ist empfindlich für Schleimhautfissuren. Ausschließlich Toys mit festem Standfuß oder starrer O-Ring-Sicherung verwenden, damit nichts im Enddarm verschwinden kann. Reichlich Gleitmittel auf Wasser- oder Silikonbasis verwenden und kontinuierlich nachdosieren. Ein klares Ampel-Safeword (Grün/Gelb/Rot) oder nonverbales Zeichen ist Pflicht. Vorab-Aufdehnung mit Fingern oder einem kleinen Butt Plug sowie eine optionale Darmspülung (Klistier) verhindern Schmerzen und mentale Blockaden.",
+        top_appeal: "Vollkommene physische und sexuelle Machtübernahme: Die Frau übernimmt die penetrierende, fordernde Rolle, bestimmt Rhythmus, Tiefe und Stoßwinkel mit ihren eigenen Hüften. Das Klatschen ihres Beckens auf sein Gesäß, der Anblick des vor ihr ausgelieferten Mannes und das Dirigieren seiner Prostata-Lust ohne eigenes Genitalgefühl erzeugen einen berauschenden dominanten Kick.",
+        bottom_appeal: "Totale körperliche Entwaffnung und neurologische Höchstlust: Der Mann gibt jede gesellschaftliche Kontrollrolle an der Schwelle zum Schlafzimmer ab. Die mechanische Massage der Prostata durch den Dildokopf löst intensive, ganzkörperliche und oft freihändige Orgasmen aus, die sich fundamental von ejakulatorischer Glied-Stimulation unterscheiden. Das Gefühl des Ausgefülltseins und der weiblichen Führung führt zu tiefer somatischer Katharsis.",
+        science: "Urologische und sexualwissenschaftliche Studien (Komisaruk et al., 2004; Wismeijer, 2013) belegen, dass die rektale Prostata-Stimulation über den Nervus pelvicus und den Nervus pudendus direkte Orgasmuszentren im Gehirn anspricht. Die bewusste Umkehrung traditioneller Geschlechterrollen entlastet Männer zudem nachweislich von Leistungsdruck.",
+        steps: [
+          { title: "1. Vorbereitung & Schließmuskel-Entspannung", desc: "Darm optional reinigen; reichlich Gleitmittel auftragen und den Schließmuskel mit eingeöltem Zeigefinger oder kleinem Konus-Plug 5–10 Minuten sanft vorweiten." },
+          { title: "2. Harness-Justierung & Positionierung", desc: "Das Geschirr stramm an den Beckenknochen der Frau arretieren, damit der Dildo nicht wackelt. Der Mann begibt sich in Vierfüßlerstellung oder legt ein Kissen unter das Becken." },
+          { title: "3. Millimeterweises Einführen & Prostata-Winkel", desc: "Dildospitze am Anus ansetzen, den Mann tief ausatmen lassen und langsam hineingleiten. Den Winkel leicht nach oben Richtung Schambein neigen, um die walnussgroße Prostata zu ertasten." },
+          { title: "4. Rhythmus, Hüftstoß & Aftercare", desc: "Langsames Gleiten steigern, sobald der Schließmuskel nachgibt; Hüftstöße rhythmisch setzen, bis er bebt. Danach Dildo behutsam herausziehen, Po abwischen und fest im Arm halten." }
+        ]
+      };
+    }
+
     // Standard-Fallback für sonstige Begriffe
     return {
       definition: `"${term}" ist eine spezialisierte Praxis im einvernehmlichen BDSM- und Erotikbereich. Sie basiert auf klarer verbaler oder nonverbaler Kommunikation, gegenseitigem Respekt und vertrauensvoller Hingabe. Der Ablauf wird schrittweise vom sanften Antasten bis zur gewünschten Intensität aufgebaut.`,
@@ -310,12 +331,13 @@
     var prompt = `Du bist ein führender Experte für BDSM-Ausrüstung, Kink-Praktiken, Fetischkleidung und somatische Sexualdynamiken.
 Analysiere den Begriff / die Praxis / das Toy: "${cleanTerm}" ${contextDesc ? `(Kontext: "${contextDesc}")` : ''} für ein aufgeklärtes deutsches Paar.
 
-WICHTIGE ANWEISUNGEN ZUR SPEZIFITÄT:
-1. Gehe in "definition" präzise auf das KONKRETE Toy, Material (z.B. Silikon, Edelstahl, Leder, Jute, Lack, Latex), die physische Mechanik und die anatomische Platzierung ein (z.B. bei Knebeln: Zähne, Lippen, Kiefermuskeln, Schlucken, Speichelfluss, Nasenatmung; bei Schlägen: Schwungtechnik, Hautreaktion, Rötung, Trefferzone Gesäß vs. Tabuzonen; bei Fesselungen: Seilführung, Nervenbahnen, Gelenkstellung, Fluchtunfähigkeit; bei Kleidung: Haptik, Knarzen, Geruch, Glanz, Körperformung).
-2. Verfasse keine allgemeinen Floskeln! Jeder Satz muss sich messerscharf auf "${cleanTerm}" beziehen.
-3. In "top_appeal": Erkläre den spezifischen visuellen, haptischen, auditiven oder machtbezogenen Reiz DIESES Gegenstands/dieser Praxis für den Top (z.B. der Anblick des geöffneten Mundes beim Ringknebel, das Verstummen der Widerrede, das Dirigieren der Erregung).
-4. In "bottom_appeal": Erkläre das somatische Erleben, den Kontrollverlust, die Scham-Lust oder Sinnesüberflutung genau dieses Toys/dieser Praxis für den Bottom.
-5. In "steps": Formuliere eine EXAKTE, praxisbezogene 4-Schritte-Anleitung speziell für den Einsatz DIESES Toys/dieser Praxis (Schritt 1: Equipment-Check/Vorbereitung; Schritt 2: Physisches Anlegen/Einstieg; Schritt 3: Durchführung & Signalüberwachung; Schritt 4: Behutsames Lösen & somatische Nachsorge).
+WICHTIGE ANWEISUNGEN ZUR SPEZIFITÄT & EXPLIZITHEIT:
+1. Keine Euphemismen oder vagen Ausflüchte! Verwende präzise, explizite anatomische Fachbegriffe (z.B. Anus, Rektum, Schließmuskel, Prostata, Beckenboden, Vulva, Klitoris, Glied, Eichel, Kiefermuskeln, Nervenbahnen). Beschreibe unzensiert, was physisch, mechanisch und anatomisch geschieht.
+2. Gehe in "definition" präzise auf das KONKRETE Toy, Material (z.B. Silikon, Edelstahl, Leder, Jute, Lack, Latex), die physische Mechanik, Stoßwinkel, Reibung, Dehnung und Platzierung ein (z.B. bei Pegging: Strap-on Geschirr, O-Ring, Prostata-Ansteuerung, Vorweitung, Gleitmittel-Mengen; bei Knebeln: Zähne, Lippen, Speichelfluss; bei Schlägen: Schwungtechnik, Hautreaktion, Trefferzone Gesäß; bei Fesselungen: Seilführung, Nervenbahnen; bei Kleidung: Haptik, Knarzen, Geruch, Glanz).
+3. Verfasse keine allgemeinen Floskeln! Jeder Satz muss sich messerscharf auf "${cleanTerm}" beziehen.
+4. In "top_appeal": Erkläre den spezifischen visuellen, haptischen, auditiven oder machtbezogenen Reiz DIESES Gegenstands/dieser Praxis für den Top (z.B. bei Pegging: aktive Penetration, Führen des Beckens, visuelle Dominanz, akustisches Klatschen auf sein Gesäß, Kontrolle über seine Prostata-Ekstase).
+5. In "bottom_appeal": Erkläre das somatische Erleben, den Kontrollverlust, die Scham-Lust, das Ausgefülltsein oder die Sinnesüberflutung genau dieses Toys/dieser Praxis für den Bottom (z.B. bei Pegging: Entwaffnung, Loslassen männlicher Rollenzwänge, tiefe Prostata-Orgasmen).
+6. In "steps": Formuliere eine EXAKTE, praxisbezogene 4-Schritte-Anleitung speziell für den Einsatz DIESES Toys/dieser Praxis (Schritt 1: Equipment-Check/Vorbereitung; Schritt 2: Physisches Anlegen/Einstieg; Schritt 3: Durchführung & Reizsteuerung; Schritt 4: Behutsames Lösen & somatische Nachsorge).
 
 Antworte ausschließlich als valides JSON mit genau diesen Feldern:
 {
