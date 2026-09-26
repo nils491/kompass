@@ -2,8 +2,12 @@
  * js/app.js
  * Kompass-Logik & Master-App-Engine
  * 
- * Steuert das Haupt-Dashboard (Hub), den dynamischen Fragebogen, 
- * die Individualauswertung (Profil, Radar-Chart) und den Sicherheits-Kodex.
+ * Steuert:
+ * - Haupt-Dashboard (Hub) & Navigation (Hub, Fragebogen, Sicherheits-Kodex, Mein Profil)
+ * - Dynamischen Fragebogen (35 Kapitel, Multi-Choice, Ratings 1-5, Filter, Quick-Grid)
+ * - Direkte Anbindung an die dynamische KI-Recherche (KinkResearch.open)
+ * - Psychologische 5-Säulen-Berechnung & Erotisches Archetypen-Radar (Chart.js)
+ * - Tiefenpsychologisches KI-Einzelgutachten über Google Gemini
  */
 
 (function(window) {
@@ -19,7 +23,6 @@
   var answers = { A: {}, B: {} };
   var safetyConfig = { A: {}, B: {} };
 
-  // Helper für UI & Sicherheit
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -31,6 +34,10 @@
   }
 
   function showToast(msg) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
+      return;
+    }
     var c = document.getElementById('toast-container');
     if (!c) return;
     var el = document.createElement('div');
@@ -59,11 +66,15 @@
       var sc = localStorage.getItem('kompass_safety_config');
       if (sc && sc !== 'null') safetyConfig = JSON.parse(sc);
     } catch (e) {
-      console.error("Data load error", e);
+      console.warn("Fehler beim Laden von Kerndaten:", e);
     }
     
+    if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
+    if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
+    if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
     if (!answers.A) answers.A = {};
     if (!answers.B) answers.B = {};
+    if (!safetyConfig || typeof safetyConfig !== 'object') safetyConfig = { A: {}, B: {} };
     if (!safetyConfig.A) safetyConfig.A = {};
     if (!safetyConfig.B) safetyConfig.B = {};
 
@@ -71,6 +82,7 @@
     window.anatomy = anatomy;
     window.answers = answers;
     window.safetyConfig = safetyConfig;
+    window.currentUser = currentUser;
   }
 
   function saveCoreData() {
@@ -80,7 +92,7 @@
       localStorage.setItem('kompass_answers', JSON.stringify(answers));
       localStorage.setItem('kompass_safety_config', JSON.stringify(safetyConfig));
     } catch (e) {
-      console.error("Data save error", e);
+      console.error("Fehler beim Speichern von Kerndaten:", e);
     }
   }
 
@@ -139,27 +151,29 @@
       });
       tabuCountEl.innerText = tc;
     }
-  }
-
-  function setCurrentUser(user) {
-    currentUser = user;
-    var btnA = document.getElementById('btn-user-A');
-    var btnB = document.getElementById('btn-user-B');
-    
-    if (user === 'A') {
-      if (btnA) btnA.className = "px-3 py-1.5 rounded-lg font-black bg-brand-950 text-brand-300 border border-brand-800 transition touch-btn";
-      if (btnB) btnB.className = "px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition touch-btn";
-    } else {
-      if (btnB) btnB.className = "px-3 py-1.5 rounded-lg font-black bg-indigo-950 text-indigo-300 border border-indigo-800 transition touch-btn";
-      if (btnA) btnA.className = "px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition touch-btn";
-    }
 
     var dispA = document.getElementById('user-display-A');
     var dispB = document.getElementById('user-display-B');
     if (dispA) dispA.innerText = names.A || 'Partner 1';
     if (dispB) dispB.innerText = names.B || 'Partner 2';
+  }
 
-    var curView = window.location.hash.replace('#view=', '') || 'hub';
+  function setCurrentUser(user) {
+    currentUser = user;
+    window.currentUser = user;
+
+    var btnA = document.getElementById('btn-user-A');
+    var btnB = document.getElementById('btn-user-B');
+    
+    if (user === 'A') {
+      if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 transition flex items-center gap-1 touch-btn";
+      if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition flex items-center gap-1 touch-btn";
+    } else {
+      if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold bg-indigo-950 text-indigo-300 border border-indigo-800 transition flex items-center gap-1 touch-btn";
+      if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition flex items-center gap-1 touch-btn";
+    }
+
+    var curView = (window.location.hash || '').replace('#view=', '') || 'hub';
     if (curView === 'survey') renderSurveyChapter();
     else if (curView === 'single') renderSingleProfile();
     else if (curView === 'safety') renderSafetyConfig();
@@ -176,10 +190,16 @@
         else el.classList.add('hidden');
       }
       if (btn) {
-        if (v === viewId) btn.className = "px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default";
-        else btn.className = "px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
+        if (v === viewId) {
+          btn.className = "px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default";
+        } else {
+          var colorClass = (v === 'safety') ? 'text-teal-400 hover:text-teal-200' : 'text-slate-400 hover:text-white';
+          btn.className = "px-3 py-1.5 rounded-xl " + colorClass + " transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn";
+        }
       }
     });
+
+    window.location.hash = '#view=' + viewId;
 
     if (viewId === 'survey') renderSurveyChapter();
     else if (viewId === 'single') renderSingleProfile();
@@ -195,7 +215,9 @@
 
   function renderSurveyChapter() {
     var chapters = window.surveyChapters || [];
-    var chapter = chapters[currentChapterIndex];
+    if (chapters.length === 0) return;
+
+    var chapter = chapters[currentChapterIndex] || chapters[0];
     if (!chapter) return;
 
     var uAnswers = answers[currentUser] || {};
@@ -212,11 +234,7 @@
 
     if (btnPrev) btnPrev.style.visibility = (currentChapterIndex === 0) ? 'hidden' : 'visible';
     if (btnNext) {
-      if (currentChapterIndex === chapters.length - 1) {
-        btnNext.innerText = "Zum Profil →";
-      } else {
-        btnNext.innerText = "Nächstes Kapitel →";
-      }
+      btnNext.innerText = (currentChapterIndex === chapters.length - 1) ? "Zum Profil →" : "Nächstes Kapitel →";
     }
 
     var prog = getGlobalProgressData(currentUser);
@@ -237,7 +255,8 @@
       if (activeSurveyFilter === 'unanswered') return (typeof r1 !== 'number' || typeof r2 !== 'number');
       if (activeSurveyFilter === 'high') return (r1 >= 4 || r2 >= 4);
       if (activeSurveyFilter === 'tabu') return (r1 === 1 || r2 === 1);
-      return false; // shame filter wird hier vereinfacht
+      if (activeSurveyFilter === 'shame') return (r1 === 3 || r2 === 3);
+      return true;
     });
 
     var countEl = document.getElementById('chapter-items-count');
@@ -246,7 +265,7 @@
     if (!container) return;
     
     if (filteredItems.length === 0) {
-      container.innerHTML = '<div class="p-6 text-center text-slate-500 italic theme-panel rounded-2xl border">Keine Fragen für diesen Filter in diesem Kapitel.</div>';
+      container.innerHTML = '<div class="p-6 text-center text-slate-500 italic theme-panel rounded-2xl border">Keine Fragen für diesen Filter in diesem Kapitel vorhanden.</div>';
       return;
     }
 
@@ -256,7 +275,7 @@
       html += '<div class="flex items-start justify-between gap-2">';
       html += '  <div class="min-w-0 flex-1">';
       html += '    <strong class="text-sm font-extrabold text-white block">' + escapeHtml(it.title) + '</strong>';
-      html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc) + '</p>';
+      html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
       html += '  </div>';
       html += '  <button type="button" onclick="KinkResearch.open(\'' + escapeHtml(it.title).replace(/'/g, "\\'") + '\', \'' + escapeHtml(it.desc || '').replace(/'/g, "\\'") + '\')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn flex-shrink-0 shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
       html += '    <span>🔍</span><span>KI-Info</span>';
@@ -266,10 +285,10 @@
       if (it.type === 'choice') {
         var curVal = uAnswers['it_' + it.id + '_choice'];
         html += '<div class="space-y-1.5">';
-        html += '<strong class="text-xs text-white block mb-2">' + escapeHtml(it.question) + '</strong>';
-        it.options.forEach(function(opt) {
+        html += '<strong class="text-xs text-white block mb-2">' + escapeHtml(it.question || 'Wähle eine Option:') + '</strong>';
+        (it.options || []).forEach(function(opt) {
           var isSel = (curVal === opt.val);
-          var cls = isSel ? 'bg-brand-950/40 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700';
+          var cls = isSel ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700';
           html += '<button type="button" onclick="saveChoice(' + it.id + ', \'' + opt.val + '\')" class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + cls + '">';
           html += escapeHtml(opt.label) + '</button>';
         });
@@ -288,22 +307,21 @@
   function renderRatingBlock(id, role, text, currentVal) {
     if (!text) return '';
     var colors = [
-      'bg-rose-950 border-rose-800 text-rose-300',     // 1 Tabu
-      'theme-panel border-slate-700 text-slate-300',   // 2 Neutral/Duldung
-      'bg-indigo-950 border-indigo-800 text-indigo-300',// 3 Neugierig
-      'bg-brand-900 border-brand-700 text-brand-100',   // 4 Reizvoll
-      'bg-brand-600 border-brand-500 text-white'        // 5 Extrem lustvoll
+      'bg-rose-950 border-rose-800 text-rose-300',      // 1 Tabu
+      'theme-panel border-slate-700 text-slate-300',    // 2 Eher Nein / Duldung
+      'bg-indigo-950 border-indigo-800 text-indigo-300', // 3 Neugierig
+      'bg-brand-900 border-brand-700 text-brand-100',    // 4 Reizvoll
+      'bg-brand-600 border-brand-500 text-white'         // 5 Favorit
     ];
-    var labels = ['1 (Tabu)', '2 (Eher Nein)', '3 (Neugierig)', '4 (Reizvoll)', '5 (Favorit)'];
 
     var html = '<div class="space-y-1.5">';
-    html += '<span class="text-[11px] font-bold ' + (role==='r1' ? 'text-brand-300' : 'text-indigo-300') + ' block">';
-    html += (role==='r1' ? 'Aktiv: ' : 'Passiv: ') + escapeHtml(text) + '</span>';
+    html += '<span class="text-[11px] font-bold ' + (role === 'r1' ? 'text-brand-300' : 'text-indigo-300') + ' block">';
+    html += (role === 'r1' ? 'Aktiv: ' : 'Passiv: ') + escapeHtml(text) + '</span>';
     html += '<div class="flex gap-1">';
     
     for (var i = 1; i <= 5; i++) {
       var isSel = (currentVal === i);
-      var cls = isSel ? colors[i-1] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60';
+      var cls = isSel ? colors[i - 1] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60';
       html += '<button type="button" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
     }
     html += '</div>';
@@ -317,6 +335,7 @@
     answers[currentUser]['it_' + id + '_' + role] = val;
     saveCoreData();
     renderSurveyChapter();
+    updateHubUI();
   };
 
   window.saveChoice = function(id, val) {
@@ -324,6 +343,7 @@
     answers[currentUser]['it_' + id + '_choice'] = val;
     saveCoreData();
     renderSurveyChapter();
+    updateHubUI();
   };
 
   window.setSurveyFilter = function(f) {
@@ -439,7 +459,7 @@
     safetyConfig[currentUser][key] = val;
     saveCoreData();
     renderSafetyConfig();
-    showToast("Sicherheits-Konfiguration gespeichert");
+    showToast("Sicherheits-Konfiguration gespeichert ✓");
   };
 
   function renderSingleProfile() {
@@ -464,19 +484,17 @@
     renderSingleRadarChart(uAnswers);
     renderHighAndTabuLists(uAnswers);
     
-    // Set initial text for interpretation
     var interpBox = document.getElementById('single-interpretation-box');
     if (interpBox) {
       var html = '<div class="theme-card rounded-3xl p-5 border border-indigo-500/40 shadow-xl space-y-3 bg-indigo-950/10">';
       html += '<div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">';
       html += '<div><h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches KI-Gutachten</h3>';
-      html += '<p class="text-[10px] text-indigo-300">Wissenschaftlich fundiert (50% Realdaten / 50% Theorie)</p></div>';
+      html += '<p class="text-[10px] text-indigo-300">Wissenschaftlich fundiert (50% Realdaten / 50% empirische Forschung)</p></div>';
       html += '<button type="button" onclick="generateAiReport()" id="btn-generate-ai" class="px-4 py-2 bg-indigo-900 hover:bg-indigo-800 text-indigo-200 font-bold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">✨ Gutachten generieren</button></div>';
       html += '<div id="ai-report-output" class="text-xs text-slate-300 leading-relaxed italic">Klicke auf "Gutachten generieren", um dein psychologisches Profil auf Basis der ausgefüllten Bogen-Daten über Gemini tiefenpsychologisch auswerten zu lassen.</div></div>';
       
-      // Standard Scham-Entlastungs-Text
       html += '<div class="theme-card rounded-3xl p-6 border border-brand-500/40 bg-gradient-to-br from-brand-950/30 to-noir-900 space-y-2 mt-4 shadow-xl">';
-      html += '<strong class="text-brand-300 font-extrabold text-xs uppercase tracking-wider block">Ein Wort zur Normalität & Schamfreiheit</strong>';
+      html += '<strong class="text-brand-300 font-extrabold text-xs uppercase tracking-wider block">Ein Wort zur Normalität & Schamfreiheit (Canivet et al., 2025; Wismeijer, 2013)</strong>';
       html += '<p class="text-xs text-slate-300 leading-relaxed">Du bist vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie dir im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.</p></div>';
 
       interpBox.innerHTML = html;
@@ -584,7 +602,9 @@
           plugins: { legend: { display: false } }
         }
       });
-    } catch(e) {}
+    } catch(e) {
+      console.warn("Radar Chart Fehler:", e);
+    }
   }
 
   function renderHighAndTabuLists(uAnswers) {
@@ -628,13 +648,14 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key');
     if (!apiKey || apiKey.length < 10) apiKey = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
-    var activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-3.8-flash';
+    var activeModel = localStorage.getItem('kompass_discovered_model') || 'gemini-2.5-flash';
 
-    var uAnswers = answers[currentUser] || {};
-    var powerPct = document.getElementById('bar-val-power')?.innerText || '0%';
-    var sensPct = document.getElementById('bar-val-sensation')?.innerText || '0%';
+    var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
+    var sensPct = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText : '0%';
+    var nurtPct = document.getElementById('bar-val-nurturing') ? document.getElementById('bar-val-nurturing').innerText : '0%';
+    var thrillPct = document.getElementById('bar-val-thrill') ? document.getElementById('bar-val-thrill').innerText : '0%';
     
-    var promptText = "Erstelle ein prägnantes, traumasensibles tiefenpsychologisches Gutachten (3 Absätze) für diesen Nutzer. Miteinbeziehen: Macht-Säule (" + powerPct + "), Sensorik (" + sensPct + "). Fakten-treu, normalisierend, wissenschaftlich, keine Moral. HTML formatiert.";
+    var promptText = "Du bist ein erfahrener, einfühlsamer und wissenschaftlich fundierter Paartherapeut und Sexualforscher. Erstelle ein prägnantes, traumasensibles und tiefenpsychologisches Gutachten (genau 3 Absätze) für " + (names[currentUser] || 'den Partner') + ". Säulen-Werte: Macht/Hingabe (" + powerPct + "), Sensorik/Schmerz (" + sensPct + "), Fürsorge (" + nurtPct + "), Tabubruch/Kick (" + thrillPct + "). Beziehe dich auf Sagarin (2009) und Wismeijer (2013). Keine moralischen Bewertungen. Formatiere als HTML mit Klassen text-slate-300 text-xs leading-relaxed space-y-2.";
 
     try {
       var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + activeModel + ':generateContent?key=' + encodeURIComponent(apiKey), {
@@ -645,15 +666,15 @@
 
       if (resp.ok) {
         var data = await resp.json();
-        var text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        var text = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) || '';
         if (out) out.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
         showToast("✓ Gutachten erstellt");
       } else {
-        var err = await resp.json().catch(function(){return {};});
+        var err = await resp.json().catch(function(){ return {}; });
         if (out) out.innerHTML = '<p class="text-rose-400 font-bold">⚠️ Fehler: ' + (err.error?.message || resp.status) + '</p>';
       }
     } catch (e) {
-      if (out) out.innerHTML = '<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler.</p>';
+      if (out) out.innerHTML = '<p class="text-rose-400 font-bold">⚠️ Netzwerkfehler beim Abrufen des Gutachtens.</p>';
     }
 
     if (btn) btn.innerText = "✨ Gutachten aktualisieren";
@@ -661,16 +682,17 @@
 
   function initApp() {
     loadCoreData();
-    var hash = window.location.hash.replace('#view=', '');
+    var hash = (window.location.hash || '').replace('#view=', '');
     switchMainView(hash || 'hub');
     
-    // Attach globals used by index.html modals
     window.setCurrentUser = setCurrentUser;
     window.switchMainView = switchMainView;
     window.updateHubUI = updateHubUI;
+    window.renderSurveyChapter = renderSurveyChapter;
+    window.renderSingleProfile = renderSingleProfile;
+    window.renderSafetyConfig = renderSafetyConfig;
   }
 
-  // Defensiver Start: Falls DOM bereits geladen ist, direkt ausführen, sonst Listener.
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', initApp);
   } else {
