@@ -476,18 +476,43 @@
     }).join('');
   }
 
+  async function resolveAvailableTextModels(apiKey) {
+    var fallbackList = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.8-flash'];
+    try {
+      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
+      if (resp.ok) {
+        var data = await resp.json();
+        var models = (data.models || []).filter(function(m) {
+          return m.supportedGenerationMethods &&
+            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
+            m.name.indexOf('tts') === -1 &&
+            m.name.indexOf('omni') === -1 &&
+            m.name.indexOf('image') === -1 &&
+            m.name.indexOf('video') === -1 &&
+            m.name.indexOf('embed') === -1;
+        }).map(function(m) {
+          return m.name.replace('models/', '');
+        });
+
+        if (models.length > 0) {
+          models.sort(function(a, b) {
+            var aScore = (a.indexOf('flash') !== -1 ? 10 : 0) + (a.indexOf('2.0') !== -1 ? 5 : 0);
+            var bScore = (b.indexOf('flash') !== -1 ? 10 : 0) + (b.indexOf('2.0') !== -1 ? 5 : 0);
+            return bScore - aScore;
+          });
+          return models;
+        }
+      }
+    } catch (e) {}
+    return fallbackList;
+  }
+
   async function generateAiPairReport() {
     var out = document.getElementById('ai-pair-report-output');
     var btn = document.getElementById('btn-generate-ai-pair');
     if (btn) btn.innerText = "⏳ Analysiere...";
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
-    
-    var activeModel = localStorage.getItem('kompass_discovered_model');
-    if (!activeModel || activeModel.indexOf('2.5') !== -1 || activeModel.indexOf('omni') !== -1) {
-      activeModel = 'gemini-3.8-flash';
-      try { localStorage.setItem('kompass_discovered_model', activeModel); } catch (e) {}
-    }
 
     var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
     var d5 = document.getElementById('kpi-doppel5') ? document.getElementById('kpi-doppel5').innerText : '0';
@@ -502,13 +527,7 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
 - Tonfall: Empathisch, respektvoll, normalisierend, wissenschaftlich fundiert, 0% moralisierend.
 - Antwortformat: 3 prägnante HTML-Absätze mit Überschriften (1. Neurobiologische Kopplung & Bindung, 2. Somatische Entlastung vs. Führung, 3. Konkrete Empfehlung für die nächste Session in der Regie). Nutze saubere Tailwind-Klassen wie text-slate-300, text-xs, font-bold, space-y-2.`;
 
-    var candidateModels = [];
-    if (activeModel && activeModel.indexOf('omni') === -1 && activeModel.indexOf('2.5') === -1) {
-      candidateModels.push(activeModel);
-    }
-    if (candidateModels.indexOf('gemini-3.8-flash') === -1) candidateModels.push('gemini-3.8-flash');
-    if (candidateModels.indexOf('gemini-3.8-flash-lite') === -1) candidateModels.push('gemini-3.8-flash-lite');
-
+    var candidateModels = await resolveAvailableTextModels(apiKey);
     var success = false;
     var lastErrorMsg = "Verbindungsfehler";
 
@@ -534,6 +553,9 @@ Du bist eine promovierte Paartherapeutin und evidenzbasierte BDSM-Forscherin. Er
         } else {
           var errData = await resp.json().catch(function() { return {}; });
           lastErrorMsg = errData.error?.message || `HTTP ${resp.status}`;
+          if (resp.status === 429 || (errData.error && errData.error.message && errData.error.message.indexOf('quota') !== -1)) {
+            break;
+          }
         }
       } catch (e) {
         lastErrorMsg = e.message || "Netzwerkfehler";
