@@ -3,20 +3,24 @@
  * Spezialisiertes Ambient- und Klangsynthese-Modul für das Schlafzimmer-Cockpit & die Regie.
  * 
  * Features:
- * - Dynamische Klangwelten: Cinematic Velvet, Klangtempel 432Hz, Ozean-Brandung (LFO), Dark Downtempo
+ * - Organische, nicht-repetitive Klangwelten:
+ *   1. Cinematic Velvet: Mehrschichtiges Analog-Pad, sanfte Bandpass-Wärme, zufällige Pianoglocken
+ *   2. Klangtempel 432Hz: Mehrstimmige tibetische Klangschalen mit Naturtonreihe und Om-Drone
+ *   3. Ozean-Symphonie: Asymmetrische Brandungswellen mit dynamischem Schaumrauschen
+ *   4. Dark Downtempo: Warmer 808-Subbass mit sanfter Sättigung und Rhodes-Tremolo
  * - Situative Modulation des aktuellen Klangs (Stufen 1–4)
  * - Sanftes Audio-Ducking (Absenkung auf 20 %) bei Gemini-Sprachausgabe
  * - Unterstützung externer Playlists (Spotify / Apple Music)
- * - Sichere Audio-Deallokation gegen Knacken und Speicherlecks
+ * - Anti-Klick-Rampen für störungsfreies Hören
  */
 
 (function(window) {
   'use strict';
 
   var audioState = {
-    activeSource: 'synth', // 'synth' (generative Soundscape) als aktiver Standard für Sofort-Musik
-    currentStyle: 'velvet', // 'velvet', 'bowls', 'ocean', 'beats'
-    energyLevel: 2, // 1 (Sanft), 2 (Moderat), 3 (Intensiv), 4 (Ekstatisch)
+    activeSource: 'synth',
+    currentStyle: 'velvet',
+    energyLevel: 2,
     isPlaying: false,
     duckingActive: false
   };
@@ -25,9 +29,8 @@
   var masterGain = null;
   var filterNode = null;
   var duckingGainNode = null;
-  var activeOscillators = [];
-  var rhythmTimers = [];
-  var lfoNodes = [];
+  var activeNodes = [];
+  var generativeIntervals = [];
 
   function ensureAudioGraph() {
     if (!audioCtx) {
@@ -48,9 +51,8 @@
 
       filterNode = audioCtx.createBiquadFilter();
       filterNode.type = 'lowpass';
-      filterNode.frequency.setValueAtTime(500, audioCtx.currentTime);
+      filterNode.frequency.setValueAtTime(650, audioCtx.currentTime);
 
-      // Routing: Sound -> MasterGain -> DuckingGain -> Filter -> Lautsprecher
       masterGain.connect(duckingGainNode);
       duckingGainNode.connect(filterNode);
       filterNode.connect(audioCtx.destination);
@@ -63,261 +65,345 @@
     var now = audioCtx.currentTime;
 
     if (duck) {
-      // Sanft absenken auf 20 % Lautstärke innerhalb von 350 ms
       duckingGainNode.gain.cancelScheduledValues(now);
-      duckingGainNode.gain.setTargetAtTime(0.20, now, 0.12);
+      duckingGainNode.gain.setTargetAtTime(0.20, now, 0.15);
     } else {
-      // Geschmeidig zurückblenden auf 100 % Lautstärke
       duckingGainNode.gain.cancelScheduledValues(now);
-      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.40);
+      duckingGainNode.gain.setTargetAtTime(1.0, now, 0.45);
     }
   }
 
-  function stopActiveOscillators() {
-    activeOscillators.forEach(function(item) {
-      try {
-        if (item.osc) {
-          item.osc.stop();
-          item.osc.disconnect();
-        }
-        if (item.gain) {
-          item.gain.disconnect();
-        }
-      } catch (e) {}
-    });
-    activeOscillators = [];
-
-    lfoNodes.forEach(function(lfo) {
-      try {
-        lfo.stop();
-        lfo.disconnect();
-      } catch (e) {}
-    });
-    lfoNodes = [];
-  }
-
   function stopAllGenerators() {
-    stopActiveOscillators();
-
-    rhythmTimers.forEach(function(t) {
-      clearInterval(t);
-      clearTimeout(t);
+    generativeIntervals.forEach(function(timerId) {
+      clearInterval(timerId);
+      clearTimeout(timerId);
     });
-    rhythmTimers = [];
+    generativeIntervals = [];
+
+    activeNodes.forEach(function(item) {
+      try {
+        if (item.stop) item.stop();
+        if (item.disconnect) item.disconnect();
+      } catch (e) {}
+    });
+    activeNodes = [];
   }
 
+  // Erzeugt weiches Pink-Noise für analoges Rauschen / Brandung
+  function createPinkNoiseBuffer(ctx, seconds) {
+    var bufferSize = ctx.sampleRate * seconds;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+    for (var i = 0; i < bufferSize; i++) {
+      var white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.07;
+      b6 = white * 0.115926;
+    }
+    return buffer;
+  }
+
+  // 1. CINEMATIC VELVET (Warme, atmende Akkorde & delikate Pianoglocken)
   function startVelvetSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // D-Moll9 -> Bb-Maj7 -> G-Moll7 -> A7-Sus4
-    var baseChords = [
-      [146.83, 174.61, 220.00, 261.63], // Dm9
-      [116.54, 174.61, 233.08, 293.66], // Bb-Maj7
-      [98.00, 146.83, 196.00, 246.94],  // Gm7
-      [110.00, 164.81, 220.00, 293.66]  // A7sus4
+    // 8 weit gefasste, tief emotionale Akkord-Voicings (Frequenzen in Hz)
+    var chordPool = [
+      [110.00, 164.81, 220.00, 261.63, 329.63], // Am9
+      [116.54, 174.61, 233.08, 293.66, 349.23], // Bbmaj9
+      [130.81, 164.81, 196.00, 246.94, 293.66], // Cmaj9
+      [98.00, 146.83, 196.00, 246.94, 293.66],  // Gm9
+      [146.83, 174.61, 220.00, 261.63, 329.63], // Dm9
+      [87.31, 130.81, 174.61, 220.00, 261.63],  // Fmaj7#11
+      [123.47, 164.81, 185.00, 246.94, 293.66], // Em11
+      [110.00, 146.83, 220.00, 293.66, 329.63]  // Asus4/9
     ];
 
-    var chordIdx = 0;
+    var currentChordIdx = 0;
+    var padGains = [];
+    var padOscs = [];
 
-    function applyChord(chordFreqs) {
-      // Wichtig: Nur Oszillatoren stoppen, NICHT die Taktung des Timers!
-      stopActiveOscillators();
-      var energyBoost = audioState.energyLevel * 0.04;
+    // Erzeuge 5 Pad-Oszillatoren
+    for (var i = 0; i < 5; i++) {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
 
-      chordFreqs.forEach(function(freq, i) {
-        var osc = audioCtx.createOscillator();
-        var g = audioCtx.createGain();
+      osc.type = (i === 0) ? 'sine' : (i % 2 === 0 ? 'triangle' : 'sawtooth');
+      osc.frequency.setValueAtTime(chordPool[0][i], audioCtx.currentTime);
 
-        osc.type = (i === 0) ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
 
-        var individualVol = ((0.28 / chordFreqs.length) + energyBoost) * (i === 0 ? 1.4 : 0.85);
-        g.gain.setValueAtTime(individualVol, audioCtx.currentTime);
+      // Sanfte Detuning-Schwebung
+      osc.detune.setValueAtTime((Math.random() - 0.5) * 8, audioCtx.currentTime);
 
-        osc.connect(g);
-        g.connect(masterGain);
-        osc.start();
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start();
 
-        activeOscillators.push({ osc: osc, gain: g });
-      });
-
-      // Zarter Stereo-Chorus über feines Pitch-Wobbeln
-      var lfo = audioCtx.createOscillator();
-      lfo.frequency.setValueAtTime(0.18 + (audioState.energyLevel * 0.05), audioCtx.currentTime);
-      var lfoGain = audioCtx.createGain();
-      lfoGain.gain.setValueAtTime(1.8, audioCtx.currentTime);
-      lfo.connect(lfoGain);
-
-      activeOscillators.forEach(function(item) {
-        lfoGain.connect(item.osc.detune);
-      });
-      lfo.start();
-      lfoNodes.push(lfo);
+      padOscs.push(osc);
+      padGains.push(gain);
+      activeNodes.push(osc, gain);
     }
 
-    applyChord(baseChords[0]);
+    // Warmer Rausch-Teppich (subtiles Tape-Gefühl)
+    var noiseBuf = createPinkNoiseBuffer(audioCtx, 4);
+    var noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    noiseSrc.loop = true;
 
-    // Akkordwechsel alle 7 bis 12 Sekunden (abhängig von Energie)
-    var stepInterval = Math.max(5000, 12000 - (audioState.energyLevel * 1800));
-    var timer = setInterval(function() {
+    var noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.setValueAtTime(220, audioCtx.currentTime);
+    noiseFilter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+
+    var noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.025, audioCtx.currentTime);
+
+    noiseSrc.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    noiseSrc.start();
+    activeNodes.push(noiseSrc, noiseFilter, noiseGain);
+
+    // Sanftes harmonisches Weiterschreiten
+    function advanceChord() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
-      chordIdx = (chordIdx + 1) % baseChords.length;
-      applyChord(baseChords[chordIdx]);
-    }, stepInterval);
+      currentChordIdx = (currentChordIdx + 1) % chordPool.length;
+      var newChord = chordPool[currentChordIdx];
+      var now = audioCtx.currentTime;
 
-    rhythmTimers.push(timer);
+      padOscs.forEach(function(osc, idx) {
+        osc.frequency.setTargetAtTime(newChord[idx], now, 3.2);
+      });
+    }
+
+    var chordTimer = setInterval(advanceChord, 9500);
+    generativeIntervals.push(chordTimer);
+
+    // Ethereale Pianoglocken (zufällige beruhigende Tupfer)
+    function triggerRandomChime() {
+      if (!audioState.isPlaying || audioState.currentStyle !== 'velvet') return;
+
+      var currentChord = chordPool[currentChordIdx];
+      var baseFreq = currentChord[Math.floor(Math.random() * currentChord.length)] * 2;
+      var now = audioCtx.currentTime;
+
+      var chimeOsc = audioCtx.createOscillator();
+      var chimeGain = audioCtx.createGain();
+
+      chimeOsc.type = 'sine';
+      chimeOsc.frequency.setValueAtTime(baseFreq, now);
+
+      chimeGain.gain.setValueAtTime(0.001, now);
+      chimeGain.gain.exponentialRampToValueAtTime(0.08 + (audioState.energyLevel * 0.02), now + 0.05);
+      chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+
+      chimeOsc.connect(chimeGain);
+      chimeGain.connect(masterGain);
+
+      chimeOsc.start(now);
+      chimeOsc.stop(now + 4.0);
+
+      // Nächste Glocke in unregelmäßigem Abstand (4 bis 9 Sekunden)
+      var nextDelay = 4000 + Math.random() * 5000;
+      var nextTimer = setTimeout(triggerRandomChime, nextDelay);
+      generativeIntervals.push(nextTimer);
+    }
+
+    var initialChimeTimer = setTimeout(triggerRandomChime, 3000);
+    generativeIntervals.push(initialChimeTimer);
   }
 
+  // 2. KLANGTEMPEL 432Hz (Tibetische Klangschalen mit Naturton-Harmonien)
   function startBowlsSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // 432Hz Basiston und natürliche Obertonreihe
-    var bowlFreqs = [108.00, 216.00, 432.00, 864.00];
+    // Tiefer Om-Sub-Drone (54Hz, 108Hz, 216Hz, 432Hz)
+    var droneFreqs = [54.00, 108.00, 216.00, 432.00];
 
-    bowlFreqs.forEach(function(freq, idx) {
+    droneFreqs.forEach(function(freq, idx) {
       var osc = audioCtx.createOscillator();
       var g = audioCtx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-      var baseVol = (idx === 0) ? 0.22 : 0.08;
+      // Sanfter Schwebungs-Detune
+      osc.detune.setValueAtTime((idx - 1.5) * 1.8, audioCtx.currentTime);
+
+      var baseVol = (idx === 0) ? 0.25 : (0.12 / idx);
       g.gain.setValueAtTime(baseVol, audioCtx.currentTime);
 
       osc.connect(g);
       g.connect(masterGain);
       osc.start();
 
-      activeOscillators.push({ osc: osc, gain: g });
+      activeNodes.push(osc, g);
     });
 
-    // Periodischer sanfter Gong-Anschlag (alle 6-8 Sekunden)
-    function triggerStrike() {
+    // Anschlag-Schale mit authentischer Obertonreihe (1.0x, 2.76x, 5.4x)
+    function strikeSingingBowl() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'bowls') return;
-      var strikeOsc = audioCtx.createOscillator();
-      var strikeGain = audioCtx.createGain();
-
-      strikeOsc.type = 'sine';
-      strikeOsc.frequency.setValueAtTime(432.00, audioCtx.currentTime);
-
       var now = audioCtx.currentTime;
-      strikeGain.gain.setValueAtTime(0.001, now);
-      strikeGain.gain.exponentialRampToValueAtTime(0.35 + (audioState.energyLevel * 0.05), now + 0.06);
-      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 4.8);
+      var partials = [432.00, 432 * 2.76, 432 * 5.4];
 
-      strikeOsc.connect(strikeGain);
-      strikeGain.connect(masterGain);
+      partials.forEach(function(freq, pIdx) {
+        var osc = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
 
-      strikeOsc.start(now);
-      strikeOsc.stop(now + 5.0);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        var peak = (0.22 / (pIdx + 1)) * (0.8 + audioState.energyLevel * 0.15);
+        var decay = 5.5 - (pIdx * 1.1);
+
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(peak, now + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+
+        osc.connect(g);
+        g.connect(masterGain);
+
+        osc.start(now);
+        osc.stop(now + decay + 0.1);
+      });
+
+      // Zufälliger nächster Anschlag zwischen 6.5 und 10 Sekunden
+      var nextTime = 6500 + Math.random() * 3500;
+      var timer = setTimeout(strikeSingingBowl, nextTime);
+      generativeIntervals.push(timer);
     }
 
-    triggerStrike();
-    var strikeTimer = setInterval(triggerStrike, 6500);
-    rhythmTimers.push(strikeTimer);
+    strikeSingingBowl();
   }
 
+  // 3. OZEAN-SYMPHONIE (Asymmetrisches Aufbranden & Schaumrauschen)
   function startOceanSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // Rauschgenerator für Meeresbrandung
-    var bufferSize = audioCtx.sampleRate * 2;
-    var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    var output = noiseBuffer.getChannelData(0);
-    for (var i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1;
-    }
+    var noiseBuf = createPinkNoiseBuffer(audioCtx, 6);
+    var noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    noiseSrc.loop = true;
 
-    var whiteNoise = audioCtx.createBufferSource();
-    whiteNoise.buffer = noiseBuffer;
-    whiteNoise.loop = true;
-
-    // Spezieller Brandungsfilter mit dynamischem LFO (Ebbe & Flut)
+    // Resonanter Brandungsfilter
     var oceanFilter = audioCtx.createBiquadFilter();
     oceanFilter.type = 'bandpass';
-    oceanFilter.Q.setValueAtTime(1.2, audioCtx.currentTime);
+    oceanFilter.Q.setValueAtTime(2.2, audioCtx.currentTime);
+    oceanFilter.frequency.setValueAtTime(250, audioCtx.currentTime);
 
     var oceanGain = audioCtx.createGain();
-    oceanGain.gain.setValueAtTime(0.40, audioCtx.currentTime);
+    oceanGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
 
-    // LFO für Wellenbewegung: ca. 12 Sekunden pro Welle
-    var waveLfo = audioCtx.createOscillator();
-    waveLfo.type = 'sine';
-    var waveSpeed = 0.06 + (audioState.energyLevel * 0.02);
-    waveLfo.frequency.setValueAtTime(waveSpeed, audioCtx.currentTime);
-
-    var waveLfoGain = audioCtx.createGain();
-    var waveDepth = 250 + (audioState.energyLevel * 120);
-    waveLfoGain.gain.setValueAtTime(waveDepth, audioCtx.currentTime);
-
-    waveLfo.connect(waveLfoGain);
-    waveLfoGain.connect(oceanFilter.frequency);
-    oceanFilter.frequency.setValueAtTime(400, audioCtx.currentTime);
-
-    whiteNoise.connect(oceanFilter);
+    noiseSrc.connect(oceanFilter);
     oceanFilter.connect(oceanGain);
     oceanGain.connect(masterGain);
+    noiseSrc.start();
+    activeNodes.push(noiseSrc, oceanFilter, oceanGain);
 
-    whiteNoise.start();
-    waveLfo.start();
+    // Asymmetrischer Wellenzyklus: Schneller anrollen, langes Abfließen
+    function triggerWaveCycle() {
+      if (!audioState.isPlaying || audioState.currentStyle !== 'ocean') return;
+      var now = audioCtx.currentTime;
+      var waveDuration = 9.0 + (Math.random() * 4.0);
+      var peakTime = now + (waveDuration * 0.38);
 
-    activeOscillators.push({ osc: whiteNoise, gain: oceanGain });
-    lfoNodes.push(waveLfo);
+      // Frequenz und Lautstärke schwellen wie echte Brandung an
+      var peakFreq = 550 + (audioState.energyLevel * 140) + (Math.random() * 100);
+      oceanFilter.frequency.cancelScheduledValues(now);
+      oceanFilter.frequency.setValueAtTime(180, now);
+      oceanFilter.frequency.exponentialRampToValueAtTime(peakFreq, peakTime);
+      oceanFilter.frequency.exponentialRampToValueAtTime(180, now + waveDuration);
+
+      var peakVol = 0.40 + (audioState.energyLevel * 0.08);
+      oceanGain.gain.cancelScheduledValues(now);
+      oceanGain.gain.setValueAtTime(0.12, now);
+      oceanGain.gain.linearRampToValueAtTime(peakVol, peakTime);
+      oceanGain.gain.linearRampToValueAtTime(0.12, now + waveDuration);
+
+      var nextWaveTimer = setTimeout(triggerWaveCycle, (waveDuration - 1.0) * 1000);
+      generativeIntervals.push(nextWaveTimer);
+    }
+
+    triggerWaveCycle();
   }
 
+  // 4. DARK DOWNTEMPO (Warmer 808-Subbass & Rhodes-Tremolo)
   function startBeatsSoundscape() {
     ensureAudioGraph();
     stopAllGenerators();
 
-    // Tiefer Sub-Bass Drone (55Hz / A1)
+    // Warmer tiefer Bass Drone (55Hz / A1)
     var subOsc = audioCtx.createOscillator();
     var subGain = audioCtx.createGain();
     subOsc.type = 'sine';
     subOsc.frequency.setValueAtTime(55.00, audioCtx.currentTime);
-    subGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+    subGain.gain.setValueAtTime(0.30, audioCtx.currentTime);
 
     subOsc.connect(subGain);
     subGain.connect(masterGain);
     subOsc.start();
-    activeOscillators.push({ osc: subOsc, gain: subGain });
+    activeNodes.push(subOsc, subGain);
 
-    // 808-Kick-Puls im Erotik-Slow-Tempo (60 bis 75 BPM)
-    var bpm = 58 + (audioState.energyLevel * 5);
+    // Erotischer Downbeat (Slow Pulse 56–66 BPM)
+    var bpm = 54 + (audioState.energyLevel * 4);
     var beatInterval = (60 / bpm) * 1000;
 
-    function trigger808Kick() {
+    function trigger808Pulse() {
       if (!audioState.isPlaying || audioState.currentStyle !== 'beats') return;
-      var kick = audioCtx.createOscillator();
-      var kGain = audioCtx.createGain();
       var now = audioCtx.currentTime;
 
-      kick.frequency.setValueAtTime(110, now);
-      kick.frequency.exponentialRampToValueAtTime(42, now + 0.28);
+      var kick = audioCtx.createOscillator();
+      var kGain = audioCtx.createGain();
 
-      kGain.gain.setValueAtTime(0.45 + (audioState.energyLevel * 0.05), now);
-      kGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      kick.frequency.setValueAtTime(120, now);
+      kick.frequency.exponentialRampToValueAtTime(45, now + 0.32);
+
+      kGain.gain.setValueAtTime(0.42 + (audioState.energyLevel * 0.06), now);
+      kGain.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
 
       kick.connect(kGain);
       kGain.connect(masterGain);
 
       kick.start(now);
-      kick.stop(now + 0.38);
+      kick.stop(now + 0.42);
+
+      // Subtiler Vintage-HiHat Hauch
+      var hat = audioCtx.createOscillator();
+      var hGain = audioCtx.createGain();
+      hat.type = 'triangle';
+      hat.frequency.setValueAtTime(4200, now + (beatInterval / 2000));
+      hGain.gain.setValueAtTime(0.0001, now);
+      hGain.gain.setValueAtTime(0.03, now + (beatInterval / 2000));
+      hGain.gain.exponentialRampToValueAtTime(0.0001, now + (beatInterval / 2000) + 0.08);
+
+      hat.connect(hGain);
+      hGain.connect(masterGain);
+      hat.start(now + (beatInterval / 2000));
+      hat.stop(now + (beatInterval / 2000) + 0.09);
     }
 
-    trigger808Kick();
-    var beatTimer = setInterval(trigger808Kick, beatInterval);
-    rhythmTimers.push(beatTimer);
+    trigger808Pulse();
+    var beatTimer = setInterval(trigger808Pulse, beatInterval);
+    generativeIntervals.push(beatTimer);
   }
 
   function applySoundscapeEnergyModulation() {
     if (!audioCtx || !filterNode || !masterGain) return;
     var now = audioCtx.currentTime;
 
-    var targetCutoff = 280 + (audioState.energyLevel * 320);
-    var targetVolume = 0.22 + (audioState.energyLevel * 0.07);
+    var targetCutoff = 380 + (audioState.energyLevel * 320);
+    var targetVolume = 0.26 + (audioState.energyLevel * 0.06);
 
     filterNode.frequency.setTargetAtTime(targetCutoff, now, 0.6);
     masterGain.gain.setTargetAtTime(targetVolume, now, 0.4);
@@ -387,10 +473,10 @@
     updatePlaybackUI();
 
     if (audioState.isPlaying) {
-      // Wenn Musik gestartet wird, immer die Soundscape-Engine aktivieren
       startCurrentSoundscapeEngine();
       if (typeof window.showToast === 'function') {
-        window.showToast("Soundscape aktiv: Cinematic Velvet 🎵");
+        var styleName = audioState.currentStyle === 'velvet' ? 'Cinematic Velvet' : audioState.currentStyle;
+        window.showToast("Soundscape aktiv: " + styleName + " 🎵");
       }
     } else {
       stopAllGenerators();
@@ -454,7 +540,6 @@
     ensureGraph: ensureAudioGraph
   };
 
-  // Direkte globale Verknüpfungen für alle HTML-Buttons
   window.toggleAmbientMusic = toggleAmbientMusic;
   window.toggleAmbientMusicWrapper = toggleAmbientMusic;
   window.setSoundscapeStyle = setSoundscapeStyle;
