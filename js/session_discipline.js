@@ -3,7 +3,8 @@
  * Spezialisiertes Modul für den Bestrafungs-Konfigurator in der Schlafzimmer-Regie.
  * 
  * Features:
- * - Auslesen der Bogen-Antworten des Bottoms unter Beachtung der 4 Freigabestufen
+ * - Auslesen der Bogen-Antworten des Bottoms unter Beachtung der 4 Freigabestufen (Standard: Stufe 4)
+ * - 🙈 Hervorhebung von Praktiken mit Scham-Faktor (Tiefe psychologische Demut / maximale Buße)
  * - Strikter Ausschluss aller Tabus (Note 1)
  * - Ausrüstungsauswahl beschränkt auf vorhandene Schrank-Toys, Kleidung & universelle Haushalts-/Körpermittel
  * - Freitextfeld für situative Maßregelungen
@@ -69,6 +70,7 @@
     return isPresentInCloset;
   }
 
+  // STANDARD-FREIGABESTUFE: STUFE 4 (RADIKALE TRANSPARENZ / ALLES ZEIGEN)
   function getBottomSharingLevel(subKey) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + subKey);
@@ -77,7 +79,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 3; // Standard: Buße & Duldung freigegeben (Note 2-5)
+    return 4; // Standard: Stufe 4
   }
 
   function getBottomQuestionnaireMatches(infractionCat, severity) {
@@ -115,6 +117,7 @@
         ch.items.forEach(function(item) {
           if (item.type === 'choice') return;
           var rating = allAnswers['it_' + item.id + '_r2'];
+          var hasShame = !!allAnswers['it_' + item.id + '_shame'];
 
           // Strikter Ausschluss von Tabus (Note 1) & Einhaltung der Freigabestufe
           if (typeof rating === 'number' && rating >= minRequiredScore && rating <= 5) {
@@ -123,7 +126,8 @@
               matches.push({
                 item: item,
                 rating: rating,
-                badge: formatRatingBadge(rating, sharingLevel)
+                hasShame: hasShame,
+                badge: formatRatingBadge(rating, hasShame)
               });
             }
           }
@@ -131,19 +135,23 @@
       }
     });
 
+    // Praktiken mit Scham-Faktor an die Spitze sortieren (stärkste Bußwirkung)
     matches.sort(function(a, b) {
+      if (a.hasShame && !b.hasShame) return -1;
+      if (!a.hasShame && b.hasShame) return 1;
       return b.rating - a.rating;
     });
 
     return matches;
   }
 
-  function formatRatingBadge(score, sharingLvl) {
-    if (score === 5) return "⭐ Note 5: Kink-Favorit (Lustvoll)";
-    if (score === 4) return "✨ Note 4: Reizvoll (Spürbare Lust)";
-    if (score === 3) return "💡 Note 3: Neugierig (Gesprächsbedarf)";
-    if (score === 2) return "🎁 Note 2: Echte Buße (Duldung für den Top)";
-    return "";
+  function formatRatingBadge(score, hasShame) {
+    var shameBadge = hasShame ? " · 🙈 Scham-Faktor (Hohe Bußwirkung)" : "";
+    if (score === 5) return "⭐ Note 5: Kink-Favorit" + shameBadge;
+    if (score === 4) return "✨ Note 4: Reizvoll" + shameBadge;
+    if (score === 3) return "💡 Note 3: Neugierig" + shameBadge;
+    if (score === 2) return "🎁 Note 2: Echte Buße (Duldung)" + shameBadge;
+    return "" + shameBadge;
   }
 
   function getStageOptions(stage) {
