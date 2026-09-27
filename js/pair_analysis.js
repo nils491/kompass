@@ -183,8 +183,6 @@
 
   function getLoadedPairAnswers() {
     var result = { A: {}, B: {} };
-
-    // 1. Zuerst aus localStorage laden (absolut verlässlich auf eigenständigen Seiten wie analyse.html)
     try {
       var raw = localStorage.getItem('kompass_answers');
       if (raw && raw !== 'null') {
@@ -198,7 +196,6 @@
       console.warn("Fehler beim Laden von kompass_answers aus localStorage:", e);
     }
 
-    // 2. Abgleich mit window.answers
     if (window.answers && typeof window.answers === 'object') {
       if (window.answers.A && Object.keys(window.answers.A).length > 0) {
         result.A = Object.assign({}, result.A, window.answers.A);
@@ -214,7 +211,6 @@
 
   function getLoadedPairNames() {
     var result = { A: 'Partner 1', B: 'Partner 2' };
-
     try {
       var raw = localStorage.getItem('kompass_names');
       if (raw && raw !== 'null') {
@@ -275,7 +271,6 @@
       if (k.indexOf('_note') === -1 && k.indexOf('_shame') === -1 && k.indexOf('_choice') === -1) {
         var rawVal = answersUser[k];
         var val = Number(rawVal);
-        // 0 (Entfällt) wird für den Schnitt nicht gewertet
         if (!isNaN(val) && val > 0) {
           sum += val;
           count++;
@@ -290,7 +285,6 @@
     var descLower = (it.desc || '').toLowerCase();
     var textCombined = titleLower + ' ' + descLower;
 
-    // STUFE IV: IDENTITÄTS-TIEFENANKER & HOCHSCHWELLEN-KINKS (Gewicht: 2.4x)
     if (textCombined.indexOf('pegging') !== -1 ||
         textCombined.indexOf('strap-on') !== -1 ||
         textCombined.indexOf('ruined') !== -1 ||
@@ -306,7 +300,6 @@
       return 2.4;
     }
 
-    // STUFE III: STRUKTURBILDENDER KINK & FORMELLES BDSM (Gewicht: 1.8x)
     var numCh = Number(chId);
     if ([21, 22, 23, 29, 7, 8, 13, 14, 16, 17].indexOf(numCh) !== -1 ||
         textCombined.indexOf('zucht') !== -1 ||
@@ -323,7 +316,6 @@
       return 1.8;
     }
 
-    // STUFE II: EROTISCHE TRANSITION & REIZVERSTÄRKUNG (Gewicht: 1.3x)
     if ([9, 10, 11, 15, 18, 20, 24, 25].indexOf(numCh) !== -1 ||
         textCombined.indexOf('maske') !== -1 ||
         textCombined.indexOf('augenbinde') !== -1 ||
@@ -334,7 +326,6 @@
       return 1.3;
     }
 
-    // STUFE I: SOMATISCHE BASISSENSORIK & ZÄRTLICHKEIT (Gewicht: 0.9x)
     return 0.9;
   }
 
@@ -342,11 +333,9 @@
     var score = Number(rawScore);
     if (isNaN(score) || score <= 0) return 0;
 
-    // A. Ipsative Zentrierung: Gleicht ab, ob der Nutzer generell sparsam oder euphorisch wertet
     var calibrationOffset = (3.0 - userMean) * 0.35;
     var calibratedScore = Math.max(1.0, Math.min(5.0, score + calibrationOffset));
 
-    // B. Scham-Faktor: Wenn Scham markiert ist und Note >= 3, spiegelt das einen latenten Wunsch wider
     if (isShame && score >= 3) {
       calibratedScore = Math.min(5.0, calibratedScore * 1.25);
     }
@@ -391,7 +380,6 @@
       }
     });
 
-    // Fallback: Falls die reinen Machtkapitel 21-29 noch nicht ausgefüllt wurden, ziehen wir D/s-Reize aus dem Gesamtkatalog heran
     if (domPossible === 0 && subPossible === 0) {
       chapters.forEach(function(ch) {
         (ch.items || []).forEach(function(it) {
@@ -486,7 +474,6 @@
     var pSwitch = (rankings.switch && rankings.switch.percentage) || 0;
     var diff = Math.abs(pDom - pSub);
 
-    // 1. Ausgeprägter True Switch (beide Pole lebendig, enge Differenz)
     if (pDom >= 35 && pSub >= 35 && diff <= 18) {
       return {
         type: 'switch_true',
@@ -498,7 +485,6 @@
       };
     }
 
-    // 2. Dom-leaning Switch (Führt überwiegend, schätzt aber gelegentliche Hingabe)
     if (pDom > pSub && pSub >= 30 && diff <= 40) {
       return {
         type: 'switch_dom',
@@ -510,7 +496,6 @@
       };
     }
 
-    // 3. Sub-leaning Switch (Empfängt überwiegend, hat aber aktive Impulse)
     if (pSub > pDom && pDom >= 30 && diff <= 40) {
       return {
         type: 'switch_sub',
@@ -522,7 +507,6 @@
       };
     }
 
-    // 4. Eindeutiger Top (Klar führend)
     if (pDom >= pSub) {
       var isStrong = (diff >= 35);
       return {
@@ -535,7 +519,6 @@
       };
     }
 
-    // 5. Eindeutiger Bottom (Klar hingebungsvoll)
     var isStrongSub = (diff >= 35);
     return {
       type: 'bottom',
@@ -555,7 +538,6 @@
     var isSubA = (typeA === 'bottom' || typeA === 'switch_sub');
     var isSubB = (typeB === 'bottom' || typeB === 'switch_sub');
 
-    // KONSTELLATION 1: BEIDE SIND SWITCHES
     if (isSwitchA && isSwitchB) {
       return {
         constellationTitle: "🔄 Die Chamäleon-Dynamik (Switch / Switch)",
@@ -570,7 +552,6 @@
       };
     }
 
-    // KONSTELLATION 2: BEIDE SIND TOP-ORIENTIERT (Top / Top)
     if (isTopA && isTopB && !isSubA && !isSubB) {
       return {
         constellationTitle: "⚡ Die Duell-Dynamik (Top / Top)",
@@ -585,7 +566,6 @@
       };
     }
 
-    // KONSTELLATION 3: BEIDE SIND BOTTOM-ORIENTIERT (Bottom / Bottom)
     if (isSubA && isSubB && !isTopA && !isTopB) {
       return {
         constellationTitle: "🧎 Das Sehnsuchts-Paar (Bottom / Bottom)",
@@ -600,7 +580,6 @@
       };
     }
 
-    // KONSTELLATION 4: KLASSISCH KOMPLEMENTÄR (Ein Top, ein Bottom)
     var topName = isTopA ? nameA : nameB;
     var subName = isTopA ? nameB : nameA;
     return {
@@ -649,7 +628,6 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        <!-- PARTNER 1 -->
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-white">${escapeHtml(nameA)}</span>
@@ -660,7 +638,6 @@
           <div class="text-[9.5px] font-mono text-slate-500 pt-1 border-t border-slate-800/80">${orientA.scores}</div>
         </div>
 
-        <!-- PARTNER 2 -->
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-white">${escapeHtml(nameB)}</span>
@@ -672,7 +649,6 @@
         </div>
       </div>
 
-      <!-- HANDLUNGSLEITFADEN FÜR DIESE SPEZIFISCHE PAARKONSTELLATION -->
       <div class="p-4 rounded-2xl border ${guide.badgeColor} space-y-2.5 text-xs">
         <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
           <strong class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
@@ -754,7 +730,6 @@
                 </div>
               </div>
 
-              <!-- DOPPEL-BALKEN -->
               <div class="space-y-1">
                 <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
                   <div class="h-full bg-gradient-to-r ${arch.colorA} rounded-full transition-all duration-500" style="width: ${Math.max(3, pctA)}%;"></div>
@@ -872,13 +847,11 @@
         var r1_B = (raw1_B !== undefined && raw1_B !== null && raw1_B !== '') ? Number(raw1_B) : NaN;
         var r2_B = (raw2_B !== undefined && raw2_B !== null && raw2_B !== '') ? Number(raw2_B) : NaN;
 
-        // 1. TABU-PRÜFUNG (Note 1)
         if (r1_A === 1) tabus.push({ item: it, who: nameA, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
         if (r2_A === 1) tabus.push({ item: it, who: nameA, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
         if (r1_B === 1) tabus.push({ item: it, who: nameB, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
         if (r2_B === 1) tabus.push({ item: it, who: nameB, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
 
-        // 2. DOPPEL-5ER: Konstellation A (A führt als r1, B empfängt als r2)
         if (r1_A === 5 && r2_B === 5 && r1_A !== 1 && r2_B !== 1) {
           doubleFives.push({
             item: it,
@@ -886,7 +859,6 @@
             desc: it.desc || ''
           });
         }
-        // DOPPEL-5ER: Konstellation B (B führt als r1, A empfängt als r2)
         if (r1_B === 5 && r2_A === 5 && r1_B !== 1 && r2_A !== 1) {
           doubleFives.push({
             item: it,
@@ -894,7 +866,6 @@
             desc: it.desc || ''
           });
         }
-        // DOPPEL-5ER: Konstellation C (Gemeinsame beiderseitige Aktiv-Lust, wenn Rollen symmetrisch sind)
         if (r1_A === 5 && r1_B === 5 && r1_A !== 1 && r1_B !== 1 && it.r1 && it.r2 && it.r1 === it.r2) {
           doubleFives.push({
             item: it,
@@ -903,8 +874,6 @@
           });
         }
 
-        // 3. BRÜCKENBAU-CHANCEN (5er trifft auf 3er oder 4er):
-        // Fall 1: A will führen (r1_A = 5), B ist offen zu empfangen (r2_B in [3, 4])
         if (r1_A === 5 && (r2_B === 3 || r2_B === 4) && r1_A !== 1 && r2_B !== 1 && r2_B >= minAllowedB) {
           bridges.push({
             item: it,
@@ -914,7 +883,6 @@
             action: `Aktiv: ${it.r1 || 'Ausführen'}`
           });
         }
-        // Fall 2: B will führen (r1_B = 5), A ist offen zu empfangen (r2_A in [3, 4])
         if (r1_B === 5 && (r2_A === 3 || r2_A === 4) && r1_B !== 1 && r2_A !== 1 && r2_A >= minAllowedA) {
           bridges.push({
             item: it,
@@ -924,7 +892,6 @@
             action: `Aktiv: ${it.r1 || 'Ausführen'}`
           });
         }
-        // Fall 3: A will empfangen (r2_A = 5), B ist offen zu führen (r1_B in [3, 4])
         if (r2_A === 5 && (r1_B === 3 || r1_B === 4) && r2_A !== 1 && r1_B !== 1 && r1_B >= minAllowedB) {
           bridges.push({
             item: it,
@@ -934,7 +901,6 @@
             action: `Passiv: ${it.r2 || 'Empfangen'}`
           });
         }
-        // Fall 4: B will empfangen (r2_B = 5), A ist offen zu führen (r1_A in [3, 4])
         if (r2_B === 5 && (r1_A === 3 || r1_A === 4) && r2_B !== 1 && r1_A !== 1 && r1_A >= minAllowedA) {
           bridges.push({
             item: it,
@@ -1005,18 +971,11 @@
       }).join('') : '<p class="text-slate-500 italic text-[11px] text-center py-4">Keine Veto-Grenzen (Note 1) hinterlegt.</p>';
     }
 
-    // 1. Rollen-Orientierungs-Karte mit Beziehungs-Leitfaden
     var rankA = calculatePartnerArchetypeRankings(answers.A || {}, chapters);
     var rankB = calculatePartnerArchetypeRankings(answers.B || {}, chapters);
     renderPairRoleOrientationCard(rankA, rankB, names);
-
-    // 2. BDSMTest.org Top 10 Ranglisten-Paarvergleich rendern
     renderPairBdsmTestRankings(answers, chapters, names);
-
-    // 3. Scham-Zonen rendern
     renderPairShameBridges(answers, chapters, names);
-
-    // 4. KI-Gutachten laden
     loadCachedPairInterpretation();
   }
 
@@ -1270,7 +1229,6 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
     }
   }
 
-  // Live-Re-Render bei Cloud-Synchronisation
   window.addEventListener('kompass_data_synced', function() {
     renderPairAnalysis();
   });
