@@ -219,7 +219,8 @@
         showToast("✓ Verbindung erfolgreich! Key ist gültig.");
       } else {
         var err = await resp.json().catch(function() { return {}; });
-        showToast("⚠️ Fehler: " + (err.error?.message || "Ungültiger Key"));
+        var msg = (err && err.error && err.error.message) ? err.error.message : "Ungültiger Key";
+        showToast("⚠️ Fehler: " + msg);
       }
     } catch (e) {
       showToast("⚠️ Netzwerkfehler beim Verbindungstest");
