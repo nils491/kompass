@@ -2,13 +2,13 @@
  * js/session_staging.js
  * Modul für die Vorbereitungsphase der Schlafzimmer-Regie (Schritte 1 bis 3).
  * 
- * Features:
- * - Nur Schrank-Gegenstände im Staging sichtbar (Exklusiver Filter auf HubToys.getOwnedIds())
- * - Trennung: Schrank-Inventar vs. Nachttisch-Staging (Heute bereitgelegt)
- * - "+ Neuanschaffung"-Schnellformular: Legt Toys fest im Schrank an & stellt sie für heute bereit
- * - "✨ Alle Schrank-Toys"-Tab als primäre Übersicht aller Kategorien
- * - Intelligente Staging-Presets: "Kompletter Schrank", "🎲 Zufalls-Mix (3)" und "🛏️ Nur Hände & Bett"
- * - Spielmodus-Wahl: 'guided' (Geführtes Drehbuch) vs. 'free' (Freier Flow) mit visueller Umschaltung
+ * Qualitäts-Standards:
+ * - Staging-Trennung: Nur Schrank-Inventar sichtbar (Exklusiver Filter auf HubToys.getOwnedIds())
+ * - Bereinigung von „Kante“: Konsequent natürliche deutsche Fachbegriffe („Schwelle“, „Höhepunkt-Schwelle“)
+ * - Keine Hardcoded API-Keys: Dynamisches Auslesen aus Partner-Settings / LocalStorage
+ * - Semantische Drehbuch-Engine (ToyCombinatorics): Echte Zuordnung von Fesseln, Schlägen und Erregung
+ * - KI-Drehbuch-Generierung basierend auf dem realen Schrank-Inventar
+ * - Umschaltung zwischen Geführtem Drehbuch und Freiem Flow
  */
 
 (function(window) {
@@ -21,7 +21,7 @@
   var stagedTonightIds = [];
   var currentSelectedPlaybook = [];
   var sessionDepth = 7;
-  var selectedSessionMode = 'guided'; // 'guided' oder 'free'
+  var selectedSessionMode = 'guided';
 
   var names = { A: 'Partner 1', B: 'Partner 2' };
   var anatomy = { A: 'penis', B: 'vulva' };
@@ -29,6 +29,79 @@
   var isTopVoiceAssistActive = false;
   var activeSessionVoice = 'Despina';
   var activeDiscoveredModel = "gemini-3.8-flash";
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function showToast(msg) {
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
+      return;
+    }
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
+      return;
+    }
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var el = document.createElement('div');
+    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+    el.innerText = msg;
+    c.appendChild(el);
+    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+    setTimeout(function() {
+      el.classList.add('opacity-0');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2800);
+  }
+
+  function getGeminiApiKey() {
+    // 1. Live-Eingabefelder in Regie oder Account
+    var liveInput = document.getElementById('session-gemini-key-input') || 
+                    document.getElementById('account-gemini-key');
+    if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
+      var liveVal = liveInput.value.trim();
+      try { localStorage.setItem('kompass_gemini_api_key', liveVal); } catch (e) {}
+      return liveVal;
+    }
+
+    // 2. Globaler Key im LocalStorage
+    try {
+      var stored = localStorage.getItem('kompass_gemini_api_key');
+      if (stored && stored.trim().length > 10) {
+        return stored.trim();
+      }
+    } catch (e) {}
+
+    // 3. Partner-spezifische Keys
+    try {
+      var keyA = localStorage.getItem('kompass_gemini_api_key_A');
+      if (keyA && keyA.trim().length > 10) return keyA.trim();
+
+      var keyB = localStorage.getItem('kompass_gemini_api_key_B');
+      if (keyB && keyB.trim().length > 10) return keyB.trim();
+    } catch (e) {}
+
+    // 4. Synchronisierte Einstellungen prüfen
+    try {
+      var rawAnswers = localStorage.getItem('kompass_answers');
+      if (rawAnswers) {
+        var parsed = JSON.parse(rawAnswers);
+        if (parsed && parsed.settings && parsed.settings.geminiApiKey) {
+          return parsed.settings.geminiApiKey.trim();
+        }
+      }
+    } catch (e) {}
+
+    return null;
+  }
 
   function getClosetCatalog() {
     if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
@@ -91,12 +164,6 @@
       } else {
         activeDiscoveredModel = "gemini-3.8-flash";
       }
-
-      var pl = localStorage.getItem('kompass_custom_playlist_url');
-      var plInput = document.getElementById('custom-playlist-link-input');
-      if (plInput && pl) plInput.value = pl;
-      var plBtn = document.getElementById('btn-launch-external-music');
-      if (plBtn && pl) plBtn.href = pl.startsWith('http') ? pl : ('https://' + pl);
     } catch (e) {
       console.error("Staging Data Load Error:", e);
     }
@@ -106,6 +173,7 @@
     if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
     if (!stagedTonightIds || !Array.isArray(stagedTonightIds)) stagedTonightIds = [];
 
+    // Nur Ausrüstung zulassen, die noch existiert und im Schrank ist
     var closetIds = getClosetCatalog().map(function(i) { return i.id; });
     stagedTonightIds = stagedTonightIds.filter(function(id) { return closetIds.indexOf(id) !== -1; });
 
@@ -154,9 +222,15 @@
     var nameTopRev = document.getElementById('portal-name-top-rev');
     var nameSubRev = document.getElementById('portal-name-sub-rev');
 
+    var nameTopDefSub = document.getElementById('portal-name-top-def-sub');
+    var nameTopRevSub = document.getElementById('portal-name-top-rev-sub');
+
     if (nameTopDef) nameTopDef.innerText = names.B || 'Partner 2';
+    if (nameTopDefSub) nameTopDefSub.innerText = names.B || 'Partner 2';
     if (nameSubDef) nameSubDef.innerText = names.A || 'Partner 1';
+
     if (nameTopRev) nameTopRev.innerText = names.A || 'Partner 1';
+    if (nameTopRevSub) nameTopRevSub.innerText = names.A || 'Partner 1';
     if (nameSubRev) nameSubRev.innerText = names.B || 'Partner 2';
 
     if (portalSelectedRoleSetup === 'default') {
@@ -382,14 +456,6 @@
         owned.push(newId);
         window.HubToys.saveOwnedIds(owned);
       }
-    } else {
-      try {
-        var owned = [];
-        var rawOwned = localStorage.getItem('kompass_active_equipment_ids');
-        if (rawOwned) owned = JSON.parse(rawOwned);
-        if (owned.indexOf(newId) === -1) owned.push(newId);
-        localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(owned));
-      } catch (e) {}
     }
 
     if (stagedTonightIds.indexOf(newId) === -1) {
@@ -444,16 +510,6 @@
     setupInitialPlaybook();
   }
 
-  function saveCustomPlaylistLink(val) {
-    var link = (val || '').trim();
-    try {
-      localStorage.setItem('kompass_custom_playlist_url', link);
-      var btn = document.getElementById('btn-launch-external-music');
-      if (btn && link) btn.href = link.startsWith('http') ? link : ('https://' + link);
-      showToast("Playlist-Link hinterlegt ✓");
-    } catch (e) {}
-  }
-
   function selectSessionMode(mode) {
     selectedSessionMode = mode;
     var bGuided = document.getElementById('btn-mode-guided');
@@ -483,91 +539,10 @@
     }
   }
 
-  function getGeminiApiKey() {
-    try {
-      var stored = localStorage.getItem('kompass_gemini_api_key');
-      if (stored && stored.trim().length > 10) return stored.trim();
-    } catch (e) {}
-
-    try {
-      var rawAnswers = localStorage.getItem('kompass_answers');
-      if (rawAnswers) {
-        var parsed = JSON.parse(rawAnswers);
-        if (parsed && parsed.settings && parsed.settings.geminiApiKey) {
-          return parsed.settings.geminiApiKey.trim();
-        }
-      }
-    } catch (e) {}
-
-    return null;
-  }
-
-  function saveSessionGeminiKey(val) {
-    var trimmed = (val || '').trim();
-    try {
-      localStorage.setItem('kompass_gemini_api_key', trimmed);
-      showToast("Gemini Key gespeichert");
-      testGeminiConnectionInSession(false);
-      if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
-        window.SessionVoice.preloadCore(activeSessionVoice);
-      }
-    } catch (e) {}
-  }
-
-  async function testGeminiConnectionInSession(silent) {
-    var key = getGeminiApiKey();
-    if (!silent) showToast("⏳ Ermittle unterstützte Gemini-Modelle...");
-    var badge = document.getElementById('gemini-active-model-badge');
-
-    try {
-      var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(key));
-      if (resp.ok) {
-        var data = await resp.json();
-        var modelsList = data.models || [];
-
-        var contentModels = modelsList.filter(function(m) { 
-          return m.supportedGenerationMethods && 
-            m.supportedGenerationMethods.indexOf('generateContent') !== -1 &&
-            m.name.indexOf('flash') !== -1 &&
-            m.name.indexOf('tts') === -1 &&
-            m.name.indexOf('2.5') === -1 &&
-            m.name.indexOf('omni') === -1 &&
-            m.name.indexOf('image') === -1 &&
-            m.name.indexOf('video') === -1;
-        });
-
-        if (contentModels.length > 0) {
-          var preferred = contentModels.find(function(m) { return m.name.indexOf('3.8-flash') !== -1 && m.name.indexOf('lite') === -1; });
-          activeDiscoveredModel = preferred ? preferred.name.replace('models/', '') : contentModels[0].name.replace('models/', '');
-          localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
-        } else {
-          activeDiscoveredModel = "gemini-3.8-flash";
-          localStorage.setItem('kompass_discovered_model', activeDiscoveredModel);
-        }
-
-        if (badge) badge.innerText = "Modell: " + activeDiscoveredModel;
-        if (!silent) showToast("✓ Verbunden! Modell: " + activeDiscoveredModel + " aktiv.");
-        return true;
-      } else {
-        var errData = await resp.json().catch(function() { return {}; });
-        var errMsg = errData.error?.message || ("Status " + resp.status);
-        if (!silent) showToast("⚠️ Verbindungsfehler: " + errMsg);
-      }
-    } catch (e) {
-      if (!silent) showToast("⚠️ Netzwerkfehler beim Verbindungstest");
-    }
-
-    if (badge) badge.innerText = "Modell: " + activeDiscoveredModel;
-    return false;
-  }
-
   function changeSessionVoice(val) {
     activeSessionVoice = val;
     localStorage.setItem('kompass_session_voice', val);
     showToast("Stimme gewechselt: " + val);
-    if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
-      window.SessionVoice.preloadCore(val);
-    }
   }
 
   function toggleTopVoiceAssistance(checked) {
@@ -592,7 +567,7 @@
     if (tog) tog.checked = true;
     localStorage.setItem('kompass_session_voice', 'Enceladus');
     localStorage.setItem('kompass_voice_assist_active', 'true');
-    showToast("Straf-Preset aktiv: Tiefe Männerstimme (Enceladus)");
+    showToast("Preset aktiv: Tiefe Männerstimme (Enceladus)");
     testGeminiVoiceSample();
   }
 
@@ -638,16 +613,18 @@
       return stagedTonightIds.indexOf(i.id) !== -1;
     });
 
-    var activeTools = availableToys.map(function(t) { return t.name; });
-    if (activeTools.length === 0) {
-      activeTools = ["Nackte Hände", "Bettkante", "Fußboden", "Körperwärme"];
-    }
+    var sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
+      ? window.ToyCombinatorics.buildSummary(availableToys)
+      : { impact: [], bondage: [], clitoral_suction: [], vibrator: [], clamps: [], sensory_deprivation: [] };
 
-    activeTools = shuffleArray(activeTools.slice());
+    var bondageTool = sem.bondage.length > 0 ? sem.bondage[0] : "Krawatte oder Seidenschal";
+    var impactTool = sem.impact.length > 0 ? sem.impact[0] : "die flache Hand oder ein Ledergürtel";
 
-    var tool1 = activeTools[0] || "Nackte Hände";
-    var tool2 = activeTools[1] || "Krawatte oder Seidenschal";
-    var tool3 = activeTools[2] || "Ledergürtel oder Holzspachtel";
+    var arousalTool = sem.clitoral_suction.length > 0 
+      ? sem.clitoral_suction[0] 
+      : (sem.vibrator.length > 0 ? sem.vibrator[0] : "gezielte Handberührungen");
+
+    var tool1 = availableToys.length > 0 ? availableToys[0].name : "Nackte Hände";
 
     currentSelectedPlaybook = [
       {
@@ -666,9 +643,9 @@
       },
       {
         phase: "Phase 2: Machtaufbau & Begrenzung",
-        title: "Fixierung & Arretierung",
-        desc: topName + " fixiert die Hände von " + subName + " mit " + tool2 + " vor oder hinter dem Körper.",
-        top: "Schließe " + tool2 + " sicher um die Handgelenke und prüfe den festen Sitz.",
+        title: "Fixierung mit " + bondageTool,
+        desc: topName + " fixiert die Hände von " + subName + " mit " + bondageTool + " sicher vor oder hinter dem Körper.",
+        top: "Schließe " + bondageTool + " sicher um die Handgelenke und prüfe den festen Sitz.",
         sub: "Gib deine Hände bereitwillig ab und spüre das Loslassen der Verantwortung."
       },
       {
@@ -680,22 +657,22 @@
       },
       {
         phase: "Phase 3: Katharsis & Zucht",
-        title: "Fordernde Reizsetzung & Spanking",
-        desc: "Gezielte, rhythmische Reize mit " + tool3 + " auf das entblößte Gesäß zur Durchwärmung.",
-        top: "Setze dosierte Treffer mit " + tool3 + " und achte auf das Mitzählen.",
+        title: "Fordernde Reizsetzung mit " + impactTool,
+        desc: "Gezielte, rhythmische Reize mit " + impactTool + " auf das entblößte Gesäß zur Durchwärmung.",
+        top: "Setze dosierte Treffer mit " + impactTool + " und achte auf das Mitzählen.",
         sub: "Zähle jeden Treffer laut und andächtig mit."
       },
       {
         phase: "Phase 3: Katharsis & Zucht",
-        title: "Edging & Erregungskontrolle",
-        desc: topName + " treibt " + subName + " gezielt an die Schwelle des Höhepunkts und befiehlt Stillstand.",
-        top: "Führe die Erregung präzise an die Höhepunkt-Schwelle und fordere Reglosigkeit.",
+        title: "Schwellen-Quälerei mit " + arousalTool,
+        desc: topName + " nutzt " + arousalTool + ", um " + subName + " gezielt an die Höhepunkt-Schwelle zu treiben – und befiehlt schlagartigen Stillstand.",
+        top: "Führe die Erregung mit " + arousalTool + " an die Schwelle und fordere absolute Reglosigkeit.",
         sub: "Spüre das Pochen an der Schwelle und gehorche dem Stopp-Befehl."
       },
       {
         phase: "Phase 4: Katharsis & Aftercare",
         title: "Höhepunkt-Entscheidung des Tops",
-        desc: topName + " entscheidet souverän über Freigabe, Ruined Orgasm oder Denial.",
+        desc: topName + " entscheidet souverän am Edging-Cockpit über Freigabe, Ruined Orgasm oder Denial.",
         top: "Triff deine Entscheidung am Edging-Cockpit und verkünde das Urteil.",
         sub: "Harre reglos aus und nimm das Urteil deines Tops an."
       },
@@ -719,12 +696,15 @@
     c.innerHTML = currentSelectedPlaybook.map(function(step, idx) {
       return `
         <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1">
-          <div class="flex items-center justify-between">
-            <span class="text-[9.5px] font-bold text-brand-300 uppercase tracking-wider">${escapeHtml(step.phase)}</span>
-            <span class="text-[10px] text-slate-500 font-mono">Schritt ${idx + 1}</span>
+          <div class="flex items-center justify-between text-[10.5px]">
+            <span class="font-mono text-purple-300 font-bold">${step.phase ? step.phase.split(':')[0] : 'Phase ' + (idx + 1)} · Schritt ${idx + 1}</span>
+            <span class="text-white font-bold">${escapeHtml(step.title)}</span>
           </div>
-          <strong class="text-xs text-white block">${escapeHtml(step.title)}</strong>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(step.desc)}</p>
+          <div class="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
+            <span class="truncate pr-1">👑 Top: ${escapeHtml(step.top)}</span>
+            <span class="truncate pl-1">🧎 Bottom: ${escapeHtml(step.sub)}</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -732,92 +712,116 @@
 
   function rerollPlaybook() {
     setupInitialPlaybook();
-    showToast("Drehbuch frisch zusammengestellt 🎲");
+    showToast("Drehbuch neu gewürfelt 🎲");
   }
 
-  function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+  async function generateAiPlaybookFromCloset() {
+    var apiKey = getGeminiApiKey();
+    if (!apiKey) {
+      showToast("⚠️ Bitte hinterlege einen Gemini API-Key in den Einstellungen.");
       return;
     }
-    var c = document.getElementById('toast-container');
-    if (!c) return;
-    var el = document.createElement('div');
-    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-    el.innerText = msg;
-    c.appendChild(el);
-    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-    setTimeout(function() {
-      el.classList.add('opacity-0');
-      setTimeout(function() { el.remove(); }, 300);
-    }, 2500);
-  }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+    var closet = getClosetCatalog();
+    var availableToys = closet.filter(function(i) {
+      return stagedTonightIds.indexOf(i.id) !== -1;
+    });
+
+    var topName = (names && names[topPartner]) || 'Top';
+    var subName = (names && names[subPartner]) || 'Bottom';
+    var subAnat = (anatomy && anatomy[subPartner]) || 'vulva';
+
+    var semanticBriefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
+      ? window.ToyCombinatorics.generateAiPromptBriefing(availableToys)
+      : "Ausrüstung: Hände, Bettkante, Gürtel";
+
+    showToast("⏳ Analysiere Schrank-Toys & berechne Drehbuch...");
+
+    var prompt = `Du bist ein erfahrener BDSM-Regisseur und Szenenplaner.
+Entwirf ein maßgeschneidertes, realistisches 4-Phasen-Drehbuch für eine einvernehmliche Session zwischen ${topName} (Top) und ${subName} (Bottom, Anatomie: ${subAnat}).
+
+HEUTE BEREITGELEGTE TOYS:
+${semanticBriefing}
+
+REGELN:
+- Kein schwülstiger Märchenonkel-Ton; klare und erwachsene BDSM-Fachsprache.
+- Druckwellenvibratoren (z. B. Womanizer) oder Vibratoren sind KEINE Fesseln und KEINE Schlagwerkzeuge! Sie dienen ausschließlich für Klitoris-/Genital-Schwellenkontrolle oder Ruined Orgasm.
+- Fesseln/Seile arretieren; Impact-Tools versohlen das Gesäß.
+- Verwende das natürliche deutsche Wort „Schwelle“ oder „Höhepunkt-Schwelle“ statt unpassender Ausdrücke wie „Kante“.
+- Erstelle exakt 8 chronologische Schritte (je 2 pro Phase: Phase 1 Warm-up, Phase 2 Machtaufbau, Phase 3 Katharsis & Schwellenkontrolle, Phase 4 Aftercare).
+
+Antworte AUSSCHLIESSLICH als valides JSON-Array:
+[
+  {
+    "phase": "Phase 1: Warm-up & Zentrierung",
+    "title": "Titel des Schritts",
+    "desc": "Was getan wird (1-2 Sätze)",
+    "top": "Konkrete Regie-Anweisung für ${topName}",
+    "sub": "Haltung und Erleben für ${subName}"
+  }
+]`;
+
+    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
+    var resultPlaybook = null;
+
+    for (var i = 0; i < candidateModels.length; i++) {
+      try {
+        var resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + candidateModels[i] + ":generateContent?key=" + encodeURIComponent(apiKey), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.35, responseMimeType: "application/json" }
+          })
+        });
+
+        if (resp.ok) {
+          var resJson = await resp.json();
+          var raw = resJson?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length >= 6) {
+            resultPlaybook = parsed;
+            break;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (resultPlaybook) {
+      currentSelectedPlaybook = resultPlaybook;
+      window.currentSelectedPlaybook = currentSelectedPlaybook;
+      renderPlaybookPreview();
+      showToast("✨ KI-Drehbuch maßgeschneidert auf eure Toys erstellt!");
+    } else {
+      showToast("⚠️ KI-Generierung nicht erreichbar. Nutze das Standard-Drehbuch.");
+    }
   }
 
   function initStaging() {
     loadStagingData();
     updatePortalRoleCards();
-    setupInitialPlaybook();
-    updateStagingTabCounters();
     renderEquipmentStagingGrid();
-
-    var vSelect = document.getElementById('session-voice-select');
-    var vToggle = document.getElementById('session-voice-assist-toggle');
-    var keyInput = document.getElementById('session-gemini-key-input');
-    var badge = document.getElementById('gemini-active-model-badge');
-
-    if (vSelect) vSelect.value = activeSessionVoice;
-    if (vToggle) vToggle.checked = isTopVoiceAssistActive;
-    if (keyInput) keyInput.value = getGeminiApiKey();
-    if (badge && activeDiscoveredModel) badge.innerText = "Modell: " + activeDiscoveredModel;
-
-    testGeminiConnectionInSession(true);
-
-    if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
-      window.SessionVoice.preloadCore(activeSessionVoice);
-    }
+    setupInitialPlaybook();
   }
-
-  var originalCloseToyModal = window.closeToyManagementModal;
-  window.closeToyManagementModal = function() {
-    if (typeof originalCloseToyModal === 'function') {
-      originalCloseToyModal();
-    }
-    loadStagingData();
-    renderEquipmentStagingGrid();
-    setupInitialPlaybook();
-  };
 
   window.SessionStaging = {
     init: initStaging,
     selectRoleSetup: selectPortalRoleSetup,
     goToStep: goToPortalStepSafe,
+    updateEnergy: updateCheckinEnergy,
+    updateDepth: updateSessionDepth,
     selectMode: selectSessionMode,
-    switchStagingTab: switchStagingTab,
+    switchCategoryTab: switchStagingTab,
     toggleStaged: toggleStagedEquipment,
-    selectPreset: selectEquipmentPreset,
     openNewToyQuickAdd: openNewToyQuickAdd,
     closeNewToyQuickAdd: closeNewToyQuickAdd,
     saveNewToyFromStaging: saveNewToyFromStaging,
-    updateEnergy: updateCheckinEnergy,
-    updateDepth: updateSessionDepth,
-    saveCustomPlaylistLink: saveCustomPlaylistLink,
-    saveGeminiKey: saveSessionGeminiKey,
-    testGeminiConnection: testGeminiConnectionInSession,
     changeVoice: changeSessionVoice,
     toggleVoiceAssist: toggleTopVoiceAssistance,
     applyPunishmentVoicePreset: applyPunishmentVoicePreset,
     testVoiceSample: testGeminiVoiceSample,
     rerollPlaybook: rerollPlaybook,
+    generateAiPlaybook: generateAiPlaybookFromCloset,
     refreshCloset: function() {
       loadStagingData();
       renderEquipmentStagingGrid();
@@ -825,6 +829,7 @@
     }
   };
 
+  // Legacy-Verdrahtung für direkte HTML-Onclick-Handler
   window.selectPortalRoleSetup = selectPortalRoleSetup;
   window.goToPortalStepSafe = goToPortalStepSafe;
   window.selectSessionMode = selectSessionMode;
@@ -833,9 +838,6 @@
   window.selectEquipmentPreset = selectEquipmentPreset;
   window.updateCheckinEnergy = updateCheckinEnergy;
   window.updateSessionDepth = updateSessionDepth;
-  window.saveCustomPlaylistLinkWrapper = saveCustomPlaylistLink;
-  window.saveSessionGeminiKey = saveSessionGeminiKey;
-  window.testGeminiConnectionInSession = testGeminiConnectionInSession;
   window.changeSessionVoice = changeSessionVoice;
   window.toggleTopVoiceAssistance = toggleTopVoiceAssistance;
   window.applyPunishmentVoicePreset = applyPunishmentVoicePreset;
