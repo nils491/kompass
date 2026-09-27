@@ -3,11 +3,10 @@
  * Vollständiger Controller für alle Modals und Einstellungen im Start-Hub:
  * - Profil & Account-Einstellungen (Name, E-Mail, Anatomie, Gemini-Key, Stimme)
  * - Cloud-Synchronisations- & Multi-Device-Kopplungs-Steuerung
- * - Testdaten-Generator (Zufallsdaten für beide Partner zum sofortigen Testen)
- * - Profil-Reset mit Sicherheitsabfrage
- * - Tabu-Charta (Übersicht aller Note-1-Praktiken beider Partner)
+ * - Profil-Reset mit zweistufiger Sicherheitsabfrage
+ * - Tabu-Charta mit direkt anklickbaren Tabus (automatischer Partner-Wechsel & Direktsprung)
  * - Toy-Management (Weiterleitung an HubToys)
- * - Erst-Onboarding (Profileinrichtung)
+ * - 3-Stufen-Onboarding mit Paar-Code & iPhone-Homescreen-Anleitung
  */
 
 (function(window) {
@@ -110,7 +109,6 @@
     var code = state.pairCode || '';
     if (!code) return window.location.href;
 
-    // Zielrolle für die Partnerin ist immer das Gegenüber (meist Partner B)
     var targetRole = (state.role === 'A') ? 'B' : 'A';
     var baseUrl = window.location.origin + window.location.pathname;
     return baseUrl + '?pair=' + encodeURIComponent(code) + '&role=' + targetRole + '#view=hub';
@@ -180,7 +178,6 @@
             updateCloudSyncUI();
             showToast("✓ Erfolgreich als " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " gekoppelt!");
 
-            // Saubere URL ohne störende Query-Parameter wiederherstellen
             var cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#view=hub');
             window.history.replaceState({}, document.title, cleanUrl);
           } catch (e) {
@@ -195,18 +192,11 @@
 
   function openCloudSyncModal() {
     var modal = document.getElementById('modal-cloud-sync');
-    if (!modal) {
-      console.error("Modal #modal-cloud-sync nicht im DOM gefunden.");
-      return;
-    }
+    if (!modal) return;
 
     try {
-      if (typeof updateCloudSyncUI === 'function') {
-        updateCloudSyncUI();
-      }
-    } catch (e) {
-      console.warn("Fehler beim Vorab-Aktualisieren der Sync-UI:", e);
-    }
+      if (typeof updateCloudSyncUI === 'function') updateCloudSyncUI();
+    } catch (e) {}
 
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -218,9 +208,7 @@
       modal.classList.add('hidden');
       modal.style.display = 'none';
     }
-    if (typeof updateCloudSyncUI === 'function') {
-      updateCloudSyncUI();
-    }
+    if (typeof updateCloudSyncUI === 'function') updateCloudSyncUI();
   }
 
   async function handleCreatePairRoom() {
@@ -269,11 +257,8 @@
     try {
       if (!window.CloudSync) return;
       var success = await window.CloudSync.pull();
-      if (success) {
-        showToast("✓ Daten erfolgreich synchronisiert!");
-      } else {
-        showToast("✓ Lokale Daten aktuell!");
-      }
+      if (success) showToast("✓ Daten erfolgreich synchronisiert!");
+      else showToast("✓ Lokale Daten aktuell!");
       updateCloudSyncUI();
     } catch (e) {
       showToast("⚠️ Synchronisation fehlgeschlagen.");
@@ -281,9 +266,7 @@
   }
 
   function handleDisconnectPairing() {
-    if (window.CloudSync) {
-      window.CloudSync.disconnect();
-    }
+    if (window.CloudSync) window.CloudSync.disconnect();
     showToast("Kopplung getrennt. Lokale Daten bleiben erhalten.");
     updateCloudSyncUI();
   }
@@ -396,6 +379,21 @@
     }
   }
 
+  function selectAccountAnatomy(who, type) {
+    var curUser = window.currentUser || 'A';
+
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+    window.anatomy[curUser] = type;
+
+    try {
+      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
+    } catch (e) {}
+
+    updateAccountAnatomyUI(curUser, window.anatomy);
+    if (window.CloudSync) window.CloudSync.trigger();
+    showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
+  }
+
   function getSharingLevel(user) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + user);
@@ -404,7 +402,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 3; // Standard: Duldung & Buße (Note 2-5)
+    return 3;
   }
 
   function updateAccountSharingUI(curUser) {
@@ -466,21 +464,6 @@
         }
       }
     });
-  }
-
-  function selectAccountAnatomy(who, type) {
-    var curUser = window.currentUser || 'A';
-
-    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[curUser] = type;
-
-    try {
-      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
-    } catch (e) {}
-
-    updateAccountAnatomyUI(curUser, window.anatomy);
-    if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
   }
 
   function toggleAccountAiActive(active) {
@@ -616,7 +599,7 @@
   }
 
   // ==========================================
-  // 3. TABU-CHARTA & TOY-MANAGEMENT
+  // 3. TABU-CHARTA (INTERAKTIV MIT PARTNER-WECHSEL & DIREKTSPRUNG)
   // ==========================================
 
   function openTabuModal() {
@@ -639,10 +622,10 @@
           var bR1 = ans.B?.['it_' + it.id + '_r1'];
           var bR2 = ans.B?.['it_' + it.id + '_r2'];
 
-          if (aR1 === 1) tabusA.push({ title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (aR2 === 1) tabusA.push({ title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
-          if (bR1 === 1) tabusB.push({ title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (bR2 === 1) tabusB.push({ title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+          if (aR1 === 1) tabusA.push({ id: it.id, title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          if (aR2 === 1) tabusA.push({ id: it.id, title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+          if (bR1 === 1) tabusB.push({ id: it.id, title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          if (bR2 === 1) tabusB.push({ id: it.id, title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
         }
       });
     });
@@ -658,10 +641,13 @@
             <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
               ${tabusA.length > 0 ? tabusA.map(function(t) {
                 return `
-                  <div class="p-2 rounded-xl bg-slate-900/80 border border-rose-950 text-[10.5px]">
-                    <span class="text-white block font-bold">${escapeHtml(t.title)}</span>
-                    <span class="text-rose-300 text-[9.5px]">${escapeHtml(t.role)}</span>
-                  </div>
+                  <button type="button" onclick="closeTabuModal(); if(window.setCurrentUser) setCurrentUser('A'); goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-slate-900/80 hover:bg-rose-950 border border-rose-950 hover:border-rose-700 transition group block touch-btn cursor-pointer">
+                    <div class="flex items-center justify-between">
+                      <span class="text-white block font-bold text-[10.5px] group-hover:text-rose-200">${escapeHtml(t.title)}</span>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
+                    </div>
+                    <span class="text-rose-300 text-[9.5px] block mt-0.5">${escapeHtml(t.role)}</span>
+                  </button>
                 `;
               }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>'}
             </div>
@@ -675,10 +661,13 @@
             <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
               ${tabusB.length > 0 ? tabusB.map(function(t) {
                 return `
-                  <div class="p-2 rounded-xl bg-slate-900/80 border border-rose-950 text-[10.5px]">
-                    <span class="text-white block font-bold">${escapeHtml(t.title)}</span>
-                    <span class="text-rose-300 text-[9.5px]">${escapeHtml(t.role)}</span>
-                  </div>
+                  <button type="button" onclick="closeTabuModal(); if(window.setCurrentUser) setCurrentUser('B'); goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-slate-900/80 hover:bg-rose-950 border border-rose-950 hover:border-rose-700 transition group block touch-btn cursor-pointer">
+                    <div class="flex items-center justify-between">
+                      <span class="text-white block font-bold text-[10.5px] group-hover:text-rose-200">${escapeHtml(t.title)}</span>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
+                    </div>
+                    <span class="text-rose-300 text-[9.5px] block mt-0.5">${escapeHtml(t.role)}</span>
+                  </button>
                 `;
               }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>'}
             </div>
@@ -733,7 +722,6 @@
     var state = window.CloudSync ? window.CloudSync.getState() : {};
     var code = state.pairCode;
 
-    // Wenn noch kein Paar-Code existiert, erzeugen wir ihn hier automatisch geräuschlos im Hintergrund
     if (!code && window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
       try {
         code = await window.CloudSync.createRoom();
@@ -860,7 +848,6 @@
         goToOnboardStep(1);
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        // Code im Hintergrund direkt generieren, damit er bei Schritt 2 sofort dasteht
         ensureOnboardPairCode();
       }
     } else if (!isDone) {
@@ -874,7 +861,6 @@
       setTimeout(updateCloudSyncUI, 150);
     }
 
-    // Beim Laden prüfen, ob der Aufruf über einen Partner-Einladungslink kam
     setTimeout(checkUrlForAutoPairing, 250);
   }
 
@@ -917,9 +903,4 @@
   window.openToyManagementModal = openToyManagementModal;
   window.closeToyManagementModal = closeToyManagementModal;
   window.setOnboardingAnatomy = setOnboardingAnatomy;
-  window.closeOnboardingModal = closeOnboardingModal;
-  window.completeOnboarding = completeOnboarding;
-  window.goToOnboardStep = goToOnboardStep;
-  window.copyOnboardCode = copyOnboardCode;
-
-})(window);
+  window.closeOn
