@@ -3,11 +3,12 @@
  * Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
  * 
  * Features & Perfektionierungen:
- * - 🎯 Exakte Audio-Visual-Synchronisation: Zahlen laufen erst los, wenn die Stimme WIRKLICH ertönt
- * - ⏳ Eleganter Vorbereitungs-/Lade-Puls ("Stimme fokussiert...") während Gemini generiert
- * - ⏱️ JOI-Zeitstepper: Default 20s mit flexiblen [- 5s] und [+ 5s] Reglern (5s bis 60s)
- * - 🎙️ Vertiefte JOI-Sprachführung (Jerk-Off Instruction): Rhythmus, Atem-Takt, Kanten-Qual
- * - 🛡️ Sofortige AudioContext-Entriegelung bei allen Klicks
+ * - 🎯 Exakte Audio-Visual-Synchronisation: Zahlen starten erst, wenn die Gemini-Stimme wirklich ertönt
+ * - ⏳ Eleganter Ladebalken ("Stimme fokussiert die Schwelle...") während der Audio-Generierung
+ * - 💬 Natürliche deutsche Sprache: Konsequenter Verzicht auf "Kante" – stattdessen "Schwelle", "Plateau", "Höhepunkt-Schwelle"
+ * - ⏱️ JOI-Zeitstepper: Standard 20s mit flexiblen [- 5s] und [+ 5s] Reglern (5s bis 60s)
+ * - 🎙️ Erotisch-psychologische JOI-Sprachführung (Jerk-Off Instruction): Takt, Atemführung, Schwellen-Spannung
+ * - 🛡️ Sofortige AudioContext-Entriegelung bei allen Touch-Gesten
  */
 
 (function(window) {
@@ -71,7 +72,7 @@
       if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition bg-indigo-950/60 border-indigo-500 shadow-md";
       if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
       if (lbl) { lbl.innerText = "Top spricht selbst"; lbl.className = "text-[10px] font-mono text-indigo-300 font-bold"; }
-      showToast("Modus: Top gibt die Kanten-Befehle selbst 🗣️");
+      showToast("Modus: Top gibt die Schwellen-Befehle selbst 🗣️");
     } else {
       if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md";
       if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
@@ -79,7 +80,7 @@
       
       window.isTopVoiceAssistActive = true;
       try { localStorage.setItem('kompass_voice_assist_active', 'true'); } catch (e) {}
-      showToast("Modus: Gemini-App-Stimme führt laut durch die Kante 🔊");
+      showToast("Modus: Gemini-App-Stimme führt laut durch die Schwelle 🔊");
     }
   }
 
@@ -100,7 +101,7 @@
   function handleArousalSliderTouch(val) {
     activeArousalLevel = parseInt(val, 10);
     var badge = document.getElementById('arousal-level-badge');
-    var labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Kante", "Kante"];
+    var labels = ["", "Ruhig", "Leicht erregt", "Wärme", "Fokus", "Plateau", "Gesteigert", "Intensiv", "Gefahrenzone", "Vor der Schwelle", "Schwelle erreicht"];
     if (badge) badge.innerText = "Stufe " + activeArousalLevel + " / 10 (" + (labels[activeArousalLevel] || '') + ")";
 
     if (activeArousalLevel >= 8 && window.SessionAudio && typeof window.SessionAudio.adjustEnergy === 'function') {
@@ -108,12 +109,12 @@
     }
 
     if (countdownVoiceMode === 'gemini' && window.SessionVoice && typeof window.SessionVoice.play === 'function' && Math.random() < 0.35) {
-      var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
+      var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
       var phrase = "";
       if (activeArousalLevel <= 3) phrase = "Ganz ruhig atmen, " + subName + ". Wir bauen die Spannung langsam auf.";
       else if (activeArousalLevel <= 6) phrase = (edgingStimulationBy === 'bottom_self') ? ("Gleichmäßig weiterberühren, " + subName + ". Halt das Plateau.") : "Spüre meine Berührung. Lass dich ganz darauf ein.";
       else if (activeArousalLevel <= 9) phrase = (edgingStimulationBy === 'bottom_self') ? "Langsamer werden! Hände kurz anhalten, wenn es zu nah wird." : ("Gefahrenzone, " + subName + ". Kein Zucken. Du kommst erst auf mein Zeichen.");
-      else phrase = "Stillhalten! Kante erreicht!";
+      else phrase = "Stillhalten! Schwelle erreicht!";
       window.SessionVoice.play(phrase);
     }
   }
@@ -128,13 +129,13 @@
     var hitsEl = document.getElementById('edging-total-hits');
     if (hitsEl) hitsEl.innerText = edgeCount;
 
-    logSessionAction("Edge #" + edgeCount + " erreicht (Stufe 10)");
-    showToast("Edge #" + edgeCount + " registriert!");
+    logSessionAction("Höhepunkt-Schwelle #" + edgeCount + " erreicht (Stufe 10)");
+    showToast("Schwelle #" + edgeCount + " registriert!");
     startLastEdgeTimer();
     startCooldownBreathingTimer();
 
     if (countdownVoiceMode === 'gemini' && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
+      window.SessionVoice.play("Schwelle erreicht! Hände sofort weg und stillhalten!");
     }
   }
 
@@ -232,7 +233,7 @@
     if (durationSeconds <= 22) {
       return "Sechzehn... nicht bewegen, " + name + "... " +
              "Fünfzehn... Vierzehn... tief in den Bauchraum atmen... " +
-             "Dreizehn... Zwölf... Elf... spüre das Pochen an der Kante... " +
+             "Dreizehn... Zwölf... Elf... spüre das Pochen an der Schwelle... " +
              "Zehn... Neun... Acht... halte die Spannung reglos... " +
              "Sieben... Sechs... Fünf... gleich hast du es... " +
              "Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
@@ -241,7 +242,7 @@
     // 25-60 Sekunden: Intensive JOI (Jerk-Off Instruction) Führung
     return "Fünfundzwanzig... Vierundzwanzig... ganz ruhig ausatmen, " + name + "... " +
            "Dreiundzwanzig... Zweiundzwanzig... Einundzwanzig... Zwanzig... spüre jeden Herzschlag... " +
-           "Neunzehn... Achtzehn... Siebzehn... Sechzehn... bleib reglos an der Kante... " +
+           "Neunzehn... Achtzehn... Siebzehn... Sechzehn... bleib reglos an der Schwelle... " +
            "Fünfzehn... Vierzehn... Dreizehn... Zwölf... die Lust halten... " +
            "Elf... Zehn... Neun... Acht... der Druck steigt... " +
            "Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles fließen und komm!";
@@ -319,64 +320,68 @@
       if (cueText) {
         cueText.innerText = "Sprich jetzt laut im Takt mit (" + config.startNum + " bis 1)...";
       }
+      removeLoadingProgressUi();
       triggerDisplayBeat(config.startNum.toString(), config.stepMs);
       runVisualCountdownTicker(thisRunId, config.startNum, config.stepMs);
       return;
     }
 
-    // Wenn Gemini spricht: ZUERST Ladezustand anzeigen, bis Audio WIRKLICH decodiert und gestartet ist
+    // Wenn Gemini spricht: LADEBALKEN ANZEIGEN, bis Audio wirklich decodiert und abgespielt wird
     if (pill) {
       pill.innerText = "⏳ Stimme lädt...";
       pill.className = "text-[10px] font-mono text-purple-300 font-bold bg-purple-950/80 px-2.5 py-1 rounded-lg border border-purple-800 animate-pulse";
     }
     if (disp) {
-      disp.className = "text-[14vw] sm:text-[18vh] font-black font-mono tracking-tight leading-none text-purple-400 select-none animate-pulse transition-all duration-200 text-center";
-      disp.innerText = "...";
+      disp.className = "hidden"; // Versteckt bis die Stimme startet
     }
+    renderLoadingProgressUi();
+
     if (cueText) {
-      cueText.innerText = "Regiestimme fokussiert die Kante... bereithalten!";
+      cueText.innerText = "Regiestimme fokussiert die Schwelle... bereithalten!";
     }
 
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       var speechStarted = false;
 
-      // Event-Hook: Sobald Audio abgespielt wird, startet der Zähler synchron
+      // Event-Hook: Sobald Audio abgespielt wird, schaltet die UI auf synchrone Riesenzahlen um
       var startSyncCallback = function() {
         if (speechStarted || thisRunId !== countdownRunId) return;
         speechStarted = true;
+
+        removeLoadingProgressUi();
 
         if (pill) {
           pill.innerText = "Live";
           pill.className = "text-[10px] font-mono text-emerald-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800";
         }
         if (disp) {
-          disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform";
+          disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform block";
         }
         if (cueText) {
-          cueText.innerText = "Gemini zählt von " + config.startNum + " herunter... Kante halten!";
+          cueText.innerText = "Gemini führt den Atem von " + config.startNum + " herunter... Schwelle halten!";
         }
 
         triggerDisplayBeat(config.startNum.toString(), config.stepMs);
         runVisualCountdownTicker(thisRunId, config.startNum, config.stepMs);
       };
 
-      // Listener auf das Audio-Element legen
+      // Listener auf das Master-Audioelement legen
       var masterAudio = document.getElementById('master-voice-audio');
       if (masterAudio) {
         masterAudio.addEventListener('playing', startSyncCallback, { once: true });
       }
 
-      // Sicherheits-Timeout (spätestens nach 2.8s loslegen, falls Event verzögert)
+      // Sicherheits-Timeout (spätestens nach 3.2s starten, falls Browser-Event verzögert)
       setTimeout(function() {
         startSyncCallback();
-      }, 2800);
+      }, 3200);
 
       window.SessionVoice.play(fullCountdownText).then(function() {
         if (thisRunId !== countdownRunId) return;
         var endDisp = document.getElementById('countdown-display');
         if (endDisp) {
           endDisp.classList.remove('countdown-beat-active');
-          endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center";
+          endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
           endDisp.innerText = "KOMMEN!";
         }
         if (cueText) cueText.innerText = "Erlaubnis erteilt! Lass alles los!";
@@ -386,8 +391,33 @@
             wrap.style.display = 'none';
           }
         }, 4500);
+      }).catch(function() {
+        removeLoadingProgressUi();
       });
     }
+  }
+
+  function renderLoadingProgressUi() {
+    removeLoadingProgressUi();
+    var disp = document.getElementById('countdown-display');
+    if (!disp || !disp.parentNode) return;
+
+    var loaderBox = document.createElement('div');
+    loaderBox.id = 'countdown-audio-loader';
+    loaderBox.className = "w-full max-w-xs space-y-3 py-6 flex flex-col items-center animate-fade-in";
+    loaderBox.innerHTML = `
+      <div class="w-12 h-12 rounded-full border-3 border-purple-500/20 border-t-purple-400 animate-spin"></div>
+      <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-purple-900/60">
+        <div class="h-full bg-gradient-to-r from-purple-600 via-pink-500 to-emerald-400 rounded-full w-full animate-pulse"></div>
+      </div>
+      <span class="text-[11px] text-purple-300 font-mono tracking-wider font-semibold">Stimme wird synchronisiert...</span>
+    `;
+    disp.parentNode.insertBefore(loaderBox, disp);
+  }
+
+  function removeLoadingProgressUi() {
+    var loader = document.getElementById('countdown-audio-loader');
+    if (loader) loader.remove();
   }
 
   async function runVisualCountdownTicker(runId, startNumber, stepDurationMs) {
@@ -408,7 +438,7 @@
     if (ticker <= 0 && runId === countdownRunId) {
       if (disp) {
         disp.classList.remove('countdown-beat-active');
-        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center";
+        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
         disp.innerText = "KOMMEN!";
       }
       if (cueText) {
@@ -458,6 +488,7 @@
   function resetSpeechCountdown() {
     isCountdownActive = false;
     countdownRunId++;
+    removeLoadingProgressUi();
     var wrap = document.getElementById('countdown-wrapper');
     if (wrap) {
       wrap.classList.add('hidden');
