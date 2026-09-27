@@ -4,6 +4,7 @@
  * 
  * Features:
  * - 100% reine Gemini-TTS-Sprachausgabe (Despina, Aoede, Enceladus, Fenrir)
+ * - Aktuelle Modellkaskade (gemini-3.8-flash-tts, gemini-3.8-flash-lite-tts, gemini-2.5-flash-preview-tts)
  * - Keine aggressive Vorab-Erschöpfung des 15-RPM-Free-Tier-Kontingents
  * - Echtzeit-Erkennung neu eingegebener Keys direkt aus dem DOM & Speicher
  * - Strikte Trennung von HTTP 402 (Billing) und HTTP 429 (Rate-Limit)
@@ -16,14 +17,12 @@
 
   var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var ttsAudioCache = {};
-  var isPreloading = false;
   var previewTimeout = null;
   var isVoiceCurrentlyPlaying = false;
-  var activeDiscoveredTtsModel = "gemini-2.5-flash-preview-tts";
+  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceContext = null;
 
   function getGeminiApiKey() {
-    // 1. Zuerst prüfen, ob der Nutzer gerade live einen Key im Feld eingetippt hat
     var liveInput = document.getElementById('session-gemini-key-input') || document.getElementById('account-gemini-key');
     if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
       var liveVal = liveInput.value.trim();
@@ -33,7 +32,6 @@
       }
     }
 
-    // 2. Gespeicherten Key aus localStorage laden
     try {
       var stored = localStorage.getItem('kompass_gemini_api_key');
       if (stored && stored.trim().length > 10 && stored.trim() !== DEFAULT_PRESET_GEMINI_KEY) {
@@ -41,7 +39,6 @@
       }
     } catch (e) {}
 
-    // 3. Fallback auf Default-Key
     return DEFAULT_PRESET_GEMINI_KEY;
   }
 
@@ -68,12 +65,12 @@
     var b2 = document.getElementById('btn-preview-step2');
     
     if (b1) {
-      if (state === 'loading') b1.innerText = "⏳ Lädt Gemini...";
+      if (state === 'loading') b1.innerText = "⏳ Lädt Stimme...";
       else if (state === 'playing') b1.innerText = "⏹ Stopp";
       else b1.innerText = "Probe (5s)";
     }
     if (b2) {
-      if (state === 'loading') b2.innerText = "⏳ Lädt Gemini...";
+      if (state === 'loading') b2.innerText = "⏳ Lädt Stimme...";
       else if (state === 'playing') b2.innerText = "⏹ Stopp (5s)";
       else b2.innerText = "🔊 Probehören (5s)";
     }
@@ -190,6 +187,7 @@
     }
 
     stopActiveVoicePlayback();
+    unlockAudioPlaybackEngine();
 
     var savedVoice = localStorage.getItem('kompass_session_voice') || 'Despina';
     var voiceToUse = voiceOverride || savedVoice;
@@ -200,7 +198,6 @@
 
     if (isPreview) updatePreviewButtons('loading');
 
-    // 1. Sofort-Cache (0 ms & 0 API-Aufrufe)
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
@@ -213,13 +210,12 @@
       return;
     }
 
-    // 2. Kaskade der Gemini TTS-fähigen Modelle
     var candidateModels = [
       activeDiscoveredTtsModel,
-      "gemini-2.5-flash-preview-tts",
       "gemini-3.8-flash-tts",
       "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash"
+      "gemini-3.1-flash-tts-preview",
+      "gemini-2.5-flash-preview-tts"
     ];
 
     var isPrepaymentDepleted = false;
@@ -269,13 +265,11 @@
           var msg = errData.error?.message || ("HTTP " + resp.status);
           lastErrorMessage = msg;
 
-          // Echter Billing-/Prepayment-Fehler (HTTP 402)
           if (resp.status === 402 || msg.indexOf('prepayment credits are depleted') !== -1) {
             isPrepaymentDepleted = true;
             break;
           }
 
-          // Rate-Limit (HTTP 429) -> Nicht sofort abbrechen, sondern nächstes Modell versuchen
           if (resp.status === 429) {
             isRateLimited = true;
             continue;
@@ -293,14 +287,14 @@
 
     if (isPrepaymentDepleted) {
       if (apiKey === DEFAULT_PRESET_GEMINI_KEY) {
-        showToast("💡 Bitte trage deinen eigenen kostenlosen Key in Schritt 2 ein (der Standard-Demo-Key ist erschöpft).");
+        showToast("💡 Bitte trage deinen eigenen kostenlosen Key in Schritt 2 ein (der Demo-Key ist erschöpft).");
       } else {
         showToast("💡 Google meldet: Projekt verlangt Billing. Erstelle auf aistudio.google.com kostenlos einen Key in einem Projekt OHNE Cloud-Billing.");
       }
     } else if (isRateLimited) {
-      showToast("⏳ Google Free-Tier Limit (15 Anfragen/Min.) erreicht. Bitte 3–4 Sekunden warten...");
+      showToast("⏳ Google Limit erreicht. Bitte 3–4 Sekunden warten...");
     } else {
-      showToast("⚠️ Gemini Voice (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
+      showToast("⚠️ Regiestimme (" + voiceToUse + ") nicht erreichbar: " + lastErrorMessage);
     }
   }
 
@@ -360,18 +354,12 @@
     });
   }
 
-  async function preloadCountdownSnippets(voiceName) {
-    // Bewusst deaktiviert: Massenhaftes Vorladen beim Start verbraucht das gesamte
-    // 15-RPM-Kontingent des Free Tiers, bevor die Session überhaupt begonnen hat.
-    return;
-  }
-
   window.SessionVoice = {
     play: playSensualGeminiVoice,
     stop: stopActiveVoicePlayback,
     unlock: unlockAudioPlaybackEngine,
     isPlaying: function() { return isVoiceCurrentlyPlaying; },
-    preloadCore: preloadCountdownSnippets,
+    preloadCore: function() {},
     getApiKey: getGeminiApiKey
   };
 
