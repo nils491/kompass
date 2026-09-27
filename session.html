@@ -124,11 +124,11 @@
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-950 via-rose-800 to-brand-600 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
-          <div class="truncate">
+          <div class="truncate min-w-0">
             <div class="flex items-center gap-1.5">
               <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Schlafzimmer-Regie</h1>
               <span id="session-active-badge" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-950 text-rose-300 border border-rose-800 uppercase flex-shrink-0 animate-pulse">LIVE</span>
@@ -137,15 +137,15 @@
           </div>
         </a>
 
-        <!-- QUICK CONTROLS -->
-        <div class="flex items-center gap-1.5 flex-shrink-0">
+        <!-- DESKTOP QUICK CONTROLS (AB md:) -->
+        <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
           <a href="guide.html" class="px-2.5 py-1.5 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-800 text-amber-200 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn cursor-pointer" title="BDSM- & Vertrauens-Guide öffnen">
-            <span>📖</span><span class="hidden sm:inline text-[10.5px]">Guide</span>
+            <span>📖</span><span class="text-[10.5px]">Guide</span>
           </a>
 
           <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn cursor-pointer" title="Hintergrundmusik starten/pausieren">
             <span id="ambient-status-icon">🎵</span>
-            <span id="ambient-status-label" class="hidden sm:inline text-[10.5px]">Musik</span>
+            <span id="ambient-status-label" class="text-[10.5px]">Musik</span>
           </button>
 
           <button type="button" onclick="SessionLive.openTabus()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn cursor-pointer" title="Tabu-Grenzen der Session anzeigen">
@@ -157,10 +157,22 @@
             📜
           </button>
         </div>
+
+        <!-- MOBILE QUICK CONTROLS & BURGER BUTTON (NUR AUF SMARTPHONES) -->
+        <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <button type="button" onclick="SessionLive.openTabus()" class="px-2 py-1.5 bg-rose-950/60 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Tabus">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            <span id="session-tabu-counter-mobile">0</span>
+          </button>
+
+          <button type="button" onclick="toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
+            ☰
+          </button>
+        </div>
       </div>
 
-      <!-- MAIN NAVIGATION -->
-      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+      <!-- DESKTOP NAVIGATION -->
+      <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </a>
@@ -185,6 +197,95 @@
       </nav>
     </div>
   </header>
+
+  <!-- MOBILE DRAWER / BURGER OVERLAY -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
+    <div class="space-y-4">
+      <!-- DRAWER HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-950 to-brand-600 border border-brand-500/40 text-white flex items-center justify-center font-bold text-sm">
+            🕯️
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
+            <span class="text-[10px] text-slate-400 font-medium block">Schlafzimmer-Regie (Cockpit)</span>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
+          ✕
+        </button>
+      </div>
+
+      <!-- NAVIGATIONSLINKS -->
+      <div class="space-y-1.5 pt-1">
+        <a href="index.html#view=hub" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=survey" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=safety" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-teal-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-teal-300 flex items-center gap-2"><span>🛡️</span><span>Sicherheits-Kodex</span></span>
+          <span class="text-[10px] text-teal-400 font-bold">6 Module</span>
+        </a>
+
+        <a href="index.html#view=single" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-purple-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-purple-300 flex items-center gap-2"><span>🔮</span><span>Mein Profil (Radar & Top 10)</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="analyse.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-amber-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
+          <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
+        </a>
+
+        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
+          <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
+        </a>
+
+        <div class="w-full p-3 rounded-2xl bg-rose-950/60 border border-rose-600 text-left flex items-center justify-between shadow-md">
+          <span class="text-xs font-black text-rose-200 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie</span></span>
+          <span class="text-[10px] text-rose-300 font-bold">Hier aktiv ✓</span>
+        </div>
+      </div>
+
+      <!-- SCHNELL-WERKZEUGE IM DRAWER -->
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+        <button type="button" onclick="toggleMobileDrawer(false); SessionLive.openTabus();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-rose-300">🛑 Tabus & Vetos</span>
+          <span class="text-[10px] text-slate-400 block">Grenzen prüfen</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); SessionLive.openDiary();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-slate-200">📜 Logbuch</span>
+          <span class="text-[10px] text-slate-400 block">Vergangene Sessions</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); SessionAudio.toggle();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-purple-300">🎵 Soundscapes</span>
+          <span class="text-[10px] text-slate-400 block">Musik an / aus</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); closeToyManagementModal(); openToyManagementModal();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-amber-300">🧰 Unser Schrank</span>
+          <span class="text-[10px] text-slate-400 block">Toys verwalten</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- DRAWER FOOTER -->
+    <div class="pt-4 border-t border-slate-900 text-center">
+      <button type="button" onclick="toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        Schließen ✕
+      </button>
+    </div>
+  </div>
 
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
@@ -1056,6 +1157,31 @@
   <script src="js/session_staging.js?v=4.4"></script>
   <script src="js/session_edging.js?v=4.4"></script>
   <script src="js/session_live.js?v=4.4"></script>
+
+  <script>
+    function toggleMobileDrawer(open) {
+      var drawer = document.getElementById('mobile-menu-drawer');
+      if (!drawer) return;
+      if (typeof open === 'boolean') {
+        drawer.style.display = open ? 'flex' : 'none';
+      } else {
+        drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
+      }
+    }
+
+    // Tabu-Zähler auch für das mobile Badge im Header synchronisieren
+    var originalUpdateTabuCounter = window.updateHeaderTabuCounter;
+    window.updateHeaderTabuCounter = function() {
+      if (typeof originalUpdateTabuCounter === 'function') {
+        originalUpdateTabuCounter();
+      }
+      var countEl = document.getElementById('session-tabu-counter');
+      var mobCountEl = document.getElementById('session-tabu-counter-mobile');
+      if (countEl && mobCountEl) {
+        mobCountEl.innerText = countEl.innerText;
+      }
+    };
+  </script>
 
 </body>
 </html>
