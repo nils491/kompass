@@ -498,14 +498,17 @@
     }
 
     if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
-      showToast("⏳ Trete Paar-Raum bei...");
+      showToast("⏳ Lade Paar-Daten aus der Cloud...");
       try {
         await window.CloudSync.joinRoom(code, role);
+        if (typeof window.loadCoreData === 'function') window.loadCoreData();
         if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
         updateCloudSyncUI();
-        showToast("Erfolgreich gekoppelt als Partner " + role + " ✓");
+        if (typeof window.updateHubUI === 'function') window.updateHubUI();
+        closeCloudSyncModal();
+        showToast("✓ Erfolgreich synchronisiert als Partner " + role + "!");
       } catch (e) {
-        showToast("⚠️ Fehler beim Koppeln: " + e.message);
+        showToast("⚠️ " + e.message);
       }
     }
   }
@@ -515,13 +518,14 @@
       ? window.CloudSync.getState()
       : {};
     var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
+    var objId = state.objectId || localStorage.getItem('kompass_sync_remote_id') || '';
     if (!code) {
       showToast("Erstelle zuerst einen Paar-Code.");
       return;
     }
 
     var base = window.location.href.split('?')[0].split('#')[0];
-    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + "&role=B";
+    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=B";
     var text = "Hier ist unser sicherer Schlüssel für den Kink- & Beziehungs-Kompass:\n" + inviteUrl;
 
     if (navigator.share) {
@@ -540,8 +544,9 @@
       ? window.CloudSync.getState()
       : {};
     var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
+    var objId = state.objectId || localStorage.getItem('kompass_sync_remote_id') || '';
     var base = window.location.href.split('?')[0].split('#')[0];
-    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + "&role=B";
+    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=B";
 
     var temp = document.createElement('input');
     temp.value = inviteUrl;
@@ -555,8 +560,14 @@
   function handleManualSyncNow() {
     if (window.CloudSync && typeof window.CloudSync.pull === 'function') {
       showToast("⏳ Synchronisiere mit Cloud...");
-      window.CloudSync.pull().then(function() {
-        showToast("Synchronisation abgeschlossen ✓");
+      window.CloudSync.pull().then(function(success) {
+        if (success) {
+          if (typeof window.loadCoreData === 'function') window.loadCoreData();
+          if (typeof window.updateHubUI === 'function') window.updateHubUI();
+          showToast("Synchronisation erfolgreich abgeschlossen ✓");
+        } else {
+          showToast("Keine neuen Änderungen auf dem Server.");
+        }
       });
     }
   }
@@ -569,85 +580,22 @@
     }
   }
 
-  function openTabuModal() {
-    renderTabuModalList();
-    var m = document.getElementById('modal-tabus');
-    if (m) {
-      m.style.display = 'flex';
-      m.classList.remove('hidden');
-    }
-  }
-
-  function closeTabuModal() {
-    var m = document.getElementById('modal-tabus');
-    if (m) {
-      m.style.display = 'none';
-      m.classList.add('hidden');
-    }
-  }
-
-  function renderTabuModalList() {
-    var container = document.getElementById('tabu-modal-list');
-    if (!container) return;
-
-    var allChapters = window.surveyChapters || [];
-    var answers = window.answers || { A: {}, B: {} };
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-
-    var tabus = [];
-    allChapters.forEach(function(ch) {
-      (ch.items || []).forEach(function(it) {
-        if (it.type !== 'choice') {
-          if (answers.A && answers.A['it_' + it.id + '_r1'] === 1) tabus.push({ item: it, user: 'A', name: names.A, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (answers.A && answers.A['it_' + it.id + '_r2'] === 1) tabus.push({ item: it, user: 'A', name: names.A, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
-          if (answers.B && answers.B['it_' + it.id + '_r1'] === 1) tabus.push({ item: it, user: 'B', name: names.B, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (answers.B && answers.B['it_' + it.id + '_r2'] === 1) tabus.push({ item: it, user: 'B', name: names.B, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
-        }
-      });
-    });
-
-    if (tabus.length === 0) {
-      container.innerHTML = '<p class="text-slate-400 italic text-center py-6 text-xs">Aktuell sind keine Note-1-Tabus eingetragen.</p>';
-      return;
-    }
-
-    container.innerHTML = tabus.map(function(t) {
-      return `
-        <button type="button" onclick="handleTabuItemClick(${t.item.id}, '${t.user}')" class="w-full p-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-500 transition text-left group block touch-btn cursor-pointer">
-          <div class="flex items-center justify-between">
-            <span class="text-white block font-bold text-xs group-hover:text-rose-200">${escapeHtml(t.item.title)}</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
-          </div>
-          <div class="flex items-center justify-between text-[10px] text-rose-300 mt-1">
-            <span>${escapeHtml(t.role)}</span>
-            <span class="font-mono text-slate-400">Gesetzt von: ${escapeHtml(t.name)}</span>
-          </div>
-        </button>
-      `;
-    }).join('');
-  }
-
-  function handleTabuItemClick(itemId, user) {
-    closeTabuModal();
-    if (typeof window.setCurrentUser === 'function') {
-      window.setCurrentUser(user);
-    }
-    if (typeof window.goToSurveyItem === 'function') {
-      window.goToSurveyItem(itemId);
-    }
-  }
-
   function checkUrlForAutoPairing() {
     try {
       var params = new URLSearchParams(window.location.search);
       var pairCode = params.get('pair');
+      var objId = params.get('id');
       var role = params.get('role') || 'B';
 
       if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
-        window.CloudSync.joinRoom(pairCode, role).then(function() {
+        window.CloudSync.joinRoom(pairCode, role, objId).then(function() {
+          if (typeof window.loadCoreData === 'function') window.loadCoreData();
           if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
           updateCloudSyncUI();
+          if (typeof window.updateHubUI === 'function') window.updateHubUI();
           showToast("Automatisch gekoppelt mit Paar-Code: " + pairCode);
+        }).catch(function(e) {
+          showToast("⚠️ " + e.message);
         });
       }
     } catch (e) {}
