@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
@@ -87,46 +87,44 @@
 
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <div onclick="switchMainView('hub')" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
+        <a href="#view=hub" onclick="switchMainView('hub')" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-900 via-brand-700 to-rose-500 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
           <div class="truncate">
-            <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Kink- & Beziehungs-Kompass</h1>
-              <span id="hub-ai-badge" class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">KI AKTIV</span>
-            </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-pair-names">Partner 1 & Partner 2</span>
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Kink- & Beziehungs-Kompass</h1>
+            <span id="header-pair-names" class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5">Partner 1 & Partner 2</span>
           </div>
-        </div>
+        </a>
 
-        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <!-- CLOUD SYNC STATUS -->
-          <button type="button" onclick="openCloudSyncModal()" id="btn-header-cloud-sync" class="px-2 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs flex items-center gap-1.5 transition touch-btn cursor-pointer" title="Cloud-Synchronisation öffnen">
+        <!-- QUICK ACTIONS OBERE RECHTE ECKE -->
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <!-- CLOUD SYNC STATUS ICON -->
+          <button type="button" onclick="openCloudSyncModal()" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs flex items-center gap-1.5 touch-btn" title="Cloud-Kopplung öffnen">
             <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-            <span id="cloud-sync-status-text" class="hidden sm:inline text-[10.5px] text-slate-400">Lokal</span>
+            <span id="cloud-sync-status-text" class="text-[10px] font-mono text-slate-300 font-bold">Lokal</span>
           </button>
 
-          <!-- TABU COUNTER -->
-          <button type="button" onclick="openTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn cursor-pointer" title="Tabu-Charta anzeigen">
+          <!-- TABU ZÄHLER -->
+          <button type="button" onclick="openTabuModal()" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Gemeinsame Tabu-Charta öffnen">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
             <span id="header-tabu-count">0</span>
           </button>
 
-          <!-- USER TOGGLE -->
+          <!-- PARTNER TOGGLE -->
           <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-xs">
-            <button type="button" onclick="setCurrentUser('A')" id="btn-user-A" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn">
+            <button type="button" id="btn-user-A" onclick="setCurrentUser('A')" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn">
               <span id="user-display-A">Partner 1</span>
             </button>
-            <button type="button" onclick="setCurrentUser('B')" id="btn-user-B" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">
+            <button type="button" id="btn-user-B" onclick="setCurrentUser('B')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">
               <span id="user-display-B">Partner 2</span>
             </button>
           </div>
 
-          <!-- SETTINGS -->
-          <button type="button" onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn cursor-pointer" title="Einstellungen">
+          <!-- EINSTELLUNGEN -->
+          <button type="button" onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn" title="Konto & Einstellungen">
             ⚙️
           </button>
         </div>
@@ -134,7 +132,7 @@
 
       <!-- MAIN NAVIGATION -->
       <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
-        <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
+        <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </button>
         <button type="button" onclick="switchMainView('survey')" id="nav-btn-survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
@@ -150,335 +148,266 @@
           <span>Paar-Analyse</span>
         </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Regie</span>
+          <span>Regie 🕯️</span>
         </a>
       </nav>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER -->
-  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
+  <!-- HAUPTINHALT -->
+  <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
-    <!-- VIEW 1: START-HUB -->
+    <!-- 1. VIEW: START-HUB -->
     <section id="view-hub" class="space-y-4 animate-fade-in">
-      <!-- HERO -->
       <div class="theme-card rounded-3xl p-5 sm:p-7 border border-brand-900/50 shadow-2xl relative overflow-hidden bg-gradient-to-br from-brand-950/40 via-noir-900 to-purple-950/20">
-        <div class="max-w-2xl space-y-2">
+        <div class="max-w-xl space-y-2">
           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block">
-            Start-Zentrale & Übersicht
+            Start-Hub & Navigation
           </span>
           <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">
-            Euer geschützter Raum für Begehren, Vertrauen & Spiel.
+            Eure intime Entdeckungsreise
           </h2>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Füllt den Fragebogen unabhängig voneinander aus. Das System schützt persönliche Grenzen (Note 1) absolut und deckt Schnittmengen erst bei gegenseitiger Freigabe auf.
+            Beantwortet unabhängig voneinander den Fragebogen, stimmt euren Sicherheits-Kodex ab und erforscht eure beiderseitigen Schnittmengen in der Schlafzimmer-Regie.
           </p>
         </div>
       </div>
 
-      <!-- KACHEL-GRID -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-        <!-- 01 FRAGEBOGEN -->
-        <div onclick="switchMainView('survey')" class="p-4 rounded-3xl theme-card border hover:border-brand-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-brand-950 border border-brand-800 text-brand-300 flex items-center justify-center font-bold text-base">📝</span>
-            <span id="hub-survey-pct-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-950 text-brand-300 border border-brand-800">0 %</span>
+      <!-- KACHELN GRID -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+        
+        <!-- KACHEL 1: FRAGEBOGEN -->
+        <button type="button" onclick="switchMainView('survey')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-brand-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">📋</span>
+            <span id="hub-survey-pct-badge" class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800">0 %</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">01. Fragebogen</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">36 Kapitel durcharbeiten: Von Romantik über Shibari bis Trance.</p>
-          </div>
-          <span class="text-[10px] text-brand-400 font-bold block pt-1 border-t border-slate-800">Jetzt beantworten →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-brand-300">1. Der Fragebogen</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">36 strukturierte Kapitel von Romantik bis BDSM mit Noten von 0 bis 5.</p>
+        </button>
 
-        <!-- 02 SICHERHEITS-KODEX -->
-        <div onclick="switchMainView('safety')" class="p-4 rounded-3xl theme-card border hover:border-teal-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-teal-950 border border-teal-800 text-teal-300 flex items-center justify-center font-bold text-base">🛡️</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-300 border border-teal-800">6 Module</span>
+        <!-- KACHEL 2: SICHERHEITS-KODEX -->
+        <button type="button" onclick="switchMainView('safety')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-teal-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">🛡️</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-teal-950 text-teal-300 border border-teal-800">6 Module</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">02. Sicherheits-Kodex</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Safewords, Cutter-Standort, Drop-Tuch und 24h-Check-in vereinbaren.</p>
-          </div>
-          <span class="text-[10px] text-teal-400 font-bold block pt-1 border-t border-slate-800">Vereinbarung treffen →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-teal-300">2. Sicherheits-Kodex</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Notfall-Werkzeug, Safewords, Knebelsignale und 24h-Aftercare abstimmen.</p>
+        </button>
 
-        <!-- 03 MEIN PROFIL -->
-        <div onclick="switchMainView('single')" class="p-4 rounded-3xl theme-card border hover:border-indigo-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-indigo-950 border border-indigo-800 text-indigo-300 flex items-center justify-center font-bold text-base">👤</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">Radar & KI</span>
+        <!-- KACHEL 3: MEIN PROFIL -->
+        <button type="button" onclick="switchMainView('single')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">🔮</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Radar & KI</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">03. Mein Profil</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Archetypen-Radar, 5 Säulen und tiefenpsychologisches Einzelgutachten.</p>
-          </div>
-          <span class="text-[10px] text-indigo-400 font-bold block pt-1 border-t border-slate-800">Profil ansehen →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">3. Mein Profil</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Archetypen-Radar, 5 Motivationssäulen und persönliches KI-Einzelgutachten.</p>
+        </button>
 
-        <!-- 04 PAAR-ANALYSE -->
-        <a href="analyse.html" class="p-4 rounded-3xl theme-card border hover:border-amber-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-amber-950 border border-amber-800 text-amber-300 flex items-center justify-center font-bold text-base">💫</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">Synergie</span>
+        <!-- KACHEL 4: PAAR-ANALYSE -->
+        <a href="analyse.html" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-amber-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">💫</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800">Doppel-5er</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">04. Paar-Analyse</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Doppel-5er, Brückenbau-Chancen und schamfreie Paargutachten.</p>
-          </div>
-          <span class="text-[10px] text-amber-400 font-bold block pt-1 border-t border-slate-800">Analyse öffnen →</span>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">4. Paar-Analyse</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Beiderseitige Volltreffer, Brücken und schamfreies KI-Paargutachten.</p>
         </a>
 
-        <!-- 05 REGIE -->
-        <a href="session.html" class="p-4 rounded-3xl theme-card border hover:border-rose-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-rose-950 border border-rose-800 text-rose-300 flex items-center justify-center font-bold text-base">🕯️</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">Live</span>
+        <!-- KACHEL 5: SCHLAFZIMMER-REGIE -->
+        <a href="session.html" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-rose-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">🕯️</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800">Cockpit</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">05. Schlafzimmer-Regie</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">4-Phasen-Drehbuch, Edging-Remote, Soundscapes und Bestrafung.</p>
-          </div>
-          <span class="text-[10px] text-rose-400 font-bold block pt-1 border-t border-slate-800">Regiepult starten →</span>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-rose-300">5. Schlafzimmer-Regie</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Live-Drehbuch, Edging-Remote, Soundscapes und Bestrafungswizard.</p>
         </a>
 
-        <!-- 06 UNSER SCHRANK -->
-        <div onclick="openToyManagementModal()" class="p-4 rounded-3xl theme-card border hover:border-purple-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base">🧰</span>
-            <span id="hub-toy-count-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800">0 Toys</span>
+        <!-- KACHEL 6: UNSER SCHRANK -->
+        <button type="button" onclick="openToyManagementModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">🧰</span>
+            <span id="hub-toy-count-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">0 Toys</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">06. Unser Schrank</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Inventar verwalten: Die Regie nutzt nur im Schrank aktivierte Gegenstände.</p>
-          </div>
-          <span class="text-[10px] text-purple-400 font-bold block pt-1 border-t border-slate-800">Inventar anpassen →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">6. Unser Schrank</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Vorhandene Ausrüstung, Spielzeuge und Haushaltsmittel verwalten.</p>
+        </button>
 
-        <!-- 07 CLOUD SYNC -->
-        <div onclick="openCloudSyncModal()" class="p-4 rounded-3xl theme-card border hover:border-emerald-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-emerald-950 border border-emerald-800 text-emerald-300 flex items-center justify-center font-bold text-base">☁️</span>
-            <span id="hub-sync-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800">Lokal</span>
+        <!-- KACHEL 7: MULTI-DEVICE KOPPLUNG -->
+        <button type="button" onclick="openCloudSyncModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-emerald-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">☁️</span>
+            <span id="hub-sync-status-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">Lokal</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">07. Cloud & Kopplung</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Zwei Smartphones verschlüsselt verbinden (AES-GCM 256-Bit).</p>
-          </div>
-          <span class="text-[10px] text-emerald-400 font-bold block pt-1 border-t border-slate-800">Kopplung öffnen →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-emerald-300">7. Geräte koppeln</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Verschlüsselter Paar-Code (E2EE) für die Nutzung auf zwei Smartphones.</p>
+        </button>
 
-        <!-- 08 RECHERCHE -->
-        <div onclick="KinkResearch.open()" class="p-4 rounded-3xl theme-card border hover:border-purple-500/60 transition-all cursor-pointer touch-btn flex flex-col justify-between space-y-3 shadow-md">
-          <div class="flex items-start justify-between">
-            <span class="w-10 h-10 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base">🔍</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">Live-KI</span>
+        <!-- KACHEL 8: KI-KINK-RECHERCHE -->
+        <button type="button" onclick="openLexikonModal()" id="hub-tile-ai" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">🔍</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Gemini Live</span>
           </div>
-          <div>
-            <strong class="text-sm font-extrabold text-white block">08. KI-Kink-Recherche</strong>
-            <p class="text-[11px] text-slate-400 mt-0.5">Schamfreie Definitionen, Top/Bottom-Psychologie & Sicherheitsregeln.</p>
-          </div>
-          <span class="text-[10px] text-purple-400 font-bold block pt-1 border-t border-slate-800">Begriff nachschlagen →</span>
-        </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">8. Kink-Recherche</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Schamfreie Sofort-Analyse von Praktiken, Reizen und Sicherheitsregeln.</p>
+        </button>
       </div>
     </section>
 
-    <!-- VIEW 2: FRAGEBOGEN -->
+    <!-- 2. VIEW: FRAGEBOGEN -->
     <section id="view-survey" class="hidden space-y-4 animate-fade-in">
-      <!-- HEADER & FILTER -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 flex-wrap gap-2">
-          <div>
-            <div class="flex items-center gap-2">
-              <span id="chapter-badge" onclick="SurveyEngine.toggleQuickGrid()" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 cursor-pointer touch-btn">
-                Kapitel 0 ▾
-              </span>
-              <span id="chapter-items-count" class="text-[10px] font-mono text-slate-400">0 Praktiken</span>
-            </div>
-            <h2 id="chapter-title" class="text-base sm:text-lg font-black text-white mt-1">Lade Kapitel...</h2>
-            <p id="chapter-desc" class="text-xs text-slate-400 mt-0.5 leading-snug">Beschreibung...</p>
-          </div>
-
-          <div class="flex items-center gap-1.5 flex-shrink-0">
-            <button type="button" onclick="SurveyEngine.prevChapter()" id="btn-prev-chapter" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 hover:text-white font-bold text-xs touch-btn">
-              ← Zurück
-            </button>
-            <button type="button" onclick="SurveyEngine.nextChapter()" id="btn-next-chapter-bottom" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs shadow-md touch-btn">
-              Weiter →
-            </button>
+      
+      <!-- STICKY SURVEY HEADER -->
+      <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-md space-y-3">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <button type="button" onclick="toggleChapterQuickGrid()" class="text-xs font-black text-brand-300 hover:text-brand-200 transition flex items-center gap-1.5 touch-btn">
+            <span id="chapter-badge">Kapitel 0 / 35 ▾</span>
+          </button>
+          
+          <!-- SCOPE TOGGLE: KAPITEL VS. GLOBAL -->
+          <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[11px]">
+            <button type="button" id="scope-btn-chapter" onclick="setSurveyScope('chapter')" class="px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn">Kapitel</button>
+            <button type="button" id="scope-btn-global" onclick="setSurveyScope('global')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">Global (Alle 36)</button>
           </div>
         </div>
 
-        <!-- QUICK JUMP GRID -->
-        <div id="chapter-quick-grid" class="hidden p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-            <strong>Direktsprung zu Kapitel (0 bis 35):</strong>
-            <button type="button" onclick="SurveyEngine.toggleQuickGrid()" class="text-slate-400 hover:text-white font-bold">✕ Schließen</button>
-          </div>
-          <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-60 overflow-y-auto pr-1"></div>
-        </div>
-
-        <!-- SCOPE & FILTER BUTTONS -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800 text-xs">
-          <!-- SCOPE TOGGLE -->
-          <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[10.5px]">
-            <button type="button" onclick="SurveyEngine.setScope('chapter')" id="scope-btn-chapter" class="px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn">
-              Kapitel
-            </button>
-            <button type="button" onclick="SurveyEngine.setScope('global')" id="scope-btn-global" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">
-              🌍 Global (Alle 36)
-            </button>
-          </div>
-
-          <!-- KRITERIEN FILTER -->
-          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-            <button type="button" onclick="SurveyEngine.setFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">Alle</button>
-            <button type="button" onclick="SurveyEngine.setFilter('unanswered')" id="filter-btn-unanswered" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Unbeantwortet</button>
-            <button type="button" onclick="SurveyEngine.setFilter('high')" id="filter-btn-high" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Favoriten (4–5)</button>
-            <button type="button" onclick="SurveyEngine.setFilter('tabu')" id="filter-btn-tabu" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-rose-300 touch-btn whitespace-nowrap">Tabus (1)</button>
-            <button type="button" onclick="SurveyEngine.setFilter('shame')" id="filter-btn-shame" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-indigo-300 touch-btn whitespace-nowrap">Hemmschwelle (3)</button>
-          </div>
+        <div>
+          <h2 id="chapter-title" class="text-base sm:text-lg font-black text-white leading-tight">Lade Kapitel...</h2>
+          <p id="chapter-desc" class="text-xs text-slate-300 mt-0.5 leading-snug">Beschreibung des Kapitels...</p>
         </div>
 
         <!-- PROGRESS BAR -->
-        <div class="space-y-1 pt-1">
+        <div class="space-y-1">
           <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-            <span>Gesamtfortschritt des Profils:</span>
-            <span id="progress-text" class="text-brand-300 font-bold">0 %</span>
+            <span>Gesamtfortschritt</span>
+            <span id="progress-text">0 %</span>
           </div>
-          <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-            <div id="progress-bar-fill" class="h-full bg-brand-600 transition-all duration-300" style="width: 0%;"></div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-brand-600 to-rose-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
           </div>
+        </div>
+
+        <!-- FILTER BUTTONS -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+          <button type="button" id="filter-btn-all" onclick="setSurveyFilter('all')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">Alle</button>
+          <button type="button" id="filter-btn-unanswered" onclick="setSurveyFilter('unanswered')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Offen</button>
+          <button type="button" id="filter-btn-high" onclick="setSurveyFilter('high')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Favoriten (4–5)</button>
+          <button type="button" id="filter-btn-tabu" onclick="setSurveyFilter('tabu')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Tabus (1)</button>
+          <button type="button" id="filter-btn-shame" onclick="setSurveyFilter('shame')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Hemmschwelle (3)</button>
+        </div>
+
+        <!-- KAPITEL SCHNELLSPRUNG-GRID (AUFKLAPPBAR) -->
+        <div id="chapter-quick-grid" class="hidden pt-2 border-t border-slate-800 animate-fade-in">
+          <div class="flex items-center justify-between mb-2">
+            <strong class="text-xs text-white">Direktsprung zu Kapitel:</strong>
+            <button type="button" onclick="toggleChapterQuickGrid()" class="text-xs text-slate-400 hover:text-white">✕ Schließen</button>
+          </div>
+          <div id="quick-grid-buttons" class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-60 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
       <!-- FRAGEN CONTAINER -->
       <div id="survey-items-container" class="space-y-3"></div>
+
+      <!-- BOTTOM NAVIGATION -->
+      <div class="flex items-center justify-between pt-2">
+        <button type="button" id="btn-prev-chapter" onclick="prevChapter()" class="px-4 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">← Vorheriges Kapitel</button>
+        <span id="chapter-items-count" class="text-xs text-slate-500 font-mono">0 Praktiken</span>
+        <button type="button" id="btn-next-chapter-bottom" onclick="nextChapter()" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn shadow-md">Nächstes Kapitel →</button>
+      </div>
     </section>
 
-    <!-- VIEW 3: SICHERHEITS-KODEX -->
+    <!-- 3. VIEW: SICHERHEITS-KODEX -->
     <section id="view-safety" class="hidden space-y-4 animate-fade-in">
-      <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
+      <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-teal-950 text-teal-300 border border-teal-800 inline-block">
-          Konsens & Risiko-Management
+          Sicherheits-Kodex & Einvernehmlichkeit
         </span>
-        <h2 class="text-base sm:text-lg font-black text-white">Der gemeinsame Sicherheits-Kodex</h2>
+        <h2 class="text-base sm:text-lg font-black text-white">Gemeinsame Sicherheits-Vereinbarung</h2>
         <p class="text-xs text-slate-300 leading-relaxed">
-          Beide Partner wählen hier unabhängig voneinander ihre bevorzugten Sicherheitswerkzeuge. Stimmen eure Optionen überein, schaltet das System auf <strong class="text-teal-300">✓ Konsens</strong>.
+          Klickt die Optionen an, um eure gemeinsame Linie abzustimmen. Grün markiert, wo ihr euch einig seid; gelb warnt bei Abweichungen.
         </p>
       </div>
 
       <div id="safety-configurator-full-container" class="space-y-3"></div>
     </section>
 
-    <!-- VIEW 4: MEIN PROFIL -->
+    <!-- 4. VIEW: MEIN PROFIL -->
     <section id="view-single" class="hidden space-y-4 animate-fade-in">
-      <div id="single-empty-state" class="hidden theme-card rounded-3xl p-8 text-center space-y-3 border">
-        <span class="text-3xl block">👤</span>
-        <h3 class="text-sm font-bold text-white">Noch keine Profil-Daten vorhanden</h3>
-        <p class="text-xs text-slate-400">Beantworte zuerst Fragen im Fragebogen, um dein Profil zu berechnen.</p>
-        <button type="button" onclick="switchMainView('survey')" class="px-4 py-2 bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn">
-          Zum Fragebogen →
-        </button>
+      <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-950 text-purple-300 border border-purple-800 inline-block">
+          Persönliche Profil-Auswertung
+        </span>
+        <h2 class="text-base sm:text-lg font-black text-white">Profil von <span id="single-profile-name">Partner</span></h2>
+        <p class="text-xs text-slate-300">Erotische Archetypen, Säulen-Balance und wissenschaftliches KI-Gutachten.</p>
       </div>
 
+      <!-- EMPTY STATE -->
+      <div id="single-empty-state" class="hidden p-8 text-center space-y-3 theme-panel rounded-3xl border">
+        <span class="text-3xl block">📋</span>
+        <strong class="text-xs text-white block font-bold">Noch keine Bogen-Daten vorhanden</strong>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Beantworte zuerst einige Fragen im Fragebogen, um dein persönliches Radar und Gutachten zu sehen.</p>
+        <button type="button" onclick="switchMainView('survey')" class="px-4 py-2 bg-brand-700 text-white font-bold rounded-xl text-xs touch-btn">Zum Fragebogen →</button>
+      </div>
+
+      <!-- CONTENT STATE -->
       <div id="single-content-state" class="space-y-4">
-        <!-- HEADER -->
-        <div class="theme-card rounded-3xl p-5 border flex items-center justify-between shadow-md">
-          <div>
-            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Persönliche Auswertung für:</span>
-            <h2 id="single-profile-name" class="text-base sm:text-lg font-black text-white">Partner 1</h2>
+        
+        <!-- RADAR CHART CARD -->
+        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+          <strong class="text-xs text-white block font-bold">Erotisches Archetypen-Radar:</strong>
+          <div class="relative w-full h-64 sm:h-72">
+            <canvas id="singleRadarChart"></canvas>
           </div>
-          <span class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
-            Psychologisches Profil
-          </span>
         </div>
 
-        <!-- RADAR & SÄULEN -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- RADAR -->
-          <div class="theme-card rounded-3xl p-4 sm:p-5 border space-y-2 shadow-md">
-            <strong class="text-xs text-white block">Erotisches Archetypen-Radar:</strong>
-            <div class="relative h-64 sm:h-72 w-full flex items-center justify-center">
-              <canvas id="singleRadarChart"></canvas>
-            </div>
-          </div>
-
-          <!-- 5 SÄULEN -->
-          <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md text-xs">
-            <strong class="text-xs text-white block">Psychologische 5-Säulen-Balance:</strong>
-
-            <!-- MACHT -->
+        <!-- 5 MOTIVATIONS-SÄULEN -->
+        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+          <strong class="text-xs text-white block font-bold">Psychologische 5-Säulen-Balance:</strong>
+          <div class="space-y-2 text-xs">
             <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-slate-300 font-bold">
-                <span>Macht & Hingabe (D/s)</span>
-                <span id="bar-val-power" class="text-brand-300 font-mono">0 %</span>
-              </div>
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-fill-power" class="h-full bg-brand-500 transition-all duration-300" style="width: 0%;"></div>
-              </div>
+              <div class="flex justify-between text-[11px]"><span class="text-brand-300 font-bold">1. Macht & Führung (D/s):</span><span id="bar-val-power" class="font-mono">0 %</span></div>
+              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden"><div id="bar-fill-power" class="h-full bg-brand-600 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
             </div>
-
-            <!-- SENSORIK -->
             <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-slate-300 font-bold">
-                <span>Sensorik & Schmerz (Impact/Seile)</span>
-                <span id="bar-val-sensation" class="text-purple-300 font-mono">0 %</span>
-              </div>
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-fill-sensation" class="h-full bg-purple-500 transition-all duration-300" style="width: 0%;"></div>
-              </div>
+              <div class="flex justify-between text-[11px]"><span class="text-amber-300 font-bold">2. Somatik & Sensorik (Impact/Seil):</span><span id="bar-val-sensation" class="font-mono">0 %</span></div>
+              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden"><div id="bar-fill-sensation" class="h-full bg-amber-600 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
             </div>
-
-            <!-- FÜRSORGE -->
             <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-slate-300 font-bold">
-                <span>Fürsorge & Geborgenheit (Care)</span>
-                <span id="bar-val-nurturing" class="text-teal-300 font-mono">0 %</span>
-              </div>
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-fill-nurturing" class="h-full bg-teal-500 transition-all duration-300" style="width: 0%;"></div>
-              </div>
+              <div class="flex justify-between text-[11px]"><span class="text-teal-300 font-bold">3. Fürsorge & Geborgenheit:</span><span id="bar-val-nurturing" class="font-mono">0 %</span></div>
+              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden"><div id="bar-fill-nurturing" class="h-full bg-teal-600 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
             </div>
-
-            <!-- TABUBRUCH -->
             <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-slate-300 font-bold">
-                <span>Tabubruch & Mentaler Kick (Thrill)</span>
-                <span id="bar-val-thrill" class="text-amber-300 font-mono">0 %</span>
-              </div>
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-fill-thrill" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%;"></div>
-              </div>
+              <div class="flex justify-between text-[11px]"><span class="text-pink-300 font-bold">4. Tabubruch & Thrill:</span><span id="bar-val-thrill" class="font-mono">0 %</span></div>
+              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden"><div id="bar-fill-thrill" class="h-full bg-pink-600 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
             </div>
-
-            <!-- VISUELL -->
             <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-slate-300 font-bold">
-                <span>Visuelle Reize & Kleidung (Fetisch)</span>
-                <span id="bar-val-visual" class="text-pink-300 font-mono">0 %</span>
-              </div>
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-fill-visual" class="h-full bg-pink-500 transition-all duration-300" style="width: 0%;"></div>
-              </div>
+              <div class="flex justify-between text-[11px]"><span class="text-indigo-300 font-bold">5. Visuelle & Fetisch-Reize:</span><span id="bar-val-visual" class="font-mono">0 %</span></div>
+              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden"><div id="bar-fill-visual" class="h-full bg-indigo-600 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
             </div>
           </div>
         </div>
 
-        <!-- HIGH-PRIO & TABUS LISTE -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <!-- FAVORITEN & TABUS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
-            <strong class="text-xs text-white block">⭐ Höchste Leidenschaften (Note 5):</strong>
-            <div id="single-high-prio-list" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+            <strong class="text-xs text-brand-300 block font-bold">Höchste Leidenschaften (Note 5):</strong>
+            <div id="single-high-prio-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
           </div>
           <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
-            <strong class="text-xs text-rose-300 block">⛔ Absolute Grenzen & Tabus (Note 1):</strong>
-            <div id="single-tabus-list" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+            <strong class="text-xs text-rose-300 block font-bold">Grenzen & Tabus (Note 1):</strong>
+            <div id="single-tabus-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
           </div>
         </div>
 
-        <!-- KI-EINZELGUTACHTEN -->
+        <!-- SCHAM-THEMEN CONTAINER -->
+        <div id="single-shame-box-container"></div>
+
+        <!-- GEMINI EINZELGUTACHTEN -->
         <div id="single-interpretation-box"></div>
       </div>
     </section>
@@ -487,104 +416,171 @@
 
   <!-- MODALS -->
 
-  <!-- MODAL: CLOUD SYNC & PAAR-KOPPLUNG -->
-  <div id="modal-cloud-sync" style="display: none;" onclick="if(event.target===this) closeCloudSyncModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-emerald-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-emerald-900/60 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 flex items-center justify-center font-bold text-base">☁️</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Multi-Device Cloud-Kopplung</h3>
-            <p class="text-[10px] text-emerald-300" id="cloud-sync-state-label">Ende-zu-Ende verschlüsselt (AES-GCM 256)</p>
+  <!-- MODAL: KONTO & EINSTELLUNGEN -->
+  <div id="modal-account" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
+        <button type="button" onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- RUFNAME -->
+        <div>
+          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Dein Rufname:</label>
+          <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" placeholder="z. B. Alex..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
+        </div>
+
+        <!-- ANATOMIE -->
+        <div>
+          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Deine Anatomie:</label>
+          <div class="flex gap-2">
+            <button type="button" id="acc-anat-my-penis" onclick="selectAccountAnatomy('A', 'penis')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">🍆 Penis</button>
+            <button type="button" id="acc-anat-my-vulva" onclick="selectAccountAnatomy('A', 'vulva')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">🌸 Vulva</button>
           </div>
         </div>
-        <button type="button" onclick="closeCloudSyncModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
 
-      <!-- STATUS: NICHT GEKOPPELT -->
-      <div id="cloud-sync-setup-panel" class="space-y-3">
-        <p class="text-[11px] text-slate-300 leading-relaxed">
-          Verbindet eure beiden Smartphones. Antworten und Einstellungen fließen automatisch zusammen, ohne dass Dritte oder Server sie im Klartext mitlesen können.
-        </p>
-
-        <div class="p-3.5 rounded-2xl bg-emerald-950/20 border border-emerald-800/60 space-y-2">
-          <strong class="text-white block text-xs">Option A: Neuen Paar-Raum erstellen</strong>
-          <p class="text-[10.5px] text-slate-400">Erzeugt einen sicheren 6-stelligen Paar-Code für euch zwei.</p>
-          <button type="button" onclick="handleCreatePairRoom()" id="btn-create-pair-room" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            ✨ Paar-Code jetzt erstellen
-          </button>
-        </div>
-
-        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2">
-          <strong class="text-white block text-xs">Option B: Mit bestehendem Paar-Code beitreten</strong>
-          <input type="text" id="input-pair-code" placeholder="z. B. KOMPASS-842" class="w-full text-center tracking-widest font-mono text-sm p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white uppercase">
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button type="button" onclick="handleJoinPairRoom('A')" class="py-2 rounded-xl theme-panel border text-slate-200 font-bold text-xs touch-btn">
-              Als Partner 1
+        <!-- FREIGABESTUFE -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-[10.5px] font-bold text-slate-300 block">Deine Freigabestufe:</label>
+            <span id="account-sharing-badge" class="text-[9.5px] font-mono text-brand-300 font-bold">Stufe 4</span>
+          </div>
+          <div class="grid grid-cols-1 gap-1.5">
+            <button type="button" id="btn-share-level-1" onclick="selectAccountSharingLevel(1)" class="w-full p-2.5 rounded-xl border text-left touch-btn theme-panel">
+              <strong class="text-xs text-white block">1. Streng (Doppel-Opt-In)</strong>
+              <span class="text-[10px] text-slate-400 block">Nur übereinstimmende 4er & 5er sichtbar. Maximale Privatsphäre.</span>
             </button>
-            <button type="button" onclick="handleJoinPairRoom('B')" class="py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn shadow-md">
-              Als Partner 2
+            <button type="button" id="btn-share-level-2" onclick="selectAccountSharingLevel(2)" class="w-full p-2.5 rounded-xl border text-left touch-btn theme-panel">
+              <strong class="text-xs text-white block">2. Bis Neugier (Note 3–5)</strong>
+              <span class="text-[10px] text-slate-400 block">Zeigt Brücken, wenn dein Partner eine 5 vergibt und du Neugier (3) hast.</span>
+            </button>
+            <button type="button" id="btn-share-level-3" onclick="selectAccountSharingLevel(3)" class="w-full p-2.5 rounded-xl border text-left touch-btn theme-panel">
+              <strong class="text-xs text-white block">3. Bis Duldung (Note 2–5)</strong>
+              <span class="text-[10px] text-slate-400 block">Macht auch Duldung (2) als Brücke sichtbar.</span>
+            </button>
+            <button type="button" id="btn-share-level-4" onclick="selectAccountSharingLevel(4)" class="w-full p-2.5 rounded-xl border text-left touch-btn bg-brand-950/60 border-brand-500 shadow-md">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs text-white block">4. Radikale Transparenz</strong>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-900 text-brand-200 font-bold">Empfohlen ★</span>
+              </div>
+              <span class="text-[10px] text-slate-300 block">Offenes Buch: Zeigt alle Bewertungen (1–5) für lückenlose Synergie.</span>
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- STATUS: BEREITS GEKOPPELT -->
-      <div id="cloud-sync-active-panel" class="hidden space-y-3">
-        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-600/60 space-y-2 text-center">
-          <span class="text-2xl block">🔒</span>
-          <span class="text-[10px] text-emerald-300 uppercase tracking-wider font-bold block">Euer gemeinsamer Paar-Code:</span>
-          <div id="active-pair-code-display" class="text-2xl font-black font-mono tracking-widest text-white">KOMPASS-000</div>
-          <p class="text-[10.5px] text-slate-300">Dieser Code schützt eure 256-Bit-Verschlüsselung. Alle Änderungen werden automatisch synchronisiert.</p>
+        <!-- GEMINI API KEY -->
+        <div>
+          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Eigener Gemini API-Key (optional):</label>
+          <div class="flex gap-2">
+            <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="Standard-Key aktiv..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
+            <button type="button" onclick="testGeminiKeyInAccount()" class="px-3 py-2 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn flex-shrink-0">Testen</button>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button type="button" onclick="handleShareInviteLink()" class="py-2.5 px-3 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 touch-btn shadow-md">
-            <span>📤</span><span>Link teilen (WhatsApp etc.)</span>
-          </button>
-          <button type="button" onclick="handleCopyInviteLink()" class="py-2.5 px-3 rounded-xl theme-panel border text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 touch-btn">
-            <span>📋</span><span>Link kopieren</span>
-          </button>
+        <!-- FARBSCHEMA TOGGLE -->
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+          <span class="text-slate-300 font-bold text-xs">Farbschema (Dark/Light):</span>
+          <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">☀️ / 🌙 Wechseln</button>
         </div>
 
-        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-          <button type="button" onclick="handleManualSyncNow()" class="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs touch-btn">
-            🔄 Jetzt synchronisieren
-          </button>
-          <button type="button" onclick="handleDisconnectPairing()" class="text-rose-400 hover:text-rose-200 text-xs font-bold touch-btn">
-            Kopplung trennen
-          </button>
+        <!-- PROFIL LÖSCHEN MIT SICHERHEITSABFRAGE -->
+        <div class="pt-2 border-t border-rose-900/60">
+          <div id="reset-trigger-area">
+            <button type="button" onclick="showResetConfirmation()" class="w-full py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-300 font-bold text-xs touch-btn">
+              Profildaten löschen ⚠️
+            </button>
+          </div>
+          <div id="reset-confirmation-box" class="hidden p-3 rounded-2xl bg-rose-950/90 border border-rose-600 text-rose-200 space-y-2 animate-pulse">
+            <strong class="text-xs block text-rose-100 font-bold">Profil wirklich zurücksetzen?</strong>
+            <p class="text-[10.5px] text-slate-300">Alle Antworten von <span id="reset-current-username" class="font-bold text-white">Partner</span> werden unwiderruflich gelöscht.</p>
+            <div class="flex justify-end gap-2 pt-1 border-t border-rose-900">
+              <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold">Abbrechen</button>
+              <button type="button" onclick="resetCurrentUserProfile()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md">Ja, löschen</button>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeCloudSyncModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Schließen
-        </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) REDESIGNED -->
+  <!-- MODAL: CLOUD-KOPPLUNG -->
+  <div id="modal-cloud-sync" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">☁️</span>
+          <h3 class="text-sm font-extrabold text-white">Geräte synchronisieren (E2EE)</h3>
+        </div>
+        <button type="button" onclick="closeCloudSyncModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <!-- SETUP PANEL -->
+      <div id="cloud-sync-setup-panel" class="space-y-3">
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          Koppelt eure Smartphones über einen gemeinsamen Paar-Code. Alle Daten werden mit <strong>AES-GCM 256-Bit</strong> direkt auf euren Geräten verschlüsselt.
+        </p>
+
+        <div class="p-3.5 rounded-2xl bg-brand-950/40 border border-brand-800 space-y-2">
+          <strong class="text-xs text-brand-300 block font-bold">Option 1: Neuen Paar-Raum erstellen</strong>
+          <button type="button" onclick="handleCreatePairRoom()" class="w-full py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            ✨ Paar-Code generieren & Raum starten
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
+          <strong class="text-xs text-white block font-bold">Option 2: Vorhandenem Raum beitreten</strong>
+          <input type="text" id="input-pair-code" placeholder="z. B. KOMPASS-7X49..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono uppercase">
+          <div class="flex gap-2">
+            <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Als Partner 1</button>
+            <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-brand-950 border border-brand-700 text-brand-200 font-bold text-xs touch-btn">Als Partner 2</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE PANEL -->
+      <div id="cloud-sync-active-panel" class="hidden space-y-3">
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-700 text-center space-y-2">
+          <span class="text-emerald-400 font-bold text-xs block">✓ Verschlüsselter Paar-Raum aktiv</span>
+          <div id="active-pair-code-display" class="text-2xl font-black font-mono text-emerald-300 tracking-wider">KOMPASS-XXXX</div>
+          <p class="text-[10px] text-slate-400">Änderungen werden automatisch im Hintergrund synchronisiert.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="handleShareInviteLink()" class="py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs touch-btn shadow-md flex items-center justify-center gap-1.5">
+            <span>💬</span><span>WhatsApp Link</span>
+          </button>
+          <button type="button" onclick="handleCopyInviteLink()" class="py-2.5 px-3 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn flex items-center justify-center gap-1.5">
+            <span>📋</span><span>Link kopieren</span>
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+          <button type="button" onclick="handleManualSyncNow()" class="text-emerald-400 font-bold text-xs hover:underline">Jetzt synchronisieren ↺</button>
+          <button type="button" onclick="handleDisconnectPairing()" class="text-rose-400 font-bold text-xs hover:underline">Verbindung trennen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
   <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
       
-      <!-- 1. MODAL HEADER (FEST) -->
+      <!-- 1. MODAL HEADER -->
       <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base shadow-inner">🧰</div>
           <div>
             <h3 class="text-sm sm:text-base font-extrabold text-white">Unser Schrank (Toy-Verwaltung)</h3>
-            <p class="text-[10.5px] text-slate-400">Verwalte euer Inventar; die Regie greift nur auf aktivierte Gegenstände zu.</p>
+            <p class="text-[10.5px] text-slate-400">Gegenstände im Schrank aktivieren; nur diese stehen heute zur Auswahl.</p>
           </div>
         </div>
         <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- 2. STEUERUNG, SUCHE & FILTER (FEST AM OBEREN RAND) -->
+      <!-- 2. STEUERUNG & FILTER -->
       <div class="px-4 sm:px-6 py-3 border-b border-slate-800/80 space-y-2.5 flex-shrink-0 bg-slate-950/30">
-        
-        <!-- SUCHE & AKTIONEN -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
           <div class="relative flex-1 min-w-0">
             <input type="text" id="toy-search-input" oninput="HubToys.handleSearch(this.value)" placeholder="🔍 Gegenstand suchen..." class="w-full text-xs px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none">
@@ -599,7 +595,7 @@
           </div>
         </div>
 
-        <!-- FORMULAR: NEUES TOY ANLEGEN (MIT LIVE-AUTOABGLEICH) -->
+        <!-- FORMULAR: NEUES TOY ANLEGEN -->
         <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2.5 animate-fade-in">
           <div class="flex items-center justify-between border-b border-purple-900/50 pb-1.5">
             <strong class="text-xs text-purple-200 flex items-center gap-1.5">
@@ -613,10 +609,7 @@
               <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Name des Gegenstands:</label>
               <input type="text" id="input-new-toy-name" oninput="HubToys.checkToyNameMatch(this.value)" placeholder="z. B. Reitgerte, Holzklammern, Kaltwachskerzen, Seidenschal..." class="w-full text-xs p-2.5 bg-slate-900 border border-purple-800/80 rounded-xl text-white placeholder-slate-500 focus:border-purple-400 focus:outline-none">
             </div>
-
-            <!-- AUTOABGLEICH FEEDBACK BOX -->
             <div id="toy-match-feedback-box" class="hidden"></div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Kategorie:</label>
@@ -635,7 +628,6 @@
                 <input type="text" id="input-new-toy-desc" placeholder="z. B. Aus weichem Rindsleder, 45cm lang..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
               </div>
             </div>
-
             <div class="flex justify-end pt-1">
               <button type="button" onclick="HubToys.saveNewCustomToy()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs shadow-md transition">
                 Toy anlegen & aktivieren ✓
@@ -659,11 +651,10 @@
           </div>
         </div>
 
-        <!-- KATEGORIE-CHIPS -->
         <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <!-- 3. SCROLLBARES KARTEN-GRID -->
+      <!-- 3. SCROLLBARES GRID -->
       <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
         <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
@@ -680,175 +671,21 @@
     </div>
   </div>
 
-  <!-- MODAL: ACCOUNT & EINSTELLUNGEN -->
-  <div id="modal-account" style="display: none;" onclick="if(event.target===this) closeAccountModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Profil & Einstellungen</h3>
-          <p class="text-[10px] text-slate-400">Aktives Profil: <span id="account-active-username" class="text-brand-300 font-bold">Partner 1</span></p>
+  <!-- MODAL: ONBOARDING WIZARD -->
+  <div id="modal-onboarding" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border p-5 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">✨</span>
+          <h3 class="text-sm font-extrabold text-white">Willkommen im Kompass</h3>
         </div>
-        <button type="button" onclick="closeAccountModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+        <span id="onboard-step-badge" class="px-2 py-0.5 rounded text-[10px] font-mono text-brand-300 bg-brand-950 border border-brand-800 font-bold">Schritt 1 von 3</span>
       </div>
 
-      <div class="space-y-3">
-        <!-- NAME & MAIL -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div>
-            <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Dein Rufname:</label>
-            <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" placeholder="z. B. Alex..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          </div>
-          <div>
-            <label class="text-[10.5px] font-bold text-slate-300 block mb-1">E-Mail (für Backups):</label>
-            <input type="email" id="account-email-input" onchange="updateCurrentUserEmail(this.value)" placeholder="mail@beispiel.de" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          </div>
-        </div>
-
-        <!-- ANATOMIE DES AKTIVEN NUTZERS -->
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1.5">
-          <label class="text-[10.5px] font-bold text-slate-300 block">Deine Anatomie (wird auf deinem Gerät eingestellt):</label>
-          <div class="flex gap-2">
-            <button type="button" onclick="selectAccountAnatomy('me', 'penis')" id="acc-anat-my-penis" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">
-              🍆 Penis
-            </button>
-            <button type="button" onclick="selectAccountAnatomy('me', 'vulva')" id="acc-anat-my-vulva" class="flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">
-              🌸 Vulva
-            </button>
-          </div>
-        </div>
-
-        <!-- 4-STUFEN-FREIGABE -->
-        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between">
-            <strong class="text-white text-xs block">Deine persönliche Freigabestufe:</strong>
-            <span id="account-sharing-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Stufe 4 (Empfohlen)</span>
-          </div>
-          <p class="text-[10.5px] text-slate-400 leading-snug">
-            Bestimmt, wie weit deine Antworten für den Partner in der Analyse und im Bestrafungs-Wizard aufgedeckt werden dürfen.
-          </p>
-
-          <div class="space-y-1.5 pt-1">
-            <button type="button" onclick="selectAccountSharingLevel(1)" id="btn-share-level-1" class="w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
-              <strong class="text-xs block text-white">1. Nur Doppel-Matches (Strict Double-Opt-In)</strong>
-              <span class="text-[10px] text-slate-400 block mt-0.5">Maximaler Schamschutz: Nur wenn BEIDE eine 4 oder 5 vergeben haben.</span>
-            </button>
-            <button type="button" onclick="selectAccountSharingLevel(2)" id="btn-share-level-2" class="w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
-              <strong class="text-xs block text-white">2. Bis Neugier (Note 3–5)</strong>
-              <span class="text-[10px] text-slate-400 block mt-0.5">Deckt gemeinsame 5er auf und zeigt Brücken, bei denen Neugier besteht.</span>
-            </button>
-            <button type="button" onclick="selectAccountSharingLevel(3)" id="btn-share-level-3" class="w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
-              <strong class="text-xs block text-white">3. Buße & Duldung freigeben (Note 2–5)</strong>
-              <span class="text-[10px] text-slate-400 block mt-0.5">Partner sieht auch deine Note 2 („Duldung/Buße“).</span>
-            </button>
-            <button type="button" onclick="selectAccountSharingLevel(4)" id="btn-share-level-4" class="w-full p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md">
-              <strong class="text-xs block text-white">4. Radikale Transparenz (Alle Noten 1–5) [Empfohlen]</strong>
-              <span class="text-[10px] text-brand-200 block mt-0.5">Offenes Buch: Partner sieht jede Bewertung und jedes Tabu unzensiert für maximale Beziehungs-Synergie.</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- IPHONE ANLEITUNG -->
-        <div class="p-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-800/60 space-y-1.5 text-xs text-slate-300">
-          <strong class="text-indigo-200 block font-bold">📲 Als Vollbild-App auf dem iPhone speichern:</strong>
-          <ol class="list-decimal list-inside text-[10.5px] space-y-1 text-slate-400">
-            <li>Öffne diesen Kompass in <strong class="text-slate-200">Safari</strong>.</li>
-            <li>Tippe unten in der Leiste auf den <strong class="text-slate-200">Teilen-Button [↑]</strong>.</li>
-            <li>Scrolle etwas herunter und wähle <strong class="text-indigo-300">„Zum Home-Bildschirm“</strong>.</li>
-          </ol>
-        </div>
-
-        <!-- KI & API KEY -->
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white">Google Gemini KI-Funktionen:</span>
-            <input type="checkbox" id="account-ai-toggle" onchange="toggleAccountAiActive(this.checked)" class="accent-brand-500 w-4 h-4 cursor-pointer">
-          </div>
-          <div>
-            <label class="text-[10px] text-slate-400 block mb-0.5">Gemini API-Key (optional, überschreibt Standard):</label>
-            <div class="flex gap-2">
-              <input type="password" id="account-gemini-key" onchange="saveGeminiKeyInAccount(this.value)" placeholder="Dein Key von aistudio.google.com" class="flex-1 text-[10.5px] p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
-              <button type="button" onclick="testGeminiKeyInAccount()" class="px-2.5 py-1.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn">
-                Prüfen ↗
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- STIMMENAUSWAHL -->
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white">Stimme für Sprachansagen & Regie:</span>
-            <button type="button" id="btn-acc-voice-preview" onclick="playVoicePreviewInAccount()" class="text-purple-300 hover:underline font-bold text-[11px]">
-              Probe (5s)
-            </button>
-          </div>
-          <select id="account-voice-select" onchange="saveVoiceInAccount(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
-            <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
-            <option value="Aoede">Fordernde Herrin (Aoede)</option>
-            <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
-            <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
-          </select>
-        </div>
-
-        <!-- ACTIONS -->
-        <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
-          <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">
-            Farbschema 🌓
-          </button>
-          <button type="button" onclick="sendBackupEmail()" class="px-3 py-1.5 rounded-xl theme-panel border text-teal-300 font-bold text-xs touch-btn">
-            Backup senden 📤
-          </button>
-        </div>
-
-        <!-- PROFIL LÖSCHEN MIT SICHERHEITSABFRAGE -->
-        <div class="pt-2 border-t border-slate-800">
-          <div id="reset-trigger-area">
-            <button type="button" onclick="showResetConfirmation()" class="w-full py-2 rounded-xl bg-rose-950/30 hover:bg-rose-950/60 border border-rose-900/60 text-rose-300 font-bold text-xs touch-btn">
-              Profil löschen ⚠️
-            </button>
-          </div>
-
-          <div id="reset-confirmation-box" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700 space-y-2 text-xs animate-pulse">
-            <strong class="text-rose-100 block font-bold">⚠️ Wirklich alle Daten von <span id="reset-current-username">diesem Profil</span> löschen?</strong>
-            <p class="text-[10.5px] text-slate-300">Alle Antworten, Notizen und persönlichen Einstellungen dieses Profils werden unwiderruflich entfernt.</p>
-            <div class="flex justify-end gap-2 pt-1 border-t border-rose-900/50">
-              <button type="button" onclick="cancelResetConfirmation()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Abbrechen</button>
-              <button type="button" onclick="resetCurrentUserProfile()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs touch-btn shadow-md">Ja, Profil endgültig löschen</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeAccountModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Fertig
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: 3-STUFEN-ONBOARDING -->
-  <div id="modal-onboarding" style="display: none;" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-brand-500/40 p-5 sm:p-7 space-y-4 shadow-2xl text-xs">
-      <!-- HEADER -->
-      <div class="flex items-center justify-between border-b border-brand-900/60 pb-3">
-        <div>
-          <span class="px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block mb-1" id="onboard-step-badge">
-            Schritt 1 von 3
-          </span>
-          <h3 class="text-sm sm:text-base font-extrabold text-white">Willkommen im Kompass</h3>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span id="dot-step-1" class="w-2 h-2 rounded-full bg-brand-500"></span>
-          <span id="dot-step-2" class="w-2 h-2 rounded-full bg-slate-700"></span>
-          <span id="dot-step-3" class="w-2 h-2 rounded-full bg-slate-700"></span>
-        </div>
-      </div>
-
-      <!-- SCHRITT 1: EIGENES PROFIL & FREIGABE -->
-      <div id="onboard-step-1" class="space-y-3.5">
-        <p class="text-slate-300 leading-relaxed text-[11.5px]">
-          Richte dein persönliches Profil ein. Deine Partnerin richtet ihr Profil separat auf ihrem Smartphone ein.
+      <!-- SCHRITT 1: NAME & ANATOMIE -->
+      <div id="onboard-step-1" class="space-y-3 animate-fade-in">
+        <p class="text-[11px] text-slate-300">
+          Richte dein persönliches Profil ein. Deine Daten werden lokal und verschlüsselt gespeichert.
         </p>
 
         <div>
@@ -859,160 +696,142 @@
         <div>
           <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Deine Anatomie:</label>
           <div class="flex gap-2">
-            <button type="button" onclick="setOnboardingAnatomy('A', 'penis')" id="onboard-anat-A-penis" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">
-              🍆 Penis
-            </button>
-            <button type="button" onclick="setOnboardingAnatomy('A', 'vulva')" id="onboard-anat-A-vulva" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">
-              🌸 Vulva
-            </button>
+            <button type="button" id="onboard-anat-A-penis" onclick="setOnboardingAnatomy('A', 'penis')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">🍆 Penis</button>
+            <button type="button" id="onboard-anat-A-vulva" onclick="setOnboardingAnatomy('A', 'vulva')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">🌸 Vulva</button>
           </div>
         </div>
 
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <strong class="text-white text-[11px]">Deine Freigabestufe:</strong>
-            <span id="onboard-sharing-label" class="text-[10px] font-bold text-brand-300">4. Radikale Transparenz (Empfohlen)</span>
-          </div>
-          <div class="grid grid-cols-4 gap-1">
-            <button type="button" onclick="setOnboardingSharingLevel(1)" id="onboard-share-1" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">1. Streng</button>
-            <button type="button" onclick="setOnboardingSharingLevel(2)" id="onboard-share-2" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">2. Neugier</button>
-            <button type="button" onclick="setOnboardingSharingLevel(3)" id="onboard-share-3" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">3. Buße</button>
-            <button type="button" onclick="setOnboardingSharingLevel(4)" id="onboard-share-4" class="py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">4. Offen ★</button>
+        <div>
+          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Empfohlene Freigabestufe:</label>
+          <div class="p-2.5 rounded-xl bg-brand-950/40 border border-brand-800 text-[10.5px] text-slate-300">
+            <strong class="text-brand-300 block">Stufe 4: Radikale Transparenz (Empfohlen)</strong>
+            <span>Vollkommene Offenheit für echten Beziehungs-Konsens.</span>
           </div>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 flex justify-end">
-          <button type="button" onclick="goToOnboardStep(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+        <div class="flex justify-end pt-2">
+          <button type="button" onclick="goToOnboardStep(2)" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Weiter zu Schritt 2 →
           </button>
         </div>
       </div>
 
-      <!-- SCHRITT 2: DER GENERIERTE PAAR-CODE MIT SPEICHER-HINWEIS -->
-      <div id="onboard-step-2" class="hidden space-y-3.5">
-        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-600/70 space-y-2 text-center shadow-lg">
-          <span class="text-2xl block">🔐</span>
-          <span class="text-[10.5px] text-emerald-300 uppercase tracking-wider font-bold block">Euer automatischer Paar- & Login-Code:</span>
-          <div id="onboard-code-display" class="text-2xl sm:text-3xl font-black font-mono tracking-widest text-white">KOMPASS-000</div>
-          <p class="text-[10.5px] text-slate-300 leading-snug">
-            Dieser Code dient als kryptographischer Schlüssel für eure 256-Bit-Verschlüsselung.
-          </p>
+      <!-- SCHRITT 2: PARTNER KOPPELN -->
+      <div id="onboard-step-2" class="hidden space-y-3 animate-fade-in">
+        <p class="text-[11px] text-slate-300">
+          Dein persönlicher Paar-Code für das Smartphone deines Partners:
+        </p>
+
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-700 text-center space-y-1.5">
+          <span class="text-xs text-emerald-400 font-bold block">Euer sicherer Paar-Code:</span>
+          <div id="onboard-code-display" class="text-2xl font-black font-mono text-emerald-300 tracking-wider">KOMPASS-7X49</div>
+          <p class="text-[10px] text-slate-400">Gültig für alle zukünftigen Sessions.</p>
         </div>
 
-        <div class="p-3 rounded-2xl bg-amber-950/40 border border-amber-600/70 space-y-1 text-xs text-amber-200">
-          <strong class="block font-bold">⚠️ Bitte diesen Code notieren oder kopieren!</strong>
-          <span class="text-[10.5px] text-slate-300 block">
-            Er ist euer dauerhafter Schlüssel: Wenn du den Browser schließt, das Handy wechselst oder den Verlauf leerst, kommst du mit diesem Code jederzeit wieder an all eure Daten.
-          </span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="copyOnboardCode()" class="py-2.5 rounded-xl theme-panel border text-slate-200 font-bold text-xs flex items-center justify-center gap-1 touch-btn">
-            <span>📋</span><span>Code kopieren</span>
+        <div class="flex gap-2">
+          <button type="button" onclick="copyOnboardCode()" class="flex-1 py-2.5 rounded-xl theme-panel border text-slate-200 font-bold text-xs touch-btn">
+            📋 Code kopieren
           </button>
-          <button type="button" onclick="handleShareInviteLink()" class="py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center gap-1 touch-btn shadow-md">
-            <span>📤</span><span>Per WhatsApp teilen</span>
+          <button type="button" onclick="handleShareInviteLink()" class="flex-1 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs touch-btn shadow-md">
+            💬 Per WhatsApp
           </button>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-          <button type="button" onclick="goToOnboardStep(1)" class="text-slate-400 hover:text-white text-xs font-bold touch-btn">← Zurück</button>
-          <button type="button" onclick="goToOnboardStep(3)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" onclick="goToOnboardStep(1)" class="text-slate-400 hover:text-white text-xs font-bold">← Zurück</button>
+          <button type="button" onclick="goToOnboardStep(3)" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             Weiter zu Schritt 3 →
           </button>
         </div>
       </div>
 
-      <!-- SCHRITT 3: IPHONE-APP SPEICHERN & START -->
-      <div id="onboard-step-3" class="hidden space-y-3.5">
-        <div class="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-800/60 space-y-2 text-xs">
-          <strong class="text-indigo-200 block text-xs font-bold">📲 Tipp für dein iPhone (Als App speichern):</strong>
-          <p class="text-[11px] text-slate-300 leading-snug">
-            Speichere die App auf deinem Home-Bildschirm, damit du sie wie eine App aus dem App Store öffnen kannst und nie den Zugriff verlierst:
+      <!-- SCHRITT 3: APP-INSTALLATION -->
+      <div id="onboard-step-3" class="hidden space-y-3 animate-fade-in">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-center">
+          <span class="text-2xl block">📲</span>
+          <strong class="text-xs text-white block font-bold">Als App auf dem Home-Bildschirm</strong>
+          <p class="text-[10.5px] text-slate-300 leading-relaxed text-left">
+            Tippe unten im Safari-Browser auf das <strong>Teilen-Symbol (Kästchen mit Pfeil nach oben [↑])</strong> und wähle <strong>„Zum Home-Bildschirm“</strong>. Die App läuft dann im Vollbild ohne störende Browserleisten.
           </p>
-          <ol class="list-decimal list-inside text-[10.5px] space-y-1.5 text-slate-400 pt-1">
-            <li>Tippe unten in Safari auf das <strong class="text-slate-200">Teilen-Symbol [↑]</strong>.</li>
-            <li>Wähle im Menü <strong class="text-indigo-300">„Zum Home-Bildschirm“</strong>.</li>
-            <li>Bestätige oben rechts mit <strong class="text-white">„Hinzufügen“</strong>.</li>
-          </ol>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-          <button type="button" onclick="goToOnboardStep(2)" class="text-slate-400 hover:text-white text-xs font-bold touch-btn">← Zurück</button>
-          <button type="button" onclick="completeOnboarding()" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Fertig & Starten 🚀
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" onclick="goToOnboardStep(2)" class="text-slate-400 hover:text-white text-xs font-bold">← Zurück</button>
+          <button type="button" onclick="completeOnboarding()" class="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-rose-600 text-white font-black rounded-xl text-xs touch-btn shadow-lg">
+            Fertigstellen & Starten ✨
           </button>
         </div>
+      </div>
+
+      <!-- STEP DOTS -->
+      <div class="flex justify-center gap-1.5 pt-1">
+        <div id="dot-step-1" class="w-2 h-2 rounded-full bg-brand-500"></div>
+        <div id="dot-step-2" class="w-2 h-2 rounded-full bg-slate-700"></div>
+        <div id="dot-step-3" class="w-2 h-2 rounded-full bg-slate-700"></div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TABU-CHARTA -->
-  <div id="modal-tabus" style="display: none;" onclick="if(event.target===this) closeTabuModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-3.5 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+  <!-- MODAL: GEMEINSAME TABUS -->
+  <div id="modal-tabus" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-rose-500/40 p-5 space-y-3 shadow-2xl text-xs max-h-[85vh] flex flex-col justify-between">
       <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
         <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-rose-950 border border-rose-800 text-rose-300 flex items-center justify-center font-bold text-base">⛔</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Gemeinsame Tabu-Charta</h3>
-            <p class="text-[10px] text-rose-300">Alle Note-1-Praktiken beider Partner (Bei Sessions strikt ausgeschlossen)</p>
-          </div>
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+          <h3 class="text-sm font-extrabold text-white">Gemeinsame Tabu-Charta (Note 1)</h3>
         </div>
         <button type="button" onclick="closeTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
-
-      <div id="tabu-modal-list" class="flex-1 overflow-y-auto pr-1 space-y-2"></div>
-
+      <p class="text-[10.5px] text-slate-400">Kompromissloses Veto: Tippe auf ein Tabu, um es direkt im Fragebogen anzupassen.</p>
+      <div id="tabu-modal-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
       <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn">
-          Schließen
-        </button>
+        <button type="button" onclick="closeTabuModal()" class="px-4 py-2 bg-rose-950 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs touch-btn">Schließen</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: KI-KINK-RECHERCHE -->
-  <div id="modal-lexikon" style="display: none;" onclick="if(event.target===this) closeLexikonModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 p-5 space-y-3.5 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
+  <div id="modal-lexikon" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-purple-500/40 p-5 space-y-3.5 shadow-2xl text-xs max-h-[90vh] flex flex-col justify-between">
       <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
         <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base">🔍</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">KI-Kink- & BDSM-Recherche</h3>
-            <p class="text-[10px] text-purple-300">Echtzeit-Analyse & Scham-Entlastung</p>
-          </div>
+          <span class="text-base">🔍</span>
+          <h3 class="text-sm font-extrabold text-white">Kink-Recherche & Aufklärung</h3>
         </div>
         <button type="button" onclick="closeLexikonModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
-
+      
       <div class="flex gap-2">
-        <input type="text" id="lexikon-search-input" onkeydown="if(event.key==='Enter') searchKinkResearch()" placeholder="z. B. Ringknebel, Spanking, Pegging, CBT..." class="flex-1 text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
-        <button type="button" onclick="searchKinkResearch()" class="px-4 py-2 bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Suchen 🔍
-        </button>
+        <input type="text" id="lexikon-search-input" placeholder="Praktik suchen (z. B. Pegging, Takate Kote)..." class="flex-1 text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
+        <button type="button" onclick="searchKinkResearch()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-xl text-xs touch-btn flex-shrink-0">Suchen</button>
       </div>
 
-      <div id="lexikon-entries-container" class="flex-1 overflow-y-auto pr-1 space-y-2.5"></div>
+      <div id="lexikon-entries-container" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
 
       <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeLexikonModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Schließen
-        </button>
+        <button type="button" onclick="closeLexikonModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">Schließen</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST CONTAINER -->
-  <div id="toast-container" class="fixed bottom-4 right-4 z-[220] space-y-2 pointer-events-none"></div>
+  <!-- TOAST BENACHRICHTIGUNGEN -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- EXTERNE DATENQUELLEN & SCRIPTS -->
-  <script src="data/scientific_studies.js?v=4.2"></script>
-  <script src="data/questions_part1.js?v=4.2"></script>
-  <script src="data/questions_part2.js?v=4.2"></script>
-  <script src="data/equipment_catalog.js?v=4.2"></script>
+  <!-- EXTERNE DATENQUELLEN & BIBLIOTHEKEN -->
+  <script src="data/scientific_studies.js"></script>
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.2) -->
   <script src="js/cloud_sync.js?v=4.2"></script>
   <script src="js/hub_toys.js?v=4.2"></script>
-  <script src="js/kink_research.
+  <script src="js/kink_research.js?v=4.2"></script>
+  <script src="js/hub_modals.js?v=4.2"></script>
+  <script src="js/survey.js?v=4.2"></script>
+  <script src="js/profile.js?v=4.2"></script>
+  <script src="js/app.js?v=4.2"></script>
+
+</body>
+</html>
