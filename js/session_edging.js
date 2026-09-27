@@ -250,8 +250,14 @@
     var panel = document.getElementById('release-choice-subpanel');
     var wrap = document.getElementById('countdown-wrapper');
     var cueText = document.getElementById('countdown-cue-text');
+    var pill = document.getElementById('countdown-mode-pill');
+    var btnText = document.getElementById('btn-pause-countdown-text');
+
     if (panel) panel.classList.add('hidden');
-    if (wrap) wrap.classList.remove('hidden');
+    if (wrap) {
+      wrap.classList.remove('hidden');
+      wrap.style.display = 'flex';
+    }
 
     var config = getCountdownConfig(targetEdgingDuration);
     currentEdgingCountdown = config.startNum;
@@ -259,8 +265,17 @@
     isEdgingCountdownPaused = false;
     countdownRunId++;
 
+    if (pill) {
+      pill.innerText = "Live";
+      pill.className = "text-[10px] font-mono text-emerald-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800";
+    }
+    if (btnText) btnText.innerText = "Pause";
+
     var disp = document.getElementById('countdown-display');
-    if (disp) disp.innerText = config.startNum.toString();
+    if (disp) {
+      disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_60px_rgba(16,185,129,0.7)] text-center";
+      disp.innerText = config.startNum.toString();
+    }
 
     if (cueText) {
       cueText.innerText = (countdownVoiceMode === 'self') 
@@ -278,10 +293,16 @@
 
     if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
-        if (disp) disp.innerText = "KOMMEN!";
+        if (disp) {
+          disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_80px_rgba(16,185,129,0.9)] text-center";
+          disp.innerText = "KOMMEN!";
+        }
         if (cueText) cueText.innerText = "Erlaubnis erteilt!";
         setTimeout(function() {
-          if (wrap) wrap.classList.add('hidden');
+          if (wrap) {
+            wrap.classList.add('hidden');
+            wrap.style.display = 'none';
+          }
         }, 4000);
       });
     }
@@ -303,7 +324,10 @@
     }
 
     if (ticker <= 0 && runId === countdownRunId) {
-      if (disp) disp.innerText = "KOMMEN!";
+      if (disp) {
+        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_80px_rgba(16,185,129,0.9)] text-center";
+        disp.innerText = "KOMMEN!";
+      }
       if (cueText) {
         cueText.innerText = (countdownVoiceMode === 'self') 
           ? "Sprich jetzt: 'JETZT KOMMEN!'" 
@@ -312,15 +336,35 @@
       logSessionAction("Orgasmus-Freigabe (" + targetEdgingDuration + "s beendet)");
       setTimeout(function() {
         var wrap = document.getElementById('countdown-wrapper');
-        if (wrap) wrap.classList.add('hidden');
+        if (wrap) {
+          wrap.classList.add('hidden');
+          wrap.style.display = 'none';
+        }
       }, 4000);
     }
   }
 
   function pauseSpeechCountdown() {
     isEdgingCountdownPaused = !isEdgingCountdownPaused;
+    var btnText = document.getElementById('btn-pause-countdown-text');
     var btn = document.getElementById('btn-pause-countdown');
-    if (btn) btn.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
+    var pill = document.getElementById('countdown-mode-pill');
+
+    if (btnText) btnText.innerText = isEdgingCountdownPaused ? "Weiter" : "Pause";
+    if (btn) {
+      if (isEdgingCountdownPaused) {
+        btn.className = "flex-1 py-4 px-6 rounded-2xl bg-emerald-900/90 hover:bg-emerald-800 border-2 border-emerald-500 text-white font-black text-sm tracking-wide shadow-2xl touch-btn flex items-center justify-center gap-2";
+      } else {
+        btn.className = "flex-1 py-4 px-6 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 text-slate-100 font-black text-sm tracking-wide shadow-2xl touch-btn flex items-center justify-center gap-2";
+      }
+    }
+    if (pill) {
+      pill.innerText = isEdgingCountdownPaused ? "Pausiert" : "Live";
+      pill.className = isEdgingCountdownPaused 
+        ? "text-[10px] font-mono text-amber-300 font-bold bg-amber-950/80 px-2.5 py-1 rounded-lg border border-amber-700" 
+        : "text-[10px] font-mono text-emerald-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800";
+    }
+
     if (isEdgingCountdownPaused) {
       if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
         window.SessionVoice.stop();
@@ -332,7 +376,10 @@
     isCountdownActive = false;
     countdownRunId++;
     var wrap = document.getElementById('countdown-wrapper');
-    if (wrap) wrap.classList.add('hidden');
+    if (wrap) {
+      wrap.classList.add('hidden');
+      wrap.style.display = 'none';
+    }
     currentEdgingCountdown = 10;
     if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
       window.SessionVoice.stop();
