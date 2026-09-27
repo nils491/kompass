@@ -1,6 +1,6 @@
 /**
  * js/hub_modals.js
- * Modal-, Account-, Onboarding- & Kopplungs-Controller für den Kink- & Beziehungs-Kompass.
+ * Modal-, Account-, Onboarding-, Text-Zoom- & Kopplungs-Controller für den Kink- & Beziehungs-Kompass.
  */
 
 (function(window) {
@@ -34,6 +34,37 @@
     }, 2500);
   }
 
+  function applyTextZoom(level) {
+    var zoomVal = String(level || localStorage.getItem('kompass_text_zoom') || '100');
+    var zoomPct = '100%';
+    if (zoomVal === '115') zoomPct = '115%';
+    else if (zoomVal === '130') zoomPct = '130%';
+
+    document.documentElement.style.fontSize = zoomPct;
+    localStorage.setItem('kompass_text_zoom', zoomVal);
+    updateTextZoomUI(zoomVal);
+  }
+
+  function setTextZoom(level) {
+    applyTextZoom(level);
+    var labels = { '100': 'Normal (100%)', '115': 'Mittel (115%)', '130': 'Groß (130%)' };
+    showToast("Schriftgröße angepasst: " + (labels[level] || level + "%") + " 🔍");
+  }
+
+  function updateTextZoomUI(currentLevel) {
+    var cur = String(currentLevel || localStorage.getItem('kompass_text_zoom') || '100');
+    ['100', '115', '130'].forEach(function(lvl) {
+      var btn = document.getElementById('btn-zoom-' + lvl);
+      if (btn) {
+        if (lvl === cur) {
+          btn.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-md";
+        } else {
+          btn.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn hover:text-white";
+        }
+      }
+    });
+  }
+
   function openAccountModal() {
     var m = document.getElementById('modal-account');
     if (m) {
@@ -65,6 +96,7 @@
 
     var currentLvl = getSharingLevel(curUser);
     updateAccountSharingUI(currentLvl);
+    updateTextZoomUI();
 
     var aiToggle = document.getElementById('account-ai-toggle');
     if (aiToggle) {
@@ -601,7 +633,89 @@
     } catch (e) {}
   }
 
+  function openTabuModal() {
+    var m = document.getElementById('modal-tabus');
+    if (m) {
+      m.style.display = 'flex';
+      m.classList.remove('hidden');
+    }
+    renderTabuModalList();
+  }
+
+  function closeTabuModal() {
+    var m = document.getElementById('modal-tabus');
+    if (m) {
+      m.style.display = 'none';
+      m.classList.add('hidden');
+    }
+  }
+
+  function renderTabuModalList() {
+    var c = document.getElementById('tabu-modal-list');
+    if (!c) return;
+
+    var chapters = window.surveyChapters || [];
+    var answers = window.answers || { A: {}, B: {} };
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+
+    var list = [];
+    chapters.forEach(function(ch) {
+      (ch.items || []).forEach(function(it) {
+        if (it.type !== 'choice') {
+          if (answers.A && answers.A['it_' + it.id + '_r1'] === 1) {
+            list.push({ item: it, who: 'A', name: names.A || 'Partner 1', role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          }
+          if (answers.A && answers.A['it_' + it.id + '_r2'] === 1) {
+            list.push({ item: it, who: 'A', name: names.A || 'Partner 1', role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+          }
+          if (answers.B && answers.B['it_' + it.id + '_r1'] === 1) {
+            list.push({ item: it, who: 'B', name: names.B || 'Partner 2', role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          }
+          if (answers.B && answers.B['it_' + it.id + '_r2'] === 1) {
+            list.push({ item: it, who: 'B', name: names.B || 'Partner 2', role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+          }
+        }
+      });
+    });
+
+    if (list.length === 0) {
+      c.innerHTML = '<p class="text-slate-500 italic text-center py-6 text-xs">Aktuell sind keine Tabus (Note 1) gesetzt.</p>';
+      return;
+    }
+
+    c.innerHTML = list.map(function(t) {
+      return `
+        <div onclick="handleTabuItemClick('${t.who}', ${t.item.id})" class="p-3 rounded-2xl bg-rose-950/30 hover:bg-rose-950/70 border border-rose-900/60 hover:border-rose-600 transition cursor-pointer touch-btn flex items-center justify-between gap-2">
+          <div class="space-y-0.5 flex-1 min-w-0">
+            <strong class="text-white text-xs block truncate">${escapeHtml(t.item.title)}</strong>
+            <span class="text-rose-300 text-[10.5px] block truncate">${escapeHtml(t.role)}</span>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-900 text-rose-200 border border-rose-700">${escapeHtml(t.name)}</span>
+            <span class="text-xs text-rose-400">✏️ ↗</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function handleTabuItemClick(user, itemId) {
+    closeTabuModal();
+    if (typeof window.setCurrentUser === 'function') window.setCurrentUser(user);
+    if (typeof window.goToSurveyItem === 'function') {
+      window.goToSurveyItem(itemId);
+    } else if (typeof window.switchMainView === 'function') {
+      window.switchMainView('survey');
+      setTimeout(function() {
+        if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
+          window.SurveyEngine.jumpToItem(itemId);
+        }
+      }, 150);
+    }
+  }
+
   function initModals() {
+    applyTextZoom();
     checkUrlForAutoPairing();
     updateCloudSyncUI();
 
@@ -610,6 +724,10 @@
       setTimeout(openOnboardingModal, 400);
     }
   }
+
+  window.setTextZoom = setTextZoom;
+  window.applyTextZoom = applyTextZoom;
+  window.updateTextZoomUI = updateTextZoomUI;
 
   window.openAccountModal = openAccountModal;
   window.closeAccountModal = closeAccountModal;
