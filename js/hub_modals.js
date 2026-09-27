@@ -523,22 +523,57 @@
 
   async function handleJoinPairRoom(role) {
     var input = document.getElementById('input-pair-code');
-    var code = (input ? input.value : '').trim();
-    if (!code) {
-      showToast("Bitte gib den Paar-Code deines Partners ein.");
+    var rawInput = (input ? input.value : '').trim();
+    if (!rawInput) {
+      showToast("Bitte gib den Paar-Code oder Einladungs-Link ein.");
       return;
     }
 
-    if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
-      showToast("⏳ Lade Paar-Daten aus der Cloud...");
+    var cleanCode = '';
+    var directId = null;
+
+    // Erkennt vollautomatisch kopierte WhatsApp-Links oder komplexe URLs
+    if (rawInput.indexOf('?') !== -1 || rawInput.indexOf('pair=') !== -1) {
       try {
-        await window.CloudSync.joinRoom(code, role);
+        var urlStr = rawInput.startsWith('http') ? rawInput : ('https://kink.local/' + rawInput);
+        var urlObj = new URL(urlStr);
+        cleanCode = urlObj.searchParams.get('pair') || '';
+        directId = urlObj.searchParams.get('id') || null;
+      } catch (e) {
+        var mCode = rawInput.match(/pair=([^&]+)/);
+        var mId = rawInput.match(/id=([^&]+)/);
+        if (mCode) cleanCode = decodeURIComponent(mCode[1]);
+        if (mId) directId = decodeURIComponent(mId[1]);
+      }
+    } else if (rawInput.indexOf('#') !== -1) {
+      var parts = rawInput.split('#');
+      cleanCode = parts[0].trim();
+      directId = parts[1].trim();
+    } else if (rawInput.length > 24 && rawInput.indexOf('-') === -1) {
+      // Direkte Objekt-ID
+      directId = rawInput;
+      cleanCode = localStorage.getItem('kompass_pair_code') || 'KOMPASS-SYNC';
+    } else {
+      cleanCode = rawInput.toUpperCase().trim();
+    }
+
+    if (!cleanCode) cleanCode = rawInput.toUpperCase().trim();
+
+    if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
+      showToast("⏳ Lade verschlüsselte Paar-Daten aus der Cloud...");
+      try {
+        await window.CloudSync.joinRoom(cleanCode, role, directId);
         if (typeof window.loadCoreData === 'function') window.loadCoreData();
         if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
         updateCloudSyncUI();
         if (typeof window.updateHubUI === 'function') window.updateHubUI();
         closeCloudSyncModal();
-        showToast("✓ Erfolgreich synchronisiert als Partner " + role + "!");
+
+        var ansA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
+        var ansB = (window.answers && window.answers.B) ? Object.keys(window.answers.B).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
+        var partnerName = (window.names && window.names[role]) ? window.names[role] : ('Partner ' + role);
+
+        showToast("✓ Verbunden! Profil " + partnerName + " aktiv (" + ansA + " Antworten bei P1, " + ansB + " bei P2).");
       } catch (e) {
         showToast("⚠️ " + e.message);
       }
@@ -596,9 +631,12 @@
         if (success) {
           if (typeof window.loadCoreData === 'function') window.loadCoreData();
           if (typeof window.updateHubUI === 'function') window.updateHubUI();
-          showToast("Synchronisation erfolgreich abgeschlossen ✓");
+          
+          var ansA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
+          var ansB = (window.answers && window.answers.B) ? Object.keys(window.answers.B).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
+          showToast("✓ Daten synchron! P1: " + ansA + " Antworten · P2: " + ansB + " Antworten");
         } else {
-          showToast("Keine neuen Änderungen auf dem Server.");
+          showToast("Aktuell keine neuen Änderungen auf dem Server.");
         }
       });
     }
