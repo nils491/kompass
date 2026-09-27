@@ -656,25 +656,72 @@
         if (typeof window.updateHubUI === 'function') window.updateHubUI();
         closeCloudSyncModal();
         showToast("✓ Daten erfolgreich übertragen!");
-      } catch (e) {
-        showToast("⚠️ Ungültiger Transfer-Schlüssel.");
-      }
+    } catch (e) {
+      showToast("⚠️ Ungültiger Transfer-Schlüssel.");
     }
   }
 
-  function handleShareInviteLink() {
+  function buildPairUrl(targetRole) {
     var state = (window.CloudSync && typeof window.CloudSync.getState === 'function')
       ? window.CloudSync.getState()
       : {};
     var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
     var objId = state.objectId || localStorage.getItem('kompass_sync_remote_id') || '';
-    if (!code) {
+    if (!code) return null;
+
+    var role = targetRole || 'B';
+    var base = window.location.href.split('?')[0].split('#')[0];
+    return base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=" + encodeURIComponent(role);
+  }
+
+  function handleCopySelfLink() {
+    var selfUrl = buildPairUrl('A');
+    if (!selfUrl) {
       showToast("Erstelle zuerst einen Paar-Code.");
       return;
     }
 
-    var base = window.location.href.split('?')[0].split('#')[0];
-    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=B";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(selfUrl).then(function() {
+        showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+      }).catch(function() {
+        copyViaTempInput(selfUrl);
+        showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+      });
+    } else {
+      copyViaTempInput(selfUrl);
+      showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+    }
+  }
+
+  function handleCopyPartnerLink() {
+    var partnerUrl = buildPairUrl('B');
+    if (!partnerUrl) {
+      showToast("Erstelle zuerst einen Paar-Code.");
+      return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(partnerUrl).then(function() {
+        showToast("Partner-Link kopiert (Partner 2) 📋");
+      }).catch(function() {
+        copyViaTempInput(partnerUrl);
+        showToast("Partner-Link kopiert (Partner 2) 📋");
+      });
+    } else {
+      copyViaTempInput(partnerUrl);
+      showToast("Partner-Link kopiert (Partner 2) 📋");
+    }
+  }
+
+  function handleShareInviteLink(roleOverride) {
+    var targetRole = roleOverride || 'B';
+    var inviteUrl = buildPairUrl(targetRole);
+    if (!inviteUrl) {
+      showToast("Erstelle zuerst einen Paar-Code.");
+      return;
+    }
+
     var text = "Hier ist unser sicherer Schlüssel für den Kink- & Beziehungs-Kompass:\n" + inviteUrl;
 
     if (navigator.share) {
@@ -684,26 +731,13 @@
         url: inviteUrl
       }).catch(function() {});
     } else {
-      handleCopyInviteLink();
+      if (targetRole === 'A') handleCopySelfLink();
+      else handleCopyPartnerLink();
     }
   }
 
   function handleCopyInviteLink() {
-    var state = (window.CloudSync && typeof window.CloudSync.getState === 'function')
-      ? window.CloudSync.getState()
-      : {};
-    var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
-    var objId = state.objectId || localStorage.getItem('kompass_sync_remote_id') || '';
-    var base = window.location.href.split('?')[0].split('#')[0];
-    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=B";
-
-    var temp = document.createElement('input');
-    temp.value = inviteUrl;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
-    document.body.removeChild(temp);
-    showToast("Einladungs-Link kopiert! Kann per WhatsApp gesendet werden 📋");
+    handleCopyPartnerLink();
   }
 
   function handleManualSyncNow() {
@@ -881,6 +915,8 @@
   window.handleJoinPairRoom = handleJoinPairRoom;
   window.handleExportDirectTransfer = handleExportDirectTransfer;
   window.handleImportDirectTransfer = handleImportDirectTransfer;
+  window.handleCopySelfLink = handleCopySelfLink;
+  window.handleCopyPartnerLink = handleCopyPartnerLink;
   window.handleShareInviteLink = handleShareInviteLink;
   window.handleCopyInviteLink = handleCopyInviteLink;
   window.handleManualSyncNow = handleManualSyncNow;
