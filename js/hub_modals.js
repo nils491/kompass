@@ -4,11 +4,11 @@
  * 
  * Beinhaltet:
  * - Text-Zoom & Barrierefreiheit (100%, 115%, 130%)
- * - Profil- & Kontoverwaltung (Rufnamen, Anatomie, Freigabestufen 1-4, Gemini API-Key, Regiestimme)
- * - Robuste iPhone-Kopplung (Sofort-Push vor Link-Generierung, ultrakompakter Link)
+ * - Profil- & Kontoverwaltung mit echtem Rollenschutz (Auf gekoppeltem Gerät wird immer die eigene Rolle editiert)
+ * - Robuste iPhone-Kopplung (Sofort-Push vor Link-Generierung, sauberer WhatsApp-Link ohne Verdopplung)
  * - Automatisches Laden & Entschlüsseln beim Öffnen auf dem Smartphone (inkl. aller Einstellungen)
+ * - Unterdrückung des alten Onboarding-Modals bei Link-Beitritt
  * - Tabu-Modal mit Direktsprung in den Fragebogen
- * - Onboarding-Assistent für neue Geräte
  */
 
 (function(window) {
@@ -39,7 +39,7 @@
     setTimeout(function() {
       el.classList.add('opacity-0');
       setTimeout(function() { el.remove(); }, 300);
-    }, 2800);
+    }, 3200);
   }
 
   function applyTextZoom(level) {
@@ -73,6 +73,14 @@
     });
   }
 
+  function getEffectiveEditUser() {
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (isPaired) {
+      return localStorage.getItem('kompass_assigned_role') || 'A';
+    }
+    return window.currentUser || 'A';
+  }
+
   function openAccountModal() {
     var m = document.getElementById('modal-account');
     if (m) {
@@ -80,36 +88,32 @@
       m.classList.remove('hidden');
     }
 
-    var curUser = window.currentUser || 'A';
+    var editUser = getEffectiveEditUser();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
     var activeNameDisplay = document.getElementById('account-active-username');
     if (activeNameDisplay) {
-      activeNameDisplay.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+      var roleBadge = (editUser === 'A') ? " (Partner 1)" : " (Partner 2)";
+      activeNameDisplay.innerText = (names[editUser] || (editUser === 'A' ? 'Partner 1' : 'Partner 2')) + roleBadge;
     }
 
     var nameInput = document.getElementById('account-name-input');
     if (nameInput) {
-      nameInput.value = names[curUser] || '';
+      nameInput.value = names[editUser] || '';
     }
 
     var emailInput = document.getElementById('account-email-input');
     if (emailInput) {
-      emailInput.value = localStorage.getItem('kompass_email_' + curUser) || '';
+      emailInput.value = localStorage.getItem('kompass_email_' + editUser) || '';
     }
 
-    var currentAnat = anatomy[curUser] || (curUser === 'A' ? 'penis' : 'vulva');
+    var currentAnat = anatomy[editUser] || (editUser === 'A' ? 'penis' : 'vulva');
     updateAccountAnatomyUI(currentAnat);
 
-    var currentLvl = getSharingLevel(curUser);
+    var currentLvl = getSharingLevel(editUser);
     updateAccountSharingUI(currentLvl);
     updateTextZoomUI();
-
-    var aiToggle = document.getElementById('account-ai-toggle');
-    if (aiToggle) {
-      aiToggle.checked = (localStorage.getItem('kompass_ai_active') === 'true');
-    }
 
     var keyInput = document.getElementById('account-gemini-key');
     if (keyInput) {
@@ -134,35 +138,38 @@
 
   function updateCurrentUserName(val) {
     var cleanVal = (val || '').trim();
-    var curUser = window.currentUser || 'A';
+    var editUser = getEffectiveEditUser();
     if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
 
-    window.names[curUser] = cleanVal || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    window.names[editUser] = cleanVal || (editUser === 'A' ? 'Partner 1' : 'Partner 2');
 
     if (typeof window.saveCoreData === 'function') window.saveCoreData();
     if (typeof window.updateUserToggleUI === 'function') window.updateUserToggleUI();
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
 
     var activeNameDisplay = document.getElementById('account-active-username');
-    if (activeNameDisplay) activeNameDisplay.innerText = window.names[curUser];
+    if (activeNameDisplay) {
+      var roleBadge = (editUser === 'A') ? " (Partner 1)" : " (Partner 2)";
+      activeNameDisplay.innerText = window.names[editUser] + roleBadge;
+    }
 
-    showToast("Rufname gespeichert: " + window.names[curUser]);
+    showToast("Rufname für " + (editUser === 'A' ? 'Partner 1' : 'Partner 2') + " gespeichert: " + window.names[editUser]);
   }
 
   function updateCurrentUserEmail(val) {
-    var curUser = window.currentUser || 'A';
-    localStorage.setItem('kompass_email_' + curUser, (val || '').trim());
-    showToast("E-Mail für Backups hinterlegt ✓");
+    var editUser = getEffectiveEditUser();
+    localStorage.setItem('kompass_email_' + editUser, (val || '').trim());
+    showToast("E-Mail hinterlegt ✓");
   }
 
   function selectAccountAnatomy(who, anat) {
-    var curUser = window.currentUser || 'A';
+    var editUser = getEffectiveEditUser();
     if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[curUser] = anat;
+    window.anatomy[editUser] = anat;
 
     updateAccountAnatomyUI(anat);
     if (typeof window.saveCoreData === 'function') window.saveCoreData();
-    showToast("Anatomie aktualisiert: " + (anat === 'penis' ? '🍆 Penis' : '🌸 Vulva'));
+    showToast("Anatomie für " + (editUser === 'A' ? 'Partner 1' : 'Partner 2') + ": " + (anat === 'penis' ? '🍆 Penis' : '🌸 Vulva'));
   }
 
   function updateAccountAnatomyUI(anat) {
@@ -186,12 +193,12 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 4; // Standard: Stufe 4 (Radikale Transparenz)
+    return 4;
   }
 
   function selectAccountSharingLevel(lvl) {
-    var curUser = window.currentUser || 'A';
-    localStorage.setItem('kompass_sharing_level_' + curUser, lvl.toString());
+    var editUser = getEffectiveEditUser();
+    localStorage.setItem('kompass_sharing_level_' + editUser, lvl.toString());
     updateAccountSharingUI(lvl);
 
     if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
@@ -221,12 +228,6 @@
         }
       }
     }
-  }
-
-  function toggleAccountAiActive(checked) {
-    localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    showToast(checked ? "KI-Funktionen aktiviert ✨" : "KI-Funktionen deaktiviert");
   }
 
   function saveGeminiKeyInAccount(key) {
@@ -262,28 +263,8 @@
     }
   }
 
-  function saveVoiceInAccount(voice) {
-    localStorage.setItem('kompass_session_voice', voice);
-    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
-      window.CloudSync.trigger();
-    }
-    showToast("Regiestimme gewählt: " + voice);
-  }
-
-  function playVoicePreviewInAccount() {
-    var sel = document.getElementById('account-voice-select');
-    var voice = (sel ? sel.value : '') || localStorage.getItem('kompass_session_voice') || 'Despina';
-
-    if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play("Atme tief in den Bauchraum aus und überlass mir die Führung.", voice, true);
-    } else {
-      showToast("Stimmprobe für: " + voice);
-    }
-  }
-
   function toggleThemeInAccount() {
     var isDark = document.documentElement.classList.contains('dark');
-    var newTheme = isDark ? 'light' : 'dark';
     if (isDark) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('kompass_theme', 'light');
@@ -299,36 +280,15 @@
     }
   }
 
-  function sendBackupEmail() {
-    var curUser = window.currentUser || 'A';
-    var mail = localStorage.getItem('kompass_email_' + curUser);
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var userName = names[curUser] || 'Partner';
-
-    var dump = {
-      user: curUser,
-      name: userName,
-      answers: (window.answers && window.answers[curUser]) || {},
-      safety: (window.safetyConfig && window.safetyConfig[curUser]) || {},
-      date: new Date().toISOString()
-    };
-
-    var subject = encodeURIComponent("Kink-Kompass Backup (" + userName + ")");
-    var body = encodeURIComponent("Hallo " + userName + ",\n\nhier ist dein persönliches Daten-Backup:\n\n" + JSON.stringify(dump, null, 2));
-
-    var mailtoUrl = "mailto:" + (mail || '') + "?subject=" + subject + "&body=" + body;
-    window.location.href = mailtoUrl;
-  }
-
   function showResetConfirmation() {
     var box = document.getElementById('reset-confirmation-box');
     var triggerArea = document.getElementById('reset-trigger-area');
     var nameSpan = document.getElementById('reset-current-username');
 
-    var curUser = window.currentUser || 'A';
+    var editUser = getEffectiveEditUser();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
 
-    if (nameSpan) nameSpan.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    if (nameSpan) nameSpan.innerText = (names[editUser] || (editUser === 'A' ? 'Partner 1' : 'Partner 2')) + " (" + (editUser === 'A' ? 'Partner 1' : 'Partner 2') + ")";
     if (box) box.classList.remove('hidden');
     if (triggerArea) triggerArea.classList.add('hidden');
   }
@@ -341,13 +301,13 @@
   }
 
   function resetCurrentUserProfile() {
-    var curUser = window.currentUser || 'A';
+    var editUser = getEffectiveEditUser();
 
-    if (window.answers && window.answers[curUser]) window.answers[curUser] = {};
-    if (window.safetyConfig && window.safetyConfig[curUser]) window.safetyConfig[curUser] = {};
+    if (window.answers && window.answers[editUser]) window.answers[editUser] = {};
+    if (window.safetyConfig && window.safetyConfig[editUser]) window.safetyConfig[editUser] = {};
 
-    localStorage.removeItem('kompass_cached_single_report_' + curUser);
-    localStorage.removeItem('kompass_sharing_level_' + curUser);
+    localStorage.removeItem('kompass_cached_single_report_' + editUser);
+    localStorage.removeItem('kompass_sharing_level_' + editUser);
 
     if (typeof window.saveCoreData === 'function') window.saveCoreData();
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
@@ -356,10 +316,13 @@
 
     cancelResetConfirmation();
     closeAccountModal();
-    showToast("Profil-Daten erfolgreich zurückgesetzt.");
+    showToast("Profil-Daten von " + (editUser === 'A' ? 'Partner 1' : 'Partner 2') + " zurückgesetzt.");
   }
 
   function openOnboardingModal() {
+    // Wenn bereits gekoppelt, Onboarding NIEMALS öffnen
+    if (localStorage.getItem('kompass_is_paired') === 'true') return;
+
     var m = document.getElementById('modal-onboarding');
     if (m) {
       m.style.display = 'flex';
@@ -413,30 +376,6 @@
     } else {
       if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-sm";
       if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-    }
-  }
-
-  function setOnboardingSharingLevel(lvl) {
-    localStorage.setItem('kompass_sharing_level_A', lvl.toString());
-    var label = document.getElementById('onboard-sharing-label');
-    var labels = [
-      "",
-      "1. Streng (Doppel-Opt-In)",
-      "2. Bis Neugier (Note 3–5)",
-      "3. Bis Buße (Note 2–5)",
-      "4. Radikale Transparenz (Empfohlen)"
-    ];
-    if (label) label.innerText = labels[lvl] || ("Stufe " + lvl);
-
-    for (var i = 1; i <= 4; i++) {
-      var btn = document.getElementById('onboard-share-' + i);
-      if (btn) {
-        if (i === lvl) {
-          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        } else {
-          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
-        }
-      }
     }
   }
 
@@ -500,14 +439,16 @@
       if (activePanel) activePanel.classList.remove('hidden');
       if (codeDisp) codeDisp.innerText = state.pairCode;
 
+      var roleLabel = (state.role === 'B') ? " (Partner 2)" : " (Partner 1)";
+
       if (headerDot) headerDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-      if (headerText) headerText.innerText = state.pairCode;
+      if (headerText) headerText.innerText = state.pairCode + roleLabel;
       if (hubBadge) {
         hubBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
-        hubBadge.innerText = "Gekoppelt: " + state.pairCode;
+        hubBadge.innerText = "Gekoppelt: " + state.pairCode + roleLabel;
       }
       if (hubDesc) {
-        hubDesc.innerText = "Verschlüsselter Raum aktiv (" + state.pairCode + "). Daten werden automatisch synchronisiert.";
+        hubDesc.innerText = "Raum " + state.pairCode + " aktiv. Dein Gerät: " + (state.role === 'B' ? 'Partner 2' : 'Partner 1') + ". Daten synchronisiert.";
       }
     } else {
       if (setupPanel) setupPanel.classList.remove('hidden');
@@ -527,7 +468,7 @@
 
   async function handleCreatePairRoom() {
     if (window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
-      showToast("⏳ Erstelle verschlüsselten Raum & sichere Daten...");
+      showToast("⏳ Erstelle verschlüsselten Raum & sichere deine Antworten...");
       var code = await window.CloudSync.createRoom();
       updateCloudSyncUI();
       showToast("Paar-Raum aktiv: " + code + " ✨");
@@ -538,67 +479,41 @@
     var input = document.getElementById('input-pair-code');
     var rawInput = (input ? input.value : '').trim();
     if (!rawInput) {
-      showToast("Bitte gib den Paar-Code oder Einladungs-Link ein.");
+      showToast("Bitte gib den Paar-Code ein.");
       return;
     }
 
-    // Auto-Erkennung Sofort-Transfer-Schlüssel (Base64)
-    if (rawInput.length > 60 && rawInput.indexOf(' ') === -1 && rawInput.indexOf('?') === -1 && rawInput.indexOf('/') === -1) {
-      if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
-        try {
-          window.CloudSync.importDirect(rawInput, role);
-          if (typeof window.loadCoreData === 'function') window.loadCoreData();
-          if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
-          updateCloudSyncUI();
-          if (typeof window.updateHubUI === 'function') window.updateHubUI();
-          closeCloudSyncModal();
-
-          var ansCount = (window.answers && window.answers[role]) 
-            ? Object.keys(window.answers[role]).filter(function(k){ return k.indexOf('_note') === -1; }).length 
-            : 0;
-          showToast("✓ Sofort-Transfer erfolgreich! " + ansCount + " Antworten für " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " aktiviert ✨");
-          return;
-        } catch (err) {}
-      }
+    var cleanCode = rawInput.toUpperCase().trim();
+    if (cleanCode.indexOf('?') !== -1 || cleanCode.indexOf('PAIR=') !== -1) {
+      var m = cleanCode.match(/PAIR=([^&]+)/);
+      if (m) cleanCode = decodeURIComponent(m[1]);
     }
-
-    var cleanCode = '';
-    if (rawInput.indexOf('?') !== -1 || rawInput.indexOf('pair=') !== -1) {
-      try {
-        var urlStr = rawInput.startsWith('http') ? rawInput : ('https://kink.local/' + rawInput);
-        var urlObj = new URL(urlStr);
-        cleanCode = urlObj.searchParams.get('pair') || '';
-      } catch (e) {
-        var mCode = rawInput.match(/pair=([^&]+)/);
-        if (mCode) cleanCode = decodeURIComponent(mCode[1]);
-      }
-    } else if (rawInput.indexOf('#') !== -1) {
-      cleanCode = rawInput.split('#')[0].trim();
-    } else {
-      cleanCode = rawInput.toUpperCase().trim();
-    }
-
-    if (!cleanCode) cleanCode = rawInput.toUpperCase().trim();
 
     if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
-      showToast("⏳ Lade verschlüsselte Paar-Daten aus der Cloud...");
+      showToast("⏳ Verbinde mit Paar-Raum " + cleanCode + "...");
       try {
         await window.CloudSync.joinRoom(cleanCode, role);
+        localStorage.setItem('kompass_onboarded', 'true');
         if (typeof window.loadCoreData === 'function') window.loadCoreData();
         if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
         updateCloudSyncUI();
         if (typeof window.updateHubUI === 'function') window.updateHubUI();
         closeCloudSyncModal();
 
-        var ansA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-        var ansB = (window.answers && window.answers.B) ? Object.keys(window.answers.B).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-        var partnerName = (window.names && window.names[role]) ? window.names[role] : ('Partner ' + role);
-
-        showToast("✓ Verbunden! Profil " + partnerName + " aktiv (" + ansA + " Antworten bei P1, " + ansB + " bei P2).");
+        var ansA = countLocalAnswers('A');
+        var ansB = countLocalAnswers('B');
+        showToast("✓ Verbunden als " + (role === 'B' ? 'Partner 2' : 'Partner 1') + "! (P1: " + ansA + " Antworten / P2: " + ansB + " Antworten)");
       } catch (e) {
         showToast("⚠️ " + e.message);
       }
     }
+  }
+
+  function countLocalAnswers(role) {
+    if (window.answers && window.answers[role]) {
+      return Object.keys(window.answers[role]).filter(function(k) { return k.indexOf('_note') === -1; }).length;
+    }
+    return 0;
   }
 
   function handleExportDirectTransfer() {
@@ -608,15 +523,8 @@
     }
     try {
       var transferString = window.CloudSync.exportDirect();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(transferString).then(function() {
-          showToast("📋 Sofort-Transfer kopiert! Am Handy im Feld einfügen.");
-        }).catch(function() {
-          copyViaTempInput(transferString);
-        });
-      } else {
-        copyViaTempInput(transferString);
-      }
+      copyViaTempInput(transferString);
+      showToast("📋 Sofort-Transfer-Schlüssel kopiert! Per WhatsApp senden.");
     } catch (e) {
       showToast("Fehler beim Erstellen des Transfer-Schlüssels.");
     }
@@ -631,7 +539,6 @@
     temp.select();
     document.execCommand('copy');
     document.body.removeChild(temp);
-    showToast("📋 In die Zwischenablage kopiert!");
   }
 
   function buildPairUrl(targetRole) {
@@ -645,94 +552,65 @@
       localStorage.setItem('kompass_is_paired', 'true');
     }
 
-    var role = targetRole || 'A';
+    var role = targetRole || 'B';
     var base = window.location.href.split('?')[0].split('#')[0];
-
-    // Schlanke URL (nur ~40 Zeichen), damit kein Messenger den Link kürzen kann
     return base + "?pair=" + encodeURIComponent(code) + "&role=" + encodeURIComponent(role);
   }
 
   async function handleCopySelfLink() {
-    if (window.location.protocol === 'file:') {
-      handleExportDirectTransfer();
-      showToast("⚠️ Hinweis: Auf dem PC läuft file://. Kopiere den Schlüssel und füge ihn am Handy ein!");
-      return;
-    }
-
-    // 1. Garantiert frische Daten VOR dem Link-Kopieren in die Cloud pushen
     if (window.CloudSync && typeof window.CloudSync.push === 'function') {
-      showToast("⏳ Sichere alle Antworten & Einstellungen in der Cloud...");
+      showToast("⏳ Sichere deine aktuellen Antworten in der Cloud...");
       await window.CloudSync.push();
     }
-
     var selfUrl = buildPairUrl('A');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(selfUrl).then(function() {
-        showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
-      }).catch(function() {
-        copyViaTempInput(selfUrl);
-        showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
-      });
-    } else {
-      copyViaTempInput(selfUrl);
-      showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
-    }
+    copyViaTempInput(selfUrl);
+    showToast("✓ Link für dein eigenes iPhone (Partner 1) kopiert 📋");
   }
 
   async function handleCopyPartnerLink() {
     if (window.CloudSync && typeof window.CloudSync.push === 'function') {
+      showToast("⏳ Sichere deine aktuellen Antworten in der Cloud...");
       await window.CloudSync.push();
     }
     var partnerUrl = buildPairUrl('B');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(partnerUrl).then(function() {
-        showToast("Partner-Link kopiert (Partner 2) 📋");
-      }).catch(function() {
-        copyViaTempInput(partnerUrl);
-        showToast("Partner-Link kopiert (Partner 2) 📋");
-      });
-    } else {
-      copyViaTempInput(partnerUrl);
-      showToast("Partner-Link kopiert (Partner 2) 📋");
-    }
+    copyViaTempInput(partnerUrl);
+    showToast("✓ Einladungslink für Partner 2 kopiert 📋");
   }
 
-  function handleShareInviteLink(roleOverride) {
+  async function handleShareInviteLink(roleOverride) {
     var targetRole = roleOverride || 'B';
-    var inviteUrl = buildPairUrl(targetRole);
+    if (window.CloudSync && typeof window.CloudSync.push === 'function') {
+      showToast("⏳ Sichere Antworten in der Cloud...");
+      await window.CloudSync.push();
+    }
 
-    var text = "Hier ist unser sicherer Schlüssel für den Kink- & Beziehungs-Kompass:\n" + inviteUrl;
+    var inviteUrl = buildPairUrl(targetRole);
 
     if (navigator.share) {
       navigator.share({
-        title: "Kink- & Beziehungs-Kompass Kopplung",
-        text: text,
+        title: "Kink- & Beziehungs-Kompass",
+        text: "Hier ist unser sicherer Paar-Schlüssel (Partner 2):",
         url: inviteUrl
-      }).catch(function() {});
+      }).catch(function() {
+        copyViaTempInput(inviteUrl);
+        showToast("✓ Link für Partner 2 kopiert 📋");
+      });
     } else {
-      if (targetRole === 'A') handleCopySelfLink();
-      else handleCopyPartnerLink();
+      copyViaTempInput(inviteUrl);
+      showToast("✓ Link für Partner 2 kopiert 📋");
     }
-  }
-
-  function handleCopyInviteLink() {
-    handleCopyPartnerLink();
   }
 
   function handleManualSyncNow() {
     if (window.CloudSync && typeof window.CloudSync.pull === 'function') {
       showToast("⏳ Synchronisiere mit Cloud...");
       window.CloudSync.pull().then(function(success) {
-        if (success) {
-          if (typeof window.loadCoreData === 'function') window.loadCoreData();
-          if (typeof window.updateHubUI === 'function') window.updateHubUI();
-          
-          var ansA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-          var ansB = (window.answers && window.answers.B) ? Object.keys(window.answers.B).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-          showToast("✓ Daten synchron! P1: " + ansA + " Antworten · P2: " + ansB + " Antworten");
-        } else {
-          showToast("Aktuell keine neuen Änderungen auf dem Server.");
-        }
+        if (typeof window.loadCoreData === 'function') window.loadCoreData();
+        if (typeof window.updateHubUI === 'function') window.updateHubUI();
+        
+        var ansA = countLocalAnswers('A');
+        var ansB = countLocalAnswers('B');
+        showToast("✓ Daten synchron! P1: " + ansA + " Antworten · P2: " + ansB + " Antworten");
       });
     }
   }
@@ -745,51 +623,36 @@
     }
   }
 
+  function switchMyDeviceRole(newRole) {
+    if (newRole !== 'A' && newRole !== 'B') return;
+    localStorage.setItem('kompass_assigned_role', newRole);
+    if (typeof window.setCurrentUser === 'function') window.setCurrentUser(newRole);
+    updateCloudSyncUI();
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    showToast("✓ Dein Gerät ist jetzt fest als " + (newRole === 'B' ? 'Partner 2' : 'Partner 1') + " eingerichtet!");
+  }
+
   function checkUrlForAutoPairing() {
     try {
       var searchParams = new URLSearchParams(window.location.search);
       var pairCode = searchParams.get('pair');
-      var role = searchParams.get('role') || 'A';
+      var role = searchParams.get('role') || 'B';
 
-      // 1. In-URL Sofortübertragung aus Hash (#sync=...)
-      var rawSync = '';
-      var hash = window.location.hash || '';
-      if (hash.indexOf('sync=') !== -1) {
-        var mSync = hash.match(/sync=([^&]+)/);
-        if (mSync) rawSync = decodeURIComponent(mSync[1]);
-      } else if (searchParams.get('sync')) {
-        rawSync = decodeURIComponent(searchParams.get('sync'));
-      }
-
-      if (rawSync && window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
-        try {
-          window.CloudSync.importDirect(rawSync, role);
-          if (typeof window.loadCoreData === 'function') window.loadCoreData();
-          if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
-          updateCloudSyncUI();
-          if (typeof window.updateHubUI === 'function') window.updateHubUI();
-
-          var countA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-          showToast("✓ iPhone synchronisiert! " + countA + " Antworten für " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " geladen ✨");
-        } catch (err) {
-          console.warn("Fehler beim In-URL Import:", err);
-        }
-      }
-
-      // 2. Automatische Cloud-Kopplung bei Link-Klick
       if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
+        localStorage.setItem('kompass_onboarded', 'true');
+        closeOnboardingModal();
+
         window.CloudSync.joinRoom(pairCode, role).then(function() {
+          localStorage.setItem('kompass_onboarded', 'true');
           if (typeof window.loadCoreData === 'function') window.loadCoreData();
           if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
           updateCloudSyncUI();
           if (typeof window.updateHubUI === 'function') window.updateHubUI();
 
-          var count = (window.answers && window.answers[role]) 
-            ? Object.keys(window.answers[role]).filter(function(k){ return k.indexOf('_note') === -1; }).length 
-            : 0;
-
-          var name = (window.names && window.names[role]) ? window.names[role] : ('Partner ' + role);
-          showToast("✓ iPhone gekoppelt! " + count + " Antworten für " + name + " aktiviert ✨");
+          var ansA = countLocalAnswers('A');
+          var ansB = countLocalAnswers('B');
+          var name = (window.names && window.names[role]) ? window.names[role] : ('Partner ' + (role === 'B' ? '2' : '1'));
+          showToast("✓ Gekoppelt als " + name + "! (P1: " + ansA + " / P2: " + ansB + " Antworten)");
         }).catch(function(e) {});
       }
     } catch (e) {}
@@ -866,13 +729,6 @@
     if (typeof window.setCurrentUser === 'function') window.setCurrentUser(user);
     if (typeof window.goToSurveyItem === 'function') {
       window.goToSurveyItem(itemId);
-    } else if (typeof window.switchMainView === 'function') {
-      window.switchMainView('survey');
-      setTimeout(function() {
-        if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
-          window.SurveyEngine.jumpToItem(itemId);
-        }
-      }, 150);
     }
   }
 
@@ -881,9 +737,10 @@
     checkUrlForAutoPairing();
     updateCloudSyncUI();
 
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
     var onboarded = localStorage.getItem('kompass_onboarded');
-    if (onboarded !== 'true') {
-      setTimeout(openOnboardingModal, 400);
+    if (!isPaired && onboarded !== 'true') {
+      setTimeout(openOnboardingModal, 500);
     }
   }
 
@@ -897,13 +754,9 @@
   window.updateCurrentUserEmail = updateCurrentUserEmail;
   window.selectAccountAnatomy = selectAccountAnatomy;
   window.selectAccountSharingLevel = selectAccountSharingLevel;
-  window.toggleAccountAiActive = toggleAccountAiActive;
   window.saveGeminiKeyInAccount = saveGeminiKeyInAccount;
   window.testGeminiKeyInAccount = testGeminiKeyInAccount;
-  window.saveVoiceInAccount = saveVoiceInAccount;
-  window.playVoicePreviewInAccount = playVoicePreviewInAccount;
   window.toggleThemeInAccount = toggleThemeInAccount;
-  window.sendBackupEmail = sendBackupEmail;
   window.showResetConfirmation = showResetConfirmation;
   window.cancelResetConfirmation = cancelResetConfirmation;
   window.resetCurrentUserProfile = resetCurrentUserProfile;
@@ -912,7 +765,6 @@
   window.closeOnboardingModal = closeOnboardingModal;
   window.goToOnboardStep = goToOnboardStep;
   window.setOnboardingAnatomy = setOnboardingAnatomy;
-  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
   window.copyOnboardCode = copyOnboardCode;
   window.completeOnboarding = completeOnboarding;
 
@@ -925,9 +777,9 @@
   window.handleCopySelfLink = handleCopySelfLink;
   window.handleCopyPartnerLink = handleCopyPartnerLink;
   window.handleShareInviteLink = handleShareInviteLink;
-  window.handleCopyInviteLink = handleCopyInviteLink;
   window.handleManualSyncNow = handleManualSyncNow;
   window.handleDisconnectPairing = handleDisconnectPairing;
+  window.switchMyDeviceRole = switchMyDeviceRole;
 
   window.openTabuModal = openTabuModal;
   window.closeTabuModal = closeTabuModal;
