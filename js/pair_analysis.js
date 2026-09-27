@@ -4,17 +4,147 @@
  * - Standard-Freigabestufe: Stufe 4 (Radikale Transparenz / Alles zeigen)
  * - Doppel-5er Matches (Beiderseitige Volltreffer)
  * - Brückenbau-Chancen unter Berücksichtigung der 4 Freigabestufen (Schamschutz)
+ * - 🏆 BDSMTest.org-Top-10-Archetypen-Paarvergleich mit Doppel-Prozentbalken (Partner 1 vs. Partner 2)
  * - 🙈 Sensible Scham-Zonen (Praktiken mit Scham-Markierung als achtsame Vertrauenschancen)
  * - Absolute Tabu-Schranken (Note 1 schlägt alles - kompromissloser Veto-Schutz)
  * - Anklickbare Tabus und Praktiken mit partnergenauem Direktsprung in den Fragebogen (&user=A/B)
  * - Dauerhafter Cache für Paargutachten mit Antworten-Fingerprint und personengenauer Änderungs-Erkennung
- * - Schamfreies KI-Paargutachten mit wissenschaftlicher Fundierung
+ * - 🌿 Alltagstransfer & Beziehungs-Rituale: Konkreter Ratgeber zur Integration in den Alltag
  */
 
 (function(window) {
   'use strict';
 
   var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+
+  var ARCHETYPE_DEFINITIONS = [
+    {
+      id: 'dominant',
+      title: 'Dominant / Führung (Top)',
+      desc: 'Bedürfnis nach Regieführung, Verantwortung und autoritärer Struktur.',
+      chapters: [21, 22, 23, 29],
+      role: 'r1',
+      colorA: 'from-rose-600 to-brand-600',
+      colorB: 'from-amber-500 to-orange-600'
+    },
+    {
+      id: 'submissive',
+      title: 'Devot / Hingabe (Bottom)',
+      desc: 'Freude am vertrauensvollen Loslassen der Kontrolle, Dienen und Gehorsam.',
+      chapters: [21, 22, 23, 29],
+      role: 'r2',
+      colorA: 'from-indigo-600 to-purple-600',
+      colorB: 'from-cyan-500 to-blue-600'
+    },
+    {
+      id: 'rigger',
+      title: 'Rigger / Seilkünstler (Shibari)',
+      desc: 'Faszination am Fesseln, Konstruieren von Mustern und Arretieren.',
+      chapters: [13, 14, 15],
+      role: 'r1',
+      colorA: 'from-amber-600 to-rose-600',
+      colorB: 'from-yellow-500 to-amber-600'
+    },
+    {
+      id: 'rope_bunny',
+      title: 'Rope Bunny / Seil-Empfänger',
+      desc: 'Sinnliches Aufgehen in Fesselung, Begrenzung und Schwerelosigkeit.',
+      chapters: [13, 14, 15],
+      role: 'r2',
+      colorA: 'from-pink-600 to-rose-500',
+      colorB: 'from-fuchsia-500 to-pink-600'
+    },
+    {
+      id: 'sadist',
+      title: 'Sadist / Zuchtmeister (Impact Top)',
+      desc: 'Gezieltes Setzen intensiver Reize (Spanking, Flogger, Klemmen).',
+      chapters: [16, 17, 23],
+      role: 'r1',
+      colorA: 'from-red-700 to-rose-700',
+      colorB: 'from-red-500 to-orange-600'
+    },
+    {
+      id: 'masochist',
+      title: 'Masochist / Reizempfänger',
+      desc: 'Transformation von Schmerz- und Druckreizen in Endorphine und Trance.',
+      chapters: [16, 17, 23],
+      role: 'r2',
+      colorA: 'from-purple-700 to-indigo-700',
+      colorB: 'from-violet-500 to-purple-600'
+    },
+    {
+      id: 'caregiver',
+      title: 'Caregiver / Fürsorglicher Top',
+      desc: 'Liebevolle Führung, Behutsamkeit, Kuscheln und starker Aftercare-Fokus.',
+      chapters: [19, 30],
+      role: 'r1',
+      colorA: 'from-teal-600 to-emerald-600',
+      colorB: 'from-emerald-400 to-teal-500'
+    },
+    {
+      id: 'little_pet',
+      title: 'Pet / Schutzbefohlener',
+      desc: 'Sehnsucht nach bedingungsloser Geborgenheit, Umsorgtwerden und Unschuld.',
+      chapters: [19, 30],
+      role: 'r2',
+      colorA: 'from-cyan-600 to-teal-500',
+      colorB: 'from-sky-400 to-cyan-500'
+    },
+    {
+      id: 'primal_hunter',
+      title: 'Primal Hunter / Urinstinkt Top',
+      desc: 'Jagdinstinkt, raues Raufen, Festhalten, Bisse und ungezähmte Körperlichkeit.',
+      chapters: [18],
+      role: 'r1',
+      colorA: 'from-amber-700 to-orange-600',
+      colorB: 'from-orange-500 to-amber-600'
+    },
+    {
+      id: 'primal_prey',
+      title: 'Primal Prey / Beute',
+      desc: 'Erregung durch spielerische Gegenwehr, Gejagt- und Überwältigtwerden.',
+      chapters: [18],
+      role: 'r2',
+      colorA: 'from-orange-600 to-amber-500',
+      colorB: 'from-amber-400 to-orange-500'
+    },
+    {
+      id: 'chastity_master',
+      title: 'Keuschheits-Hüter',
+      desc: 'Lust an Kontrolle über Erregung, Orgasmusverweigerung und Schlüsselgewalt.',
+      chapters: [7, 8],
+      role: 'r1',
+      colorA: 'from-blue-700 to-indigo-800',
+      colorB: 'from-indigo-500 to-blue-600'
+    },
+    {
+      id: 'chastity_locked',
+      title: 'Keuschling / Denial-Empfänger',
+      desc: 'Süße Qual des Aufschubs, Schloss am Genital und Erlaubniserwartung.',
+      chapters: [7, 8],
+      role: 'r2',
+      colorA: 'from-indigo-800 to-purple-800',
+      colorB: 'from-purple-600 to-indigo-600'
+    },
+    {
+      id: 'voyeur_exhibitionist',
+      title: 'Visuell / Ästhet & Schau-Lust',
+      desc: 'Lingerie, Masken, Spiegel, Zusehen oder sich in Szene setzen.',
+      chapters: [9, 10, 11, 24],
+      role: 'both',
+      colorA: 'from-fuchsia-600 to-pink-600',
+      colorB: 'from-pink-500 to-rose-500'
+    },
+    {
+      id: 'sensory_zen',
+      title: 'Sinnlicher Hypnotiseur / Trance',
+      desc: 'Atemsynchronisation, Vagusnerv-Entlastung, Kälte/Wärme und Berührungskunst.',
+      chapters: [1, 2, 30],
+      role: 'both',
+      colorA: 'from-emerald-600 to-teal-500',
+      colorB: 'from-teal-400 to-emerald-500'
+    }
+  ];
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -97,6 +227,48 @@
       } catch (e) {}
     }
     return nm || { A: 'Partner 1', B: 'Partner 2' };
+  }
+
+  function calculatePartnerArchetypeRankings(answersUser, chapters) {
+    var results = {};
+    ARCHETYPE_DEFINITIONS.forEach(function(arch) {
+      var earned = 0;
+      var possible = 0;
+
+      arch.chapters.forEach(function(chId) {
+        var ch = chapters.find(function(c) { return c.id === chId; });
+        if (ch && ch.items) {
+          ch.items.forEach(function(it) {
+            if (it.type !== 'choice') {
+              if (arch.role === 'r1' || arch.role === 'both') {
+                var s1 = answersUser['it_' + it.id + '_r1'];
+                if (typeof s1 === 'number') {
+                  earned += s1;
+                  possible += 5;
+                }
+              }
+              if (arch.role === 'r2' || arch.role === 'both') {
+                var s2 = answersUser['it_' + it.id + '_r2'];
+                if (typeof s2 === 'number') {
+                  earned += s2;
+                  possible += 5;
+                }
+              }
+            }
+          });
+        }
+      });
+
+      var percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      results[arch.id] = {
+        id: arch.id,
+        title: arch.title,
+        desc: arch.desc,
+        percentage: percentage,
+        possible: possible
+      };
+    });
+    return results;
   }
 
   function calculatePairSynergy() {
@@ -250,6 +422,8 @@
   function renderPairAnalysis() {
     var names = getEffectiveNames();
     var synergy = calculatePairSynergy();
+    var chapters = window.surveyChapters || [];
+    var answers = getEffectiveAnswers();
 
     var titleA = document.getElementById('pair-names-title');
     if (titleA) titleA.innerText = (names.A || 'Partner 1') + " & " + (names.B || 'Partner 2');
@@ -318,6 +492,9 @@
       }
     }
 
+    // BDSMTest.org Top 10 Ranglisten-Paarvergleich rendern
+    renderPairBdsmTestRankings(answers, chapters, names);
+
     // Scham-Zonen rendern
     renderShameBridgesContainer(synergy.shameBridges);
 
@@ -349,6 +526,107 @@
     }
 
     loadCachedPairReport();
+  }
+
+  function renderPairBdsmTestRankings(answers, chapters, names) {
+    var container = document.getElementById('pair-bdsmtest-container');
+    if (!container) {
+      var gridEl = document.getElementById('pair-double-fives-container')?.closest('.grid');
+      if (gridEl && gridEl.parentNode) {
+        var card = document.createElement('div');
+        card.id = 'pair-bdsmtest-container';
+        card.className = "theme-card rounded-3xl p-5 border space-y-4 shadow-md animate-fade-in";
+        gridEl.parentNode.insertBefore(card, gridEl.nextSibling);
+        container = card;
+      }
+    }
+    if (!container) return;
+
+    var rankA = calculatePartnerArchetypeRankings(answers.A || {}, chapters);
+    var rankB = calculatePartnerArchetypeRankings(answers.B || {}, chapters);
+
+    var sortedArchetypes = ARCHETYPE_DEFINITIONS.slice().sort(function(x, y) {
+      var maxScoreX = Math.max(rankA[x.id]?.percentage || 0, rankB[x.id]?.percentage || 0);
+      var maxScoreY = Math.max(rankA[y.id]?.percentage || 0, rankB[y.id]?.percentage || 0);
+      return maxScoreY - maxScoreX;
+    });
+
+    var topArchetypes = sortedArchetypes.slice(0, 10);
+    var nameA = names.A || 'Partner 1';
+    var nameB = names.B || 'Partner 2';
+
+    container.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🏆</span>
+          <div>
+            <strong class="text-xs sm:text-sm text-white font-extrabold block">BDSMTest.org Archetypen-Paarvergleich (Top 10):</strong>
+            <p class="text-[10.5px] text-slate-400">Vergleicht eure Neigungen nebeneinander. Erkennbar sind unmittelbare Synergien und gegenseitige Rollenverteilungen.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-[10px] font-bold font-mono self-start sm:self-auto">
+          <span class="flex items-center gap-1.5 text-rose-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-rose-600 to-brand-500 inline-block"></span>
+            ${escapeHtml(nameA)}
+          </span>
+          <span class="flex items-center gap-1.5 text-amber-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 inline-block"></span>
+            ${escapeHtml(nameB)}
+          </span>
+        </div>
+      </div>
+
+      <div class="space-y-3.5 pt-1">
+        ${topArchetypes.map(function(arch, idx) {
+          var pctA = rankA[arch.id]?.percentage || 0;
+          var pctB = rankB[arch.id]?.percentage || 0;
+          var diff = Math.abs(pctA - pctB);
+          var isSynergy = (arch.role === 'both' && pctA >= 40 && pctB >= 40) ||
+                          (pctA >= 50 && pctB >= 50);
+
+          return `
+            <div class="space-y-1.5 p-2.5 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 min-w-0 pr-2">
+                  <span class="text-[10px] font-mono font-bold text-slate-500 w-5 text-left flex-shrink-0">${idx + 1}.</span>
+                  <strong class="text-slate-100 text-[11px] truncate">${escapeHtml(arch.title)}</strong>
+                  ${isSynergy ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-teal-950 text-teal-300 border border-teal-800 font-bold flex-shrink-0">✨ Hohe Synergie</span>' : ''}
+                </div>
+                <div class="flex items-center gap-2 font-mono text-[10.5px] font-black flex-shrink-0">
+                  <span class="text-rose-400">${pctA}%</span>
+                  <span class="text-slate-600">/</span>
+                  <span class="text-amber-400">${pctB}%</span>
+                </div>
+              </div>
+
+              <!-- BALKEN PARTNER 1 -->
+              <div class="space-y-0.5">
+                <div class="flex items-center justify-between text-[9px] text-slate-400 px-0.5">
+                  <span>${escapeHtml(nameA)}</span>
+                  <span class="font-mono text-rose-300">${pctA}%</span>
+                </div>
+                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800/60">
+                  <div class="h-full bg-gradient-to-r ${arch.colorA} rounded-full transition-all duration-700 shadow-sm" style="width: ${Math.max(4, pctA)}%;"></div>
+                </div>
+              </div>
+
+              <!-- BALKEN PARTNER 2 -->
+              <div class="space-y-0.5">
+                <div class="flex items-center justify-between text-[9px] text-slate-400 px-0.5">
+                  <span>${escapeHtml(nameB)}</span>
+                  <span class="font-mono text-amber-300">${pctB}%</span>
+                </div>
+                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800/60">
+                  <div class="h-full bg-gradient-to-r ${arch.colorB} rounded-full transition-all duration-700 shadow-sm" style="width: ${Math.max(4, pctB)}%;"></div>
+                </div>
+              </div>
+
+              <p class="text-[9.5px] text-slate-400 leading-tight pl-6">${escapeHtml(arch.desc)}</p>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
   }
 
   function renderShameBridgesContainer(shameBridges) {
@@ -435,8 +713,8 @@
       <div class="theme-card rounded-3xl p-6 border text-center space-y-3 shadow-md">
         <span class="text-3xl block">💫</span>
         <div>
-          <strong class="text-xs text-white block font-bold">Wissenschaftliches KI-Paargutachten:</strong>
-          <p class="text-[10.5px] text-slate-400 mt-0.5">Analysiert eure beiderseitigen Schnittmengen, Dynamiken und Vertrauenspotenziale schamfrei.</p>
+          <strong class="text-xs text-white block font-bold">Wissenschaftliches KI-Paargutachten & Alltagstransfer:</strong>
+          <p class="text-[10.5px] text-slate-400 mt-0.5">Analysiert eure beiderseitigen Schnittmengen, Dynamiken und gibt konkrete Ratschläge für den Beziehungsalltag.</p>
         </div>
         <button type="button" onclick="PairAnalysisEngine.generateReport()" class="px-5 py-2.5 bg-gradient-to-r from-amber-600 via-brand-600 to-purple-700 hover:opacity-90 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
           ✨ Jetzt KI-Paargutachten berechnen
@@ -473,12 +751,19 @@
       `;
     }
 
+    var everydayTransferHtml = (report.everyday_transfer || report.transfer) ? `
+      <div class="p-3.5 rounded-2xl bg-teal-950/20 border border-teal-900/60 space-y-1">
+        <strong class="text-teal-200 block text-xs font-bold">4. Alltagstransfer & Beziehungs-Rituale:</strong>
+        <p>${escapeHtml(report.everyday_transfer || report.transfer || '')}</p>
+      </div>
+    ` : '';
+
     return `
       <div class="theme-card rounded-3xl p-5 border space-y-3.5 shadow-md animate-fade-in text-xs leading-relaxed">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <div class="flex items-center gap-2">
             <span class="text-base">✨</span>
-            <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Paargutachten</h3>
+            <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Paargutachten & Beziehungs-Integration</h3>
           </div>
           <button type="button" onclick="PairAnalysisEngine.generateReport()" class="px-3 py-1 bg-amber-950 hover:bg-amber-900 border border-amber-700 text-amber-300 font-extrabold rounded-xl text-xs touch-btn shadow-sm">
             Neu berechnen ↺
@@ -496,10 +781,11 @@
             <strong class="text-indigo-200 block text-xs font-bold">2. Schamfreie Brücken & Vertrauens-Chancen:</strong>
             <p>${escapeHtml(report.bridges || '')}</p>
           </div>
-          <div class="p-3.5 rounded-2xl bg-teal-950/20 border border-teal-900/60 space-y-1">
-            <strong class="text-teal-200 block text-xs font-bold">3. Vertrauens-Kodex & Scham-Entlastung:</strong>
+          <div class="p-3.5 rounded-2xl bg-rose-950/20 border border-rose-900/60 space-y-1">
+            <strong class="text-rose-200 block text-xs font-bold">3. Vertrauens-Kodex & Schutz der Grenzen:</strong>
             <p>${escapeHtml(report.safety || '')}</p>
           </div>
+          ${everydayTransferHtml}
         </div>
       </div>
     `;
@@ -507,13 +793,19 @@
 
   function generateClientSidePairReport(names, doubleFivesCount, bridgesCount, tabusCount, shameBridgesCount) {
     var shameText = shameBridgesCount > 0
-      ? `Mit ${shameBridgesCount} identifizierten Scham-Zonen habt ihr wertvolle Wachstumsfelder erschlossen: Wo Lust auf Scham trifft, wird Vertrauen lebendig. Wenn der Top hier entschleunigt und behutsam führt, verwandelt sich Scham in tiefste Hingabe.`
-      : `Besonders wertvoll sind eure ${bridgesCount} identifizierten Brücken. Sie laden ein zu behutsamen Experimenten im geschützten Raum, ohne dass jemals Druck entsteht.`;
+      ? `Mit ${shameBridgesCount} identifizierten Scham-Zonen habt ihr wertvolle intime Wachstumsfelder erschlossen: Wo Lust auf Scham trifft, wird Vertrauen lebendig. Wenn der führende Partner hier entschleunigt, behutsam vorgeht und Sicherheit schenkt, verwandelt sich Scham in tiefste Hingabe und emotionale Erleichterung.`
+      : `Besonders wertvoll sind eure ${bridgesCount} identifizierten Brücken. Sie laden ein zu behutsamen Experimenten im geschützten Raum, ohne dass jemals Leistungsdruck oder Erwartungsstress entsteht.`;
+
+    var transferText = `So lasst ihr eure Synergie harmonisch in den Beziehungsalltag einfließen:
+1. 'Micro-D/s' und diskrete Signale: Ein bewusst langer Blickkontakt bei der Verabschiedung, eine sanft führende Hand im Nacken oder ein privates Codewort bei gesellschaftlichen Anlässen halten die erotische Verbindung aufrecht, ohne dass Außenstehende etwas bemerken.
+2. Saubere Trennung von Alltag & Spiel: Echte Pflichten, Finanzen und Terminstress werden stets partnerschaftlich-demokratisch auf Augenhöhe verhandelt. Die erotische Führung bleibt ein geschützter, einvernehmlicher Spielraum.
+3. Check-ins nach intensiven Momenten: Verabredet am Folgetag eines intensiven Spielabends ein kurzes, liebevolles 'Decken-Gespräch' oder eine Tasse Tee, um das Erlebte zu integrieren und einem Subdrop/Topdrop vorzubeugen.`;
 
     return {
       synergy: `${names.A} und ${names.B} teilen ein kraftvolles, komplementäres erotisches Spannungsfeld. Mit ${doubleFivesCount} beiderseitigen Volltreffern verfügt ihr über eine solide Basis unmittelbarer Lust, die ohne Zögern gelebt werden kann. Eure Antworten spiegeln ein tiefes Bedürfnis nach Authentizität, Loslassen und gegenseitiger Präsenz wider.`,
       bridges: shameText,
-      safety: `Mit ${tabusCount} definierten Tabus beweist ihr eine gesunde, reife Grenzziehung. Wahre erotische Hingabe kann nur dort entstehen, wo das 'Nein' absolut heilig ist. Eure Vereinbarungen bieten das perfekte Sicherheitsnetz, in dem beide Partner die Kontrolle vertrauensvoll abgeben dürfen.`
+      safety: `Mit ${tabusCount} definierten Tabus beweist ihr eine gesunde, reife Grenzziehung. Wahre erotische Hingabe kann nur dort entstehen, wo das 'Nein' absolut heilig ist. Eure Vereinbarungen bieten das perfekte Sicherheitsnetz, in dem beide Partner die Kontrolle vertrauensvoll abgeben dürfen.`,
+      everyday_transfer: transferText
     };
   }
 
@@ -521,14 +813,24 @@
     var names = getEffectiveNames();
     var answers = getEffectiveAnswers();
     var synergy = calculatePairSynergy();
+    var chapters = window.surveyChapters || [];
+
+    var rankA = calculatePartnerArchetypeRankings(answers.A || {}, chapters);
+    var rankB = calculatePartnerArchetypeRankings(answers.B || {}, chapters);
+
+    var sortedA = Object.values(rankA).sort(function(a, b) { return b.percentage - a.percentage; });
+    var sortedB = Object.values(rankB).sort(function(a, b) { return b.percentage - a.percentage; });
+
+    var topArchetypesSummaryA = sortedA.slice(0, 3).map(function(r) { return r.title + " (" + r.percentage + "%)"; }).join(', ');
+    var topArchetypesSummaryB = sortedB.slice(0, 3).map(function(r) { return r.title + " (" + r.percentage + "%)"; }).join(', ');
 
     var container = document.getElementById('pair-report-container');
     if (container) {
       container.innerHTML = `
         <div class="theme-card rounded-3xl p-8 border text-center space-y-3 shadow-md animate-pulse">
           <div class="w-10 h-10 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mx-auto"></div>
-          <strong class="text-xs text-amber-200 block font-bold">Erstelle tiefenpsychologisches Paargutachten...</strong>
-          <p class="text-[10.5px] text-slate-400">Gemini analysiert eure Doppel-5er, Scham-Zonen und Schutzgrenzen.</p>
+          <strong class="text-xs text-amber-200 block font-bold">Erstelle tiefenpsychologisches Paargutachten & Alltagstransfer...</strong>
+          <p class="text-[10.5px] text-slate-400">Gemini analysiert eure Doppel-5er, BDSMTest-Archetypen, Scham-Zonen und erarbeitet konkrete Integrationsstrategien für den Alltag.</p>
         </div>
       `;
     }
@@ -536,24 +838,28 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
 
     var prompt = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Paar- und Sexualtherapeutin.
-Erstelle ein warmherziges, inspirierendes und absolut schamfreies Paargutachten für ${names.A} und ${names.B}.
+Erstelle ein warmherziges, inspirierendes und absolut schamfreies Paargutachten sowie konkreten Alltagstransfer für ${names.A} und ${names.B}.
 
-DATEN ZUR SYNERGIE:
+DATEN ZUR PAAR-SYNERGIE:
+- Top-Archetypen von ${names.A}: ${topArchetypesSummaryA}
+- Top-Archetypen von ${names.B}: ${topArchetypesSummaryB}
 - Beiderseitige Doppel-5er Matches: ${synergy.doubleFives.length}
 - Brückenbau-Potenziale (5 zu 3 / 2): ${synergy.bridges.length}
 - Sensible Scham-Zonen (Lust mit Hemmschwelle): ${synergy.shameBridges.length}
 - Definierte Veto-Tabus (Note 1): ${synergy.tabus.length}
 
-TONFALL:
-- Warmherzig, befreiend, partnerschaftlich ("Ihr"-Form).
-- Gehe in Feld 2 "bridges" explizit auf die ${synergy.shameBridges.length} Scham-Zonen ein: Erkläre, wie Scham durch behutsame Führung und Verlangsamung in tiefes Vertrauen umgewandelt wird (Canivet 2025).
-- Würdige Tabus als wertvolle Sicherheitsgrenzen, die Hingabe erst möglich machen.
+TONFALL & ANWEISUNGEN:
+- Sprich das Paar warmherzig, befreiend und partnerschaftlich in der "Ihr"-Form an.
+- Absolut schamfrei, entlastend und psychologisch fundiert.
+- In Feld 2 "bridges": Gehe explizit auf die ${synergy.shameBridges.length} sensiblen Scham-Themen ein. Erkläre, warum Scham der Hüter verletzlicher Sehnsüchte ist und wie durch behutsame Führung tiefe Intimität entsteht (Canivet 2025, Wismeijer 2013).
+- In Feld 4 "everyday_transfer": Gib praxisnahe, konkrete Ratschläge für den Beziehungsalltag: Wie kann das Paar diese Erotik stressfrei und bereichernd in den Alltag einweben? (z. B. Micro-D/s, nonverbale Gesten, klare Trennung von Alltagsverantwortung und Spiel, Nachbereitung/Check-ins).
 
-Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
+Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
 {
-  "synergy": "Eure Beziehungs- und Machtdynamik (3 bis 5 Sätze)",
+  "synergy": "Eure Beziehungs- und Machtdynamik im Lichte eurer BDSMTest-Archetypen (3 bis 5 Sätze)",
   "bridges": "Schamfreie Würdigung der Brücken und sensiblen Scham-Zonen (3 bis 5 Sätze)",
-  "safety": "Vertrauenskultur und Schutz der Grenzen (3 bis 4 Sätze)"
+  "safety": "Vertrauenskultur, Grenzen und Schutz des Tabu-Vetoraums (3 bis 4 Sätze)",
+  "everyday_transfer": "Konkreter Alltagstransfer: Wie lebt ihr diese Erotik harmonisch, diskret und bereichernd im Alltag? (3 bis 5 Sätze)"
 }`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
@@ -587,7 +893,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
 
           if (parsedData && parsedData.synergy) {
             finalReport = parsedData;
-            showToast("✓ Paargutachten berechnet (" + targetModel + ")");
+            showToast("✓ Paargutachten erfolgreich berechnet (" + targetModel + ")");
             break;
           }
         }
