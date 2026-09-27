@@ -3,11 +3,13 @@
  * Modul für den dynamischen Fragebogen des Kink- & Beziehungs-Kompasses.
  * 
  * Beinhaltet:
+ * - Volle Container-Breite für Beschreibungstexte auf Smartphones (kein Quetschen)
+ * - Strenger Manipulationsschutz: Nur das dem Gerät zugewiesene Profil ist bearbeitbar
+ * - Vollständiger Schreibschutz bei Ansicht des Partner-Profils (gesperrte Buttons, Read-Only-Notizen)
  * - Kapitel-Navigation (Kapitel 0 bis 35) & Direkt-Sprung-Gitter
  * - Filter-Engine (Scope: Kapitel / Global; Filter: Alle, Unbeantwortet, Favoriten, Tabus, Hemmschwelle/Scham)
  * - Bewertungsblöcke (Stufen 0 bis 5 inkl. "0: Betrifft mich nicht / Entfällt")
- * - Volle Editierbarkeit des aktiven Profils (keine falsche Schreibschutz-Sperre auf dem Smartphone)
- * - 🙈 Scham- & Hemmschwellen-Button je Frage (aktivierbar für Scham/Überwindungs-Themen)
+ * - 🙈 Scham- & Hemmschwellen-Button je Frage
  * - Freitext-Notizfelder für persönliche Bemerkungen und Konditionen
  * - Direktsprung zu beliebigen Fragen mit optischem Puls-Highlight
  * - Direkte Anbindung an die Live-KI-Recherche
@@ -31,8 +33,8 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
       return;
     }
     var c = document.getElementById('toast-container');
@@ -49,9 +51,24 @@
     }, 2500);
   }
 
+  function getMyAssignedDeviceRole() {
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (!isPaired) {
+      // Ungekoppelt / Lokaler Modus: Am geteilten PC dürfen beide Profile gepflegt werden
+      return null;
+    }
+    return localStorage.getItem('kompass_assigned_role') || 'A';
+  }
+
   function canEditCurrentProfile() {
-    // Erlaubt immer die freie Bearbeitung des auf diesem Gerät aktuell ausgewählten Profils
-    return true;
+    var myDeviceRole = getMyAssignedDeviceRole();
+    if (!myDeviceRole) {
+      // Lokaler Modus ohne Kopplung
+      return true;
+    }
+    var curUser = window.currentUser || 'A';
+    // Strenger Manipulationsschutz: Nur das eigene Profil darf verändert werden
+    return curUser === myDeviceRole;
   }
 
   function getGlobalProgressData(user) {
@@ -115,7 +132,7 @@
 
   function toggleItemShame(itemId) {
     if (!canEditCurrentProfile()) {
-      showToast("🔒 Schreibschutz aktiv.");
+      showToast("🔒 Schreibschutz aktiv: Du kannst nur dein eigenes Profil bearbeiten.");
       return;
     }
 
@@ -198,6 +215,10 @@
     if (!chapter) return;
 
     var currentUser = window.currentUser || 'A';
+    var myDeviceRole = getMyAssignedDeviceRole();
+    var isEditable = canEditCurrentProfile();
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+
     var uAnswers = (window.answers && window.answers[currentUser]) || {};
     var badge = document.getElementById('chapter-badge');
     var title = document.getElementById('chapter-title');
@@ -207,7 +228,6 @@
     var btnNext = document.getElementById('btn-next-chapter-bottom');
 
     var isGlobal = (activeSurveyScope === 'global');
-    var isEditable = canEditCurrentProfile();
 
     if (badge) {
       badge.innerText = isGlobal 
@@ -225,7 +245,6 @@
         : chapter.desc;
     }
 
-    // Fortschrittsberechnung VOR Verwendung in Button-Beschriftung
     var prog = getGlobalProgressData(currentUser);
     var pText = document.getElementById('progress-text');
     var pFill = document.getElementById('progress-bar-fill');
@@ -281,6 +300,27 @@
     
     var html = '';
 
+    if (!isEditable && myDeviceRole) {
+      var partnerName = names[currentUser] || (currentUser === 'A' ? 'Partner 1' : 'Partner 2');
+      var myName = names[myDeviceRole] || (myDeviceRole === 'A' ? 'Partner 1' : 'Partner 2');
+      html += `
+        <div class="p-3.5 rounded-2xl bg-indigo-950/70 border border-indigo-700/80 text-indigo-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl flex-shrink-0">🔒</span>
+            <div>
+              <strong class="text-white block font-bold text-xs">Profil von ${escapeHtml(partnerName)} (Schreibgeschützt)</strong>
+              <span class="text-[10.5px] text-slate-300 block leading-snug">
+                Du siehst die Antworten deines Partners. Manipulationen sind gesperrt – Änderungen können ausschließlich auf dem Smartphone von ${escapeHtml(partnerName)} vorgenommen werden.
+              </span>
+            </div>
+          </div>
+          <button type="button" onclick="window.setCurrentUser('${myDeviceRole}')" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs flex-shrink-0 touch-btn shadow-md whitespace-nowrap">
+            Zu meinem Profil (${escapeHtml(myName)}) →
+          </button>
+        </div>
+      `;
+    }
+
     if (filteredList.length === 0) {
       var isAllAnswered = (prog.pct === 100);
       var isUnansweredFilter = (activeSurveyFilter === 'unanswered');
@@ -290,8 +330,8 @@
         emptyContent = `
           <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-emerald-500/50 bg-emerald-950/20 shadow-xl animate-fade-in">
             <span class="text-3xl block">🎉</span>
-            <strong class="text-sm font-black text-white block">Großartig! Du hast alle Fragen beantwortet!</strong>
-            <p class="text-xs text-slate-300 max-w-md mx-auto">Dein Profil ist vollständig ausgefüllt. Schau dir jetzt dein Archetypen-Radar, deine Säulen-Balance und dein KI-Gutachten an.</p>
+            <strong class="text-sm font-black text-white block">Großartig! Alle Fragen beantwortet!</strong>
+            <p class="text-xs text-slate-300 max-w-md mx-auto">Dieses Profil ist vollständig ausgefüllt. Schau dir jetzt das Archetypen-Radar, die Säulen-Balance und das KI-Gutachten an.</p>
             <div class="pt-2">
               <button type="button" onclick="window.switchMainView('single')" class="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-rose-600 hover:opacity-90 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
                 ✨ Jetzt zu Mein Profil →
@@ -304,7 +344,7 @@
           <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-slate-800 animate-fade-in">
             <span class="text-2xl block">✓</span>
             <strong class="text-xs font-bold text-white block">Keine offenen Fragen ${isGlobal ? 'im gesamten Fragebogen' : 'in diesem Kapitel'}!</strong>
-            <p class="text-[11px] text-slate-400">Alle Fragen in diesem Bereich wurden bereits von dir bewertet.</p>
+            <p class="text-[11px] text-slate-400">Alle Fragen in diesem Bereich wurden bereits bewertet.</p>
             <div class="flex justify-center gap-2 pt-1">
               <button type="button" onclick="SurveyEngine.setFilter('all')" class="px-3.5 py-1.5 theme-panel border text-slate-300 text-xs font-bold rounded-xl touch-btn">
                 Alle Fragen anzeigen
@@ -329,41 +369,52 @@
       var ch = entry.chapter;
       var isShame = !!uAnswers['it_' + it.id + '_shame'];
 
-      html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4 transition-all duration-500">';
-      html += '<div class="flex items-start justify-between gap-2">';
-      html += '  <div class="min-w-0 flex-1">';
+      html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-3.5 transition-all duration-500">';
+      
+      // KOPFBEREICH: Titel links, Aktionsbuttons rechts
+      html += '<div class="space-y-1.5">';
+      html += '  <div class="flex items-start justify-between gap-2">';
+      html += '    <div class="min-w-0 flex-1">';
       if (isGlobal) {
-        html += '    <span class="inline-block px-2 py-0.5 mb-1 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono text-[9px] font-bold">Kapitel ' + ch.id + ': ' + escapeHtml(ch.title) + '</span>';
+        html += '      <span class="inline-block px-2 py-0.5 mb-1 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono text-[9px] font-bold">Kapitel ' + ch.id + ': ' + escapeHtml(ch.title) + '</span>';
       }
-      html += '    <strong class="text-sm font-extrabold text-white block">' + escapeHtml(it.title) + '</strong>';
-      html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
-      html += '  </div>';
+      html += '      <strong class="text-sm sm:text-base font-extrabold text-white block leading-snug">' + escapeHtml(it.title) + '</strong>';
+      html += '    </div>';
 
-      html += '  <div class="flex items-center gap-1.5 flex-shrink-0">';
+      html += '    <div class="flex items-center gap-1.5 flex-shrink-0 pt-0.5">';
       
       var shameBtnClass = isShame
         ? 'bg-indigo-950 border-indigo-500 text-indigo-200 font-bold shadow-sm ring-1 ring-indigo-500/60'
         : 'theme-panel border-slate-800 text-slate-400 hover:text-indigo-300 hover:border-indigo-800';
 
-      html += '    <button type="button" onclick="SurveyEngine.toggleShame(' + it.id + ')" class="px-2.5 py-1 rounded-xl border text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn transition ' + shameBtnClass + '" title="Als schambehaftet / Hemmschwelle markieren">';
-      html += '      <span>🙈</span><span>' + (isShame ? 'Scham aktiv ✓' : 'Scham') + '</span>';
-      html += '    </button>';
+      var shameClick = isEditable ? ('onclick="SurveyEngine.toggleShame(' + it.id + ')"') : ('onclick="showToast(\'🔒 Schreibschutz: Du kannst nur dein eigenes Profil bearbeiten.\')"');
 
-      html += '    <button type="button" onclick="openItemResearch(' + it.id + ')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
-      html += '      <span>🔍</span><span>KI-Info</span>';
-      html += '    </button>';
+      html += '      <button type="button" ' + shameClick + ' class="px-2.5 py-1 rounded-xl border text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn transition ' + shameBtnClass + ' ' + (isEditable ? '' : 'cursor-not-allowed opacity-80') + '" title="Als schambehaftet / Hemmschwelle markieren">';
+      html += '        <span>🙈</span><span>' + (isShame ? 'Scham aktiv ✓' : 'Scham') + '</span>';
+      html += '      </button>';
+
+      html += '      <button type="button" onclick="openItemResearch(' + it.id + ')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
+      html += '        <span>🔍</span><span>KI-Info</span>';
+      html += '      </button>';
+      html += '    </div>';
       html += '  </div>';
 
+      // VOLLFLÄCHIGER BESCHREIBUNGSTEXT: Nutzt jetzt die volle Breite des Containers ohne gequetscht zu werden!
+      if (it.desc) {
+        html += '  <p class="text-[11.5px] text-slate-300/90 leading-relaxed w-full">' + escapeHtml(it.desc) + '</p>';
+      }
       html += '</div>';
 
       if (it.type === 'choice') {
         var curVal = uAnswers['it_' + it.id + '_choice'];
-        html += '<div class="space-y-1.5">';
+        html += '<div class="space-y-1.5 pt-1">';
         html += '<strong class="text-xs text-white block mb-2">' + escapeHtml(it.question || 'Wähle eine Option:') + '</strong>';
         (it.options || []).forEach(function(opt) {
           var isSel = (curVal === opt.val);
           var cls = isSel ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700';
-          html += '<button type="button" onclick="saveChoice(' + it.id + ', \'' + opt.val + '\')" class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + cls + '">';
+          if (!isEditable) cls += ' cursor-not-allowed opacity-75';
+          var optClick = isEditable ? ('onclick="saveChoice(' + it.id + ', \'' + opt.val + '\')"') : '';
+          html += '<button type="button" ' + optClick + ' class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + cls + '">';
           html += escapeHtml(opt.label) + '</button>';
         });
         html += '</div>';
@@ -375,7 +426,11 @@
       var currentNote = uAnswers['it_' + it.id + '_note'] || '';
       html += '<div class="pt-2 border-t border-slate-800/60">';
       html += '  <div class="flex items-center gap-1.5">';
-      html += '    <input type="text" value="' + escapeHtml(currentNote) + '" onchange="saveNote(' + it.id + ', this.value)" placeholder="💬 Eigene Notiz / Kondition (z. B. nur sanft, erst später)..." class="w-full text-[11px] px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 placeholder-slate-500 focus:border-brand-500 focus:bg-slate-900 focus:outline-none transition">';
+      if (isEditable) {
+        html += '    <input type="text" value="' + escapeHtml(currentNote) + '" onchange="saveNote(' + it.id + ', this.value)" placeholder="💬 Eigene Notiz / Kondition (z. B. nur sanft, erst später)..." class="w-full text-[11px] px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 placeholder-slate-500 focus:border-brand-500 focus:bg-slate-900 focus:outline-none transition">';
+      } else {
+        html += '    <input type="text" value="' + escapeHtml(currentNote) + '" readonly disabled placeholder="Keine Notiz hinterlegt" class="w-full text-[11px] px-3 py-2 rounded-xl bg-slate-950 border border-slate-900 text-slate-400 cursor-not-allowed opacity-75">';
+      }
       html += '  </div>';
       html += '</div>';
 
@@ -406,7 +461,15 @@
       var isSel = (currentVal === i);
       var cls = isSel ? colors[i] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60 hover:opacity-100';
       var tooltip = (i === 0) ? '0: Betrifft mich nicht / Entfällt' : (i === 1 ? '1: Tabu' : (i === 5 ? '5: Favorit' : 'Stufe ' + i));
-      html += '<button type="button" title="' + tooltip + '" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
+      
+      if (isEditable) {
+        html += '<button type="button" title="' + tooltip + '" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
+      } else {
+        var readOnlyCls = isSel 
+          ? colors[i] + ' font-bold shadow-md ring-1 ring-white/40' 
+          : 'theme-panel border-slate-900 text-slate-600 opacity-30 cursor-not-allowed';
+        html += '<button type="button" disabled title="Schreibgeschützt" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition cursor-not-allowed ' + readOnlyCls + '">' + i + '</button>';
+      }
     }
     html += '</div>';
     html += '<div class="flex justify-between text-[9px] font-mono text-slate-500 px-1 mt-0.5"><span>⚪ 0: Betrifft nicht</span><span>⛔ 1: Tabu</span><span>⭐ 5: Favorit</span></div>';
@@ -415,6 +478,11 @@
   }
 
   function saveRating(id, role, val) {
+    if (!canEditCurrentProfile()) {
+      showToast("🔒 Schreibschutz aktiv: Du kannst nur dein eigenes Profil bearbeiten.");
+      return;
+    }
+
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
@@ -426,6 +494,11 @@
   }
 
   function saveChoice(id, val) {
+    if (!canEditCurrentProfile()) {
+      showToast("🔒 Schreibschutz aktiv: Du kannst nur dein eigenes Profil bearbeiten.");
+      return;
+    }
+
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
@@ -437,6 +510,11 @@
   }
 
   function saveNote(id, val) {
+    if (!canEditCurrentProfile()) {
+      showToast("🔒 Schreibschutz aktiv: Du kannst nur dein eigenes Profil bearbeiten.");
+      return;
+    }
+
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
@@ -477,8 +555,6 @@
     var isLast = (currentChapterIndex >= chapters.length - 1);
     var prog = getGlobalProgressData(window.currentUser || 'A');
 
-    // Wenn der Button "Zum Profil" signalisiert, alle Fragen fertig sind,
-    // oder das letzte Kapitel / Global-Modus erreicht ist: direkt zur Profil-Ansicht!
     if (isGlobal || isLast || prog.pct === 100) {
       if (typeof window.switchMainView === 'function') {
         window.switchMainView('single');
@@ -585,7 +661,8 @@
     jumpToChapter: jumpToChapter,
     jumpToItem: jumpToItem,
     getProgressData: getGlobalProgressData,
-    canEdit: canEditCurrentProfile
+    canEdit: canEditCurrentProfile,
+    getAssignedRole: getMyAssignedDeviceRole
   };
 
   window.renderSurveyChapter = renderSurveyChapter;
