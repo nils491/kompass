@@ -5,9 +5,10 @@
  * Beinhaltet:
  * - View-Management (Hub, Survey, Safety, Single-Profile) & Hash-Routing
  * - Partner-Verwaltung (Partner 1 / Partner 2) & Namens-Synchronisation
+ * - Fester Manipulationsschutz: Die physische Geräterolle wird beim Betrachten des Partnerprofils nicht überschrieben
+ * - Schutz vor Manipulation im 6-Module-Sicherheits-Kodex
  * - Lückenlose Datenpersistenz (LocalStorage + Zero-Conflict Fallback)
  * - Burger-Menü & Desktop-Navigation Synchronisation
- * - Vollständiger 6-Module Sicherheits-Kodex Konfigurator
  * - Direktsprung-Routing aus Profil & Tabu-Listen
  */
 
@@ -58,6 +59,20 @@
     }, 2800);
   }
 
+  function getMyAssignedDeviceRole() {
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (!isPaired) {
+      return null; // Lokaler Modus ohne Kopplung
+    }
+    return localStorage.getItem('kompass_assigned_role') || 'A';
+  }
+
+  function canEditCurrentProfile() {
+    var myRole = getMyAssignedDeviceRole();
+    if (!myRole) return true;
+    return currentUser === myRole;
+  }
+
   function loadCoreData() {
     try {
       var rawAnswers = localStorage.getItem('kompass_answers');
@@ -72,10 +87,14 @@
       var rawSafety = localStorage.getItem('kompass_safety_config');
       if (rawSafety) window.safetyConfig = JSON.parse(rawSafety);
 
+      var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
       var savedRole = localStorage.getItem('kompass_assigned_role');
-      if (savedRole === 'A' || savedRole === 'B') {
-        currentUser = savedRole;
-        window.currentUser = savedRole;
+      if (isPaired && (savedRole === 'A' || savedRole === 'B')) {
+        // Beim Starten auf gekoppeltem Gerät immer zuerst das eigene Profil laden
+        if (!currentUser) {
+          currentUser = savedRole;
+          window.currentUser = savedRole;
+        }
       }
     } catch (e) {
       console.warn("Fehler beim Laden lokaler Daten:", e);
@@ -101,7 +120,8 @@
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
       localStorage.setItem('kompass_safety_config', JSON.stringify(window.safetyConfig));
-      localStorage.setItem('kompass_assigned_role', currentUser);
+      // WICHTIG: kompass_assigned_role wird hier NICHT überschrieben,
+      // damit das Betrachten des Partner-Profils nicht die Geräterolle zerstört!
 
       if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
         window.CloudSync.trigger();
@@ -117,9 +137,13 @@
     currentUser = user;
     window.currentUser = currentUser;
 
-    try {
-      localStorage.setItem('kompass_assigned_role', user);
-    } catch (e) {}
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (!isPaired) {
+      // Nur im unverschlüsselten lokalen PC-Modus darf die Geräterolle wechseln
+      try {
+        localStorage.setItem('kompass_assigned_role', user);
+      } catch (e) {}
+    }
 
     saveCoreData();
     updateUserToggleUI();
@@ -134,7 +158,13 @@
     }
 
     var userName = (window.names && window.names[currentUser]) || (currentUser === 'A' ? 'Partner 1' : 'Partner 2');
-    showToast("Aktiver Partner: " + userName + " (" + currentUser + ") ✓");
+    var myRole = getMyAssignedDeviceRole();
+
+    if (myRole && currentUser !== myRole) {
+      showToast("Ansicht: " + userName + " (Schreibgeschützt) 🔒");
+    } else {
+      showToast("Aktives Profil: " + userName + " ✓");
+    }
   }
 
   function updateUserToggleUI() {
@@ -353,6 +383,7 @@
 
     var curUser = currentUser;
     var otherUser = (curUser === 'A' ? 'B' : 'A');
+    var isEditable = canEditCurrentProfile();
 
     var myConfig = (window.safetyConfig && window.safetyConfig[curUser]) || {};
     var otherConfig = (window.safetyConfig && window.safetyConfig[otherUser]) || {};
@@ -361,6 +392,20 @@
     var nameOther = (window.names && window.names[otherUser]) || (otherUser === 'A' ? 'Partner 1' : 'Partner 2');
 
     var html = '';
+
+    if (!isEditable) {
+      html += `
+        <div class="p-3.5 rounded-2xl bg-indigo-950/70 border border-indigo-700/80 text-indigo-200 text-xs flex items-center gap-2.5 shadow-lg mb-3">
+          <span class="text-xl flex-shrink-0">🔒</span>
+          <div>
+            <strong class="text-white block font-bold text-xs">Sicherheits-Kodex von ${escapeHtml(nameMe)} (Schreibgeschützt)</strong>
+            <span class="text-[10.5px] text-slate-300 block leading-snug">
+              Du siehst die Einstellungen deines Partners. Manipulationen sind gesperrt.
+            </span>
+          </div>
+        </div>
+      `;
+    }
 
     SAFETY_MODULES.forEach(function(mod) {
       var myVal = myConfig[mod.id];
@@ -394,7 +439,15 @@
           ? 'bg-teal-950/60 border-teal-500 text-white font-bold shadow-md'
           : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700';
 
-        html += '<button type="button" onclick="selectSafetyOption(\'' + mod.id + '\', \'' + opt.id + '\')" class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + btnClass + '">';
+        if (!isEditable) {
+          btnClass += ' opacity-80 cursor-not-allowed';
+        }
+
+        var clickHandler = isEditable 
+          ? ('onclick="selectSafetyOption(\'' + mod.id + '\', \'' + opt.id + '\')"')
+          : ('onclick="showToast(\'🔒 Schreibschutz: Du kannst nur dein eigenes Profil bearbeiten.\')"');
+
+        html += '<button type="button" ' + clickHandler + ' class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + btnClass + '">';
         html += '  <div class="flex items-center justify-between gap-2">';
         html += '    <span class="block">' + escapeHtml(opt.label) + '</span>';
         html += '    <span class="text-xs font-mono ' + (isMyChoice ? 'text-teal-300 font-bold' : 'text-slate-600') + '">' + (isMyChoice ? '✓' : '○') + '</span>';
@@ -416,6 +469,11 @@
   }
 
   function selectSafetyOption(moduleId, optionId) {
+    if (!canEditCurrentProfile()) {
+      showToast("🔒 Schreibschutz aktiv: Du kannst nur dein eigenes Profil bearbeiten.");
+      return;
+    }
+
     var curUser = currentUser;
     if (!window.safetyConfig) window.safetyConfig = { A: {}, B: {} };
     if (!window.safetyConfig[curUser]) window.safetyConfig[curUser] = {};
@@ -481,6 +539,8 @@
   window.renderSafetyConfig = renderSafetyConfig;
   window.loadCoreData = loadCoreData;
   window.saveCoreData = saveCoreData;
+  window.canEditCurrentProfile = canEditCurrentProfile;
+  window.getMyAssignedDeviceRole = getMyAssignedDeviceRole;
 
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', initApp);
