@@ -190,8 +190,52 @@
     return Math.abs(hash).toString(36);
   }
 
+  function calculateUserRatingMean(answers) {
+    if (!answers || typeof answers !== 'object') return 3.0;
+    var sum = 0, count = 0;
+    Object.keys(answers).forEach(function(k) {
+      if (k.indexOf('_note') === -1 && k.indexOf('_shame') === -1 && k.indexOf('_choice') === -1) {
+        var val = answers[k];
+        if (typeof val === 'number' && val > 0) {
+          sum += val;
+          count++;
+        }
+      }
+    });
+    return count > 0 ? (sum / count) : 3.0;
+  }
+
+  function getItemDiagnosticWeight(it, chId) {
+    if ([21, 22, 23, 29, 7, 8, 13, 16].indexOf(chId) !== -1) {
+      var titleLower = (it.title || '').toLowerCase();
+      if (titleLower.indexOf('zucht') !== -1 || 
+          titleLower.indexOf('kniestand') !== -1 || 
+          titleLower.indexOf('gehorsam') !== -1 || 
+          titleLower.indexOf('strafe') !== -1 ||
+          titleLower.indexOf('spanking') !== -1 ||
+          titleLower.indexOf('keusch') !== -1 ||
+          titleLower.indexOf('denial') !== -1 ||
+          titleLower.indexOf('fessel') !== -1) {
+        return 1.8;
+      }
+      return 1.4;
+    }
+    return 1.0;
+  }
+
+  function transformPsychometricRating(rawScore, isShame, userMean) {
+    if (typeof rawScore !== 'number' || rawScore <= 0) return 0;
+    var calibrationOffset = (3.0 - userMean) * 0.35;
+    var calibratedScore = Math.max(1.0, Math.min(5.0, rawScore + calibrationOffset));
+    if (isShame && rawScore >= 3) {
+      calibratedScore = Math.min(5.0, calibratedScore * 1.25);
+    }
+    return calibratedScore;
+  }
+
   function calculateArchetypeRankings(answers, chapters) {
     var results = [];
+    var userMean = calculateUserRatingMean(answers);
 
     // Vorab-Ermittlung von Top- und Bottom-Werten für die Switch-Formel
     var powerChapters = [21, 22, 23, 29];
@@ -205,15 +249,24 @@
           if (it.type !== 'choice') {
             var s1 = answers['it_' + it.id + '_r1'];
             var s2 = answers['it_' + it.id + '_r2'];
-            if (typeof s1 === 'number') { domEarned += s1; domPossible += 5; }
-            if (typeof s2 === 'number') { subEarned += s2; subPossible += 5; }
+            var isShame = !!answers['it_' + it.id + '_shame'];
+            var weight = getItemDiagnosticWeight(it, chId);
+
+            if (typeof s1 === 'number' && s1 > 0) {
+              domEarned += (transformPsychometricRating(s1, isShame, userMean) * weight);
+              domPossible += (5 * weight);
+            }
+            if (typeof s2 === 'number' && s2 > 0) {
+              subEarned += (transformPsychometricRating(s2, isShame, userMean) * weight);
+              subPossible += (5 * weight);
+            }
           }
         });
       }
     });
 
-    var pDom = domPossible > 0 ? Math.round((domEarned / domPossible) * 100) : 0;
-    var pSub = subPossible > 0 ? Math.round((subEarned / subPossible) * 100) : 0;
+    var pDom = domPossible > 0 ? Math.min(100, Math.round((domEarned / domPossible) * 100)) : 0;
+    var pSub = subPossible > 0 ? Math.min(100, Math.round((subEarned / subPossible) * 100)) : 0;
 
     ARCHETYPE_DEFINITIONS.forEach(function(arch) {
       var earned = 0;
@@ -221,13 +274,12 @@
       var percentage = 0;
 
       if (arch.role === 'switch') {
-        // Switch-Berechnung nach BDSMTest-Standard: Ausgewogenheit beider Pole
-        var minScore = Math.min(pDom, pSub);
-        var avgScore = (pDom + pSub) / 2;
+        var avg = (pDom + pSub) / 2;
         var diff = Math.abs(pDom - pSub);
-        var balanceFactor = Math.max(0.4, 1 - (diff / 100) * 0.6);
-        var rawSwitch = (minScore * 0.75 + avgScore * 0.25) * (diff <= 25 ? 1.12 : balanceFactor);
-        percentage = Math.min(100, Math.max(0, Math.round(rawSwitch)));
+        var balancePenalty = 1 - (diff / 100) * 0.45;
+        var dualDriveBoost = (pDom >= 30 && pSub >= 30) ? 1.08 : 0.92;
+        var calculatedSwitch = Math.round(avg * balancePenalty * dualDriveBoost);
+        percentage = Math.min(100, Math.max(0, calculatedSwitch));
         possible = domPossible + subPossible;
       } else {
         arch.chapters.forEach(function(chId) {
@@ -235,25 +287,28 @@
           if (ch && ch.items) {
             ch.items.forEach(function(it) {
               if (it.type !== 'choice') {
+                var weight = getItemDiagnosticWeight(it, chId);
+                var isShame = !!answers['it_' + it.id + '_shame'];
+
                 if (arch.role === 'r1' || arch.role === 'both') {
                   var s1 = answers['it_' + it.id + '_r1'];
-                  if (typeof s1 === 'number') {
-                    earned += s1;
-                    possible += 5;
+                  if (typeof s1 === 'number' && s1 > 0) {
+                    earned += (transformPsychometricRating(s1, isShame, userMean) * weight);
+                    possible += (5 * weight);
                   }
                 }
                 if (arch.role === 'r2' || arch.role === 'both') {
                   var s2 = answers['it_' + it.id + '_r2'];
-                  if (typeof s2 === 'number') {
-                    earned += s2;
-                    possible += 5;
+                  if (typeof s2 === 'number' && s2 > 0) {
+                    earned += (transformPsychometricRating(s2, isShame, userMean) * weight);
+                    possible += (5 * weight);
                   }
                 }
               }
             });
           }
         });
-        percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+        percentage = possible > 0 ? Math.min(100, Math.round((earned / possible) * 100)) : 0;
       }
 
       results.push({
@@ -278,6 +333,7 @@
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var answers = (window.answers && window.answers[curUser]) || {};
     var chapters = window.surveyChapters || [];
+    var userMean = calculateUserRatingMean(answers);
 
     var nameEl = document.getElementById('single-profile-name');
     if (nameEl) nameEl.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
@@ -312,28 +368,24 @@
         if (it.type !== 'choice') {
           var r1 = answers['it_' + it.id + '_r1'];
           var r2 = answers['it_' + it.id + '_r2'];
+          var weight = getItemDiagnosticWeight(it, ch.id);
 
-          function addPoints(val) {
+          function addPointsAndMax(val) {
+            // Nur gültige Antworten > 0 fließen ein (0 wird neutralisiert!)
             if (typeof val === 'number' && val > 0) {
-              if ([21, 22, 23, 29].indexOf(ch.id) !== -1) pillars.power += val;
-              else if ([13, 14, 16, 17, 31].indexOf(ch.id) !== -1) pillars.sensation += val;
-              else if ([19, 30].indexOf(ch.id) !== -1) pillars.nurturing += val;
-              else if ([18, 20, 24, 25].indexOf(ch.id) !== -1) pillars.thrill += val;
-              else if ([9, 10, 11].indexOf(ch.id) !== -1) pillars.visual += val;
+              var calibrated = transformPsychometricRating(val, isShame, userMean) * weight;
+              var maxScore = 5 * weight;
+
+              if ([21, 22, 23, 29].indexOf(ch.id) !== -1) { pillars.power += calibrated; maxPillars.power += maxScore; }
+              else if ([13, 14, 16, 17, 31].indexOf(ch.id) !== -1) { pillars.sensation += calibrated; maxPillars.sensation += maxScore; }
+              else if ([19, 30].indexOf(ch.id) !== -1) { pillars.nurturing += calibrated; maxPillars.nurturing += maxScore; }
+              else if ([18, 20, 24, 25].indexOf(ch.id) !== -1) { pillars.thrill += calibrated; maxPillars.thrill += maxScore; }
+              else if ([9, 10, 11].indexOf(ch.id) !== -1) { pillars.visual += calibrated; maxPillars.visual += maxScore; }
             }
           }
 
-          function addMax() {
-            if ([21, 22, 23, 29].indexOf(ch.id) !== -1) maxPillars.power += 10;
-            else if ([13, 14, 16, 17, 31].indexOf(ch.id) !== -1) maxPillars.sensation += 10;
-            else if ([19, 30].indexOf(ch.id) !== -1) maxPillars.nurturing += 10;
-            else if ([18, 20, 24, 25].indexOf(ch.id) !== -1) maxPillars.thrill += 10;
-            else if ([9, 10, 11].indexOf(ch.id) !== -1) maxPillars.visual += 10;
-          }
-
-          addPoints(r1);
-          addPoints(r2);
-          addMax();
+          addPointsAndMax(r1);
+          addPointsAndMax(r2);
 
           if (r1 === 5) highPrioItems.push({ id: it.id, title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
           if (r2 === 5) highPrioItems.push({ id: it.id, title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
@@ -713,18 +765,23 @@
     var pVis = document.getElementById('bar-val-visual') ? document.getElementById('bar-val-visual').innerText.replace('%', '').trim() : '50';
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
+    var myMean = calculateUserRatingMean(userAnswers).toFixed(1);
 
     var prompt = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Sexualtherapeutin und Beziehungspsychologin.
 Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Einzelgutachten sowie konkreten Alltagstransfer für ${userName}.
 
-PROFIL-DATEN:
+PSYCHOMETRISCH KALIBRIERTE DATEN:
 - Top-Archetypen (BDSMTest-Format): ${top3Names}
+- Persönlicher Notenschnitt (Antwortstil): Ø ${myMean} / 5
 - Macht & Hingabe (D/s): ${pPower}%
 - Sensorik & Körperreiz (Impact/Seile): ${pSens}%
 - Fürsorge & Geborgenheit: ${pNurt}%
 - Tabubruch & Thrill: ${pThrill}%
 - Visuelle & Fetischreize: ${pVis}%
 - Als schambehaftet markierte Praktiken (${shameTitles.length}): ${shameTitles.slice(0, 6).join(', ') || 'Keine spezifischen Scham-Markierungen'}
+
+METHODISCHER HINWEIS:
+- Die Prozentwerte basieren auf gewichteten Kernankern, neutralisierten 0er-Fragen und Scham-Transformation.
 
 TONFALL & ANWEISUNGEN:
 - Sprich ${userName} direkt mit "Du" an.
