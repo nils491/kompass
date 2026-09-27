@@ -233,6 +233,21 @@
            "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
   }
 
+  function triggerDisplayBeat(text, stepMs) {
+    var disp = document.getElementById('countdown-display');
+    if (!disp) return;
+
+    disp.innerText = text;
+    if (stepMs) {
+      disp.style.setProperty('--beat-duration', (stepMs / 1000) + 's');
+    }
+
+    // CSS Reflow erzwingen, damit die Animation exakt mit dem Zahlenwechsel von vorne zündet
+    disp.classList.remove('countdown-beat-active', 'climax-pulse-active');
+    void disp.offsetWidth;
+    disp.classList.add('countdown-beat-active');
+  }
+
   function executeReleaseImmediate() {
     logSessionAction("Orgasmus-Freigabe (Sofort)");
     var panel = document.getElementById('release-choice-subpanel');
@@ -271,11 +286,7 @@
     }
     if (btnText) btnText.innerText = "Pause";
 
-    var disp = document.getElementById('countdown-display');
-    if (disp) {
-      disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_60px_rgba(16,185,129,0.7)] text-center";
-      disp.innerText = config.startNum.toString();
-    }
+    triggerDisplayBeat(config.startNum.toString(), config.stepMs);
 
     if (cueText) {
       cueText.innerText = (countdownVoiceMode === 'self') 
@@ -288,13 +299,15 @@
 
     logSessionAction("Geführter Atem-Countdown (" + targetEdgingDuration + "s ab Zahl " + config.startNum + ") gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
 
-    // Startet die visuelle Großanzeige lückenlos ab config.startNum
+    // Startet die visuelle Großanzeige synchron mit Beat auf jeden Zähler
     runVisualCountdownTicker(countdownRunId, config.startNum, config.stepMs);
 
     if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
+        var disp = document.getElementById('countdown-display');
         if (disp) {
-          disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_80px_rgba(16,185,129,0.9)] text-center";
+          disp.classList.remove('countdown-beat-active');
+          disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center";
           disp.innerText = "KOMMEN!";
         }
         if (cueText) cueText.innerText = "Erlaubnis erteilt!";
@@ -318,14 +331,15 @@
         await new Promise(function(r) { setTimeout(r, 300); });
         continue;
       }
-      if (disp) disp.innerText = ticker;
+      triggerDisplayBeat(ticker.toString(), stepDurationMs);
       await new Promise(function(r) { setTimeout(r, stepDurationMs); });
       ticker--;
     }
 
     if (ticker <= 0 && runId === countdownRunId) {
       if (disp) {
-        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_80px_rgba(16,185,129,0.9)] text-center";
+        disp.classList.remove('countdown-beat-active');
+        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center";
         disp.innerText = "KOMMEN!";
       }
       if (cueText) {
