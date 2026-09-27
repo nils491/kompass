@@ -187,6 +187,7 @@
         { id: 47, title: "Beine über die Schultern heben", desc: "Beide Beine auf die Schultern des Partners legen für maximale Tiefe und Öffnung.", r1: "Die Beine auflegen & tief lieben", r2: "Die Beine hochlegen & vollkommen öffnen" },
         { id: 48, title: "Am Bettrand (Stehend vor der Kante)", desc: "Der Partner liegt mit dem Po an der Kante, der andere steht davor und führt mit voller Kraft.", r1: "Am Bettrand stehend fordernd stoßen", r2: "Am Bettrand liegen & empfangen" },
         { id: 49, title: "Stehend an die Wand gepresst", desc: "Den Partner im Stehen an die Wand drücken, ein Bein hochheben und nehmen.", r1: "An die Wand heben & im Stehen nehmen", r2: "An die Wand gepresst empfangen" },
+        { id: 495,title: "Busensex (Paizuri / Brust-Penetration)", desc: "Das Umschließen und Führen des erigierten Penis zwischen den eng aneinander gepressten Brüsten – unterstützt durch reichlich erwärmtes Massageöl oder Gleitmittel. Eine zutiefst intime und visuell stimulierende Praxis, die samtige Hautwärme, Druckgefühl und intensiven Blickkontakt vereint.", r1: "Den Penis aktiv zwischen den Brüsten führen, Stoßtiefe und Rhythmus bestimmen", r2: "Die Brüste mit Händen oder Unterarmen fest um den Schaft pressen und die Hingabe darbieten"},
         {
           id: 50, title: "Stellungswechsel beim Sex", desc: "Wie dynamisch soll eine Runde sein?", type: "choice",
           question: "Wie oft möchtest du die Stellung wechseln?",
