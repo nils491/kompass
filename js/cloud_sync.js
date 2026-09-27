@@ -2,22 +2,18 @@
  * js/cloud_sync.js
  * Ende-zu-Ende verschlüsselte (E2EE) Synchronisations-Engine für den Kink- & Beziehungs-Kompass.
  * 
- * Verbesserungen:
- * - Neuer robuster Cloud-Speicher via jsonblob.com (KEIN 50-Request-Tageslimit mehr)
- * - AES-GCM 256-Bit Verschlüsselung über die native Browser Web Crypto API
- * - ⚡ Neuer Sofort-Transfer (Export/Import per Text/WhatsApp), falls Cloud-Dienste im Mobilfunknetz hängen
- * - Intelligentes Polling (12s) mit automatischem Stopp im Hintergrund
+ * Beinhaltet:
+ * - AES-GCM 256-Bit Verschlüsselung über die native Browser Web Crypto API (PBKDF2 Schlüsselableitung)
+ * - Robuster, CORS-offener Raum-Endpunkt ohne HTTP-Header-Restriktionen
+ * - Sofort-Transfer (Export/Import per Text-Schlüssel und URL-Hash)
+ * - Intelligentes Polling mit automatischem Stopp im Hintergrund
  */
 
 (function(window) {
   'use strict';
 
-  var JSONBLOB_ENDPOINT = 'https://jsonblob.com/api/jsonBlob';
-  var NTFY_REGISTRY_BASE = 'https://ntfy.sh';
-  var KEYVAL_REGISTRY = 'https://api.keyval.org';
-
+  var NTFY_ENDPOINT = 'https://ntfy.sh';
   var activePairCode = null;
-  var remoteObjectId = null;
   var myAssignedRole = 'A';
   var isSyncPaired = false;
   var currentSyncStatus = 'idle';
@@ -239,66 +235,8 @@
     }
   }
 
-  async function resolveRemoteObjectId(code) {
-    if (remoteObjectId && remoteObjectId.length > 5) return remoteObjectId;
-    var storedId = localStorage.getItem('kompass_sync_remote_id');
-    if (storedId && storedId.length > 5) {
-      remoteObjectId = storedId;
-      return remoteObjectId;
-    }
-
-    var cleanTopic = 'kink_room_' + encodeURIComponent(String(code).toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
-
-    // 1. NTFY Registry
-    try {
-      var ntfyResp = await fetch(NTFY_REGISTRY_BASE + '/' + cleanTopic + '/json?poll=1&since=all', {
-        cache: 'no-store'
-      });
-      if (ntfyResp.ok) {
-        var text = await ntfyResp.text();
-        var lines = text.trim().split('\n');
-        for (var i = lines.length - 1; i >= 0; i--) {
-          try {
-            var msgObj = JSON.parse(lines[i]);
-            if (msgObj.event === 'message' && msgObj.message && msgObj.message.trim().length > 5) {
-              remoteObjectId = msgObj.message.trim();
-              localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
-              return remoteObjectId;
-            }
-          } catch (err) {}
-        }
-      }
-    } catch (e) {}
-
-    // 2. KeyVal Registry Fallback
-    try {
-      var kvResp = await fetch(KEYVAL_REGISTRY + '/get/' + cleanTopic, { cache: 'no-store' });
-      if (kvResp.ok) {
-        var val = (await kvResp.text()).trim();
-        if (val && val.length > 5) {
-          remoteObjectId = val;
-          localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
-          return remoteObjectId;
-        }
-      }
-    } catch (e) {}
-
-    return null;
-  }
-
-  async function registerRemoteId(code, id) {
-    var cleanTopic = 'kink_room_' + encodeURIComponent(String(code).toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
-    try {
-      await fetch(NTFY_REGISTRY_BASE + '/' + cleanTopic, {
-        method: 'POST',
-        body: id,
-        headers: { 'Title': 'KompassSync' }
-      });
-    } catch (e) {}
-
-    try {
-      await fetch(KEYVAL_REGISTRY + '/set/' + cleanTopic + '/' + encodeURIComponent(id));
-    } catch (e) {}
+  function getCleanTopic(code) {
+    return 'kink_vault_' + encodeURIComponent(String(code || '').toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
   }
 
   async function pushDataToCloud() {
@@ -310,37 +248,22 @@
     try {
       var localData = gatherLocalData();
       var encryptedPayload = await encryptPayload(localData, activePairCode);
+      var topic = getCleanTopic(activePairCode);
+      var payloadString = JSON.stringify(encryptedPayload);
 
-      var objId = await resolveRemoteObjectId(activePairCode);
+      var resp = await fetch(NTFY_ENDPOINT + '/' + topic, {
+        method: 'POST',
+        headers: {
+          'Title': 'KompassSync',
+          'Tags': 'shield,lock'
+        },
+        body: payloadString
+      });
 
-      if (objId) {
-        var putUrl = JSONBLOB_ENDPOINT + '/' + encodeURIComponent(objId);
-        var resp = await fetch(putUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(encryptedPayload)
-        });
-        if (!resp.ok) throw new Error("HTTP " + resp.status + " beim Cloud-Update.");
-      } else {
-        var postResp = await fetch(JSONBLOB_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(encryptedPayload)
-        });
-
-        if (!postResp.ok) throw new Error("HTTP " + postResp.status + " beim Cloud-Erstellen.");
-
-        var loc = postResp.headers.get('Location') || postResp.headers.get('x-jsonblob');
-        if (loc) {
-          var parts = loc.split('/');
-          remoteObjectId = parts[parts.length - 1];
-          localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
-          await registerRemoteId(activePairCode, remoteObjectId);
-        }
-      }
+      if (!resp.ok) throw new Error("HTTP " + resp.status + " beim Cloud-Update.");
 
       currentSyncStatus = 'idle';
-      lastKnownRemoteHash = (JSON.stringify(encryptedPayload).length).toString() + '_' + encryptedPayload.updatedAt;
+      lastKnownRemoteHash = payloadString.length.toString() + '_' + encryptedPayload.updatedAt;
       notifyListeners('status_change', { status: currentSyncStatus });
     } catch (e) {
       console.warn("Cloud-Sync Upload-Fehler:", e);
@@ -353,25 +276,41 @@
     if (!isSyncPaired || !activePairCode) return false;
 
     try {
-      var objId = await resolveRemoteObjectId(activePairCode);
-      if (!objId) return false;
+      var topic = getCleanTopic(activePairCode);
+      var getUrl = NTFY_ENDPOINT + '/' + topic + '/json?poll=1&since=all';
 
-      var getUrl = JSONBLOB_ENDPOINT + '/' + encodeURIComponent(objId);
       var resp = await fetch(getUrl, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
         cache: 'no-store'
       });
 
       if (!resp.ok) return false;
 
-      var encryptedPackage = await resp.json();
-      if (!encryptedPackage || !encryptedPackage.ciphertext) return false;
+      var text = await resp.text();
+      if (!text || text.trim().length === 0) return false;
 
-      var checkHash = (JSON.stringify(encryptedPackage).length).toString() + '_' + (encryptedPackage.updatedAt || '');
+      var lines = text.trim().split('\n');
+      var latestEncrypted = null;
+
+      for (var i = lines.length - 1; i >= 0; i--) {
+        try {
+          var parsedMsg = JSON.parse(lines[i]);
+          if (parsedMsg.event === 'message' && parsedMsg.message) {
+            var maybeEnc = JSON.parse(parsedMsg.message);
+            if (maybeEnc && maybeEnc.ciphertext && maybeEnc.iv) {
+              latestEncrypted = maybeEnc;
+              break;
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (!latestEncrypted) return false;
+
+      var checkHash = JSON.stringify(latestEncrypted).length.toString() + '_' + (latestEncrypted.updatedAt || '');
       if (checkHash === lastKnownRemoteHash) return true;
 
-      var remoteData = await decryptPayload(encryptedPackage, activePairCode);
+      var remoteData = await decryptPayload(latestEncrypted, activePairCode);
       var localData = gatherLocalData();
       var merged = mergeDatasets(localData, remoteData);
 
@@ -406,31 +345,25 @@
   async function createRoom() {
     var newCode = generateRandomRoomCode();
     activePairCode = newCode;
-    remoteObjectId = null;
     myAssignedRole = 'A';
     isSyncPaired = true;
 
     localStorage.setItem('kompass_pair_code', activePairCode);
-    localStorage.removeItem('kompass_sync_remote_id');
     localStorage.setItem('kompass_assigned_role', myAssignedRole);
     localStorage.setItem('kompass_is_paired', 'true');
 
     await pushDataToCloud();
     startPolling();
 
-    notifyListeners('paired', { code: activePairCode, role: myAssignedRole, objectId: remoteObjectId });
+    notifyListeners('paired', { code: activePairCode, role: myAssignedRole });
     return activePairCode;
   }
 
-  async function joinRoom(code, role, directObjectId) {
+  async function joinRoom(code, role) {
     var cleanCode = (code || '').toUpperCase().trim();
     if (cleanCode.length < 5) throw new Error("Der Paar-Code ist zu kurz.");
 
     activePairCode = cleanCode;
-    if (directObjectId && directObjectId.length > 5) {
-      remoteObjectId = directObjectId;
-      localStorage.setItem('kompass_sync_remote_id', directObjectId);
-    }
     myAssignedRole = (role === 'B') ? 'B' : 'A';
     isSyncPaired = true;
 
@@ -440,27 +373,25 @@
 
     var success = await pullDataFromCloud();
     if (!success) {
-      await resolveRemoteObjectId(activePairCode);
+      await new Promise(function(r) { setTimeout(r, 600); });
       success = await pullDataFromCloud();
     }
 
     if (!success) {
-      throw new Error("Keine Daten für '" + cleanCode + "' in der Cloud gefunden. Bitte auf dem PC einmal auf 'Jetzt synchronisieren' klicken.");
+      await pushDataToCloud();
     }
 
     startPolling();
-    notifyListeners('paired', { code: activePairCode, role: myAssignedRole, objectId: remoteObjectId });
+    notifyListeners('paired', { code: activePairCode, role: myAssignedRole });
     return true;
   }
 
-  // ⚡ Sofort-Export als kompakter Text (100% ausfallsicher)
   function exportDirectTransferData() {
     var localData = gatherLocalData();
     var jsonStr = JSON.stringify(localData);
     return window.btoa(unescape(encodeURIComponent(jsonStr)));
   }
 
-  // ⚡ Sofort-Import aus Text (100% ausfallsicher)
   function importDirectTransferData(base64String, targetRole) {
     try {
       var jsonStr = decodeURIComponent(escape(window.atob(base64String.trim())));
@@ -482,14 +413,12 @@
   function disconnect() {
     isSyncPaired = false;
     activePairCode = null;
-    remoteObjectId = null;
     currentSyncStatus = 'idle';
 
     if (syncPollingInterval) clearInterval(syncPollingInterval);
     if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
 
     localStorage.removeItem('kompass_pair_code');
-    localStorage.removeItem('kompass_sync_remote_id');
     localStorage.removeItem('kompass_assigned_role');
     localStorage.setItem('kompass_is_paired', 'false');
 
@@ -498,7 +427,6 @@
 
   function startPolling() {
     if (syncPollingInterval) clearInterval(syncPollingInterval);
-    // Schonendes 12-Sekunden-Intervall statt 5s
     syncPollingInterval = setInterval(function() {
       if (isSyncPaired && document.visibilityState === 'visible') {
         pullDataFromCloud();
@@ -515,13 +443,11 @@
   function initFromStorage() {
     try {
       var savedCode = localStorage.getItem('kompass_pair_code');
-      var savedObjId = localStorage.getItem('kompass_sync_remote_id');
       var savedRole = localStorage.getItem('kompass_assigned_role');
       var savedPaired = localStorage.getItem('kompass_is_paired');
 
       if (savedPaired === 'true' && savedCode) {
         activePairCode = savedCode;
-        remoteObjectId = savedObjId || null;
         myAssignedRole = savedRole || 'A';
         isSyncPaired = true;
         startPolling();
@@ -543,7 +469,6 @@
       return {
         isPaired: isSyncPaired,
         pairCode: activePairCode,
-        objectId: remoteObjectId,
         role: myAssignedRole,
         status: currentSyncStatus
       };
