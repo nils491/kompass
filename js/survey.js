@@ -339,7 +339,6 @@
       html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
       html += '  </div>';
 
-      // AKTIONEN: 🙈 SCHAM-BUTTON & 🔍 KI-INFO
       html += '  <div class="flex items-center gap-1.5 flex-shrink-0">';
       
       var shameBtnClass = isShame
