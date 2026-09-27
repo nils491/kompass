@@ -6,7 +6,7 @@
  * - Globale Zustandsverwaltung (currentUser 'A'/'B', currentView)
  * - Persistenz (Laden & Speichern von Antworten, Namen, Anatomie, Safety)
  * - View-Routing (Start-Hub, Fragebogen, Sicherheits-Kodex, Mein Profil)
- * - Partner-Umschaltung & Display-Synchronisation
+ * - Partner-Umschaltung & lückenlose Namens-Synchronisation im Header
  * - Sicherheits-Kodex-Konfigurator (6 Module mit Echtzeit-Konsensabgleich)
  * - Start-Hub KPI-Aktualisierung (Fortschritt, Tabu-Zähler, Toy-Badge)
  * - Anbindung an CloudSync (Hintergrund-Trigger & Live-Empfang)
@@ -189,9 +189,19 @@
     var btnB = document.getElementById('btn-user-B');
     var dispA = document.getElementById('user-display-A');
     var dispB = document.getElementById('user-display-B');
+    var headerPair = document.getElementById('header-pair-names');
 
-    if (dispA) dispA.innerText = names.A || 'Partner 1';
-    if (dispB) dispB.innerText = names.B || 'Partner 2';
+    var nameA = (names && names.A) ? names.A.trim() : 'Partner 1';
+    var nameB = (names && names.B) ? names.B.trim() : 'Partner 2';
+
+    // Aktualisiere die Buttons oben rechts
+    if (dispA) dispA.innerText = nameA || 'Partner 1';
+    if (dispB) dispB.innerText = nameB || 'Partner 2';
+
+    // Aktualisiere die Titelzeile unter dem Logo dynamisch
+    if (headerPair) {
+      headerPair.innerText = (nameA || 'Partner 1') + " & " + (nameB || 'Partner 2');
+    }
 
     if (currentUser === 'A') {
       if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn";
@@ -388,6 +398,7 @@
 
   function initApp() {
     loadCoreData();
+    updateUserToggleUI();
     handleHashNavigation();
     updateHubUI();
 
@@ -397,6 +408,7 @@
       window.CloudSync.addListener(function(evt, data) {
         if (evt === 'data_received') {
           loadCoreData();
+          updateUserToggleUI();
           updateHubUI();
           if (currentView === 'survey' && window.SurveyEngine) window.SurveyEngine.render();
           if (currentView === 'single' && window.ProfileEngine) window.ProfileEngine.render();
@@ -413,6 +425,7 @@
   window.saveSafetyOption = saveSafetyOption;
   window.renderSafetyConfig = renderSafetyConfig;
   window.updateHubUI = updateHubUI;
+  window.updateUserToggleUI = updateUserToggleUI;
   window.showToast = showToast;
   window.goToSurveyItem = goToSurveyItem;
 
