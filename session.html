@@ -979,8 +979,16 @@
 
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-[11px]">
-            <strong class="text-white">Empfohlene Maßnahmen (aus dem Fragebogen):</strong>
-            <button type="button" onclick="SessionDiscipline.rerollStage()" class="text-brand-300 font-bold hover:underline">Würfeln 🎲</button>
+            <strong class="text-white">Empfohlene Maßnahmen:</strong>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="SessionDiscipline.generateAiProposal()" class="text-purple-300 font-bold hover:underline flex items-center gap-1">
+                <span>✨</span><span>KI-Vorschlag berechnen</span>
+              </button>
+              <span class="text-slate-600">·</span>
+              <button type="button" onclick="SessionDiscipline.rerollStage()" class="text-brand-300 font-bold hover:underline">
+                Würfeln 🎲
+              </button>
+            </div>
           </div>
           <div id="stage-1-cards-container" class="space-y-1.5"></div>
         </div>
