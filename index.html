@@ -13,6 +13,12 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+
+      // Sofortiges flackerfreies Anwenden der gespeicherten Schriftgröße
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
     })();
 
     tailwind.config = {
@@ -414,8 +420,6 @@
 
   </main>
 
-  <!-- MODALS -->
-
   <!-- MODAL: KONTO & EINSTELLUNGEN -->
   <div id="modal-account" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
@@ -437,6 +441,25 @@
           <div class="flex gap-2">
             <button type="button" id="acc-anat-my-penis" onclick="selectAccountAnatomy('A', 'penis')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">🍆 Penis</button>
             <button type="button" id="acc-anat-my-vulva" onclick="selectAccountAnatomy('A', 'vulva')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn">🌸 Vulva</button>
+          </div>
+        </div>
+
+        <!-- GLOBALER SCHRIFTGRÖSSEN-ZOOM -->
+        <div class="space-y-1.5 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="flex items-center justify-between">
+            <label class="text-[10.5px] font-bold text-slate-300 block">🔍 Schriftgröße & Zoom:</label>
+            <span class="text-[9.5px] text-slate-400 font-mono">Global</span>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" id="btn-zoom-100" onclick="setTextZoom('100')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-md">
+              100% (Normal)
+            </button>
+            <button type="button" id="btn-zoom-115" onclick="setTextZoom('115')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn hover:text-white">
+              115% (Mittel)
+            </button>
+            <button type="button" id="btn-zoom-130" onclick="setTextZoom('130')" class="flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn hover:text-white">
+              130% (Groß)
+            </button>
           </div>
         </div>
 
@@ -567,7 +590,6 @@
   <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
       
-      <!-- 1. MODAL HEADER -->
       <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base shadow-inner">🧰</div>
@@ -579,7 +601,6 @@
         <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- 2. STEUERUNG & FILTER -->
       <div class="px-4 sm:px-6 py-3 border-b border-slate-800/80 space-y-2.5 flex-shrink-0 bg-slate-950/30">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
           <div class="relative flex-1 min-w-0">
@@ -595,7 +616,6 @@
           </div>
         </div>
 
-        <!-- FORMULAR: NEUES TOY ANLEGEN -->
         <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2.5 animate-fade-in">
           <div class="flex items-center justify-between border-b border-purple-900/50 pb-1.5">
             <strong class="text-xs text-purple-200 flex items-center gap-1.5">
@@ -636,7 +656,6 @@
           </div>
         </div>
 
-        <!-- SICHERHEITS-WARNUNG BEIM LEEREN -->
         <div id="toy-clear-confirm-box" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700 text-rose-200 space-y-2 animate-pulse">
           <div class="flex items-center gap-2">
             <span class="text-lg">⚠️</span>
@@ -654,12 +673,10 @@
         <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <!-- 3. SCROLLBARES GRID -->
       <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
         <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
 
-      <!-- 4. MODAL FOOTER -->
       <div class="px-4 sm:px-6 py-3 border-t border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-950/60 text-xs">
         <span class="text-[11px] text-slate-300">
           Im Schrank: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong> Gegenstände
@@ -824,14 +841,14 @@
   <script src="data/equipment_catalog.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.2) -->
-  <script src="js/cloud_sync.js?v=4.2"></script>
-  <script src="js/hub_toys.js?v=4.2"></script>
-  <script src="js/kink_research.js?v=4.2"></script>
-  <script src="js/hub_modals.js?v=4.2"></script>
-  <script src="js/survey.js?v=4.2"></script>
-  <script src="js/profile.js?v=4.2"></script>
-  <script src="js/app.js?v=4.2"></script>
+  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.3) -->
+  <script src="js/cloud_sync.js?v=4.3"></script>
+  <script src="js/hub_toys.js?v=4.3"></script>
+  <script src="js/kink_research.js?v=4.3"></script>
+  <script src="js/hub_modals.js?v=4.3"></script>
+  <script src="js/survey.js?v=4.3"></script>
+  <script src="js/profile.js?v=4.3"></script>
+  <script src="js/app.js?v=4.3"></script>
 
 </body>
 </html>
