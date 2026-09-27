@@ -1,19 +1,17 @@
 /**
  * js/kink_research.js
- * High-Speed KI-Kink- & BDSM-Recherche Engine (100% Live-KI-Analyse).
+ * Modul für die Kink-Recherche, Aufklärung und explizite Schritt-für-Schritt Praxisanleitungen.
  * 
- * - Keine statischen / vorrecherchierten Festwerte: Jede Anfrage wird live von der KI generiert
- * - Reines JSON-Streaming für typische Antwortzeiten von 1,5 bis 3,5 Sekunden
- * - Optimiert mit minimalem Thinking-Level für Gemini 3.8 und Budget 0 für 2.5
- * - Automatischer Reset der Suchmaske beim Schließen des Modals
- * - Barrierefreies 3-Säulen-Dashboard (Definition & Sicherheit, Top/Bottom-Psychologie, Top-Leitfaden)
+ * Beinhaltet:
+ * - Detaillierte, tabulose und anatomisch präzise Dossiers (physische Vorgänge, Point of no Return)
+ * - Psychologische Reiz-Analyse für Top und Bottom
+ * - Konkrete Schritt-für-Schritt Praxisanleitungen mit exaktem Timing und Kommandos
+ * - Offline-Wissenskorpus für Kernthemen (Ruined Orgasm, Denial, Pegging, Shibari, Facesitting u. a.)
+ * - Expliziter Gemini-Prompt für freie Live-Recherchen ohne Prüderie oder Ausflüchte
  */
 
 (function(window) {
   'use strict';
-
-  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
-  var sessionSearchCache = {};
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -25,545 +23,369 @@
       .replace(/'/g, '&#039;');
   }
 
-  function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
-      return;
+  var CURATED_DOSSIERS = {
+    "ruined orgasm": {
+      title: "Ruined Orgasm (Verpatzter / Abgebrochener Orgasmus)",
+      category: "Erregungskontrolle & Orgasmus-Manipulation",
+      what: "Ein Orgasmus, bei dem die unwillkürlichen motorischen Kontraktionen der Beckenbodenmuskulatur (Bulbospongiosus, Ischiocavernosus sowie Prostata bzw. Uterus) voll einsetzen, während die taktile Stimulation an Eichel oder Klitoris in genau der Millisekunde des Point of no Return (PONR) schlagartig komplett gestoppt wird. Der Körper entlädt sich rein muskulär in Zuckungen, während die gewohnte sensorische Ekstase, das Dopaminfeuerwerk und die befreiende Erlösung verpuffen. Zurück bleibt eine brennende, unbefriedigte und süß-quälende Resterregung.",
+      psychology: "Für den Bottom bedeutet der Ruined Orgasm die vollkommene Entmachtung des eigenen Körpers: Er verliert die Kontrolle über den Reflex, wird aber um die Belohnung gebracht. Das erzeugt eine intensive Mischung aus Frustration, erotischer Demut und tiefer Bindung an den Top. Für den Top ist es der ultimative Beweis von Regie und Schlüsselgewalt: Zu bestimmen, wer wann welche Lust empfinden darf.",
+      steps: [
+        "1. Aufbau & Edging-Plateau: Der Bottom wird über mehrere Schwellen (Edging) an die Grenze herangeführt. Die Beckenbodenmuskeln müssen bereits stark durchblutet und hyperaktiviert sein.",
+        "2. Identifikation des Point of no Return (PONR): Der Top beobachtet genau: Versteifung der Oberschenkel, Anhalten des Atems, reflexartiges Vorschieben des Beckens und die ersten unwillkürlichen Zuckungen an Schaft oder Schamlippen. Der Orgasmus ist ab hier neurologisch nicht mehr aufzuhalten.",
+        "3. Der schlagartige Abbruch: Exakt beim Einsetzen des ersten Beckenkrampfs nimmt der Top die Hände, den Mund oder das Toy vollständig weg. Kein Nachstreichen, kein Festhalten.",
+        "4. Stillhalte-Befehl: Der Top befiehlt autoritär: „Hände weg! Nicht berühren und stillhalten!“. Der Bottom muss regungslos daliegen und spüren, wie die Zuckungen wirkungslos verpuffen.",
+        "5. Nachglühen & Verweilen: Der Top lässt den Bottom mindestens 2 bis 3 Minuten in der ungelösten Frustration ausharren, mustert ihn und fordert Blickkontakt."
+      ],
+      anatomyNotes: "Beim Penis: Samenflüssigkeit tritt oft ohne den gewohnten pulsierenden Druck aus ('auslaufen' statt schießen); die Eichel ist danach extrem druckempfindlich. Bei der Vulva: Klitoris und Schwellkörper ziehen sich krampfartig zusammen, ohne dass sich die muskuläre Entspannung einstellt. Beiden Geschlechtern gemein ist das Gefühl, mitten im Sprung ins Leere gegriffen zu haben.",
+      noGos: [
+        "Niemals nach dem Abbruch die hypersensible Eichel oder Klitoris grob reiben – das erzeugt echten Nervenschmerz statt erotischer Frustration.",
+        "Nicht anwenden, wenn der Bottom zuvor einen stressigen Tag hatte und dringend echte Entladung/Erlösung braucht (vorheriges Einvernehmen ist Pflicht).",
+        "Kein Auslachen oder zynisches Verspotten nach der Session – die Demütigung muss rein im erotischen Spielkonsens bleiben."
+      ],
+      aftercare: "Nach einem Ruined Orgasm fühlt sich der Körper oft überreizt oder leicht weinerlich (Post-Orgasm-Dysphorie). Halte deinen Partner fest im Arm, wärme ihn und schenke ihm Kuscheln und Wasser. Vereinbart, ob am Folgetag eine vollständige, explosive Erlösung als Belohnung folgt."
+    },
+
+    "orgasm denial": {
+      title: "Orgasm Denial & Edging (Lustverweigerung)",
+      category: "Macht & Erregungsaufschub",
+      what: "Die gezielte Verweigerung des Höhepunkts über Stunden, Tage oder Wochen. Im Gegensatz zum Ruined Orgasm (bei dem der physische Reflex ausgelöst wird) wird beim Denial der Bottom strikt VOR der Schwelle angehalten. Der Erregungspegel wird künstlich auf Stufe 8 bis 9 gehalten und dann bewusst wieder abgekühlt, sodass eine dauerhafte erotische Dauerspannung entsteht.",
+      psychology: "Der Drang nach Entladung beherrscht das gesamte Denken des Bottoms. Alle Alltagsgedanken treten in den Hintergrund; jede Berührung, jeder Blick des Tops wird zur begehrten Währung. Es erzeugt höchste Aufmerksamkeit, Gehorsam und eine fast tranceartige Fokussierung auf den Partner.",
+      steps: [
+        "1. Festlegung der Dauer: Vorab klären, ob das Denial für diesen Abend (Micro-Denial) oder über mehrere Tage (z. B. mit Keuschheitsgürtel) gilt.",
+        "2. Rhythmisches Edging: Den Bottom 3- bis 5-mal präzise bis Stufe 9 führen. Bei Stufe 9.5: Sofortiger Befehl 'Stopp!'.",
+        "3. Kaltes Verweilen: Den Partner nackt und erregt liegenlassen, während der Top sich ankleidet oder andere Dinge tut.",
+        "4. Tägliche Reizung ohne Erlösung: Kurze, intensive Streichungen morgens oder abends, gefolgt von erneutem Verbot.",
+        "5. Finale Erlösung nach Plan: Nach Tagen des Wartens wird die Freigabe wie ein Geschenk zelebriert – der finale Orgasmus ist um ein Vielfaches intensiver."
+      ],
+      anatomyNotes: "Führt zu starker Durchblutung im Becken (Blue Balls / Pelvic Congestion). Bei Männern kann dies zu dumpfem Ziehen in den Hoden führen – hier hilft sanftes Kühlen oder nach 48h eine kontrollierte Freigabe. Bei Frauen bleibt die Vulva dauerhaft geschwollen und lubrifiziert.",
+      noGos: [
+        "Denial nicht als Bestrafung für reale Beziehungskonflikte missbrauchen.",
+        "Nicht ignorieren, wenn der Bottom echte körperliche Schmerzen im Hoden- oder Unterleibsbereich signalisiert."
+      ],
+      aftercare: "Viel körperliche Nähe, auch wenn kein Orgasmus stattfand. Bestätige dem Bottom, wie begehrenswert und gehorsam er ist."
+    },
+
+    "pegging": {
+      title: "Pegging (Strap-on Penetration des Mannes)",
+      category: "Rollenwechsel & Analerotik",
+      what: "Das Penetrieren des männlichen Partners durch die Partnerin mithilfe eines Umschnalldildos (Strap-on). Die Praxis verbindet die physiologische Stimulation der männlichen Prostata (der männliche G-Punkt) mit einer tiefgreifenden psychologischen Umkehrung der klassischen Penetrationsrollen.",
+      psychology: "Der Mann begibt sich in eine empfangende, verletzliche Position und vertraut seiner Partnerin vollkommen. Die Frau übernimmt die physisch aktive, stoßende Führung. Viele Paare erleben dies als enorme Befreiung von festgefahrenen Hetero-Klischees und als intensive Vertrauenserfahrung.",
+      steps: [
+        "1. Vorbereitung & Entleerung: Ausgiebige Hygiene (Dusche, evtl. milde Klistier-Spülung) für absolute mentale Entspanntheit.",
+        "2. Dehnung & Entspannung (Warm-up): Niemals direkt penetrieren! Erst mit behandschuhtem, gut geöltem Finger und sanftem Buttplug den Schließmuskel über 10–15 Minuten dehnen.",
+        "3. Großzügig Gleitmittel: Silikon- oder reichlich wasserbasiertes Gleitmittel sowohl am Dildo als auch im Rektum verwenden. Es gibt kein 'zu viel Gleitmittel'.",
+        "4. Richtige Position: Der Mann liegt auf dem Bauch mit Kissen unter dem Becken, auf allen Vieren oder auf dem Rücken mit angezogenen Beinen.",
+        "5. Winkel & Prostatamassage: Die Partnerin führt die Spitze langsam im 45-Grad-Winkel nach oben (Richtung Bauchnabel des Mannes). In etwa 5–7 cm Tiefe befindet sich die walnussgroße Prostata.",
+        "6. Sanfter Rhythmus: Keine ruckartigen Stöße. Ruhiges Wiegen und kreisendes Reiben über die Prostata führt oft zu intensiven, ejakulationsfreien Orgasmen."
+      ],
+      anatomyNotes: "Der Rektalschließmuskel ist ein Ringmuskel, der bei Angst verkrampft. Atmen der Partnerin synchronisieren: Beim Ausatmen vorschieben, beim Einatmen halten.",
+      noGos: [
+        "Niemals ohne Vorbereitung oder zu schnell eindringen – Rissgefahr der Analschleimhaut!",
+        "Dildos ohne breite Basis oder ohne festen Gurt verwenden."
+      ],
+      aftercare: "Sanftes Herausziehen, warmes Tuch auflegen, gemeinsames Kuscheln. Wertschätzung für das enorme Vertrauen des Partners."
+    },
+
+    "facesitting": {
+      title: "Facesitting (Queening & Orale Unterwerfung)",
+      category: "Macht, Demut & Sinnlichkeit",
+      what: "Die dominante Person setzt oder kniet sich direkt über das Gesicht des liegenden Partners, sodass Vulva, Gesäß oder Hoden auf Mund und Nase ruhen. Der liegende Partner dient ausschließlich mit Zunge, Lippen und warmem Atem, während der Top die Sauerstoffzufuhr, das Gewicht und den Rhythmus steuert.",
+      psychology: "Die ultimative Visualisierung von Dominanz und Hingabe: Der Bottom ist der Thron des Tops. Das Einatmen des intimen Körperdufts und das Dienen von unten nach oben erzeugen ein Gefühl absoluter Ehrerbietung. Der Top genießt die freie Sicht, die Bequemlichkeit und die Kontrolle über den Atem des Partners.",
+      steps: [
+        "1. Vorbereitung & Position: Der Bottom liegt flach auf dem Rücken. Der Top kniet rittlings über dem Kopf oder stützt sich mit Händen auf der Matratze ab.",
+        "2. Gewichts-Management: Zu Beginn stützt der Top den Großteil des Körpergewichts auf die Knie ab, um den Hals und Brustkorb des Bottoms nicht zu quetschen.",
+        "3. Nonverbale Notfall-Geste vereinbaren: Da der Mund bedeckt ist, MUSS ein Klopf-Signal (Doppel-Tap auf den Oberschenkel des Tops) feststehen.",
+        "4. Sanftes Absenken: Der Top senkt das Becken langsam ab, bis die Vulva oder das Gesäß den Mund bedeckt. Der Bottom öffnet die Lippen und nutzt die flache Zunge.",
+        "5. Atem-Steuerung (Controlled Smothering): Gezieltes kurzes Anheben des Beckens für tiefe Atemzüge, gefolgt von erneutem Absenken zur Steigerung der Auslieferung."
+      ],
+      anatomyNotes: "Nase und Mundhöhle können leicht verschlossen werden. Die Nasenflügel dürfen niemals mit vollem Körpergewicht zusammengepresst werden, wenn kein Klopfsignal frei ist.",
+      noGos: [
+        "Das gesamte Körpergewicht plötzlich auf Hals oder Kiefer fallen lassen.",
+        "Gegen das Klopfsignal weitermachen."
+      ],
+      aftercare: "Sofortiges Entlasten des Gesichts, tiefes gemeinsames Durchatmen, Streicheln der Wangen und Kinnpartie."
+    },
+
+    "shibari": {
+      title: "Shibari (Japanische Seilfesselkunst)",
+      category: "Bondage & Vertrauenskunst",
+      what: "Das ästhetische, sichere und sinnliche Fesseln des Partners mit Naturfaserseilen (meist 5–6 mm geöltes Hanf- oder Juteseil). Shibari ist kein einfaches Arretieren, sondern eine nonverbale Zwiesprache, bei der Seilspannung, Druckpunkte und geometrische Muster zu intensiver Trance führen.",
+      psychology: "Das Gefühl der Begrenzung entlastet das Nervensystem (Kompressionseffekt wie bei Gewichtsdecken). Der Rope Bunny lässt alle Muskeln los und sinkt in den Zustand der Schwerelosigkeit. Der Rigger erschafft ein lebendiges Kunstwerk und übernimmt die volle physische Verantwortung.",
+      steps: [
+        "1. Seilvorbereitung: Seile müssen weich, entgratet und leicht gewachst oder geölt sein.",
+        "2. Sicherheitswerkzeug bereitlegen: Eine EMT-Verbandschere mit abgerundeter Spitze liegt in Reichweite.",
+        "3. Grundfesselung (z. B. Takate Kote / Box Tie): Oberarme werden mit Stammseilen hinter dem Rücken gesichert. Niemals Seile direkt über die Beugeseite der Ellbogen oder Handgelenke schnüren (Nervengefahr!).",
+        "4. Seilspannung prüfen: Zwischen Seil und Haut muss immer ein Zeigefinger passen.",
+        "5. Taubheitstests: Alle 3 bis 5 Minuten die Finger des Partners auf Wärme, Farbe und Gefühl abtasten (Zupf-Test)."
+      ],
+      anatomyNotes: "Höchste Vorsicht vor Nervenkompression am Nervus radialis (Oberarm-Außenseite) und Nervus ulnaris (Ellenbogenrinne). Kribbeln oder Weißfärbung der Finger bedeutet: Sofort lösen!",
+      noGos: [
+        "Nylonseile verwenden (schneiden ein und erzeugen Reibungsverbrennungen).",
+        "Niemals Seile um den Hals legen oder schwebende Fesselungen ohne Ausbildung durchführen."
+      ],
+      aftercare: "Langsames Auswickeln, Seilmuster mit warmen Händen und Öl ausstreichen, warme Decken gegen Kältezittern nach der Entfesselung."
+    },
+
+    "spanking": {
+      title: "Impact Play & Zucht-Versohlen",
+      category: "Sensorik, Katharsis & Schmerz-Endorphin-Transformation",
+      what: "Das gezielte, rhythmische Schlagen auf die fleischigen Partien des Gesäßes mit Händen, Lederpaddles, Floggern oder Gerten. Der Schmerzreiz führt nach wenigen Minuten zu einer massiven Ausschüttung körpereigener Opiate (Endorphine), wodurch der Schmerz in ein samtiges Hitzegefühl und Trance übergeht.",
+      psychology: "Dient oft der rituellen Entlastung von Schuldgefühlen (Sühne & Neuanfang) oder dem Abbau innerer Anspannung. Der Bottom darf schreien, weinen oder wimmern und erfährt danach bedingungslose Annahme.",
+      steps: [
+        "1. Warm-up (Aufwärmen): Niemals mit harten Schlägen starten! Mit nackter flacher Hand leichte, gleichmäßige Klapse über die gesamten Pobacken setzen, bis die Haut rosig durchblutet ist.",
+        "2. Schlagzone fokussieren: Ausschließlich auf die großen Gesäßmuskeln (Gluteus maximus) schlagen. Niemals auf die Nierengegend, das Steißbein oder die Oberschenkelknochen!",
+        "3. Steigerung der Intensität: Vom flächigen, dumpfen Spank (Hand/Paddle) zu präziseren, schärferen Reizen (Lederriemen).",
+        "4. Mitzählen lassen: Der Bottom zählt jeden Hieb laut mit und bedankt sich formal – das hält ihn mental präsent.",
+        "5. Cooling & Handauflegen: Nach der Serie legt der Top die warmen Handflächen flach auf die heiße Haut, um die Hitze zu beruhigen."
+      ],
+      anatomyNotes: "Nieren liegen knapp unterhalb des Rippenbogens – Schläge dorthin können innere Blutungen verursachen! Stets unterhalb der Beckenlinie bleiben.",
+      noGos: [
+        "Mit kantigen, harten Gegenständen schlagen, die die Haut aufplatzen lassen.",
+        "Aus Wut oder realem Zorn schlagen."
+      ],
+      aftercare: "Arnika- oder beruhigende Ringelblumensalbe auflegen, mindestens 20 Minuten langes, enges Halten in Decken."
     }
-    var c = document.getElementById('toast-container');
-    if (!c) return;
-    var el = document.createElement('div');
-    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-    el.innerText = msg;
-    c.appendChild(el);
-    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-    setTimeout(function() {
-      el.classList.add('opacity-0');
-      setTimeout(function() { el.remove(); }, 300);
-    }, 2500);
-  }
+  };
 
   function getGeminiApiKey() {
     try {
+      var liveKey = document.getElementById('account-gemini-key') || document.getElementById('session-gemini-key-input');
+      if (liveKey && liveKey.value && liveKey.value.trim().length > 10) return liveKey.value.trim();
       var stored = localStorage.getItem('kompass_gemini_api_key');
       if (stored && stored.trim().length > 10) return stored.trim();
-    } catch (e) {}
-    return DEFAULT_PRESET_GEMINI_KEY;
-  }
-
-  function getCacheKey(term) {
-    return (term || '').toLowerCase().trim().replace(/[^a-z0-9äöüß]/gi, '_');
-  }
-
-  function getCachedResult(cacheKey) {
-    if (sessionSearchCache[cacheKey]) return sessionSearchCache[cacheKey];
-    try {
-      var stored = localStorage.getItem('kompass_kink_cache_' + cacheKey);
-      if (stored) {
-        var parsed = JSON.parse(stored);
-        // Prüfen, ob der Cache noch einen alten generischen Text enthält
-        if (parsed && parsed.data && parsed.data.definition) {
-          if (
-            parsed.data.definition.indexOf('ist eine etablierte Praktik im einvernehmlichen') !== -1 ||
-            parsed.data.definition.indexOf('ist eine spezialisierte Praxis im einvernehmlichen') !== -1 ||
-            (cacheKey.indexOf('pegging') !== -1 && parsed.data.definition.indexOf('Prostata') === -1)
-          ) {
-            return null; // Veralteten Standard-Cache verwerfen und frisch analysieren
-          }
-          sessionSearchCache[cacheKey] = parsed;
-          return parsed;
-        }
-      }
     } catch (e) {}
     return null;
   }
 
-  function setCachedResult(cacheKey, data, model, duration) {
-    var entry = { data: data, model: model, duration: duration };
-    sessionSearchCache[cacheKey] = entry;
-    try {
-      localStorage.setItem('kompass_kink_cache_' + cacheKey, JSON.stringify(entry));
-    } catch (e) {}
+  function findCuratedDossier(term) {
+    if (!term) return null;
+    var clean = term.toLowerCase().trim();
+    for (var key in CURATED_DOSSIERS) {
+      if (clean.indexOf(key) !== -1 || key.indexOf(clean) !== -1) {
+        return CURATED_DOSSIERS[key];
+      }
+    }
+    return null;
   }
 
-  function renderResearchUI(term, data, modelName, durationSec) {
-    var steps = Array.isArray(data.steps) && data.steps.length > 0 ? data.steps : [
-      { title: "1. Vorbereitung & Konsens", desc: "Materialien bereitstellen, Grenzen und Notfall-Safewords verbindlich festlegen." },
-      { title: "2. Behutsamer Einstieg", desc: "Sanfter Reiz- oder Druckaufbau zur Gewöhnung des Körpers." },
-      { title: "3. Führung & Feedback", desc: "Atmung, Puls und Körpersignale kontinuierlich beobachten." },
-      { title: "4. Ausklang & Aftercare", desc: "Wärmende Decken reichen, trinken lassen und emotional auffangen." }
-    ];
-
-    var timeBadge = durationSec ? ` (${durationSec}s)` : '';
+  function renderDossierHtml(dossier, isAiGenerated) {
+    var badgeText = isAiGenerated ? "✨ Gemini KI-Tiefenanalyse" : "📖 Verifiziertes Praxis-Dossier";
+    var badgeClass = isAiGenerated 
+      ? "bg-purple-950 text-purple-300 border-purple-800" 
+      : "bg-emerald-950 text-emerald-300 border-emerald-800";
 
     return `
       <div class="space-y-3.5 animate-fade-in text-xs leading-relaxed">
-        <div class="flex items-center justify-between text-[10.5px] text-slate-400 border-b border-slate-800 pb-1.5">
-          <span class="text-purple-300 font-semibold flex items-center gap-1">
-            <span>✨</span> Live analysiert durch ${escapeHtml(modelName || 'Gemini 3.8 Flash')}${timeBadge}
-          </span>
-          <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(term).replace(/'/g, "\\'")}')" class="text-purple-400 hover:text-purple-200 font-bold hover:underline">
-            Neu analysieren ↺
-          </button>
+        <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold border ${badgeClass}">${badgeText}</span>
+            <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(dossier.category || 'Sexualpsychologie & BDSM')}</span>
+          </div>
+          <h2 class="text-sm sm:text-base font-black text-white pt-1">${escapeHtml(dossier.title)}</h2>
         </div>
 
-        <!-- SÄULE 1: WAS IST DAS & SICHERHEIT -->
-        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/60 shadow-md space-y-2.5">
-          <div class="flex items-center justify-between border-b border-indigo-900/60 pb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="text-base">💡</span>
-              <h4 class="text-indigo-200 font-extrabold text-xs uppercase tracking-wide">1. Was ist das & Sicherheitsmerkmale</h4>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-700/60">Definition</span>
-          </div>
-          <div class="space-y-2.5 text-slate-200 text-[11px] leading-relaxed">
-            <p>${escapeHtml(data.definition || '')}</p>
-            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-900/50 flex items-start gap-2.5">
-              <span class="text-indigo-400 text-base flex-shrink-0">🛡️</span>
-              <div class="flex-1">
-                <strong class="text-indigo-300 block text-[11px] font-bold">Sicherheit & Vorkehrungen:</strong>
-                <span class="text-slate-300 text-[10.5px]">${escapeHtml(data.safety || 'Keine spezifischen physischen Risiken. Gilt als sichere Praktik bei gegenseitigem Konsens.')}</span>
-              </div>
-            </div>
-          </div>
+        <div class="p-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-1.5">
+          <strong class="text-indigo-200 block text-xs font-bold flex items-center gap-1.5">
+            <span>⚡</span><span>1. Was genau geschieht physisch & somatisch?</span>
+          </strong>
+          <p class="text-slate-200 text-[11px] leading-relaxed">${escapeHtml(dossier.what)}</p>
+          ${dossier.anatomyNotes ? `<div class="p-2 rounded-xl bg-slate-900/80 border border-indigo-900/50 text-[10.5px] text-indigo-300 mt-1"><strong class="text-indigo-200">Anatomie & Geschlechter:</strong> ${escapeHtml(dossier.anatomyNotes)}</div>` : ''}
         </div>
 
-        <!-- SÄULE 2: SEXUELLER REIZ FÜR TOP & BOTTOM -->
-        <div class="p-4 rounded-2xl bg-brand-950/30 border border-brand-900/60 shadow-md space-y-2.5">
-          <div class="flex items-center justify-between border-b border-brand-900/60 pb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="text-base">🧠</span>
-              <h4 class="text-brand-300 font-extrabold text-xs uppercase tracking-wide">2. Sexueller Reiz (Warum Menschen darauf stehen)</h4>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-brand-900/60 text-brand-200 border border-brand-700/60">Psychologie</span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px]">
-            <div class="p-3 rounded-xl bg-slate-900/90 border border-rose-900/50 space-y-1">
-              <div class="flex items-center gap-1.5 text-rose-300 font-bold">
-                <span>👑</span><span>Reiz für den Top (Führung):</span>
-              </div>
-              <p class="text-slate-300 text-[10.5px] leading-normal">${escapeHtml(data.top_appeal || '')}</p>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-900/90 border border-indigo-900/50 space-y-1">
-              <div class="flex items-center gap-1.5 text-indigo-300 font-bold">
-                <span>🧎</span><span>Reiz für den Bottom (Hingabe):</span>
-              </div>
-              <p class="text-slate-300 text-[10.5px] leading-normal">${escapeHtml(data.bottom_appeal || '')}</p>
-            </div>
-          </div>
-
-          ${data.science ? `
-            <div class="p-2.5 rounded-xl bg-purple-950/40 border border-purple-900/50 text-[10.5px] text-slate-300">
-              ✨ <strong class="text-purple-300 font-bold">Wissenschaftliche Einordnung:</strong> ${escapeHtml(data.science)}
-            </div>
-          ` : ''}
+        <div class="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-900/60 space-y-1.5">
+          <strong class="text-purple-200 block text-xs font-bold flex items-center gap-1.5">
+            <span>🧠</span><span>2. Der psychologische Reiz (Warum erregt es?):</span>
+          </strong>
+          <p class="text-slate-300 text-[11px] leading-relaxed">${escapeHtml(dossier.psychology)}</p>
         </div>
 
-        <!-- SÄULE 3: BEST PRACTICE ANLEITUNG FÜR DEN TOP -->
-        <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-900/60 shadow-md space-y-2.5">
-          <div class="flex items-center justify-between border-b border-teal-900/60 pb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="text-base">📋</span>
-              <h4 class="text-teal-300 font-extrabold text-xs uppercase tracking-wide">3. Best Practice: Anleitung für den Top</h4>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-teal-900/60 text-teal-300 border border-teal-700/60">Schritt für Schritt</span>
-          </div>
-
-          <div class="space-y-2 text-[11px] text-slate-300">
-            ${steps.map(function(s, idx) {
+        <div class="p-3.5 rounded-2xl bg-brand-950/30 border border-brand-900/60 space-y-2">
+          <strong class="text-brand-300 block text-xs font-bold flex items-center gap-1.5">
+            <span>🛠️</span><span>3. Konkrete Schritt-für-Schritt Praxisanleitung:</span>
+          </strong>
+          <div class="space-y-1.5 pt-0.5">
+            ${(dossier.steps || []).map(function(step) {
               return `
-                <div class="flex items-start gap-2.5 p-2 rounded-xl bg-slate-900/80 border border-teal-950">
-                  <span class="w-5 h-5 rounded-full bg-teal-950 border border-teal-600 text-teal-300 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">${idx + 1}</span>
-                  <div>
-                    <strong class="text-teal-200 block text-[10.5px]">${escapeHtml(s.title || ('Schritt ' + (idx + 1)))}:</strong>
-                    <span class="text-slate-300 text-[10.5px]">${escapeHtml(s.desc || '')}</span>
-                  </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-200 flex items-start gap-2">
+                  <span class="text-brand-400 font-bold flex-shrink-0">▸</span>
+                  <span class="leading-snug">${escapeHtml(step)}</span>
                 </div>
               `;
             }).join('')}
           </div>
         </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="p-3.5 rounded-2xl bg-rose-950/30 border border-rose-900/60 space-y-1.5">
+            <strong class="text-rose-300 block text-xs font-bold flex items-center gap-1.5">
+              <span>⛔</span><span>Typische No-Gos:</span>
+            </strong>
+            <ul class="space-y-1 text-[10.5px] text-slate-300 list-disc list-inside">
+              ${(dossier.noGos || []).map(function(ng) { return `<li>${escapeHtml(ng)}</li>`; }).join('')}
+            </ul>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-900/60 space-y-1.5">
+            <strong class="text-teal-300 block text-xs font-bold flex items-center gap-1.5">
+              <span>🛋️</span><span>Sicherheit & Aftercare:</span>
+            </strong>
+            <p class="text-slate-300 text-[10.5px] leading-relaxed">${escapeHtml(dossier.aftercare)}</p>
+          </div>
+        </div>
       </div>
     `;
   }
 
-  function generateFallbackKnowledge(term) {
-    var t = (term || '').toLowerCase();
-
-    // 1. Spezifisch für Knebel (Ringknebel, Ballknebel etc.)
-    if (t.indexOf('ringknebel') !== -1 || t.indexOf('ring gag') !== -1) {
-      return {
-        definition: "Ein offener Ringknebel (Ring Gag) besteht aus einem festen Metall- oder Hartgummiring, der durch einen verstellbaren Leder- oder PVC-Riemen hinter den Zähnen fixiert wird. Das Toy erzwingt das ununterbrochene, weite Offenstehen des Mundes, indem die Zähne auf dem Ringrand ruhen. Dadurch wird das Sprechen auf gutturale Laute reduziert, während der Speichelfluss ungehindert nach außen abläuft. Die Wangenmuskulatur und der Kiefer geraten unter spürbare Dauerspannung, während der Rachenraum für Berührungen, Flüssigkeiten oder Sichtkontrollen vollkommen exponiert bleibt.",
-        safety: "Strikte Vorab-Prüfung der Nasenatmung (bei Erkältung oder verstopfter Nase streng verboten!). Maximal 15 bis 20 Minuten ununterbrochen tragen, um Kieferkrämpfe und Kiefergelenksluxationen zu vermeiden. Ein nonverbales Abbruchsignal (z. B. Drop-Tuch in der Hand oder 2x Klopfen) ist zwingend, da Sprechen unmöglich ist. Schnallen müssen mit einem Handgriff lösbar sein.",
-        top_appeal: "Visuelle und akustische Objektivierung: Der Anblick des geöffneten, hilflosen Mundes, das Glänzen des Speichels und das vollständige Verstummen jeglicher Widerrede. Der Top hat die absolute Kontrolle über die intimste Ausdruckszone des Partners.",
-        bottom_appeal: "Verlust zivilisatorischer Kontrolle: Das Entgleiten der Mimik, das unwillkürliche Sabbern und die erzwungene Stille erzeugen ein tiefes Gefühl von Nacktheit und schutzloser Hingabe, das den präfrontalen Kortex entlastet und direkt in den Subspace führt.",
-        science: "Studien zu somatischem Konsens (Canivet 2025; Sagarin 2009) belegen, dass die gezielte Überwindung von Schamgefühlen (wie unwillkürlicher Speichelfluss) im geschützten BDSM-Setting zu massiver Endorphinausschüttung und tiefer Bindung führt.",
-        steps: [
-          { title: "1. Vorbereitung & Passform", desc: "Lippenbalsam auftragen, um Risse zu vermeiden. Ringdurchmesser passend zur Kiefergröße wählen (kein Überdehnen) und Handtuch unterlegen." },
-          { title: "2. Behutsames Einsetzen", desc: "Bottom den Kiefer entspannen lassen, Ring hinter die Schneidezähne führen und den Riemen am Hinterkopf oberhalb der Ohren stramm schnallen." },
-          { title: "3. Führung & Vitalitäts-Check", desc: "Regelmäßig Nasenatmung prüfen, Kieferentspannung durch Wangenstreichen unterstützen und Speichelfluss fordernd zelebrieren." },
-          { title: "4. Schonendes Lösen & Aftercare", desc: "Riemen behutsam öffnen, Ring vorsichtig entnehmen, dem Bottom Zeit geben, den Kiefer langsam zu schließen, warmes Wasser reichen und Lippen massieren." }
-        ]
-      };
-    }
-
-    if (t.indexOf('ballknebel') !== -1 || t.indexOf('ball gag') !== -1) {
-      return {
-        definition: "Ein Ballknebel füllt die Mundhöhle mit einem Vollsilikon- oder Gummiball (üblich: 40–50 mm Durchmesser) aus und drückt die Zunge flach nach unten. Der Kopfriemen presst den Ball gegen die Lippen und Zähne, was Artikulation und Schlucken stark erschwert. Er schirmt die verbale Identität des Bottoms ab und zwingt zu reiner Nasenatmung bei sichtbarem Speichelabfluss.",
-        safety: "Nur bei 100 % freier Nasenatmung anwenden. Niemals bei Neigung zu Panikattacken, Asthma oder Übelkeit. Ein Notfall-Schnellverschluss oder eine Schere muss in Griffweite liegen. Maximale Tragedauer 15 Minuten.",
-        top_appeal: "Das endgültige akustische Stillstellen des Gegenübers; das Verstummen von Widerrede und der reine Fokus auf Gestik, Blick und animalisches Hecheln.",
-        bottom_appeal: "Befreiung vom Zwang sprechen zu müssen; die erzwungene Reglosigkeit des Mundes und das Gefühl des Ausgefülltseins erleichtern das Fallenlassen in die Führung.",
-        science: "Die Dämpfung der Sprachzentren im Gehirn reduziert Grübelschleifen und fördert das Umschalten auf rein somatische Reizverarbeitung.",
-        steps: [
-          { title: "1. Hygiene & Gleitfähigkeit", desc: "Silikonball reinigen und leicht anfeuchten; Safewords in Handzeichen umwandeln." },
-          { title: "2. Einlegen & Arretieren", desc: "Den Ball sanft über die Zunge schieben und den Riemen symmetrisch am Hinterkopf fixieren." },
-          { title: "3. Atmung & Tragedauer", desc: "Konsequent den Brustkorb auf ruhige Nasenatmung überwachen; Blickkontakt halten." },
-          { title: "4. Entnahme & Erholung", desc: "Langsam entriegeln, Speichel mit weichem Tuch abtupfen und den Mundraum mit lauwarmem Wasser ausspülen lassen." }
-        ]
-      };
-    }
-
-    // 2. Spezifisch für Impact / Schläge
-    if (t.indexOf('paddle') !== -1 || t.indexOf('spanking') !== -1 || t.indexOf('gürtel') !== -1 || t.indexOf('flogger') !== -1 || t.indexOf('gerte') !== -1) {
-      return {
-        definition: `Beim Impact Play mit "${term}" werden gezielte rhythmische Schlagreize auf durchblutetes Muskelgewebe (primär die fleischigen Gesäßbacken) gesetzt. Die Härte variiert je nach Werkzeug von dumpf-schwerem Gewebereiz (Thuddy durch breite Leder-Paddles oder gefaltete Gürtel) bis hin zu stechend-feurigem Oberflächenbrennen (Stinging durch Gerten oder Flogger). Ziel ist das schrittweise Durchwärmen der Haut, das Freisetzen körpereigener Endorphine und das Erreichen eines schwebenden Trancezustands.`,
-        safety: "Strikte Tabuzonen beachten: Ausschließlich auf die großen Gesäßmuskeln zielen! Nierenbereich (unterer Rücken), Wirbelsäule, Steißbein und Kniekehlen sind streng verboten. Safewords (Grün/Gelb/Rot) aktiv halten; bei Taubheitsgefühlen sofort stoppen.",
-        top_appeal: "Die souveräne Steuerung von Schmerz- und Lustgrenzen, die akustische Resonanz des Klatschens, das optische Erröten der Haut und die körperliche Resonanz des Partners.",
-        bottom_appeal: "Tiefe körperliche Katharsis: Das Verbrennen von Alltagsstress, das Loslassen von Anspannung durch Schmerz-Endorphin-Kopplung und das vollkommene Ausgeliefertsein im Moment.",
-        science: "Studien (Sagarin et al. 2009) belegen während des Spankings einen dramatischen Anstieg von Endorphinen und Dopamin mit anschließender massiver Cortisolsenkung.",
-        steps: [
-          { title: "1. Vorwärmen & Position", desc: "Das Gesäß zunächst mit flachen Handflächen warmklopfen; stabile Vorbeuge über Kissen oder Bettkante einrichten." },
-          { title: "2. Rhythmus & Werkzeug", desc: "Schläge kontrolliert aus dem Handgelenk setzen; gleichmäßige Abstände einhalten und den Partner mitzählen lassen." },
-          { title: "3. Intensitäts-Steigerung", desc: "Die Schlagkraft nur langsam steigern; Pausen einbauen, in denen die kühle Handfläche tröstend auf die brennende Haut gelegt wird." },
-          { title: "4. Beruhigung & Aftercare", desc: "Kühlendes Arnika-Gel auftragen, den Partner in warme Decken hüllen und fest halten." }
-        ]
-      };
-    }
-
-    // 3. Spezifisch für Fesselung / Bondage
-    if (t.indexOf('shibari') !== -1 || t.indexOf('fessel') !== -1 || t.indexOf('seil') !== -1 || t.indexOf('rope') !== -1 || t.indexOf('takate kote') !== -1) {
-      return {
-        definition: `Bei "${term}" handelt es sich um eine Kunst der körperlichen Begrenzung und Arretierung durch Seile (oft 6mm geölte Jute oder Hanf) oder Riemen. Die Seilführung schmiegt sich an Muskelstränge an, stützt den Brustkorb und fixiert Gliedmaßen in bestimmten Haltungen (wie der klassischen Armbox Takate Kote). Der physische Druck auf Akupressurpunkte in Kombination mit der Bewegungsunfähigkeit zwingt den Körper zur vollkommenen muskulären Entlastung und Hingabe.`,
-        safety: "Gefahr von Nervenquetschungen: Vor allem der Radialisnerv an der Außenseite des Oberarms und Nerven an den Handgelenken müssen frei von punktuellem Druck bleiben. Finger kontinuierlich auf Wärme, Puls und Verfärbung prüfen. Eine Sicherheits-Schere (EMT-Cutter) muss immer in Griffweite liegen.",
-        top_appeal: "Die architektonische Faszination des Bindens, die ruhige Konzentration und das optische Einrahmen des Körpers; das Privileg absoluter Verantwortung über die Bewegung des Partners.",
-        bottom_appeal: "Das Gefühl des 'Gehaltenwerdens': Das Seil nimmt dem Körper die Last ab, sich selbst aufrecht halten zu müssen. Die Unfähigkeit zu fliehen befreit von jeder Entscheidungsverantwortung.",
-        science: "Tiefer propriozeptiver Druck (Deep Touch Pressure) beruhigt das parasympathische Nervensystem nachweislich (van der Kolk 2014) und senkt Herzfrequenz und Angstlevel.",
-        steps: [
-          { title: "1. Seilprüfung & Cutter", desc: "Sicherheits-Cutter bereitstellen; Seile auf Fremdkörper und Geschmeidigkeit prüfen; Schuck und Uhren ablegen." },
-          { title: "2. Grundspannung aufbauen", desc: "Stammwicklungen ohne Strangulation eng anlegen; Last gleichmäßig auf große Muskelpartien verteilen." },
-          { title: "3. Vitalitäts-Überwachung", desc: "Alle 5 Minuten Fingerwärme, Puls und Hautfarbe kontrollieren; auf Taubheitsgefühle oder Kribbeln abfragen." },
-          { title: "4. Behutsames Entknoten", desc: "Seile ruhig lösen, ohne die Haut durch Ziehen aufzureiben; Gelenke sanft kreisen lassen und Decken reichen." }
-        ]
-      };
-    }
-
-    // 4. Spezifisch für Pegging & anale Penetration mit Strap-on
-    if (t.indexOf('pegging') !== -1 || t.indexOf('strap-on') !== -1 || t.indexOf('strap on') !== -1 || t.indexOf('strapon') !== -1) {
-      return {
-        definition: "Beim Pegging schnallt sich die Frau (oder der führende Top) ein eng anliegendes Gurtgeschirr (Harness aus Leder oder festem Nylon) um Becken und Gesäß, in dessen Metall- oder O-Ring ein Dildo arretiert ist, und penetriert damit den Mann rektal. Die Praxis verlangt eine millimetergenaue Ausrichtung auf den Schließmuskel und das Ansteuern der männlichen Prostata (der sogenannte P-Punkt an der vorderen Rektumwand in Richtung Schambein). Da der Enddarm keine Eigenbefeuchtung besitzt, basiert der Vorgang auf massiven Mengen Gleitgel und dem schrittweisen Entspannen des inneren und äußeren Schließmuskels. Die Haltung reicht von der klassischen Vierfüßler-Position (Doggy) über die Vorbeuge über Kissen bis hin zur Missionarstellung, bei der er die Beine spreizt und sie frontal eindringt.",
-        safety: "Niemals mit Gewalt oder trocken eindringen: Der Rektumbereich ist empfindlich für Schleimhautfissuren. Ausschließlich Toys mit festem Standfuß oder starrer O-Ring-Sicherung verwenden, damit nichts im Enddarm verschwinden kann. Reichlich Gleitmittel auf Wasser- oder Silikonbasis verwenden und kontinuierlich nachdosieren. Ein klares Ampel-Safeword (Grün/Gelb/Rot) oder nonverbales Zeichen ist Pflicht. Vorab-Aufdehnung mit Fingern oder einem kleinen Butt Plug sowie eine optionale Darmspülung (Klistier) verhindern Schmerzen und mentale Blockaden.",
-        top_appeal: "Vollkommene physische und sexuelle Machtübernahme: Die Frau übernimmt die penetrierende, fordernde Rolle, bestimmt Rhythmus, Tiefe und Stoßwinkel mit ihren eigenen Hüften. Das Klatschen ihres Beckens auf sein Gesäß, der Anblick des vor ihr ausgelieferten Mannes und das Dirigieren seiner Prostata-Lust ohne eigenes Genitalgefühl erzeugen einen berauschenden dominanten Kick.",
-        bottom_appeal: "Totale körperliche Entwaffnung und neurologische Höchstlust: Der Mann gibt jede gesellschaftliche Kontrollrolle an der Schwelle zum Schlafzimmer ab. Die mechanische Massage der Prostata durch den Dildokopf löst intensive, ganzkörperliche und oft freihändige Orgasmen aus, die sich fundamental von ejakulatorischer Glied-Stimulation unterscheiden. Das Gefühl des Ausgefülltseins und der weiblichen Führung führt zu tiefer somatischer Katharsis.",
-        science: "Urologische und sexualwissenschaftliche Studien (Komisaruk et al., 2004; Wismeijer, 2013) belegen, dass die rektale Prostata-Stimulation über den Nervus pelvicus und den Nervus pudendus direkte Orgasmuszentren im Gehirn anspricht. Die bewusste Umkehrung traditioneller Geschlechterrollen entlastet Männer zudem nachweislich von Leistungsdruck.",
-        steps: [
-          { title: "1. Vorbereitung & Schließmuskel-Entspannung", desc: "Darm optional reinigen; reichlich Gleitmittel auftragen und den Schließmuskel mit eingeöltem Zeigefinger oder kleinem Konus-Plug 5–10 Minuten sanft vorweiten." },
-          { title: "2. Harness-Justierung & Positionierung", desc: "Das Geschirr stramm an den Beckenknochen der Frau arretieren, damit der Dildo nicht wackelt. Der Mann begibt sich in Vierfüßlerstellung oder legt ein Kissen unter das Becken." },
-          { title: "3. Millimeterweises Einführen & Prostata-Winkel", desc: "Dildospitze am Anus ansetzen, den Mann tief ausatmen lassen und langsam hineingleiten. Den Winkel leicht nach oben Richtung Schambein neigen, um die walnussgroße Prostata zu ertasten." },
-          { title: "4. Rhythmus, Hüftstoß & Aftercare", desc: "Langsames Gleiten steigern, sobald der Schließmuskel nachgibt; Hüftstöße rhythmisch setzen, bis er bebt. Danach Dildo behutsam herausziehen, Po abwischen und fest im Arm halten." }
-        ]
-      };
-    }
-
-    // Standard-Fallback für sonstige Begriffe
-    return {
-      definition: `"${term}" ist eine spezialisierte Praxis im einvernehmlichen BDSM- und Erotikbereich. Sie basiert auf klarer verbaler oder nonverbaler Kommunikation, gegenseitigem Respekt und vertrauensvoller Hingabe. Der Ablauf wird schrittweise vom sanften Antasten bis zur gewünschten Intensität aufgebaut.`,
-      safety: "Vorab Safewords (Ampelsystem Grün/Gelb/Rot) verbindlich vereinbaren. Keine Anwendung bei gesundheitlichen Zweifeln, Schwindel oder Taubheitsgefühlen. Notfallwerkzeuge stets in Griffweite halten.",
-      top_appeal: "Souveräne Führung, das feinfühlige Dirigieren der Erregung und das intensive Erleben der emotionalen und körperlichen Resonanz des Partners.",
-      bottom_appeal: "Vollständige Entlastung von Alltagsentscheidungen, tiefes Fallenlassen in den Subspace und das Genießen geschützter Grenzen im sicheren Rahmen.",
-      science: "Studien (u. a. Wismeijer 2013, Canivet 2025) belegen, dass einvernehmliche Kinks ein gesunder Ausdruck menschlicher Sexualität sind und Stresshormone (Cortisol) nachhaltig senken.",
-      steps: [
-        { title: "1. Vorbereitung & Konsens", desc: "Materialien, No-Gos und Safewords in ruhiger Atmosphäre festlegen." },
-        { title: "2. Behutsamer Einstieg", desc: "Körper langsam an die Reiz- oder Machtdynamik heranführen." },
-        { title: "3. Kontinuierliche Resonanz", desc: "Atmung, Hauttemperatur und Blickkontakt fortlaufend überwachen." },
-        { title: "4. Aftercare & Geborgenheit", desc: "Warme Decken, Wasser reichen und emotionales Auffangen." }
-      ]
-    };
-  }
-
-  async function performResearch(term, contextDesc, forceBypassCache, retryCount) {
-    var cleanTerm = (term || '').trim();
-    if (!cleanTerm) return;
-
-    var container = document.getElementById('lexikon-entries-container');
-    var input = document.getElementById('lexikon-search-input');
-    if (input) input.value = cleanTerm;
-
-    var cacheKey = getCacheKey(cleanTerm);
-    if (!forceBypassCache) {
-      var cached = getCachedResult(cacheKey);
-      if (cached) {
-        if (container) {
-          container.innerHTML = renderResearchUI(cleanTerm, cached.data, cached.model, cached.duration);
-        }
-        return;
-      }
-    }
-
-    if (container) {
-      container.innerHTML = `
-        <div class="p-8 text-center space-y-4 theme-panel rounded-3xl border border-purple-800/40 shadow-xl bg-gradient-to-b from-purple-950/20 to-noir-950">
-          <div class="relative w-12 h-12 mx-auto">
-            <div class="w-12 h-12 border-3 border-purple-500/20 border-t-purple-400 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-sm">⚡</div>
-          </div>
-          <div class="space-y-1.5">
-            <strong class="text-xs text-white block font-black">Live-Analyse: "${escapeHtml(cleanTerm)}"</strong>
-            <p class="text-[11px] text-purple-300">Gemini analysiert Toy-Mechanik, Psychologie & Best Practice...</p>
-          </div>
-        </div>
-      `;
-    }
-
+  async function searchViaGeminiApi(term, desc) {
     var apiKey = getGeminiApiKey();
-    var startTime = Date.now();
+    if (!apiKey) {
+      return null;
+    }
 
-    var prompt = `Du bist ein führender Experte für BDSM-Ausrüstung, Kink-Praktiken, Fetischkleidung und somatische Sexualdynamiken.
-Analysiere den Begriff / die Praxis / das Toy: "${cleanTerm}" ${contextDesc ? `(Kontext: "${contextDesc}")` : ''} für ein aufgeklärtes deutsches Paar.
+    var prompt = `Du bist eine erfahrene, sex-positive BDSM-Pädagogin, Sexualwissenschaftlerin und Kink-Therapeutin.
+Erstelle für die Praktik „${term}“ (${desc || 'Praxis der BDSM- und Kink-Kultur'}) ein hochdetailliertes, unzensiertes und absolut praxisnahes Handbuch.
 
-WICHTIGE ANWEISUNGEN ZUR SPEZIFITÄT & EXPLIZITHEIT:
-1. Keine Euphemismen oder vagen Ausflüchte! Verwende präzise, explizite anatomische Fachbegriffe (z.B. Anus, Rektum, Schließmuskel, Prostata, Beckenboden, Vulva, Klitoris, Glied, Eichel, Kiefermuskeln, Nervenbahnen). Beschreibe unzensiert, was physisch, mechanisch und anatomisch geschieht.
-2. Gehe in "definition" präzise auf das KONKRETE Toy, Material (z.B. Silikon, Edelstahl, Leder, Jute, Lack, Latex), die physische Mechanik, Stoßwinkel, Reibung, Dehnung und Platzierung ein (z.B. bei Pegging: Strap-on Geschirr, O-Ring, Prostata-Ansteuerung, Vorweitung, Gleitmittel-Mengen; bei Knebeln: Zähne, Lippen, Speichelfluss; bei Schlägen: Schwungtechnik, Hautreaktion, Trefferzone Gesäß; bei Fesselungen: Seilführung, Nervenbahnen; bei Kleidung: Haptik, Knarzen, Geruch, Glanz).
-3. Verfasse keine allgemeinen Floskeln! Jeder Satz muss sich messerscharf auf "${cleanTerm}" beziehen.
-4. In "top_appeal": Erkläre den spezifischen visuellen, haptischen, auditiven oder machtbezogenen Reiz DIESES Gegenstands/dieser Praxis für den Top (z.B. bei Pegging: aktive Penetration, Führen des Beckens, visuelle Dominanz, akustisches Klatschen auf sein Gesäß, Kontrolle über seine Prostata-Ekstase).
-5. In "bottom_appeal": Erkläre das somatische Erleben, den Kontrollverlust, die Scham-Lust, das Ausgefülltsein oder die Sinnesüberflutung genau dieses Toys/dieser Praxis für den Bottom (z.B. bei Pegging: Entwaffnung, Loslassen männlicher Rollenzwänge, tiefe Prostata-Orgasmen).
-6. In "steps": Formuliere eine EXAKTE, praxisbezogene 4-Schritte-Anleitung speziell für den Einsatz DIESES Toys/dieser Praxis (Schritt 1: Equipment-Check/Vorbereitung; Schritt 2: Physisches Anlegen/Einstieg; Schritt 3: Durchführung & Reizsteuerung; Schritt 4: Behutsames Lösen & somatische Nachsorge).
+Vermeide oberflächliche Wikipedia-Zweizeiler, vermeide moralische Belehrungen oder Ausflüchte.
+Nutze eine klare, anatomisch und psychologisch präzise deutsche Sprache.
 
-Antworte ausschließlich als valides JSON mit genau diesen Feldern:
+Antworte AUSSCHLIESSLICH als valides JSON mit exakt dieser Struktur:
 {
-  "definition": "Ablauf, Material und physische Durchführung in 6 bis 12 bildhaften, präzisen deutschen Sätzen.",
-  "safety": "Konkrete Sicherheitsmerkmale, Nerven/Durchblutung, Risikozonen und Safewords für dieses spezifische Toy/diese Praxis.",
-  "top_appeal": "Warum Top/Führender speziell auf dieses Toy / diese Praktik steht (visueller Reiz, Macht, Kontrolle).",
-  "bottom_appeal": "Warum Bottom/Empfangender speziell auf dieses Toy / diese Praktik steht (Hingabe, Scham-Lust, Loslassen).",
-  "science": "Wissenschaftliche/psychologische Entlastung von Schamgefühlen (Normalisierung, Canivet 2025, Sagarin 2009).",
+  "title": "Name der Praktik",
+  "category": "Passende BDSM-Kategorie (z. B. Erregungskontrolle, Impact, Bondage, Rollenspiel)",
+  "what": "Ausführliche Erklärung: Was geschieht physisch und somatisch im Körper? Welche Nerven, Muskeln und Reflexe sind beteiligt? (4 bis 6 Sätze)",
+  "anatomyNotes": "Besonderheiten für Penis bzw. Vulva, Schleimhäute, Durchblutung oder Nervenverläufe (2 bis 3 Sätze)",
+  "psychology": "Der psychologische Reiz: Warum erregt es den Top (Macht, Regie)? Warum erregt es den Bottom (Loslassen, Demut, Überwältigung)? (4 bis 6 Sätze)",
   "steps": [
-    {"title": "1. Spezifische Vorbereitung", "desc": "Materialprüfung, Maße, Vorbereitung für dieses Toy."},
-    {"title": "2. Behutsames Anlegen / Einstieg", "desc": "Exakter physischer Einstieg und Platzierung."},
-    {"title": "3. Durchführung & Reizsteuerung", "desc": "Lenken der Dynamik und Vitalitätsüberwachung."},
-    {"title": "4. Sicheres Lösen & Aftercare", "desc": "Schonende Abnahme und körperliche Nachsorge."}
-  ]
+    "1. Vorbereitung & Setting: Wie wird der Raum vorbereitet und welche Materialien werden bereitgelegt?",
+    "2. Einstieg & Schwellenaufbau: Wie wird der Körper herangeführt und zentriert?",
+    "3. Der Vollzug (Exakte Anleitung): Was tut der Top mit Händen, Worten oder Spielzeug in genau welcher Sekunde?",
+    "4. Kommandos & nonverbale Reaktionen: Welche konkreten Sätze und Signale werden genutzt?",
+    "5. Ausklang & Entspannung: Wie wird die Praktik sicher beendet?"
+  ],
+  "noGos": [
+    "Typischer Fehler oder gefährliche Aktion 1",
+    "Typischer Fehler oder No-Go 2",
+    "Typischer Fehler oder No-Go 3"
+  ],
+  "aftercare": "Konkrete Aftercare-Anleitung: Physische Erholung, Decken, Trinken, emotionale Rückholung aus dem Subspace (3 bis 4 Sätze)"
 }`;
 
-    var candidates = [
-      {
-        model: 'gemini-3.8-flash',
-        genConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingLevel: "minimal" }
-        }
-      },
-      {
-        model: 'gemini-3.7-flash',
-        genConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingLevel: "minimal" }
-        }
-      },
-      {
-        model: 'gemini-2.5-flash',
-        genConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          thinkingConfig: { thinkingBudget: 0 }
-        }
-      }
-    ];
+    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
 
-    var success = false;
-    var lastError = "Keine Verbindung zum KI-Dienst";
-    var retryDelaySeconds = 0;
-
-    for (var m = 0; m < candidates.length; m++) {
-      var candidate = candidates[m];
-      var targetModel = candidate.model;
-      var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + targetModel + ':generateContent?key=' + encodeURIComponent(apiKey);
-
-      var payload = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: candidate.genConfig
-      };
-
-      var attemptController = new AbortController();
-      var attemptTimeout = setTimeout(function() { attemptController.abort(); }, 8000);
-
+    for (var i = 0; i < candidateModels.length; i++) {
+      var model = candidateModels[i];
       try {
-        var resp = await fetch(url, {
+        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: attemptController.signal
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: "application/json"
+            }
+          })
         });
-        clearTimeout(attemptTimeout);
 
         if (resp.ok) {
           var resData = await resp.json();
           var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-          var parsedData = null;
+          var parsed = null;
           try {
-            parsedData = JSON.parse(rawJson);
+            parsed = JSON.parse(rawJson);
           } catch (pe) {
             var match = rawJson.match(/\{[\s\S]*\}/);
-            parsedData = match ? JSON.parse(match[0]) : null;
+            parsed = match ? JSON.parse(match[0]) : null;
           }
 
-          if (parsedData && parsedData.definition) {
-            var duration = ((Date.now() - startTime) / 1000).toFixed(1);
-            setCachedResult(cacheKey, parsedData, targetModel, duration);
-            if (container) {
-              container.innerHTML = renderResearchUI(cleanTerm, parsedData, targetModel, duration);
-            }
-            success = true;
-            break;
-          }
-        } else {
-          var errData = await resp.json().catch(function() { return {}; });
-          lastError = errData.error?.message || ('HTTP ' + resp.status);
-
-          if (resp.status === 429) {
-            var retryMatch = lastError.match(/retry in\s+([0-9.]+)\s*s/i);
-            if (retryMatch && retryMatch[1]) {
-              retryDelaySeconds = Math.max(2, Math.ceil(parseFloat(retryMatch[1])));
-            } else {
-              retryDelaySeconds = 4;
-            }
-            break;
+          if (parsed && parsed.what && parsed.steps) {
+            return parsed;
           }
         }
-      } catch (e) {
-        clearTimeout(attemptTimeout);
-        if (e.name === 'AbortError') {
-          lastError = "Zeitüberschreitung beim Modell " + targetModel + ". Nächster Versuch...";
-          continue;
-        }
-        lastError = e.message || "Netzwerkfehler";
-      }
+      } catch (e) {}
     }
+    return null;
+  }
 
-    if (!success && retryDelaySeconds > 0 && (!retryCount || retryCount < 2)) {
-      var currentCountdown = retryDelaySeconds;
-      if (container) {
-        container.innerHTML = `
-          <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-amber-500/40 shadow-xl bg-gradient-to-b from-amber-950/20 to-noir-950 animate-pulse">
-            <span class="text-2xl block">⏳</span>
-            <div class="space-y-1">
-              <strong class="text-xs text-amber-200 block font-bold">Google Rate-Limit aktiv (20 Anfragen/Min.)</strong>
-              <p class="text-[11px] text-slate-300">Wiederhole die Live-Recherche für "${escapeHtml(cleanTerm)}" automatisch in:</p>
-              <div id="retry-countdown-num" class="text-2xl font-black text-amber-400 font-mono pt-1">${currentCountdown}s</div>
-            </div>
-          </div>
-        `;
-      }
+  async function performResearch(term, optionalDesc) {
+    var query = (term || '').trim();
+    if (!query) return;
 
-      var countdownInterval = setInterval(function() {
-        currentCountdown--;
-        var cdEl = document.getElementById('retry-countdown-num');
-        if (cdEl) cdEl.innerText = currentCountdown + "s";
-        if (currentCountdown <= 0) {
-          clearInterval(countdownInterval);
-          performResearch(cleanTerm, contextDesc, true, (retryCount || 0) + 1);
-        }
-      }, 1000);
+    var container = document.getElementById('lexikon-entries-container');
+    var input = document.getElementById('lexikon-search-input');
+    if (input) input.value = query;
+
+    // 1. Lokaler Treffer vorhanden?
+    var offlineDossier = findCuratedDossier(query);
+    if (offlineDossier) {
+      if (container) container.innerHTML = renderDossierHtml(offlineDossier, false);
       return;
     }
 
-    if (!success && container) {
-      var fallbackData = generateFallbackKnowledge(cleanTerm);
-      setCachedResult(cacheKey, fallbackData, "Sicherheits-Synthese (Offline)", "0.1");
+    // 2. Falls nicht kuratiert, Gemini Live-Anfrage
+    if (container) {
       container.innerHTML = `
-        <div class="space-y-3">
-          <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-800 text-[10.5px] text-amber-200 flex items-center justify-between">
-            <span>⚡ <strong>Google API-Quota erreicht:</strong> Darstellung aus der evidenzbasierten Wissens-Synthese.</span>
-            <button type="button" onclick="KinkResearch.forceRefresh('${escapeHtml(cleanTerm).replace(/'/g, "\\'")}')" class="px-2 py-0.5 rounded bg-amber-900 border border-amber-700 text-white font-bold touch-btn">
-              KI neu anfragen ↺
+        <div class="p-8 text-center space-y-3 theme-panel rounded-3xl border border-purple-900/60 animate-pulse">
+          <div class="w-10 h-10 border-3 border-purple-500/20 border-t-purple-400 rounded-full animate-spin mx-auto"></div>
+          <strong class="text-xs text-purple-200 block font-bold">Erstelle tiefgehendes Praxis-Dossier zu „${escapeHtml(query)}“...</strong>
+          <p class="text-[10.5px] text-slate-400">Gemini analysiert somatische Abläufe, Schritt-für-Schritt Anleitungen und Sicherheitsregeln.</p>
+        </div>
+      `;
+    }
+
+    var aiDossier = await searchViaGeminiApi(query, optionalDesc);
+    if (aiDossier && container) {
+      container.innerHTML = renderDossierHtml(aiDossier, true);
+    } else if (container) {
+      container.innerHTML = `
+        <div class="p-6 text-center space-y-3 theme-panel rounded-2xl border border-slate-800">
+          <span class="text-2xl block">🔍</span>
+          <strong class="text-xs text-white block">Kein spezifischer Eintrag für „${escapeHtml(query)}“ gefunden</strong>
+          <p class="text-[11px] text-slate-400 max-w-sm mx-auto">
+            Hinterlege einen Gemini API-Key in den Einstellungen, um KI-Echtzeit-Dossiers für beliebige Praktiken abzurufen.
+          </p>
+          <div class="flex justify-center gap-2 pt-1">
+            <button type="button" onclick="KinkResearch.open('Ruined Orgasm')" class="px-3 py-1.5 bg-purple-900 text-purple-200 font-bold rounded-xl text-xs touch-btn">
+              Beispiel: Ruined Orgasm ansehen
             </button>
           </div>
-          ${renderResearchUI(cleanTerm, fallbackData, "Evidenzbasierte Synthese", "0.1")}
         </div>
       `;
     }
   }
 
-  function openModal(term, contextDesc) {
+  function openModal(initialTerm, optionalDesc) {
     var modal = document.getElementById('modal-lexikon');
     if (modal) {
-      modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      modal.classList.remove('hidden');
     }
-
-    if (term) {
-      performResearch(term, contextDesc, false);
-    } else {
-      var container = document.getElementById('lexikon-entries-container');
-      if (container && !container.innerHTML.trim()) {
-        renderDefaultWelcome(container);
-      }
-    }
+    var term = initialTerm || 'Ruined Orgasm';
+    performResearch(term, optionalDesc);
   }
 
   function closeModal() {
     var modal = document.getElementById('modal-lexikon');
     if (modal) {
-      modal.classList.add('hidden');
       modal.style.display = 'none';
+      modal.classList.add('hidden');
     }
-
-    var input = document.getElementById('lexikon-search-input');
-    if (input) input.value = '';
-    var container = document.getElementById('lexikon-entries-container');
-    if (container) renderDefaultWelcome(container);
   }
 
-  function renderDefaultWelcome(container) {
-    container.innerHTML = `
-      <div class="p-5 text-center space-y-3 theme-panel rounded-2xl border border-slate-800">
-        <span class="text-3xl block">🔍</span>
-        <div>
-          <strong class="text-xs text-white block font-bold">Gib oben einen Begriff ein oder wähle eine Praxis:</strong>
-          <p class="text-[10.5px] text-slate-400 mt-0.5">Analysiert Ablauf, psychologische Anziehungskraft und Sicherheitsstandards in Echtzeit.</p>
-        </div>
-        <div class="flex flex-wrap gap-1.5 justify-center pt-1">
-          <button type="button" onclick="KinkResearch.open('Sensuelles Breast-Smothering')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Breast-Smothering</button>
-          <button type="button" onclick="KinkResearch.open('Takate Kote (Klassische Armbox)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Takate Kote</button>
-          <button type="button" onclick="KinkResearch.open('Ruined Orgasm')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Ruined Orgasm</button>
-          <button type="button" onclick="KinkResearch.open('CBT (Ball Stretcher & Hodenringe)')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">CBT</button>
-          <button type="button" onclick="KinkResearch.open('Bratting & spielerisches Bändigen')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Bratting</button>
-          <button type="button" onclick="KinkResearch.open('Pegging')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-purple-300 hover:text-white text-[11px] font-bold touch-btn">Pegging</button>
-        </div>
-      </div>
-    `;
-  }
-
-  function handleSearchFromInput() {
+  function handleSearchClick() {
     var input = document.getElementById('lexikon-search-input');
-    var val = (input ? input.value : '').trim();
-    if (val) {
-      performResearch(val, null, true);
-    } else {
-      showToast("Bitte gib einen Begriff zur Recherche ein.");
-    }
+    var val = input ? input.value : '';
+    performResearch(val);
   }
 
   window.KinkResearch = {
     open: openModal,
     close: closeModal,
-    search: handleSearchFromInput,
-    forceRefresh: function(term) { performResearch(term, null, true); }
+    search: performResearch
   };
 
-  window.openLexikonModal = openModal;
+  window.openLexikonModal = function() { openModal(); };
   window.closeLexikonModal = closeModal;
-  window.searchKinkResearch = handleSearchFromInput;
+  window.searchKinkResearch = handleSearchClick;
 
 })(window);
