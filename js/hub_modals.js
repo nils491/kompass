@@ -536,7 +536,7 @@
       return;
     }
 
-    // ⚡ Sofort-Transfer Auto-Erkennung: Falls der verschlüsselte Text-Schlüssel direkt ins Feld eingefügt wurde
+    // Sofort-Transfer Auto-Erkennung: Falls der verschlüsselte Text-Schlüssel direkt ins Feld eingefügt wurde
     if (rawInput.length > 50 && rawInput.indexOf(' ') === -1 && rawInput.indexOf('?') === -1 && rawInput.indexOf('/') === -1) {
       if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
         try {
@@ -552,36 +552,22 @@
             : 0;
           showToast("✓ Sofort-Transfer erfolgreich! " + ansCount + " Antworten für " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " aktiviert ✨");
           return;
-        } catch (err) {
-          // Falls kein Sofort-Transfer, normal mit Cloud-Sync fortfahren
-        }
+        } catch (err) {}
       }
     }
 
     var cleanCode = '';
-    var directId = null;
-
-    // Erkennt vollautomatisch kopierte WhatsApp-Links oder komplexe URLs
     if (rawInput.indexOf('?') !== -1 || rawInput.indexOf('pair=') !== -1) {
       try {
         var urlStr = rawInput.startsWith('http') ? rawInput : ('https://kink.local/' + rawInput);
         var urlObj = new URL(urlStr);
         cleanCode = urlObj.searchParams.get('pair') || '';
-        directId = urlObj.searchParams.get('id') || null;
       } catch (e) {
         var mCode = rawInput.match(/pair=([^&]+)/);
-        var mId = rawInput.match(/id=([^&]+)/);
         if (mCode) cleanCode = decodeURIComponent(mCode[1]);
-        if (mId) directId = decodeURIComponent(mId[1]);
       }
     } else if (rawInput.indexOf('#') !== -1) {
-      var parts = rawInput.split('#');
-      cleanCode = parts[0].trim();
-      directId = parts[1].trim();
-    } else if (rawInput.length > 24 && rawInput.indexOf('-') === -1) {
-      // Direkte Objekt-ID
-      directId = rawInput;
-      cleanCode = localStorage.getItem('kompass_pair_code') || 'KOMPASS-SYNC';
+      cleanCode = rawInput.split('#')[0].trim();
     } else {
       cleanCode = rawInput.toUpperCase().trim();
     }
@@ -591,7 +577,7 @@
     if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
       showToast("⏳ Lade verschlüsselte Paar-Daten aus der Cloud...");
       try {
-        await window.CloudSync.joinRoom(cleanCode, role, directId);
+        await window.CloudSync.joinRoom(cleanCode, role);
         if (typeof window.loadCoreData === 'function') window.loadCoreData();
         if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
         updateCloudSyncUI();
@@ -656,8 +642,9 @@
         if (typeof window.updateHubUI === 'function') window.updateHubUI();
         closeCloudSyncModal();
         showToast("✓ Daten erfolgreich übertragen!");
-    } catch (e) {
-      showToast("⚠️ Ungültiger Transfer-Schlüssel.");
+      } catch (e) {
+        showToast("⚠️ Ungültiger Transfer-Schlüssel.");
+      }
     }
   }
 
@@ -666,15 +653,40 @@
       ? window.CloudSync.getState()
       : {};
     var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
-    var objId = state.objectId || localStorage.getItem('kompass_sync_remote_id') || '';
-    if (!code) return null;
+    if (!code) {
+      if (window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
+        window.CloudSync.createRoom();
+        code = localStorage.getItem('kompass_pair_code') || 'KOMPASS-SYNC';
+      } else {
+        code = 'KOMPASS-SYNC';
+      }
+    }
 
-    var role = targetRole || 'B';
+    var role = targetRole || 'A';
     var base = window.location.href.split('?')[0].split('#')[0];
-    return base + "?pair=" + encodeURIComponent(code) + (objId ? ("&id=" + encodeURIComponent(objId)) : "") + "&role=" + encodeURIComponent(role);
+
+    // Datenpaket direkt in den Link einbinden (Zero-Server-Sofortübertragung)
+    var transferPayload = '';
+    if (window.CloudSync && typeof window.CloudSync.exportDirect === 'function') {
+      try {
+        transferPayload = window.CloudSync.exportDirect();
+      } catch (e) {}
+    }
+
+    var url = base + "?pair=" + encodeURIComponent(code) + "&role=" + encodeURIComponent(role);
+    if (transferPayload) {
+      url += "#sync=" + encodeURIComponent(transferPayload);
+    }
+    return url;
   }
 
   function handleCopySelfLink() {
+    if (window.location.protocol === 'file:') {
+      handleExportDirectTransfer();
+      showToast("⚠️ Hinweis: Auf dem PC läuft file://. Kopiere den Schlüssel und füge ihn am Handy ein!");
+      return;
+    }
+
     var selfUrl = buildPairUrl('A');
     if (!selfUrl) {
       showToast("Erstelle zuerst einen Paar-Code.");
@@ -683,14 +695,14 @@
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(selfUrl).then(function() {
-        showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+        showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
       }).catch(function() {
         copyViaTempInput(selfUrl);
-        showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+        showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
       });
     } else {
       copyViaTempInput(selfUrl);
-      showToast("📱 Link für dein iPhone kopiert! In Safari auf dem iPhone öffnen 📋");
+      showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
     }
   }
 
@@ -768,21 +780,43 @@
 
   function checkUrlForAutoPairing() {
     try {
-      var params = new URLSearchParams(window.location.search);
-      var pairCode = params.get('pair');
-      var objId = params.get('id');
-      var role = params.get('role') || 'B';
+      var searchParams = new URLSearchParams(window.location.search);
+      var pairCode = searchParams.get('pair');
+      var role = searchParams.get('role') || 'A';
 
-      if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
-        window.CloudSync.joinRoom(pairCode, role, objId).then(function() {
+      // 1. In-URL Sofortübertragung aus Hash (#sync=...) oder Suchparameter
+      var rawSync = '';
+      var hash = window.location.hash || '';
+      if (hash.indexOf('sync=') !== -1) {
+        var mSync = hash.match(/sync=([^&]+)/);
+        if (mSync) rawSync = decodeURIComponent(mSync[1]);
+      } else if (searchParams.get('sync')) {
+        rawSync = decodeURIComponent(searchParams.get('sync'));
+      }
+
+      if (rawSync && window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
+        try {
+          window.CloudSync.importDirect(rawSync, role);
           if (typeof window.loadCoreData === 'function') window.loadCoreData();
           if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
           updateCloudSyncUI();
           if (typeof window.updateHubUI === 'function') window.updateHubUI();
-          showToast("Automatisch gekoppelt mit Paar-Code: " + pairCode);
-        }).catch(function(e) {
-          showToast("⚠️ " + e.message);
-        });
+
+          var countA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
+          showToast("✓ iPhone synchronisiert! " + countA + " Antworten für Partner 1 geladen ✨");
+        } catch (err) {
+          console.warn("Fehler beim In-URL Import:", err);
+        }
+      }
+
+      // 2. Automatische Raumkopplung
+      if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
+        window.CloudSync.joinRoom(pairCode, role).then(function() {
+          if (typeof window.loadCoreData === 'function') window.loadCoreData();
+          if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
+          updateCloudSyncUI();
+          if (typeof window.updateHubUI === 'function') window.updateHubUI();
+        }).catch(function(e) {});
       }
     } catch (e) {}
   }
