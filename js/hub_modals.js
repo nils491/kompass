@@ -154,7 +154,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 4; // Standard & Empfehlung: Stufe 4 (Radikale Transparenz / Alles zeigen)
+    return 4; // Standard: Stufe 4 (Radikale Transparenz)
   }
 
   function selectAccountSharingLevel(lvl) {
@@ -683,4 +683,29 @@
   window.closeOnboardingModal = closeOnboardingModal;
   window.goToOnboardStep = goToOnboardStep;
   window.setOnboardingAnatomy = setOnboardingAnatomy;
-  window.setOnboardingSharingLevel = setOnboardingSharingLevel
+  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
+  window.copyOnboardCode = copyOnboardCode;
+  window.completeOnboarding = completeOnboarding;
+
+  window.openCloudSyncModal = openCloudSyncModal;
+  window.closeCloudSyncModal = closeCloudSyncModal;
+  window.updateCloudSyncUI = updateCloudSyncUI;
+  window.handleCreatePairRoom = handleCreatePairRoom;
+  window.handleJoinPairRoom = handleJoinPairRoom;
+  window.handleShareInviteLink = handleShareInviteLink;
+  window.handleCopyInviteLink = handleCopyInviteLink;
+  window.handleManualSyncNow = handleManualSyncNow;
+  window.handleDisconnectPairing = handleDisconnectPairing;
+
+  window.openTabuModal = openTabuModal;
+  window.closeTabuModal = closeTabuModal;
+  window.renderTabuModalList = renderTabuModalList;
+  window.handleTabuItemClick = handleTabuItemClick;
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initModals);
+  } else {
+    initModals();
+  }
+
+})(window);
