@@ -14,7 +14,6 @@
         document.documentElement.classList.remove('dark');
       }
 
-      // Sofortiges flackerfreies Anwenden der gespeicherten Schriftgröße
       var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
       if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
       else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
@@ -94,37 +93,37 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+      
+      <!-- TOP BAR -->
       <div class="flex items-center justify-between gap-2">
-        <a href="#view=hub" onclick="switchMainView('hub')" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+        <!-- LOGO & TITEL -->
+        <a href="#view=hub" onclick="switchMainView('hub')" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-900 via-brand-700 to-rose-500 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
-          <div class="truncate">
+          <div class="min-w-0 truncate">
             <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Kink- & Beziehungs-Kompass</h1>
             <span id="header-pair-names" class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5">Partner 1 & Partner 2</span>
           </div>
         </a>
 
-        <!-- QUICK ACTIONS OBERE RECHTE ECKE -->
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <!-- BDSM GUIDE SCHNELLZUGRIFF -->
+        <!-- DESKTOP ACTIONS (AB md: SICHTBAR) -->
+        <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
           <a href="guide.html" class="px-2.5 py-1 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-800 text-amber-200 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="BDSM- & Vertrauens-Guide öffnen">
-            <span>📖</span><span class="hidden sm:inline text-[10.5px]">Guide</span>
+            <span>📖</span><span class="text-[10.5px]">Guide</span>
           </a>
 
-          <!-- CLOUD SYNC STATUS ICON -->
           <button type="button" onclick="openCloudSyncModal()" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs flex items-center gap-1.5 touch-btn" title="Cloud-Kopplung öffnen">
             <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
             <span id="cloud-sync-status-text" class="text-[10px] font-mono text-slate-300 font-bold">Lokal</span>
           </button>
 
-          <!-- TABU ZÄHLER -->
           <button type="button" onclick="openTabuModal()" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Gemeinsame Tabu-Charta öffnen">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
             <span id="header-tabu-count">0</span>
           </button>
 
-          <!-- PARTNER TOGGLE -->
+          <!-- PARTNER TOGGLE DESKTOP -->
           <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-xs">
             <button type="button" id="btn-user-A" onclick="setCurrentUser('A')" class="px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn">
               <span id="user-display-A">Partner 1</span>
@@ -134,15 +133,28 @@
             </button>
           </div>
 
-          <!-- EINSTELLUNGEN -->
           <button type="button" onclick="openAccountModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn" title="Konto & Einstellungen">
             ⚙️
           </button>
         </div>
+
+        <!-- MOBILE QUICK BAR & BURGER BUTTON (NUR AUF SMARTPHONES SICHTBAR) -->
+        <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <!-- MOBILE PARTNER QUICK BADGE -->
+          <button type="button" onclick="togglePartnerQuickMobile()" class="px-2 py-1 rounded-xl bg-brand-950 border border-brand-700/80 text-brand-300 text-[11px] font-bold touch-btn flex items-center gap-1" title="Partner wechseln">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+            <span id="mobile-quick-partner-label">P1</span>
+          </button>
+
+          <!-- MOBILE BURGER BUTTON -->
+          <button type="button" onclick="toggleMobileDrawer(true)" id="btn-mobile-burger" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
+            ☰
+          </button>
+        </div>
       </div>
 
-      <!-- MAIN NAVIGATION -->
-      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+      <!-- DESKTOP MAIN NAVIGATION (AB md: SICHTBAR) -->
+      <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <button type="button" onclick="switchMainView('hub')" id="nav-btn-hub" class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </button>
@@ -167,6 +179,112 @@
       </nav>
     </div>
   </header>
+
+  <!-- MOBILE DRAWER / BURGER OVERLAY -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
+    <div class="space-y-4">
+      <!-- DRAWER HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-900 to-rose-600 border border-brand-500/40 text-white flex items-center justify-center font-bold text-sm">
+            ✨
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
+            <span id="mobile-drawer-pair-names" class="text-[10px] text-slate-400 font-medium block">Partner 1 & Partner 2</span>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
+          ✕
+        </button>
+      </div>
+
+      <!-- PARTNER-UMSCHALTER IM BURGER-MENÜ -->
+      <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+        <span class="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider block">Aktiver Partner auf diesem Gerät:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="mobile-drawer-btn-A" onclick="setCurrentUser('A'); toggleMobileDrawer(false);" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition bg-brand-700 border-brand-500 text-white shadow-md">
+            <span class="block text-xs" id="mobile-drawer-name-A">Partner 1</span>
+            <span class="text-[9px] opacity-80 block font-normal">Profil aktiv ✓</span>
+          </button>
+          <button type="button" id="mobile-drawer-btn-B" onclick="setCurrentUser('B'); toggleMobileDrawer(false);" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition theme-panel text-slate-400">
+            <span class="block text-xs" id="mobile-drawer-name-B">Partner 2</span>
+            <span class="text-[9px] opacity-60 block font-normal">Antippen zum Wechsel</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- NAVIGATIONSLINKS -->
+      <div class="space-y-1.5 pt-1">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block px-1">Bereiche:</span>
+        
+        <button type="button" onclick="switchMainView('hub'); toggleMobileDrawer(false);" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </button>
+
+        <button type="button" onclick="switchMainView('survey'); toggleMobileDrawer(false);" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
+          <span id="mobile-drawer-prog-badge" class="text-[10px] font-mono text-brand-300 font-bold px-2 py-0.5 rounded bg-brand-950 border border-brand-800">0 %</span>
+        </button>
+
+        <button type="button" onclick="switchMainView('safety'); toggleMobileDrawer(false);" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-teal-500 text-left flex items-center justify-between touch-btn group">
+          <span class="text-xs font-extrabold text-teal-300 flex items-center gap-2"><span>🛡️</span><span>Sicherheits-Kodex</span></span>
+          <span class="text-[10px] text-teal-400 font-bold">6 Module</span>
+        </button>
+
+        <button type="button" onclick="switchMainView('single'); toggleMobileDrawer(false);" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-purple-500 text-left flex items-center justify-between touch-btn group">
+          <span class="text-xs font-extrabold text-purple-300 flex items-center gap-2"><span>🔮</span><span>Mein Profil (Radar & Top 10)</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </button>
+
+        <a href="analyse.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-amber-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
+          <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
+        </a>
+
+        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
+          <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
+        </a>
+
+        <a href="session.html" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-rose-300 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie (Cockpit)</span></span>
+          <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
+        </a>
+      </div>
+
+      <!-- SCHNELL-WERKZEUGE -->
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+        <button type="button" onclick="toggleMobileDrawer(false); openCloudSyncModal();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-emerald-300">☁️ Geräte koppeln</span>
+          <span class="text-[10px] text-slate-400 block" id="mobile-drawer-sync-label">Lokal</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); openTabuModal();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-rose-300">🛑 Tabus & Vetos</span>
+          <span class="text-[10px] text-slate-400 block"><span id="mobile-drawer-tabu-count">0</span> Grenzen</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); openToyManagementModal();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-purple-300">🧰 Unser Schrank</span>
+          <span class="text-[10px] text-slate-400 block">Toys verwalten</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileDrawer(false); openAccountModal();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
+          <span class="text-xs block font-bold text-white">⚙️ Einstellungen</span>
+          <span class="text-[10px] text-slate-400 block">Zoom & Name</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- DRAWER FOOTER -->
+    <div class="pt-4 border-t border-slate-900 text-center">
+      <button type="button" onclick="toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        Schließen ✕
+      </button>
+    </div>
+  </div>
 
   <!-- HAUPTINHALT -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
@@ -260,7 +378,7 @@
           <p class="text-[11px] text-slate-400 leading-snug">Vorhandene Ausrüstung, Spielzeuge und Haushaltsmittel verwalten.</p>
         </button>
 
-        <!-- KACHEL 8: MULTI-DEVICE KOPPLUNG (BEREINIGT) -->
+        <!-- KACHEL 8: MULTI-DEVICE KOPPLUNG -->
         <button type="button" onclick="openCloudSyncModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-emerald-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">☁️</span>
@@ -284,15 +402,12 @@
 
     <!-- 2. VIEW: FRAGEBOGEN -->
     <section id="view-survey" class="hidden space-y-4 animate-fade-in">
-      
-      <!-- STICKY SURVEY HEADER -->
       <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-md space-y-3">
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <button type="button" onclick="toggleChapterQuickGrid()" class="text-xs font-black text-brand-300 hover:text-brand-200 transition flex items-center gap-1.5 touch-btn">
             <span id="chapter-badge">Kapitel 0 / 35 ▾</span>
           </button>
           
-          <!-- SCOPE TOGGLE: KAPITEL VS. GLOBAL -->
           <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[11px]">
             <button type="button" id="scope-btn-chapter" onclick="setSurveyScope('chapter')" class="px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn">Kapitel</button>
             <button type="button" id="scope-btn-global" onclick="setSurveyScope('global')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn">Global (Alle 36)</button>
@@ -304,7 +419,6 @@
           <p id="chapter-desc" class="text-xs text-slate-300 mt-0.5 leading-snug">Beschreibung des Kapitels...</p>
         </div>
 
-        <!-- PROGRESS BAR -->
         <div class="space-y-1">
           <div class="flex justify-between text-[10px] text-slate-400 font-mono">
             <span>Gesamtfortschritt</span>
@@ -315,7 +429,6 @@
           </div>
         </div>
 
-        <!-- FILTER BUTTONS -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
           <button type="button" id="filter-btn-all" onclick="setSurveyFilter('all')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">Alle</button>
           <button type="button" id="filter-btn-unanswered" onclick="setSurveyFilter('unanswered')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Offen</button>
@@ -324,7 +437,6 @@
           <button type="button" id="filter-btn-shame" onclick="setSurveyFilter('shame')" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap">Hemmschwelle (3)</button>
         </div>
 
-        <!-- KAPITEL SCHNELLSPRUNG-GRID (AUFKLAPPBAR) -->
         <div id="chapter-quick-grid" class="hidden pt-2 border-t border-slate-800 animate-fade-in">
           <div class="flex items-center justify-between mb-2">
             <strong class="text-xs text-white">Direktsprung zu Kapitel:</strong>
@@ -334,10 +446,8 @@
         </div>
       </div>
 
-      <!-- FRAGEN CONTAINER -->
       <div id="survey-items-container" class="space-y-3"></div>
 
-      <!-- BOTTOM NAVIGATION -->
       <div class="flex items-center justify-between pt-2">
         <button type="button" id="btn-prev-chapter" onclick="prevChapter()" class="px-4 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">← Vorheriges Kapitel</button>
         <span id="chapter-items-count" class="text-xs text-slate-500 font-mono">0 Praktiken</span>
@@ -370,7 +480,6 @@
         <p class="text-xs text-slate-300">Erotische Archetypen, Säulen-Balance und wissenschaftliches KI-Gutachten.</p>
       </div>
 
-      <!-- EMPTY STATE -->
       <div id="single-empty-state" class="hidden p-8 text-center space-y-3 theme-panel rounded-3xl border">
         <span class="text-3xl block">📋</span>
         <strong class="text-xs text-white block font-bold">Noch keine Bogen-Daten vorhanden</strong>
@@ -378,10 +487,7 @@
         <button type="button" onclick="switchMainView('survey')" class="px-4 py-2 bg-brand-700 text-white font-bold rounded-xl text-xs touch-btn">Zum Fragebogen →</button>
       </div>
 
-      <!-- CONTENT STATE -->
       <div id="single-content-state" class="space-y-4">
-        
-        <!-- RADAR CHART CARD -->
         <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
           <strong class="text-xs text-white block font-bold">Erotisches Archetypen-Radar:</strong>
           <div class="relative w-full h-64 sm:h-72">
@@ -389,7 +495,6 @@
           </div>
         </div>
 
-        <!-- 5 MOTIVATIONS-SÄULEN -->
         <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
           <strong class="text-xs text-white block font-bold">Psychologische 5-Säulen-Balance:</strong>
           <div class="space-y-2 text-xs">
@@ -416,7 +521,6 @@
           </div>
         </div>
 
-        <!-- FAVORITEN & TABUS GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
             <strong class="text-xs text-brand-300 block font-bold">Höchste Leidenschaften (Note 5):</strong>
@@ -428,10 +532,7 @@
           </div>
         </div>
 
-        <!-- SCHAM-THEMEN CONTAINER -->
         <div id="single-shame-box-container"></div>
-
-        <!-- GEMINI EINZELGUTACHTEN -->
         <div id="single-interpretation-box"></div>
       </div>
     </section>
@@ -447,13 +548,11 @@
       </div>
 
       <div class="space-y-3">
-        <!-- RUFNAME -->
         <div>
           <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Dein Rufname:</label>
           <input type="text" id="account-name-input" onchange="updateCurrentUserName(this.value)" placeholder="z. B. Alex..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
         </div>
 
-        <!-- ANATOMIE -->
         <div>
           <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Deine Anatomie:</label>
           <div class="flex gap-2">
@@ -462,7 +561,6 @@
           </div>
         </div>
 
-        <!-- GLOBALER SCHRIFTGRÖSSEN-ZOOM -->
         <div class="space-y-1.5 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
           <div class="flex items-center justify-between">
             <label class="text-[10.5px] font-bold text-slate-300 block">🔍 Schriftgröße & Zoom:</label>
@@ -481,7 +579,6 @@
           </div>
         </div>
 
-        <!-- FREIGABESTUFE -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between">
             <label class="text-[10.5px] font-bold text-slate-300 block">Deine Freigabestufe:</label>
@@ -510,7 +607,6 @@
           </div>
         </div>
 
-        <!-- GEMINI API KEY -->
         <div>
           <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Eigener Gemini API-Key (optional):</label>
           <div class="flex gap-2">
@@ -519,13 +615,11 @@
           </div>
         </div>
 
-        <!-- FARBSCHEMA TOGGLE -->
         <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
           <span class="text-slate-300 font-bold text-xs">Farbschema (Dark/Light):</span>
           <button type="button" onclick="toggleThemeInAccount()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">☀️ / 🌙 Wechseln</button>
         </div>
 
-        <!-- PROFIL LÖSCHEN MIT SICHERHEITSABFRAGE -->
         <div class="pt-2 border-t border-rose-900/60">
           <div id="reset-trigger-area">
             <button type="button" onclick="showResetConfirmation()" class="w-full py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-300 font-bold text-xs touch-btn">
@@ -563,23 +657,30 @@
         </p>
 
         <div class="p-3.5 rounded-2xl bg-brand-950/40 border border-brand-800 space-y-2">
-          <strong class="text-xs text-brand-300 block font-bold">Option 1: Neuen Paar-Raum erstellen</strong>
+          <strong class="text-xs text-brand-300 block font-bold">Option 1: Auf dem PC Raum starten</strong>
           <button type="button" onclick="handleCreatePairRoom()" class="w-full py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
             ✨ Paar-Code generieren & Raum starten
           </button>
         </div>
 
         <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
-          <strong class="text-xs text-white block font-bold">Option 2: Vorhandenem Raum beitreten</strong>
-          <input type="text" id="input-pair-code" placeholder="Paar-Code (z. B. KOMPASS-XXXX) oder Link hier einfügen..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
-          <span class="text-[10px] text-slate-400 block leading-tight">Tipp: Du kannst hier auch direkt den kopierten WhatsApp-Einladungslink einfügen.</span>
-          <div class="flex gap-2 pt-1">
-            <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Als Partner 1</button>
-            <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-brand-950 border border-brand-700 text-brand-200 font-bold text-xs touch-btn">Als Partner 2</button>
+          <strong class="text-xs text-white block font-bold">Option 2: Auf dem Smartphone beitreten</strong>
+          <input type="text" id="input-pair-code" placeholder="Paar-Code (z. B. KOMPASS-XXXX) hier eingeben..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
+          <span class="text-[10px] text-slate-400 block leading-tight">Wähle, welches Profil du auf diesem Smartphone nutzen möchtest:</span>
+          
+          <div class="grid grid-cols-1 gap-2 pt-1">
+            <button type="button" onclick="handleJoinPairRoom('A')" class="p-2.5 rounded-xl bg-brand-950/60 hover:bg-brand-900/80 border border-brand-700 text-left touch-btn transition">
+              <strong class="text-xs text-brand-200 block font-bold">Als Partner 1 beitreten (PC-Profil übernehmen)</strong>
+              <span class="text-[10px] text-slate-300 block mt-0.5">Wähle dies, wenn du deine eigenen, am PC ausgefüllten Antworten auf diesem Handy sehen willst.</span>
+            </button>
+            <button type="button" onclick="handleJoinPairRoom('B')" class="p-2.5 rounded-xl theme-panel hover:bg-slate-800 border border-slate-700 text-left touch-btn transition">
+              <strong class="text-xs text-slate-200 block font-bold">Als Partner 2 beitreten (Zweites Smartphone)</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Wähle dies auf dem Smartphone deines Partners, damit er seine eigenen Antworten ausfüllt.</span>
+            </button>
           </div>
         </div>
 
-        <!-- OPTION 3: ⚡ SOFORT-TRANSFER (100% AUSFALLSICHER) -->
+        <!-- OPTION 3: SOFORT-TRANSFER -->
         <div class="p-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-800/80 space-y-2">
           <div class="flex items-center justify-between">
             <strong class="text-xs text-indigo-200 block font-bold">Option 3: ⚡ Direkter Sofort-Transfer</strong>
@@ -734,7 +835,6 @@
         <span id="onboard-step-badge" class="px-2 py-0.5 rounded text-[10px] font-mono text-brand-300 bg-brand-950 border border-brand-800 font-bold">Schritt 1 von 3</span>
       </div>
 
-      <!-- SCHRITT 1: NAME & ANATOMIE -->
       <div id="onboard-step-1" class="space-y-3 animate-fade-in">
         <p class="text-[11px] text-slate-300">
           Richte dein persönliches Profil ein. Deine Daten werden lokal und verschlüsselt gespeichert.
@@ -768,7 +868,6 @@
         </div>
       </div>
 
-      <!-- SCHRITT 2: PARTNER KOPPELN -->
       <div id="onboard-step-2" class="hidden space-y-3 animate-fade-in">
         <p class="text-[11px] text-slate-300">
           Dein persönlicher Paar-Code für das Smartphone deines Partners:
@@ -797,7 +896,6 @@
         </div>
       </div>
 
-      <!-- SCHRITT 3: APP-INSTALLATION -->
       <div id="onboard-step-3" class="hidden space-y-3 animate-fade-in">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-center">
           <span class="text-2xl block">📲</span>
@@ -815,7 +913,6 @@
         </div>
       </div>
 
-      <!-- STEP DOTS -->
       <div class="flex justify-center gap-1.5 pt-1">
         <div id="dot-step-1" class="w-2 h-2 rounded-full bg-brand-500"></div>
         <div id="dot-step-2" class="w-2 h-2 rounded-full bg-slate-700"></div>
@@ -876,14 +973,38 @@
   <script src="data/equipment_catalog.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.4) -->
-  <script src="js/cloud_sync.js?v=4.4"></script>
-  <script src="js/hub_toys.js?v=4.4"></script>
-  <script src="js/kink_research.js?v=4.4"></script>
-  <script src="js/hub_modals.js?v=4.4"></script>
-  <script src="js/survey.js?v=4.4"></script>
-  <script src="js/profile.js?v=4.4"></script>
-  <script src="js/app.js?v=4.4"></script>
+  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.5) -->
+  <script src="js/cloud_sync.js?v=4.5"></script>
+  <script src="js/hub_toys.js?v=4.5"></script>
+  <script src="js/kink_research.js?v=4.5"></script>
+  <script src="js/hub_modals.js?v=4.5"></script>
+  <script src="js/survey.js?v=4.5"></script>
+  <script src="js/profile.js?v=4.5"></script>
+  <script src="js/app.js?v=4.5"></script>
+
+  <!-- BURGER MENÜ CONTROLLER -->
+  <script>
+    function toggleMobileDrawer(open) {
+      var drawer = document.getElementById('mobile-menu-drawer');
+      if (!drawer) return;
+      if (typeof open === 'boolean') {
+        drawer.style.display = open ? 'flex' : 'none';
+      } else {
+        drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
+      }
+      if (drawer.style.display === 'flex' && typeof window.updateHubUI === 'function') {
+        window.updateHubUI();
+      }
+    }
+
+    function togglePartnerQuickMobile() {
+      var cur = window.currentUser || 'A';
+      var next = (cur === 'A') ? 'B' : 'A';
+      if (typeof window.setCurrentUser === 'function') {
+        window.setCurrentUser(next);
+      }
+    }
+  </script>
 
 </body>
 </html>
