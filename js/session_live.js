@@ -3,7 +3,7 @@
  * Zentraler Controller für das Live-Cockpit in der Schlafzimmer-Regie:
  * - Session-Timer (60:00) mit Pause & +10m Verlängerung
  * - Safeword-Ampel (Grün, Gelb, Rot) mit Audio-Ducking & Stopp-Signal
- * - Geführte Drehbuch-Schritte mit automatischer Edging-Callout-Erkennung
+ * - Dynamische Cockpit-Präsentation je nach Modus (Geführt vs. Freier Flow)
  * - Animierte 4-7-8 Vagus-Atmung (Pulsierender Kreis & Phasen-Wechsel)
  * - Session-Tagebuch & Aftercare-Protokoll
  * - Interaktive Tabu-Schranken mit Direktsprung zur Frage im Bogen
@@ -22,7 +22,7 @@
   var liveStepIndex = 0;
   var currentSessionLog = [];
 
-  var breathPhase = 0; // 0: Einatmen (4s), 1: Halten (7s), 2: Ausatmen (8s)
+  var breathPhase = 0;
   var breathTimerInterval = null;
   var breathSecondsLeft = 4;
 
@@ -84,6 +84,8 @@
     var cContainer = document.getElementById('cockpit-live-container');
     var badge = document.getElementById('session-active-badge');
     var gContainer = document.getElementById('guided-step-container');
+    var freeFlowBanner = document.getElementById('free-flow-info-banner');
+    var phasePill = document.getElementById('session-phase-pill');
 
     if (pContainer) pContainer.classList.add('hidden');
     if (cContainer) cContainer.classList.remove('hidden');
@@ -91,8 +93,18 @@
 
     if (currentSessionMode === 'free') {
       if (gContainer) gContainer.classList.add('hidden');
+      if (freeFlowBanner) freeFlowBanner.classList.remove('hidden');
+      if (phasePill) {
+        phasePill.innerText = "Freier Flow";
+        phasePill.className = "px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-indigo-950 text-indigo-300 border border-indigo-800 inline-block";
+      }
+      showToast("Freier Flow aktiv: Regiepult ohne feste Schritte gestartet 🌊");
     } else {
       if (gContainer) gContainer.classList.remove('hidden');
+      if (freeFlowBanner) freeFlowBanner.classList.add('hidden');
+      if (phasePill) {
+        phasePill.className = "px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block";
+      }
       renderLiveStep();
     }
 
@@ -101,12 +113,15 @@
     startSessionTimer();
 
     currentSessionLog = [
-      { type: "system", time: getFormattedTimeNow(), label: "Session gestartet" }
+      { type: "system", time: getFormattedTimeNow(), label: "Session gestartet (" + (currentSessionMode === 'free' ? "Freier Flow" : "Geführt") + ")" }
     ];
 
     if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       var topName = (window.names && window.names[window.topPartner]) || 'Top';
-      window.SessionVoice.play("Session begonnen. " + topName + " übernimmt ab jetzt die Führung.");
+      var introSpeech = (currentSessionMode === 'free')
+        ? "Freier Flow begonnen. " + topName + " führt nach eigenem Ermessen."
+        : "Session begonnen. " + topName + " übernimmt ab jetzt die Führung.";
+      window.SessionVoice.play(introSpeech);
     }
 
     if (window.SessionEdging && typeof window.SessionEdging.resetState === 'function') {
@@ -168,7 +183,7 @@
     if (desc) desc.innerText = step.desc;
     if (topRole) topRole.innerText = step.top;
     if (subRole) subRole.innerText = step.sub;
-    if (phasePill) phasePill.innerText = step.phase ? step.phase.split(':')[0] : 'Phase';
+    if (phasePill && currentSessionMode !== 'free') phasePill.innerText = step.phase ? step.phase.split(':')[0] : 'Phase';
 
     var isEdgingStep = (step.title && (step.title.toLowerCase().indexOf('edging') !== -1 || step.title.toLowerCase().indexOf('kante') !== -1 || step.title.toLowerCase().indexOf('höhepunkt') !== -1));
     var edgingBanner = document.getElementById('guided-edging-callout');
@@ -315,21 +330,18 @@
     if (!circle || !text) return;
 
     if (breathPhase === 0) {
-      // 4s Einatmen: Sanftes Anschwellen auf 142% mit türkisem Lichtkranz
       circle.style.transition = "transform 4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 4s ease";
       circle.style.transform = "scale(1.42)";
       circle.style.boxShadow = "0 0 45px rgba(45, 212, 191, 0.65)";
       text.innerText = "Einatmen (" + breathSecondsLeft + "s)";
       text.className = "absolute text-xs sm:text-sm font-black text-teal-200 pointer-events-none drop-shadow-md text-center px-2";
     } else if (breathPhase === 1) {
-      // 7s Halten: Spannung ruhig halten
       circle.style.transition = "none";
       circle.style.transform = "scale(1.42)";
       circle.style.boxShadow = "0 0 60px rgba(45, 212, 191, 0.85)";
       text.innerText = "Atem halten (" + breathSecondsLeft + "s)";
       text.className = "absolute text-xs sm:text-sm font-black text-white pointer-events-none drop-shadow-md text-center px-2";
     } else {
-      // 8s Ausatmen: Gleichmäßiges, tiefes Zurückgleiten in den Ruhezustand
       circle.style.transition = "transform 8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 8s ease";
       circle.style.transform = "scale(1.0)";
       circle.style.boxShadow = "0 0 15px rgba(45, 212, 191, 0.2)";
@@ -587,7 +599,6 @@
     closeTabus: closeSessionTabuModal
   };
 
-  // Globale Registrierungen für inline onclick-Attribute
   window.startLiveSessionWrapper = startLiveSession;
   window.togglePauseTimer = togglePauseTimer;
   window.addSessionMinutes = addSessionMinutes;
