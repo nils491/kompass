@@ -4,8 +4,9 @@
  * 
  * Beinhaltet:
  * - Kapitel-Navigation (Kapitel 0 bis 35) & Direkt-Sprung-Gitter
- * - Filter-Engine (Scope: Kapitel / Global; Filter: Alle, Unbeantwortet, Favoriten, Tabus, Hemmschwelle)
+ * - Filter-Engine (Scope: Kapitel / Global; Filter: Alle, Unbeantwortet, Favoriten, Tabus, Hemmschwelle/Scham)
  * - Bewertungsblöcke (Stufen 0 bis 5 inkl. "0: Betrifft mich nicht / Entfällt")
+ * - 🙈 Scham- & Hemmschwellen-Button je Frage (aktivierbar für Scham/Überwindungs-Themen)
  * - Freitext-Notizfelder für persönliche Bemerkungen und Konditionen
  * - Typsicherer Direktsprung zu beliebigen Fragen mit optischem Puls-Highlight
  * - Direkte Anbindung an die Live-KI-Recherche
@@ -104,6 +105,27 @@
     } else if (window.KinkResearch) {
       window.KinkResearch.open();
     }
+  }
+
+  function toggleItemShame(itemId) {
+    var currentUser = window.currentUser || 'A';
+    if (!window.answers) window.answers = { A: {}, B: {} };
+    if (!window.answers[currentUser]) window.answers[currentUser] = {};
+
+    var key = 'it_' + itemId + '_shame';
+    var isCurrentlyShame = !!window.answers[currentUser][key];
+
+    if (isCurrentlyShame) {
+      delete window.answers[currentUser][key];
+      showToast("Scham-Markierung entfernt");
+    } else {
+      window.answers[currentUser][key] = true;
+      showToast("🙈 Als schambehaftet / Hemmschwelle markiert");
+    }
+
+    if (typeof window.saveCoreData === 'function') window.saveCoreData();
+    renderSurveyChapter();
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
   }
 
   function jumpToItem(itemId) {
@@ -226,14 +248,17 @@
       if (it.type === 'choice') {
         var aC = uAnswers['it_' + it.id + '_choice'];
         if (activeSurveyFilter === 'unanswered') return !aC;
+        if (activeSurveyFilter === 'shame') return !!uAnswers['it_' + it.id + '_shame'];
         return false;
       }
       var r1 = uAnswers['it_' + it.id + '_r1'];
       var r2 = uAnswers['it_' + it.id + '_r2'];
+      var hasShame = !!uAnswers['it_' + it.id + '_shame'];
+
       if (activeSurveyFilter === 'unanswered') return (typeof r1 !== 'number' || typeof r2 !== 'number');
       if (activeSurveyFilter === 'high') return (r1 >= 4 || r2 >= 4);
       if (activeSurveyFilter === 'tabu') return (r1 === 1 || r2 === 1);
-      if (activeSurveyFilter === 'shame') return (r1 === 3 || r2 === 3);
+      if (activeSurveyFilter === 'shame') return hasShame || (r1 === 3 || r2 === 3);
       return true;
     });
 
@@ -255,6 +280,7 @@
     filteredList.forEach(function(entry) {
       var it = entry.item;
       var ch = entry.chapter;
+      var isShame = !!uAnswers['it_' + it.id + '_shame'];
 
       html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4 transition-all duration-500">';
       html += '<div class="flex items-start justify-between gap-2">';
@@ -265,9 +291,25 @@
       html += '    <strong class="text-sm font-extrabold text-white block">' + escapeHtml(it.title) + '</strong>';
       html += '    <p class="text-[11px] text-slate-400 mt-1 leading-snug">' + escapeHtml(it.desc || '') + '</p>';
       html += '  </div>';
-      html += '  <button type="button" onclick="openItemResearch(' + it.id + ')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn flex-shrink-0 shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
-      html += '    <span>🔍</span><span>KI-Info</span>';
-      html += '  </button>';
+
+      // AKTIONEN: 🙈 SCHAM-BUTTON & 🔍 KI-INFO
+      html += '  <div class="flex items-center gap-1.5 flex-shrink-0">';
+      
+      // SCHAM-BUTTON
+      var shameBtnClass = isShame
+        ? 'bg-indigo-950 border-indigo-500 text-indigo-200 font-bold shadow-sm ring-1 ring-indigo-500/60'
+        : 'theme-panel border-slate-800 text-slate-400 hover:text-indigo-300 hover:border-indigo-800';
+      
+      html += '    <button type="button" onclick="SurveyEngine.toggleShame(' + it.id + ')" class="px-2.5 py-1 rounded-xl border text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn transition ' + shameBtnClass + '" title="Diese Praktik als schambehaftet / Hemmschwelle markieren">';
+      html += '      <span>🙈</span><span>' + (isShame ? 'Scham aktiv ✓' : 'Scham') + '</span>';
+      html += '    </button>';
+
+      // KI-INFO BUTTON
+      html += '    <button type="button" onclick="openItemResearch(' + it.id + ')" class="px-2.5 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-800 text-purple-300 hover:text-white text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn shadow-sm" title="Schamfreie KI-Aufklärung & Sicherheitsregeln zu dieser Praktik anzeigen">';
+      html += '      <span>🔍</span><span>KI-Info</span>';
+      html += '    </button>';
+      html += '  </div>';
+
       html += '</div>';
 
       if (it.type === 'choice') {
@@ -479,6 +521,7 @@
     saveRating: saveRating,
     saveChoice: saveChoice,
     saveNote: saveNote,
+    toggleShame: toggleItemShame,
     setFilter: setSurveyFilter,
     setScope: setSurveyScope,
     prevChapter: prevChapter,
@@ -494,6 +537,7 @@
   window.saveRating = saveRating;
   window.saveChoice = saveChoice;
   window.saveNote = saveNote;
+  window.toggleItemShame = toggleItemShame;
   window.setSurveyFilter = setSurveyFilter;
   window.setSurveyScope = setSurveyScope;
   window.prevChapter = prevChapter;
