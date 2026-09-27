@@ -35,6 +35,14 @@
       color: 'from-indigo-600 to-purple-600'
     },
     {
+      id: 'switch',
+      title: 'Switch / Rollenwechsler',
+      desc: 'Lust und Fähigkeit, sowohl die aktive Regie (Top) als auch die vertrauensvolle Hingabe (Bottom) situativ intensiv zu genießen.',
+      chapters: [21, 22, 23, 29],
+      role: 'switch',
+      color: 'from-rose-500 via-purple-500 to-indigo-500'
+    },
+    {
       id: 'rigger',
       title: 'Rigger / Seilkünstler (Shibari)',
       desc: 'Faszination am Fesseln, Konstruieren von Mustern und Arretieren des Partners.',
@@ -185,35 +193,69 @@
   function calculateArchetypeRankings(answers, chapters) {
     var results = [];
 
+    // Vorab-Ermittlung von Top- und Bottom-Werten für die Switch-Formel
+    var powerChapters = [21, 22, 23, 29];
+    var domEarned = 0, domPossible = 0;
+    var subEarned = 0, subPossible = 0;
+
+    powerChapters.forEach(function(chId) {
+      var ch = chapters.find(function(c) { return c.id === chId; });
+      if (ch && ch.items) {
+        ch.items.forEach(function(it) {
+          if (it.type !== 'choice') {
+            var s1 = answers['it_' + it.id + '_r1'];
+            var s2 = answers['it_' + it.id + '_r2'];
+            if (typeof s1 === 'number') { domEarned += s1; domPossible += 5; }
+            if (typeof s2 === 'number') { subEarned += s2; subPossible += 5; }
+          }
+        });
+      }
+    });
+
+    var pDom = domPossible > 0 ? Math.round((domEarned / domPossible) * 100) : 0;
+    var pSub = subPossible > 0 ? Math.round((subEarned / subPossible) * 100) : 0;
+
     ARCHETYPE_DEFINITIONS.forEach(function(arch) {
       var earned = 0;
       var possible = 0;
+      var percentage = 0;
 
-      arch.chapters.forEach(function(chId) {
-        var ch = chapters.find(function(c) { return c.id === chId; });
-        if (ch && ch.items) {
-          ch.items.forEach(function(it) {
-            if (it.type !== 'choice') {
-              if (arch.role === 'r1' || arch.role === 'both') {
-                var s1 = answers['it_' + it.id + '_r1'];
-                if (typeof s1 === 'number') {
-                  earned += s1;
-                  possible += 5;
+      if (arch.role === 'switch') {
+        // Switch-Berechnung nach BDSMTest-Standard: Ausgewogenheit beider Pole
+        var minScore = Math.min(pDom, pSub);
+        var avgScore = (pDom + pSub) / 2;
+        var diff = Math.abs(pDom - pSub);
+        var balanceFactor = Math.max(0.4, 1 - (diff / 100) * 0.6);
+        var rawSwitch = (minScore * 0.75 + avgScore * 0.25) * (diff <= 25 ? 1.12 : balanceFactor);
+        percentage = Math.min(100, Math.max(0, Math.round(rawSwitch)));
+        possible = domPossible + subPossible;
+      } else {
+        arch.chapters.forEach(function(chId) {
+          var ch = chapters.find(function(c) { return c.id === chId; });
+          if (ch && ch.items) {
+            ch.items.forEach(function(it) {
+              if (it.type !== 'choice') {
+                if (arch.role === 'r1' || arch.role === 'both') {
+                  var s1 = answers['it_' + it.id + '_r1'];
+                  if (typeof s1 === 'number') {
+                    earned += s1;
+                    possible += 5;
+                  }
+                }
+                if (arch.role === 'r2' || arch.role === 'both') {
+                  var s2 = answers['it_' + it.id + '_r2'];
+                  if (typeof s2 === 'number') {
+                    earned += s2;
+                    possible += 5;
+                  }
                 }
               }
-              if (arch.role === 'r2' || arch.role === 'both') {
-                var s2 = answers['it_' + it.id + '_r2'];
-                if (typeof s2 === 'number') {
-                  earned += s2;
-                  possible += 5;
-                }
-              }
-            }
-          });
-        }
-      });
+            });
+          }
+        });
+        percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      }
 
-      var percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
       results.push({
         id: arch.id,
         title: arch.title,
@@ -670,7 +712,7 @@
     var pThrill = document.getElementById('bar-val-thrill') ? document.getElementById('bar-val-thrill').innerText.replace('%', '').trim() : '50';
     var pVis = document.getElementById('bar-val-visual') ? document.getElementById('bar-val-visual').innerText.replace('%', '').trim() : '50';
 
-    var apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
+    var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
 
     var prompt = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Sexualtherapeutin und Beziehungspsychologin.
 Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Einzelgutachten sowie konkreten Alltagstransfer für ${userName}.
