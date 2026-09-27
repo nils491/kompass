@@ -536,6 +536,28 @@
       return;
     }
 
+    // ⚡ Sofort-Transfer Auto-Erkennung: Falls der verschlüsselte Text-Schlüssel direkt ins Feld eingefügt wurde
+    if (rawInput.length > 50 && rawInput.indexOf(' ') === -1 && rawInput.indexOf('?') === -1 && rawInput.indexOf('/') === -1) {
+      if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
+        try {
+          window.CloudSync.importDirect(rawInput, role);
+          if (typeof window.loadCoreData === 'function') window.loadCoreData();
+          if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
+          updateCloudSyncUI();
+          if (typeof window.updateHubUI === 'function') window.updateHubUI();
+          closeCloudSyncModal();
+
+          var ansCount = (window.answers && window.answers[role]) 
+            ? Object.keys(window.answers[role]).filter(function(k){ return k.indexOf('_note') === -1; }).length 
+            : 0;
+          showToast("✓ Sofort-Transfer erfolgreich! " + ansCount + " Antworten für " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " aktiviert ✨");
+          return;
+        } catch (err) {
+          // Falls kein Sofort-Transfer, normal mit Cloud-Sync fortfahren
+        }
+      }
+    }
+
     var cleanCode = '';
     var directId = null;
 
@@ -583,6 +605,59 @@
         showToast("✓ Verbunden! Profil " + partnerName + " aktiv (" + ansA + " Antworten bei P1, " + ansB + " bei P2).");
       } catch (e) {
         showToast("⚠️ " + e.message);
+      }
+    }
+  }
+
+  function handleExportDirectTransfer() {
+    if (!window.CloudSync || typeof window.CloudSync.exportDirect !== 'function') {
+      showToast("Sofort-Transfer nicht verfügbar.");
+      return;
+    }
+    try {
+      var transferString = window.CloudSync.exportDirect();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(transferString).then(function() {
+          showToast("📋 Sofort-Transfer kopiert! Am Handy einfach im Feld einfügen.");
+        }).catch(function() {
+          copyViaTempInput(transferString);
+        });
+      } else {
+        copyViaTempInput(transferString);
+      }
+    } catch (e) {
+      showToast("Fehler beim Erstellen des Transfer-Schlüssels.");
+    }
+  }
+
+  function copyViaTempInput(text) {
+    var temp = document.createElement('textarea');
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast("📋 Sofort-Transfer kopiert! Am Handy einfach im Feld einfügen.");
+  }
+
+  function handleImportDirectTransfer(role) {
+    var input = document.getElementById('input-pair-code');
+    var raw = (input ? input.value : '').trim();
+    if (!raw) {
+      showToast("Bitte füge zuerst den Transfer-Schlüssel in das Feld ein.");
+      return;
+    }
+    if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
+      try {
+        window.CloudSync.importDirect(raw, role);
+        if (typeof window.loadCoreData === 'function') window.loadCoreData();
+        if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
+        updateCloudSyncUI();
+        if (typeof window.updateHubUI === 'function') window.updateHubUI();
+        closeCloudSyncModal();
+        showToast("✓ Daten erfolgreich übertragen!");
+      } catch (e) {
+        showToast("⚠️ Ungültiger Transfer-Schlüssel.");
       }
     }
   }
@@ -804,6 +879,8 @@
   window.updateCloudSyncUI = updateCloudSyncUI;
   window.handleCreatePairRoom = handleCreatePairRoom;
   window.handleJoinPairRoom = handleJoinPairRoom;
+  window.handleExportDirectTransfer = handleExportDirectTransfer;
+  window.handleImportDirectTransfer = handleImportDirectTransfer;
   window.handleShareInviteLink = handleShareInviteLink;
   window.handleCopyInviteLink = handleCopyInviteLink;
   window.handleManualSyncNow = handleManualSyncNow;
