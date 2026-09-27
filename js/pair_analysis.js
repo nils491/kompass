@@ -1,539 +1,55 @@
 /**
  * js/pair_analysis.js
- * Modul für die Paar-Analyse & Synergie-Auswertung.
- * 
- * Berechnet:
- * - Paar-Harmonie und Schnittmengen aus allen 35 Kapiteln
- * - Deduplizierte Doppel-5er (Höchstlust beider Partner)
- * - Brückenbau-Chancen (Wunsch trifft Note 2/3)
- * - Komplementäre Top/Bottom-Passung (>= 4)
- * - Tabu-Schranken mit präziser Namensnennung
- * - Radar-Chart (Chart.js) und Motivations-Säulen
- * - Konsensabgleich des Sicherheits-Kodex
- * - Schnelles, warmherziges KI-Paargutachten (JSON-Modus, <2.5s)
+ * Modul für die Beziehungs-Synergie und Paar-Analyse ("Paar-Analyse"):
+ * - Doppel-5er Matches (Beiderseitige Volltreffer)
+ * - Brückenbau-Chancen unter Berücksichtigung der 4 Freigabestufen (Schamschutz)
+ * - Absolute Tabu-Schranken (Note 1 schlägt alles - kompromissloser Veto-Schutz)
+ * - Anklickbare Tabus und Praktiken mit Direktsprung in den Fragebogen
+ * - Dauerhafter Cache für Paargutachten mit Antworten-Fingerprint und personengenauer Änderungs-Erkennung
+ * - Schamfreies KI-Paargutachten mit wissenschaftlicher Fundierung
  */
 
 (function(window) {
   'use strict';
 
-  var names = { A: 'Partner 1', B: 'Partner 2' };
-  var anatomy = { A: 'penis', B: 'vulva' };
-  var sharingLevels = { A: 3, B: 3 };
-  var answers = { A: {}, B: {} };
-  var safetyConfig = { A: {}, B: {} };
-  var sessionDiary = [];
-  var pairRadarChartInstance = null;
-  var activeDetailFilter = 'doppel5';
-  var cachedAnalysisMetrics = null;
+  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
-  function loadAnalysisData() {
-    try {
-      var nm = localStorage.getItem('kompass_names');
-      var an = localStorage.getItem('kompass_anatomy');
-      var ans = localStorage.getItem('kompass_answers');
-      var sc = localStorage.getItem('kompass_safety_config');
-      var dia = localStorage.getItem('kompass_session_diary');
-
-      var slA = localStorage.getItem('kompass_sharing_level_A');
-      var slB = localStorage.getItem('kompass_sharing_level_B');
-      if (slA) sharingLevels.A = parseInt(slA, 10) || 3;
-      if (slB) sharingLevels.B = parseInt(slB, 10) || 3;
-
-      if (nm && nm !== 'null') names = JSON.parse(nm);
-      if (an && an !== 'null') anatomy = JSON.parse(an);
-      if (ans && ans !== 'null') answers = JSON.parse(ans);
-      if (sc && sc !== 'null') safetyConfig = JSON.parse(sc);
-      if (dia && dia !== 'null') sessionDiary = JSON.parse(dia);
-    } catch (e) {
-      console.error("Analysis data load error:", e);
-    }
-
-    if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
-    if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
-    if (!answers.A) answers.A = {};
-    if (!answers.B) answers.B = {};
-
-    var pNames = document.getElementById('header-pair-names');
-    if (pNames) pNames.innerText = (names.A || 'Partner 1') + ' & ' + (names.B || 'Partner 2');
-    var heroTitle = document.getElementById('hero-pair-title');
-    if (heroTitle) heroTitle.innerText = 'Synergie-Auswertung für ' + (names.A || 'Partner 1') + ' & ' + (names.B || 'Partner 2');
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
-  function unlockAnalysisGate() {
-    var input = document.getElementById('gate-password-input');
-    var val = (input ? input.value : '').trim();
-
-    if (val === 'Bommelchen!' || val.toLowerCase() === 'bommelchen') {
-      try {
-        sessionStorage.setItem('kompass_gate_unlocked', 'true');
-      } catch (e) {}
-
-      var gate = document.getElementById('password-gate');
-      var content = document.getElementById('analysis-content');
-      if (gate) gate.classList.add('hidden');
-      if (content) content.classList.remove('hidden');
-
-      computePairMetrics();
-      showToast("✓ Paar-Analyse erfolgreich freigeschaltet!");
-    } else {
-      showToast("⚠️ Ungültiges Passwort. Bitte versucht es erneut.");
-    }
-  }
-
-  function computePairMetrics() {
-    loadAnalysisData();
-    var allChapters = window.surveyChapters || [];
-    var ansA = answers.A || {};
-    var ansB = answers.B || {};
-
-    var lvlA = sharingLevels.A || 3;
-    var lvlB = sharingLevels.B || 3;
-
-    var totalEvaluated = 0;
-    var totalHarmonicPoints = 0;
-
-    var doppel5List = [];
-    var bridgesList = [];
-    var compList = [];
-    var tabuList = [];
-
-    var seenDoppel5 = new Set();
-    var seenBridges = new Set();
-    var seenComp = new Set();
-    var seenTabus = new Set();
-
-    var pillarsA = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
-    var pillarsB = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
-    var maxPillars = { power: 0, sensation: 0, nurturing: 0, thrill: 0, visual: 0 };
-
-    allChapters.forEach(function(ch) {
-      (ch.items || []).forEach(function(it) {
-        if (it.type === 'choice') return;
-
-        var aR1 = ansA['it_' + it.id + '_r1'];
-        var aR2 = ansA['it_' + it.id + '_r2'];
-        var bR1 = ansB['it_' + it.id + '_r1'];
-        var bR2 = ansB['it_' + it.id + '_r2'];
-
-        function addPillarPoints(cId, val, target) {
-          if (typeof val === 'number' && val > 0) {
-            if ([21, 22, 23, 29].indexOf(cId) !== -1) target.power += val;
-            else if ([13, 14, 16, 17, 31].indexOf(cId) !== -1) target.sensation += val;
-            else if ([19, 30].indexOf(cId) !== -1) target.nurturing += val;
-            else if ([18, 20, 24, 25].indexOf(cId) !== -1) target.thrill += val;
-            else if ([9, 10, 11].indexOf(cId) !== -1) target.visual += val;
-          }
-        }
-
-        function addPillarMax(cId) {
-          if ([21, 22, 23, 29].indexOf(cId) !== -1) maxPillars.power += 10;
-          else if ([13, 14, 16, 17, 31].indexOf(cId) !== -1) maxPillars.sensation += 10;
-          else if ([19, 30].indexOf(cId) !== -1) maxPillars.nurturing += 10;
-          else if ([18, 20, 24, 25].indexOf(cId) !== -1) maxPillars.thrill += 10;
-          else if ([9, 10, 11].indexOf(cId) !== -1) maxPillars.visual += 10;
-        }
-
-        addPillarPoints(ch.id, aR1, pillarsA);
-        addPillarPoints(ch.id, aR2, pillarsA);
-        addPillarPoints(ch.id, bR1, pillarsB);
-        addPillarPoints(ch.id, bR2, pillarsB);
-        addPillarMax(ch.id);
-
-        // ========================================================
-        // 1. DAS ABSOLUTE SICHERHEITS-VETO: TABU-ERMITTLUNG (NOTE 1)
-        // Tabus werden IMMER und unabhängig von Freigabestufen ermittelt!
-        // ========================================================
-        var hasTabuA = (aR1 === 1 || aR2 === 1);
-        var hasTabuB = (bR1 === 1 || bR2 === 1);
-
-        if (hasTabuA || hasTabuB) {
-          var whoTabu = [];
-          if (hasTabuA) whoTabu.push(names.A || 'Partner 1');
-          if (hasTabuB) whoTabu.push(names.B || 'Partner 2');
-          if (!seenTabus.has(it.id)) {
-            seenTabus.add(it.id);
-            tabuList.push({ item: it, chapter: ch, who: whoTabu.join(' & ') });
-          }
-          // SICHERHEITS-VETO: Wenn einer ein Tabu gesetzt hat,
-          // darf es NIEMALS als Doppel-Match oder Brücke auftauchen!
-          return;
-        }
-
-        // ========================================================
-        // 2. DOPPEL-5ER (Beiderseitige Höchstlust - ab Stufe 1 erlaubt)
-        // ========================================================
-        var isD5 = (aR1 === 5 && bR2 === 5) || (aR2 === 5 && bR1 === 5) || (aR1 === 5 && bR1 === 5) || (aR2 === 5 && bR2 === 5);
-        if (isD5 && !seenDoppel5.has(it.id)) {
-          seenDoppel5.add(it.id);
-          doppel5List.push({ item: it, chapter: ch });
-        }
-
-        // ========================================================
-        // 3. BRÜCKENBAU-CHANCEN (5 trifft 2 oder 3)
-        // Schamschutz: Nur sichtbar, wenn der Partner mit der Note 2/3
-        // dies über seine Freigabestufe erlaubt hat!
-        // - Note 3 (Neugier) verlangt sharingLevel >= 2
-        // - Note 2 (Buße/Duldung) verlangt sharingLevel >= 3
-        // ========================================================
-        var bridgePermitted = false;
-
-        // Fall A: A will 5, B hat 2 oder 3
-        if ((aR1 === 5 || aR2 === 5) && (bR1 === 2 || bR1 === 3 || bR2 === 2 || bR2 === 3)) {
-          var bScore = Math.max(bR1 || 0, bR2 || 0);
-          if (bScore === 3 && lvlB >= 2) bridgePermitted = true;
-          if (bScore === 2 && lvlB >= 3) bridgePermitted = true;
-          if (lvlB === 4) bridgePermitted = true;
-        }
-
-        // Fall B: B will 5, A hat 2 oder 3
-        if ((bR1 === 5 || bR2 === 5) && (aR1 === 2 || aR1 === 3 || aR2 === 2 || aR2 === 3)) {
-          var aScore = Math.max(aR1 || 0, aR2 || 0);
-          if (aScore === 3 && lvlA >= 2) bridgePermitted = true;
-          if (aScore === 2 && lvlA >= 3) bridgePermitted = true;
-          if (lvlA === 4) bridgePermitted = true;
-        }
-
-        if (bridgePermitted && !seenBridges.has(it.id) && !seenDoppel5.has(it.id)) {
-          seenBridges.add(it.id);
-          bridgesList.push({ item: it, chapter: ch });
-        }
-
-        // ========================================================
-        // 4. KOMPLEMENTÄRE PASSUNG (Aktiv trifft Passiv >= 4)
-        // Beide Partner haben mindestens Reizvoll (4) vergeben.
-        // ========================================================
-        var isComp = (aR1 >= 4 && bR2 >= 4) || (bR1 >= 4 && aR2 >= 4);
-        if (isComp && !seenComp.has(it.id)) {
-          seenComp.add(it.id);
-          compList.push({ item: it, chapter: ch });
-        }
-
-        // Harmonie-Berechnung
-        if (typeof aR1 === 'number' && typeof bR2 === 'number') {
-          totalEvaluated++;
-          totalHarmonicPoints += Math.max(0, 5 - Math.abs(aR1 - bR2));
-        }
-        if (typeof bR1 === 'number' && typeof aR2 === 'number') {
-          totalEvaluated++;
-          totalHarmonicPoints += Math.max(0, 5 - Math.abs(bR1 - aR2));
-        }
-      });
-    });
-
-    var harmonyPct = totalEvaluated > 0 ? Math.round((totalHarmonicPoints / (totalEvaluated * 5)) * 100) : 0;
-
-    // Cache für Detail-Filter
-    cachedAnalysisMetrics = {
-      doppel5List: doppel5List,
-      bridgesList: bridgesList,
-      compList: compList,
-      tabuList: tabuList
-    };
-
-    // KPIs ins DOM schreiben
-    var kpiHar = document.getElementById('kpi-harmony');
-    var kpiD5 = document.getElementById('kpi-doppel5');
-    var kpiBri = document.getElementById('kpi-bridges');
-    var kpiTab = document.getElementById('kpi-tabus');
-
-    if (kpiHar) kpiHar.innerText = harmonyPct + ' %';
-    if (kpiD5) kpiD5.innerText = doppel5List.length;
-    if (kpiBri) kpiBri.innerText = bridgesList.length;
-    if (kpiTab) kpiTab.innerText = tabuList.length;
-
-    // Filter-Zähler im Header der Detail-Box
-    var cD5 = document.getElementById('count-pair-doppel5');
-    var cBri = document.getElementById('count-pair-bridges');
-    var cComp = document.getElementById('count-pair-comp');
-    var cTab = document.getElementById('count-pair-tabus');
-
-    if (cD5) cD5.innerText = doppel5List.length;
-    if (cBri) cBri.innerText = bridgesList.length;
-    if (cComp) cComp.innerText = compList.length;
-    if (cTab) cTab.innerText = tabuList.length;
-
-    renderPillarBars(pillarsA, pillarsB, maxPillars);
-    renderPairRadarChart();
-    renderPairDetailList(cachedAnalysisMetrics);
-    renderSafetyConsensus();
-    renderAnalysisSessionDiary();
-
-    // Gespeichertes Paargutachten sofort laden falls vorhanden
-    loadCachedPairReport();
-  }
-
-  function renderPillarBars(pA, pB, max) {
-    function setPairBar(id) {
-      var valA = max[id] > 0 ? Math.round((pA[id] / max[id]) * 100) : 0;
-      var valB = max[id] > 0 ? Math.round((pB[id] / max[id]) * 100) : 0;
-
-      var valEl = document.getElementById('pair-val-' + id);
-      var barA = document.getElementById('pair-bar-A-' + id);
-      var barB = document.getElementById('pair-bar-B-' + id);
-
-      if (valEl) valEl.innerText = (names.A || 'A') + ': ' + valA + '% | ' + (names.B || 'B') + ': ' + valB + '%';
-      if (barA) barA.style.width = (valA / 2) + '%';
-      if (barB) barB.style.width = (valB / 2) + '%';
-    }
-
-    ['power', 'sensation', 'nurturing', 'thrill', 'visual'].forEach(setPairBar);
-  }
-
-  function renderPairRadarChart() {
-    var canvas = document.getElementById('pairRadarChart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    if (pairRadarChartInstance) {
-      try { pairRadarChartInstance.destroy(); } catch (e) {}
-    }
-
-    var dimensions = [
-      { label: 'Körperzonen', chapters: [1, 12] },
-      { label: 'Romantik', chapters: [2, 3] },
-      { label: 'Keuschheit', chapters: [7, 8] },
-      { label: 'Shibari', chapters: [13, 14] },
-      { label: 'Sinnesentzug', chapters: [15] },
-      { label: 'Impact', chapters: [16] },
-      { label: 'Primal', chapters: [18] },
-      { label: 'Caregiver', chapters: [19] },
-      { label: 'Trance', chapters: [30] }
-    ];
-
-    var allChapters = window.surveyChapters || [];
-    var ansA = answers.A || {};
-    var ansB = answers.B || {};
-
-    function calcScores(targetAns) {
-      return dimensions.map(function(dim) {
-        var earned = 0, possible = 0;
-        dim.chapters.forEach(function(cId) {
-          var ch = allChapters.find(function(c) { return c.id === cId; });
-          if (ch && ch.items) {
-            ch.items.forEach(function(it) {
-              if (it.type !== 'choice') {
-                var s1 = targetAns['it_' + it.id + '_r1'];
-                var s2 = targetAns['it_' + it.id + '_r2'];
-                if (typeof s1 === 'number' && s1 > 0) { earned += s1; possible += 5; }
-                if (typeof s2 === 'number' && s2 > 0) { earned += s2; possible += 5; }
-              }
-            });
-          }
-        });
-        return possible > 0 ? Math.round((earned / possible) * 100) : 0;
-      });
-    }
-
-    var dataA = calcScores(ansA);
-    var dataB = calcScores(ansB);
-
-    try {
-      pairRadarChartInstance = new Chart(canvas, {
-        type: 'radar',
-        data: {
-          labels: dimensions.map(function(d) { return d.label; }),
-          datasets: [
-            {
-              label: names.A || 'Partner 1',
-              data: dataA,
-              backgroundColor: 'rgba(225, 29, 72, 0.25)',
-              borderColor: 'rgba(225, 29, 72, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(225, 29, 72, 1)'
-            },
-            {
-              label: names.B || 'Partner 2',
-              data: dataB,
-              backgroundColor: 'rgba(147, 51, 234, 0.25)',
-              borderColor: 'rgba(147, 51, 234, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(147, 51, 234, 1)'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            r: {
-              angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
-              grid: { color: 'rgba(148, 163, 184, 0.2)' },
-              pointLabels: { color: '#cbd5e1', font: { size: 10, weight: 'bold' } },
-              ticks: { display: false, max: 100, min: 0 }
-            }
-          },
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top',
-              labels: { color: '#e2e8f0', font: { size: 10, weight: 'bold' } }
-            }
-          }
-        }
-      });
-    } catch (e) {
-      console.warn("Chart creation error:", e);
-    }
-  }
-
-  function switchPairDetailFilter(filter) {
-    activeDetailFilter = filter;
-    ['doppel5', 'bridges', 'complementary', 'tabus'].forEach(function(f) {
-      var btn = document.getElementById('filter-pair-' + f);
-      if (btn) {
-        if (f === filter) {
-          btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
-        } else {
-          btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
-        }
-      }
-    });
-
-    if (cachedAnalysisMetrics) {
-      renderPairDetailList(cachedAnalysisMetrics);
-    } else {
-      computePairMetrics();
-    }
-  }
-
-  function renderPairDetailList(data) {
-    var container = document.getElementById('pair-detail-items-container');
-    if (!container || !data) return;
-
-    var list = [];
-    var emptyMsg = "Keine Einträge für diesen Filter vorhanden.";
-
-    if (activeDetailFilter === 'doppel5') {
-      list = data.doppel5List.map(function(d) {
-        return `
-          <div class="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-800 text-emerald-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs">${d.item.id}. ${escapeHtml(d.item.title)}</strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">⭐ Doppel-5er</span>
-            </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(d.item.desc || '')}</p>
-            <span class="text-[10px] text-slate-400 block">Kapitel ${d.chapter.id}: ${escapeHtml(d.chapter.title)}</span>
-          </div>
-        `;
-      });
-    } else if (activeDetailFilter === 'bridges') {
-      list = data.bridgesList.map(function(b) {
-        return `
-          <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-800 text-indigo-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs">${b.item.id}. ${escapeHtml(b.item.title)}</strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">💡 Brücke (Wunsch trifft 2/3)</span>
-            </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(b.item.desc || '')}</p>
-            <span class="text-[10px] text-slate-400 block">Kapitel ${b.chapter.id}: ${escapeHtml(b.chapter.title)}</span>
-          </div>
-        `;
-      });
-    } else if (activeDetailFilter === 'complementary') {
-      list = data.compList.map(function(c) {
-        return `
-          <div class="p-3 rounded-2xl bg-amber-950/30 border border-amber-800 text-amber-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs">${c.item.id}. ${escapeHtml(c.item.title)}</strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">⚡ Top/Bottom Match</span>
-            </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(c.item.desc || '')}</p>
-            <span class="text-[10px] text-slate-400 block">Kapitel ${c.chapter.id}: ${escapeHtml(c.chapter.title)}</span>
-          </div>
-        `;
-      });
-    } else {
-      list = data.tabuList.map(function(t) {
-        return `
-          <div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs">${t.item.id}. ${escapeHtml(t.item.title)}</strong>
-              <span class="text-[9.5px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">⛔ Grenze von ${escapeHtml(t.who)}</span>
-            </div>
-            <p class="text-[11px] text-slate-300">${escapeHtml(t.item.desc || '')}</p>
-            <span class="text-[10px] text-rose-300 font-semibold block">⚠️ Bei Sessions strikt ausschließen</span>
-          </div>
-        `;
-      });
-    }
-
-    container.innerHTML = list.join('') || `<p class="text-slate-500 italic text-center py-4">${emptyMsg}</p>`;
-  }
-
-  function renderSafetyConsensus() {
-    var container = document.getElementById('safety-consensus-list');
-    if (!container) return;
-
-    var cfgA = safetyConfig.A || {};
-    var cfgB = safetyConfig.B || {};
-    var modules = [
-      { label: "Sicherheits-Cutter", key: "emergency_tools" },
-      { label: "Safeword-System", key: "safeword" },
-      { label: "Drop-Tuch / Knebel-Signal", key: "gag_signal" },
-      { label: "15-Minuten Vital-Check", key: "vital_checks" },
-      { label: "Aftercare-Schwerpunkt", key: "aftercare" },
-      { label: "24-Stunden Check-in", key: "checkin_24h" }
-    ];
-
-    container.innerHTML = modules.map(function(m) {
-      var valA = cfgA[m.key] || 'Nicht gewählt';
-      var valB = cfgB[m.key] || 'Nicht gewählt';
-      var isMatch = valA === valB && valA !== 'Nicht gewählt';
-
-      return `
-        <div class="p-2.5 rounded-xl border flex items-center justify-between ${isMatch ? 'bg-teal-950/30 border-teal-800' : 'theme-panel border-slate-800'}">
-          <div>
-            <strong class="text-white block text-xs">${m.label}:</strong>
-            <span class="text-[10.5px] text-slate-400">${escapeHtml(names.A || 'A')}: ${escapeHtml(valA)} | ${escapeHtml(names.B || 'B')}: ${escapeHtml(valB)}</span>
-          </div>
-          <span class="text-xs font-bold ${isMatch ? 'text-teal-300' : 'text-amber-400'}">
-            ${isMatch ? '✓ Konsens' : '⚠️ Abweichung'}
-          </span>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderAnalysisSessionDiary() {
-    var container = document.getElementById('analysis-session-diary-container');
-    if (!container) return;
-
-    if (!sessionDiary || sessionDiary.length === 0) {
-      container.innerHTML = `
-        <div class="p-6 text-center text-slate-400 italic space-y-1.5 theme-panel rounded-2xl border border-slate-800">
-          <span class="text-2xl block">🕯️</span>
-          <p>Noch keine Sessions im Tagebuch eingetragen.</p>
-          <p class="text-[10.5px] text-slate-500">Startet eine Runde in der <a href="session.html" class="text-brand-400 underline font-semibold">Schlafzimmer-Regie</a> – dort könnt ihr im Aftercare euer Feedback direkt für die Paaranalyse speichern.</p>
-        </div>
-      `;
+  function showToast(msg) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(msg);
       return;
     }
-
-    container.innerHTML = sessionDiary.map(function(entry) {
-      return `
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-            <strong class="text-white text-xs">${escapeHtml(entry.date)} (${escapeHtml(entry.mode || 'Session')})</strong>
-            <span class="text-pink-400 font-mono font-bold text-[11px]">Stufe ${entry.intensity || 7}/10 · ${entry.edgeCount || 0} Edges</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-[10.5px] text-slate-300">
-            <div>👑 Top: ${escapeHtml(entry.top || 'Top')}</div>
-            <div>🧎 Bottom: ${escapeHtml(entry.bottom || 'Bottom')}</div>
-          </div>
-          ${entry.topFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-brand-300">Top-Feedback:</strong> ${escapeHtml(entry.topFeedback)}</div>` : ''}
-          ${entry.bottomFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-indigo-300">Bottom-Feedback:</strong> ${escapeHtml(entry.bottomFeedback)}</div>` : ''}
-        </div>
-      `;
-    }).join('');
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var el = document.createElement('div');
+    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
+    el.innerText = msg;
+    c.appendChild(el);
+    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+    setTimeout(function() {
+      el.classList.add('opacity-0');
+      setTimeout(function() { el.remove(); }, 300);
+    }, 2500);
   }
 
-  function getAnswersFingerprint(ans) {
-    if (!ans || typeof ans !== 'object') return '';
-    var keys = Object.keys(ans).sort();
+  function getAnswersFingerprint(userAnswers) {
+    if (!userAnswers || typeof userAnswers !== 'object') return '';
+    var keys = Object.keys(userAnswers).sort();
     var str = '';
     for (var i = 0; i < keys.length; i++) {
       var k = keys[i];
       if (k.indexOf('_note') === -1) {
-        str += k + '=' + ans[k] + ';';
+        str += k + '=' + userAnswers[k] + ';';
       }
     }
     return str;
@@ -548,21 +64,296 @@
     return Math.abs(hash).toString(36);
   }
 
-  function renderPairReportCards(report, container, isOutdated, changeDetailText, generatedAt) {
-    if (!container || !report) return;
+  function getSharingLevel(user) {
+    try {
+      var stored = localStorage.getItem('kompass_sharing_level_' + user);
+      if (stored) {
+        var num = parseInt(stored, 10);
+        if (num >= 1 && num <= 4) return num;
+      }
+    } catch (e) {}
+    return 3;
+  }
 
+  function calculatePairSynergy() {
+    var chapters = window.surveyChapters || [];
+    var answers = window.answers || { A: {}, B: {} };
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+
+    var ansA = answers.A || {};
+    var ansB = answers.B || {};
+
+    var lvlA = getSharingLevel('A');
+    var lvlB = getSharingLevel('B');
+
+    var doubleFives = [];
+    var bridges = [];
+    var tabus = [];
+
+    chapters.forEach(function(ch) {
+      (ch.items || []).forEach(function(it) {
+        if (it.type === 'choice') return;
+
+        var aR1 = ansA['it_' + it.id + '_r1'];
+        var aR2 = ansA['it_' + it.id + '_r2'];
+        var bR1 = ansB['it_' + it.id + '_r1'];
+        var bR2 = ansB['it_' + it.id + '_r2'];
+
+        // 1. ABSOLUTES TABU-VETO: Note 1 schlägt alles!
+        var tabuInPractice = false;
+        if (aR1 === 1) { tabus.push({ item: it, who: 'A', name: names.A, role: 'Aktiv: ' + (it.r1 || 'Ausführen') }); tabuInPractice = true; }
+        if (aR2 === 1) { tabus.push({ item: it, who: 'A', name: names.A, role: 'Passiv: ' + (it.r2 || 'Empfangen') }); tabuInPractice = true; }
+        if (bR1 === 1) { tabus.push({ item: it, who: 'B', name: names.B, role: 'Aktiv: ' + (it.r1 || 'Ausführen') }); tabuInPractice = true; }
+        if (bR2 === 1) { tabus.push({ item: it, who: 'B', name: names.B, role: 'Passiv: ' + (it.r2 || 'Empfangen') }); tabuInPractice = true; }
+
+        if (tabuInPractice) return; // Wenn mindestens einer Note 1 hat, niemals als Match oder Brücke anzeigen!
+
+        // Konstellation 1: A führt aus (R1), B empfängt (R2)
+        if (typeof aR1 === 'number' && typeof bR2 === 'number') {
+          if (aR1 === 5 && bR2 === 5) {
+            doubleFives.push({
+              item: it,
+              actor: names.A,
+              receiver: names.B,
+              actorRole: it.r1 || 'Ausführen',
+              receiverRole: it.r2 || 'Empfangen'
+            });
+          } else if (aR1 === 5 && (bR2 === 2 || bR2 === 3)) {
+            // Prüfung des Schamschutzes von B
+            var allowed = (bR2 === 3 && lvlB >= 2) || (bR2 === 2 && lvlB >= 3) || (lvlB === 4);
+            if (allowed) {
+              bridges.push({
+                item: it,
+                actor: names.A,
+                receiver: names.B,
+                actorScore: aR1,
+                receiverScore: bR2,
+                actorRole: it.r1 || 'Ausführen',
+                receiverRole: it.r2 || 'Empfangen',
+                type: (bR2 === 3 ? 'Neugier' : 'Duldung / Buße')
+              });
+            }
+          } else if (bR2 === 5 && (aR1 === 2 || aR1 === 3)) {
+            // Prüfung des Schamschutzes von A
+            var allowedA = (aR1 === 3 && lvlA >= 2) || (aR1 === 2 && lvlA >= 3) || (lvlA === 4);
+            if (allowedA) {
+              bridges.push({
+                item: it,
+                actor: names.A,
+                receiver: names.B,
+                actorScore: aR1,
+                receiverScore: bR2,
+                actorRole: it.r1 || 'Ausführen',
+                receiverRole: it.r2 || 'Empfangen',
+                type: (aR1 === 3 ? 'Neugier' : 'Duldung / Buße')
+              });
+            }
+          }
+        }
+
+        // Konstellation 2: B führt aus (R1), A empfängt (R2)
+        if (typeof bR1 === 'number' && typeof aR2 === 'number') {
+          if (bR1 === 5 && aR2 === 5) {
+            doubleFives.push({
+              item: it,
+              actor: names.B,
+              receiver: names.A,
+              actorRole: it.r1 || 'Ausführen',
+              receiverRole: it.r2 || 'Empfangen'
+            });
+          } else if (bR1 === 5 && (aR2 === 2 || aR2 === 3)) {
+            var allowedBtoA = (aR2 === 3 && lvlA >= 2) || (aR2 === 2 && lvlA >= 3) || (lvlA === 4);
+            if (allowedBtoA) {
+              bridges.push({
+                item: it,
+                actor: names.B,
+                receiver: names.A,
+                actorScore: bR1,
+                receiverScore: aR2,
+                actorRole: it.r1 || 'Ausführen',
+                receiverRole: it.r2 || 'Empfangen',
+                type: (aR2 === 3 ? 'Neugier' : 'Duldung / Buße')
+              });
+            }
+          } else if (aR2 === 5 && (bR1 === 2 || bR1 === 3)) {
+            var allowedAtoB = (bR1 === 3 && lvlB >= 2) || (bR1 === 2 && lvlB >= 3) || (lvlB === 4);
+            if (allowedAtoB) {
+              bridges.push({
+                item: it,
+                actor: names.B,
+                receiver: names.A,
+                actorScore: bR1,
+                receiverScore: aR2,
+                actorRole: it.r1 || 'Ausführen',
+                receiverRole: it.r2 || 'Empfangen',
+                type: (bR1 === 3 ? 'Neugier' : 'Duldung / Buße')
+              });
+            }
+          }
+        }
+      });
+    });
+
+    return {
+      doubleFives: doubleFives,
+      bridges: bridges,
+      tabus: tabus
+    };
+  }
+
+  function renderPairAnalysis() {
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var synergy = calculatePairSynergy();
+
+    var titleA = document.getElementById('pair-names-title');
+    if (titleA) titleA.innerText = (names.A || 'Partner 1') + " & " + (names.B || 'Partner 2');
+
+    // Doppel-5er rendern
+    var d5Container = document.getElementById('pair-double-fives-container');
+    var d5Count = document.getElementById('count-double-fives');
+    if (d5Count) d5Count.innerText = synergy.doubleFives.length;
+
+    if (d5Container) {
+      if (synergy.doubleFives.length === 0) {
+        d5Container.innerHTML = '<p class="text-slate-500 italic text-[11px] text-center py-4">Noch keine beiderseitigen Doppel-5er vergeben. Füllt beide den Bogen weiter aus.</p>';
+      } else {
+        d5Container.innerHTML = synergy.doubleFives.map(function(m) {
+          var targetUrl = "index.html#view=survey&jumpItem=" + m.item.id;
+          return `
+            <a href="${targetUrl}" class="block p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-950 border border-brand-800/80 hover:border-brand-500 transition-all touch-btn group">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs text-white group-hover:text-brand-300 font-extrabold">${escapeHtml(m.item.title)}</strong>
+                <span class="text-[9px] px-2 py-0.5 rounded-md bg-brand-900 text-brand-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">⭐ Doppel-5er ↗</span>
+              </div>
+              <div class="flex items-center gap-3 text-[10.5px] text-slate-300 mt-1.5 flex-wrap">
+                <span>👑 <strong>${escapeHtml(m.actor)}:</strong> ${escapeHtml(m.actorRole)}</span>
+                <span class="text-slate-500">·</span>
+                <span>🧎 <strong>${escapeHtml(m.receiver)}:</strong> ${escapeHtml(m.receiverRole)}</span>
+              </div>
+            </a>
+          `;
+        }).join('');
+      }
+    }
+
+    // Brücken rendern
+    var brContainer = document.getElementById('pair-bridges-container');
+    var brCount = document.getElementById('count-bridges');
+    if (brCount) brCount.innerText = synergy.bridges.length;
+
+    if (brContainer) {
+      if (synergy.bridges.length === 0) {
+        brContainer.innerHTML = '<p class="text-slate-500 italic text-[11px] text-center py-4">Keine offenen Brücken unter den aktuellen Freigabestufen sichtbar.</p>';
+      } else {
+        brContainer.innerHTML = synergy.bridges.map(function(b) {
+          var targetUrl = "index.html#view=survey&jumpItem=" + b.item.id;
+          var isCuriosity = (b.type === 'Neugier');
+          var badgeColor = isCuriosity ? 'bg-indigo-950 text-indigo-300 border-indigo-800' : 'bg-amber-950 text-amber-300 border-amber-800';
+          return `
+            <a href="${targetUrl}" class="block p-3 rounded-2xl bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all touch-btn group">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs text-white group-hover:text-amber-300 font-extrabold">${escapeHtml(b.item.title)}</strong>
+                <span class="text-[9px] px-2 py-0.5 rounded-md border font-bold ${badgeColor}">💡 ${escapeHtml(b.type)} ↗</span>
+              </div>
+              <div class="flex items-center gap-3 text-[10.5px] text-slate-300 mt-1.5 flex-wrap">
+                <span>⭐ Note ${b.actorScore} (${escapeHtml(b.actor)})</span>
+                <span class="text-slate-500">⇄</span>
+                <span>Note ${b.receiverScore} (${escapeHtml(b.receiver)})</span>
+              </div>
+            </a>
+          `;
+        }).join('');
+      }
+    }
+
+    // Tabus rendern mit absolutem Direktsprung
+    var tabuContainer = document.getElementById('pair-tabus-container');
+    var tabuCount = document.getElementById('count-pair-tabus');
+    if (tabuCount) tabuCount.innerText = synergy.tabus.length;
+
+    if (tabuContainer) {
+      if (synergy.tabus.length === 0) {
+        tabuContainer.innerHTML = '<p class="text-slate-500 italic text-[11px] text-center py-4">Keine Tabus (Note 1) hinterlegt.</p>';
+      } else {
+        tabuContainer.innerHTML = synergy.tabus.map(function(t) {
+          var targetUrl = "index.html#view=survey&jumpItem=" + t.item.id;
+          return `
+            <a href="${targetUrl}" class="block p-2.5 rounded-xl bg-rose-950/30 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-600 transition group touch-btn">
+              <div class="flex items-center justify-between">
+                <strong class="text-white block font-bold text-[11px] group-hover:text-rose-200">${escapeHtml(t.item.title)}</strong>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-rose-300 mt-1">
+                <span>${escapeHtml(t.role)}</span>
+                <span class="font-mono text-slate-400">Gesetzt von: ${escapeHtml(t.name)}</span>
+              </div>
+            </a>
+          `;
+        }).join('');
+      }
+    }
+
+    loadCachedPairReport();
+  }
+
+  function loadCachedPairReport() {
+    var container = document.getElementById('pair-report-container');
+    if (!container) return;
+
+    var answers = window.answers || { A: {}, B: {} };
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+
+    var hashA = hashString(getAnswersFingerprint(answers.A));
+    var hashB = hashString(getAnswersFingerprint(answers.B));
+
+    try {
+      var raw = localStorage.getItem('kompass_cached_pair_report');
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        var report = parsed.report || parsed;
+        if (report && report.synergy) {
+          var isChangedA = parsed.hashA && parsed.hashA !== hashA;
+          var isChangedB = parsed.hashB && parsed.hashB !== hashB;
+          var isOutdated = isChangedA || isChangedB;
+
+          var changerText = "";
+          if (isChangedA && isChangedB) changerText = "Beide Partner haben ihre Bewertungen verändert.";
+          else if (isChangedA) changerText = (names.A || 'Partner 1') + " hat persönliche Bewertungen angepasst.";
+          else if (isChangedB) changerText = (names.B || 'Partner 2') + " hat persönliche Bewertungen angepasst.";
+
+          container.innerHTML = renderPairReportHtml(report, isOutdated, parsed.generatedAt, changerText);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    container.innerHTML = `
+      <div class="theme-card rounded-3xl p-6 border text-center space-y-3 shadow-md">
+        <span class="text-3xl block">💫</span>
+        <div>
+          <strong class="text-xs text-white block font-bold">Wissenschaftliches KI-Paargutachten:</strong>
+          <p class="text-[10.5px] text-slate-400 mt-0.5">Analysiert eure beiderseitigen Schnittmengen, Dynamiken und Vertrauenspotenziale schamfrei.</p>
+        </div>
+        <button type="button" onclick="PairAnalysisEngine.generateReport()" class="px-5 py-2.5 bg-gradient-to-r from-amber-600 via-brand-600 to-purple-700 hover:opacity-90 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
+          ✨ Jetzt KI-Paargutachten berechnen
+        </button>
+      </div>
+    `;
+  }
+
+  function renderPairReportHtml(report, isOutdated, generatedAt, changerText) {
     var bannerHtml = '';
     if (isOutdated) {
       bannerHtml = `
-        <div id="pair-report-outdated-banner" class="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/80 text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg animate-pulse mb-3">
+        <div class="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/80 text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg animate-pulse mb-3">
           <div class="flex items-center gap-2.5">
             <span class="text-xl flex-shrink-0">⚠️</span>
             <div>
-              <strong class="text-xs text-amber-200 block font-bold">Werte wurden verändert</strong>
-              <span class="text-[10.5px] text-slate-300 block mt-0.5">${escapeHtml(changeDetailText || 'Seit der letzten Paar-Analyse wurden Antworten angepasst.')} Das Gutachten basiert noch auf dem Stand vom ${escapeHtml(generatedAt || 'gespeicherten Zeitpunkt')}.</span>
+              <strong class="text-xs text-amber-200 block font-bold">Eure Antworten haben sich verändert</strong>
+              <span class="text-[10.5px] text-slate-300 block mt-0.5">${escapeHtml(changerText)} Das Gutachten basiert noch auf dem Stand vom ${escapeHtml(generatedAt || 'gespeicherten Zeitpunkt')}.</span>
             </div>
           </div>
-          <button type="button" onclick="generateAiPairReport()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
+          <button type="button" onclick="PairAnalysisEngine.generateReport()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
             ✨ Jetzt aktualisieren
           </button>
         </div>
@@ -573,168 +364,100 @@
           <span class="text-teal-300 font-semibold flex items-center gap-1.5">
             <span>✓</span> Paargutachten aktuell (${escapeHtml(generatedAt)})
           </span>
-          <span class="text-[9.5px] text-slate-500">Datenbasis synchron</span>
+          <span class="text-[9.5px] text-slate-500">Schnittmengen synchron</span>
         </div>
       `;
     }
 
-    container.innerHTML = `
-      <div class="space-y-3 animate-fade-in text-xs leading-relaxed">
+    return `
+      <div class="theme-card rounded-3xl p-5 border space-y-3.5 shadow-md animate-fade-in text-xs leading-relaxed">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-base">✨</span>
+            <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Paargutachten</h3>
+          </div>
+          <button type="button" onclick="PairAnalysisEngine.generateReport()" class="px-3 py-1 bg-amber-950 hover:bg-amber-900 border border-amber-700 text-amber-300 font-extrabold rounded-xl text-xs touch-btn shadow-sm">
+            Neu berechnen ↺
+          </button>
+        </div>
+
         ${bannerHtml}
-        <!-- 1. SYNERGIE & GEMEINSAME MAGIE -->
-        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/70 space-y-1.5 shadow-md">
-          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wide border-b border-indigo-900/60 pb-1.5">
-            <span class="text-base">💫</span>
-            <span>1. Eure gemeinsame Magie & Schnittmengen</span>
-          </div>
-          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.synergy || '')}</p>
-        </div>
 
-        <!-- 2. ROLLEN & MACHTDYNAMIK -->
-        <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-800/70 space-y-1.5 shadow-md">
-          <div class="flex items-center gap-2 text-purple-300 font-extrabold text-xs uppercase tracking-wide border-b border-purple-900/60 pb-1.5">
-            <span class="text-base">⚖️</span>
-            <span>2. Eure Rollen- & Machtdynamik (Top & Bottom)</span>
+        <div class="space-y-3 text-[11.5px] text-slate-300 leading-relaxed">
+          <div class="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-900/60 space-y-1">
+            <strong class="text-amber-200 block text-xs font-bold">1. Eure Beziehungs- & Macht-Synergie:</strong>
+            <p>${escapeHtml(report.synergy || '')}</p>
           </div>
-          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.dynamics || '')}</p>
-        </div>
-
-        <!-- 3. KONKRETER IMPULS FÜR DIE NÄCHSTE SESSION -->
-        <div class="p-4 rounded-2xl bg-brand-950/30 border border-brand-800/70 space-y-1.5 shadow-md">
-          <div class="flex items-center gap-2 text-brand-300 font-extrabold text-xs uppercase tracking-wide border-b border-brand-900/60 pb-1.5">
-            <span class="text-base">🕯️</span>
-            <span>3. Konkrete Idee für eure nächste Session</span>
+          <div class="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-900/60 space-y-1">
+            <strong class="text-indigo-200 block text-xs font-bold">2. Schamfreie Brücken & Wachstumschancen:</strong>
+            <p>${escapeHtml(report.bridges || '')}</p>
           </div>
-          <p class="text-slate-200 text-[11.5px] leading-relaxed pt-0.5">${escapeHtml(report.action_tip || '')}</p>
-        </div>
-
-        <!-- 4. WISSENSCHAFTLICHE NORMALISIERUNG -->
-        <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800/60 text-slate-300 space-y-1">
-          <div class="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
-            <span>🛡️</span>
-            <span>Wissenschaftliche Bestärkung & Normalität:</span>
+          <div class="p-3.5 rounded-2xl bg-teal-950/20 border border-teal-900/60 space-y-1">
+            <strong class="text-teal-200 block text-xs font-bold">3. Vertrauens-Kodex & Sicherheitskultur:</strong>
+            <p>${escapeHtml(report.safety || '')}</p>
           </div>
-          <p class="text-[10.5px] leading-relaxed">${escapeHtml(report.science_insight || '')}</p>
         </div>
       </div>
     `;
   }
 
-  function loadCachedPairReport() {
-    var out = document.getElementById('ai-pair-report-output');
-    var btn = document.getElementById('btn-generate-ai-pair');
-    if (!out) return;
-
-    try {
-      var cachedRaw = localStorage.getItem('kompass_cached_pair_report');
-      if (cachedRaw) {
-        var parsed = JSON.parse(cachedRaw);
-        var reportData = parsed.report || parsed;
-
-        if (reportData && reportData.synergy) {
-          var curHashA = hashString(getAnswersFingerprint(answers.A || {}));
-          var curHashB = hashString(getAnswersFingerprint(answers.B || {}));
-          var isOutdated = false;
-          var changeDetailText = "";
-
-          if (parsed.hashA && parsed.hashB) {
-            var diffA = (parsed.hashA !== curHashA);
-            var diffB = (parsed.hashB !== curHashB);
-
-            if (diffA && diffB) {
-              isOutdated = true;
-              changeDetailText = `Beide Partner (${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}) haben Bewertungen geändert.`;
-            } else if (diffA) {
-              isOutdated = true;
-              changeDetailText = `${names.A || 'Partner 1'} hat persönliche Bewertungen angepasst.`;
-            } else if (diffB) {
-              isOutdated = true;
-              changeDetailText = `${names.B || 'Partner 2'} hat persönliche Bewertungen angepasst.`;
-            }
-          }
-
-          renderPairReportCards(reportData, out, isOutdated, changeDetailText, parsed.generatedAt);
-          if (btn) btn.innerHTML = isOutdated ? "<span>Aktualisieren ↺</span>" : "<span>Neu berechnen ↺</span>";
-        }
-      }
-    } catch (e) {}
-  }
-
-  function generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pPower, pSens) {
-    var d5Num = parseInt(d5, 10) || 0;
-    var bridgeNum = parseInt(bridges, 10) || 0;
-
-    var synergyText = `Zwischen ${nameA} und ${nameB} besteht ein außergewöhnlich tragfähiges erotisches Fundament: Mit ${d5} gemeinsamen Doppel-5er-Volltreffern teilt ihr echte Spitzenbegeisterung auf Augenhöhe. Eure Verbindung zeichnet sich dadurch aus, dass Fantasien nicht theoretisch bleiben müssen, sondern auf echte, gegenseitige Neugier treffen. Mit ${bridgeNum} Brückenbau-Chancen habt ihr zudem reichlich gemeinsamen Entdeckungsraum, um euch Schritt für Schritt an neue Facetten heranzutasten.`;
-
-    var dynamicsText = `Eure Rollen- und Machtdynamik (${pPower}) greift harmonisch ineinander. Es zeigt sich eine natürliche Ergänzung zwischen wohlwollender Führung und vertrauensvoller Hingabe. Weder Top noch Bottom agieren im luftleeren Raum: Die definierte Tabu-Schranke von ${tabus} verbindlichen No-Gos gibt beiden Partnern die nötige psychologische Sicherheit, sich im Schlafzimmer angstfrei und ohne Gesichtsverlust fallen zu lassen.`;
-
-    var actionTip = `Nutzt eure gemeinsame Höchstlust für die nächste Session in der Schlafzimmer-Regie: Wählt eines eurer Doppel-5er-Matches als Hauptthema des Abends. Vereinbart vorab ein klares Zeitfenster von 45 bis 60 Minuten, legt die passenden Gegenstände bereit und zelebriert nach der Session ein festes, 15-minütiges Aftercare mit warmen Decken und ruhigem Austausch.`;
-
-    var scienceInsight = `Die internationale Paarforschung (u. a. Sagarin et al. 2009; Wismeijer 2013; Canivet et al. 2025) belegt eindeutig: Paare, die einvernehmlich Kinks erkunden und klare Tabugrenzen definieren, weisen signifikant höhere Beziehungszufriedenheit, tiefere emotionale Intimität und eine stabilere Bindung auf als der Durchschnitt. Eure Wünsche sind vollkommen gesund, normal und eine Bereicherung eurer Partnerschaft.`;
-
+  function generateClientSidePairReport(names, doubleFivesCount, bridgesCount, tabusCount) {
     return {
-      synergy: synergyText,
-      dynamics: dynamicsText,
-      action_tip: actionTip,
-      science_insight: scienceInsight
+      synergy: `${names.A} und ${names.B} teilen ein kraftvolles, komplementäres erotisches Spannungsfeld. Mit ${doubleFivesCount} beiderseitigen Volltreffern verfügt ihr über eine solide Basis unmittelbarer Lust, die ohne Zögern gelebt werden kann. Eure Antworten spiegeln ein tiefes Bedürfnis nach Authentizität, Loslassen und gegenseitiger Präsenz wider.`,
+      bridges: `Besonders wertvoll sind eure ${bridgesCount} identifizierten Brücken. Hier treffen Neugier und die Bereitschaft zur Duldung für den Partner aufeinander. Sexualpsychologisch (u. a. Canivet 2025; Wismeijer 2013) sind genau diese Zonen der Nährboden für langfristige Leidenschaft: Sie laden ein zu behutsamen Experimenten im geschützten Raum, ohne dass jemals Druck entsteht.`,
+      safety: `Mit ${tabusCount} definierten Tabus beweist ihr eine gesunde, reife Grenzziehung. Wahre erotische Hingabe kann nur dort entstehen, wo das 'Nein' absolut heilig ist. Eure Vereinbarungen bieten das perfekte Sicherheitsnetz, in dem beide Partner die Kontrolle vertrauensvoll abgeben dürfen.`
     };
   }
 
-  async function generateAiPairReport() {
-    var out = document.getElementById('ai-pair-report-output');
-    var btn = document.getElementById('btn-generate-ai-pair');
-    if (btn) btn.innerHTML = "<span>⏳ Analysiere Paardynamik...</span>";
+  async function generatePairReport() {
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var answers = window.answers || { A: {}, B: {} };
+    var synergy = calculatePairSynergy();
 
-    var apiKey = localStorage.getItem('kompass_gemini_api_key') || 'AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw';
-    var nameA = names.A || 'Partner 1';
-    var nameB = names.B || 'Partner 2';
+    var container = document.getElementById('pair-report-container');
+    if (container) {
+      container.innerHTML = `
+        <div class="theme-card rounded-3xl p-8 border text-center space-y-3 shadow-md animate-pulse">
+          <div class="w-10 h-10 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mx-auto"></div>
+          <strong class="text-xs text-amber-200 block font-bold">Erstelle tiefenpsychologisches Paargutachten...</strong>
+          <p class="text-[10.5px] text-slate-400">Gemini analysiert eure Doppel-5er, Brücken und Schutzgrenzen.</p>
+        </div>
+      `;
+    }
 
-    var harmony = document.getElementById('kpi-harmony') ? document.getElementById('kpi-harmony').innerText : '0 %';
-    var d5 = document.getElementById('kpi-doppel5') ? document.getElementById('kpi-doppel5').innerText : '0';
-    var bridges = document.getElementById('kpi-bridges') ? document.getElementById('kpi-bridges').innerText : '0';
-    var tabus = document.getElementById('kpi-tabus') ? document.getElementById('kpi-tabus').innerText : '0';
+    var apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
 
-    var pA_Power = document.getElementById('pair-val-power') ? document.getElementById('pair-val-power').innerText : '';
-    var pA_Sens = document.getElementById('pair-val-sensation') ? document.getElementById('pair-val-sensation').innerText : '';
+    var prompt = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Paar- und Sexualtherapeutin.
+Erstelle ein warmherziges, inspirierendes und absolut schamfreies Paargutachten für ${names.A} und ${names.B}.
 
-    var promptText = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Paartherapeutin und Sexualberaterin.
-Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Paargutachten für ${nameA} und ${nameB}.
+DATEN ZUR SYNERGIE:
+- Beiderseitige Doppel-5er Matches: ${synergy.doubleFives.length}
+- Brückenbau-Potenziale (5 zu 3 / 2): ${synergy.bridges.length}
+- Definierte Veto-Tabus (Note 1): ${synergy.tabus.length}
 
-DATENBASIS DES PAARES:
-- Basisharmonie: ${harmony}
-- Gemeinsame Höchstlust (Doppel-5er Matches): ${d5}
-- Brückenbau-Chancen (Wunsch trifft Neugier/Duldung): ${bridges}
-- Definierte Tabu-Schutzschranken: ${tabus}
-- Macht-Verteilung: ${pA_Power}
-- Sensorik/Schmerz: ${pA_Sens}
+TONFALL:
+- Warmherzig, befreiend, partnerschaftlich ("Ihr"-Form).
+- Würdige Tabus als wertvolle Sicherheitsgrenzen, die Hingabe erst möglich machen.
+- Übersetze Kink-Motive in gesunde relationale Grundbedürfnisse.
 
-TONFALL & FORMULIERUNG:
-- Sprich die beiden direkt, warm und wertschätzend als Paar an ("Ihr beide...", "Zwischen euch...").
-- Vermeide kaltes Fachchinesisch oder medizinische Distanz! Übersetze psychologische Erkenntnisse in lebendige, greifbare Sprache, die Lust auf gemeinsame Entdeckungen macht.
-- Keine moralischen Bewertungen. Feiere ihre Offenheit und Bestätigung ihrer Grenzen.
-
-Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
+Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
 {
-  "synergy": "Wo liegt die größte emotionale und erotische Kraft der beiden? Welche Leidenschaften verbinden sie am stärksten? (3 bis 5 bildhafte Sätze)",
-  "dynamics": "Wie greifen Führung (Top) und Hingabe (Bottom) bei den beiden ineinander? Wie ergänzen sie sich gegenseitig? (3 bis 5 feinfühlige Sätze)",
-  "action_tip": "Ein konkreter, spielerischer Vorschlag für ihre nächste gemeinsame Session in der Schlafzimmer-Regie, der ihre Stärken aufgreift. (3 bis 4 inspirierende Sätze)",
-  "science_insight": "Eine kurze, befreiende wissenschaftliche Einordnung (z. B. Sagarin 2009 / Wismeijer 2013 / Canivet 2025), warum einvernehmliche Rollenspiele, Kinks und klare Grenzen die Beziehungszufriedenheit und Bindung nachweislich stärken. (2 bis 3 ermutigende Sätze)"
+  "synergy": "Eure Beziehungs- und Machtdynamik (3 bis 5 Sätze)",
+  "bridges": "Schamfreie Würdigung der Brücken und Wachstumspotenziale (3 bis 5 Sätze)",
+  "safety": "Vertrauenskultur und Schutz der Grenzen (3 bis 4 Sätze)"
 }`;
 
-    // WICHTIG: Keine thinkingConfig-Parameter mitsenden, um den Google-Billing/Prepayment-Bug auf Free-Tier-Projekten zu verhindern
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
-    var success = false;
-    var finalData = null;
+    var finalReport = null;
 
     for (var i = 0; i < candidateModels.length; i++) {
       var targetModel = candidateModels[i];
-
       try {
         var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
+            contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
               temperature: 0.3,
               responseMimeType: "application/json"
@@ -746,7 +469,6 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
           var resData = await resp.json();
           var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
           var parsedData = null;
-
           try {
             parsedData = JSON.parse(rawJson);
           } catch (pe) {
@@ -755,95 +477,54 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
           }
 
           if (parsedData && parsedData.synergy) {
-            finalData = parsedData;
-            success = true;
-            showToast("✓ Paargutachten erfolgreich berechnet (" + targetModel + ")");
+            finalReport = parsedData;
+            showToast("✓ Paargutachten berechnet (" + targetModel + ")");
             break;
           }
         }
-      } catch (e) {
-        // Netzwerk- oder Quota-Fehler
-      }
+      } catch (e) {}
     }
 
-    if (!success) {
-      finalData = generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pA_Power, pA_Sens);
-      showToast("✓ Paargutachten aus euren Bogen-Scores berechnet (Kostenlos)");
+    if (!finalReport) {
+      finalReport = generateClientSidePairReport(names, synergy.doubleFives.length, synergy.bridges.length, synergy.tabus.length);
+      showToast("✓ Paargutachten aus Bogenwerten berechnet (Offline-Modus)");
     }
 
-    if (finalData) {
+    if (finalReport) {
       var nowStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      var curHashA = hashString(getAnswersFingerprint(answers.A || {}));
-      var curHashB = hashString(getAnswersFingerprint(answers.B || {}));
+      var hashA = hashString(getAnswersFingerprint(answers.A));
+      var hashB = hashString(getAnswersFingerprint(answers.B));
 
       var cacheEntry = {
-        report: finalData,
-        hashA: curHashA,
-        hashB: curHashB,
+        report: finalReport,
+        hashA: hashA,
+        hashB: hashB,
         generatedAt: nowStr
       };
 
       try {
         localStorage.setItem('kompass_cached_pair_report', JSON.stringify(cacheEntry));
-      } catch (se) {}
+      } catch (e) {}
 
-      renderPairReportCards(finalData, out, false, "", nowStr);
+      if (container) {
+        container.innerHTML = renderPairReportHtml(finalReport, false, nowStr, "");
+      }
     }
-
-    if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
   }
 
-  function showToast(msg) {
-    var c = document.getElementById('toast-container');
-    if (!c) return;
-    var el = document.createElement('div');
-    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-    el.innerText = msg;
-    c.appendChild(el);
-
-    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-    setTimeout(function() {
-      el.classList.add('opacity-0');
-      setTimeout(function() { el.remove(); }, 300);
-    }, 2500);
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  window.PairAnalysis = {
-    loadData: loadAnalysisData,
-    unlockGate: unlockAnalysisGate,
-    computeMetrics: computePairMetrics,
-    switchFilter: switchPairDetailFilter,
-    generateReport: generateAiPairReport,
-    showToast: showToast
+  window.PairAnalysisEngine = {
+    render: renderPairAnalysis,
+    generateReport: generatePairReport,
+    getSynergy: calculatePairSynergy
   };
 
-  // Globale Aliase für HTML-Event-Handler
-  window.unlockAnalysisGate = unlockAnalysisGate;
-  window.switchPairDetailFilter = switchPairDetailFilter;
-  window.generateAiPairReport = generateAiPairReport;
-  window.showToast = showToast;
+  window.renderPairAnalysis = renderPairAnalysis;
+  window.generatePairReport = generatePairReport;
 
-  window.addEventListener('DOMContentLoaded', function() {
-    loadAnalysisData();
-    try {
-      if (sessionStorage.getItem('kompass_gate_unlocked') === 'true') {
-        var gate = document.getElementById('password-gate');
-        var content = document.getElementById('analysis-content');
-        if (gate) gate.classList.add('hidden');
-        if (content) content.classList.remove('hidden');
-        computePairMetrics();
-      }
-    } catch (e) {}
-  });
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', renderPairAnalysis);
+  } else {
+    setTimeout(renderPairAnalysis, 100);
+  }
 
 })(window);
