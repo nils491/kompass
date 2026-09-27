@@ -13,6 +13,10 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
     })();
 
     tailwind.config = {
@@ -99,7 +103,11 @@
           </div>
         </a>
 
+        <!-- QUICK BUTTONS: GUIDE & REGIE -->
         <div class="flex items-center gap-1.5 flex-shrink-0">
+          <a href="guide.html" class="px-2.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/80 text-amber-200 font-extrabold text-xs flex items-center gap-1 shadow-sm touch-btn" title="Ausführlicher BDSM- & Vertrauens-Guide">
+            <span>📖</span><span class="hidden sm:inline">BDSM-Guide</span>
+          </a>
           <a href="session.html" class="px-3 py-1.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-100 font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
             <span>Regie 🕯️</span>
           </a>
@@ -123,6 +131,9 @@
         <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
           <span>Paar-Analyse</span>
         </button>
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-amber-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Guide 📖</span>
+        </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Regie 🕯️</span>
         </a>
@@ -132,6 +143,29 @@
 
   <!-- HAUPTINHALT -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
+
+    <!-- BDSM-GUIDE PROMINENTES BANNER OBEN -->
+    <a href="guide.html" class="block p-4 sm:p-5 rounded-3xl border border-amber-600/70 bg-gradient-to-r from-amber-950/60 via-noir-900 to-amber-950/30 hover:border-amber-400 transition-all touch-btn group shadow-xl">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-amber-900/80 border border-amber-600 text-amber-200 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-105 transition-transform">
+            📖
+          </div>
+          <div class="min-w-0">
+            <span class="text-[9.5px] font-black uppercase tracking-wider text-amber-300 block">Wissen & Vertrauen</span>
+            <strong class="text-xs sm:text-sm text-white font-black block group-hover:text-amber-300 truncate">
+              Wie geht BDSM wirklich? Der große Einsteiger- & Vertrauens-Guide ↗
+            </strong>
+            <p class="text-[10.5px] text-slate-300 truncate mt-0.5">
+              Was ist der Reiz? SSC & RACK, Scham-Entlastung, warum Strafen wirken & wie geführte Sessions helfen.
+            </p>
+          </div>
+        </div>
+        <span class="px-3 py-1.5 rounded-xl bg-amber-600 text-white font-extrabold text-xs flex-shrink-0 shadow-md group-hover:bg-amber-500 transition">
+          Öffnen →
+        </span>
+      </div>
+    </a>
 
     <!-- PASSWORT- / SCHAMSCHUTZ-GATE (FALLS AKTIVIERT ODER GESPERRT) -->
     <div id="pair-lock-screen" class="hidden p-6 sm:p-8 theme-card rounded-3xl border border-amber-600/50 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
@@ -254,8 +288,8 @@
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="js/cloud_sync.js?v=4.2"></script>
-  <script src="js/pair_analysis.js?v=4.2"></script>
+  <script src="js/cloud_sync.js?v=4.4"></script>
+  <script src="js/pair_analysis.js?v=4.4"></script>
 
   <script>
     function checkPairUnlock() {
