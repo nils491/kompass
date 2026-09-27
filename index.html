@@ -595,11 +595,9 @@
             <button type="button" onclick="HubToys.toggleNewToyForm()" id="btn-toggle-new-toy" class="px-3 py-2 rounded-xl bg-purple-900/90 hover:bg-purple-800 border border-purple-700 text-purple-200 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
               <span>+</span><span>Neues Toy</span>
             </button>
-            <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[10px]">
-              <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold" title="Alle Katalog-Gegenstände aktivieren">Alles da</button>
-              <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1.5 rounded-lg text-amber-300 hover:text-amber-200 font-bold" title="Nur Haushaltsgegenstände">Haushalt</button>
-              <button type="button" onclick="HubToys.promptClearInventory()" class="px-2 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 font-bold" title="Inventar leeren">Leeren</button>
-            </div>
+            <button type="button" onclick="HubToys.promptClearInventory()" class="px-3 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-300 font-bold text-xs shadow-sm flex items-center gap-1" title="Inventar leeren">
+              <span>🗑️</span><span>Leeren</span>
+            </button>
           </div>
         </div>
 
