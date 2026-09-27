@@ -1,4 +1,5 @@
-ok<html lang="de" class="dark">
+<!DOCTYPE html>
+<html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -180,6 +181,40 @@ ok<html lang="de" class="dark">
     </div>
   </header>
 
+  <!-- MOBILE DRAWER -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
+    <div class="space-y-4">
+      <!-- DRAWER HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-900 to-rose-500 border border-brand-500/40 text-white flex items-center justify-center font-bold text-sm">
+            🧭
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
+            <span id="mobile-drawer-pair-names" class="text-[10px] text-slate-400 font-medium block">Partner 1 & Partner 2</span>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
+          ✕
+        </button>
+      </div>
+
+      <!-- PARTNER-UMSCHALTER IM DRAWER -->
+      <div class="space-y-1">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block px-1">Aktives Profil auf diesem Gerät:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="mobile-drawer-btn-A" onclick="setCurrentUser('A')" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition bg-brand-700 border-brand-500 text-white shadow-md">
+            <span class="text-[10px] block opacity-75">Partner 1:</span>
+            <span id="mobile-drawer-name-A" class="truncate block">Partner 1</span>
+          </button>
+          <button type="button" id="mobile-drawer-btn-B" onclick="setCurrentUser('B')" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition theme-panel text-slate-400">
+            <span class="text-[10px] block opacity-75">Partner 2:</span>
+            <span id="mobile-drawer-name-B" class="truncate block">Partner 2</span>
+          </button>
+        </div>
+      </div>
+
       <!-- NAVIGATIONSLINKS -->
       <div class="space-y-1.5 pt-1">
         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block px-1">Bereiche:</span>
@@ -325,7 +360,7 @@ ok<html lang="de" class="dark">
           <p class="text-[11px] text-slate-400 leading-snug">Archetypen-Radar, 5 Motivationssäulen und persönliches KI-Einzelgutachten.</p>
         </button>
 
-        <!-- KACHEL 5: PAAR-ANALYSE (EINDEUTIG ZU analyse.html) -->
+        <!-- KACHEL 5: PAAR-ANALYSE -->
         <a href="analyse.html" class="p-4 rounded-2xl theme-card border border-amber-800/80 hover:border-amber-400 text-left space-y-2 transition-all touch-btn group block bg-gradient-to-br from-amber-950/30 via-noir-900 to-amber-950/10 shadow-sm" title="Eure Paar-Analyse öffnen">
           <div class="flex items-center justify-between">
             <span class="text-xl">💫</span>
@@ -994,14 +1029,14 @@ ok<html lang="de" class="dark">
   <script src="data/toy_combinatorics.js?v=4.6"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.6) -->
-  <script src="js/cloud_sync.js?v=4.6"></script>
+  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V5.0) -->
+  <script src="js/cloud_sync.js?v=5.0"></script>
   <script src="js/hub_toys.js?v=4.6"></script>
   <script src="js/kink_research.js?v=4.6"></script>
   <script src="js/hub_modals.js?v=4.6"></script>
   <script src="js/survey.js?v=4.6"></script>
   <script src="js/profile.js?v=4.6"></script>
-  <script src="js/app.js?v=4.6"></script>
+  <script src="js/app.js?v=5.0"></script>
 
   <!-- BURGER MENÜ CONTROLLER -->
   <script>
