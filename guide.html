@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>BDSM & Vertrauens-Kodex – Kink- & Beziehungs-Kompass</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function() {
+      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              950: '#4c0519',
+            },
+            noir: {
+              950: '#000000',
+              900: '#05070c',
+              850: '#0a0e17',
+              800: '#101726',
+              700: '#172238',
+              600: '#233454',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+    
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+    }
+    
+    html.dark body { background-color: #000000 !important; color: #f8fafc !important; }
+    html.dark .theme-card { background-color: #060911 !important; border-color: #172033 !important; color: #f8fafc !important; }
+    html.dark .theme-panel { background-color: #0b111e !important; border-color: #1e2b44 !important; color: #e2e8f0 !important; }
+
+    html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
+    html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
+
+    .touch-btn {
+      min-height: 44px;
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .touch-btn:active {
+      transform: scale(0.98);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <a href="analyse.html" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-brand-600 to-purple-600 border border-amber-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <div class="truncate">
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">BDSM- & Vertrauens-Kodex</h1>
+            <span class="text-[9.5px] text-amber-300 font-medium block truncate mt-0.5">Leitfaden für Paare & Einsteiger</span>
+          </div>
+        </a>
+
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-700 to-brand-600 text-white font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
+            <span>Zur Regie 🕯️</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- MAIN NAVIGATION -->
+      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+        <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Start-Hub</span>
+        </a>
+        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Fragebogen</span>
+        </a>
+        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Sicherheits-Kodex</span>
+        </a>
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Mein Profil</span>
+        </a>
+        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Paar-Analyse</span>
+        </a>
+        <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
+          <span>BDSM-Guide 📖</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HAUPTINHALT (AUSFÜHRLICHER GUIDE, MINDESTENS 1 DIN A4 SEITE) -->
+  <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
+
+    <!-- HERO BANNER -->
+    <div class="theme-card rounded-3xl p-6 sm:p-8 border border-amber-900/60 shadow-2xl relative overflow-hidden bg-gradient-to-br from-amber-950/40 via-noir-900 to-purple-950/20">
+      <div class="max-w-2xl space-y-2.5">
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
+          Grundlagen & Psychologie
+        </span>
+        <h2 class="text-xl sm:text-3xl font-black text-white leading-tight">
+          Wie geht BDSM wirklich?
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Ein ehrlicher, befreiender Leitfaden über den wahren Reiz von Macht und Hingabe, die wissenschaftliche Entlastung von Schamgefühlen und die Kunst des sicheren Spiels im Schlafzimmer.
+        </p>
+      </div>
+    </div>
+
+    <!-- KAPITEL 1: DER PSYCHOLOGISCHE REIZ -->
+    <section class="theme-card rounded-3xl p-5 sm:p-7 border space-y-3.5 shadow-md">
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <span class="text-xl">✨</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-white">1. Der wahre Reiz: Warum Macht und Hingabe faszinieren</h3>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 font-normal">
+        <p>
+          BDSM (Bondage & Disziplin, Dominanz & Unterwerfung, Sadismus & Masochismus) ist kein Zeichen von Gestörtheit oder emotionaler Kälte – im Gegenteil: Die moderne Sexualpsychologie (u. a. <em>Wismeijer & Assen, 2013; Canivet, 2025</em>) belegt eindeutig, dass Menschen, die BDSM einvernehmlich praktizieren, im Durchschnitt über eine <strong>höhere Beziehungsausgeglichenheit, stärkere emotionale Differenzierungsfähigkeit und tiefere Partnerschaftszufriedenheit</strong> verfügen als der Bevölkerungsdurchschnitt.
+        </p>
+        <p>
+          Doch worin liegt der eigentliche Zauber?
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-brand-300 block text-xs">🧎 Für den Bottom (Die Befreiung vom Müssen):</strong>
+            <p class="text-[11.5px] text-slate-300 leading-snug">
+              Im Alltag tragen wir ununterbrochen Verantwortung: Entscheidungen treffen, funktionieren, kontrollieren. Sich als Bottom vertrauensvoll fesseln zu lassen oder einem Top zu dienen, bedeutet die ultimative Entlastung: <em>„Ich muss gerade nichts entscheiden. Ich darf die Kontrolle abgeben. Jemand anderes führt und beschützt mich.“</em> Dieser Zustand führt oft in den heilsamen <strong>Subspace</strong> – eine tiefe, meditative Trance mit massiver Endorphin-Ausschüttung.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <strong class="text-indigo-300 block text-xs">👑 Für den Top (Präsenz & Verantwortung):</strong>
+            <p class="text-[11.5px] text-slate-300 leading-snug">
+              Dominanz im BDSM hat nichts mit Egoismus zu tun. Ein guter Top ist zu 100 % achtsam und empathisch: Er liest die Atmung, die Muskelanspannung und die Pupillen des Partners. Es ist die Kunst, einen Raum absoluter Sicherheit zu erschaffen, in dem der andere sich fallenlassen kann, während der Top liebevoll, bestimmt und souverän die Regie führt.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KAPITEL 2: NIEMAND IST PERVERS – DAS SCHAM-PHÄNOMEN -->
+    <section class="theme-card rounded-3xl p-5 sm:p-7 border border-indigo-900/60 space-y-3.5 shadow-md bg-gradient-to-br from-indigo-950/20 via-noir-900 to-purple-950/20">
+      <div class="flex items-center gap-2 border-b border-indigo-900/60 pb-2">
+        <span class="text-xl">🙈</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-white">2. Niemand ist pervers: Das Phänomen Scham & Verlangen</h3>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 font-normal">
+        <p>
+          Einer der größten Hemmschuhe in Beziehungen ist die <strong>Scham</strong>. Viele Menschen tragen heimliche Wünsche in sich: die Sehnsucht nach Versohlen, nach Fesseln, nach Keuschheit, nach Facesitting, nach strenger Disziplin oder bestimmten Reizwäsche-Stücken – und fühlen sich dafür schuldig oder „schmutzig“.
+        </p>
+        <div class="p-4 rounded-2xl bg-indigo-950/50 border border-indigo-700/80 space-y-2">
+          <strong class="text-xs sm:text-sm text-indigo-200 block font-bold">💡 Das erotische Paradoxon: Wo Scham auf Annahme trifft, entsteht Ekstase</strong>
+          <p class="text-[11.5px] text-indigo-100 leading-relaxed">
+            Scham ist in der menschlichen Psyche der biologische Wächter vor den verletzlichsten, intimsten Zonen unseres Herzens. Wenn du etwas extrem erregend findest, dich aber davor schämst, fürchtest du in Wahrheit die Ablehnung deines Partners.
+          </p>
+          <p class="text-[11.5px] text-indigo-100 leading-relaxed">
+            Reagiert der Partner nun aber nicht mit Verurteilung, sondern mit liebevoller Selbstverständlichkeit – oder fordert diese Sehnsucht im Spiel sogar fordernd ein (<em>„Zieh das für mich an und knie dich vor mich!“</em>) –, geschieht ein psychologischer Durchbruch: <strong>Die Scham löst sich schlagartig auf und schlägt in maximale Erregung, Erleichterung und tiefe Hingabe um.</strong> Was zuvor belastend war, wird zur Erfüllung der tiefsten Fantasien.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- KAPITEL 3: DAS GOLDENE PRINZIP – SSC, RACK & KEINE ECHTE WUT -->
+    <section class="theme-card rounded-3xl p-5 sm:p-7 border space-y-3.5 shadow-md">
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <span class="text-xl">🛡️</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-white">3. Der Sicherheits-Rahmen: SSC, RACK und die Spiel-Illusion</h3>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 font-normal">
+        <p>
+          BDSM unterscheidet sich fundamental von Gewalt oder Missbrauch durch einen einzigen Faktor: <strong>Einvernehmlichkeit (Konsens)</strong>.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 space-y-1">
+            <strong class="text-teal-300 block text-xs">SSC (Safe, Sane, Consensual):</strong>
+            <p class="text-[11.5px] text-slate-300 leading-snug">
+              Sicher (physische Risiken minimieren), vernünftig (bei klarem Verstand, keine Drogen/Alkohol) und einvernehmlich (beide wollen es freiwillig).
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-800 space-y-1">
+            <strong class="text-amber-300 block text-xs">RACK (Risk-Aware Consensual Kink):</strong>
+            <p class="text-[11.5px] text-slate-300 leading-snug">
+              Risiko-bewusstes Spiel: Man erkennt an, dass Schmerz oder Seile Risiken bergen, bereitet sich professionell vor und übernimmt gemeinsam die Verantwortung.
+            </p>
+          </div>
+        </div>
+        <div class="p-4 rounded-2xl bg-rose-950/30 border border-rose-800/80 space-y-1.5">
+          <strong class="text-rose-200 block text-xs sm:text-sm font-bold">⛔ Die eiserne Regel: Niemals echte Wut im Spiel</strong>
+          <p class="text-[11.5px] text-slate-200 leading-relaxed">
+            BDSM ist eine Theaterbühne, ein erotisches Rollenspiel. <strong>Es wird niemals gespielt, um echten Alltagsärger, Frust oder Beziehungskonflikte abzureagieren.</strong> Die Strenge des Tops ist eine gespielte Rolle (Persona) im Dienst des gemeinsamen Genusses. Wenn echte Wut im Raum ist, wird nicht gespielt. Punkt.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- KAPITEL 4: STRAFEN & WIE SIE WIRKEN -->
+    <section class="theme-card rounded-3xl p-5 sm:p-7 border space-y-3.5 shadow-md">
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <span class="text-xl">⚖️</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-white">4. Disziplin & Strafen: Warum Zucht erlösend sein kann</h3>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 font-normal">
+        <p>
+          Für Außenstehende klingen „Strafen“ nach Bestrafung im Sinne der Justiz. Im BDSM ist eine Strafe jedoch ein <strong>intimes Ritual der Sühne und Entlastung</strong>.
+        </p>
+        <ul class="space-y-2 list-disc list-inside text-[11.5px] text-slate-300">
+          <li><strong>Abschluss von Schuldgefühlen:</strong> Wenn wir im Alltag etwas falsch gemacht haben (z. B. unaufmerksam waren), nagen oft unterschwellige Schuldgefühle. Ein formeller Zuchtakt (z. B. 15 Schläge über das Knie mit anschließendem Dank) schließt die Sache rituell ab. Die Schuld ist physisch „abgegolten“, man ist wieder rein und wird liebevoll in den Arm genommen.</li>
+          <li><strong>Katharsis & Durchblutung:</strong> Gezielter Reiz (Spanking, Flogger) führt zu massiver Endorphin-Ausschüttung. Der Schmerz brennt kurz auf, weicht dann einer tiefen, samtigen Wärme und versetzt den Körper in eine wohlige Trance.</li>
+          <li><strong>Feste Begrenzung:</strong> Zu wissen, dass der Top klare Regeln setzt und bei Verfehlungen unnachgiebig aber fair reagiert, gibt dem Bottom ein enormes Gefühl von Halt und Geborgenheit.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- KAPITEL 5: DIE 4 PHASEN EINER GELUNGENEN SESSION -->
+    <section class="theme-card rounded-3xl p-5 sm:p-7 border space-y-3.5 shadow-md">
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <span class="text-xl">🛋️</span>
+        <h3 class="text-sm sm:text-base font-extrabold text-white">5. Der Ablauf: Warum für Einsteiger geführte Sessions perfekt sind</h3>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 font-normal">
+        <p>
+          Besonders zu Beginn stehen Paare oft vor der Frage: <em>„Wie fangen wir an? Wer sagt was? Wann hört man auf?“</em>. Wenn der Top sich unsicher fühlt, leidet die Dominanz; wenn der Bottom Zweifel hat, kann er sich nicht fallenlassen.
+        </p>
+        <p>
+          Genau deshalb haben wir in der <strong>Schlafzimmer-Regie</strong> das 4-Phasen-Drehbuch entwickelt. Es nimmt den Druck von beiden Schultern:
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-xs pt-1">
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <span class="text-[10px] font-bold text-brand-300 uppercase">Phase 1</span>
+            <strong class="text-white block">Warm-up & Erdung</strong>
+            <p class="text-[10.5px] text-slate-400">Atemsynchronisation, Blickkontakt, sanfte Sinnesreduktion und Ankommen im Raum.</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <span class="text-[10px] font-bold text-indigo-300 uppercase">Phase 2</span>
+            <strong class="text-white block">Macht & Begrenzung</strong>
+            <p class="text-[10.5px] text-slate-400">Fixierung der Hände, Kniestand (Nadu), Übernehmen der physischen Kontrolle.</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <span class="text-[10px] font-bold text-pink-300 uppercase">Phase 3</span>
+            <strong class="text-white block">Katharsis & Zucht</strong>
+            <p class="text-[10.5px] text-slate-400">Reizintensivierung, Spanking, Edging-Quälerei an der Kante und Zucht.</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+            <span class="text-[10px] font-bold text-teal-300 uppercase">Phase 4</span>
+            <strong class="text-white block">Aftercare & Decken</strong>
+            <p class="text-[10.5px] text-slate-400">Lösen der Fesseln, warme Decken, Halten, Wasser und emotionale Geborgenheit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION: DIREKTER LINK ZUR REGIE -->
+    <div class="theme-card rounded-3xl p-6 sm:p-8 border border-rose-500/50 text-center space-y-4 shadow-2xl bg-gradient-to-r from-rose-950/60 via-brand-950/80 to-purple-950/60">
+      <span class="text-3xl block">🕯️</span>
+      <div class="space-y-1.5 max-w-md mx-auto">
+        <h3 class="text-base sm:text-xl font-black text-white">Bereit für eure erste geführte Session?</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Lasst die Theorie hinter euch. Wechselt in die Schlafzimmer-Regie, wählt euer Drehbuch oder den freien Flow und erlebt sichere, geführte Intimität.
+        </p>
+      </div>
+      <div class="flex justify-center gap-3 pt-1">
+        <a href="session.html" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-brand-600 to-rose-600 hover:opacity-90 text-white font-black text-xs sm:text-sm touch-btn shadow-xl flex items-center gap-2">
+          <span>🕯️ Jetzt zur Schlafzimmer-Regie</span><span>→</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="text-center py-4 border-t border-slate-900 text-[10px] text-slate-600">
+    Kink- & Beziehungs-Kompass · Wissenschaftlicher Sicherheits- & Vertrauens-Kodex
+  </footer>
+
+</body>
+</html>
