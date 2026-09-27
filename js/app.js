@@ -10,6 +10,7 @@
  * - Sicherheits-Kodex-Konfigurator (6 Module mit Echtzeit-Konsensabgleich)
  * - Start-Hub KPI-Aktualisierung (Fortschritt, Tabu-Zähler, Toy-Badge)
  * - Anbindung an CloudSync (Hintergrund-Trigger & Live-Empfang)
+ * - Deep-Linking zu Fragen im Bogen via goToSurveyItem
  */
 
 (function(window) {
@@ -390,49 +391,4 @@
   function goToSurveyItem(itemId) {
     switchMainView('survey');
     setTimeout(function() {
-      if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
-        window.SurveyEngine.jumpToItem(itemId);
-      }
-    }, 100);
-  }
-
-  function initApp() {
-    loadCoreData();
-    updateUserToggleUI();
-    handleHashNavigation();
-    updateHubUI();
-
-    window.addEventListener('hashchange', handleHashNavigation);
-
-    if (window.CloudSync && typeof window.CloudSync.addListener === 'function') {
-      window.CloudSync.addListener(function(evt, data) {
-        if (evt === 'data_received') {
-          loadCoreData();
-          updateUserToggleUI();
-          updateHubUI();
-          if (currentView === 'survey' && window.SurveyEngine) window.SurveyEngine.render();
-          if (currentView === 'single' && window.ProfileEngine) window.ProfileEngine.render();
-          if (currentView === 'safety') renderSafetyConfig();
-        }
-      });
-    }
-  }
-
-  // Globale Registrierungen für window
-  window.setCurrentUser = setCurrentUser;
-  window.switchMainView = switchMainView;
-  window.saveCoreData = saveCoreData;
-  window.saveSafetyOption = saveSafetyOption;
-  window.renderSafetyConfig = renderSafetyConfig;
-  window.updateHubUI = updateHubUI;
-  window.updateUserToggleUI = updateUserToggleUI;
-  window.showToast = showToast;
-  window.goToSurveyItem = goToSurveyItem;
-
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initApp);
-  } else {
-    initApp();
-  }
-
-})(window);
+      if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem ===
