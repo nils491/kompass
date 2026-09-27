@@ -3,10 +3,10 @@
  * Ende-zu-Ende verschlüsselte (E2EE) Synchronisations-Engine für den Kink- & Beziehungs-Kompass.
  * 
  * Beinhaltet:
- * - AES-GCM 256-Bit Verschlüsselung über die native Browser Web Crypto API (PBKDF2 Schlüsselableitung)
- * - Robuster, CORS-offener Raum-Endpunkt ohne HTTP-Header-Restriktionen
- * - Sofort-Transfer (Export/Import per Text-Schlüssel und URL-Hash)
- * - Intelligentes Polling mit automatischem Stopp im Hintergrund
+ * - Vollständige Erfassung ALLER Einstellungen (API-Key, Rufnamen, Anatomie, Zoom, Theme, Stimme)
+ * - Robuste Übertragung großer Datenpakete (ntfy 15-MB-Attachment-Support)
+ * - Intelligenter Deep-Merge aller Fragebogen-Antworten (Partner 1 & Partner 2)
+ * - Ausfallsicherer Sofort-Transfer
  */
 
 (function(window) {
@@ -119,6 +119,13 @@
     var slA = localStorage.getItem('kompass_sharing_level_A');
     var slB = localStorage.getItem('kompass_sharing_level_B');
 
+    // EINSTELLUNGEN VOLLSTÄNDIG MITERFASSEN
+    var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
+    var theme = localStorage.getItem('kompass_theme') || 'dark';
+    var textZoom = localStorage.getItem('kompass_text_zoom') || '100';
+    var voice = localStorage.getItem('kompass_session_voice') || 'Despina';
+    var voiceAssist = localStorage.getItem('kompass_voice_assist_active') || 'false';
+
     return {
       answers: rawAnswers ? JSON.parse(rawAnswers) : (window.answers || { A: {}, B: {} }),
       names: rawNames ? JSON.parse(rawNames) : (window.names || { A: 'Partner 1', B: 'Partner 2' }),
@@ -131,6 +138,14 @@
         A: slA ? parseInt(slA, 10) : 4,
         B: slB ? parseInt(slB, 10) : 4
       },
+      settings: {
+        geminiApiKey: apiKey,
+        theme: theme,
+        textZoom: textZoom,
+        sessionVoice: voice,
+        voiceAssist: voiceAssist,
+        onboarded: true
+      },
       lastSenderRole: myAssignedRole,
       clientTimestamp: Date.now()
     };
@@ -140,7 +155,7 @@
     if (!answersObj || typeof answersObj !== 'object') return 0;
     var count = 0;
     Object.keys(answersObj).forEach(function(k) {
-      if (k.indexOf('_note') === -1 && typeof answersObj[k] === 'number') count++;
+      if (k.indexOf('_note') === -1) count++;
     });
     return count;
   }
@@ -156,30 +171,40 @@
       activeEquipmentIds: [],
       customEquipment: [],
       sessionDiary: [],
-      sharingLevels: { A: 4, B: 4 }
+      sharingLevels: { A: 4, B: 4 },
+      settings: {}
     };
 
-    merged.answers.A = Object.assign({}, remote.answers?.A || {}, local.answers?.A || {});
-    merged.answers.B = Object.assign({}, remote.answers?.B || {}, local.answers?.B || {});
+    // Antworten zusammenführen: Alle vorhandenen Antworten beibehalten
+    merged.answers.A = Object.assign({}, local.answers?.A || {}, remote.answers?.A || {});
+    merged.answers.B = Object.assign({}, local.answers?.B || {}, remote.answers?.B || {});
 
-    if (countAnsweredQuestions(remote.answers?.A) > countAnsweredQuestions(local.answers?.A)) {
+    // Falls ein Gerät mehr Antworten hat, werden diese vollständig übernommen
+    if (countAnsweredQuestions(remote.answers?.A) >= countAnsweredQuestions(local.answers?.A)) {
       merged.answers.A = Object.assign({}, local.answers?.A || {}, remote.answers?.A || {});
     }
-    if (countAnsweredQuestions(remote.answers?.B) > countAnsweredQuestions(local.answers?.B)) {
+    if (countAnsweredQuestions(remote.answers?.B) >= countAnsweredQuestions(local.answers?.B)) {
       merged.answers.B = Object.assign({}, local.answers?.B || {}, remote.answers?.B || {});
     }
 
+    // Namen
     merged.names.A = (remote.names?.A && remote.names.A !== 'Partner 1') ? remote.names.A : (local.names?.A || 'Partner 1');
     merged.names.B = (remote.names?.B && remote.names.B !== 'Partner 2') ? remote.names.B : (local.names?.B || 'Partner 2');
+
+    // Anatomie & Sicherheit
     merged.anatomy.A = remote.anatomy?.A || local.anatomy?.A || 'penis';
     merged.anatomy.B = remote.anatomy?.B || local.anatomy?.B || 'vulva';
 
-    merged.safetyConfig.A = Object.assign({}, remote.safetyConfig?.A || {}, local.safetyConfig?.A || {});
-    merged.safetyConfig.B = Object.assign({}, remote.safetyConfig?.B || {}, local.safetyConfig?.B || {});
+    merged.safetyConfig.A = Object.assign({}, local.safetyConfig?.A || {}, remote.safetyConfig?.A || {});
+    merged.safetyConfig.B = Object.assign({}, local.safetyConfig?.B || {}, remote.safetyConfig?.B || {});
 
     merged.sharingLevels.A = remote.sharingLevels?.A || local.sharingLevels?.A || 4;
     merged.sharingLevels.B = remote.sharingLevels?.B || local.sharingLevels?.B || 4;
 
+    // Einstellungen (API-Key, Theme, Zoom, Stimme)
+    merged.settings = Object.assign({}, local.settings || {}, remote.settings || {});
+
+    // Toys & Schrank
     var equipSet = new Set([].concat(local.activeEquipmentIds || [], remote.activeEquipmentIds || []));
     merged.activeEquipmentIds = Array.from(equipSet);
 
@@ -213,6 +238,31 @@
       if (data.sharingLevels) {
         if (data.sharingLevels.A) localStorage.setItem('kompass_sharing_level_A', data.sharingLevels.A.toString());
         if (data.sharingLevels.B) localStorage.setItem('kompass_sharing_level_B', data.sharingLevels.B.toString());
+      }
+
+      // EINSTELLUNGEN WIEDERHERSTELLEN
+      if (data.settings) {
+        if (data.settings.geminiApiKey) {
+          localStorage.setItem('kompass_gemini_api_key', data.settings.geminiApiKey);
+          var keyInput = document.getElementById('account-gemini-key');
+          if (keyInput) keyInput.value = data.settings.geminiApiKey;
+        }
+        if (data.settings.theme) {
+          localStorage.setItem('kompass_theme', data.settings.theme);
+          if (data.settings.theme === 'dark') document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        }
+        if (data.settings.textZoom) {
+          localStorage.setItem('kompass_text_zoom', data.settings.textZoom);
+          if (typeof window.applyTextZoom === 'function') window.applyTextZoom(data.settings.textZoom);
+        }
+        if (data.settings.sessionVoice) {
+          localStorage.setItem('kompass_session_voice', data.settings.sessionVoice);
+        }
+        if (data.settings.voiceAssist) {
+          localStorage.setItem('kompass_voice_assist_active', data.settings.voiceAssist);
+        }
+        localStorage.setItem('kompass_onboarded', 'true');
       }
 
       window.answers = data.answers;
@@ -251,14 +301,25 @@
       var topic = getCleanTopic(activePairCode);
       var payloadString = JSON.stringify(encryptedPayload);
 
-      var resp = await fetch(NTFY_ENDPOINT + '/' + topic, {
-        method: 'POST',
+      // 15-MB-Attachment-Endpoint bei ntfy nutzen (verhindert das 4-KB-Limit)
+      var putUrl = NTFY_ENDPOINT + '/' + topic + '?filename=vault.json';
+
+      var resp = await fetch(putUrl, {
+        method: 'PUT',
         headers: {
           'Title': 'KompassSync',
           'Tags': 'shield,lock'
         },
         body: payloadString
       });
+
+      if (!resp.ok) {
+        // Fallback auf Standard-POST
+        resp = await fetch(NTFY_ENDPOINT + '/' + topic, {
+          method: 'POST',
+          body: payloadString
+        });
+      }
 
       if (!resp.ok) throw new Error("HTTP " + resp.status + " beim Cloud-Update.");
 
@@ -295,6 +356,22 @@
       for (var i = lines.length - 1; i >= 0; i--) {
         try {
           var parsedMsg = JSON.parse(lines[i]);
+          
+          // Fall 1: Anhang vorhanden (Großes Datenpaket)
+          if (parsedMsg.attachment && parsedMsg.attachment.url) {
+            try {
+              var fileResp = await fetch(parsedMsg.attachment.url, { cache: 'no-store' });
+              if (fileResp.ok) {
+                var fileData = await fileResp.json();
+                if (fileData && fileData.ciphertext && fileData.iv) {
+                  latestEncrypted = fileData;
+                  break;
+                }
+              }
+            } catch (errAttach) {}
+          }
+
+          // Fall 2: Inline-Nachricht (Kleines Datenpaket)
           if (parsedMsg.event === 'message' && parsedMsg.message) {
             var maybeEnc = JSON.parse(parsedMsg.message);
             if (maybeEnc && maybeEnc.ciphertext && maybeEnc.iv) {
@@ -373,7 +450,7 @@
 
     var success = await pullDataFromCloud();
     if (!success) {
-      await new Promise(function(r) { setTimeout(r, 600); });
+      await new Promise(function(r) { setTimeout(r, 800); });
       success = await pullDataFromCloud();
     }
 
@@ -401,9 +478,10 @@
       var merged = mergeDatasets(local, parsedData);
       applyMergedDataLocally(merged);
 
-      if (targetRole && (targetRole === 'A' || targetRole === 'B')) {
-        if (typeof window.setCurrentUser === 'function') window.setCurrentUser(targetRole);
-      }
+      var finalRole = (targetRole === 'B') ? 'B' : 'A';
+      localStorage.setItem('kompass_assigned_role', finalRole);
+      if (typeof window.setCurrentUser === 'function') window.setCurrentUser(finalRole);
+
       return true;
     } catch (e) {
       throw new Error("Ungültiges Datenformat beim Sofort-Transfer.");
@@ -451,7 +529,7 @@
         myAssignedRole = savedRole || 'A';
         isSyncPaired = true;
         startPolling();
-        setTimeout(pullDataFromCloud, 600);
+        setTimeout(pullDataFromCloud, 800);
       }
     } catch (e) {}
   }
