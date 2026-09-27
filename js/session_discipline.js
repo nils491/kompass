@@ -2,14 +2,12 @@
  * js/session_discipline.js
  * Bestrafungs- & Disziplinar-Wizard für die Schlafzimmer-Regie.
  * 
- * Features:
- * - 🎲 Würfel-Generator (Re-Roll) in JEDER Stufe für endlose, kreative Variation
- * - Kreative Kombinations-Engine: Facesitting + Genital-Impact, Klammern + Edging-Quälerei, 
- *   Eiskontrast + Spanking, orales Dienen + Fesselung
- * - Erkennt Schrank-Toys (HubToys) und bindet sie dynamisch in neue Konstellationen ein
- * - Strikter Ausschluss aller Note-1-Tabus & Berücksichtigung der Freigabestufen
- * - Scham-Faktor-Würdigung: Besondere seelische Demut bei markierten Hemmschwellen
- * - Physische Verträglichkeitsprüfung (z. B. Hände hinten vs. Selbstspanking)
+ * Qualitäts-Standards:
+ * - Ernsthafter, erwachsener BDSM-Kontext ohne schwülstige Märchenonkel-Floskeln
+ * - Begründete Rationale für Schlagzahlen und Haltedauern (Somatik, Laktat, Endorphine)
+ * - Vollständige Ausführungserklärungen aller 4 Elemente in der Zusammenfassung
+ * - Echtes Würfeln (Re-Roll) mit Ausschluss bereits gesehener Treffer
+ * - Semantische Schrank-Einbindung (ToyCombinatorics)
  */
 
 (function(window) {
@@ -22,15 +20,17 @@
     severities: { 1: 2, 2: 2, 3: 2, 4: 2 },
     selectedChoices: { 1: null, 2: null, 3: null, 4: null },
     discardedIds: { 1: [], 2: [], 3: [], 4: [] },
-    isAiGenerating: false
+    catalogOffsets: { 1: 0, 2: 0, 3: 0, 4: 0 },
+    isAiGenerating: false,
+    aiSpokenCommand: null
   };
 
   var INFRACTION_MAP = {
-    mouth: { label: "Widerrede & Frechheit", hint: "Dämpfung des Redeflusses, Mund-Knechtung & Demut." },
-    posture: { label: "Haltungsfehler & Zappeln", hint: "Feste Arretierung, Kniestand & Zucht der Willenskraft." },
-    orgasm: { label: "Unerlaubte Lust & Drang", hint: "Kanten-Quälerei, Keuschheit, Kälte & Genital-Impact." },
-    duty: { label: "Pflichtversäumnis", hint: "Formale Zucht, Gesäß-Spanking & körperliches Dienen." },
-    self_discipline: { label: "Selbstvollzug", hint: "Der Bottom führt die Zucht unter den strengen Augen des Tops selbst aus." }
+    mouth: { label: "Widerrede & Grenztestung", hint: "Fokus auf Stille, Atemdisziplin und verbale Klarheit." },
+    posture: { label: "Haltungsfehler & Unruhe", hint: "Statische Arretierung, Kniestand und Muskelkontrolle." },
+    orgasm: { label: "Unerlaubte Eigenlust & Vorprellen", hint: "Schwellenkontrolle, Reizaufschub und sensorische Kälte." },
+    duty: { label: "Regel- & Pflichtversäumnis", hint: "Rhythmisches Spanking mit formalem Zählprotokoll." },
+    self_discipline: { label: "Selbstvollzug", hint: "Der Bottom führt die Korrektur unter direkter Aufsicht des Tops eigenhändig aus." }
   };
 
   function escapeText(str) {
@@ -49,263 +49,240 @@
       if (liveKey && liveKey.value && liveKey.value.trim().length > 10) return liveKey.value.trim();
       var stored = localStorage.getItem('kompass_gemini_api_key');
       if (stored && stored.trim().length > 10) return stored.trim();
+      var rawAnswers = localStorage.getItem('kompass_answers');
+      if (rawAnswers) {
+        var p = JSON.parse(rawAnswers);
+        if (p?.settings?.geminiApiKey) return p.settings.geminiApiKey.trim();
+      }
     } catch (e) {}
     return null;
   }
 
-  function isToolAvailableInClosetOrHousehold(toolKeyword) {
-    var rawOwned = [];
-    if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
-      rawOwned = window.HubToys.getOwnedIds();
-    } else {
-      try {
-        var stored = localStorage.getItem('kompass_active_equipment_ids');
-        if (stored) rawOwned = JSON.parse(stored);
-      } catch (e) {}
-    }
+  function getMasterActionPool(subName, topName) {
+    var rawOwned = (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') ? window.HubToys.getOwnedIds() : [];
+    var catalog = window.equipmentCatalog || [];
+    var ownedToys = [];
+    rawOwned.forEach(function(id) {
+      var found = catalog.find(function(c) { return c.id === id; });
+      if (found) ownedToys.push(found);
+    });
 
-    var kw = (toolKeyword || '').toLowerCase();
-    var ALWAYS_ALLOWED = [
-      'hand', 'finger', 'körper', 'stimme', 'bett', 'wand', 'boden', 'kniestand', 
-      'gürtel', 'krawatte', 'schal', 'tuch', 'handtuch', 'wäscheklammer', 'klammer', 
-      'eiswürfel', 'eis', 'kissen', 'kleidung', 'stuhl', 'hocker', 'gesicht', 'spiegel'
+    var sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
+      ? window.ToyCombinatorics.buildSummary(ownedToys)
+      : { clitoral_suction: [], vibrator: [], impact: [], clamps: [] };
+
+    var suctionTool = sem.clitoral_suction[0] || sem.vibrator[0];
+
+    var list = [
+      // KATEGORIE 1: IMPACT MIT KLAREM ZÄHLPROTOKOLL & PHYSIOLOGISCHER RATIONALE
+      {
+        id: "action_formal_spank_15",
+        cat: ["duty", "mouth"],
+        title: "✋ 15 gezielte Handtreffer mit Lautzählung",
+        rationale: "15 Treffer: Die ersten 5 aktivieren die Kapillaren und erwärmen das Gewebe. Die Treffer 6 bis 15 setzen die Reizschwelle für die Endorphinausschüttung. Das laute Zählen bindet die Aufmerksamkeit und verhindert mentales Wegdriften.",
+        desc: topName + " verabreicht 15 Schläge mit der flachen Hand auf das entblößte Gesäß. " + subName + " zählt jeden Treffer mit einer Sekunde Verzögerung laut und deutlich mit.",
+        execution: "Schlagzone ausschließlich auf den großen Gesäßmuskel (Gluteus maximus) konzentrieren. Finger geschlossen halten. Nach jedem Schlag auf das laute Zählen warten. Bei Versprechern wird nicht erhöht, sondern der Rhythmus verlangsamt.",
+        ratingBadge: "⚖️ 15 Schläge · Endorphin-Fokus"
+      },
+      {
+        id: "action_warning_spank_5",
+        cat: ["posture", "mouth"],
+        title: "✋ 5 trockene Warnschläge zur Zentrierung",
+        rationale: "5 Treffer: Rein sensorische Intervention. Keine Schmerzkatharsis, sondern ein scharfer Weckruf für das vegetative Nervensystem zur sofortigen Wiederherstellung der mentalen Präsenz.",
+        desc: "Fünf kurze, akzentuierte Treffer auf die Sitzbeinhöcker, gefolgt von sofortigem Handauflegen zur Beruhigung.",
+        execution: "Die Schläge trocken und präzise setzen. Direkt nach dem 5. Schlag die Handfläche 20 Sekunden flach und fest auflegen, bis der Atem synchronisiert ist.",
+        ratingBadge: "⚡ 5 Schläge · Nerven-Fokus"
+      },
+      {
+        id: "action_belt_ritual_20",
+        cat: ["duty", "self_discipline"],
+        title: "⚡ 20 Schläge mit gefaltetem Ledergürtel",
+        rationale: "20 Treffer: Ein formal begrenztes Ritual. Leder erzeugt einen schärferen, oberflächlichen Reiz als die Hand. 20 Schläge sind physisch sicher, erfordern aber klare Haltungskontrolle.",
+        desc: topName + " nutzt den gefalteten Ledergürtel. Schläge im 3-Sekunden-Takt gleichmäßig auf beide Pobacken verteilt.",
+        execution: "Gürtel doppelt legen, Schnalle fest in der Führungshand halten. Ausschwingen nur aus dem Handgelenk, niemals aus der Schulter. Nierengegend strikt meiden.",
+        ratingBadge: "🔥 20 Schläge · Formale Korrektur"
+      },
+      {
+        id: "action_flogger_steady",
+        cat: ["duty", "orgasm"],
+        title: "🪶 2 Minuten kontinuierlicher Flogger-Rhythmus",
+        rationale: "Zeitfenster 2 Minuten: Schnelle, leichte Fransenreize erzeugen eine flächige Hyperämie (Rötung) ohne tiefe Hämatombildung. Dient der sensorischen Überflutung vor weiteren Anweisungen.",
+        desc: "Gleichmäßiges, schwirrendes Abstreichen und rhythmische Schläge über Gesäß und Oberschenkelrückseite.",
+        execution: "Konstantes Tempo halten (ca. 60–80 Schläge pro Minute). Den Körper des Bottoms dabei scharf beobachten; keine Treffer auf die Kniekehlen.",
+        ratingBadge: "⏱️ 2 Min · Reizüberflutung"
+      }
     ];
 
-    for (var i = 0; i < ALWAYS_ALLOWED.length; i++) {
-      if (kw.indexOf(ALWAYS_ALLOWED[i]) !== -1) return true;
+    if (suctionTool) {
+      list.push({
+        id: "action_suction_overstim_punish",
+        cat: ["orgasm", "duty"],
+        title: "⚡ Klitorale Reizüberlastung mit " + suctionTool,
+        rationale: "Sensorische Disziplin: Zwingt den Körper, einem extrem intensiven Lustreiz standzuhalten, ohne nachzugeben oder das Becken zu bewegen.",
+        desc: topName + " platziert den " + suctionTool + " auf der Klitoris. " + subName + " muss 90 Sekunden regungslos verharren, darf nicht vorstoßen und muss den Atem flach halten.",
+        execution: "Gerät auf mittlerer Stufe aufsetzen. Jedes Ausweichzucken führt zu einer kurzen Pause und erneutem Ansetzen. Nach 90 Sekunden schlagartig stoppen.",
+        ratingBadge: "🎢 90 Sek · Reizkontrolle (" + suctionTool + ")"
+      });
+      list.push({
+        id: "action_suction_ruined_punish",
+        cat: ["orgasm", "mouth"],
+        title: "🥀 Gezielter Orgasmusabbruch (Ruined) mit " + suctionTool,
+        rationale: "Machtdemonstration über den Reflex: Entkoppelt den körperlichen Muskelkrampf von der Belohnung. Macht deutlich, wer über den Höhepunkt bestimmt.",
+        desc: topName + " treibt " + subName + " gezielt an den Point of no Return. Beim ersten Muskelzucken wird das Gerät abrupt entfernt; jede Berührung wird untersagt.",
+        execution: "Den Schwellenanstieg genau beobachten (Atemstillstand, Oberschenkelspannung). Genau beim ersten Beckenkrampf das Gerät wegnehmen und 'Stillhalten!' befehlen.",
+        ratingBadge: "🔒 Macht über den Reflex"
+      });
     }
 
-    var catalog = window.equipmentCatalog || [];
-    return rawOwned.some(function(ownedId) {
-      if (ownedId === toolKeyword) return true;
-      var foundItem = catalog.find(function(c) { return c.id === ownedId; });
-      if (foundItem) {
-        var itemName = (foundItem.name || '').toLowerCase();
-        if (itemName.indexOf(kw) !== -1 || kw.indexOf(itemName) !== -1) return true;
-      }
-      return false;
-    });
-  }
-
-  function getBottomAnswers() {
-    var subKey = (typeof window.subPartner !== 'undefined') ? window.subPartner : 'A';
-    if (window.answers && window.answers[subKey]) return window.answers[subKey];
-    try {
-      var stored = localStorage.getItem('kompass_answers');
-      if (stored) {
-        var p = JSON.parse(stored);
-        if (p && p[subKey]) return p[subKey];
-      }
-    } catch (e) {}
-    return {};
-  }
-
-  function getMasterActionPool(subName, topName) {
-    return [
-      // KATEGORIE 1: IMPACT & FORMELLE ZUCHT
+    list.push(
       {
-        id: "action_formal_spank",
-        cat: ["mouth", "duty"],
-        title: "✋ Formelles Zucht-Versohlen (15 Hiebe mit Dank)",
-        desc: "15 gezielte Treffer über die Knie. " + subName + " muss nach jedem Hieb laut rufen: 'Danke, mein Top, für Schlag Nummer X!' – bei Versprechern beginnt das Zählen von vorn.",
-        ratingBadge: "⚖️ Klassische Zucht & Rhythmus"
-      },
-      {
-        id: "action_belt_warning",
-        cat: ["duty", "posture"],
-        title: "⚡ Ledergürtel-Doppelschlag & Warnrötung",
-        desc: "Fünf langsame, trockene Treffer mit gefaltetem Ledergürtel quer über die fleischigen Partien des Gesäßes, gefolgt von Handauflegen.",
-        ratingBadge: "🔥 Scharfer Reiz & Katharsis"
-      },
-      {
-        id: "action_flogger_swarm",
-        cat: ["duty", "orgasm"],
-        title: "🪶 Flogger-Gewitter zur Reizüberflutung",
-        desc: "Zweihundert schnelle, schwirrende Schläge mit dem Wildleder-Flogger über Rücken und Pobacken, bis die Haut gleichmäßig glüht.",
-        ratingBadge: "⚡ Sensorische Durchwärmung"
-      },
-
-      // KATEGORIE 2: MACHT, GESICHT & DEMUT (FACESITTING & ORALES DIENEN)
-      {
-        id: "action_facesitting_throne",
-        cat: ["mouth", "posture"],
-        title: "👑 Facesitting-Thron & Mund-Knechtung",
-        desc: topName + " nimmt direkt auf Mund und Nase von " + subName + " Platz. " + subName + " darf ausschließlich dienen und atmet die Intimität des Tops ein.",
-        ratingBadge: "🧎 Vollkommene Unterwerfung"
-      },
-      {
-        id: "action_foot_worship_chastise",
-        cat: ["mouth", "duty"],
-        title: "🦶 Fuß-Unterwerfung & Zehenkuss-Buße",
-        desc: subName + " kniet zu Füßen des Tops und muss jeden Zeh andächtig küssen und reinigen, während " + topName + " die Haltung schweigend mustert.",
-        ratingBadge: "👑 Psychologische Demut"
-      },
-
-      // KATEGORIE 3: ORGASMUSKONTROLLE & GENITAL-DISZIPLIN
-      {
-        id: "action_ruined_discipline",
-        cat: ["orgasm", "mouth"],
-        title: "🥀 Disziplinarischer Ruined Orgasm",
-        desc: topName + " stimuliert " + subName + " bis exakt zum Point of no Return und stoppt schlagartig. Der Orgasmus verpufft krampfend ohne Erlösung.",
-        ratingBadge: "🔒 Macht über den Höhepunkt"
-      },
-      {
-        id: "action_clamps_edging",
-        cat: ["orgasm", "duty"],
-        title: "⚡ Klammern-Arretierung & Kanten-Quälerei",
-        desc: "Wäscheklammern an den Brustwarzen. Während der Druck pulsiert, berührt " + topName + " fordernd bis zur Schwelle 9.5 – Stopp auf Befehl.",
-        ratingBadge: "🎢 Lust-Schmerz-Kontrast"
+        id: "action_wall_sit_penance",
+        cat: ["posture", "duty"],
+        title: "🧱 3 Minuten Wandhocke (Wall-Sit) im 90-Grad-Winkel",
+        rationale: "3 Minuten Haltedauer: Nach 90 Sekunden setzt die Laktatbildung in den Quadrizepsmuskeln ein. Die physische Belastung ist gelenkschonend, verlangt aber reine Willenskraft zur Disziplinierung.",
+        desc: subName + " lehnt den Rücken flach an die Wand, Oberschenkel waagerecht zum Boden. Die Hände ruhen flach auf dem Kopf.",
+        execution: "Prüfen, dass die Knie exakt im 90-Grad-Winkel stehen. Rutscht das Becken nach unten oder heben die Hände ab, wird die Restzeit um 30 Sekunden verlängert.",
+        ratingBadge: "⏱️ 3 Min · Isometrische Ausdauer"
       },
       {
         id: "action_ice_contrast_fire",
         cat: ["posture", "orgasm"],
-        title: "🧊 Eiskontrast & Feurige Schläge",
-        desc: "Eiswürfel werden langsam kreisend über die Innenschenkel geschmolzen, unmittelbar gefolgt von scharfen Klapsen mit der nackten Hand.",
-        ratingBadge: "❄️ Thermische Sensibilisierung"
+        title: "🧊 Thermischer Kontrast: Eisstreichung & Handauflegen",
+        rationale: "Thermorezeptoren-Reiz: Kältereiz verengt die Gefäße schlagartig; das anschließende warme Handauflegen erzeugt ein intensives Brennen und schärft die taktile Wahrnehmung.",
+        desc: "Ein Eiswürfel wird 60 Sekunden langsam über die Innenschenkel geführt, unmittelbar gefolgt von festem Handauflegen.",
+        execution: "Den Eiswürfel in ständiger Bewegung halten, um Kälteverbrennungen zu vermeiden. Danach sofort die warme Handfläche mit Druck aufpressen.",
+        ratingBadge: "❄️🔥 Somatischer Schock"
       },
-
-      // KATEGORIE 4: STATISCHE DISZIPLIN & HALTEÜBUNGEN (AUSDAUER)
-      {
-        id: "action_wall_sit_penance",
-        cat: ["posture", "duty"],
-        title: "🧱 3 Minuten Wandhocke (Wall-Sit) ohne Laut",
-        desc: subName + " presst den Rücken im 90-Grad-Winkel gegen die Wand. Die Oberschenkel brennen, die Hände liegen flach auf dem Kopf.",
-        ratingBadge: "⏱️ Körperliche Selbstbeherrschung"
-      },
-      {
-        id: "action_corner_time_kneel",
-        cat: ["mouth", "posture"],
-        title: "📐 Eck-Stehen / Corner Time mit Blick zur Wand",
-        desc: subName + " steht 5 Minuten nackt mit Nase und Zehenspitzen an der Zimmerecke. Jeder Blick zur Seite verlängert die Strafe um 1 Minute.",
-        ratingBadge: "🙈 Reizentzug & Beschämung"
-      },
-
-      // KATEGORIE 5: SELBSTVOLLZUG & SPRACHLICHE DEMUT
       {
         id: "action_self_spank_mirror",
         cat: ["self_discipline", "mouth"],
-        title: "🪞 Selbstversohlen vor dem Spiegel",
-        desc: subName + " muss sich mit eigener Hand kräftig 20 Mal auf das Gesäß schlagen, in den Spiegel blicken und laut den Fehler bekennen.",
-        ratingBadge: "🙈 Scham-Faktor & Selbstüberwindung"
+        title: "🪞 20 eigenhändige Schläge vor dem Spiegel",
+        rationale: "20 Treffer im Selbstvollzug: Verhindert passive Schonung. Der Bottom muss die physische Korrektur selbst dosieren und den visuellen Blickkontakt halten.",
+        desc: subName + " kniet vor dem Spiegel, blickt sich in die Augen und verabreicht sich selbst 20 kräftige Schläge auf das Gesäß.",
+        execution: topName + " steht dahinter, korrigiert die Schlagkraft, falls der Bottom zögert, und zählt mit. Zu schwache Schläge zählen nicht.",
+        ratingBadge: "🪞 20 Schläge · Selbstüberwindung"
+      }
+    );
+
+    return list;
+  }
+
+  function getPosturePool() {
+    return [
+      {
+        id: "posture_kneel_nadu",
+        title: "🧎 Strenger Kniestand (Nadu / Seiza)",
+        desc: "Aufrechter Kniestand, Gesäß ruht auf den Fersen, Wirbelsäule gestreckt, Blick 45 Grad nach unten gerichtet.",
+        execution: "Knie schulterbreit, Hände liegen mit den Handflächen nach oben auf den Oberschenkeln. Kein Anlehnen, keine Gewichtsverlagerung."
       },
       {
-        id: "action_written_lines",
-        cat: ["duty", "mouth"],
-        title: "📝 Strafzeilen auf den Körper schreiben",
-        desc: topName + " schreibt mit Lippenstift oder weichem Stift das Vergehen ('Ungehorsam', 'Eigentum') groß auf Brust, Bauch oder Oberschenkel.",
-        ratingBadge: "✒️ Visuelle Markierung"
+        id: "posture_otk",
+        title: "🛋️ Über die Knie gelegt (Over the Knee / OTK)",
+        desc: "Der Bottom liegt quer über den Oberschenkeln des sitzenden Tops, das Becken ist leicht nach oben gewinkelt.",
+        execution: "Die Beine des Bottoms hängen frei herab. Der Top fixiert bei Bedarf mit einem Unterarm den unteren Rücken, um Stabilität zu gewährleisten."
       },
       {
-        id: "action_tickle_torture",
-        cat: ["mouth", "posture"],
-        title: "🪶 Kitzelfolter unter vollkommener Arretierung",
-        desc: "Füße oder Achseln werden wehrlos fixiert und mit Fingern oder Federn gekitzelt, bis der Bottom um Gnade und Fassung fleht.",
-        ratingBadge: "😂 Wehrlose Reizüberflutung"
+        id: "posture_standing_bend",
+        title: "📐 90-Grad-Vorbeuge an der Bettkante",
+        desc: "Die Beine stehen gestreckt, der Oberkörper liegt im rechten Winkel auf der Matratze auf.",
+        execution: "Füße stehen parallel, Knie durchgedrückt. Die Hände greifen die Bettkante, um das Gesäß optimal zu präsentieren."
+      },
+      {
+        id: "posture_quadruped",
+        title: "🐾 Vierfüßlerstand mit abgesenktem Brustkorb",
+        desc: "Knie am Boden, die Stirn berührt die Matratze, das Becken bleibt maximal angehoben.",
+        execution: "Hohlkreuz vermeiden; das Becken muss stabil senkrecht über den Knien stehen, um Trefferflächen sauber freizugeben."
       }
     ];
   }
 
-  function getMasterPosturePool() {
+  function getBondagePool() {
+    var rawOwned = (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') ? window.HubToys.getOwnedIds() : [];
+    var catalog = window.equipmentCatalog || [];
+    var ownedToys = [];
+    rawOwned.forEach(function(id) {
+      var found = catalog.find(function(c) { return c.id === id; });
+      if (found) ownedToys.push(found);
+    });
+
+    var sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
+      ? window.ToyCombinatorics.buildSummary(ownedToys)
+      : { bondage: [] };
+
+    var bondageTool = sem.bondage[0] || "Leder-Handgelenksmanschetten oder Seidenschal";
+
     return [
-      { id: "posture_kneel_nadu", title: "Aufrechter Kniestand (Nadu / Seiza)", desc: "Aufrecht kniend, Fersen unter dem Gesäß, Brust herausgedrückt, Hände auf den Oberschenkeln." },
-      { id: "posture_over_lap", title: "Quer über den Oberschenkeln des Tops (OTK)", desc: "Bauchlage quer über den Knien des Tops. Das Becken ist hochgekippt, Beine hängen herab." },
-      { id: "posture_bed_bend", title: "Tiefe Vorbeuge an der Bettkante", desc: "Oberkörper flach auf der Matratze, Stirn auf den Händen, Gesäß maximal exponiert im Raum." },
-      { id: "posture_standing_wall", title: "Wand-Kuss (Stehen mit Stirn an der Wand)", desc: "Füße 50cm von der Wand entfernt, nur die Stirn berührt die Wand, Hände hinter dem Rücken verschränkt." },
-      { id: "posture_all_fours_arch", title: "Katzenbuckel im Vierfüßlerstand", desc: "Hände und Knie am Boden, Wirbelsäule durchgebogen, Blick starr zu den Fußspitzen des Tops." },
-      { id: "posture_frog_squat", title: "Tiefe Froschhocke (Malasana)", desc: "Tief in der Hocke, Knie maximal gespreizt, Fersen am Boden, Hände gefaltet vor der Brust." },
-      { id: "posture_boot_rest", title: "Kopf auf den Füßen des Tops abgelegt", desc: "Flache Bauchlage am Boden, die Wange ruht ergeben auf den Fußrücken oder Schuhen des sitzenden Tops." },
-      { id: "posture_bench_arch", title: "Stuhlkante mit erhobenem Becken", desc: "Knien vor einem Stuhl, Oberkörper über die Sitzfläche gelehnt, Beine weit gegrätscht." }
+      {
+        id: "bondage_cuffs_back",
+        title: "⛓️ Handgelenke hinter dem Rücken arretiert (" + bondageTool + ")",
+        desc: "Die Handgelenke werden hinter dem Kreuzbein zusammengeführt und sicher fixiert.",
+        execution: "Zwischen Fesselung und Haut muss ein Zeigefinger passen. Finger nach 2 Minuten auf Wärme und Durchblutung prüfen (Zupftest)."
+      },
+      {
+        id: "bondage_elbows_aligned",
+        title: "🥋 Ellenbogen-Fixierung (Box Tie / Takate Kote)",
+        desc: "Die Oberarme werden hinter dem Rücken zusammengeführt, die Hände bleiben frei beweglich.",
+        execution: "Keine Seile über die Beugeseite des Ellenbogens führen (Nervenschutz). Öffnet die Brust und verhindert jedes Vorbeugen."
+      },
+      {
+        id: "bondage_unrestrained_will",
+        title: "🧎 Reine Gehorsams-Arretierung ohne Seile",
+        desc: "Keine physischen Fesseln. Die Hände bleiben auf den Kopf verschränkt; jede Regung gilt als Regelbruch.",
+        execution: "Der Top kontrolliert die Disziplin über den Raum. Bewegt der Bottom eine Hand, wird die Einheit sofort pausiert und korrigiert."
+      }
     ];
   }
 
-  function getMasterBondagePool() {
-    var list = [];
-    if (isToolAvailableInClosetOrHousehold('cuffs') || isToolAvailableInClosetOrHousehold('manschette')) {
-      list.push({ id: "bondage_leather_cuffs", title: "Leder-Handfesseln hinter dem Rücken", desc: "Handgelenke hinter der Lendenwirbelsäule arretiert – vollständige Wehrlosigkeit." });
-    }
-    if (isToolAvailableInClosetOrHousehold('shibari') || isToolAvailableInClosetOrHousehold('seil')) {
-      list.push({ id: "bondage_box_tie", title: "Shibari Box Tie (Takate Kote)", desc: "Oberarme hinter dem Rücken zusammengeschnürt – erzwingt stolze, offene Brusthaltung." });
-      list.push({ id: "bondage_chest_harness", title: "Kompaktes Seil-Brustgeschirr", desc: "Feste Seilspannung um den Brustkorb für intensive somatische Erdung." });
-    }
-    list.push({ id: "bondage_silk_scarf", title: "Seidenschal / Krawatte um die Handgelenke", desc: "Weiche, aber unnachgiebige Schlingenbindung vor oder hinter dem Körper." });
-    list.push({ id: "bondage_thigh_spread", title: "Schenkel-Spreizung mit Gürtel", desc: "Knie werden mit einem Riemen auf Abstand arretiert, Schließen der Beine unmöglich." });
-    list.push({ id: "bondage_thumbs", title: "Daumenfesselung (Gefaltetes Band)", desc: "Nur die beiden Daumen werden fixiert – minimale Einschränkung mit maximaler Symbolik." });
-    list.push({ id: "bondage_chair_secure", title: "Arretierung an den Stuhlpfosten", desc: "Handgelenke an den seitlichen Stuhlbeinen fixiert für absolute Bewegungsunfähigkeit." });
-    list.push({ id: "bondage_none_pure_will", title: "Keine Fesselung – Disziplin durch reinen Gehorsam", desc: "Die Haltung muss allein durch mentale Selbstbeherrschung reglos gehalten werden." });
-    return list;
-  }
-
-  function getMasterSensoryPool() {
-    var list = [];
-    if (isToolAvailableInClosetOrHousehold('knebel') || isToolAvailableInClosetOrHousehold('gag')) {
-      list.push({ id: "sensory_ball_gag", title: "Schrank-Knebel (Ball- oder Ringknebel)", desc: "Hält den Kiefer geöffnet und erzwingt vollständiges, demütiges Verstummen." });
-    }
-    list.push({ id: "sensory_cloth_gag", title: "Weicher Tuchknebel (Stofftuch / Seidenschal)", desc: "Dämpft Laute sanft ab und signalisiert symbolische Sprachlosigkeit." });
-    if (isToolAvailableInClosetOrHousehold('maske') || isToolAvailableInClosetOrHousehold('blindfold')) {
-      list.push({ id: "sensory_leather_blindfold", title: "Gepolsterte Schlaf- oder Ledermaske", desc: "Schaltet den Sehsinn komplett aus – jeder Reiz trifft unangekündigt ein." });
-    } else {
-      list.push({ id: "sensory_scarf_blindfold", title: "Dunkler Schal als Augenbinde", desc: "Blickdichte Augenbedeckung für verstärkte sensorische Fokussierung." });
-    }
-    list.push({ id: "sensory_mirror_focus", title: "Spiegel-Zwang (Visuelle Konfrontation)", desc: "Der Bottom muss ununterbrochen in den Spiegel blicken und die eigene Zucht ansehen." });
-    list.push({ id: "sensory_whisper_ear", title: "Ohr-Flüstern & Atem-Reiz", desc: "Top flüstert aus nächster Nähe strenge Anweisungen und Lob direkt in die Ohrmuschel." });
-    list.push({ id: "sensory_none_eye_contact", title: "Keine Sinnesreduktion – Strenger Blickkontakt", desc: "Volle Sinneswahrnehmung. Der Bottom muss dem Top ununterbrochen in die Augen blicken." });
-    return list;
+  function getSensoryPool() {
+    return [
+      {
+        id: "sensory_blindfold",
+        title: "🙈 Vollständiger Sehentzug (Augenbinde)",
+        desc: "Die Augen werden lichtdicht verbunden. Steigert die Erwartungsspannung und die Fokussierung auf akustische Signale.",
+        execution: "Sitz der Binde prüfen. Vor jedem Reiz bewusst kurze akustische Signale setzen (z. B. Ledergeräusch, kurzes Wort), um Schreckreflexe zu dosieren."
+      },
+      {
+        id: "sensory_cloth_gag",
+        title: "🤐 Tuchknebel zur Sprechdämpfung",
+        desc: "Ein gefaltetes Baumwolltuch wird zwischen die Zahnreihen gelegt und am Hinterkopf locker verknotet.",
+        execution: "Nase muss vollständig frei sein. Nonverbales Notsignal (z. B. Gegenstand fallen lassen oder Doppelklopfen mit Fuß) vorab testen."
+      },
+      {
+        id: "sensory_forced_eye_contact",
+        title: "👁️ Ununterbrochener Blickkontakt zum Top",
+        desc: "Keine Maske. Der Bottom muss während der gesamten Durchführung den Blick fest in den Augen des Tops halten.",
+        execution: "Wegschauen oder Augen schließen gilt als Ausweichversuch. Bei Blickkontaktverlust wird der Rhythmus sofort angehalten."
+      }
+    ];
   }
 
   function getStageOptions(stage) {
-    var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
+    var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
+
+    var pool = [];
+    if (stage === 1) pool = getMasterActionPool(subName, topName);
+    else if (stage === 2) pool = getPosturePool();
+    else if (stage === 3) pool = getBondagePool();
+    else if (stage === 4) pool = getSensoryPool();
+
     var discarded = wizardState.discardedIds[stage] || [];
-
-    var fullList = [];
-    if (stage === 1) {
-      fullList = getMasterActionPool(subName, topName);
-      // Filter nach Kategorie, falls passend
-      var catMatches = fullList.filter(function(item) {
-        return item.cat && item.cat.indexOf(wizardState.category) !== -1;
-      });
-      var others = fullList.filter(function(item) {
-        return !item.cat || item.cat.indexOf(wizardState.category) === -1;
-      });
-      fullList = catMatches.concat(others);
-
-      // Falls situativer Anlass getippt wurde, individuellen Vorschlag oben anfügen
-      if (wizardState.reason && wizardState.reason.trim().length > 2) {
-        fullList.unshift({
-          id: "custom_reason_" + wizardState.reason.trim().toLowerCase().replace(/[^a-z0-9]/g, '_'),
-          title: "⚖️ Situative Sühne für: „" + escapeText(wizardState.reason.trim()) + "“",
-          desc: "Maßgeschneiderte Buße für " + subName + ": 20 Schläge mit flacher Hand auf das Gesäß, gefolgt von 5 Minuten absolutem Kniestand zur Besinnung.",
-          ratingBadge: "✨ Maßgeschneiderte Einzelfall-Zucht"
-        });
-      }
-    } else if (stage === 2) {
-      fullList = getMasterPosturePool();
-    } else if (stage === 3) {
-      fullList = getMasterBondagePool();
-    } else if (stage === 4) {
-      fullList = getMasterSensoryPool();
-    }
-
-    // DISCARD-FILTER: Bereits abgewählte Optionen werden NICHT mehr angezeigt
-    var available = fullList.filter(function(item) {
+    var filtered = pool.filter(function(item) {
       return discarded.indexOf(item.id) === -1;
     });
 
-    // Falls alles verworfen wurde, Cache leeren und neu mischen
-    if (available.length < 3) {
+    if (filtered.length === 0) {
       wizardState.discardedIds[stage] = [];
-      available = fullList;
+      filtered = pool;
     }
 
-    return available.slice(0, 3);
+    return filtered.slice(0, 3);
   }
 
   function rerollStage() {
     var stage = wizardState.currentStage;
     var currentOptions = getStageOptions(stage);
 
-    // Alle aktuell angezeigten Optionen in die Discard-Liste schieben
-    if (!wizardState.discardedIds[stage]) wizardState.discardedIds[stage] = [];
     currentOptions.forEach(function(opt) {
       if (wizardState.discardedIds[stage].indexOf(opt.id) === -1) {
         wizardState.discardedIds[stage].push(opt.id);
@@ -314,64 +291,81 @@
 
     wizardState.selectedChoices[stage] = null;
     renderStageCards(stage);
-
-    if (typeof window.showToast === 'function') {
-      window.showToast("🎲 Frische, unverbrauchte Optionen geladen!");
-    }
+    validateCurrentPhysicalSetup();
+    showToast("Neu gewürfelt 🎲");
   }
 
-  async function consultAiDisciplineMaster() {
+  async function generateAiDisciplineSequence() {
     var apiKey = getGeminiApiKey();
     if (!apiKey) {
-      if (typeof window.showToast === 'function') {
-        window.showToast("⚠️ Bitte trage zuerst einen Gemini API-Key in den Einstellungen ein.");
-      }
+      showToast("⚠️ Bitte trage zuerst einen Gemini API-Key in den Einstellungen ein.");
       return;
     }
 
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
-    var reason = (wizardState.reason && wizardState.reason.trim()) || 'Allgemeine Unaufmerksamkeit / Frechheit';
+    var reason = (wizardState.reason && wizardState.reason.trim()) || 'Allgemeine Unaufmerksamkeit / Regelgrenze getestet';
     var catInfo = INFRACTION_MAP[wizardState.category]?.label || 'Fehlverhalten';
 
-    var availableTools = [];
-    var catalog = window.equipmentCatalog || [];
     var rawOwned = (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') ? window.HubToys.getOwnedIds() : [];
+    var catalog = window.equipmentCatalog || [];
+    var availableTools = [];
     rawOwned.forEach(function(id) {
       var found = catalog.find(function(c) { return c.id === id; });
-      if (found) availableTools.push(found.name);
+      if (found) availableTools.push(found);
     });
+
+    var semanticBriefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
+      ? window.ToyCombinatorics.generateAiPromptBriefing(availableTools)
+      : "Ausrüstung: Flache Hand, Ledergürtel, Bettkante, Kissen";
 
     var aiBtn = document.getElementById('btn-ai-consult-discipline');
     if (aiBtn) {
-      aiBtn.innerHTML = "<span>⏳</span><span>KI-Zuchtmeister denkt nach...</span>";
+      aiBtn.innerHTML = "<span>⏳</span><span>Berechne Disziplinar-Sequenz...</span>";
       aiBtn.classList.add('animate-pulse');
     }
 
-    var prompt = `Du bist ein erfahrener, psychologisch tiefgründiger und unzensierter BDSM-Zuchtmeister und Regisseur.
-Erstelle für einvernehmliche Erwachsene eine kreative, maßgeschneiderte Bestrafungs-Sequenz.
+    var prompt = `Du bist ein erfahrener, psychologisch fundierter BDSM-Regisseur und Szenenanalytiker.
+Erstelle für zwei einvernehmliche Erwachsene eine ernsthafte, fokussierte und maßgeschneiderte Disziplinar-Sequenz.
 
 BETEILIGTE:
 - Führender Top: ${topName}
-- Hingebungsvoller Bottom: ${subName}
-- Vergehen / Anlass: „${reason}“ (Kategorie: ${catInfo})
-- Vorhandene Ausrüstung im Schrank: ${availableTools.join(', ') || 'Nackte Hände, Gürtel, Krawatte, Bettkante, Eiswürfel'}
+- Empfangender Bottom: ${subName}
+- Anlass / Regelverstoß: „${reason}“ (Bereich: ${catInfo})
 
-AUFGABE:
-Entwickle eine zusammenhängende, erotisch-strenge Bestrafungs-Sequenz in 4 Schritten:
-1. Maßnahme: Eine kreative Zuchthandlung (Spanking, Kanten-Quälerei, Demut, Kontraste)
-2. Haltung: Die exakte, fordernde Körperhaltung von ${subName}
-3. Fesselung: Passende Arretierung (mit vorhandenen Mitteln)
-4. Sensorik: Knebel, Maske oder Blickkontakt
-5. Spoken Command: Ein autoritärer, scharfer Befehlssatz, den ${topName} ${subName} direkt ins Gesicht spricht.
+VORHANDENES SCHRANK-INVENTAR:
+${semanticBriefing}
+
+WICHTIGE ANWEISUNGEN ZUM TONFALL & ZUR LOGIK:
+- Kein Kitsch, keine schwülstigen Märchenonkel-Floskeln ("Holdes Fräulein", "Zucht-Meister", "demütige Magd").
+- Ernsthafter, direkter und moderner BDSM-Kontext zwischen erwachsenen Partnern.
+- Für jede Zahl (Schläge, Wiederholungen, Minuten) MUSS eine sinnvolle somatische oder psychologische Rationale angegeben werden (z. B. warum 15 Schläge und nicht 3 oder 87? Laktatschwelle, Kapillardurchblutung, Aufmerksamkeitsfokus).
+- Liefere für jedes Element eine konkrete Arbeitsanweisung für den Top ("execution"), damit der Top exakt weiß, wie er körperlich vorgehen muss.
 
 Antworte AUSSCHLIESSLICH als valides JSON:
 {
-  "action": { "title": "Kurzer prägnanter Titel", "desc": "Genaue Anweisung was getan wird (2 Sätze)" },
-  "posture": { "title": "Name der Haltung", "desc": "Wie der Körper positioniert wird (1-2 Sätze)" },
-  "bondage": { "title": "Name der Fesselung", "desc": "Wie die Arretierung erfolgt (1 Satz)" },
-  "sensory": { "title": "Name der Sinneskontrolle", "desc": "Knebel oder Maske (1 Satz)" },
-  "spoken_command": "Der genaue wörtliche Zucht-Befehl von ${topName} an ${subName} (1-2 Sätze)"
+  "action": {
+    "title": "Präziser Titel der Maßnahme (inkl. Stückzahl/Dauer)",
+    "rationale": "Sinnvolle Begründung der Zahl/Dauer (z. B. Kapillardurchblutung, Endorphinschwelle, Laktat) in 1-2 Sätzen",
+    "desc": "Was getan wird in 1-2 klaren Sätzen",
+    "execution": "Genaue Arbeitsanweisung für den Top (Trefferzone, Rhythmus, Sicherheitskontrolle)"
+  },
+  "posture": {
+    "title": "Name der Haltung",
+    "desc": "Positionierung des Körpers",
+    "execution": "Worauf der Top bei der Haltung achten und was er korrigieren muss"
+  },
+  "bondage": {
+    "title": "Art der Begrenzung/Fesselung",
+    "desc": "Wie die Arretierung erfolgt",
+    "execution": "Sicherheits- und Nervenschutz-Hinweis für den Top"
+  },
+  "sensory": {
+    "title": "Sensorische Kontrolle",
+    "desc": "Blick, Maske oder Knebel",
+    "execution": "Arbeitsanweisung für den Top zur Sinnesführung"
+  },
+  "spoken_command": "Ein autoritärer, klarer Satz von ${topName} an ${subName} (direkt, fokussiert, ohne Kitsch)"
 }`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
@@ -379,12 +373,12 @@ Antworte AUSSCHLIESSLICH als valides JSON:
 
     for (var i = 0; i < candidateModels.length; i++) {
       try {
-        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${candidateModels[i]}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        var resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + candidateModels[i] + ":generateContent?key=" + encodeURIComponent(apiKey), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.4, responseMimeType: "application/json" }
+            generationConfig: { temperature: 0.3, responseMimeType: "application/json" }
           })
         });
 
@@ -392,33 +386,49 @@ Antworte AUSSCHLIESSLICH als valides JSON:
           var resJson = await resp.json();
           var rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
           resultData = JSON.parse(rawText);
-          if (resultData && resultData.action && resultData.posture) break;
+          if (resultData?.action?.title && resultData?.posture?.title) break;
         }
       } catch (e) {}
     }
 
     if (aiBtn) {
-      aiBtn.innerHTML = "<span>✨</span><span>KI-Zuchtmeister befragen</span>";
+      aiBtn.innerHTML = "<span>✨</span><span>KI-Disziplinar-Vorschlag berechnen</span>";
       aiBtn.classList.remove('animate-pulse');
     }
 
     if (resultData && resultData.action) {
-      wizardState.selectedChoices[1] = { id: "ai_action", title: "✨ " + resultData.action.title, desc: resultData.action.desc, ratingBadge: "🤖 KI-Maßanfertigung" };
-      wizardState.selectedChoices[2] = { id: "ai_posture", title: "✨ " + resultData.posture.title, desc: resultData.posture.desc };
-      wizardState.selectedChoices[3] = { id: "ai_bondage", title: "✨ " + resultData.bondage.title, desc: resultData.bondage.desc };
-      wizardState.selectedChoices[4] = { id: "ai_sensory", title: "✨ " + resultData.sensory.title, desc: resultData.sensory.desc };
+      wizardState.selectedChoices[1] = {
+        id: "ai_action",
+        title: resultData.action.title,
+        rationale: resultData.action.rationale,
+        desc: resultData.action.desc,
+        execution: resultData.action.execution,
+        ratingBadge: "✨ KI-Maßanfertigung"
+      };
+      wizardState.selectedChoices[2] = {
+        id: "ai_posture",
+        title: resultData.posture.title,
+        desc: resultData.posture.desc,
+        execution: resultData.posture.execution
+      };
+      wizardState.selectedChoices[3] = {
+        id: "ai_bondage",
+        title: resultData.bondage.title,
+        desc: resultData.bondage.desc,
+        execution: resultData.bondage.execution
+      };
+      wizardState.selectedChoices[4] = {
+        id: "ai_sensory",
+        title: resultData.sensory.title,
+        desc: resultData.sensory.desc,
+        execution: resultData.sensory.execution
+      };
       wizardState.aiSpokenCommand = resultData.spoken_command;
 
-      // Direkt zu Stufe 5 (Zusammenfassung) springen
       showStage(5);
-
-      if (typeof window.showToast === 'function') {
-        window.showToast("✨ KI-Zuchtmeister hat ein maßgeschneidertes Protokoll erstellt!");
-      }
+      showToast("✨ Disziplinar-Sequenz mit Arbeitsanweisungen erstellt!");
     } else {
-      if (typeof window.showToast === 'function') {
-        window.showToast("⚠️ KI-Antwort fehlgeschlagen. Nutze die Hand-Auswahl.");
-      }
+      showToast("⚠️ Verbindung fehlgeschlagen. Bitte Auswahl manuell treffen.");
     }
   }
 
@@ -446,6 +456,7 @@ Antworte AUSSCHLIESSLICH als valides JSON:
             <span class="text-xs ${isSel ? 'text-brand-300 font-bold' : 'text-slate-600'}">${isSel ? '✓' : '○'}</span>
           </div>
           <p class="text-[11px] text-slate-300 mt-1 leading-snug font-normal">${escapeText(opt.desc)}</p>
+          ${opt.rationale ? `<p class="text-[10px] text-amber-300/90 mt-1 italic font-normal">Begründung: ${escapeText(opt.rationale)}</p>` : ''}
           ${opt.ratingBadge ? `<span class="inline-block mt-1.5 text-[9.5px] px-2 py-0.5 rounded bg-brand-950 text-brand-300 border border-brand-800 font-semibold">${escapeText(opt.ratingBadge)}</span>` : ''}
         </button>
       `;
@@ -463,11 +474,11 @@ Antworte AUSSCHLIESSLICH als valides JSON:
     var bondage = wizardState.selectedChoices[3];
 
     var isSelfSpank = action && (action.id === 'action_self_spank_mirror');
-    var isHandsBoundBehind = (bondage && (bondage.id === 'bondage_leather_cuffs' || bondage.id === 'bondage_box_tie')) || (posture && posture.id === 'posture_standing_wall');
+    var isHandsBoundBehind = (bondage && (bondage.id === 'bondage_cuffs_back' || bondage.id === 'bondage_elbows_aligned'));
 
     if (isSelfSpank && isHandsBoundBehind) {
       if (warnBanner) warnBanner.classList.remove('hidden');
-      if (warnText) warnText.innerText = "Konflikt: Hände sind hinten arretiert – Selbstschläge nicht möglich. Der Top übernimmt die Ausführung.";
+      if (warnText) warnText.innerText = "Konflikt: Hände sind hinten arretiert – Selbstschläge unmöglich. Wähle eine andere Fesselung oder lass den Top schlagen.";
       return;
     }
 
@@ -478,23 +489,53 @@ Antworte AUSSCHLIESSLICH als valides JSON:
     var container = document.getElementById('summary-discipline-breakdown');
     if (!container) return;
 
-    var act = (wizardState.selectedChoices[1] && wizardState.selectedChoices[1].title) || 'Disziplinierungs-Maßnahme';
-    var pos = (wizardState.selectedChoices[2] && wizardState.selectedChoices[2].title) || 'Kniestand';
-    var bon = (wizardState.selectedChoices[3] && wizardState.selectedChoices[3].title) || 'Keine Fesselung';
-    var sen = (wizardState.selectedChoices[4] && wizardState.selectedChoices[4].title) || 'Keine sensorische Einschränkung';
+    var c1 = wizardState.selectedChoices[1] || {};
+    var c2 = wizardState.selectedChoices[2] || {};
+    var c3 = wizardState.selectedChoices[3] || {};
+    var c4 = wizardState.selectedChoices[4] || {};
+
     var reason = (wizardState.reason && wizardState.reason.trim()) || 'Verstoß gegen Schlafzimmer-Regeln';
     var spokenCmd = wizardState.aiSpokenCommand || '';
 
     container.innerHTML = `
-      <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-2.5">
-        <div class="border-b border-slate-800 pb-1.5"><strong class="text-amber-300">Anlass:</strong> <span class="text-white">${escapeText(reason)}</span></div>
-        <div><strong class="text-brand-300">1. Maßnahme:</strong> <span class="text-slate-200">${escapeText(act)}</span></div>
-        <div><strong class="text-indigo-300">2. Haltung:</strong> <span class="text-slate-200">${escapeText(pos)}</span></div>
-        <div><strong class="text-teal-300">3. Fesselung:</strong> <span class="text-slate-200">${escapeText(bon)}</span></div>
-        <div><strong class="text-purple-300">4. Sensorik:</strong> <span class="text-slate-200">${escapeText(sen)}</span></div>
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-3.5">
+        <div class="border-b border-slate-800 pb-2">
+          <strong class="text-amber-300">Anlass & Rahmen:</strong>
+          <span class="text-white block mt-0.5">${escapeText(reason)}</span>
+        </div>
+
+        <!-- 1. MASSNAHME -->
+        <div class="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-brand-900/40">
+          <strong class="text-brand-300 block text-xs">1. Maßnahme: ${escapeText(c1.title || 'Maßnahme')}</strong>
+          <p class="text-slate-300 text-[11px] leading-snug">${escapeText(c1.desc || '')}</p>
+          ${c1.rationale ? `<p class="text-[10.5px] text-amber-300/90 leading-tight"><strong>Rationale:</strong> ${escapeText(c1.rationale)}</p>` : ''}
+          ${c1.execution ? `<p class="text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1 mt-1 leading-snug"><strong class="text-slate-300">Arbeitsanweisung für den Top:</strong> ${escapeText(c1.execution)}</p>` : ''}
+        </div>
+
+        <!-- 2. HALTUNG -->
+        <div class="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-indigo-900/40">
+          <strong class="text-indigo-300 block text-xs">2. Haltung: ${escapeText(c2.title || 'Haltung')}</strong>
+          <p class="text-slate-300 text-[11px] leading-snug">${escapeText(c2.desc || '')}</p>
+          ${c2.execution ? `<p class="text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1 mt-1 leading-snug"><strong class="text-slate-300">Ausführung:</strong> ${escapeText(c2.execution)}</p>` : ''}
+        </div>
+
+        <!-- 3. FESSELUNG -->
+        <div class="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-teal-900/40">
+          <strong class="text-teal-300 block text-xs">3. Fesselung & Arretierung: ${escapeText(c3.title || 'Fesselung')}</strong>
+          <p class="text-slate-300 text-[11px] leading-snug">${escapeText(c3.desc || '')}</p>
+          ${c3.execution ? `<p class="text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1 mt-1 leading-snug"><strong class="text-slate-300">Sicherheitskontrolle:</strong> ${escapeText(c3.execution)}</p>` : ''}
+        </div>
+
+        <!-- 4. SENSORIK -->
+        <div class="space-y-1 bg-slate-950/60 p-3 rounded-xl border border-purple-900/40">
+          <strong class="text-purple-300 block text-xs">4. Sensorik: ${escapeText(c4.title || 'Sensorik')}</strong>
+          <p class="text-slate-300 text-[11px] leading-snug">${escapeText(c4.desc || '')}</p>
+          ${c4.execution ? `<p class="text-[10.5px] text-slate-400 border-t border-slate-800/80 pt-1 mt-1 leading-snug"><strong class="text-slate-300">Führung:</strong> ${escapeText(c4.execution)}</p>` : ''}
+        </div>
+
         ${spokenCmd ? `
-          <div class="p-2.5 rounded-xl bg-purple-950/40 border border-purple-800 text-[11px] text-purple-200 mt-2">
-            <strong class="text-purple-300 block mb-0.5">🗣️ Befehl des Tops (laut vorlesen):</strong>
+          <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-800 text-[11px] text-purple-200 mt-2">
+            <strong class="text-purple-300 block mb-0.5">🗣️ Anweisung des Tops an den Bottom:</strong>
             „${escapeText(spokenCmd)}“
           </div>
         ` : ''}
@@ -527,7 +568,7 @@ Antworte AUSSCHLIESSLICH als valides JSON:
     var btnPrev = document.getElementById('btn-prev-wizard');
     var btnNext = document.getElementById('btn-next-wizard');
     if (btnPrev) btnPrev.style.visibility = (stage === 1) ? 'hidden' : 'visible';
-    if (btnNext) btnNext.innerText = (stage === 5) ? "Fertig" : "Weiter →";
+    if (btnNext) btnNext.innerText = (stage === 5) ? "Protokoll übernehmen ✓" : "Weiter →";
 
     injectAiAndRerollButtons();
 
@@ -536,19 +577,17 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   }
 
   function injectAiAndRerollButtons() {
-    // 1. KI-Button in Stufe 1 einbetten (falls noch nicht da)
     var stage1 = document.getElementById('wizard-stage-1');
     if (stage1 && !document.getElementById('btn-ai-consult-discipline')) {
       var btnAi = document.createElement('button');
       btnAi.type = 'button';
       btnAi.id = 'btn-ai-consult-discipline';
       btnAi.className = 'w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-900 to-brand-800 hover:from-purple-800 hover:to-brand-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 touch-btn shadow-md my-1';
-      btnAi.innerHTML = '<span>✨</span><span>KI-Zuchtmeister befragen (Automatische Maßanfertigung)</span>';
-      btnAi.onclick = consultAiDisciplineMaster;
+      btnAi.innerHTML = '<span>✨</span><span>KI-Disziplinar-Vorschlag berechnen</span>';
+      btnAi.onclick = generateAiDisciplineSequence;
       stage1.insertBefore(btnAi, stage1.children[2]);
     }
 
-    // 2. Re-Roll Buttons in Stufen 2 bis 4
     for (var s = 2; s <= 4; s++) {
       var stageEl = document.getElementById('wizard-stage-' + s);
       if (stageEl && !document.getElementById('reroll-btn-stage-' + s)) {
@@ -572,20 +611,18 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   }
 
   function applyDisciplineOrder() {
-    var act = (wizardState.selectedChoices[1] && wizardState.selectedChoices[1].title) || 'Bestrafung angeordnet';
+    var act = (wizardState.selectedChoices[1] && wizardState.selectedChoices[1].title) || 'Disziplinierungsmaßnahme angeordnet';
     var nowTime = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
     if (window.currentSessionLog && Array.isArray(window.currentSessionLog)) {
-      window.currentSessionLog.push({ type: "action", time: nowTime, label: "Zucht: " + act });
+      window.currentSessionLog.push({ type: "action", time: nowTime, label: "Disziplin: " + act });
     }
 
     closeModal();
-    if (typeof window.showToast === 'function') {
-      window.showToast("Bestrafung offiziell angeordnet & protokolliert ⚖️");
-    }
+    showToast("Disziplinierungsmaßnahme protokolliert ⚖️");
 
     if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      var speech = wizardState.aiSpokenCommand || ("Urteil gesprochen. " + act + ". Sofortige Hinnahme ohne Widerspruch.");
+      var speech = wizardState.aiSpokenCommand || ("Anordnung erteilt. " + act + ". Sofort einnehmen und stillhalten.");
       window.SessionVoice.play(speech);
     }
   }
@@ -618,7 +655,7 @@ Antworte AUSSCHLIESSLICH als valides JSON:
     prevStage: function() { if (wizardState.currentStage > 1) showStage(wizardState.currentStage - 1); },
     nextStage: function() { if (wizardState.currentStage < 5) showStage(wizardState.currentStage + 1); else applyDisciplineOrder(); },
     rerollStage: rerollStage,
-    consultAi: consultAiDisciplineMaster,
+    consultAi: generateAiDisciplineSequence,
     selectCategory: function(cat) {
       wizardState.category = cat;
       ['mouth', 'posture', 'orgasm', 'duty', 'self_discipline'].forEach(function(c) {
