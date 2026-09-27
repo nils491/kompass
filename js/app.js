@@ -199,22 +199,44 @@
     var dispB = document.getElementById('user-display-B');
     var headerPair = document.getElementById('header-pair-names');
 
+    // Mobile Drawer & Quick Badge Elemente
+    var mobQuickLabel = document.getElementById('mobile-quick-partner-label');
+    var mobDrawerPair = document.getElementById('mobile-drawer-pair-names');
+    var mobDrawerNameA = document.getElementById('mobile-drawer-name-A');
+    var mobDrawerNameB = document.getElementById('mobile-drawer-name-B');
+    var mobDrawerBtnA = document.getElementById('mobile-drawer-btn-A');
+    var mobDrawerBtnB = document.getElementById('mobile-drawer-btn-B');
+
     var nameA = (names && names.A) ? names.A.trim() : 'Partner 1';
     var nameB = (names && names.B) ? names.B.trim() : 'Partner 2';
 
     if (dispA) dispA.innerText = nameA || 'Partner 1';
     if (dispB) dispB.innerText = nameB || 'Partner 2';
 
-    if (headerPair) {
-      headerPair.innerText = (nameA || 'Partner 1') + " & " + (nameB || 'Partner 2');
+    if (mobDrawerNameA) mobDrawerNameA.innerText = nameA || 'Partner 1';
+    if (mobDrawerNameB) mobDrawerNameB.innerText = nameB || 'Partner 2';
+
+    var pairText = (nameA || 'Partner 1') + " & " + (nameB || 'Partner 2');
+    if (headerPair) headerPair.innerText = pairText;
+    if (mobDrawerPair) mobDrawerPair.innerText = pairText;
+
+    var curName = (currentUser === 'A') ? nameA : nameB;
+    if (mobQuickLabel) {
+      mobQuickLabel.innerText = curName.length > 8 ? curName.substring(0, 7) + '…' : curName;
     }
 
     if (currentUser === 'A') {
       if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn";
       if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+
+      if (mobDrawerBtnA) mobDrawerBtnA.className = "py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition bg-brand-700 border-brand-500 text-white shadow-md";
+      if (mobDrawerBtnB) mobDrawerBtnB.className = "py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition theme-panel border-slate-800 text-slate-400";
     } else {
       if (btnB) btnB.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-700 text-white shadow-xs touch-btn";
       if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+
+      if (mobDrawerBtnB) mobDrawerBtnB.className = "py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition bg-brand-700 border-brand-500 text-white shadow-md";
+      if (mobDrawerBtnA) mobDrawerBtnA.className = "py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition theme-panel border-slate-800 text-slate-400";
     }
   }
 
@@ -268,6 +290,9 @@
     var hubBadge = document.getElementById('hub-survey-pct-badge');
     if (hubBadge) hubBadge.innerText = prog.pct + " %";
 
+    var mobDrawerProg = document.getElementById('mobile-drawer-prog-badge');
+    if (mobDrawerProg) mobDrawerProg.innerText = prog.pct + " %";
+
     var allChapters = window.surveyChapters || [];
     var tabuCount = 0;
     allChapters.forEach(function(ch) {
@@ -283,6 +308,19 @@
 
     var tabuBadge = document.getElementById('header-tabu-count');
     if (tabuBadge) tabuBadge.innerText = tabuCount;
+
+    var mobDrawerTabu = document.getElementById('mobile-drawer-tabu-count');
+    if (mobDrawerTabu) mobDrawerTabu.innerText = tabuCount;
+
+    var mobDrawerSync = document.getElementById('mobile-drawer-sync-label');
+    if (mobDrawerSync) {
+      var syncState = (window.CloudSync && typeof window.CloudSync.getState === 'function')
+        ? window.CloudSync.getState()
+        : null;
+      mobDrawerSync.innerText = (syncState && syncState.isPaired && syncState.pairCode) 
+        ? syncState.pairCode 
+        : "Lokal";
+    }
 
     var aiActive = (localStorage.getItem('kompass_ai_active') === 'true');
     var hubAiBadge = document.getElementById('hub-ai-badge');
