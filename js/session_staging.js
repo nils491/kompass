@@ -3,6 +3,8 @@
  * Modul für das Nachttisch-Staging, Rollen-Setup und die Drehbuch-Generierung in der Schlafzimmer-Regie.
  * 
  * Qualitäts- & Logik-Standards:
+ * - GARANTIERTER DATENZUGRIFF: Lädt Namen und Anatomie verlässlich direkt aus localStorage.
+ * - PERSISTENTES STAGING: Speichert bereitgelegte Toys im localStorage, damit sie beim Neuladen erhalten bleiben.
  * - STRIKTE ANATOMISCHE KOMPATIBILITÄT:
  *   * Vulva: Womanizer/Sauger/Wand auf Klitoris. Niemals Stroker/Käfig.
  *   * Penis: Penissleeve/Stroker, Wand am Frenulum/Eichel, Handgriffe. Niemals Womanizer.
@@ -17,6 +19,26 @@
 (function(window) {
   'use strict';
 
+  function ensureNamesAndAnatomyLoaded() {
+    if (!window.names || !window.names.A || !window.names.B) {
+      try {
+        var rawNames = localStorage.getItem('kompass_names');
+        if (rawNames) window.names = JSON.parse(rawNames);
+      } catch (e) {}
+    }
+    if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
+
+    if (!window.anatomy || !window.anatomy.A || !window.anatomy.B) {
+      try {
+        var rawAnat = localStorage.getItem('kompass_anatomy');
+        if (rawAnat) window.anatomy = JSON.parse(rawAnat);
+      } catch (e) {}
+    }
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+  }
+
+  ensureNamesAndAnatomyLoaded();
+
   var topPartner = 'B';
   var subPartner = 'A';
   var energyTop = 4;
@@ -24,13 +46,25 @@
   var sessionDepth = 7;
   var currentSelectedMode = 'guided'; // 'guided' oder 'free'
   var activeStagingTab = 'all';
+
   var stagedTonightIds = [];
+  try {
+    var rawStaged = localStorage.getItem('kompass_staged_tonight_ids');
+    if (rawStaged) stagedTonightIds = JSON.parse(rawStaged) || [];
+  } catch (e) {}
+
   var currentSelectedPlaybook = [];
 
   window.topPartner = topPartner;
   window.subPartner = subPartner;
   window.sessionDepth = sessionDepth;
   window.currentSelectedPlaybook = currentSelectedPlaybook;
+
+  function saveStagedToys() {
+    try {
+      localStorage.setItem('kompass_staged_tonight_ids', JSON.stringify(stagedTonightIds));
+    } catch (e) {}
+  }
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -96,6 +130,7 @@
   }
 
   function setupInitialPlaybook() {
+    ensureNamesAndAnatomyLoaded();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
@@ -210,6 +245,7 @@
   }
 
   function updateRoleSelectionUI() {
+    ensureNamesAndAnatomyLoaded();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var nameA = names.A || 'Partner 1';
     var nameB = names.B || 'Partner 2';
@@ -358,7 +394,7 @@
       container.innerHTML = `
         <div class="col-span-full p-4 text-center text-slate-400 theme-panel rounded-xl text-xs space-y-1">
           <span>In dieser Kategorie sind aktuell keine Toys im Schrank aktiviert.</span>
-          <button type="button" onclick="HubToys.open()" class="text-purple-300 font-bold hover:underline block mx-auto">
+          <button type="button" onclick="if(typeof openToyManagementModal==='function') openToyManagementModal(); else if(window.HubToys && typeof window.HubToys.open==='function') window.HubToys.open();" class="text-purple-300 font-bold hover:underline block mx-auto">
             Im Schrank aktivieren ↗
           </button>
         </div>
@@ -387,6 +423,7 @@
     } else {
       stagedTonightIds.push(toyId);
     }
+    saveStagedToys();
     renderEquipmentGrid();
   }
 
@@ -403,6 +440,7 @@
       stagedTonightIds = shuffled.slice(0, 3).map(function(i) { return i.id; });
       showToast("3 Gegenstände als Inspiration ausgewählt 🎲");
     }
+    saveStagedToys();
     renderEquipmentGrid();
   }
 
@@ -464,6 +502,7 @@
     }
 
     stagedTonightIds.push(newToy.id);
+    saveStagedToys();
     closeNewToyQuickAdd();
     if (inputName) inputName.value = '';
     renderEquipmentGrid();
@@ -532,6 +571,7 @@
   }
 
   async function generateAiPlaybook() {
+    ensureNamesAndAnatomyLoaded();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
@@ -657,6 +697,7 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   }
 
   function testVoiceSample() {
+    ensureNamesAndAnatomyLoaded();
     var sel = document.getElementById('session-voice-select');
     var voiceName = sel ? sel.value : 'Despina';
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
