@@ -241,10 +241,10 @@
 
     if (btnPrev) btnPrev.style.visibility = (isGlobal || currentChapterIndex === 0) ? 'hidden' : 'visible';
     if (btnNext) {
-      if (isGlobal) {
+      if (isGlobal || currentChapterIndex === chapters.length - 1 || prog.pct === 100) {
         btnNext.innerText = "Zum Profil →";
       } else {
-        btnNext.innerText = (currentChapterIndex === chapters.length - 1) ? "Zum Profil →" : "Nächstes Kapitel →";
+        btnNext.innerText = "Nächstes Kapitel →";
       }
     }
 
@@ -309,10 +309,44 @@
     }
 
     if (filteredList.length === 0) {
-      var emptyMsg = isGlobal
-        ? "Perfekt! Keine offenen Fragen für diesen Filter im gesamten Fragebogen gefunden."
-        : "Keine Fragen für diesen Filter in diesem Kapitel vorhanden.";
-      container.innerHTML = html + '<div class="p-6 text-center text-slate-400 italic theme-panel rounded-2xl border">' + escapeHtml(emptyMsg) + '</div>';
+      var isAllAnswered = (prog.pct === 100);
+      var isUnansweredFilter = (activeSurveyFilter === 'unanswered');
+
+      var emptyContent = '';
+      if (isAllAnswered) {
+        emptyContent = `
+          <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-emerald-500/50 bg-emerald-950/20 shadow-xl animate-fade-in">
+            <span class="text-3xl block">🎉</span>
+            <strong class="text-sm font-black text-white block">Großartig! Du hast alle Fragen beantwortet!</strong>
+            <p class="text-xs text-slate-300 max-w-md mx-auto">Dein Profil ist vollständig ausgefüllt. Schau dir jetzt dein Archetypen-Radar, deine Säulen-Balance und dein KI-Gutachten an.</p>
+            <div class="pt-2">
+              <button type="button" onclick="window.switchMainView('single')" class="px-6 py-2.5 bg-gradient-to-r from-brand-600 to-rose-600 hover:opacity-90 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
+                ✨ Jetzt zu Mein Profil →
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (isUnansweredFilter) {
+        emptyContent = `
+          <div class="p-6 text-center space-y-3 theme-panel rounded-3xl border border-slate-800 animate-fade-in">
+            <span class="text-2xl block">✓</span>
+            <strong class="text-xs font-bold text-white block">Keine offenen Fragen ${isGlobal ? 'im gesamten Fragebogen' : 'in diesem Kapitel'}!</strong>
+            <p class="text-[11px] text-slate-400">Alle Fragen in diesem Bereich wurden bereits von dir bewertet.</p>
+            <div class="flex justify-center gap-2 pt-1">
+              <button type="button" onclick="SurveyEngine.setFilter('all')" class="px-3.5 py-1.5 theme-panel border text-slate-300 text-xs font-bold rounded-xl touch-btn">
+                Alle Fragen anzeigen
+              </button>
+              <button type="button" onclick="window.switchMainView('single')" class="px-3.5 py-1.5 bg-brand-700 hover:bg-brand-600 text-white text-xs font-bold rounded-xl touch-btn shadow-md">
+                Zum Profil →
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        emptyContent = '<div class="p-6 text-center text-slate-400 italic theme-panel rounded-2xl border">' + escapeHtml(isGlobal ? "Keine Fragen für diesen Filter im gesamten Fragebogen vorhanden." : "Keine Fragen für diesen Filter in diesem Kapitel vorhanden.") + '</div>';
+      }
+
+      container.innerHTML = html + emptyContent;
       renderQuickGrid();
       return;
     }
@@ -488,14 +522,25 @@
 
   function nextChapter() {
     var chapters = window.surveyChapters || [];
+    var isGlobal = (activeSurveyScope === 'global');
+    var isLast = (currentChapterIndex >= chapters.length - 1);
+    var prog = getGlobalProgressData(window.currentUser || 'A');
+
+    // Wenn der Button "Zum Profil" signalisiert, alle Fragen fertig sind,
+    // oder das letzte Kapitel / Global-Modus erreicht ist: direkt zur Profil-Ansicht!
+    if (isGlobal || isLast || prog.pct === 100) {
+      if (typeof window.switchMainView === 'function') {
+        window.switchMainView('single');
+      } else {
+        window.location.hash = "view=single";
+      }
+      return;
+    }
+
     if (currentChapterIndex < chapters.length - 1) {
       currentChapterIndex++;
       renderSurveyChapter();
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0,0); }
-    } else {
-      if (typeof window.switchMainView === 'function') {
-        window.switchMainView('single');
-      }
     }
   }
 
