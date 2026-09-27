@@ -6,10 +6,10 @@
  * - Kapitel-Navigation (Kapitel 0 bis 35) & Direkt-Sprung-Gitter
  * - Filter-Engine (Scope: Kapitel / Global; Filter: Alle, Unbeantwortet, Favoriten, Tabus, Hemmschwelle/Scham)
  * - Bewertungsblöcke (Stufen 0 bis 5 inkl. "0: Betrifft mich nicht / Entfällt")
- * - 🔒 Partnerschutz: Antworten des Partners können auf gekoppelten Geräten nur gelesen, nicht verändert werden
+ * - Volle Editierbarkeit des aktiven Profils (keine falsche Schreibschutz-Sperre auf dem Smartphone)
  * - 🙈 Scham- & Hemmschwellen-Button je Frage (aktivierbar für Scham/Überwindungs-Themen)
  * - Freitext-Notizfelder für persönliche Bemerkungen und Konditionen
- * - Typsicherer Direktsprung zu beliebigen Fragen mit optischem Puls-Highlight
+ * - Direktsprung zu beliebigen Fragen mit optischem Puls-Highlight
  * - Direkte Anbindung an die Live-KI-Recherche
  */
 
@@ -50,20 +50,7 @@
   }
 
   function canEditCurrentProfile() {
-    var syncState = (window.CloudSync && typeof window.CloudSync.getState === 'function')
-      ? window.CloudSync.getState()
-      : null;
-
-    if (syncState && syncState.isPaired && syncState.role) {
-      return (window.currentUser || 'A') === syncState.role;
-    }
-
-    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
-    var assignedRole = localStorage.getItem('kompass_assigned_role');
-    if (isPaired && assignedRole) {
-      return (window.currentUser || 'A') === assignedRole;
-    }
-
+    // Erlaubt immer die freie Bearbeitung des auf diesem Gerät aktuell ausgewählten Profils
     return true;
   }
 
@@ -128,7 +115,7 @@
 
   function toggleItemShame(itemId) {
     if (!canEditCurrentProfile()) {
-      showToast("🔒 Schreibschutz: Du kannst nur deine eigenen Antworten bearbeiten.");
+      showToast("🔒 Schreibschutz aktiv.");
       return;
     }
 
@@ -221,7 +208,6 @@
 
     var isGlobal = (activeSurveyScope === 'global');
     var isEditable = canEditCurrentProfile();
-    var currentPartnerName = (window.names && window.names[currentUser]) || (currentUser === 'A' ? 'Partner 1' : 'Partner 2');
 
     if (badge) {
       badge.innerText = isGlobal 
@@ -239,6 +225,13 @@
         : chapter.desc;
     }
 
+    // Fortschrittsberechnung VOR Verwendung in Button-Beschriftung
+    var prog = getGlobalProgressData(currentUser);
+    var pText = document.getElementById('progress-text');
+    var pFill = document.getElementById('progress-bar-fill');
+    if (pText) pText.innerText = prog.pct + " %";
+    if (pFill) pFill.style.width = prog.pct + "%";
+
     if (btnPrev) btnPrev.style.visibility = (isGlobal || currentChapterIndex === 0) ? 'hidden' : 'visible';
     if (btnNext) {
       if (isGlobal || currentChapterIndex === chapters.length - 1 || prog.pct === 100) {
@@ -247,12 +240,6 @@
         btnNext.innerText = "Nächstes Kapitel →";
       }
     }
-
-    var prog = getGlobalProgressData(currentUser);
-    var pText = document.getElementById('progress-text');
-    var pFill = document.getElementById('progress-bar-fill');
-    if (pText) pText.innerText = prog.pct + " %";
-    if (pFill) pFill.style.width = prog.pct + "%";
 
     var sourceItemsWithChapter = [];
     if (isGlobal) {
@@ -293,20 +280,6 @@
     if (!container) return;
     
     var html = '';
-
-    // Schreibschutz-Banner einblenden, wenn das Profil des Partners betrachtet wird
-    if (!isEditable) {
-      html += '<div class="p-3.5 rounded-2xl bg-amber-950/70 border border-amber-600/80 text-amber-200 flex items-center justify-between gap-3 shadow-lg">';
-      html += '  <div class="flex items-center gap-2.5">';
-      html += '    <span class="text-xl">🔒</span>';
-      html += '    <div>';
-      html += '      <strong class="text-xs font-bold block">Schreibgeschützte Ansicht</strong>';
-      html += '      <span class="text-[10.5px] text-slate-300 block">Du siehst die Antworten von ' + escapeHtml(currentPartnerName) + '. Diese können nur auf dessen Smartphone bearbeitet werden.</span>';
-      html += '    </div>';
-      html += '  </div>';
-      html += '  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-900 text-amber-200 border border-amber-700 flex-shrink-0">Nur Lesen</span>';
-      html += '</div>';
-    }
 
     if (filteredList.length === 0) {
       var isAllAnswered = (prog.pct === 100);
@@ -356,7 +329,7 @@
       var ch = entry.chapter;
       var isShame = !!uAnswers['it_' + it.id + '_shame'];
 
-      html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4 transition-all duration-500 ' + (!isEditable ? 'opacity-90' : '') + '">';
+      html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4 transition-all duration-500">';
       html += '<div class="flex items-start justify-between gap-2">';
       html += '  <div class="min-w-0 flex-1">';
       if (isGlobal) {
@@ -372,10 +345,8 @@
       var shameBtnClass = isShame
         ? 'bg-indigo-950 border-indigo-500 text-indigo-200 font-bold shadow-sm ring-1 ring-indigo-500/60'
         : 'theme-panel border-slate-800 text-slate-400 hover:text-indigo-300 hover:border-indigo-800';
-      
-      if (!isEditable) shameBtnClass += ' opacity-50 cursor-not-allowed';
 
-      html += '    <button type="button" onclick="SurveyEngine.toggleShame(' + it.id + ')" class="px-2.5 py-1 rounded-xl border text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn transition ' + shameBtnClass + '" title="' + (isEditable ? 'Als schambehaftet / Hemmschwelle markieren' : 'Nur lesbar') + '">';
+      html += '    <button type="button" onclick="SurveyEngine.toggleShame(' + it.id + ')" class="px-2.5 py-1 rounded-xl border text-[10.5px] font-bold inline-flex items-center gap-1 touch-btn transition ' + shameBtnClass + '" title="Als schambehaftet / Hemmschwelle markieren">';
       html += '      <span>🙈</span><span>' + (isShame ? 'Scham aktiv ✓' : 'Scham') + '</span>';
       html += '    </button>';
 
@@ -393,7 +364,6 @@
         (it.options || []).forEach(function(opt) {
           var isSel = (curVal === opt.val);
           var cls = isSel ? 'bg-brand-950/60 border-brand-500 text-white font-bold' : 'theme-panel border-slate-800 text-slate-300 hover:border-slate-700';
-          if (!isEditable) cls += ' cursor-not-allowed opacity-75';
           html += '<button type="button" onclick="saveChoice(' + it.id + ', \'' + opt.val + '\')" class="w-full p-2.5 rounded-xl border text-left transition touch-btn text-xs ' + cls + '">';
           html += escapeHtml(opt.label) + '</button>';
         });
@@ -406,7 +376,7 @@
       var currentNote = uAnswers['it_' + it.id + '_note'] || '';
       html += '<div class="pt-2 border-t border-slate-800/60">';
       html += '  <div class="flex items-center gap-1.5">';
-      html += '    <input type="text" value="' + escapeHtml(currentNote) + '" ' + (!isEditable ? 'readonly disabled' : '') + ' onchange="saveNote(' + it.id + ', this.value)" placeholder="' + (isEditable ? '💬 Eigene Notiz / Kondition (z. B. nur sanft, erst später)...' : 'Keine Notiz hinterlegt') + '" class="w-full text-[11px] px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 placeholder-slate-500 focus:border-brand-500 focus:bg-slate-900 focus:outline-none transition ' + (!isEditable ? 'cursor-not-allowed opacity-60' : '') + '">';
+      html += '    <input type="text" value="' + escapeHtml(currentNote) + '" onchange="saveNote(' + it.id + ', this.value)" placeholder="💬 Eigene Notiz / Kondition (z. B. nur sanft, erst später)..." class="w-full text-[11px] px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 placeholder-slate-500 focus:border-brand-500 focus:bg-slate-900 focus:outline-none transition">';
       html += '  </div>';
       html += '</div>';
 
@@ -436,9 +406,6 @@
     for (var i = 0; i <= 5; i++) {
       var isSel = (currentVal === i);
       var cls = isSel ? colors[i] + ' font-bold shadow-md' : 'theme-panel border-slate-800 text-slate-400 opacity-60 hover:opacity-100';
-      if (!isEditable) {
-        cls += isSel ? ' ring-1 ring-white/40' : ' opacity-25 cursor-not-allowed hover:opacity-25';
-      }
       var tooltip = (i === 0) ? '0: Betrifft mich nicht / Entfällt' : (i === 1 ? '1: Tabu' : (i === 5 ? '5: Favorit' : 'Stufe ' + i));
       html += '<button type="button" title="' + tooltip + '" onclick="saveRating(' + id + ', \'' + role + '\', ' + i + ')" class="flex-1 py-2 rounded-lg border text-[10px] sm:text-xs transition touch-btn ' + cls + '">' + i + '</button>';
     }
@@ -449,11 +416,6 @@
   }
 
   function saveRating(id, role, val) {
-    if (!canEditCurrentProfile()) {
-      showToast("🔒 Schreibschutz: Du kannst nur deine eigenen Antworten bearbeiten.");
-      return;
-    }
-
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
@@ -465,11 +427,6 @@
   }
 
   function saveChoice(id, val) {
-    if (!canEditCurrentProfile()) {
-      showToast("🔒 Schreibschutz: Du kannst nur deine eigenen Antworten bearbeiten.");
-      return;
-    }
-
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
@@ -481,11 +438,6 @@
   }
 
   function saveNote(id, val) {
-    if (!canEditCurrentProfile()) {
-      showToast("🔒 Schreibschutz: Du kannst nur deine eigenen Antworten bearbeiten.");
-      return;
-    }
-
     var currentUser = window.currentUser || 'A';
     if (!window.answers) window.answers = { A: {}, B: {} };
     if (!window.answers[currentUser]) window.answers[currentUser] = {};
