@@ -2,6 +2,7 @@
  * js/hub_modals.js
  * Vollständiger Controller für alle Modals und Einstellungen im Start-Hub:
  * - Profil & Account-Einstellungen (Name, E-Mail, Anatomie, Gemini-Key, Stimme)
+ * - Standard-Freigabestufe: Stufe 4 (Radikale Transparenz / Alles zeigen - Empfohlen)
  * - Cloud-Synchronisations- & Multi-Device-Kopplungs-Steuerung
  * - Profil-Reset mit zweistufiger Sicherheitsabfrage
  * - Tabu-Charta mit direkt anklickbaren Tabus (automatischer Partner-Wechsel & Direktsprung)
@@ -13,7 +14,7 @@
   'use strict';
 
   var onboardAnatState = { A: 'penis', B: 'vulva' };
-  var onboardSharingLevel = 3;
+  var onboardSharingLevel = 4; // Standard: Stufe 4 (Radikale Transparenz)
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -394,6 +395,7 @@
     showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
   }
 
+  // STANDARD-FREIGABESTUFE: STUFE 4 (RADIKALE TRANSPARENZ / ALLES ZEIGEN)
   function getSharingLevel(user) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + user);
@@ -402,7 +404,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 3;
+    return 4; // Standard: Stufe 4 (Alles zeigen)
   }
 
   function updateAccountSharingUI(curUser) {
@@ -413,10 +415,10 @@
       "Stufe 1: Nur Doppel-5er",
       "Stufe 2: Bis Neugier (3–5)",
       "Stufe 3: Buße & Duldung (2–5)",
-      "Stufe 4: Offenes Buch (1–5)"
+      "Stufe 4: Radikale Transparenz (Empfohlen)"
     ];
 
-    if (badge) badge.innerText = labels[currentLevel] || "Stufe 3";
+    if (badge) badge.innerText = labels[currentLevel] || "Stufe 4 (Empfohlen)";
 
     [1, 2, 3, 4].forEach(function(lvl) {
       var btn = document.getElementById('btn-share-level-' + lvl);
@@ -443,7 +445,7 @@
       "Stufe 1 aktiv: Nur beiderseitige Volltreffer (Doppel-5er) werden geteilt.",
       "Stufe 2 aktiv: Freigabe bis Neugier (Note 3–5).",
       "Stufe 3 aktiv: Buße & Duldung freigegeben (Note 2–5).",
-      "Stufe 4 aktiv: Radikale Transparenz (Alle Noten 1–5)."
+      "Stufe 4 aktiv: Radikale Transparenz (Alle Noten 1–5) [Empfohlen]."
     ];
     showToast(desc[lvl] || "Freigabestufe aktualisiert ✓");
   }
@@ -451,7 +453,7 @@
   function setOnboardingSharingLevel(lvl) {
     onboardSharingLevel = lvl;
     var lbl = document.getElementById('onboard-sharing-label');
-    var labels = ["", "1. Nur Doppel-5er", "2. Bis Neugier (3–5)", "3. Buße & Duldung (Standard)", "4. Offenes Buch (1–5)"];
+    var labels = ["", "1. Nur Doppel-5er", "2. Bis Neugier (3–5)", "3. Buße & Duldung", "4. Radikale Transparenz (Empfohlen)"];
     if (lbl) lbl.innerText = labels[lvl] || "Stufe " + lvl;
 
     [1, 2, 3, 4].forEach(function(l) {
@@ -819,7 +821,7 @@
     try {
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
-      localStorage.setItem('kompass_sharing_level_' + curUser, (onboardSharingLevel || 3).toString());
+      localStorage.setItem('kompass_sharing_level_' + curUser, (onboardSharingLevel || 4).toString());
       localStorage.setItem('kompass_onboarding_done', 'true');
     } catch (e) {}
 
@@ -903,4 +905,9 @@
   window.openToyManagementModal = openToyManagementModal;
   window.closeToyManagementModal = closeToyManagementModal;
   window.setOnboardingAnatomy = setOnboardingAnatomy;
-  window.closeOn
+  window.closeOnboardingModal = closeOnboardingModal;
+  window.goToOnboardStep = goToOnboardStep;
+  window.copyOnboardCode = copyOnboardCode;
+  window.completeOnboarding = completeOnboarding;
+
+})(window);
