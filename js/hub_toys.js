@@ -2,13 +2,13 @@
  * js/hub_toys.js
  * Modul für die Toy-Verwaltung ("Unser Schrank") im Start-Hub.
  * 
- * Beinhaltet:
- * - Großzügiges, mehrzeiliges Kartendesign (keine abgeschnittenen Titel mehr)
- * - Sicherheitsabfrage vor dem Leeren des Inventars
- * - "+ Neues Toy anlegen" mit Live-Autoabgleich gegen den gesamten Katalog
- * - Automatisches Aktivieren existierender Toys bei Namensübereinstimmung
- * - Papierkorb 🗑️ zum dauerhaften Entfernen selbst angelegter Toys
- * - Automatische Synchronisation und Bereitstellung für die Schlafzimmer-Regie
+ * UX-Redesign & Performance-Architektur:
+ * - Keine überlagernden Texte, keine abgeschnittenen Titel
+ * - Klares, responsives Kartendesign mit Checkbox, Kategorie-Badge und Volltext
+ * - Live-Autoabgleich: Erkennt beim Tippen, ob der Gegenstand bereits im Gesamtkatalog existiert
+ * - Papierkorb 🗑️ für selbst angelegte Toys mit Inline-Sicherheitsabfrage
+ * - Sicherheitsabfrage vor dem Leeren des gesamten Schrank-Inventars
+ * - Vollständige Synchronisation mit der Cloud & Bereitstellung für die Regie
  */
 
 (function(window) {
@@ -18,14 +18,14 @@
   var searchQuery = '';
   var isNewToyFormOpen = false;
 
-  var CATEGORY_LABELS = {
-    household: '🏠 Haushalt & Improvisation',
-    bondage: '⛓️ Fesselung & Seile',
-    impact: '✋ Impact & Spanking',
-    sensory: '🙈 Sensorik & Masken',
-    cbt_clamps: '⚡ CBT & Klammern',
-    toys_anal: '🍑 Toys & Anal',
-    special: '🕯️ Spezial & Fetisch'
+  var CATEGORY_CONFIG = {
+    household: { label: 'Haushalt & Improvisation', icon: '🏠' },
+    bondage: { label: 'Fesselung & Seile', icon: '⛓️' },
+    impact: { label: 'Impact & Spanking', icon: '✋' },
+    sensory: { label: 'Sensorik & Masken', icon: '🙈' },
+    cbt_clamps: { label: 'CBT & Klammern', icon: '⚡' },
+    toys_anal: { label: 'Toys & Anal', icon: '🍑' },
+    special: { label: 'Spezial & Fetisch', icon: '🕯️' }
   };
 
   function escapeHtml(str) {
@@ -56,7 +56,6 @@
     }, 2500);
   }
 
-  // Lädt selbst angelegte Toys aus dem Speicher
   function getCustomToys() {
     try {
       var raw = localStorage.getItem('kompass_custom_equipment');
@@ -78,7 +77,6 @@
     } catch (e) {}
   }
 
-  // Integriert benutzerdefinierte Toys in den globalen Katalog, damit Regie & Wizard sie sehen
   function syncCustomToysToGlobalCatalog() {
     if (!window.equipmentCatalog) window.equipmentCatalog = [];
     var custom = getCustomToys();
@@ -133,6 +131,11 @@
     var ids = getOwnedToyIds();
     var badge = document.getElementById('hub-toy-count-badge');
     if (badge) badge.innerText = ids.length + " Toys";
+
+    var countEl = document.getElementById('toy-management-active-count');
+    if (countEl) countEl.innerText = ids.length;
+
+    renderCategoryChips();
   }
 
   function openToyManagementModal() {
@@ -143,6 +146,7 @@
     }
     cancelClearInventory();
     syncCustomToysToGlobalCatalog();
+    renderCategoryChips();
     renderToyManagementGrid();
   }
 
@@ -158,16 +162,7 @@
 
   function filterToyManagementCat(cat) {
     currentCategory = cat;
-    ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(function(c) {
-      var btn = document.getElementById('btn-toy-cat-' + c);
-      if (btn) {
-        if (c === cat) {
-          btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
-        } else {
-          btn.className = "px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
-        }
-      }
-    });
+    renderCategoryChips();
     renderToyManagementGrid();
   }
 
@@ -187,10 +182,6 @@
     saveOwnedToyIds(ids);
     renderToyManagementGrid();
   }
-
-  // ==========================================
-  // SICHERHEITSABFRAGE VOR DEM LEEREN
-  // ==========================================
 
   function promptClearInventory() {
     var box = document.getElementById('toy-clear-confirm-box');
@@ -226,10 +217,6 @@
     renderToyManagementGrid();
   }
 
-  // ==========================================
-  // NEUES TOY ANLEGEN & AUTOABGLEICH
-  // ==========================================
-
   function toggleNewToyForm(explicitState) {
     isNewToyFormOpen = (typeof explicitState === 'boolean') ? explicitState : !isNewToyFormOpen;
     var panel = document.getElementById('new-toy-form-panel');
@@ -249,28 +236,26 @@
       }
     }
     if (btn) {
-      btn.innerHTML = isNewToyFormOpen ? "<span>✕</span><span>Schließen</span>" : "<span>+</span><span>Neues Toy</span>";
+      btn.innerHTML = isNewToyFormOpen 
+        ? "<span>✕</span><span>Schließen</span>" 
+        : "<span>+</span><span>Neues Toy</span>";
     }
   }
 
-  // Prüft in Echtzeit, ob der eingegebene Name bereits im Katalog existiert
   function checkToyNameMatch(enteredName) {
     var box = document.getElementById('toy-match-feedback-box');
-    var catRow = document.getElementById('new-toy-category-row');
     if (!box) return;
 
     var clean = (enteredName || '').toLowerCase().trim();
     if (clean.length < 2) {
       box.classList.add('hidden');
       box.innerHTML = '';
-      if (catRow) catRow.classList.remove('opacity-50');
       return;
     }
 
     var catalog = getCombinedCatalog();
     var owned = getOwnedToyIds();
 
-    // 1. Exakte oder sehr nahe Treffer suchen
     var matches = catalog.filter(function(item) {
       var n = (item.name || '').toLowerCase();
       var d = (item.desc || '').toLowerCase();
@@ -280,40 +265,38 @@
     if (matches.length > 0) {
       var best = matches[0];
       var isAlreadyActive = owned.indexOf(best.id) !== -1;
+      var catInfo = CATEGORY_CONFIG[best.category] || { label: best.category, icon: '📦' };
 
       box.className = isAlreadyActive 
-        ? "p-3 rounded-xl border bg-emerald-950/40 border-emerald-700 text-emerald-200 text-[11px] space-y-1.5"
-        : "p-3 rounded-xl border bg-amber-950/40 border-amber-700 text-amber-200 text-[11px] space-y-1.5";
+        ? "p-3 rounded-2xl border bg-emerald-950/40 border-emerald-700/80 text-emerald-200 text-xs space-y-1.5"
+        : "p-3 rounded-2xl border bg-amber-950/40 border-amber-700/80 text-amber-200 text-xs space-y-1.5";
 
       box.innerHTML = `
-        <div class="flex items-start justify-between gap-2">
-          <div>
-            <strong class="block text-white text-xs">
-              ${isAlreadyActive ? '✓ Bereits in eurem Schrank aktiv:' : '💡 Bereits im Gesamtkatalog vorhanden:'}
+        <div class="flex items-start justify-between gap-2.5">
+          <div class="space-y-0.5">
+            <strong class="block text-xs font-bold ${isAlreadyActive ? 'text-emerald-300' : 'text-amber-300'}">
+              ${isAlreadyActive ? '✓ Bereits in eurem Schrank aktiv:' : '💡 Schon im Gesamtkatalog vorhanden:'}
             </strong>
-            <span class="text-slate-200 font-bold block mt-0.5">„${escapeHtml(best.name)}“</span>
-            <span class="text-[10px] text-slate-400 block">${escapeHtml(CATEGORY_LABELS[best.category] || best.category)} · ${escapeHtml(best.desc || '')}</span>
+            <span class="text-white font-extrabold block text-xs">„${escapeHtml(best.name)}“</span>
+            <span class="text-[10.5px] text-slate-400 block">${catInfo.icon} ${escapeHtml(catInfo.label)} · ${escapeHtml(best.desc || '')}</span>
           </div>
           ${!isAlreadyActive ? `
-            <button type="button" onclick="HubToys.activateExistingMatch('${best.id}')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
+            <button type="button" onclick="HubToys.activateExistingMatch('${best.id}')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl text-xs flex-shrink-0 shadow-md transition">
               Diesen aktivieren ✓
             </button>
           ` : `
-            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold text-[10px] flex-shrink-0">
-              Schon aktiv
+            <span class="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold text-[10px] flex-shrink-0">
+              Bereits aktiv
             </span>
           `}
         </div>
-        <p class="text-[10px] text-slate-400 pt-0.5 border-t border-slate-800">
-          Du kannst ihn direkt oben aktivieren, anstatt ihn doppelt als neues Toy anzulegen.
-        </p>
       `;
       box.classList.remove('hidden');
     } else {
-      box.className = "p-2.5 rounded-xl border bg-purple-950/40 border-purple-800/80 text-purple-200 text-[10.5px] flex items-center justify-between";
+      box.className = "p-2.5 rounded-2xl border bg-purple-950/30 border-purple-800/80 text-purple-200 text-xs flex items-center justify-between";
       box.innerHTML = `
-        <span>✨ <strong>Noch nicht im Katalog:</strong> Wird als brandneues Toy angelegt.</span>
-        <span class="text-purple-300 font-mono text-[9.5px]">Neu</span>
+        <span>✨ <strong>Noch nicht im Katalog:</strong> Wird als neues Spielzeug angelegt.</span>
+        <span class="text-purple-300 font-mono text-[10px] font-bold">Neu</span>
       `;
       box.classList.remove('hidden');
     }
@@ -349,7 +332,7 @@
       id: newId,
       name: name,
       category: category,
-      desc: desc || "Individuell hinzugefügtes Spielzeug.",
+      desc: desc || "Individuell hinzugefügter Gegenstand.",
       chapters: [13, 16],
       defaultPresent: true,
       isCustom: true
@@ -359,7 +342,6 @@
     customList.push(newToy);
     saveCustomToys(customList);
 
-    // Automatisch direkt im Schrank aktivieren
     var owned = getOwnedToyIds();
     if (owned.indexOf(newId) === -1) {
       owned.push(newId);
@@ -378,19 +360,13 @@
     var found = customList.find(function(i) { return i.id === toyId; });
     var toyName = found ? found.name : "dieses Toy";
 
-    if (!window.confirm("Möchtest du „" + toyName + "“ wirklich dauerhaft aus dem Katalog löschen?")) {
-      return;
-    }
-
     customList = customList.filter(function(i) { return i.id !== toyId; });
     saveCustomToys(customList);
 
-    // Aus den aktiven IDs entfernen
     var owned = getOwnedToyIds();
     owned = owned.filter(function(id) { return id !== toyId; });
     saveOwnedToyIds(owned);
 
-    // Aus globalem Katalog entfernen
     if (window.equipmentCatalog) {
       window.equipmentCatalog = window.equipmentCatalog.filter(function(i) { return i.id !== toyId; });
     }
@@ -399,28 +375,66 @@
     showToast("„" + toyName + "“ gelöscht 🗑️");
   }
 
-  // ==========================================
-  // RENDER GRID (LESBAR, GROSSZÜGIG, MEHRZEILIG)
-  // ==========================================
+  function renderCategoryChips() {
+    var container = document.getElementById('toy-category-chips-container');
+    if (!container) return;
+
+    var catalog = getCombinedCatalog();
+    var owned = getOwnedToyIds();
+
+    var categories = [
+      { id: 'all', label: 'Alle', icon: '✨' },
+      { id: 'household', label: 'Haushalt', icon: '🏠' },
+      { id: 'bondage', label: 'Fesselung', icon: '⛓️' },
+      { id: 'impact', label: 'Impact', icon: '✋' },
+      { id: 'sensory', label: 'Sensorik', icon: '🙈' },
+      { id: 'cbt_clamps', label: 'CBT', icon: '⚡' },
+      { id: 'toys_anal', label: 'Toys', icon: '🍑' },
+      { id: 'special', label: 'Spezial', icon: '🕯️' }
+    ];
+
+    container.innerHTML = categories.map(function(cat) {
+      var count = (cat.id === 'all')
+        ? catalog.length
+        : catalog.filter(function(i) { return i.category === cat.id; }).length;
+
+      var activeInCat = (cat.id === 'all')
+        ? owned.length
+        : catalog.filter(function(i) { return i.category === cat.id && owned.indexOf(i.id) !== -1; }).length;
+
+      var isSelected = (currentCategory === cat.id);
+
+      var btnClass = isSelected
+        ? 'bg-purple-700 text-white font-black shadow-md border-purple-500'
+        : 'bg-slate-900/90 text-slate-300 font-semibold border-slate-800 hover:border-slate-700 hover:text-white';
+
+      return `
+        <button type="button" onclick="HubToys.filterCategory('${cat.id}')" class="px-3 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 flex-shrink-0 ${btnClass}">
+          <span>${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-md ${isSelected ? 'bg-purple-900 text-purple-200' : 'bg-slate-800 text-slate-400'}">
+            ${activeInCat}/${count}
+          </span>
+        </button>
+      `;
+    }).join('');
+  }
 
   function renderToyManagementGrid() {
     var grid = document.getElementById('toy-management-grid');
-    var countEl = document.getElementById('toy-management-active-count');
     var catalog = getCombinedCatalog();
     var owned = getOwnedToyIds();
     if (!grid) return;
 
     if (catalog.length === 0) {
-      grid.innerHTML = '<div class="col-span-1 sm:col-span-2 p-6 text-center text-slate-500 italic theme-panel rounded-2xl border">Lade Ausrüstungskatalog...</div>';
+      grid.innerHTML = '<div class="col-span-full p-8 text-center text-slate-400 italic bg-slate-900/50 rounded-2xl border border-slate-800">Lade Ausrüstungskatalog...</div>';
       return;
     }
 
-    // 1. Kategoriefilter anwenden
     var filtered = (currentCategory === 'all')
       ? catalog
       : catalog.filter(function(i) { return i.category === currentCategory; });
 
-    // 2. Suchbegriff anwenden
     if (searchQuery) {
       filtered = filtered.filter(function(i) {
         var n = (i.name || '').toLowerCase();
@@ -431,15 +445,14 @@
 
     if (filtered.length === 0) {
       grid.innerHTML = `
-        <div class="col-span-1 sm:col-span-2 p-6 text-center text-slate-400 italic theme-panel rounded-2xl border space-y-2">
-          <span class="text-2xl block">🔍</span>
-          <p>Keine passenden Gegenstände gefunden.</p>
-          <button type="button" onclick="HubToys.toggleNewToyForm(true)" class="px-3 py-1.5 rounded-xl bg-purple-900 border border-purple-700 text-purple-200 font-bold text-xs touch-btn">
+        <div class="col-span-full p-8 text-center text-slate-400 italic bg-slate-900/40 rounded-3xl border border-slate-800 space-y-3">
+          <span class="text-3xl block">🔍</span>
+          <p class="text-xs">Keine passenden Gegenstände gefunden.</p>
+          <button type="button" onclick="HubToys.toggleNewToyForm(true)" class="px-4 py-2 rounded-xl bg-purple-900 border border-purple-700 text-purple-200 font-bold text-xs shadow-md">
             + Jetzt als neues Toy anlegen
           </button>
         </div>
       `;
-      if (countEl) countEl.innerText = owned.length;
       return;
     }
 
@@ -459,55 +472,62 @@
     grid.innerHTML = filtered.map(function(item) {
       var isOwned = owned.indexOf(item.id) !== -1;
       var isCustom = !!item.isCustom;
+      var catInfo = CATEGORY_CONFIG[item.category] || { label: item.category, icon: '📦' };
 
       var cardBorderClass = isOwned
-        ? 'bg-purple-950/40 border-purple-500 shadow-md ring-1 ring-purple-500/50'
-        : 'theme-panel border-slate-800 hover:border-slate-700';
-
-      var badgeBg = isCustom
-        ? 'bg-amber-950 text-amber-300 border-amber-800'
-        : 'bg-slate-900 text-slate-400 border-slate-800';
+        ? 'bg-purple-950/30 border-purple-500/70 shadow-lg ring-1 ring-purple-500/40'
+        : 'bg-slate-900/60 border-slate-800/90 hover:border-slate-700';
 
       return `
-        <div onclick="HubToys.toggleOwned('${item.id}')" class="p-3.5 rounded-2xl border flex flex-col justify-between gap-2.5 cursor-pointer touch-btn transition-all ${cardBorderClass}">
-          <!-- TITEL & STATUS -->
-          <div class="space-y-1">
-            <div class="flex items-start justify-between gap-2">
-              <strong class="text-xs sm:text-sm font-extrabold text-white leading-snug break-words flex-1">
-                ${escapeHtml(item.name)}
-              </strong>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
+        <div onclick="HubToys.toggleOwned('${item.id}')" class="p-3.5 sm:p-4 rounded-2xl border flex flex-col justify-between gap-3 cursor-pointer transition-all hover:scale-[1.005] select-none ${cardBorderClass}">
+          <!-- HEADER & TITEL -->
+          <div class="space-y-1.5">
+            <div class="flex items-start justify-between gap-2.5">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${isCustom ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-slate-800 text-slate-300'}">
+                    ${isCustom ? '⭐ Eigenes Toy' : (catInfo.icon + ' ' + catInfo.label)}
+                  </span>
+                  ${isOwned ? `
+                    <span class="text-[10px] font-bold text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-md border border-purple-800/60">
+                      Im Schrank ✓
+                    </span>
+                  ` : ''}
+                </div>
+                <h4 class="text-xs sm:text-sm font-extrabold text-white leading-snug break-words">
+                  ${escapeHtml(item.name)}
+                </h4>
+              </div>
+
+              <!-- TOGGLE CHECKBOX & DELETE -->
+              <div class="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
                 ${isCustom ? `
-                  <button type="button" onclick="HubToys.deleteCustom('${item.id}', event)" class="p-1 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-900 transition touch-btn" title="Dieses eigene Toy dauerhaft löschen">
+                  <button type="button" onclick="HubToys.deleteCustom('${item.id}', event)" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/60 flex items-center justify-center transition" title="Dieses Toy dauerhaft löschen">
                     🗑️
                   </button>
                 ` : ''}
-                <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs ${isOwned ? 'bg-purple-600 text-white shadow-sm' : 'theme-panel text-slate-600 border border-slate-800'}">
-                  ${isOwned ? '✓' : '○'}
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs transition-colors ${isOwned ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-800 border border-slate-700 text-slate-500'}">
+                  ${isOwned ? '✓' : ''}
                 </div>
               </div>
             </div>
 
-            <!-- MEHRZEILIGE BESCHREIBUNG -->
-            <p class="text-[11px] text-slate-300 leading-relaxed font-normal pt-0.5">
+            <!-- BESCHREIBUNG -->
+            <p class="text-[11px] text-slate-300 leading-relaxed font-normal">
               ${escapeHtml(item.desc || '')}
             </p>
           </div>
 
-          <!-- KATEGORIE-TAG & STATUS -->
+          <!-- FOOTER STATUS ZEILE -->
           <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[10px]">
-            <span class="px-2 py-0.5 rounded border font-semibold ${badgeBg}">
-              ${isCustom ? '⭐ Eigenes Toy' : (CATEGORY_LABELS[item.category] || item.category)}
-            </span>
-            <span class="font-bold ${isOwned ? 'text-purple-300' : 'text-slate-500'}">
-              ${isOwned ? 'Im Schrank bereit ✓' : 'Nicht aktiviert'}
+            <span class="text-slate-400 font-medium">Antippen zum Umschalten</span>
+            <span class="font-extrabold ${isOwned ? 'text-purple-300' : 'text-slate-500'}">
+              ${isOwned ? 'Aktiviert für Regie' : 'Deaktiviert'}
             </span>
           </div>
         </div>
       `;
     }).join('');
-
-    if (countEl) countEl.innerText = owned.length;
   }
 
   window.HubToys = {
@@ -530,7 +550,6 @@
     deleteCustom: deleteCustomToy
   };
 
-  // Globale Event-Aliase für HTML
   window.openToyManagementModal = openToyManagementModal;
   window.closeToyManagementModal = closeToyManagementModal;
   window.filterToyManagementCat = filterToyManagementCat;
@@ -549,4 +568,3 @@
   }
 
 })(window);
-````
