@@ -157,8 +157,8 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
       return;
     }
     var c = document.getElementById('toast-container');
@@ -580,7 +580,6 @@
         ${topArchetypes.map(function(arch, idx) {
           var pctA = rankA[arch.id]?.percentage || 0;
           var pctB = rankB[arch.id]?.percentage || 0;
-          var diff = Math.abs(pctA - pctB);
           var isSynergy = (arch.role === 'both' && pctA >= 40 && pctB >= 40) ||
                           (pctA >= 50 && pctB >= 50);
 
