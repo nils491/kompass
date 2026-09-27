@@ -3,12 +3,11 @@
  * Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
  * 
  * Features & Perfektionierungen:
- * - 🎯 Exakte Audio-Visual-Synchronisation: Zahlen starten erst, wenn die Gemini-Stimme wirklich ertönt
- * - ⏳ Eleganter Ladebalken ("Stimme fokussiert die Schwelle...") während der Audio-Generierung
- * - 💬 Natürliche deutsche Sprache: Konsequenter Verzicht auf "Kante" – stattdessen "Schwelle", "Plateau", "Höhepunkt-Schwelle"
+ * - 🎯 Exakte Audio-Visual-Synchronisation: Ladebalken bleibt so lange aktiv, bis das Audio WIRKLICH ertönt (kein vorzeitiger Timeout)
+ * - ⏸️ Intelligentes Zahlen-Verweilen: Die Zahl bleibt stehen und pulsiert, während die Stimme erotische Zwischenbemerkungen macht
+ * - 💬 Natürliche deutsche Sprache: Konsequent "Schwelle", "Plateau", "Höhepunkt-Schwelle"
  * - ⏱️ JOI-Zeitstepper: Standard 20s mit flexiblen [- 5s] und [+ 5s] Reglern (5s bis 60s)
- * - 🎙️ Erotisch-psychologische JOI-Sprachführung (Jerk-Off Instruction): Takt, Atemführung, Schwellen-Spannung
- * - 🛡️ Sofortige AudioContext-Entriegelung bei allen Touch-Gesten
+ * - 🎙️ Erotisch-psychologische JOI-Sprachführung: Atmung, Schwellen-Spannung und finale Freigabe
  */
 
 (function(window) {
@@ -209,52 +208,109 @@
     });
   }
 
-  function getCountdownConfig(durationSeconds) {
-    if (durationSeconds <= 7) return { startNum: 5, stepMs: 1150 };
-    if (durationSeconds <= 12) return { startNum: 10, stepMs: 1150 };
-    if (durationSeconds <= 22) return { startNum: 16, stepMs: 1250 };
-    if (durationSeconds <= 35) return { startNum: 25, stepMs: 1300 };
-    return { startNum: 30, stepMs: 1350 };
-  }
-
-  function buildDynamicCountdownSpeechText(durationSeconds, subName) {
+  /**
+   * Erstellt strukturierte Beat-Segmente für die genaue Synchronisation:
+   * Jedes Element hat:
+   * - num: Die angezeigte Zahl (bleibt stehen!)
+   * - text: Der gesprochene Text
+   * - cue: Der subtile Hinweis auf dem Display
+   * - durMs: Die geschätzte Sprech- und Haltezeit
+   */
+  function buildJoiCountdownTimeline(durationSeconds, subName) {
     var name = subName || 'mein Schatz';
 
     if (durationSeconds <= 7) {
-      return "Fünf... Vier... Blick fest zu mir... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+      return [
+        { num: 5, text: "Fünf.", cue: "Spannung halten...", durMs: 1400 },
+        { num: 4, text: "Vier... Blick fest zu mir...", cue: "Nicht wegschauen...", durMs: 2000 },
+        { num: 3, text: "Drei... spüre die Hitze...", cue: "Gleich hast du es...", durMs: 1900 },
+        { num: 2, text: "Zwei...", cue: "Bereithalten...", durMs: 1400 },
+        { num: 1, text: "Eins...", cue: "Jetzt...", durMs: 1400 },
+        { num: 0, text: "Jetzt! Lass alles los und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+      ];
     }
 
     if (durationSeconds <= 12) {
-      return "Zehn... tief durchatmen... Neun... Acht... nicht bewegen, " + name + "... " +
-             "Sieben... Sechs... spüre die Glut... " +
-             "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+      return [
+        { num: 10, text: "Zehn. Tief durchatmen.", cue: "Ausatmen und spüren...", durMs: 2000 },
+        { num: 9, text: "Neun.", cue: "Reglos bleiben...", durMs: 1400 },
+        { num: 8, text: "Acht... Nicht bewegen, " + name + "...", cue: "Kein Zucken...", durMs: 2200 },
+        { num: 7, text: "Sieben...", cue: "Die Lust stauen...", durMs: 1500 },
+        { num: 6, text: "Sechs... Spüre die Glut im Becken...", cue: "Das Pochen halten...", durMs: 2300 },
+        { num: 5, text: "Fünf...", cue: "Fast an der Grenze...", durMs: 1500 },
+        { num: 4, text: "Vier... Halt die Spannung...", cue: "Bleib bei mir...", durMs: 2000 },
+        { num: 3, text: "Drei...", cue: "Gleich darfst du...", durMs: 1500 },
+        { num: 2, text: "Zwei... Bereithalten...", cue: "Kurz vor der Erlösung...", durMs: 1800 },
+        { num: 1, text: "Eins...", cue: "Loslassen...", durMs: 1400 },
+        { num: 0, text: "Jetzt! Lass alles los und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+      ];
     }
 
     if (durationSeconds <= 22) {
-      return "Sechzehn... nicht bewegen, " + name + "... " +
-             "Fünfzehn... Vierzehn... tief in den Bauchraum atmen... " +
-             "Dreizehn... Zwölf... Elf... spüre das Pochen an der Schwelle... " +
-             "Zehn... Neun... Acht... halte die Spannung reglos... " +
-             "Sieben... Sechs... Fünf... gleich hast du es... " +
-             "Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
+      return [
+        { num: 16, text: "Sechzehn. Stillhalten, " + name + ".", cue: "Regungslos an der Schwelle...", durMs: 2200 },
+        { num: 15, text: "Fünfzehn...", cue: "Die Glut spüren...", durMs: 1500 },
+        { num: 14, text: "Vierzehn... Tief in den Bauchraum atmen...", cue: "Langsamer Atem...", durMs: 2300 },
+        { num: 13, text: "Dreizehn...", cue: "Fokus auf die Lust...", durMs: 1400 },
+        { num: 12, text: "Zwölf... Spüre das Pochen an der Schwelle...", cue: "Das Pochen halten...", durMs: 2300 },
+        { num: 11, text: "Elf...", cue: "Nicht nachgeben...", durMs: 1400 },
+        { num: 10, text: "Zehn. Halte die Lust reglos.", cue: "Becken anspannen...", durMs: 2200 },
+        { num: 9, text: "Neun...", cue: "Tiefe Hingabe...", durMs: 1400 },
+        { num: 8, text: "Acht... Der Druck steigt...", cue: "Ganz nah an der Kante...", durMs: 2100 },
+        { num: 7, text: "Sieben...", cue: "Ausharren...", durMs: 1400 },
+        { num: 6, text: "Sechs... Gleich hast du es geschafft...", cue: "Blick zu mir...", durMs: 2200 },
+        { num: 5, text: "Fünf...", cue: "Die Welle rollt an...", durMs: 1400 },
+        { num: 4, text: "Vier... Bereithalten, " + name + "...", cue: "Gleich explodieren...", durMs: 2000 },
+        { num: 3, text: "Drei...", cue: "Jeden Herzschlag spüren...", durMs: 1400 },
+        { num: 2, text: "Zwei... Noch ein Atemzug...", cue: "Letzter Halt...", durMs: 1900 },
+        { num: 1, text: "Eins...", cue: "Alles öffnen...", durMs: 1400 },
+        { num: 0, text: "Jetzt! Explodiere für mich!", cue: "KOMMEN!", durMs: 4000 }
+      ];
     }
 
-    // 25-60 Sekunden: Intensive JOI (Jerk-Off Instruction) Führung
-    return "Fünfundzwanzig... Vierundzwanzig... ganz ruhig ausatmen, " + name + "... " +
-           "Dreiundzwanzig... Zweiundzwanzig... Einundzwanzig... Zwanzig... spüre jeden Herzschlag... " +
-           "Neunzehn... Achtzehn... Siebzehn... Sechzehn... bleib reglos an der Schwelle... " +
-           "Fünfzehn... Vierzehn... Dreizehn... Zwölf... die Lust halten... " +
-           "Elf... Zehn... Neun... Acht... der Druck steigt... " +
-           "Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles fließen und komm!";
+    // 25 bis 60 Sekunden: Tiefe, intensive JOI-Trance
+    return [
+      { num: 25, text: "Fünfundzwanzig. Ganz ruhig ausatmen, " + name + ".", cue: "Entschleunigen...", durMs: 2400 },
+      { num: 24, text: "Vierundzwanzig...", cue: "Schultern sinken lassen...", durMs: 1500 },
+      { num: 23, text: "Dreiundzwanzig... Spüre die feurige Schwelle...", cue: "Wärme im gesamten Körper...", durMs: 2300 },
+      { num: 22, text: "Zweiundzwanzig...", cue: "Reglos bleiben...", durMs: 1500 },
+      { num: 21, text: "Einundzwanzig... Nicht bewegen...", cue: "Kein Millimeter Bewegung...", durMs: 2000 },
+      { num: 20, text: "Zwanzig. Spüre jeden einzelnen Herzschlag.", cue: "Im Takt des Herzens...", durMs: 2400 },
+      { num: 19, text: "Neunzehn...", cue: "Die Lust anstauen...", durMs: 1500 },
+      { num: 18, text: "Achtzehn... Bleib reglos an der Grenze...", cue: "Gefahrenzone halten...", durMs: 2200 },
+      { num: 17, text: "Siebzehn...", cue: "Ausatmen...", durMs: 1500 },
+      { num: 16, text: "Sechzehn... Deine Hingabe gehört ganz mir...", cue: "Vollkommene Ergebung...", durMs: 2400 },
+      { num: 15, text: "Fünfzehn...", cue: "Die Hitze brennt...", durMs: 1500 },
+      { num: 14, text: "Vierzehn... Halte die Spannung...", cue: "Süße Qual...", durMs: 2000 },
+      { num: 13, text: "Dreizehn...", cue: "Becken öffnen...", durMs: 1500 },
+      { num: 12, text: "Zwölf... Der Druck steigt unaufhaltsam...", cue: "Kurz vor dem Überlaufen...", durMs: 2400 },
+      { num: 11, text: "Elf...", cue: "Blick fest zu mir...", durMs: 1500 },
+      { num: 10, text: "Zehn. Gleich erlöse ich dich.", cue: "Die letzten zehn Sekunden...", durMs: 2300 },
+      { num: 9, text: "Neun...", cue: "Atem anhalten...", durMs: 1500 },
+      { num: 8, text: "Acht... Spüre die Erlösung nahen...", cue: "Alles pulsiert...", durMs: 2200 },
+      { num: 7, text: "Sieben...", cue: "Fast am Ziel...", durMs: 1500 },
+      { num: 6, text: "Sechs... Noch ein kurzes Ausharren...", cue: "Reglos bleiben...", durMs: 2100 },
+      { num: 5, text: "Fünf...", cue: "Welle bereitstellen...", durMs: 1500 },
+      { num: 4, text: "Vier... Bereithalten...", cue: "Körper ganz spüren...", durMs: 2000 },
+      { num: 3, text: "Drei...", cue: "Zwei Atemzüge...", durMs: 1500 },
+      { num: 2, text: "Zwei... Gleich darfst du...", cue: "Jetzt bereitmachen...", durMs: 1800 },
+      { num: 1, text: "Eins...", cue: "Loslassen...", durMs: 1400 },
+      { num: 0, text: "Jetzt! Lass alles fließen und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+    ];
   }
 
-  function triggerDisplayBeat(text, stepMs) {
+  function triggerDisplayBeat(text, durMs, cueText) {
     var disp = document.getElementById('countdown-display');
+    var cue = document.getElementById('countdown-cue-text');
     if (!disp) return;
 
     disp.innerText = text;
-    if (stepMs) {
-      disp.style.setProperty('--beat-duration', (stepMs / 1000) + 's');
+    if (durMs) {
+      disp.style.setProperty('--beat-duration', (durMs / 1000) + 's');
+    }
+
+    if (cue && cueText) {
+      cue.innerText = cueText;
     }
 
     disp.classList.remove('countdown-beat-active', 'climax-pulse-active');
@@ -297,8 +353,10 @@
       wrap.style.display = 'flex';
     }
 
-    var config = getCountdownConfig(targetEdgingDuration);
-    currentEdgingCountdown = config.startNum;
+    var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
+    var timeline = buildJoiCountdownTimeline(targetEdgingDuration, subName);
+
+    currentEdgingCountdown = timeline[0].num;
     isCountdownActive = true;
     isEdgingCountdownPaused = false;
     countdownRunId++;
@@ -306,33 +364,29 @@
 
     if (btnText) btnText.innerText = "Pause";
 
-    var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
-    var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
-
     logSessionAction("Geführter JOI-Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
 
-    // Wenn der Top selbst spricht: Sofortiger Ticker-Start
+    // WENN DER TOP SELBST SPRICHT: Sofortiger Ticker-Start
     if (countdownVoiceMode === 'self') {
       if (pill) {
         pill.innerText = "Live";
         pill.className = "text-[10px] font-mono text-indigo-400 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800";
       }
-      if (cueText) {
-        cueText.innerText = "Sprich jetzt laut im Takt mit (" + config.startNum + " bis 1)...";
-      }
       removeLoadingProgressUi();
-      triggerDisplayBeat(config.startNum.toString(), config.stepMs);
-      runVisualCountdownTicker(thisRunId, config.startNum, config.stepMs);
+      if (disp) {
+        disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform block";
+      }
+      runTimelineTicker(thisRunId, timeline);
       return;
     }
 
-    // Wenn Gemini spricht: LADEBALKEN ANZEIGEN, bis Audio wirklich decodiert und abgespielt wird
+    // WENN GEMINI SPRICHT: LADEBALKEN ANZEIGEN BIS ZUM ERSTEN ECHTEN TON
     if (pill) {
       pill.innerText = "⏳ Stimme lädt...";
       pill.className = "text-[10px] font-mono text-purple-300 font-bold bg-purple-950/80 px-2.5 py-1 rounded-lg border border-purple-800 animate-pulse";
     }
     if (disp) {
-      disp.className = "hidden"; // Versteckt bis die Stimme startet
+      disp.className = "hidden"; // Versteckt, bis die Stimme WIRKLICH abspielt
     }
     renderLoadingProgressUi();
 
@@ -340,10 +394,12 @@
       cueText.innerText = "Regiestimme fokussiert die Schwelle... bereithalten!";
     }
 
+    var fullSpeechText = timeline.map(function(t) { return t.text; }).join(' ');
+
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       var speechStarted = false;
 
-      // Event-Hook: Sobald Audio abgespielt wird, schaltet die UI auf synchrone Riesenzahlen um
+      // Event-Hook: Sobald Audio TATSÄCHLICH abgespielt wird, schaltet die UI auf synchrone Riesenzahlen um
       var startSyncCallback = function() {
         if (speechStarted || thisRunId !== countdownRunId) return;
         speechStarted = true;
@@ -357,12 +413,9 @@
         if (disp) {
           disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform block";
         }
-        if (cueText) {
-          cueText.innerText = "Gemini führt den Atem von " + config.startNum + " herunter... Schwelle halten!";
-        }
 
-        triggerDisplayBeat(config.startNum.toString(), config.stepMs);
-        runVisualCountdownTicker(thisRunId, config.startNum, config.stepMs);
+        // Ticker startet erst HIER – exakt synchron mit dem ersten Ton!
+        runTimelineTicker(thisRunId, timeline);
       };
 
       // Listener auf das Master-Audioelement legen
@@ -371,28 +424,25 @@
         masterAudio.addEventListener('playing', startSyncCallback, { once: true });
       }
 
-      // Sicherheits-Timeout (spätestens nach 3.2s starten, falls Browser-Event verzögert)
-      setTimeout(function() {
-        startSyncCallback();
-      }, 3200);
-
-      window.SessionVoice.play(fullCountdownText).then(function() {
+      window.SessionVoice.play(fullSpeechText).then(function() {
         if (thisRunId !== countdownRunId) return;
         var endDisp = document.getElementById('countdown-display');
+        var endCue = document.getElementById('countdown-cue-text');
         if (endDisp) {
           endDisp.classList.remove('countdown-beat-active');
           endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
           endDisp.innerText = "KOMMEN!";
         }
-        if (cueText) cueText.innerText = "Erlaubnis erteilt! Lass alles los!";
+        if (endCue) endCue.innerText = "Erlaubnis erteilt! Lass alles los!";
         setTimeout(function() {
           if (wrap) {
             wrap.classList.add('hidden');
             wrap.style.display = 'none';
           }
         }, 4500);
-      }).catch(function() {
+      }).catch(function(err) {
         removeLoadingProgressUi();
+        showToast("⚠️ Audio-Verbindung unterbrochen");
       });
     }
   }
@@ -410,7 +460,7 @@
       <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-purple-900/60">
         <div class="h-full bg-gradient-to-r from-purple-600 via-pink-500 to-emerald-400 rounded-full w-full animate-pulse"></div>
       </div>
-      <span class="text-[11px] text-purple-300 font-mono tracking-wider font-semibold">Stimme wird synchronisiert...</span>
+      <span class="text-[11px] text-purple-300 font-mono tracking-wider font-semibold">Stimme fokussiert die Schwelle...</span>
     `;
     disp.parentNode.insertBefore(loaderBox, disp);
   }
@@ -420,41 +470,53 @@
     if (loader) loader.remove();
   }
 
-  async function runVisualCountdownTicker(runId, startNumber, stepDurationMs) {
+  /**
+   * Läuft die Timeline segmentweise ab:
+   * Wenn die Stimme eine Zwischenbemerkung macht, BLEIBT DIE ZAHL STEHEN und pulsiert im Takt!
+   */
+  async function runTimelineTicker(runId, timeline) {
     var disp = document.getElementById('countdown-display');
     var cueText = document.getElementById('countdown-cue-text');
-    var ticker = startNumber;
 
-    while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
-      if (isEdgingCountdownPaused) {
-        await new Promise(function(r) { setTimeout(r, 300); });
-        continue;
-      }
-      triggerDisplayBeat(ticker.toString(), stepDurationMs);
-      await new Promise(function(r) { setTimeout(r, stepDurationMs); });
-      ticker--;
-    }
+    for (var i = 0; i < timeline.length; i++) {
+      if (!isCountdownActive || runId !== countdownRunId) break;
 
-    if (ticker <= 0 && runId === countdownRunId) {
-      if (disp) {
-        disp.classList.remove('countdown-beat-active');
-        disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
-        disp.innerText = "KOMMEN!";
+      var step = timeline[i];
+
+      while (isEdgingCountdownPaused && isCountdownActive && runId === countdownRunId) {
+        await new Promise(function(r) { setTimeout(r, 200); });
       }
-      if (cueText) {
-        cueText.innerText = (countdownVoiceMode === 'self') 
-          ? "Sprich jetzt: 'JETZT KOMMEN!'" 
-          : "Erlaubnis erteilt! Lass alles los!";
-      }
-      logSessionAction("Orgasmus-Freigabe (" + targetEdgingDuration + "s beendet)");
-      setTimeout(function() {
-        var wrap = document.getElementById('countdown-wrapper');
-        if (wrap) {
-          wrap.classList.add('hidden');
-          wrap.style.display = 'none';
+
+      if (step.num === 0) {
+        // Finale Freigabe
+        if (disp) {
+          disp.classList.remove('countdown-beat-active');
+          disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
+          disp.innerText = "KOMMEN!";
         }
-      }, 4500);
+        if (cueText) {
+          cueText.innerText = (countdownVoiceMode === 'self') 
+            ? "Sprich jetzt: 'JETZT KOMMEN!'" 
+            : "Erlaubnis erteilt! Lass alles los!";
+        }
+        logSessionAction("Orgasmus-Freigabe (" + targetEdgingDuration + "s beendet)");
+        break;
+      }
+
+      // Zahl schlagen lassen; Text und Hinweis aktualisieren
+      triggerDisplayBeat(step.num.toString(), step.durMs, step.cue);
+
+      // Exakt die Dauer des Segments abwarten (die Zahl bleibt stehen, während gesprochen wird!)
+      await new Promise(function(r) { setTimeout(r, step.durMs); });
     }
+
+    setTimeout(function() {
+      var wrap = document.getElementById('countdown-wrapper');
+      if (wrap && runId === countdownRunId) {
+        wrap.classList.add('hidden');
+        wrap.style.display = 'none';
+      }
+    }, 4500);
   }
 
   function pauseSpeechCountdown() {
