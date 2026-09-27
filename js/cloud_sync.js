@@ -5,6 +5,7 @@
  * Sicherheitsmerkmale:
  * - AES-GCM 256-Bit Verschlüsselung über die native Browser Web Crypto API
  * - Schlüsselableitung via PBKDF2 (100.000 Runden SHA-256) aus dem Paar-Code
+ * - Standard-Freigabestufe: Stufe 4 (Radikale Transparenz / Alles zeigen - Empfohlen)
  * - Zero-Knowledge: Der Server sieht ausschließlich verschlüsseltes Rauschen (Ciphertext + IV + Salt)
  * - Automatisches Debouncing (800ms) und lokales Merging ohne Datenverlust
  */
@@ -128,8 +129,8 @@
       customEquipment: rawCustom ? JSON.parse(rawCustom) : [],
       sessionDiary: rawDiary ? JSON.parse(rawDiary) : [],
       sharingLevels: {
-        A: slA ? parseInt(slA, 10) : 3,
-        B: slB ? parseInt(slB, 10) : 3
+        A: slA ? parseInt(slA, 10) : 4,
+        B: slB ? parseInt(slB, 10) : 4
       },
       lastSenderRole: myAssignedRole,
       clientTimestamp: Date.now()
@@ -147,7 +148,7 @@
       activeEquipmentIds: [],
       customEquipment: [],
       sessionDiary: [],
-      sharingLevels: { A: 3, B: 3 }
+      sharingLevels: { A: 4, B: 4 }
     };
 
     // Antworten verlustfrei zusammenführen
@@ -164,9 +165,9 @@
     merged.safetyConfig.A = Object.assign({}, local.safetyConfig?.A || {}, remote.safetyConfig?.A || {});
     merged.safetyConfig.B = Object.assign({}, local.safetyConfig?.B || {}, remote.safetyConfig?.B || {});
 
-    // Freigabestufen
-    merged.sharingLevels.A = remote.sharingLevels?.A || local.sharingLevels?.A || 3;
-    merged.sharingLevels.B = remote.sharingLevels?.B || local.sharingLevels?.B || 3;
+    // Freigabestufen (Standard 4)
+    merged.sharingLevels.A = remote.sharingLevels?.A || local.sharingLevels?.A || 4;
+    merged.sharingLevels.B = remote.sharingLevels?.B || local.sharingLevels?.B || 4;
 
     // Aktive Equipment IDs (Vereinigungsmenge)
     var equipSet = new Set([].concat(local.activeEquipmentIds || [], remote.activeEquipmentIds || []));
@@ -260,7 +261,6 @@
       });
 
       if (resp.status === 404) {
-        // Raum noch leer: Erstupload initialisieren
         pushDataToCloud();
         return false;
       }
@@ -271,7 +271,7 @@
       var checkHash = (JSON.stringify(encryptedPackage).length).toString() + '_' + (encryptedPackage.updatedAt || '');
 
       if (checkHash === lastKnownRemoteHash) {
-        return false; // Keine Änderung auf dem Server
+        return false;
       }
 
       var remoteData = await decryptPayload(encryptedPackage, activePairCode);
