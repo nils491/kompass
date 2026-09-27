@@ -1,20 +1,10 @@
 /**
  * js/hub_modals.js
- * Vollständiger Controller für alle Modals und Einstellungen im Start-Hub:
- * - Profil & Account-Einstellungen (Name, E-Mail, Anatomie, Gemini-Key, Stimme)
- * - Standard-Freigabestufe: Stufe 4 (Radikale Transparenz / Alles zeigen - Empfohlen)
- * - Cloud-Synchronisations- & Multi-Device-Kopplungs-Steuerung
- * - Profil-Reset mit zweistufiger Sicherheitsabfrage
- * - Tabu-Charta mit direkt anklickbaren Tabus (automatischer Partner-Wechsel & Direktsprung)
- * - Toy-Management (Weiterleitung an HubToys)
- * - 3-Stufen-Onboarding mit Paar-Code & iPhone-Homescreen-Anleitung
+ * Modal-, Account-, Onboarding- & Kopplungs-Controller für den Kink- & Beziehungs-Kompass.
  */
 
 (function(window) {
   'use strict';
-
-  var onboardAnatState = { A: 'penis', B: 'vulva' };
-  var onboardSharingLevel = 4; // Standard: Stufe 4 (Radikale Transparenz)
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -44,260 +34,37 @@
     }, 2500);
   }
 
-  // ==========================================
-  // 1. CLOUD-SYNCHRONISATIONS-CONTROLLER
-  // ==========================================
-
-  function updateCloudSyncUI() {
-    if (!window.CloudSync) return;
-    var state = window.CloudSync.getState();
-
-    var dot = document.getElementById('cloud-sync-status-dot');
-    var txt = document.getElementById('cloud-sync-status-text');
-    var badgeHeader = document.getElementById('cloud-sync-badge');
-    var hubBadge = document.getElementById('hub-sync-status-badge');
-    var stateLabel = document.getElementById('cloud-sync-state-label');
-    var setupPanel = document.getElementById('cloud-sync-setup-panel');
-    var activePanel = document.getElementById('cloud-sync-active-panel');
-    var codeDisplay = document.getElementById('active-pair-code-display');
-
-    if (state.isPaired) {
-      if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-      if (txt) {
-        txt.innerText = state.status === 'syncing' ? "Synchronisiere..." : "Gekoppelt";
-        txt.className = "hidden sm:inline text-[10.5px] text-emerald-300 font-bold";
-      }
-      if (hubBadge) {
-        hubBadge.innerText = "Verbunden (" + state.pairCode + ")";
-        hubBadge.className = "text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800";
-      }
-      if (badgeHeader) {
-        badgeHeader.innerText = state.status === 'syncing' ? "Sync..." : "Live";
-        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
-      }
-      if (stateLabel) {
-        stateLabel.innerText = "Gekoppelt mit Code: " + state.pairCode;
-      }
-      if (codeDisplay) {
-        codeDisplay.innerText = state.pairCode;
-      }
-      if (setupPanel) setupPanel.classList.add('hidden');
-      if (activePanel) activePanel.classList.remove('hidden');
-    } else {
-      if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-500";
-      if (txt) {
-        txt.innerText = "Lokal";
-        txt.className = "hidden sm:inline text-[10.5px] text-slate-400";
-      }
-      if (hubBadge) {
-        hubBadge.innerText = "Lokal";
-        hubBadge.className = "text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800";
-      }
-      if (badgeHeader) {
-        badgeHeader.innerText = "Offline";
-        badgeHeader.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400";
-      }
-      if (stateLabel) {
-        stateLabel.innerText = "Nicht gekoppelt (Nur lokaler Speicher)";
-      }
-      if (setupPanel) setupPanel.classList.remove('hidden');
-      if (activePanel) activePanel.classList.add('hidden');
-    }
-  }
-
-  function getInviteUrlForPartner() {
-    var state = window.CloudSync ? window.CloudSync.getState() : {};
-    var code = state.pairCode || '';
-    if (!code) return window.location.href;
-
-    var targetRole = (state.role === 'A') ? 'B' : 'A';
-    var baseUrl = window.location.origin + window.location.pathname;
-    return baseUrl + '?pair=' + encodeURIComponent(code) + '&role=' + targetRole + '#view=hub';
-  }
-
-  async function handleShareInviteLink() {
-    var state = window.CloudSync ? window.CloudSync.getState() : {};
-    if (!state.pairCode) {
-      showToast("⚠️ Bitte erstelle zuerst einen Paar-Code.");
-      return;
-    }
-
-    var inviteUrl = getInviteUrlForPartner();
-    var shareData = {
-      title: "Unser Kink- & Beziehungs-Kompass",
-      text: "Hier ist unser sicherer Paar-Zugang für den Kink-Kompass. Tippe einfach auf den Link, um dich direkt mit mir zu verbinden:",
-      url: inviteUrl
-    };
-
-    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        showToast("Einladung geteilt ✓");
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          handleCopyInviteLink();
-        }
-      }
-    } else {
-      handleCopyInviteLink();
-    }
-  }
-
-  function handleCopyInviteLink() {
-    var inviteUrl = getInviteUrlForPartner();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(inviteUrl).then(function() {
-        showToast("📋 Einladungslink in Zwischenablage kopiert! Jetzt in WhatsApp einfügen.");
-      }).catch(function() {
-        promptInviteLinkFallback(inviteUrl);
-      });
-    } else {
-      promptInviteLinkFallback(inviteUrl);
-    }
-  }
-
-  function promptInviteLinkFallback(url) {
-    window.prompt("Kopiere diesen Einladungslink für deine Partnerin:", url);
-  }
-
-  async function checkUrlForAutoPairing() {
-    try {
-      var params = new URLSearchParams(window.location.search);
-      var pairCode = params.get('pair');
-      var role = params.get('role') || 'B';
-
-      if (pairCode && pairCode.trim().length >= 5) {
-        var cleanCode = pairCode.trim().toUpperCase();
-        showToast("⏳ Einladungslink erkannt: Verbinde automatisch mit " + cleanCode + "...");
-
-        if (window.CloudSync) {
-          try {
-            await window.CloudSync.joinRoom(cleanCode, role);
-            if (typeof window.setCurrentUser === 'function') {
-              window.setCurrentUser(role);
-            }
-            updateCloudSyncUI();
-            showToast("✓ Erfolgreich als " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " gekoppelt!");
-
-            var cleanUrl = window.location.origin + window.location.pathname + (window.location.hash || '#view=hub');
-            window.history.replaceState({}, document.title, cleanUrl);
-          } catch (e) {
-            showToast("⚠️ Automatische Kopplung fehlgeschlagen: " + (e.message || "Code abgelaufen"));
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("Fehler beim Prüfen von Auto-Pairing Parametern:", e);
-    }
-  }
-
-  function openCloudSyncModal() {
-    var modal = document.getElementById('modal-cloud-sync');
-    if (!modal) return;
-
-    try {
-      if (typeof updateCloudSyncUI === 'function') updateCloudSyncUI();
-    } catch (e) {}
-
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-  }
-
-  function closeCloudSyncModal() {
-    var modal = document.getElementById('modal-cloud-sync');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-    }
-    if (typeof updateCloudSyncUI === 'function') updateCloudSyncUI();
-  }
-
-  async function handleCreatePairRoom() {
-    var btn = document.getElementById('btn-create-pair-room');
-    if (btn) btn.innerText = "⏳ Erstelle sicheren Paar-Raum...";
-
-    try {
-      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
-      var newCode = await window.CloudSync.createRoom();
-      showToast("✨ Paar-Code erstellt: " + newCode);
-      updateCloudSyncUI();
-    } catch (e) {
-      showToast("⚠️ Fehler beim Erstellen: " + (e.message || "Netzwerkfehler"));
-    } finally {
-      if (btn) btn.innerText = "✨ Paar-Code jetzt erstellen";
-    }
-  }
-
-  async function handleJoinPairRoom(role) {
-    var input = document.getElementById('input-pair-code');
-    var code = (input ? input.value : '').trim().toUpperCase();
-
-    if (!code) {
-      showToast("Bitte gib den Paar-Code deines Partners ein.");
-      return;
-    }
-
-    showToast("⏳ Verbinde und entschlüssele Daten...");
-    try {
-      if (!window.CloudSync) throw new Error("Cloud-Engine nicht geladen.");
-      await window.CloudSync.joinRoom(code, role);
-
-      if (typeof window.setCurrentUser === 'function') {
-        window.setCurrentUser(role);
-      }
-
-      showToast("✓ Erfolgreich mit " + code + " gekoppelt!");
-      updateCloudSyncUI();
-    } catch (e) {
-      showToast("⚠️ Kopplung fehlgeschlagen: " + (e.message || "Code ungültig"));
-    }
-  }
-
-  async function handleManualSyncNow() {
-    showToast("🔄 Gleiche Daten mit der Cloud ab...");
-    try {
-      if (!window.CloudSync) return;
-      var success = await window.CloudSync.pull();
-      if (success) showToast("✓ Daten erfolgreich synchronisiert!");
-      else showToast("✓ Lokale Daten aktuell!");
-      updateCloudSyncUI();
-    } catch (e) {
-      showToast("⚠️ Synchronisation fehlgeschlagen.");
-    }
-  }
-
-  function handleDisconnectPairing() {
-    if (window.CloudSync) window.CloudSync.disconnect();
-    showToast("Kopplung getrennt. Lokale Daten bleiben erhalten.");
-    updateCloudSyncUI();
-  }
-
-  // ==========================================
-  // 2. ACCOUNT & EINSTELLUNGEN
-  // ==========================================
-
   function openAccountModal() {
-    var modal = document.getElementById('modal-account');
-    if (!modal) return;
+    var m = document.getElementById('modal-account');
+    if (m) {
+      m.style.display = 'flex';
+      m.classList.remove('hidden');
+    }
 
     var curUser = window.currentUser || 'A';
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
-    var activeNameEl = document.getElementById('account-active-username');
-    if (activeNameEl) activeNameEl.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    var activeNameDisplay = document.getElementById('account-active-username');
+    if (activeNameDisplay) {
+      activeNameDisplay.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    }
 
     var nameInput = document.getElementById('account-name-input');
-    if (nameInput) nameInput.value = names[curUser] || '';
+    if (nameInput) {
+      nameInput.value = names[curUser] || '';
+    }
 
     var emailInput = document.getElementById('account-email-input');
     if (emailInput) {
-      var savedEmail = localStorage.getItem('kompass_email_' + curUser) || '';
-      emailInput.value = savedEmail;
+      emailInput.value = localStorage.getItem('kompass_email_' + curUser) || '';
     }
 
-    updateAccountAnatomyUI(curUser, anatomy);
-    updateAccountSharingUI(curUser);
+    var currentAnat = anatomy[curUser] || (curUser === 'A' ? 'penis' : 'vulva');
+    updateAccountAnatomyUI(currentAnat);
+
+    var currentLvl = getSharingLevel(curUser);
+    updateAccountSharingUI(currentLvl);
 
     var aiToggle = document.getElementById('account-ai-toggle');
     if (aiToggle) {
@@ -306,96 +73,79 @@
 
     var keyInput = document.getElementById('account-gemini-key');
     if (keyInput) {
-      var k = localStorage.getItem('kompass_gemini_api_key') || '';
-      keyInput.value = k;
+      keyInput.value = localStorage.getItem('kompass_gemini_api_key') || '';
     }
 
     var voiceSelect = document.getElementById('account-voice-select');
     if (voiceSelect) {
-      var v = localStorage.getItem('kompass_session_voice') || 'Despina';
-      voiceSelect.value = v;
+      voiceSelect.value = localStorage.getItem('kompass_session_voice') || 'Despina';
     }
 
     cancelResetConfirmation();
-
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
   }
 
   function closeAccountModal() {
-    var modal = document.getElementById('modal-account');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
+    var m = document.getElementById('modal-account');
+    if (m) {
+      m.style.display = 'none';
+      m.classList.add('hidden');
     }
   }
 
   function updateCurrentUserName(val) {
+    var cleanVal = (val || '').trim();
     var curUser = window.currentUser || 'A';
-    var cleanVal = (val || '').trim() || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
-
     if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
-    window.names[curUser] = cleanVal;
 
-    try {
-      localStorage.setItem('kompass_names', JSON.stringify(window.names));
-    } catch (e) {}
+    window.names[curUser] = cleanVal || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-    var activeNameEl = document.getElementById('account-active-username');
-    if (activeNameEl) activeNameEl.innerText = cleanVal;
+    if (typeof window.saveCoreData === 'function') {
+      window.saveCoreData();
+    }
+    if (typeof window.updateUserToggleUI === 'function') {
+      window.updateUserToggleUI();
+    }
+    if (typeof window.updateHubUI === 'function') {
+      window.updateHubUI();
+    }
 
-    var dispA = document.getElementById('user-display-A');
-    var dispB = document.getElementById('user-display-B');
-    if (dispA && curUser === 'A') dispA.innerText = cleanVal;
-    if (dispB && curUser === 'B') dispB.innerText = cleanVal;
+    var activeNameDisplay = document.getElementById('account-active-username');
+    if (activeNameDisplay) {
+      activeNameDisplay.innerText = window.names[curUser];
+    }
 
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Name gespeichert: " + cleanVal);
+    showToast("Rufname gespeichert: " + window.names[curUser]);
   }
 
   function updateCurrentUserEmail(val) {
     var curUser = window.currentUser || 'A';
-    var cleanVal = (val || '').trim();
-    try {
-      localStorage.setItem('kompass_email_' + curUser, cleanVal);
-      showToast("E-Mail gespeichert ✓");
-    } catch (e) {}
+    localStorage.setItem('kompass_email_' + curUser, (val || '').trim());
+    showToast("E-Mail für Backups hinterlegt ✓");
   }
 
-  function updateAccountAnatomyUI(curUser, anatomy) {
-    var myAnat = (anatomy && anatomy[curUser]) || 'penis';
+  function selectAccountAnatomy(who, anat) {
+    var curUser = window.currentUser || 'A';
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+    window.anatomy[curUser] = anat;
 
-    var btnMyPenis = document.getElementById('acc-anat-my-penis');
-    var btnMyVulva = document.getElementById('acc-anat-my-vulva');
+    updateAccountAnatomyUI(anat);
+    if (typeof window.saveCoreData === 'function') window.saveCoreData();
+    showToast("Anatomie aktualisiert: " + (anat === 'penis' ? '🍆 Penis' : '🌸 Vulva'));
+  }
 
-    if (btnMyPenis && btnMyVulva) {
-      if (myAnat === 'penis') {
-        btnMyPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnMyVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      } else {
-        btnMyVulva.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnMyPenis.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      }
+  function updateAccountAnatomyUI(anat) {
+    var bPen = document.getElementById('acc-anat-my-penis');
+    var bVul = document.getElementById('acc-anat-my-vulva');
+
+    if (anat === 'penis') {
+      if (bPen) bPen.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bVul) bVul.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+    } else {
+      if (bVul) bVul.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bPen) bPen.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     }
   }
 
-  function selectAccountAnatomy(who, type) {
-    var curUser = window.currentUser || 'A';
-
-    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[curUser] = type;
-
-    try {
-      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
-    } catch (e) {}
-
-    updateAccountAnatomyUI(curUser, window.anatomy);
-    if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Deine Anatomie aktualisiert: " + (type === 'penis' ? 'Penis' : 'Vulva'));
-  }
-
-  // STANDARD-FREIGABESTUFE: STUFE 4 (RADIKALE TRANSPARENZ / ALLES ZEIGEN)
   function getSharingLevel(user) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + user);
@@ -404,113 +154,72 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 4; // Standard: Stufe 4 (Alles zeigen)
-  }
-
-  function updateAccountSharingUI(curUser) {
-    var currentLevel = getSharingLevel(curUser);
-    var badge = document.getElementById('account-sharing-badge');
-    var labels = [
-      "",
-      "Stufe 1: Nur Doppel-5er",
-      "Stufe 2: Bis Neugier (3–5)",
-      "Stufe 3: Buße & Duldung (2–5)",
-      "Stufe 4: Radikale Transparenz (Empfohlen)"
-    ];
-
-    if (badge) badge.innerText = labels[currentLevel] || "Stufe 4 (Empfohlen)";
-
-    [1, 2, 3, 4].forEach(function(lvl) {
-      var btn = document.getElementById('btn-share-level-' + lvl);
-      if (btn) {
-        if (lvl === currentLevel) {
-          btn.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md";
-        } else {
-          btn.className = "p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
-        }
-      }
-    });
+    return 4; // Standard: Stufe 4 (Radikale Transparenz / Alles zeigen)
   }
 
   function selectAccountSharingLevel(lvl) {
     var curUser = window.currentUser || 'A';
-    try {
-      localStorage.setItem('kompass_sharing_level_' + curUser, lvl.toString());
-      if (window.CloudSync) window.CloudSync.trigger();
-    } catch (e) {}
+    localStorage.setItem('kompass_sharing_level_' + curUser, lvl.toString());
+    updateAccountSharingUI(lvl);
 
-    updateAccountSharingUI(curUser);
-    var desc = [
-      "",
-      "Stufe 1 aktiv: Nur beiderseitige Volltreffer (Doppel-5er) werden geteilt.",
-      "Stufe 2 aktiv: Freigabe bis Neugier (Note 3–5).",
-      "Stufe 3 aktiv: Buße & Duldung freigegeben (Note 2–5).",
-      "Stufe 4 aktiv: Radikale Transparenz (Alle Noten 1–5) [Empfohlen]."
-    ];
-    showToast(desc[lvl] || "Freigabestufe aktualisiert ✓");
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
+    }
+    showToast("Freigabestufe " + lvl + " gesichert ✓");
   }
 
-  function setOnboardingSharingLevel(lvl) {
-    onboardSharingLevel = lvl;
-    var lbl = document.getElementById('onboard-sharing-label');
-    var labels = ["", "1. Nur Doppel-5er", "2. Bis Neugier (3–5)", "3. Buße & Duldung", "4. Radikale Transparenz (Empfohlen)"];
-    if (lbl) lbl.innerText = labels[lvl] || "Stufe " + lvl;
+  function updateAccountSharingUI(lvl) {
+    var badge = document.getElementById('account-sharing-badge');
+    var labels = [
+      "",
+      "Stufe 1 (Strict Double-Opt-In)",
+      "Stufe 2 (Bis Neugier)",
+      "Stufe 3 (Duldung & Buße)",
+      "Stufe 4 (Radikale Transparenz – Empfohlen)"
+    ];
+    if (badge) badge.innerText = labels[lvl] || ("Stufe " + lvl);
 
-    [1, 2, 3, 4].forEach(function(l) {
-      var btn = document.getElementById('onboard-share-' + l);
+    for (var i = 1; i <= 4; i++) {
+      var btn = document.getElementById('btn-share-level-' + i);
       if (btn) {
-        if (l === lvl) {
-          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        if (i === lvl) {
+          btn.className = "w-full p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md";
         } else {
-          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
+          btn.className = "w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
         }
       }
-    });
-  }
-
-  function toggleAccountAiActive(active) {
-    try {
-      localStorage.setItem('kompass_ai_active', active ? 'true' : 'false');
-    } catch (e) {}
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    showToast(active ? "Google Gemini KI aktiviert ✨" : "KI-Funktionen deaktiviert");
-  }
-
-  function toggleThemeInAccount() {
-    var isDark = document.documentElement.classList.contains('dark');
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('kompass_theme', 'light');
-      showToast("Helles Design aktiviert ☀️");
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('kompass_theme', 'dark');
-      showToast("Dunkles Noir-Design aktiviert 🌙");
     }
   }
 
-  function saveGeminiKeyInAccount(val) {
-    var key = (val || '').trim();
-    try {
-      localStorage.setItem('kompass_gemini_api_key', key);
-      showToast("API-Key gesichert ✓");
-    } catch (e) {}
+  function toggleAccountAiActive(checked) {
+    localStorage.setItem('kompass_ai_active', checked ? 'true' : 'false');
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    showToast(checked ? "KI-Funktionen aktiviert ✨" : "KI-Funktionen deaktiviert");
+  }
+
+  function saveGeminiKeyInAccount(key) {
+    var cleanKey = (key || '').trim();
+    localStorage.setItem('kompass_gemini_api_key', cleanKey);
+    showToast("Gemini API-Key gespeichert ✓");
   }
 
   async function testGeminiKeyInAccount() {
-    var key = (document.getElementById('account-gemini-key')?.value || '').trim() || localStorage.getItem('kompass_gemini_api_key');
-    if (!key || key.length < 10) {
-      showToast("⚠️ Bitte gib zuerst einen gültigen API-Key ein.");
+    var keyInput = document.getElementById('account-gemini-key');
+    var key = (keyInput ? keyInput.value : '').trim() || localStorage.getItem('kompass_gemini_api_key');
+
+    if (!key) {
+      showToast("Bitte gib zuerst einen Gemini API-Key ein.");
       return;
     }
-    showToast("⏳ Prüfe Gemini-Verbindung...");
+
+    showToast("⏳ Prüfe API-Key bei Google...");
     try {
       var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(key));
       if (resp.ok) {
-        showToast("✓ Verbindung erfolgreich! Key ist aktiv.");
+        showToast("✓ Verbindung erfolgreich! Key ist gültig.");
       } else {
         var err = await resp.json().catch(function() { return {}; });
-        showToast("⚠️ Fehler: " + (err.error?.message || ("HTTP " + resp.status)));
+        showToast("⚠️ Fehler: " + (err.error?.message || "Ungültiger Key"));
       }
     } catch (e) {
       showToast("⚠️ Netzwerkfehler beim Verbindungstest");
@@ -518,370 +227,440 @@
   }
 
   function saveVoiceInAccount(voice) {
-    try {
-      localStorage.setItem('kompass_session_voice', voice);
-      showToast("Stimme gesetzt: " + voice);
-      if (window.SessionVoice && typeof window.SessionVoice.preloadCore === 'function') {
-        window.SessionVoice.preloadCore(voice);
-      }
-    } catch (e) {}
+    localStorage.setItem('kompass_session_voice', voice);
+    showToast("Regiestimme gewählt: " + voice);
   }
 
   function playVoicePreviewInAccount() {
-    var select = document.getElementById('account-voice-select');
-    var voice = (select ? select.value : '') || localStorage.getItem('kompass_session_voice') || 'Despina';
-    var isMale = (voice === 'Enceladus' || voice === 'Fenrir');
-    var sample = isMale
-      ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
-      : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
+    var sel = document.getElementById('account-voice-select');
+    var voice = (sel ? sel.value : '') || localStorage.getItem('kompass_session_voice') || 'Despina';
 
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
-      window.SessionVoice.play(sample, voice, true);
+      window.SessionVoice.play("Atme tief in den Bauchraum aus und überlass mir die Führung.", voice, true);
     } else {
-      showToast("🔊 Probehören: " + voice);
+      showToast("Stimmprobe für: " + voice);
+    }
+  }
+
+  function toggleThemeInAccount() {
+    var isDark = document.documentElement.classList.contains('dark');
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('kompass_theme', 'light');
+      showToast("Helles Farbschema aktiviert ☀️");
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('kompass_theme', 'dark');
+      showToast("Dunkles Farbschema aktiviert 🌙");
     }
   }
 
   function sendBackupEmail() {
     var curUser = window.currentUser || 'A';
-    var email = localStorage.getItem('kompass_email_' + curUser) || '';
-    var data = {
-      names: window.names,
-      anatomy: window.anatomy,
-      answers: window.answers,
-      safety: window.safetyConfig,
-      diary: window.sessionDiary
+    var mail = localStorage.getItem('kompass_email_' + curUser);
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var userName = names[curUser] || 'Partner';
+
+    var dump = {
+      user: curUser,
+      name: userName,
+      answers: (window.answers && window.answers[curUser]) || {},
+      safety: (window.safetyConfig && window.safetyConfig[curUser]) || {},
+      date: new Date().toISOString()
     };
-    var jsonStr = JSON.stringify(data, null, 2);
-    var subject = encodeURIComponent("Kink-Kompass Datensicherung (" + (window.names?.[curUser] || 'Partner') + ")");
-    var body = encodeURIComponent("Hier ist die Datensicherung eures Kink- & Beziehungs-Kompasses:\n\n" + jsonStr);
-    window.location.href = "mailto:" + email + "?subject=" + subject + "&body=" + body;
-    showToast("E-Mail-Programm für Backup geöffnet 📤");
+
+    var subject = encodeURIComponent("Kink-Kompass Backup (" + userName + ")");
+    var body = encodeURIComponent("Hallo " + userName + ",\n\nhier ist dein persönliches Daten-Backup:\n\n" + JSON.stringify(dump, null, 2));
+
+    var mailtoUrl = "mailto:" + (mail || '') + "?subject=" + subject + "&body=" + body;
+    window.location.href = mailtoUrl;
   }
 
   function showResetConfirmation() {
+    var box = document.getElementById('reset-confirmation-box');
+    var triggerArea = document.getElementById('reset-trigger-area');
+    var nameSpan = document.getElementById('reset-current-username');
+
     var curUser = window.currentUser || 'A';
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var resetTrigger = document.getElementById('reset-trigger-area');
-    var resetBox = document.getElementById('reset-confirmation-box');
-    var resetName = document.getElementById('reset-current-username');
 
-    if (resetTrigger) resetTrigger.classList.add('hidden');
-    if (resetBox) resetBox.classList.remove('hidden');
-    if (resetName) resetName.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    if (nameSpan) nameSpan.innerText = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    if (box) box.classList.remove('hidden');
+    if (triggerArea) triggerArea.classList.add('hidden');
   }
 
   function cancelResetConfirmation() {
-    var resetTrigger = document.getElementById('reset-trigger-area');
-    var resetBox = document.getElementById('reset-confirmation-box');
-    if (resetTrigger) resetTrigger.classList.remove('hidden');
-    if (resetBox) resetBox.classList.add('hidden');
+    var box = document.getElementById('reset-confirmation-box');
+    var triggerArea = document.getElementById('reset-trigger-area');
+    if (box) box.classList.add('hidden');
+    if (triggerArea) triggerArea.classList.remove('hidden');
   }
 
   function resetCurrentUserProfile() {
     var curUser = window.currentUser || 'A';
-    var userName = (window.names && window.names[curUser]) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-    if (!window.answers) window.answers = { A: {}, B: {} };
-    window.answers[curUser] = {};
+    if (window.answers && window.answers[curUser]) window.answers[curUser] = {};
+    if (window.safetyConfig && window.safetyConfig[curUser]) window.safetyConfig[curUser] = {};
 
-    try {
-      localStorage.setItem('kompass_answers', JSON.stringify(window.answers));
-    } catch (e) {}
+    localStorage.removeItem('kompass_cached_single_report_' + curUser);
+    localStorage.removeItem('kompass_sharing_level_' + curUser);
+
+    if (typeof window.saveCoreData === 'function') window.saveCoreData();
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
+    if (window.SurveyEngine) window.SurveyEngine.render();
+    if (window.ProfileEngine) window.ProfileEngine.render();
 
     cancelResetConfirmation();
     closeAccountModal();
-
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
-    if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
-    if (window.CloudSync) window.CloudSync.trigger();
-
-    showToast("Profil von " + userName + " vollständig gelöscht 🗑️");
+    showToast("Profil-Daten erfolgreich zurückgesetzt.");
   }
 
-  // ==========================================
-  // 3. TABU-CHARTA (INTERAKTIV MIT PARTNER-WECHSEL & DIREKTSPRUNG)
-  // ==========================================
-
-  function openTabuModal() {
-    var modal = document.getElementById('modal-tabus');
-    var container = document.getElementById('tabu-modal-list');
-    if (!modal) return;
-
-    var chapters = window.surveyChapters || [];
-    var ans = window.answers || { A: {}, B: {} };
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-
-    var tabusA = [];
-    var tabusB = [];
-
-    chapters.forEach(function(ch) {
-      (ch.items || []).forEach(function(it) {
-        if (it.type !== 'choice') {
-          var aR1 = ans.A?.['it_' + it.id + '_r1'];
-          var aR2 = ans.A?.['it_' + it.id + '_r2'];
-          var bR1 = ans.B?.['it_' + it.id + '_r1'];
-          var bR2 = ans.B?.['it_' + it.id + '_r2'];
-
-          if (aR1 === 1) tabusA.push({ id: it.id, title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (aR2 === 1) tabusA.push({ id: it.id, title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
-          if (bR1 === 1) tabusB.push({ id: it.id, title: it.title, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
-          if (bR2 === 1) tabusB.push({ id: it.id, title: it.title, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
-        }
-      });
-    });
-
-    if (container) {
-      container.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900/60 space-y-2">
-            <div class="flex items-center justify-between border-b border-rose-900/40 pb-1">
-              <strong class="text-rose-200">${escapeHtml(names.A || 'Partner 1')}</strong>
-              <span class="text-[10px] font-mono text-rose-400">${tabusA.length} Tabus</span>
-            </div>
-            <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
-              ${tabusA.length > 0 ? tabusA.map(function(t) {
-                return `
-                  <button type="button" onclick="closeTabuModal(); if(window.setCurrentUser) setCurrentUser('A'); goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-slate-900/80 hover:bg-rose-950 border border-rose-950 hover:border-rose-700 transition group block touch-btn cursor-pointer">
-                    <div class="flex items-center justify-between">
-                      <span class="text-white block font-bold text-[10.5px] group-hover:text-rose-200">${escapeHtml(t.title)}</span>
-                      <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
-                    </div>
-                    <span class="text-rose-300 text-[9.5px] block mt-0.5">${escapeHtml(t.role)}</span>
-                  </button>
-                `;
-              }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>'}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-900/60 space-y-2">
-            <div class="flex items-center justify-between border-b border-rose-900/40 pb-1">
-              <strong class="text-rose-200">${escapeHtml(names.B || 'Partner 2')}</strong>
-              <span class="text-[10px] font-mono text-rose-400">${tabusB.length} Tabus</span>
-            </div>
-            <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
-              ${tabusB.length > 0 ? tabusB.map(function(t) {
-                return `
-                  <button type="button" onclick="closeTabuModal(); if(window.setCurrentUser) setCurrentUser('B'); goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-slate-900/80 hover:bg-rose-950 border border-rose-950 hover:border-rose-700 transition group block touch-btn cursor-pointer">
-                    <div class="flex items-center justify-between">
-                      <span class="text-white block font-bold text-[10.5px] group-hover:text-rose-200">${escapeHtml(t.title)}</span>
-                      <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
-                    </div>
-                    <span class="text-rose-300 text-[9.5px] block mt-0.5">${escapeHtml(t.role)}</span>
-                  </button>
-                `;
-              }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>'}
-            </div>
-          </div>
-        </div>
-      `;
+  function openOnboardingModal() {
+    var m = document.getElementById('modal-onboarding');
+    if (m) {
+      m.style.display = 'flex';
+      m.classList.remove('hidden');
     }
+    goToOnboardStep(1);
 
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-  }
-
-  function closeTabuModal() {
-    var modal = document.getElementById('modal-tabus');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
+    var codeDisp = document.getElementById('onboard-code-display');
+    var existingCode = localStorage.getItem('kompass_pair_code');
+    if (codeDisp) {
+      codeDisp.innerText = existingCode || "KOMPASS-" + Math.floor(100 + Math.random() * 900);
     }
   }
 
-  function openToyManagementModal() {
-    if (window.HubToys && typeof window.HubToys.open === 'function') {
-      window.HubToys.open();
-      return;
+  function closeOnboardingModal() {
+    var m = document.getElementById('modal-onboarding');
+    if (m) {
+      m.style.display = 'none';
+      m.classList.add('hidden');
     }
-    var modal = document.getElementById('modal-toy-management');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex';
-    }
-  }
-
-  function closeToyManagementModal() {
-    if (window.HubToys && typeof window.HubToys.close === 'function') {
-      window.HubToys.close();
-      return;
-    }
-    var modal = document.getElementById('modal-toy-management');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-    }
-  }
-
-  // ==========================================
-  // 4. ONBOARDING
-  // ==========================================
-
-  var currentOnboardStep = 1;
-
-  async function ensureOnboardPairCode() {
-    var state = window.CloudSync ? window.CloudSync.getState() : {};
-    var code = state.pairCode;
-
-    if (!code && window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
-      try {
-        code = await window.CloudSync.createRoom();
-      } catch (e) {
-        console.warn("Konnte Paar-Raum im Onboarding nicht vorab erstellen:", e);
-      }
-    }
-
-    var codeEl = document.getElementById('onboard-code-display');
-    if (codeEl && code) {
-      codeEl.innerText = code;
-    }
-    return code;
   }
 
   function goToOnboardStep(step) {
-    currentOnboardStep = step;
-
     [1, 2, 3].forEach(function(s) {
-      var pane = document.getElementById('onboard-step-' + s);
+      var el = document.getElementById('onboard-step-' + s);
       var dot = document.getElementById('dot-step-' + s);
-      if (pane) {
-        if (s === step) pane.classList.remove('hidden');
-        else pane.classList.add('hidden');
+      if (el) {
+        if (s === step) el.classList.remove('hidden');
+        else el.classList.add('hidden');
       }
       if (dot) {
         if (s === step) dot.className = "w-2 h-2 rounded-full bg-brand-500";
-        else if (s < step) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
         else dot.className = "w-2 h-2 rounded-full bg-slate-700";
       }
     });
 
     var badge = document.getElementById('onboard-step-badge');
     if (badge) badge.innerText = "Schritt " + step + " von 3";
+  }
 
-    if (step === 2) {
-      ensureOnboardPairCode();
+  function setOnboardingAnatomy(role, anat) {
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+    window.anatomy[role] = anat;
+
+    var bPen = document.getElementById('onboard-anat-A-penis');
+    var bVul = document.getElementById('onboard-anat-A-vulva');
+
+    if (anat === 'penis') {
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+    } else {
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+    }
+  }
+
+  function setOnboardingSharingLevel(lvl) {
+    localStorage.setItem('kompass_sharing_level_A', lvl.toString());
+    var label = document.getElementById('onboard-sharing-label');
+    var labels = [
+      "",
+      "1. Streng (Doppel-Opt-In)",
+      "2. Bis Neugier (Note 3–5)",
+      "3. Bis Buße (Note 2–5)",
+      "4. Radikale Transparenz (Empfohlen)"
+    ];
+    if (label) label.innerText = labels[lvl] || ("Stufe " + lvl);
+
+    for (var i = 1; i <= 4; i++) {
+      var btn = document.getElementById('onboard-share-' + i);
+      if (btn) {
+        if (i === lvl) {
+          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+        } else {
+          btn.className = "py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn";
+        }
+      }
     }
   }
 
   function copyOnboardCode() {
-    var codeEl = document.getElementById('onboard-code-display');
-    var code = (codeEl ? codeEl.innerText : '').trim();
-    if (!code || code === 'KOMPASS-000') {
-      showToast("⏳ Code wird noch initialisiert...");
-      return;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(code).then(function() {
-        showToast("📋 Paar-Code " + code + " kopiert! Bitte sicher notieren.");
-      }).catch(function() {
-        window.prompt("Kopiere deinen Paar-Code:", code);
-      });
-    } else {
-      window.prompt("Kopiere deinen Paar-Code:", code);
-    }
-  }
-
-  function setOnboardingAnatomy(who, type) {
-    onboardAnatState[who] = type;
-    var btnPenis = document.getElementById('onboard-anat-' + who + '-penis');
-    var btnVulva = document.getElementById('onboard-anat-' + who + '-vulva');
-
-    if (btnPenis && btnVulva) {
-      if (type === 'penis') {
-        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      } else {
-        btnVulva.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-        btnPenis.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
-      }
-    }
-  }
-
-  function closeOnboardingModal() {
-    var modal = document.getElementById('modal-onboarding');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
+    var codeDisp = document.getElementById('onboard-code-display');
+    var code = codeDisp ? codeDisp.innerText : '';
+    if (code) {
+      var temp = document.createElement('input');
+      temp.value = code;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showToast("Paar-Code kopiert: " + code + " ✓");
     }
   }
 
   function completeOnboarding() {
-    var curUser = window.currentUser || 'A';
     var nameInput = document.getElementById('onboard-name-A');
-    var chosenName = (nameInput && nameInput.value.trim()) || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
+    var name = (nameInput ? nameInput.value : '').trim();
 
     if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
-    window.names[curUser] = chosenName;
+    if (name) window.names.A = name;
 
-    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
-    window.anatomy[curUser] = onboardAnatState.A || 'penis';
-
-    try {
-      localStorage.setItem('kompass_names', JSON.stringify(window.names));
-      localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
-      localStorage.setItem('kompass_sharing_level_' + curUser, (onboardSharingLevel || 4).toString());
-      localStorage.setItem('kompass_onboarding_done', 'true');
-    } catch (e) {}
+    localStorage.setItem('kompass_onboarded', 'true');
+    if (typeof window.saveCoreData === 'function') window.saveCoreData();
+    if (typeof window.updateUserToggleUI === 'function') window.updateUserToggleUI();
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
 
     closeOnboardingModal();
-
-    var disp = document.getElementById('user-display-' + curUser);
-    if (disp) disp.innerText = chosenName;
-
-    if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (window.CloudSync) window.CloudSync.trigger();
-    showToast("Willkommen " + chosenName + "! Dein Zugang ist einsatzbereit 🚀");
+    showToast("Willkommen im Kompass, " + (name || 'Partner 1') + "!");
   }
 
-  // ==========================================
-  // INITIALISIERUNG & LISTENER
-  // ==========================================
+  function openCloudSyncModal() {
+    var m = document.getElementById('modal-cloud-sync');
+    if (m) {
+      m.style.display = 'flex';
+      m.classList.remove('hidden');
+    }
+    updateCloudSyncUI();
+  }
 
-  function initHubModals() {
-    var isDone = localStorage.getItem('kompass_onboarding_done');
-    var hasNames = localStorage.getItem('kompass_names');
-    var hasAnswers = localStorage.getItem('kompass_answers');
+  function closeCloudSyncModal() {
+    var m = document.getElementById('modal-cloud-sync');
+    if (m) {
+      m.style.display = 'none';
+      m.classList.add('hidden');
+    }
+  }
 
-    if (!isDone && !hasNames && !hasAnswers) {
-      var modal = document.getElementById('modal-onboarding');
-      if (modal) {
-        goToOnboardStep(1);
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-        ensureOnboardPairCode();
+  function updateCloudSyncUI() {
+    var state = (window.CloudSync && typeof window.CloudSync.getState === 'function')
+      ? window.CloudSync.getState()
+      : { isPaired: false };
+
+    var setupPanel = document.getElementById('cloud-sync-setup-panel');
+    var activePanel = document.getElementById('cloud-sync-active-panel');
+    var codeDisp = document.getElementById('active-pair-code-display');
+    var headerDot = document.getElementById('cloud-sync-status-dot');
+    var headerText = document.getElementById('cloud-sync-status-text');
+    var hubBadge = document.getElementById('hub-sync-status-badge');
+
+    if (state.isPaired && state.pairCode) {
+      if (setupPanel) setupPanel.classList.add('hidden');
+      if (activePanel) activePanel.classList.remove('hidden');
+      if (codeDisp) codeDisp.innerText = state.pairCode;
+
+      if (headerDot) headerDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+      if (headerText) headerText.innerText = state.pairCode;
+      if (hubBadge) {
+        hubBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
+        hubBadge.innerText = "Gekoppelt: " + state.pairCode;
       }
-    } else if (!isDone) {
-      try { localStorage.setItem('kompass_onboarding_done', 'true'); } catch (e) {}
+    } else {
+      if (setupPanel) setupPanel.classList.remove('hidden');
+      if (activePanel) activePanel.classList.add('hidden');
+
+      if (headerDot) headerDot.className = "w-2 h-2 rounded-full bg-slate-500";
+      if (headerText) headerText.innerText = "Lokal";
+      if (hubBadge) {
+        hubBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800";
+        hubBadge.innerText = "Lokal";
+      }
+    }
+  }
+
+  async function handleCreatePairRoom() {
+    if (window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
+      showToast("⏳ Erstelle verschlüsselten Paar-Raum...");
+      var code = await window.CloudSync.createRoom();
+      updateCloudSyncUI();
+      showToast("Paar-Raum aktiv: " + code + " ✨");
+    }
+  }
+
+  async function handleJoinPairRoom(role) {
+    var input = document.getElementById('input-pair-code');
+    var code = (input ? input.value : '').trim();
+    if (!code) {
+      showToast("Bitte gib den Paar-Code deines Partners ein.");
+      return;
     }
 
-    if (window.CloudSync) {
-      window.CloudSync.addListener(function(evt, data) {
+    if (window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
+      showToast("⏳ Trete Paar-Raum bei...");
+      try {
+        await window.CloudSync.joinRoom(code, role);
+        if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
         updateCloudSyncUI();
-      });
-      setTimeout(updateCloudSyncUI, 150);
+        showToast("Erfolgreich gekoppelt als Partner " + role + " ✓");
+      } catch (e) {
+        showToast("⚠️ Fehler beim Koppeln: " + e.message);
+      }
+    }
+  }
+
+  function handleShareInviteLink() {
+    var state = (window.CloudSync && typeof window.CloudSync.getState === 'function')
+      ? window.CloudSync.getState()
+      : {};
+    var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
+    if (!code) {
+      showToast("Erstelle zuerst einen Paar-Code.");
+      return;
     }
 
-    setTimeout(checkUrlForAutoPairing, 250);
+    var base = window.location.href.split('?')[0].split('#')[0];
+    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + "&role=B";
+    var text = "Hier ist unser sicherer Schlüssel für den Kink- & Beziehungs-Kompass:\n" + inviteUrl;
+
+    if (navigator.share) {
+      navigator.share({
+        title: "Kink- & Beziehungs-Kompass Kopplung",
+        text: text,
+        url: inviteUrl
+      }).catch(function() {});
+    } else {
+      handleCopyInviteLink();
+    }
   }
 
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initHubModals);
-  } else {
-    initHubModals();
+  function handleCopyInviteLink() {
+    var state = (window.CloudSync && typeof window.CloudSync.getState === 'function')
+      ? window.CloudSync.getState()
+      : {};
+    var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
+    var base = window.location.href.split('?')[0].split('#')[0];
+    var inviteUrl = base + "?pair=" + encodeURIComponent(code) + "&role=B";
+
+    var temp = document.createElement('input');
+    temp.value = inviteUrl;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast("Einladungs-Link kopiert! Kann per WhatsApp gesendet werden 📋");
   }
 
-  // Globale Registrierungen für inline onclick-Attribute
-  window.openCloudSyncModal = openCloudSyncModal;
-  window.closeCloudSyncModal = closeCloudSyncModal;
-  window.handleCreatePairRoom = handleCreatePairRoom;
-  window.handleJoinPairRoom = handleJoinPairRoom;
-  window.handleManualSyncNow = handleManualSyncNow;
-  window.handleDisconnectPairing = handleDisconnectPairing;
-  window.handleShareInviteLink = handleShareInviteLink;
-  window.handleCopyInviteLink = handleCopyInviteLink;
-  window.updateCloudSyncUI = updateCloudSyncUI;
+  function handleManualSyncNow() {
+    if (window.CloudSync && typeof window.CloudSync.pull === 'function') {
+      showToast("⏳ Synchronisiere mit Cloud...");
+      window.CloudSync.pull().then(function() {
+        showToast("Synchronisation abgeschlossen ✓");
+      });
+    }
+  }
+
+  function handleDisconnectPairing() {
+    if (window.CloudSync && typeof window.CloudSync.disconnect === 'function') {
+      window.CloudSync.disconnect();
+      updateCloudSyncUI();
+      showToast("Kopplung getrennt. App arbeitet wieder lokal.");
+    }
+  }
+
+  function openTabuModal() {
+    renderTabuModalList();
+    var m = document.getElementById('modal-tabus');
+    if (m) {
+      m.style.display = 'flex';
+      m.classList.remove('hidden');
+    }
+  }
+
+  function closeTabuModal() {
+    var m = document.getElementById('modal-tabus');
+    if (m) {
+      m.style.display = 'none';
+      m.classList.add('hidden');
+    }
+  }
+
+  function renderTabuModalList() {
+    var container = document.getElementById('tabu-modal-list');
+    if (!container) return;
+
+    var allChapters = window.surveyChapters || [];
+    var answers = window.answers || { A: {}, B: {} };
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+
+    var tabus = [];
+    allChapters.forEach(function(ch) {
+      (ch.items || []).forEach(function(it) {
+        if (it.type !== 'choice') {
+          if (answers.A && answers.A['it_' + it.id + '_r1'] === 1) tabus.push({ item: it, user: 'A', name: names.A, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          if (answers.A && answers.A['it_' + it.id + '_r2'] === 1) tabus.push({ item: it, user: 'A', name: names.A, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+          if (answers.B && answers.B['it_' + it.id + '_r1'] === 1) tabus.push({ item: it, user: 'B', name: names.B, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
+          if (answers.B && answers.B['it_' + it.id + '_r2'] === 1) tabus.push({ item: it, user: 'B', name: names.B, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
+        }
+      });
+    });
+
+    if (tabus.length === 0) {
+      container.innerHTML = '<p class="text-slate-400 italic text-center py-6 text-xs">Aktuell sind keine Note-1-Tabus eingetragen.</p>';
+      return;
+    }
+
+    container.innerHTML = tabus.map(function(t) {
+      return `
+        <button type="button" onclick="handleTabuItemClick(${t.item.id}, '${t.user}')" class="w-full p-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-500 transition text-left group block touch-btn cursor-pointer">
+          <div class="flex items-center justify-between">
+            <span class="text-white block font-bold text-xs group-hover:text-rose-200">${escapeHtml(t.item.title)}</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-rose-300 mt-1">
+            <span>${escapeHtml(t.role)}</span>
+            <span class="font-mono text-slate-400">Gesetzt von: ${escapeHtml(t.name)}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function handleTabuItemClick(itemId, user) {
+    closeTabuModal();
+    if (typeof window.setCurrentUser === 'function') {
+      window.setCurrentUser(user);
+    }
+    if (typeof window.goToSurveyItem === 'function') {
+      window.goToSurveyItem(itemId);
+    }
+  }
+
+  function checkUrlForAutoPairing() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var pairCode = params.get('pair');
+      var role = params.get('role') || 'B';
+
+      if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
+        window.CloudSync.joinRoom(pairCode, role).then(function() {
+          if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
+          updateCloudSyncUI();
+          showToast("Automatisch gekoppelt mit Paar-Code: " + pairCode);
+        });
+      }
+    } catch (e) {}
+  }
+
+  function initModals() {
+    checkUrlForAutoPairing();
+    updateCloudSyncUI();
+
+    var onboarded = localStorage.getItem('kompass_onboarded');
+    if (onboarded !== 'true') {
+      setTimeout(openOnboardingModal, 400);
+    }
+  }
 
   window.openAccountModal = openAccountModal;
   window.closeAccountModal = closeAccountModal;
@@ -889,25 +668,43 @@
   window.updateCurrentUserEmail = updateCurrentUserEmail;
   window.selectAccountAnatomy = selectAccountAnatomy;
   window.selectAccountSharingLevel = selectAccountSharingLevel;
-  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
   window.toggleAccountAiActive = toggleAccountAiActive;
-  window.toggleThemeInAccount = toggleThemeInAccount;
   window.saveGeminiKeyInAccount = saveGeminiKeyInAccount;
   window.testGeminiKeyInAccount = testGeminiKeyInAccount;
   window.saveVoiceInAccount = saveVoiceInAccount;
   window.playVoicePreviewInAccount = playVoicePreviewInAccount;
+  window.toggleThemeInAccount = toggleThemeInAccount;
   window.sendBackupEmail = sendBackupEmail;
   window.showResetConfirmation = showResetConfirmation;
   window.cancelResetConfirmation = cancelResetConfirmation;
   window.resetCurrentUserProfile = resetCurrentUserProfile;
-  window.openTabuModal = openTabuModal;
-  window.closeTabuModal = closeTabuModal;
-  window.openToyManagementModal = openToyManagementModal;
-  window.closeToyManagementModal = closeToyManagementModal;
-  window.setOnboardingAnatomy = setOnboardingAnatomy;
+
+  window.openOnboardingModal = openOnboardingModal;
   window.closeOnboardingModal = closeOnboardingModal;
   window.goToOnboardStep = goToOnboardStep;
+  window.setOnboardingAnatomy = setOnboardingAnatomy;
+  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
   window.copyOnboardCode = copyOnboardCode;
   window.completeOnboarding = completeOnboarding;
+
+  window.openCloudSyncModal = openCloudSyncModal;
+  window.closeCloudSyncModal = closeCloudSyncModal;
+  window.handleCreatePairRoom = handleCreatePairRoom;
+  window.handleJoinPairRoom = handleJoinPairRoom;
+  window.handleShareInviteLink = handleShareInviteLink;
+  window.handleCopyInviteLink = handleCopyInviteLink;
+  window.handleManualSyncNow = handleManualSyncNow;
+  window.handleDisconnectPairing = handleDisconnectPairing;
+  window.updateCloudSyncUI = updateCloudSyncUI;
+
+  window.openTabuModal = openTabuModal;
+  window.closeTabuModal = closeTabuModal;
+  window.handleTabuItemClick = handleTabuItemClick;
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initModals);
+  } else {
+    initModals();
+  }
 
 })(window);
