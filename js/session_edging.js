@@ -3,11 +3,11 @@
  * Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
  * 
  * Features & Perfektionierungen:
- * - 🎯 Exakte Audio-Visual-Synchronisation: Ladebalken bleibt so lange aktiv, bis das Audio WIRKLICH ertönt (kein vorzeitiger Timeout)
- * - ⏸️ Intelligentes Zahlen-Verweilen: Die Zahl bleibt stehen und pulsiert, während die Stimme erotische Zwischenbemerkungen macht
- * - 💬 Natürliche deutsche Sprache: Konsequent "Schwelle", "Plateau", "Höhepunkt-Schwelle"
- * - ⏱️ JOI-Zeitstepper: Standard 20s mit flexiblen [- 5s] und [+ 5s] Reglern (5s bis 60s)
- * - 🎙️ Erotisch-psychologische JOI-Sprachführung: Atmung, Schwellen-Spannung und finale Freigabe
+ * - 🎯 Exakte Audio-Visual-Synchronisation: Ladebalken bleibt so lange aktiv, bis das Audio WIRKLICH ertönt.
+ * - ⏸️ Intelligentes Zahlen-Verweilen: Die Zahl bleibt stehen und pulsiert, während die Stimme erotische Zwischenbemerkungen macht.
+ * - 💬 Natürliche deutsche Sprache: Konsequent "Schwelle", "Plateau", "Höhepunkt-Schwelle".
+ * - ⏱️ JOI-Zeitstepper: Standard 20s mit flexiblen [- 5s] und [+ 5s] Reglern (5s bis 60s).
+ * - 🎙️ Erotisch-psychologische JOI-Sprachführung: Atmung, Schwellen-Spannung und finale Freigabe.
  */
 
 (function(window) {
@@ -208,14 +208,6 @@
     });
   }
 
-  /**
-   * Erstellt strukturierte Beat-Segmente für die genaue Synchronisation:
-   * Jedes Element hat:
-   * - num: Die angezeigte Zahl (bleibt stehen!)
-   * - text: Der gesprochene Text
-   * - cue: Der subtile Hinweis auf dem Display
-   * - durMs: Die geschätzte Sprech- und Haltezeit
-   */
   function buildJoiCountdownTimeline(durationSeconds, subName) {
     var name = subName || 'mein Schatz';
 
@@ -268,7 +260,6 @@
       ];
     }
 
-    // 25 bis 60 Sekunden: Tiefe, intensive JOI-Trance
     return [
       { num: 25, text: "Fünfundzwanzig. Ganz ruhig ausatmen, " + name + ".", cue: "Entschleunigen...", durMs: 2400 },
       { num: 24, text: "Vierundzwanzig...", cue: "Schultern sinken lassen...", durMs: 1500 },
@@ -366,7 +357,6 @@
 
     logSessionAction("Geführter JOI-Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
 
-    // WENN DER TOP SELBST SPRICHT: Sofortiger Ticker-Start
     if (countdownVoiceMode === 'self') {
       if (pill) {
         pill.innerText = "Live";
@@ -380,13 +370,12 @@
       return;
     }
 
-    // WENN GEMINI SPRICHT: LADEBALKEN ANZEIGEN BIS ZUM ERSTEN ECHTEN TON
     if (pill) {
       pill.innerText = "⏳ Stimme lädt...";
       pill.className = "text-[10px] font-mono text-purple-300 font-bold bg-purple-950/80 px-2.5 py-1 rounded-lg border border-purple-800 animate-pulse";
     }
     if (disp) {
-      disp.className = "hidden"; // Versteckt, bis die Stimme WIRKLICH abspielt
+      disp.className = "hidden";
     }
     renderLoadingProgressUi();
 
@@ -399,7 +388,6 @@
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       var speechStarted = false;
 
-      // Event-Hook: Sobald Audio TATSÄCHLICH abgespielt wird, schaltet die UI auf synchrone Riesenzahlen um
       var startSyncCallback = function() {
         if (speechStarted || thisRunId !== countdownRunId) return;
         speechStarted = true;
@@ -414,11 +402,9 @@
           disp.className = "text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform block";
         }
 
-        // Ticker startet erst HIER – exakt synchron mit dem ersten Ton!
         runTimelineTicker(thisRunId, timeline);
       };
 
-      // Listener auf das Master-Audioelement legen
       var masterAudio = document.getElementById('master-voice-audio');
       if (masterAudio) {
         masterAudio.addEventListener('playing', startSyncCallback, { once: true });
@@ -470,10 +456,6 @@
     if (loader) loader.remove();
   }
 
-  /**
-   * Läuft die Timeline segmentweise ab:
-   * Wenn die Stimme eine Zwischenbemerkung macht, BLEIBT DIE ZAHL STEHEN und pulsiert im Takt!
-   */
   async function runTimelineTicker(runId, timeline) {
     var disp = document.getElementById('countdown-display');
     var cueText = document.getElementById('countdown-cue-text');
@@ -488,7 +470,6 @@
       }
 
       if (step.num === 0) {
-        // Finale Freigabe
         if (disp) {
           disp.classList.remove('countdown-beat-active');
           disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-emerald-300 select-none climax-pulse-active transition-all duration-300 text-center block";
@@ -503,10 +484,7 @@
         break;
       }
 
-      // Zahl schlagen lassen; Text und Hinweis aktualisieren
       triggerDisplayBeat(step.num.toString(), step.durMs, step.cue);
-
-      // Exakt die Dauer des Segments abwarten (die Zahl bleibt stehen, während gesprochen wird!)
       await new Promise(function(r) { setTimeout(r, step.durMs); });
     }
 
