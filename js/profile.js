@@ -25,6 +25,29 @@
       .replace(/'/g, '&#039;');
   }
 
+  function getAnswersFingerprint(ans) {
+    if (!ans || typeof ans !== 'object') return '';
+    var keys = Object.keys(ans).sort();
+    var str = '';
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      // Ignoriere Notizen für den mathematischen Profil-Hash, konzentriere dich auf Bewertungen
+      if (k.indexOf('_note') === -1) {
+        str += k + '=' + ans[k] + ';';
+      }
+    }
+    return str;
+  }
+
+  function hashString(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
   function showToast(msg) {
     if (typeof window.showToast === 'function') {
       window.showToast(msg);
@@ -71,7 +94,7 @@
     var interpBox = document.getElementById('single-interpretation-box');
     if (interpBox) {
       var html = '<div class="theme-card rounded-3xl p-5 border border-indigo-500/40 shadow-xl space-y-3 bg-indigo-950/10">';
-      html += '<div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">';
+      html += '<div class="flex items-center justify-between border-b border-indigo-900/60 pb-2 flex-wrap gap-2">';
       html += '<div><h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Einzelgutachten</h3>';
       html += '<p class="text-[10px] text-indigo-300">Wissenschaftlich fundiert (Sagarin, Wismeijer, Canivet)</p></div>';
       html += '<button type="button" onclick="generateAiReport()" id="btn-generate-ai" class="px-4 py-2 bg-indigo-900 hover:bg-indigo-800 text-indigo-200 font-bold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">✨ Gutachten berechnen</button></div>';
@@ -87,10 +110,39 @@
     loadCachedSingleReport();
   }
 
-  function renderSingleReportCards(report, container) {
+  function renderSingleReportCards(report, container, isOutdated, generatedAt) {
     if (!container || !report) return;
+
+    var bannerHtml = '';
+    if (isOutdated) {
+      bannerHtml = `
+        <div id="single-report-outdated-banner" class="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/80 text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg animate-pulse mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl flex-shrink-0">⚠️</span>
+            <div>
+              <strong class="text-xs text-amber-200 block font-bold">Deine Antworten haben sich verändert</strong>
+              <span class="text-[10.5px] text-slate-300 block mt-0.5">Du hast seit der letzten Analyse neue Antworten gegeben oder geändert. Dieses Gutachten stammt vom ${escapeHtml(generatedAt || 'gespeicherten Stand')}.</span>
+            </div>
+          </div>
+          <button type="button" onclick="generateAiReport()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
+            ✨ Jetzt aktualisieren
+          </button>
+        </div>
+      `;
+    } else if (generatedAt) {
+      bannerHtml = `
+        <div class="flex items-center justify-between text-[10.5px] text-slate-400 mb-2 px-1">
+          <span class="text-teal-300 font-semibold flex items-center gap-1.5">
+            <span>✓</span> Gutachten aktuell (${escapeHtml(generatedAt)})
+          </span>
+          <span class="text-[9.5px] text-slate-500">Datenbasis synchron</span>
+        </div>
+      `;
+    }
+
     container.innerHTML = `
       <div class="space-y-3 animate-fade-in text-xs leading-relaxed">
+        ${bannerHtml}
         <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/70 space-y-1.5 shadow-md">
           <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wide border-b border-indigo-900/60 pb-1.5">
             <span class="text-base">🌟</span>
@@ -130,14 +182,25 @@
     var out = document.getElementById('ai-report-output');
     var btn = document.getElementById('btn-generate-ai');
     var currentUser = window.currentUser || 'A';
+    var uAnswers = (window.answers && window.answers[currentUser]) || {};
     if (!out) return;
+
     try {
-      var cached = localStorage.getItem('kompass_cached_single_report_' + currentUser);
-      if (cached) {
-        var parsed = JSON.parse(cached);
-        if (parsed && parsed.core_motivation) {
-          renderSingleReportCards(parsed, out);
-          if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
+      var cachedRaw = localStorage.getItem('kompass_cached_single_report_' + currentUser);
+      if (cachedRaw) {
+        var parsed = JSON.parse(cachedRaw);
+        var reportData = parsed.report || parsed;
+
+        if (reportData && reportData.core_motivation) {
+          var curHash = hashString(getAnswersFingerprint(uAnswers));
+          var isOutdated = false;
+
+          if (parsed.hash) {
+            isOutdated = (parsed.hash !== curHash);
+          }
+
+          renderSingleReportCards(reportData, out, isOutdated, parsed.generatedAt);
+          if (btn) btn.innerHTML = isOutdated ? "<span>Aktualisieren ↺</span>" : "<span>Neu berechnen ↺</span>";
         }
       }
     } catch (e) {}
@@ -326,6 +389,7 @@
     var currentUser = window.currentUser || 'A';
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var userName = names[currentUser] || 'Partner';
+    var uAnswers = (window.answers && window.answers[currentUser]) || {};
 
     var powerPct = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText : '0%';
     var sensPct = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText : '0%';
@@ -356,6 +420,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
     var success = false;
+    var finalData = null;
 
     for (var i = 0; i < candidateModels.length; i++) {
       var currentModel = candidateModels[i];
@@ -384,13 +449,9 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
           }
 
           if (parsedData && parsedData.core_motivation) {
-            try {
-              localStorage.setItem('kompass_cached_single_report_' + currentUser, JSON.stringify(parsedData));
-            } catch (se) {}
-
-            renderSingleReportCards(parsedData, out);
-            showToast("✓ Gutachten berechnet (" + currentModel + ")");
+            finalData = parsedData;
             success = true;
+            showToast("✓ Gutachten berechnet (" + currentModel + ")");
             break;
           }
         }
@@ -399,14 +460,25 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
       }
     }
 
-    if (!success && out) {
-      var fallbackReport = generateClientSideSingleReport(userName, powerPct, sensPct, nurtPct, thrillPct);
+    if (!success) {
+      finalData = generateClientSideSingleReport(userName, powerPct, sensPct, nurtPct, thrillPct);
+      showToast("✓ Gutachten aus Bogen-Scores berechnet (Kostenlos)");
+    }
+
+    if (finalData) {
+      var nowStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      var curHash = hashString(getAnswersFingerprint(uAnswers));
+      var cacheEntry = {
+        report: finalData,
+        hash: curHash,
+        generatedAt: nowStr
+      };
+
       try {
-        localStorage.setItem('kompass_cached_single_report_' + currentUser, JSON.stringify(fallbackReport));
+        localStorage.setItem('kompass_cached_single_report_' + currentUser, JSON.stringify(cacheEntry));
       } catch (se) {}
 
-      renderSingleReportCards(fallbackReport, out);
-      showToast("✓ Gutachten erfolgreich aus Bogen-Scores berechnet (Kostenlos)");
+      renderSingleReportCards(finalData, out, false, nowStr);
     }
 
     if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
