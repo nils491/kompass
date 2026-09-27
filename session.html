@@ -121,7 +121,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
@@ -140,6 +139,10 @@
 
         <!-- QUICK CONTROLS -->
         <div class="flex items-center gap-1.5 flex-shrink-0">
+          <a href="guide.html" class="px-2.5 py-1.5 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-800 text-amber-200 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn cursor-pointer" title="BDSM- & Vertrauens-Guide öffnen">
+            <span>📖</span><span class="hidden sm:inline text-[10.5px]">Guide</span>
+          </a>
+
           <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn cursor-pointer" title="Hintergrundmusik starten/pausieren">
             <span id="ambient-status-icon">🎵</span>
             <span id="ambient-status-label" class="hidden sm:inline text-[10.5px]">Musik</span>
@@ -151,7 +154,7 @@
           </button>
 
           <button type="button" onclick="SessionLive.openDiary()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn cursor-pointer" title="Logbuch / Bisherige Sessions">
-            📖
+            📜
           </button>
         </div>
       </div>
@@ -173,6 +176,9 @@
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Paar-Analyse</span>
         </a>
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Guide 📖</span>
+        </a>
         <button type="button" class="px-3 py-1.5 rounded-xl bg-rose-800 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
           <span>Regie</span>
         </button>
@@ -180,7 +186,6 @@
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
     <!-- PORTAL-SETUP (SCHRITTE 1 BIS 3) -->
@@ -437,7 +442,6 @@
         </div>
       </section>
 
-      <!-- STEP 3: DREHBUCH-VORSCHAU & START -->
       <section id="portal-step-3" class="hidden space-y-4 animate-fade-in">
         <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
           <div class="flex items-center justify-between">
@@ -494,7 +498,6 @@
 
     </div>
 
-    <!-- COCKPIT LIVE CONTAINER (WIRD NACH DEM START SICHTBAR) -->
     <div id="cockpit-live-container" class="hidden space-y-4 animate-fade-in">
 
       <!-- MASTER STATUS BAR -->
@@ -588,7 +591,6 @@
         </div>
       </div>
 
-      <!-- EDGING-FERNBEDIENUNG DES TOPS -->
       <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 border border-pink-900/60 shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-pink-900/60 pb-2 flex-wrap gap-2">
           <div class="flex items-center gap-2">
@@ -662,22 +664,41 @@
           </button>
         </div>
 
-        <!-- FREIGABE-SUBPANEL (COUNTDOWN & DAUER-WAHL) -->
-        <div id="release-choice-subpanel" class="hidden p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-800/80 space-y-3 animate-fade-in text-xs">
-          <div class="flex items-center justify-between border-b border-emerald-900/60 pb-1.5">
-            <strong class="text-emerald-200 text-xs">Höhepunkt-Freigabe konfigurieren:</strong>
-            <button type="button" onclick="SessionEdging.openReleaseChoice()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Schließen</button>
+        <!-- FREIGABE-SUBPANEL (COUNTDOWN & DAUER-WAHL MIT JOI-STEPPER) -->
+        <div id="release-choice-subpanel" class="hidden p-4 rounded-3xl bg-slate-900/95 border border-emerald-800/80 space-y-3.5 animate-fade-in text-xs shadow-2xl">
+          <div class="flex items-center justify-between border-b border-emerald-900/60 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400 text-base">⏱️</span>
+              <div>
+                <strong class="text-emerald-200 text-xs font-black block">Höhepunkt-Freigabe & JOI-Dauer:</strong>
+                <span class="text-[10px] text-slate-400">Jerk-Off Instruction Takt & Atemführung anpassen</span>
+              </div>
+            </div>
+            <button type="button" onclick="SessionEdging.openReleaseChoice()" class="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 rounded-lg hover:bg-slate-800">✕</button>
           </div>
 
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-300 font-bold">Dauer des Atem-Countdowns:</span>
-              <span id="selected-countdown-duration-label" class="text-emerald-300 font-mono font-bold">10s</span>
+          <!-- JOI STEPPER CONTROLS -->
+          <div class="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-900/60 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300 font-bold text-[11px]">Dauer des Atem-Countdowns:</span>
+              <span id="selected-countdown-duration-label" class="text-base font-black font-mono text-emerald-300 px-3 py-0.5 rounded-xl bg-slate-950 border border-emerald-800">20s</span>
             </div>
-            <div class="grid grid-cols-4 gap-1.5">
+
+            <!-- STEPPER BUTTONS (-5s / +5s) -->
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="SessionEdging.stepDuration(-5)" class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1.5 touch-btn shadow-sm">
+                <span>− 5s</span>
+              </button>
+              <button type="button" onclick="SessionEdging.stepDuration(5)" class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1.5 touch-btn shadow-sm">
+                <span>+ 5s</span>
+              </button>
+            </div>
+
+            <!-- SCHNELL-PRESETS -->
+            <div class="grid grid-cols-4 gap-1.5 pt-1">
               <button type="button" onclick="SessionEdging.setCountdownDuration(5)" id="btn-cd-dur-5" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">5s (Not)</button>
-              <button type="button" onclick="SessionEdging.setCountdownDuration(10)" id="btn-cd-dur-10" class="py-1.5 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn">10s (Klassisch)</button>
-              <button type="button" onclick="SessionEdging.setCountdownDuration(20)" id="btn-cd-dur-20" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">20s (Quälen)</button>
+              <button type="button" onclick="SessionEdging.setCountdownDuration(10)" id="btn-cd-dur-10" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">10s (Schnell)</button>
+              <button type="button" onclick="SessionEdging.setCountdownDuration(20)" id="btn-cd-dur-20" class="py-1.5 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn shadow-sm">20s (JOI ★)</button>
               <button type="button" onclick="SessionEdging.setCountdownDuration(30)" id="btn-cd-dur-30" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">30s (Trance)</button>
             </div>
           </div>
@@ -686,8 +707,8 @@
             <button type="button" onclick="SessionEdging.executeReleaseImmediate()" class="py-2.5 rounded-xl theme-panel border border-slate-700 text-slate-200 font-bold text-xs touch-btn">
               ⚡ Sofortige Freigabe
             </button>
-            <button type="button" onclick="SessionEdging.executeReleaseCountdown()" class="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs touch-btn shadow-md">
-              ⏳ Mit Countdown (<span id="btn-cd-label-sec">10s</span>)
+            <button type="button" onclick="SessionEdging.executeReleaseCountdown()" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-600 hover:opacity-90 text-white font-black text-xs touch-btn shadow-md flex items-center justify-center gap-1.5">
+              <span>⏳ Start JOI-Countdown (<span id="btn-cd-label-sec">20s</span>)</span>
             </button>
           </div>
         </div>
@@ -706,10 +727,10 @@
 
           <div class="flex-1 w-full flex flex-col items-center justify-center my-auto min-h-[68vh] sm:min-h-[72vh] relative">
             <div id="countdown-display" class="text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform">
-              10
+              20
             </div>
             <p id="countdown-cue-text" class="text-xs sm:text-sm text-emerald-200 font-semibold tracking-wide text-center mt-2 px-4 max-w-md drop-shadow">
-              Gemini spricht den Takt...
+              Regiestimme fokussiert die Kante...
             </p>
           </div>
 
@@ -755,7 +776,6 @@
 
   </main>
 
-  <!-- MODALS -->
 
   <!-- MODAL: AFTERCARE -->
   <div id="modal-session-aftercare" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
@@ -921,7 +941,6 @@
     </div>
   </div>
 
-  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
   <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
       <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
