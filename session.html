@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Schlafzimmer-Regie | Intim-Kompass</title>
+  <title>Kink- & Beziehungs-Kompass – Schlafzimmer-Regie</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function() {
@@ -85,42 +85,40 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
-  <!-- Audio Elemente für TTS und Ambient -->
-  <audio id="master-voice-audio" playsinline x-webkit-airplay="allow" class="hidden"></audio>
-  <audio id="ambient-airplay-audio" x-webkit-airplay="allow" class="hidden"></audio>
-
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zum Hub">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-950 via-rose-800 to-brand-600 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
           <div class="truncate">
             <div class="flex items-center gap-1.5">
               <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Schlafzimmer-Regie</h1>
-              <span id="session-active-badge" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-950 text-rose-300 border border-rose-800 uppercase flex-shrink-0">SESSION AKTIV</span>
+              <span id="session-active-badge" class="hidden px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-950 text-rose-300 border border-rose-800 uppercase flex-shrink-0 animate-pulse">LIVE</span>
             </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="session-roles-subtitle">Lade Session...</span>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="session-roles-subtitle">Top: Partner 2 · Bottom: Partner 1</span>
           </div>
         </a>
 
-        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn" title="Musik starten/pausieren">
-            <span id="ambient-status-icon">🎵</span> <span class="hidden md:inline text-[11px]" id="ambient-status-label">Musik</span>
+        <!-- QUICK CONTROLS -->
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <!-- AMBIENT MUSIK TOGGLE -->
+          <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn cursor-pointer" title="Hintergrundmusik starten/pausieren">
+            <span id="ambient-status-icon">🎵</span>
+            <span id="ambient-status-label" class="hidden sm:inline text-[10.5px]">Musik</span>
           </button>
-          <button type="button" onclick="triggerAirPlayPicker()" id="btn-airplay-picker" class="hidden px-2 py-1.5 bg-slate-900 border border-slate-800 text-purple-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="AirPlay Audio-Ausgabe">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1" />
-              <polygon points="12 15 17 21 7 21 12 15" fill="currentColor" stroke="none" />
-            </svg>
+
+          <!-- TABU COUNTER -->
+          <button type="button" onclick="SessionLive.openTabus()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn cursor-pointer" title="Tabu-Grenzen der Session anzeigen">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span id="session-tabu-counter">0</span>
           </button>
-          <button type="button" onclick="openSessionDiaryModal()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Logbuch öffnen">
-            <span class="text-xs font-mono">LOG</span>
-          </button>
-          <button type="button" onclick="openSessionTabuModal()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Tabu-Charta anzeigen">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span> <span id="session-tabu-counter">0</span>
+
+          <!-- TAGEBUCH -->
+          <button type="button" onclick="SessionLive.openDiary()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn cursor-pointer" title="Logbuch / Bisherige Sessions">
+            📖
           </button>
         </div>
       </div>
@@ -136,119 +134,114 @@
         <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Sicherheits-Kodex</span>
         </a>
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Mein Profil</span>
+        </a>
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Paar-Analyse</span>
         </a>
-        <span class="px-3 py-1.5 rounded-xl bg-brand-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
+        <button type="button" class="px-3 py-1.5 rounded-xl bg-rose-800 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
           <span>Regie</span>
-        </span>
+        </button>
       </nav>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER -->
-  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
-    <div id="unrated-sessions-banner" class="hidden p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 flex items-center justify-between gap-3 text-xs shadow-md">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-        <div>
-          <strong class="text-amber-200 block text-xs">Unbewertete Sessions im Logbuch</strong>
-          <span class="text-[10.5px] text-slate-400">Offenes Feedback von Top oder Bottom nachtragen.</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <button type="button" onclick="openSessionDiaryModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-[11px] touch-btn">
-          Ansehen ↗
-        </button>
-        <button type="button" onclick="dismissUnratedBanner()" class="text-slate-500 hover:text-white p-1 text-xs touch-btn">✕</button>
-      </div>
-    </div>
-
-    <!-- SETUP CONTAINER -->
+    <!-- PORTAL-SETUP (SCHRITTE 1 BIS 3) -->
     <div id="portal-setup-container" class="space-y-4">
 
       <!-- STEP 1: ROLLENVERTEILUNG -->
-      <div id="portal-step-1" class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl space-y-4">
-        <div class="border-b border-slate-800 pb-3">
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block mb-1.5">Schritt 1 / 3</span>
-          <h2 class="text-base sm:text-lg font-black text-white">Rollenverteilung für heute</h2>
-          <p class="text-xs text-slate-400">Wer führt heute und wer begibt sich in die Hingabe?</p>
+      <section id="portal-step-1" class="space-y-4 animate-fade-in">
+        <div class="theme-card rounded-3xl p-5 sm:p-7 border border-brand-900/50 shadow-2xl relative overflow-hidden bg-gradient-to-br from-brand-950/40 via-noir-900 to-rose-950/20">
+          <div class="max-w-xl space-y-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block">
+              Schritt 1 von 3: Rollen für heute
+            </span>
+            <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">
+              Wer übernimmt heute Abend die Führung?
+            </h2>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Legt fest, wer heute als aktiver Top die Verantwortung und Regie führt, und wer sich als Bottom vertrauensvoll fallenlassen darf.
+            </p>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <button type="button" onclick="selectPortalRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full">
+          <!-- SETUP DEFAULT: B FÜHRT A -->
+          <button type="button" onclick="SessionStaging.selectRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full">
             <div class="flex items-center justify-between">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-900 text-brand-200">Standard</span>
-              <span class="text-sm font-bold text-brand-300" id="badge-role-default">✓ Aktiv</span>
+              <span class="text-xs font-black uppercase text-brand-300 tracking-wide">Führung: <span id="portal-name-top-def">Partner 2</span></span>
+              <span id="badge-role-default" class="text-sm font-bold text-brand-300">✓ Aktiv</span>
             </div>
-            <div>
-              <div class="text-white font-extrabold text-xs">Top (Führung): <span id="portal-name-top-def" class="text-brand-300 font-bold">Partner 2</span></div>
-              <div class="text-slate-300 font-semibold text-xs mt-0.5">Bottom (Hingabe): <span id="portal-name-sub-def" class="text-indigo-300 font-bold">Partner 1</span></div>
-            </div>
-            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 2 lenkt Rituale, Tempo und Disziplin; Partner 1 empfängt und lässt los.</p>
+            <strong class="text-sm text-white block">👑 <span id="portal-name-top-def-sub">Partner 2</span> führt als Top</strong>
+            <p class="text-[11px] text-slate-300 leading-snug">🧎 <span id="portal-name-sub-def">Partner 1</span> empfängt als Bottom und gibt die Kontrolle ab.</p>
           </button>
 
-          <button type="button" onclick="selectPortalRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
+          <!-- SETUP REVERSED: A FÜHRT B -->
+          <button type="button" onclick="SessionStaging.selectRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
             <div class="flex items-center justify-between">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">Rollenwechsel</span>
-              <span class="text-sm font-bold text-slate-500" id="badge-role-reversed">○</span>
+              <span class="text-xs font-black uppercase text-slate-400 tracking-wide">Führung: <span id="portal-name-top-rev">Partner 1</span></span>
+              <span id="badge-role-reversed" class="text-sm font-bold text-slate-500">○</span>
             </div>
-            <div>
-              <div class="text-white font-extrabold text-xs">Top (Führung): <span id="portal-name-top-rev" class="text-brand-300 font-bold">Partner 1</span></div>
-              <div class="text-slate-300 font-semibold text-xs mt-0.5">Bottom (Hingabe): <span id="portal-name-sub-rev" class="text-indigo-300 font-bold">Partner 2</span></div>
-            </div>
-            <p class="text-[10.5px] text-slate-400 leading-snug">Partner 1 übernimmt heute Abend die dominante Führung; Partner 2 gibt sich hin.</p>
+            <strong class="text-sm text-white block">👑 <span id="portal-name-top-rev-sub">Partner 1</span> führt als Top</strong>
+            <p class="text-[11px] text-slate-300 leading-snug">🧎 <span id="portal-name-sub-rev">Partner 2</span> empfängt als Bottom und gibt die Kontrolle ab.</p>
           </button>
         </div>
 
-        <div class="pt-2 border-t border-slate-800 flex justify-end">
-          <button type="button" onclick="goToPortalStepSafe(2)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Weiter zu Tagesform & Equipment →
+        <div class="flex justify-end pt-2">
+          <button type="button" onclick="SessionStaging.goToStep(2)" class="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-black text-xs touch-btn shadow-md flex items-center gap-1.5">
+            <span>Weiter zu Schritt 2: Staging & Stimmung</span><span>→</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      <!-- STEP 2: TAGESFORM, EQUIPMENT & MUSIK -->
-      <div id="portal-step-2" class="hidden theme-card rounded-3xl p-5 sm:p-7 border shadow-xl space-y-4">
-        <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
-          <div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block mb-1.5">Schritt 2 / 3</span>
-            <h2 class="text-base sm:text-lg font-black text-white">Tagesform, Equipment & Musik</h2>
-            <p class="text-xs text-slate-400">Passe das Setting genau auf den heutigen Abend an.</p>
+      <!-- STEP 2: STAGING, CHECK-IN & AUDIO -->
+      <section id="portal-step-2" class="hidden space-y-4 animate-fade-in">
+        <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block">
+              Schritt 2 von 3: Vorbereitung
+            </span>
+            <button type="button" onclick="SessionStaging.goToStep(1)" class="text-xs text-slate-400 hover:text-white font-bold">← Rollen ändern</button>
           </div>
-          <button type="button" onclick="goToPortalStepSafe(1)" class="text-xs text-slate-400 hover:text-white font-bold touch-btn">
-            ← Rollen ändern
-          </button>
+          <h2 class="text-base sm:text-lg font-black text-white">Nachttisch-Staging & Tagesenergie</h2>
+          <p class="text-xs text-slate-300">Wählt aus eurem Schrank, was heute bereitliegt, und stimmt euer Energielevel ab.</p>
         </div>
 
+        <!-- ENERGIE & TIEFE -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-1.5">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-300">Energie des Führenden (Top):</span>
-              <span id="label-energy-top" class="font-bold text-brand-300">4 / 5</span>
+          <!-- TOP CHECK-IN -->
+          <div class="theme-card rounded-2xl p-4 border space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs block">👑 Top-Energie:</strong>
+              <span id="label-energy-top" class="text-brand-300 font-mono font-bold">4 / 5</span>
             </div>
-            <input type="range" min="1" max="5" value="4" oninput="updateCheckinEnergy('top', this.value)" class="w-full accent-brand-500 h-2 rounded-lg cursor-pointer">
-            <span class="text-[10px] text-slate-400 block" id="desc-energy-top">Präsent & fokussiert</span>
+            <p id="desc-energy-top" class="text-[11px] text-slate-400">Präsent & fokussiert</p>
+            <input type="range" min="1" max="5" value="4" oninput="SessionStaging.updateEnergy('top', this.value)" class="w-full accent-brand-500 cursor-pointer">
           </div>
 
-          <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-1.5">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-300">Hingabebereitschaft (Bottom):</span>
-              <span id="label-energy-sub" class="font-bold text-indigo-300">3 / 5</span>
+          <!-- BOTTOM CHECK-IN -->
+          <div class="theme-card rounded-2xl p-4 border space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs block">🧎 Bottom-Hingabe:</strong>
+              <span id="label-energy-sub" class="text-indigo-300 font-mono font-bold">4 / 5</span>
             </div>
-            <input type="range" min="1" max="5" value="3" oninput="updateCheckinEnergy('sub', this.value)" class="w-full accent-indigo-500 h-2 rounded-lg cursor-pointer">
-            <span class="text-[10px] text-slate-400 block" id="desc-energy-sub">Offen & empfänglich</span>
+            <p id="desc-energy-sub" class="text-[11px] text-slate-400">Offen & empfänglich</p>
+            <input type="range" min="1" max="5" value="4" oninput="SessionStaging.updateEnergy('sub', this.value)" class="w-full accent-indigo-500 cursor-pointer">
           </div>
         </div>
 
-        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2 text-xs">
-          <div class="flex justify-between items-center">
-            <strong class="text-white">Angestrebte Spieltiefe & Härtegrad:</strong>
-            <span id="label-session-depth" class="font-mono font-bold text-pink-400">Stufe 7 / 10 (Intensiv)</span>
+        <!-- SESSION-INTENSITÄT (1-10) -->
+        <div class="theme-card rounded-2xl p-4 border space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-xs block">Gewünschte Intensität / Tiefe:</strong>
+            <span id="label-session-depth" class="text-pink-300 font-mono font-bold">Stufe 7 / 10 (Intensive Führung)</span>
           </div>
-          <input type="range" min="1" max="10" value="7" oninput="updateSessionDepth(this.value)" class="w-full accent-pink-500 h-2 rounded-lg cursor-pointer">
-          <p class="text-[10.5px] text-slate-400 leading-snug" id="desc-session-depth">Feste Führung mit spürbaren Reizen und klarer Disziplinierung.</p>
+          <p id="desc-session-depth" class="text-[11px] text-slate-400">Feste Führung mit spürbaren Reizen, Fesselung und klarer Disziplinierung.</p>
+          <input type="range" min="1" max="10" value="7" oninput="SessionStaging.updateDepth(this.value)" class="w-full accent-pink-500 cursor-pointer">
         </div>
 
         <!-- NACHTTISCH-STAGING -->
@@ -256,18 +249,52 @@
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
             <div>
               <strong class="text-white block text-xs">Ausrüstung für heute Abend (Nachttisch-Staging)</strong>
-              <p class="text-[10.5px] text-slate-400">Wählt aus eurem Schrank, was bereitliegt (KI nutzt nur aktivierte Toys)</p>
+              <p class="text-[10.5px] text-slate-400">Nur Gegenstände aus eurem Schrank. Wählt aus, was heute griffbereit liegt.</p>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="selectEquipmentPreset('bare')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[10px] font-bold touch-btn">
-                Nur Hände & Bett
+            <!-- BESSERE ALTERNATIVE ZU HAUSHALT & ALLES BEREIT + NEUANSCHAFFUNG -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" onclick="SessionStaging.openNewToyQuickAdd()" class="px-2.5 py-1 rounded-lg bg-purple-900/90 hover:bg-purple-800 border border-purple-700 text-purple-200 text-[10.5px] font-extrabold touch-btn shadow-sm flex items-center gap-1">
+                <span>+</span><span>Neuanschaffung</span>
               </button>
-              <button type="button" onclick="selectEquipmentPreset('household')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 text-[10px] font-bold touch-btn">
-                Haushalt
+              <button type="button" onclick="selectEquipmentPreset('all')" class="px-2 py-1 rounded-lg bg-brand-950 border border-brand-800 text-brand-300 text-[10px] font-bold touch-btn" title="Alle Gegenstände aus dem Schrank für heute bereitlegen">
+                🧰 Kompletter Schrank
               </button>
-              <button type="button" onclick="selectEquipmentPreset('all')" class="px-2 py-1 rounded-lg bg-brand-950 border border-brand-800 text-brand-300 text-[10px] font-bold touch-btn">
-                Alles bereit
+              <button type="button" onclick="selectEquipmentPreset('random3')" class="px-2 py-1 rounded-lg bg-indigo-950 border border-indigo-800 text-indigo-300 text-[10px] font-bold touch-btn" title="Zufällige 3 Schrank-Toys als Inspiration auswählen">
+                🎲 Zufalls-Mix (3)
               </button>
+              <button type="button" onclick="selectEquipmentPreset('bare')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[10px] font-bold touch-btn" title="Nachttisch abräumen: Nur mit Händen und Körper spielen">
+                🛏️ Nur Hände & Bett
+              </button>
+            </div>
+          </div>
+
+          <!-- SCHNELLFORMULAR: NEUANSCHAFFUNG DIREKT IN DER REGIE -->
+          <div id="staging-quick-add-panel" class="hidden p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2 animate-fade-in">
+            <div class="flex items-center justify-between border-b border-purple-900/50 pb-1">
+              <strong class="text-xs text-purple-200 flex items-center gap-1">
+                <span>✨</span><span>Neuanschaffung fest im Schrank inventarisieren</span>
+              </strong>
+              <button type="button" onclick="SessionStaging.closeNewToyQuickAdd()" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="sm:col-span-2">
+                <input type="text" id="staging-quick-toy-name" placeholder="z. B. Lederflogger, Pfauenfeder, Holzklammern..." class="w-full text-xs p-2 bg-slate-900 border border-purple-800 rounded-xl text-white placeholder-slate-500">
+              </div>
+              <div>
+                <select id="staging-quick-toy-cat" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
+                  <option value="household">🏠 Haushalt</option>
+                  <option value="bondage">⛓️ Fesselung</option>
+                  <option value="impact">✋ Impact</option>
+                  <option value="sensory">🙈 Sensorik</option>
+                  <option value="cbt_clamps">⚡ CBT & Klammern</option>
+                  <option value="toys_anal">🍑 Toys & Anal</option>
+                  <option value="special">🕯️ Spezial</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-0.5">
+              <button type="button" onclick="SessionStaging.closeNewToyQuickAdd()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold">Abbrechen</button>
+              <button type="button" onclick="SessionStaging.saveNewToyFromStaging()" class="px-3.5 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs shadow-md">Im Schrank anlegen & bereitstellen ✓</button>
             </div>
           </div>
 
@@ -276,8 +303,12 @@
             <span class="text-emerald-400 font-bold">Immer aktiv ✓</span>
           </div>
 
+          <!-- KATEGORIE-TABS MIT "ALLE ANZEIGEN" ALS ERSTER BUTTON -->
           <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 border-b border-slate-800/80">
-            <button type="button" onclick="switchStagingTab('household')" id="btn-stag-tab-household" class="px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
+            <button type="button" onclick="switchStagingTab('all')" id="btn-stag-tab-all" class="px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
+              ✨ Alle Schrank-Toys (<span id="stag-count-all">0</span>)
+            </button>
+            <button type="button" onclick="switchStagingTab('household')" id="btn-stag-tab-household" class="px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
               🏠 Haushalt (<span id="stag-count-household">0</span>)
             </button>
             <button type="button" onclick="switchStagingTab('bondage')" id="btn-stag-tab-bondage" class="px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
@@ -302,736 +333,647 @@
 
           <div id="session-staging-equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1"></div>
 
+          <!-- FOOTER: DIREKTES ÖFFNEN DER VERWALTUNG STATT NAVIGATION ZUM HUB -->
           <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-[10.5px]">
-            <span class="text-slate-400">Heute bereitgelegt: <strong id="staging-active-count" class="text-white">0</strong> Gegenstände</span>
-            <a href="index.html#view=hub" class="text-purple-300 hover:underline">Im Schrank verwalten ↗</a>
-          </div>
-        </div>
-
-        <!-- MUSIK-SEKTION -->
-        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 text-xs">
-          <div class="flex items-center justify-between">
-            <div>
-              <strong class="text-white block text-xs">Musikalische Untermalung</strong>
-              <span class="text-[10.5px] text-slate-400">100% rauschfreie Soundscapes oder eigene Playlist</span>
-            </div>
-            <div class="flex gap-1">
-              <button type="button" onclick="selectMusicSourceWrapper('own')" id="btn-music-source-own" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">
-                Eigene Playlist
-              </button>
-              <button type="button" onclick="selectMusicSourceWrapper('synth')" id="btn-music-source-synth" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
-                Generativ
-              </button>
-            </div>
-          </div>
-
-          <div id="music-panel-own" class="hidden space-y-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300 font-bold text-[11px]">Eure Lieblings-Playlist starten:</span>
-              <span class="text-[9.5px] text-purple-300 font-mono">Audio-Ducking aktiv</span>
-            </div>
-            <p class="text-[10.5px] text-slate-400 leading-snug">
-              Startet eure Musik in Spotify oder Apple Music. Die Gemini-Sprachführung dämpft bei Ansagen eure Musik automatisch sanft ab.
-            </p>
-            <div class="flex items-center gap-2">
-              <input type="text" id="custom-playlist-link-input" placeholder="Spotify URI oder Web-Link einfügen..." onchange="saveCustomPlaylistLinkWrapper(this.value)" class="flex-1 text-[10.5px] px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono">
-              <a id="btn-launch-external-music" href="https://open.spotify.com" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-600 text-emerald-200 font-bold text-[10.5px] flex items-center gap-1 touch-btn">
-                App öffnen ↗
-              </a>
-            </div>
-          </div>
-
-          <div id="music-panel-synth" class="space-y-2.5">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button type="button" onclick="setSoundscapeStyleWrapper('velvet')" id="btn-style-velvet" class="p-2.5 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn shadow-md">
-                <span>Cinematic Velvet</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Warme Analog-Pads & Bells</span>
-              </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('bowls')" id="btn-style-bowls" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-                <span>Klangtempel 432Hz</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Tibetische Schalen & Om</span>
-              </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('ocean')" id="btn-style-ocean" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-                <span>Sinnliche Nachtbrise</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Atmende Harmoniewellen</span>
-              </button>
-              <button type="button" onclick="setSoundscapeStyleWrapper('beats')" id="btn-style-beats" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
-                <span>Dark Downtempo</span>
-                <span class="block text-[9px] text-slate-400 font-normal">Slow-Beat 56 BPM & Rhodes</span>
-              </button>
-            </div>
-
-            <!-- LAUTSTÄRKEN-REGLER -->
-            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 text-xs">
-              <span class="text-slate-300 font-bold flex items-center gap-1.5 flex-shrink-0">
-                <span>🔊</span><span>Lautstärke:</span>
-              </span>
-              <input type="range" min="0" max="1" step="0.05" value="0.7" oninput="setMasterAudioVolume(this.value)" class="flex-1 accent-brand-500 h-2 rounded-lg cursor-pointer">
-              <span id="ambient-volume-label" class="font-mono text-brand-300 font-bold w-10 text-right flex-shrink-0">70%</span>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between pt-1 border-t border-slate-800">
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-setup-ambient-toggle" class="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs touch-btn">
-                ▶ Audio starten
-              </button>
-              <button type="button" onclick="adjustAmbientEnergyWrapper('calm')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
-                ➖ Ruhiger
-              </button>
-              <button type="button" onclick="adjustAmbientEnergyWrapper('energy')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs touch-btn">
-                ➕ Energetischer
-              </button>
-            </div>
-            <button type="button" onclick="triggerAirPlayPicker()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-purple-300 font-bold text-xs touch-btn">
-              AirPlay
+            <span class="text-slate-400">Heute bereitgelegt: <strong id="staging-active-count" class="text-purple-300 font-mono font-bold">0</strong> von <span id="staging-closet-total-count" class="text-white font-bold">0</span> Schrank-Toys</span>
+            <button type="button" onclick="HubToys.open()" class="text-purple-300 hover:text-purple-200 font-bold hover:underline flex items-center gap-1 touch-btn">
+              <span>🧰</span><span>Schrank-Inventar verwalten ↗</span>
             </button>
           </div>
         </div>
 
-        <!-- SPRACHASSISTENZ -->
-        <div class="p-4 rounded-2xl bg-purple-950/20 border border-purple-900/50 space-y-3 text-xs">
+        <!-- MUSIK-SEKTION -->
+        <div class="theme-card rounded-2xl p-4 border space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-xs block">Hintergrund-Klang & Soundscapes:</strong>
+            <button type="button" onclick="SessionAudio.toggle()" id="btn-setup-ambient-toggle" class="text-purple-300 font-bold hover:underline">
+              ▶ Audio starten
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            <button type="button" onclick="SessionAudio.setStyle('velvet')" id="btn-style-velvet" class="p-2.5 rounded-xl border bg-brand-950 border-brand-500 text-brand-100 font-bold text-left touch-btn shadow-md">
+              <span>Cinematic Velvet</span>
+            </button>
+            <button type="button" onclick="SessionAudio.setStyle('bowls')" id="btn-style-bowls" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <span>Klangtempel 432Hz</span>
+            </button>
+            <button type="button" onclick="SessionAudio.setStyle('ocean')" id="btn-style-ocean" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <span>Nachtbrise</span>
+            </button>
+            <button type="button" onclick="SessionAudio.setStyle('beats')" id="btn-style-beats" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-left touch-btn">
+              <span>Dark Downtempo</span>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800 text-[11px]">
+            <span class="text-slate-400">Lautstärke: <span id="ambient-volume-label" class="text-white font-mono font-bold">70%</span></span>
+            <input type="range" min="0" max="1" step="0.05" value="0.7" oninput="SessionAudio.setVolume(this.value)" class="w-40 accent-purple-500 cursor-pointer">
+          </div>
+        </div>
+
+        <!-- SPRACHASSISTENZ & KI-KEY -->
+        <div class="theme-card rounded-2xl p-4 border space-y-3 text-xs">
           <div class="flex items-center justify-between">
             <div>
-              <strong class="text-xs text-white block">Akustische Sprachassistenz für den Top</strong>
-              <p class="text-[10.5px] text-slate-400">Spricht Countdown & Safewords laut ins Zimmer (Ausschließlich Gemini)</p>
+              <strong class="text-white text-xs block">Akustische Führung & Regiestimme:</strong>
+              <p class="text-[10.5px] text-slate-400">Gemini-Sprachausgabe für Anweisungen, Zählen und Befehle.</p>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
-              <input type="checkbox" id="session-voice-assist-toggle" onchange="toggleTopVoiceAssistance(this.checked)" class="sr-only peer">
-              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="session-voice-assist-toggle" onchange="SessionStaging.toggleVoiceAssist(this.checked)" class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
             </label>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-purple-900/40">
-            <div class="space-y-1">
-              <div class="flex justify-between items-center text-[10.5px]">
-                <span class="text-slate-300 font-bold">Stimme für Sprachansagen:</span>
-                <button type="button" id="btn-preview-step2" onclick="testGeminiVoiceSample()" class="text-purple-300 font-bold hover:underline">
-                  🔊 Probehören (5s)
-                </button>
-              </div>
-              <select id="session-voice-select" onchange="changeSessionVoice(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Stimme wählen:</label>
+              <select id="session-voice-select" onchange="SessionStaging.changeVoice(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
                 <option value="Despina">Sinnlich-dunkle Frauenstimme (Despina)</option>
                 <option value="Aoede">Fordernde Herrin (Aoede)</option>
                 <option value="Enceladus">Tiefe, befehlende Männerstimme (Enceladus)</option>
                 <option value="Fenrir">Autoritäre strenge Stimme (Fenrir)</option>
               </select>
             </div>
-
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-purple-900/60 flex flex-col justify-between">
-              <div>
-                <span class="text-[10px] font-black uppercase text-amber-300 block">Straf-Preset für die Herrin:</span>
-                <p class="text-[10px] text-slate-300 mt-0.5">Männlichen Bottom mit tiefer Männerstimme herunterzählen lassen.</p>
-              </div>
-              <button type="button" onclick="applyPunishmentVoicePreset()" class="mt-1.5 py-1 px-2.5 rounded-lg bg-purple-900/70 hover:bg-purple-800 border border-purple-700 text-purple-200 text-[10px] font-bold touch-btn">
-                Als Demütigungs-Stimme setzen
+            <div class="flex items-end gap-1.5">
+              <button type="button" id="btn-preview-step2" onclick="SessionStaging.testVoiceSample()" class="flex-1 py-2 px-3 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn">
+                🔊 Probehören (5s)
+              </button>
+              <button type="button" onclick="SessionStaging.applyPunishmentVoicePreset()" class="py-2 px-2.5 rounded-xl theme-panel border border-slate-700 text-slate-300 font-bold text-xs touch-btn" title="Straf-Preset: Enceladus">
+                ⚡ Zucht-Preset
               </button>
             </div>
           </div>
+        </div>
 
-          <div class="pt-2 border-t border-purple-900/30 flex items-center justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center">
-                <span class="text-[9.5px] font-bold text-slate-400 block">Gemini API-Key:</span>
-                <span id="gemini-active-model-badge" class="text-[9px] font-mono text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">Modell: Dynamisch</span>
-              </div>
-              <input type="password" id="session-gemini-key-input" onchange="saveSessionGeminiKey(this.value)" placeholder="Gemini API-Key hinterlegen..." class="w-full text-[10.5px] px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono mt-0.5">
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" onclick="SessionStaging.goToStep(1)" class="text-xs text-slate-400 hover:text-white font-bold">← Zurück</button>
+          <button type="button" onclick="SessionStaging.goToStep(3)" class="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-black text-xs touch-btn shadow-md flex items-center gap-1.5">
+            <span>Weiter zu Schritt 3: Drehbuch</span><span>→</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 3: DREHBUCH-VORSCHAU & START -->
+      <section id="portal-step-3" class="hidden space-y-4 animate-fade-in">
+        <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block">
+              Schritt 3 von 3: Drehbuch & Modus
+            </span>
+            <button type="button" onclick="SessionStaging.goToStep(2)" class="text-xs text-slate-400 hover:text-white font-bold">← Ausrüstung anpassen</button>
+          </div>
+          <h2 class="text-base sm:text-lg font-black text-white">Das 4-Phasen-Drehbuch für heute</h2>
+          <p class="text-xs text-slate-300">Zusammengestellt aus eurer Ausrüstung, den Rollen und eurer heutigen Energie.</p>
+        </div>
+
+        <!-- MODUS AUSWAHL -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <button type="button" onclick="SessionLive.selectMode('guided')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/40 border-brand-500 shadow-md">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs block">1. Geführtes Drehbuch</strong>
+              <span class="text-brand-300 font-bold text-xs">Empfohlen ★</span>
             </div>
-            <button type="button" onclick="testGeminiConnectionInSession()" class="px-2.5 py-1.5 mt-3 rounded-lg bg-purple-950 border border-purple-700 text-purple-200 text-[10px] font-bold flex-shrink-0 touch-btn">
-              Key prüfen ↗
-            </button>
-          </div>
-        </div>
+            <p class="text-[11px] text-slate-300">Schritt-für-Schritt durch 4 Phasen. Die App blendet passende Anweisungen für Top und Bottom ein.</p>
+          </button>
 
-        <div class="pt-2 border-t border-slate-800 space-y-2">
-          <span class="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider block">Spielmodus wählen:</span>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <button type="button" onclick="selectSessionMode('guided')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn bg-brand-950/20 border-brand-500 hover:border-brand-400 shadow-md block w-full">
-              <div class="flex items-center justify-between">
-                <strong class="text-sm font-extrabold text-white">Geführtes 4-Phasen-Drehbuch</strong>
-                <span class="text-xs font-bold text-brand-300">Empfohlen</span>
-              </div>
-              <p class="text-[11px] text-slate-400">Strukturierter Ablauf von Warm-up über Machtaufbau bis Katharsis und Aftercare.</p>
-            </button>
-
-            <button type="button" onclick="selectSessionMode('free')" class="p-4 rounded-2xl border text-left space-y-1.5 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
-              <div class="flex items-center justify-between">
-                <strong class="text-sm font-extrabold text-white">Freier Flow & Bestrafungs-Werkzeuge</strong>
-                <span class="text-xs font-bold text-slate-400">Flexibel</span>
-              </div>
-              <p class="text-[11px] text-slate-400">Direktes Regiepult mit freiem Timer, Musik-Umschaltung, Edging und Notfall-Ampel.</p>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 3: DREHBUCH-VORSCHAU -->
-      <div id="portal-step-3" class="hidden theme-card rounded-3xl p-5 sm:p-7 border shadow-xl space-y-4">
-        <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
-          <div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800 inline-block mb-1.5">Drehbuch-Prüfung</span>
-            <h2 class="text-base sm:text-lg font-black text-white">Vorschau eures 4-Phasen-Ablaufs</h2>
-            <p class="text-xs text-slate-400">Prüft die Dramaturgie, bevor die Session verbindlich gestartet wird.</p>
-          </div>
-          <button type="button" onclick="rerollPlaybook()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-brand-300 font-bold text-xs flex items-center gap-1.5 touch-btn">
-            <span>Neu würfeln</span>
+          <button type="button" onclick="SessionLive.selectMode('free')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs block">2. Freier Flow</strong>
+              <span class="text-slate-500 text-xs">Spontan</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Keine starren Schritte. Voller Zugriff auf Timer, Safewords, Edging-Cockpit und Soundscapes.</p>
           </button>
         </div>
 
-        <div id="playbook-preview-container" class="space-y-2.5 text-xs max-h-80 overflow-y-auto pr-1"></div>
+        <!-- DREHBUCH VORSCHAU LISTE -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-1">
+            <strong class="text-xs text-white">Geplante Schritte (4 Phasen):</strong>
+            <button type="button" onclick="SessionStaging.rerollPlaybook()" class="text-brand-300 text-xs font-bold hover:underline">
+              Neu würfeln 🎲
+            </button>
+          </div>
+          <div id="playbook-preview-container" class="space-y-2"></div>
+        </div>
 
-        <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-          <button type="button" onclick="goToPortalStepSafe(2)" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-            ← Zurück zu Tagesform
-          </button>
-          <button type="button" onclick="startLiveSessionWrapper()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-xs touch-btn shadow-md">
-            Session jetzt starten
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" onclick="SessionStaging.goToStep(2)" class="text-xs text-slate-400 hover:text-white font-bold">← Zurück</button>
+          <button type="button" onclick="SessionLive.startSession()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-rose-700 via-brand-600 to-rose-700 text-white font-black text-sm touch-btn shadow-2xl flex items-center gap-2">
+            <span>🕯️ Regiepult jetzt starten</span><span>→</span>
           </button>
         </div>
-      </div>
+      </section>
 
     </div>
 
-    <!-- COCKPIT LIVE CONTAINER -->
-    <div id="cockpit-live-container" class="hidden space-y-4">
-      
-      <!-- HAUPT-TIMER -->
-      <div class="theme-card rounded-3xl p-4 sm:p-5 border shadow-xl flex flex-wrap items-center justify-between gap-3">
+    <!-- COCKPIT LIVE CONTAINER (WIRD NACH DEM START SICHTBAR) -->
+    <div id="cockpit-live-container" class="hidden space-y-4 animate-fade-in">
+
+      <!-- MASTER STATUS BAR -->
+      <div class="theme-card rounded-3xl p-4 border border-rose-900/60 shadow-xl flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-brand-950 border border-brand-800/80 text-brand-400 flex items-center justify-center text-xl font-black font-mono shadow-inner">
-            ⏱
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span id="session-timer-display" class="text-2xl sm:text-3xl font-black font-mono tracking-tight text-white">60:00</span>
-              <span id="session-phase-pill" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Warm-up</span>
-            </div>
-            <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-[10px] text-slate-400 block" id="session-timer-subtext">Verbleibende Spielzeit</span>
-              <span id="cockpit-voice-active-indicator" class="hidden text-[9px] font-bold text-purple-300 bg-purple-950 px-1.5 py-0.2 rounded border border-purple-800">Stimme aktiv</span>
-            </div>
+          <div class="text-2xl sm:text-3xl font-black font-mono tracking-wider text-white" id="session-timer-display">60:00</div>
+          <div class="space-y-0.5">
+            <span id="session-phase-pill" class="px-2 py-0.5 rounded text-[9.5px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block">Phase 1</span>
+            <span class="text-[10px] text-slate-400 block" id="cockpit-voice-active-indicator">🔊 Stimme aktiv</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <button type="button" onclick="openZenAtemModal()" class="px-3 py-1.5 rounded-xl theme-panel border text-teal-300 hover:text-white font-bold text-xs touch-btn">
-            Vagus-Atmung
-          </button>
-          <button type="button" onclick="addSessionMinutes(5)" class="px-2.5 py-1.5 rounded-xl theme-panel border text-slate-300 hover:text-white font-bold text-xs touch-btn">
-            +5 Min
-          </button>
-          <button type="button" onclick="togglePauseTimer()" id="btn-pause-timer" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 hover:text-white font-bold text-xs touch-btn">
-            Pause
-          </button>
-          <button type="button" onclick="endSessionToAftercare()" class="px-4 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs shadow-md touch-btn">
-            Aftercare
-          </button>
-        </div>
-      </div>
-
-      <!-- SAFEWORD-AMPEL & BESTRAFUNG -->
-      <div class="space-y-2">
-        <div class="grid grid-cols-3 gap-2 text-xs">
-          <button type="button" onclick="triggerSafewordWrapper('green')" class="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-800 text-emerald-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-emerald-900/40">
-            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-            <span>GRÜN (Gut)</span>
-          </button>
-
-          <button type="button" onclick="triggerSafewordWrapper('yellow')" class="p-3 rounded-2xl bg-amber-950/40 border border-amber-800 text-amber-200 font-bold flex items-center justify-center gap-2 touch-btn hover:bg-amber-900/40">
-            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-            <span>GELB (Sanfter)</span>
-          </button>
-
-          <button type="button" onclick="triggerSafewordWrapper('red')" class="p-3 rounded-2xl bg-rose-950/60 border border-rose-800 text-rose-200 font-black flex items-center justify-center gap-2 touch-btn hover:bg-rose-900">
-            <span id="safeword-red-indicator" class="w-3 h-3 rounded-full bg-rose-600"></span>
-            <span>ROT (Sofort-Halt)</span>
-          </button>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-brand-950/40 border border-brand-900 flex items-center justify-between gap-3 text-xs">
-          <div>
-            <strong class="text-white block">Top-Assistenz & Bestrafungs-Konfigurator</strong>
-            <span class="text-[10.5px] text-slate-400">Vergehen erfassen, Haltung & Bestrafung kontextuell berechnen</span>
-          </div>
-          <button type="button" onclick="openIncidentDisciplineModalWrapper()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Bestrafung anordnen ⚖
-          </button>
-        </div>
-      </div>
-
-      <!-- SOUNDSCAPE STEUERUNG -->
-      <div class="p-3 rounded-2xl theme-panel border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <span id="cockpit-ambient-indicator" class="w-2 h-2 rounded-full bg-slate-600"></span>
-          <span class="font-bold text-white text-[11px]" id="cockpit-ambient-style-name">Soundscape: Cinematic Velvet</span>
-          <span class="text-[9.5px] text-slate-400 font-mono" id="ambient-intensity-display">(Stufe 2/4)</span>
-        </div>
         <div class="flex items-center gap-1.5">
-          <select id="select-cockpit-soundscape" onchange="setSoundscapeStyleWrapper(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg text-[10.5px] p-1.5 text-slate-300">
-            <option value="velvet">Cinematic Velvet</option>
-            <option value="bowls">Klangtempel 432Hz</option>
-            <option value="ocean">Ozean-Symphonie</option>
-            <option value="beats">Dark Downtempo</option>
-          </select>
-          <button type="button" onclick="toggleAmbientMusicWrapper()" id="btn-cockpit-ambient-play" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold touch-btn">
-            ▶ Play
-          </button>
-          <button type="button" onclick="adjustAmbientEnergyWrapper('calm')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 touch-btn" title="Intensität des aktuellen Sounds senken">
-            ➖ Ruhiger
-          </button>
-          <button type="button" onclick="adjustAmbientEnergyWrapper('energy')" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-300 touch-btn" title="Intensität des aktuellen Sounds steigern">
-            ➕ Energetischer
-          </button>
+          <button type="button" onclick="SessionLive.addMinutes(10)" class="px-2.5 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">+10m</button>
+          <button type="button" onclick="SessionLive.togglePause()" id="btn-pause-timer" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs touch-btn">Pause</button>
+          <button type="button" onclick="SessionLive.endToAftercare()" class="px-3.5 py-1.5 rounded-xl bg-teal-900 hover:bg-teal-800 text-teal-200 font-black text-xs touch-btn shadow-md">Aftercare 🛋️</button>
         </div>
       </div>
 
-      <!-- GEFÜHRTES DREHBUCH CONTAINER -->
-      <div id="guided-step-container" class="theme-card rounded-3xl p-5 sm:p-6 border shadow-xl space-y-3">
+      <!-- SAFEWORD EMERGENCY BAR -->
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" onclick="SessionLive.triggerSafeword('green')" class="py-2.5 px-3 rounded-2xl bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-700/80 text-emerald-200 font-extrabold text-xs flex items-center justify-center gap-1.5 touch-btn shadow-md">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span>GRÜN</span>
+        </button>
+        <button type="button" onclick="SessionLive.triggerSafeword('yellow')" class="py-2.5 px-3 rounded-2xl bg-amber-950/60 hover:bg-amber-900/70 border border-amber-700/80 text-amber-200 font-extrabold text-xs flex items-center justify-center gap-1.5 touch-btn shadow-md">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span>GELB</span>
+        </button>
+        <button type="button" onclick="SessionLive.triggerSafeword('red')" id="safeword-red-indicator" class="py-2.5 px-3 rounded-2xl bg-rose-950/80 hover:bg-rose-900 border border-rose-600 text-rose-100 font-black text-xs flex items-center justify-center gap-1.5 touch-btn shadow-lg">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+          <span>ROT (STOPP)</span>
+        </button>
+      </div>
+
+      <!-- GEFÜHRTER SCHRITT (WIRD BEI MODE 'GUIDED' ANGEZEIGT) -->
+      <div id="guided-step-container" class="theme-card rounded-3xl p-5 border border-brand-900/40 space-y-3 shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800" id="live-step-badge">Schritt 1 / 8</span>
-            <h3 class="text-sm font-extrabold text-white" id="live-step-title">Lade Regieanweisung...</h3>
+            <span id="live-step-badge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-brand-950 text-brand-300 border border-brand-800">Schritt 1 / 8</span>
+            <span id="live-step-phase" class="text-xs text-slate-400">Warm-up</span>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="speakCurrentLiveStep()" class="text-purple-300 hover:text-white text-xs font-bold flex items-center gap-1 touch-btn">
-              Vorlesen
-            </button>
-            <span class="text-[10px] font-mono text-slate-400" id="live-step-phase">Warm-up</span>
+          <button type="button" onclick="SessionLive.speakStep()" class="text-xs text-purple-300 font-bold hover:underline flex items-center gap-1">
+            <span>🔊</span><span>Vorlesen</span>
+          </button>
+        </div>
+
+        <div>
+          <h3 id="live-step-title" class="text-sm sm:text-base font-black text-white leading-snug">Lade Schritt...</h3>
+          <p id="live-step-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">Beschreibung des Schritts...</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+          <div class="p-3 rounded-xl bg-brand-950/30 border border-brand-900/60 space-y-0.5">
+            <strong class="text-brand-300 block text-[11px]">👑 Top-Führung:</strong>
+            <span id="live-step-top-role" class="text-slate-200 text-[11px] leading-snug block">Anweisung für den Top...</span>
+          </div>
+          <div class="p-3 rounded-xl bg-indigo-950/30 border border-indigo-900/60 space-y-0.5">
+            <strong class="text-indigo-300 block text-[11px]">🧎 Bottom-Hingabe:</strong>
+            <span id="live-step-sub-role" class="text-slate-200 text-[11px] leading-snug block">Haltung für den Bottom...</span>
           </div>
         </div>
 
-        <p class="text-xs text-slate-200 leading-relaxed" id="live-step-desc">Beschreibung des Schritts...</p>
-
-        <!-- DYNAMISCHER EDGING-HINWEIS IM DREHBUCH -->
-        <div id="guided-edging-callout" class="hidden p-3 rounded-2xl bg-pink-950/40 border border-pink-700/80 text-xs flex items-center justify-between gap-3 shadow-md animate-pulse">
+        <!-- AUTOMATISCHES EDGING-CALLOUT IM DREHBUCH -->
+        <div id="guided-edging-callout" class="hidden p-3 rounded-2xl bg-pink-950/50 border border-pink-500/80 flex items-center justify-between gap-2 shadow-lg animate-pulse">
           <div class="flex items-center gap-2">
-            <span class="text-lg">⚡</span>
+            <span class="text-xl">⚡</span>
             <div>
-              <strong class="text-pink-200 block text-xs">Edging-Fernbedienung jetzt aktiv</strong>
-              <span class="text-[10.5px] text-slate-300">Du kannst selbst sprechen oder die Gemini-App-Stimme sprechen lassen.</span>
+              <strong class="text-xs text-pink-200 block font-bold">Edging & Erregungskontrolle aktiv!</strong>
+              <span class="text-[10px] text-pink-300 block">Nutze jetzt die Edging-Fernbedienung weiter unten im Cockpit.</span>
             </div>
           </div>
-          <button type="button" onclick="scrollToEdgingPanel()" class="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl text-[11px] touch-btn flex-shrink-0">
+          <button type="button" onclick="SessionEdging.scrollToEdging()" class="px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white font-extrabold rounded-xl text-xs flex-shrink-0 touch-btn shadow-md">
             Zur Fernbedienung ↓
           </button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-          <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px]">
-            <strong class="text-brand-300 block text-[10px] uppercase tracking-wider">Top (Führung):</strong>
-            <p class="text-slate-300 mt-0.5" id="live-step-top-role">Anweisung</p>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+          <button type="button" onclick="SessionLive.prevStep()" class="px-3.5 py-1.5 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">← Vorheriger</button>
+          <button type="button" onclick="SessionLive.nextStep()" class="px-4 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-extrabold text-xs touch-btn shadow-md">Nächster Schritt →</button>
+        </div>
+      </div>
+
+      <!-- EDGING-FERNBEDIENUNG DES TOPS -->
+      <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 border border-pink-900/60 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-pink-900/60 pb-2 flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🎢</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-black text-white">Edging- & Kanten-Regie</h3>
+                <span id="edging-focus-badge" class="hidden px-2 py-0.5 rounded text-[9px] font-black uppercase bg-pink-950 text-pink-300 border border-pink-700 animate-pulse">DREHBUCH-FOKUS</span>
+              </div>
+              <p class="text-[10.5px] text-slate-400">Erregungskontrolle, Atem-Countdowns & Höhepunkt-Urteil.</p>
+            </div>
           </div>
-          <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px]">
-            <strong class="text-indigo-300 block text-[10px] uppercase tracking-wider">Bottom (Hingabe):</strong>
-            <p class="text-slate-300 mt-0.5" id="live-step-sub-role">Anweisung</p>
+
+          <!-- STIMULATION DURCH WEN -->
+          <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[10.5px]">
+            <button type="button" onclick="SessionEdging.setStimulator('top')" id="btn-stim-top" class="px-3 py-1 rounded-lg font-bold bg-brand-950 border border-brand-500 text-brand-200 touch-btn">Top berührt</button>
+            <button type="button" onclick="SessionEdging.setStimulator('bottom_self')" id="btn-stim-bottom" class="px-3 py-1 rounded-lg font-bold theme-panel text-slate-400 touch-btn">Bottom berührt sich</button>
           </div>
         </div>
 
-        <div class="pt-2 flex justify-between items-center border-t border-slate-800/80">
-          <button type="button" onclick="prevLiveStep()" id="btn-prev-live-step" class="px-3.5 py-1.5 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-            ← Vorheriger
+        <!-- NEUER SPRACHMODUS: TOP SPRICHT SELBST VS. GEMINI APP-STIMME -->
+        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-[11px] block">Wer spricht den Countdown & die Kantenbefehle?</strong>
+            <span id="label-current-voice-mode" class="text-[10px] font-mono text-purple-300 font-bold">Gemini spricht laut</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="SessionEdging.setVoiceMode('self')" id="btn-voice-mode-self" class="p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs text-white block">🗣️ Top spricht selbst</strong>
+                <span class="text-[10px] text-indigo-300 font-bold">Präsent</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5 leading-snug">Die App bleibt stumm; Cockpit blendet Textanweisungen & visuellen Atem-Takt ein.</p>
+            </button>
+            <button type="button" onclick="SessionEdging.setVoiceMode('gemini')" id="btn-voice-mode-gemini" class="p-2.5 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md">
+              <div class="flex items-center justify-between">
+                <strong class="text-xs text-white block">🔊 App-Stimme (Gemini)</strong>
+                <span class="text-[10px] text-purple-300 font-bold">Automatisch</span>
+              </div>
+              <p class="text-[10px] text-purple-200 mt-0.5 leading-snug">Die Gemini-Stimme spricht den gesamten Countdown fordernd laut ins Zimmer.</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- ERREGUNGSSCHIEBEREGEL (1-10) -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <strong class="text-white text-[11px]">Aktuelle Erregungsstufe:</strong>
+            <span id="arousal-level-badge" class="text-pink-300 font-mono font-bold">Stufe 5 / 10 (Plateau)</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" oninput="SessionEdging.handleArousal(this.value)" class="w-full accent-pink-500 cursor-pointer h-2 bg-slate-900 rounded-lg">
+          <div class="flex justify-between text-[9px] text-slate-500 font-mono">
+            <span>1: Sanft</span><span>5: Plateau</span><span>8: Gefahrenzone</span><span>10: Kante</span>
+          </div>
+        </div>
+
+        <!-- STATS & KANTEN ZÄHLER -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1">
+            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Bisherige Kanten (Edges):</span>
+            <div class="text-2xl font-black font-mono text-pink-400" id="edging-total-hits">0</div>
+          </div>
+          <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1">
+            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Seit letzter Kante:</span>
+            <div class="text-2xl font-black font-mono text-slate-200" id="time-since-last-edge">00:00</div>
+          </div>
+        </div>
+
+        <!-- HAUPT-AKTIONEN: KANTE ERREICHT & FREIGABE -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button type="button" onclick="SessionEdging.registerEdge()" class="py-3 px-4 rounded-2xl bg-pink-900 hover:bg-pink-800 border border-pink-600 text-white font-black text-xs touch-btn shadow-lg flex items-center justify-center gap-1.5">
+            <span>⚡</span><span>KANTE ERREICHT! (Hände weg)</span>
           </button>
-          <button type="button" onclick="nextLiveStep()" id="btn-next-live-step" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Nächster Schritt →
+          <button type="button" onclick="SessionEdging.openReleaseChoice()" class="py-3 px-4 rounded-2xl bg-emerald-900 hover:bg-emerald-800 border border-emerald-600 text-white font-black text-xs touch-btn shadow-lg flex items-center justify-center gap-1.5">
+            <span>✨</span><span>Kommen lassen... (Freigabe)</span>
+          </button>
+        </div>
+
+        <!-- FREIGABE-SUBPANEL (COUNTDOWN & DAUER-WAHL) -->
+        <div id="release-choice-subpanel" class="hidden p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-800/80 space-y-3 animate-fade-in text-xs">
+          <div class="flex items-center justify-between border-b border-emerald-900/60 pb-1.5">
+            <strong class="text-emerald-200 text-xs">Höhepunkt-Freigabe konfigurieren:</strong>
+            <button type="button" onclick="SessionEdging.openReleaseChoice()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Schließen</button>
+          </div>
+
+          <!-- COUNTDOWN DAUER AUSWAHL (5s, 10s, 20s, 30s) -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-300 font-bold">Dauer des Atem-Countdowns:</span>
+              <span id="selected-countdown-duration-label" class="text-emerald-300 font-mono font-bold">10s</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" onclick="SessionEdging.setCountdownDuration(5)" id="btn-cd-dur-5" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">5s (Not)</button>
+              <button type="button" onclick="SessionEdging.setCountdownDuration(10)" id="btn-cd-dur-10" class="py-1.5 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn">10s (Klassisch)</button>
+              <button type="button" onclick="SessionEdging.setCountdownDuration(20)" id="btn-cd-dur-20" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">20s (Quälen)</button>
+              <button type="button" onclick="SessionEdging.setCountdownDuration(30)" id="btn-cd-dur-30" class="py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">30s (Trance)</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="SessionEdging.executeReleaseImmediate()" class="py-2.5 rounded-xl theme-panel border border-slate-700 text-slate-200 font-bold text-xs touch-btn">
+              ⚡ Sofortige Freigabe
+            </button>
+            <button type="button" onclick="SessionEdging.executeReleaseCountdown()" class="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs touch-btn shadow-md">
+              ⏳ Mit Countdown (<span id="btn-cd-label-sec">10s</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- COUNTDOWN OVERLAY / DISPLAY -->
+        <div id="countdown-wrapper" class="hidden p-5 rounded-2xl bg-emerald-950/60 border border-emerald-500 text-center space-y-2 animate-pulse shadow-2xl">
+          <span class="text-[10px] text-emerald-300 uppercase tracking-widest font-black block">Atem-Countdown zum Orgasmus:</span>
+          <div id="countdown-display" class="text-4xl sm:text-5xl font-black font-mono text-white tracking-widest">10</div>
+          <p id="countdown-cue-text" class="text-[11px] text-emerald-200 font-medium">Gemini spricht den Takt...</p>
+          <div class="flex justify-center gap-2 pt-1">
+            <button type="button" onclick="SessionEdging.pauseCountdown()" id="btn-pause-countdown" class="px-3 py-1 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Pause</button>
+            <button type="button" onclick="SessionEdging.resetCountdown()" class="px-3 py-1 rounded-xl bg-slate-900 border border-slate-700 text-rose-300 font-bold text-xs touch-btn">Abbrechen</button>
+          </div>
+        </div>
+
+        <!-- FINISHER ENTSCHEIDUNGEN (RUINED & DENIAL) -->
+        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800 text-xs">
+          <button type="button" onclick="SessionEdging.finalizeDecision('ruined')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-300 font-bold touch-btn">
+            🥀 Ruined Orgasm anordnen
+          </button>
+          <button type="button" onclick="SessionEdging.finalizeDecision('denial')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-rose-300 font-bold touch-btn">
+            🔒 Orgasmus verweigern (Denial)
           </button>
         </div>
       </div>
 
-      <!-- EDGING COCKPIT PANEL -->
-      <div id="edging-cockpit-panel" class="theme-card rounded-3xl p-5 sm:p-6 border border-pink-900/50 shadow-2xl space-y-4 bg-gradient-to-b from-noir-950 to-pink-950/15 transition-all duration-300">
-        <div class="flex items-center justify-between border-b border-pink-900/40 pb-3 flex-wrap gap-2">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-extrabold text-white">Edging-Fernbedienung des Tops</h3>
-              <span id="edging-focus-badge" class="hidden px-2 py-0.5 rounded text-[9px] font-black uppercase bg-pink-950 text-pink-300 border border-pink-700">DREHBUCH-FOKUS</span>
-            </div>
-            <p class="text-[10px] text-slate-400">Erregungs-Schieberegler moduliert Stimme & Musik live</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-pink-950 text-pink-300 border border-pink-800">
-              Edges: <span id="edging-total-hits">0</span>
-            </span>
-          </div>
-        </div>
+      <!-- ZUSATZ-WERKZEUGE: BESTRAFUNG, ATEMÜBUNG & AFTERCARE -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+        <button type="button" onclick="SessionDiscipline.open()" class="p-3.5 rounded-2xl theme-panel border border-slate-800 hover:border-slate-700 text-left space-y-1 touch-btn">
+          <strong class="text-white block text-xs">⚖️ Bestrafungs-Wizard</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">5-Stufen-Zucht mit Bogen-Abgleich & Härtegraden.</p>
+        </button>
 
-        <!-- SCHALTER: WER SPRICHT DEN COUNTDOWN / DIE BEFEHLE? -->
-        <div class="p-3 rounded-2xl bg-slate-900/90 border border-pink-900/60 space-y-2 text-xs">
-          <div class="flex items-center justify-between">
-            <span class="text-slate-300 font-bold text-[11px] flex items-center gap-1.5">
-              <span>🎙️</span><span>Wer spricht Countdown & Befehle?</span>
-            </span>
-            <span id="label-current-voice-mode" class="text-[10px] font-mono text-purple-300">App-Stimme aktiv</span>
-          </div>
-          <div class="grid grid-cols-2 gap-1.5">
-            <button type="button" onclick="setCountdownVoiceMode('self')" id="btn-voice-mode-self" class="p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
-              <strong class="text-[11px] block text-white">🗣️ Selbst sprechen</strong>
-              <span class="text-[9.5px] block text-slate-400 mt-0.5">Top zählt selbst laut; App gibt visuelle Atem-Takte.</span>
-            </button>
-            <button type="button" onclick="setCountdownVoiceMode('gemini')" id="btn-voice-mode-gemini" class="p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md">
-              <strong class="text-[11px] block text-white">🔊 App-Stimme (Gemini)</strong>
-              <span class="text-[9.5px] block text-purple-300 mt-0.5">App spricht Countdown & Befehle laut ins Zimmer.</span>
-            </button>
-          </div>
-        </div>
+        <button type="button" onclick="SessionLive.openZen()" class="p-3.5 rounded-2xl theme-panel border border-slate-800 hover:border-slate-700 text-left space-y-1 touch-btn">
+          <strong class="text-white block text-xs">🧘 Vagus-Atmung & Trance</strong>
+          <p class="text-[10.5px] text-slate-400 leading-snug">Visuelle 4-7-8 Atemführung und Trance-Induktion.</p>
+        </button>
 
-        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-2 text-xs">
-          <span class="text-slate-300 font-bold text-[11px]">Stimulation ausgeführt durch:</span>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="setEdgingStimulator('top')" id="btn-stim-top" class="px-3 py-1.5 rounded-xl border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-brand-200 touch-btn">
-              Top führt aus
-            </button>
-            <button type="button" onclick="setEdgingStimulator('bottom_self')" id="btn-stim-bottom" class="px-3 py-1.5 rounded-xl border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">
-              Bottom selbst unter Aufsicht
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-1.5 p-3 rounded-2xl theme-panel border border-slate-800">
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-bold text-slate-300">Erregungsstufe des Bottoms:</span>
-            <span id="arousal-level-badge" class="font-black font-mono text-pink-400 text-sm">Stufe 5 / 10 (Plateau)</span>
-          </div>
-          <input type="range" min="1" max="10" value="5" oninput="handleArousalSliderTouch(this.value)" class="w-full accent-pink-500 h-3 rounded-lg cursor-pointer">
-          <div class="flex justify-between text-[9px] text-slate-500 font-mono">
-            <span>1 (Ruhig)</span>
-            <span>5 (Plateau)</span>
-            <span>8 (Gefahrenzone)</span>
-            <span>10 (Kante)</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button type="button" onclick="registerEdgeReachedWrapper()" class="p-4 rounded-2xl bg-gradient-to-r from-pink-900 to-rose-700 hover:from-pink-800 hover:to-rose-600 text-white font-black text-sm shadow-xl flex items-center justify-center gap-2.5 touch-btn active:scale-95">
-            <span>KANTE ERREICHT! (Edge)</span>
-          </button>
-
-          <div class="p-3 rounded-2xl theme-panel border border-slate-800 flex items-center justify-between">
-            <div>
-              <span class="text-[10px] text-slate-400 block">Zeit seit letzter Kante:</span>
-              <span id="time-since-last-edge" class="text-lg font-mono font-black text-white">00:00</span>
-            </div>
-            <button type="button" id="btn-cooldown-timer" onclick="startCooldownBreathingTimer()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-teal-300 font-bold text-xs touch-btn">
-              45s Abkühlen
-            </button>
-          </div>
-        </div>
-
-        <div class="p-3.5 rounded-2xl theme-panel border border-pink-900/40 space-y-3">
-          <span class="text-xs font-bold text-pink-200 block">Entscheidung des Tops am Höhepunkt:</span>
-
-          <div class="grid grid-cols-3 gap-2 text-xs">
-            <button type="button" onclick="openReleaseChoiceModal()" class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-800 text-emerald-300 font-bold touch-btn">
-              Kommen lassen
-            </button>
-            <button type="button" onclick="finalizeEdgingDecision('ruined')" class="p-2.5 rounded-xl bg-amber-950/50 border border-amber-800 text-amber-300 font-bold touch-btn">
-              Ruined Orgasm
-            </button>
-            <button type="button" onclick="finalizeEdgingDecision('denial')" class="p-2.5 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-300 font-bold touch-btn">
-              Verweigern (Denial)
-            </button>
-          </div>
-
-          <div id="release-choice-subpanel" class="hidden p-3 rounded-xl bg-slate-950 border border-emerald-800/80 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-emerald-300 block">Freigabe-Modus des Tops:</span>
-              <div class="flex items-center gap-1">
-                <span class="text-[10px] text-slate-400">Countdown:</span>
-                <span id="selected-countdown-duration-label" class="text-xs font-mono font-bold text-emerald-400">10s</span>
-              </div>
-            </div>
-
-            <!-- SCHNELL-WAHL DER COUNTDOWN-DAUER -->
-            <div class="grid grid-cols-4 gap-1 pt-0.5">
-              <button type="button" onclick="setCountdownDuration(5)" id="btn-cd-dur-5" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">5s</button>
-              <button type="button" onclick="setCountdownDuration(10)" id="btn-cd-dur-10" class="py-1 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn">10s</button>
-              <button type="button" onclick="setCountdownDuration(20)" id="btn-cd-dur-20" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">20s</button>
-              <button type="button" onclick="setCountdownDuration(30)" id="btn-cd-dur-30" class="py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">30s</button>
-            </div>
-
-            <div class="flex gap-2 pt-1">
-              <button type="button" onclick="executeReleaseWithCountdown()" id="btn-trigger-countdown-release" class="flex-1 py-2 rounded-xl bg-emerald-900/80 border border-emerald-600 text-white text-xs font-bold touch-btn">
-                Mit <span id="btn-cd-label-sec">10s</span>-Atem-Countdown
-              </button>
-              <button type="button" onclick="executeReleaseImmediate()" class="flex-1 py-2 rounded-xl bg-emerald-700 border border-emerald-500 text-white text-xs font-bold touch-btn">
-                Sofortige Freigabe
-              </button>
-            </div>
-          </div>
-
-          <div id="countdown-wrapper" class="hidden flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
-            <div>
-              <div class="text-4xl font-black font-mono tracking-tight text-white" id="countdown-display">10</div>
-              <span class="text-[10px] text-slate-400 block mt-0.5" id="countdown-cue-text">Zähle laut mit...</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="pauseSpeechCountdown()" id="btn-pause-countdown" class="px-3 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-                Pause
-              </button>
-              <button type="button" onclick="resetSpeechCountdown()" class="px-3 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
+        <button type="button" onclick="SessionLive.endToAftercare()" class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-800 hover:border-teal-700 text-left space-y-1 touch-btn">
+          <strong class="text-teal-200 block text-xs">🛋️ Aftercare & Tagebuch</strong>
+          <p class="text-[10.5px] text-teal-300/80 leading-snug">Feedback festhalten & Session im Paar-Logbuch sichern.</p>
+        </button>
       </div>
 
     </div>
 
   </main>
 
-  <!-- MODAL: ZEN ATEM & VAGUS -->
-  <div id="modal-session-zen" style="display: none;" onclick="if(event.target===this) closeZenAtemModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-teal-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-teal-900/60 pb-3">
+  <!-- MODALS -->
+
+  <!-- MODAL: AFTERCARE -->
+  <div id="modal-session-aftercare" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-teal-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-teal-900/60 pb-2">
+        <h3 class="text-sm font-extrabold text-white">Aftercare & Decken-Geborgenheit</h3>
+        <button type="button" onclick="SessionLive.closeAftercare()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <p class="text-[11px] text-slate-300 leading-relaxed">
+        Löst alle verbleibenden Fesseln. Hüllt euch in warme Decken, reicht Wasser und haltet euch mindestens 15 Minuten fest im Arm.
+      </p>
+
+      <div class="space-y-2">
         <div>
-          <h3 class="text-sm font-extrabold text-white">Vagus-Atem & Somatische Trance</h3>
-          <p class="text-[10px] text-teal-300">Pulsberuhigung & Nervensystem-Regulation</p>
+          <label class="text-[10.5px] font-bold text-brand-300 block mb-1">Top-Feedback (Wie war die Führung?):</label>
+          <input type="text" id="aftercare-top-feedback" placeholder="z. B. Sehr ruhiger Fokus, intensive Nähe..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
         </div>
-        <button onclick="closeZenAtemModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="selectZenMode('breath')" id="btn-zen-mode-breath" class="p-2.5 rounded-xl border bg-teal-950 border-teal-500 text-white font-bold text-center touch-btn">
-            4-7-8 Atemtakt
-          </button>
-          <button type="button" onclick="selectZenMode('trance')" id="btn-zen-mode-trance" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn">
-            Geführte Trance
-          </button>
-        </div>
-
-        <div id="zen-view-breath" class="space-y-3 text-center py-2">
-          <div class="w-24 h-24 rounded-full border-4 border-teal-500/40 bg-teal-950/30 flex items-center justify-center mx-auto transition-transform duration-1000" id="breath-circle">
-            <span class="text-xs font-black text-teal-200" id="breath-text">Einatmen (4s)</span>
-          </div>
-          <p class="text-[11px] text-slate-400">4s einatmen, 7s halten, 8s langsam durch den Mund ausströmen lassen.</p>
-        </div>
-
-        <div id="zen-view-trance" class="hidden space-y-3 p-3.5 rounded-2xl bg-purple-950/30 border border-purple-900/60">
-          <strong class="text-purple-200 block text-xs">Geführte Trance-Induktion (Gemini-Stimme):</strong>
-          <p class="text-[11px] text-slate-300 leading-relaxed">
-            Eine beruhigende Sprachführung bringt den Bottom vor der Session in den Subspace.
-          </p>
-          <button type="button" onclick="playGuidedTranceInduction()" class="w-full py-2.5 bg-purple-900 hover:bg-purple-800 text-white font-extrabold rounded-xl text-xs touch-btn flex items-center justify-center gap-1.5">
-            Trance-Sprachführung abspielen
-          </button>
+        <div>
+          <label class="text-[10.5px] font-bold text-indigo-300 block mb-1">Bottom-Feedback (Wie fühlte sich das Fallenlassen an?):</label>
+          <input type="text" id="aftercare-sub-feedback" placeholder="z. B. Tiefer Subspace, brauchte etwas Ruhe..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
         </div>
       </div>
 
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button type="button" onclick="closeZenAtemModal()" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-xl text-xs touch-btn">
-          Fertig & Schließen
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <button type="button" onclick="SessionLive.closeAftercare()" class="text-slate-400 hover:text-white text-xs font-bold">Zurück zur Session</button>
+        <button type="button" onclick="SessionLive.completeExit()" class="px-5 py-2.5 bg-teal-700 hover:bg-teal-600 text-white font-black rounded-xl text-xs touch-btn shadow-md">
+          Im Tagebuch speichern & Beenden ✓
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: INCIDENT DISCIPLINE (WIZARD) -->
-  <div id="modal-incident-discipline" style="display: none;" onclick="if(event.target===this) closeIncidentDisciplineModalWrapper()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-brand-800/80 p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+  <!-- MODAL: ZEN ATEM & TRANCE -->
+  <div id="modal-session-zen" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-md w-full border border-teal-500/40 p-5 space-y-4 shadow-2xl text-xs text-center">
+      <div class="flex items-center justify-between border-b border-teal-900/60 pb-2">
+        <h3 class="text-sm font-extrabold text-white">Vagus-Atmung & Zentrierung</h3>
+        <button type="button" onclick="SessionLive.closeZen()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="flex justify-center gap-2">
+        <button type="button" onclick="SessionLive.selectZenMode('breath')" id="btn-zen-mode-breath" class="p-2.5 rounded-xl border bg-teal-950 border-teal-500 text-white font-bold text-center touch-btn">4-7-8 Atmung</button>
+        <button type="button" onclick="SessionLive.selectZenMode('trance')" id="btn-zen-mode-trance" class="p-2.5 rounded-xl border theme-panel text-slate-300 font-bold text-center touch-btn">Trance-Induktion</button>
+      </div>
+
+      <div id="zen-view-breath" class="space-y-4 py-4">
+        <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+          <div id="breath-circle" class="w-28 h-28 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center transition-all duration-1000"></div>
+          <span id="breath-text" class="absolute text-xs font-black text-white">Einatmen (4s)</span>
+        </div>
+        <p class="text-[10.5px] text-slate-400">Atmet gemeinsam synchron: 4s Einatmen, 7s Halten, 8s langsam Ausatmen.</p>
+      </div>
+
+      <div id="zen-view-trance" class="hidden space-y-3 py-4 text-left text-xs text-slate-300 leading-relaxed">
+        <p>„Schließe die Augen. Atme tief in den Bauchraum aus. Lass die Schultern sinken und spüre das feste Gehaltensein.“</p>
+        <button type="button" onclick="SessionLive.playTrance()" class="w-full py-2.5 bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold rounded-xl text-xs touch-btn">
+          🔊 Gesprochene Trance-Führung starten
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="SessionLive.closeZen()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BESTRAFUNG (INCIDENT DISCIPLINE WIZARD) -->
+  <div id="modal-incident-discipline" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-brand-500/40 p-5 space-y-3.5 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-brand-900/60 pb-2">
         <div>
-          <h3 class="text-sm font-extrabold text-white">Top-Assistenz & Bestrafungs-Konfigurator</h3>
-          <p class="text-[10px] text-slate-400" id="wizard-stage-subtitle">Stufe 1 von 5: Vergehen, Anlass & Maßnahme</p>
+          <h3 class="text-sm font-extrabold text-white">Bestrafungs- & Disziplinar-Wizard</h3>
+          <p id="wizard-stage-subtitle" class="text-[10px] text-brand-300">Stufe 1 von 5: Vergehen & Maßnahme</p>
         </div>
-        <button onclick="closeIncidentDisciplineModalWrapper()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+        <button type="button" onclick="SessionDiscipline.close()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <div id="wizard-conflict-warning" class="hidden p-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-200 text-[10.5px] flex items-center gap-2">
-        <span class="text-sm">⚠️</span>
-        <span id="wizard-conflict-text">Physikalischer Konflikt korrigiert.</span>
+      <div id="wizard-conflict-warning" class="hidden p-2.5 rounded-xl bg-amber-950/60 border border-amber-600 text-amber-200 text-[10.5px]">
+        ⚠️ <span id="wizard-conflict-text">Konflikt in der physischen Haltung</span>
       </div>
 
-      <div class="flex-1 overflow-y-auto pr-1 space-y-3" id="wizard-content-container">
-        <!-- STUFE 1 -->
-        <div id="wizard-stage-1" class="space-y-3">
-          <div class="space-y-1.5">
-            <span class="text-slate-300 font-bold text-xs block">1. Kategorie des Vergehens:</span>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
-              <button type="button" onclick="selectIncidentCategoryWrapper('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
-              <button type="button" onclick="selectIncidentCategoryWrapper('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltungsfehler</button>
-              <button type="button" onclick="selectIncidentCategoryWrapper('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Unerlaubte Lust</button>
-              <button type="button" onclick="selectIncidentCategoryWrapper('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflichtversäumnis</button>
-              <button type="button" onclick="selectIncidentCategoryWrapper('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-purple-300 touch-btn">Selbstvollzug</button>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-slate-300 font-bold text-xs">2. Konkreter Anlass / Schilderung:</span>
-              <span class="text-[9.5px] text-slate-400">Live-Analyse aktiv</span>
-            </div>
-            <input type="text" id="incident-top-custom-reason" oninput="handleReasonLiveInputWrapper(this.value)" placeholder="z. B. Hat mir dreimal frech widersprochen, gezappelt..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white">
-          </div>
-
-          <div class="p-3 rounded-2xl bg-indigo-950/30 border border-indigo-900/60 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-indigo-200 text-xs font-bold" id="top-assist-title">Top-Assistenz-Analyse</strong>
-              <span class="text-[9.5px] font-mono text-indigo-300">Kontextuell</span>
-            </div>
-            <p class="text-[11px] text-slate-300 leading-snug" id="top-assist-rationale">Wähle oder beschreibe ein Vergehen.</p>
-          </div>
-
-          <div class="flex items-center justify-between border-t border-slate-800 pt-2">
-            <span class="font-bold text-slate-300 text-xs">Härtegrad der Bestrafung:</span>
-            <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverityWrapper(1, 1)" id="sev-btn-1-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverityWrapper(1, 2)" id="sev-btn-1-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverityWrapper(1, 3)" id="sev-btn-1-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
-            </div>
-          </div>
-
-          <div id="stage-1-cards-container" class="space-y-2"></div>
+      <!-- WIZARD STAGE 1: VERGEHEN & ANLASS -->
+      <div id="wizard-stage-1" class="space-y-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+          <button type="button" onclick="SessionDiscipline.selectCategory('mouth')" id="cat-btn-mouth" class="p-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">Widerrede</button>
+          <button type="button" onclick="SessionDiscipline.selectCategory('posture')" id="cat-btn-posture" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Haltung</button>
+          <button type="button" onclick="SessionDiscipline.selectCategory('orgasm')" id="cat-btn-orgasm" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Lust-Drang</button>
+          <button type="button" onclick="SessionDiscipline.selectCategory('duty')" id="cat-btn-duty" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Pflicht</button>
+          <button type="button" onclick="SessionDiscipline.selectCategory('self_discipline')" id="cat-btn-self_discipline" class="p-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-300 touch-btn">Selbstvollzug</button>
         </div>
 
-        <!-- STUFE 2 -->
-        <div id="wizard-stage-2" class="hidden space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div>
-              <strong class="text-white text-xs block">Vorgeschriebene Körperhaltung</strong>
-              <span class="text-[10px] text-slate-400">Wie der Bottom während des Rituals verharren muss</span>
-            </div>
-            <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverityWrapper(2, 1)" id="sev-btn-2-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverityWrapper(2, 2)" id="sev-btn-2-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverityWrapper(2, 3)" id="sev-btn-2-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
-            </div>
-          </div>
-          <div id="stage-2-cards-container" class="space-y-2"></div>
-        </div>
+        <input type="text" oninput="SessionDiscipline.handleReasonInput(this.value)" placeholder="Konkreter Anlass (z. B. Unpünktlich, frech geantwortet)..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
 
-        <!-- STUFE 3 -->
-        <div id="wizard-stage-3" class="hidden space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div>
-              <strong class="text-white text-xs block">Passende Fesselung & Arretierung</strong>
-              <span class="text-[10px] text-slate-400">Verhindert unruhiges Ausweichen</span>
-            </div>
-            <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverityWrapper(3, 1)" id="sev-btn-3-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverityWrapper(3, 2)" id="sev-btn-3-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverityWrapper(3, 3)" id="sev-btn-3-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
-            </div>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <strong class="text-white">Empfohlene Maßnahmen (aus dem Fragebogen):</strong>
+            <button type="button" onclick="SessionDiscipline.rerollStage()" class="text-brand-300 font-bold hover:underline">Würfeln 🎲</button>
           </div>
-          <div id="stage-3-cards-container" class="space-y-2"></div>
+          <div id="stage-1-cards-container" class="space-y-1.5"></div>
         </div>
+      </div>
 
-        <!-- STUFE 4 -->
-        <div id="wizard-stage-4" class="hidden space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div>
-              <strong class="text-white text-xs block">Sensorische Kontrolle & Knebelung</strong>
-              <span class="text-[10px] text-slate-400">Mund und Augen während der Bestrafung (Max. 15 Minuten)</span>
-            </div>
-            <div class="flex gap-1">
-              <button type="button" onclick="setStageSeverityWrapper(4, 1)" id="sev-btn-4-1" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">1. Milde</button>
-              <button type="button" onclick="setStageSeverityWrapper(4, 2)" id="sev-btn-4-2" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">2. Spürbar</button>
-              <button type="button" onclick="setStageSeverityWrapper(4, 3)" id="sev-btn-4-3" class="px-2.5 py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn">3. Streng</button>
-            </div>
+      <!-- WIZARD STAGE 2: HALTUNG -->
+      <div id="wizard-stage-2" class="hidden space-y-2">
+        <strong class="text-white block text-xs">Vorgeschriebene Körperhaltung:</strong>
+        <div id="stage-2-cards-container" class="space-y-1.5"></div>
+      </div>
+
+      <!-- WIZARD STAGE 3: FESSELUNG -->
+      <div id="wizard-stage-3" class="hidden space-y-2">
+        <strong class="text-white block text-xs">Passende Fesselung & Begrenzung:</strong>
+        <div id="stage-3-cards-container" class="space-y-1.5"></div>
+      </div>
+
+      <!-- WIZARD STAGE 4: SENSORIK -->
+      <div id="wizard-stage-4" class="hidden space-y-2">
+        <strong class="text-white block text-xs">Sensorische Kontrolle & Knebel:</strong>
+        <div id="stage-4-cards-container" class="space-y-1.5"></div>
+      </div>
+
+      <!-- WIZARD STAGE 5: ZUSAMMENFASSUNG -->
+      <div id="wizard-stage-5" class="hidden space-y-3">
+        <strong class="text-white block text-xs">Vollzugs-Protokoll:</strong>
+        <div id="summary-discipline-breakdown"></div>
+        <button type="button" onclick="SessionDiscipline.apply()" class="w-full py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+          ⚖️ Bestrafung offiziell anordnen
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button type="button" id="btn-prev-wizard" onclick="SessionDiscipline.prevStage()" class="text-slate-400 hover:text-white text-xs font-bold">← Zurück</button>
+        <button type="button" id="btn-next-wizard" onclick="SessionDiscipline.nextStage()" class="px-4 py-2 bg-brand-700 text-white font-bold rounded-xl text-xs touch-btn shadow-md">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TAGEBUCH -->
+  <div id="modal-session-diary" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border p-5 space-y-3 shadow-2xl text-xs max-h-[85vh] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-extrabold text-white">Schlafzimmer-Logbuch & Chronik</h3>
+        <button type="button" onclick="SessionLive.closeDiary()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+      <div id="session-diary-entries-container" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="SessionLive.closeDiary()" class="px-4 py-2 bg-slate-900 border border-slate-700 text-slate-300 font-bold rounded-xl text-xs touch-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SESSION TABUS -->
+  <div id="modal-session-tabus" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="theme-card rounded-3xl max-w-lg w-full border border-rose-500/40 p-5 space-y-3 shadow-2xl text-xs max-h-[85vh] flex flex-col justify-between">
+      <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
+        <h3 class="text-sm font-extrabold text-white">Tabus & Veto-Grenzen für heute</h3>
+        <button type="button" onclick="SessionLive.closeTabus()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
+      <div id="session-tabu-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="SessionLive.closeTabus()" class="px-4 py-2 bg-rose-950 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs touch-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) DIREKT IN DER REGIE EINGEBETTET -->
+  <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
+      
+      <!-- 1. MODAL HEADER -->
+      <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base shadow-inner">🧰</div>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">Unser Schrank (Toy-Verwaltung)</h3>
+            <p class="text-[10.5px] text-slate-400">Gegenstände im Schrank aktivieren; nur diese stehen heute zur Auswahl.</p>
           </div>
-          <div id="stage-4-cards-container" class="space-y-2"></div>
         </div>
+        <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      </div>
 
-        <!-- STUFE 5 -->
-        <div id="wizard-stage-5" class="hidden space-y-3">
-          <div class="p-3.5 rounded-2xl bg-brand-950/40 border border-brand-800/80 space-y-2">
-            <strong class="text-white text-xs block">Vollzugs-Protokoll: Dieses Ritual wurde konfiguriert:</strong>
-            <div id="summary-discipline-breakdown" class="space-y-1.5 text-xs text-slate-300"></div>
+      <!-- 2. STEUERUNG & FILTER -->
+      <div class="px-4 sm:px-6 py-3 border-b border-slate-800/80 space-y-2.5 flex-shrink-0 bg-slate-950/30">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+          <div class="relative flex-1 min-w-0">
+            <input type="text" id="toy-search-input" oninput="HubToys.handleSearch(this.value)" placeholder="🔍 Gegenstand suchen..." class="w-full text-xs px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none">
           </div>
-          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-            <span class="text-slate-300 text-[11px]">Bestrafung jetzt offiziell ausrufen & im Log dokumentieren:</span>
-            <button type="button" onclick="applyConfiguredDisciplineWrapper()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-              Strafe anwenden ⚖
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button type="button" onclick="HubToys.toggleNewToyForm()" id="btn-toggle-new-toy" class="px-3 py-2 rounded-xl bg-purple-900/90 hover:bg-purple-800 border border-purple-700 text-purple-200 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
+              <span>+</span><span>Neues Toy</span>
+            </button>
+            <button type="button" onclick="HubToys.promptClearInventory()" class="px-3 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/80 text-rose-300 font-bold text-xs shadow-sm flex items-center gap-1" title="Inventar leeren">
+              <span>🗑️</span><span>Leeren</span>
             </button>
           </div>
         </div>
-      </div>
 
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
-        <button type="button" onclick="prevWizardStageWrapper()" id="btn-prev-wizard" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          ← Zurück
-        </button>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="rerollCurrentWizardStageWrapper()" id="btn-reroll-wizard" class="px-3 py-2 bg-slate-900 border border-slate-700 text-brand-300 font-bold rounded-xl text-xs touch-btn">
-            Neu würfeln
-          </button>
-          <button type="button" onclick="nextWizardStageWrapper()" id="btn-next-wizard" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Weiter →
-          </button>
+        <!-- FORMULAR: NEUES TOY ANLEGEN -->
+        <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2.5 animate-fade-in">
+          <div class="flex items-center justify-between border-b border-purple-900/50 pb-1.5">
+            <strong class="text-xs text-purple-200 flex items-center gap-1.5">
+              <span>✨</span><span>Neuen Gegenstand zum Schrank hinzufügen</span>
+            </strong>
+            <button type="button" onclick="HubToys.toggleNewToyForm()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Schließen</button>
+          </div>
+
+          <div class="space-y-2">
+            <div>
+              <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Name des Gegenstands:</label>
+              <input type="text" id="input-new-toy-name" oninput="HubToys.checkToyNameMatch(this.value)" placeholder="z. B. Reitgerte, Holzklammern, Kaltwachskerzen, Seidenschal..." class="w-full text-xs p-2.5 bg-slate-900 border border-purple-800/80 rounded-xl text-white placeholder-slate-500 focus:border-purple-400 focus:outline-none">
+            </div>
+            <div id="toy-match-feedback-box" class="hidden"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Kategorie:</label>
+                <select id="select-new-toy-category" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
+                  <option value="household">🏠 Haushalt & Improvisation</option>
+                  <option value="bondage">⛓️ Fesselung & Seile</option>
+                  <option value="impact">✋ Impact & Spanking</option>
+                  <option value="sensory">🙈 Sensorik & Masken</option>
+                  <option value="cbt_clamps">⚡ CBT, Klammern & Gewichte</option>
+                  <option value="toys_anal">🍑 Toys & Anal</option>
+                  <option value="special">🕯️ Spezial & Fetisch</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Kurze Beschreibung (optional):</label>
+                <input type="text" id="input-new-toy-desc" placeholder="z. B. Aus weichem Rindsleder, 45cm lang..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
+              </div>
+            </div>
+            <div class="flex justify-end pt-1">
+              <button type="button" onclick="HubToys.saveNewCustomToy()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs shadow-md transition">
+                Toy anlegen & aktivieren ✓
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- MODAL: AFTERCARE -->
-  <div id="modal-session-aftercare" style="display: none;" onclick="if(event.target===this) closeAftercareModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-lg w-full border border-teal-500/40 p-5 sm:p-6 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-teal-900/60 pb-3">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Aftercare & Nachsorge-Protokoll</h3>
-          <p class="text-[10px] text-teal-300">Hormonelle Re-Integration & De-Briefing</p>
-        </div>
-        <button onclick="closeAftercareModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div class="space-y-1">
-          <strong class="text-white block">Feedback des Tops:</strong>
-          <textarea id="aftercare-top-feedback" placeholder="Wie hast du die Führung erlebt?..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white h-16"></textarea>
+        <!-- SICHERHEITS-WARNUNG BEIM LEEREN -->
+        <div id="toy-clear-confirm-box" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700 text-rose-200 space-y-2 animate-pulse">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">⚠️</span>
+            <div>
+              <strong class="text-xs block text-rose-100 font-bold">Inventar wirklich leeren?</strong>
+              <span class="text-[10.5px] text-slate-300 block">Alle Häkchen werden entfernt. Die Regie greift dann nur noch auf Hände und das Bett zu.</span>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-1 border-t border-rose-900/50">
+            <button type="button" onclick="HubToys.cancelClearInventory()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold">Abbrechen</button>
+            <button type="button" onclick="HubToys.confirmClearInventory()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md">Ja, alles abwählen</button>
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <strong class="text-brand-300 block">Feedback des Bottoms:</strong>
-          <textarea id="aftercare-sub-feedback" placeholder="Wie fühlst du dich nach der Hingabe?..." class="w-full text-xs p-2.5 theme-panel border rounded-xl text-white h-16"></textarea>
-        </div>
+        <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-        <button type="button" onclick="closeAftercareModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Im Begleiter bleiben
-        </button>
-        <button type="button" onclick="completeSessionAndExit()" class="px-5 py-2 bg-teal-800 hover:bg-teal-700 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Session abschließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LOGBUCH -->
-  <div id="modal-session-diary" style="display: none;" onclick="if(event.target===this) closeSessionDiaryModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-slate-800 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Gemeinsames Session-Logbuch</h3>
-          <p class="text-[10px] text-slate-400">Vergangene Abende, dokumentierte Aktionen & Daumen-Bewertungen</p>
-        </div>
-        <button onclick="closeSessionDiaryModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+      <!-- 3. SCROLLBARES GRID -->
+      <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
+        <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
 
-      <div id="session-diary-entries-container" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
-
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeSessionDiaryModal()" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs touch-btn">
-          Schließen
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: TABUS -->
-  <div id="modal-session-tabus" style="display: none;" onclick="if(event.target===this) closeSessionTabuModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-rose-500/40 p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col justify-between text-xs">
-      <div class="flex items-center justify-between border-b border-rose-900/60 pb-2.5">
-        <div>
-          <h3 class="text-sm font-extrabold text-white">Tabu-Charta & Schutzschranken</h3>
-          <p class="text-[10px] text-rose-300">Ausführungs-Limits vs. Schutzgrenzen beider Partner</p>
-        </div>
-        <button onclick="closeSessionTabuModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-      <div id="session-tabu-list-container" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
-      <div class="pt-2 border-t border-slate-800 flex justify-end">
-        <button onclick="closeSessionTabuModal()" class="px-4 py-2 bg-rose-900 hover:bg-rose-800 text-white font-bold rounded-xl text-xs touch-btn">
-          Verstanden & Schließen
+      <!-- 4. MODAL FOOTER -->
+      <div class="px-4 sm:px-6 py-3 border-t border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-950/60 text-xs">
+        <span class="text-[11px] text-slate-300">
+          Im Schrank: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong> Gegenstände
+        </span>
+        <button type="button" onclick="closeToyManagementModal()" class="px-5 py-2 bg-purple-900 hover:bg-purple-800 text-white font-extrabold rounded-xl text-xs shadow-md transition">
+          Fertig & Schließen
         </button>
       </div>
     </div>
@@ -1040,16 +982,17 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
   <!-- EXTERNE DATENQUELLEN & MODULARE REGIE-ENGINES -->
-  <script src="data/scientific_studies.js?v=4.0"></script>
-  <script src="data/questions_part1.js?v=4.0"></script>
-  <script src="data/questions_part2.js?v=4.0"></script>
-  <script src="data/equipment_catalog.js?v=4.0"></script>
-  <script src="js/session_voice.js?v=4.0"></script>
-  <script src="js/session_discipline.js?v=4.0"></script>
-  <script src="js/session_audio.js?v=4.0"></script>
-  <script src="js/session_staging.js?v=4.0"></script>
-  <script src="js/session_edging.js?v=4.0"></script>
-  <script src="js/session_live.js?v=4.0"></script>
+  <script src="data/scientific_studies.js"></script>
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+  <script src="data/equipment_catalog.js"></script>
+  <script src="js/hub_toys.js"></script>
+  <script src="js/session_voice.js"></script>
+  <script src="js/session_discipline.js"></script>
+  <script src="js/session_audio.js"></script>
+  <script src="js/session_staging.js"></script>
+  <script src="js/session_edging.js"></script>
+  <script src="js/session_live.js"></script>
 
 </body>
 </html>
