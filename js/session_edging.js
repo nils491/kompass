@@ -3,12 +3,13 @@
  * Spezialisiertes Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
  * 
  * Features:
- * - Erregungs-Schieberegler (1–10) mit Live-Modulation von Soundscape & Zwischenrufen
- * - Umschaltung: App-Stimme (Gemini) vs. Selbst sprechen (visuelle Atem-Cues)
- * - Variable Countdown-Dauer (5s, 10s, 20s, 30s) mit 100% Free-Tier-sicherem Einzelstream
- * - Pausierbarer und synchroner Atem-Ticker
- * - Cooldown-Timer (45s), Kanten-Zähler und Zeitstempel
- * - Höhepunkt-Urteile: Freigabe, Ruined Orgasm, Lustverweigerung (Denial)
+ * - Lückenlose Zahlenfolgen: Jede Zahl des Countdowns wird ausgesprochen (keine Übersprünge).
+ * - Einhaltung der Sekundendauer mit sexy Zwischenflüstern.
+ * - Startzahl-Staffelung (z.B. bei 20s ab 16, bei 30s ab 22), damit Taktung & Zwischenrufe perfekt harmonieren.
+ * - Synchrone visuelle Großanzeige für den Top.
+ * - Umschaltung: App-Stimme (Gemini) vs. Selbst sprechen (visuelle Atem-Cues).
+ * - Cooldown-Timer (45s), Kanten-Zähler und Zeitstempel.
+ * - Höhepunkt-Urteile: Freigabe, Ruined Orgasm, Lustverweigerung (Denial).
  */
 
 (function(window) {
@@ -181,18 +182,55 @@
     });
   }
 
-  function buildDynamicCountdownSpeechText(durationSeconds, subName) {
-    var name = subName || 'mein Schatz';
+  function getCountdownConfig(durationSeconds) {
+    // Liefert Startzahl und Schrittzeit, damit ALLE Zahlen aufgesagt werden
+    // und die Gesamtdauer exakt der gewählten Sekundenzahl entspricht
     if (durationSeconds === 5) {
-      return "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+      return { startNum: 5, stepMs: 1100 };
     }
     if (durationSeconds === 20) {
-      return "Zwanzig... stillhalten, " + name + "... Achtzehn... Sechzehn... tief in den Bauchraum atmen... Vierzehn... Zwölf... Zehn... Neun... Acht... Sieben... Sechs... Fünf... spüre das Glühen... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+      // 16 Zahlen (16 bis 1) + 4 gezielte Zwischenrufe = ~20s Gesamtdauer
+      return { startNum: 16, stepMs: 1220 };
     }
     if (durationSeconds === 30) {
-      return "Dreißig Sekunden an der Kante... nicht bewegen, " + name + "... Fünfundzwanzig... spüre jeden Herzschlag... Zwanzig... langsam ausatmen... Fünfzehn... halte die Spannung... Zehn... Neun... Acht... Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
+      // 22 Zahlen (22 bis 1) + 6 gezielte Zwischenrufe = ~30s Gesamtdauer
+      return { startNum: 22, stepMs: 1320 };
     }
-    return "Zehn... tief durchatmen... Neun... Acht... Sieben... Sechs... Fünf... spüre die Hitze, " + name + "... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    // Standard: 10 Sekunden (10 bis 1 lückenlos)
+    return { startNum: 10, stepMs: 1150 };
+  }
+
+  function buildDynamicCountdownSpeechText(durationSeconds, subName) {
+    var name = subName || 'mein Schatz';
+
+    // 5 Sekunden: 5, 4, 3, 2, 1 (alle Zahlen ausgesprochen)
+    if (durationSeconds === 5) {
+      return "Fünf... Vier... Blick zu mir... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    }
+
+    // 20 Sekunden: 16 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
+    if (durationSeconds === 20) {
+      return "Sechzehn... nicht bewegen, " + name + "... " +
+             "Fünfzehn... Vierzehn... tief in den Bauchraum atmen... " +
+             "Dreizehn... Zwölf... Elf... spüre das Pochen... " +
+             "Zehn... Neun... Acht... halte die Spannung... " +
+             "Sieben... Sechs... Fünf... spüre die Glut... " +
+             "Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
+    }
+
+    // 30 Sekunden: 22 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
+    if (durationSeconds === 30) {
+      return "Zweiundzwanzig... Einundzwanzig... Zwanzig... ganz ruhig ausatmen, " + name + "... " +
+             "Neunzehn... Achtzehn... Siebzehn... Sechzehn... spüre jeden Herzschlag... " +
+             "Fünfzehn... Vierzehn... Dreizehn... Zwölf... stillhalten... " +
+             "Elf... Zehn... Neun... Acht... halte die Kante... " +
+             "Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
+    }
+
+    // 10 Sekunden: 10 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
+    return "Zehn... tief durchatmen... Neun... Acht... stillhalten, " + name + "... " +
+           "Sieben... Sechs... spüre die Hitze... " +
+           "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
   }
 
   function executeReleaseImmediate() {
@@ -215,26 +253,28 @@
     if (panel) panel.classList.add('hidden');
     if (wrap) wrap.classList.remove('hidden');
 
-    currentEdgingCountdown = targetEdgingDuration;
+    var config = getCountdownConfig(targetEdgingDuration);
+    currentEdgingCountdown = config.startNum;
     isCountdownActive = true;
     isEdgingCountdownPaused = false;
     countdownRunId++;
 
     var disp = document.getElementById('countdown-display');
-    if (disp) disp.innerText = currentEdgingCountdown.toString();
+    if (disp) disp.innerText = config.startNum.toString();
 
     if (cueText) {
       cueText.innerText = (countdownVoiceMode === 'self') 
-        ? "Sprich jetzt laut im Takt mit..." 
-        : "Gemini spricht den Takt...";
+        ? "Sprich jetzt laut im Takt mit (" + config.startNum + " bis 1)..." 
+        : "Gemini zählt von " + config.startNum + " bis 1 herunter...";
     }
 
     var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
     var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
 
-    logSessionAction("Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
+    logSessionAction("Geführter Atem-Countdown (" + targetEdgingDuration + "s ab Zahl " + config.startNum + ") gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
 
-    runVisualCountdownTicker(countdownRunId, targetEdgingDuration);
+    // Startet die visuelle Großanzeige lückenlos ab config.startNum
+    runVisualCountdownTicker(countdownRunId, config.startNum, config.stepMs);
 
     if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
@@ -247,12 +287,10 @@
     }
   }
 
-  async function runVisualCountdownTicker(runId, totalSeconds) {
+  async function runVisualCountdownTicker(runId, startNumber, stepDurationMs) {
     var disp = document.getElementById('countdown-display');
     var cueText = document.getElementById('countdown-cue-text');
-    var ticker = totalSeconds;
-
-    var stepMs = (totalSeconds === 5) ? 1400 : (totalSeconds === 10 ? 2200 : (totalSeconds === 20 ? 1500 : 1600));
+    var ticker = startNumber;
 
     while (isCountdownActive && ticker > 0 && runId === countdownRunId) {
       if (isEdgingCountdownPaused) {
@@ -260,7 +298,7 @@
         continue;
       }
       if (disp) disp.innerText = ticker;
-      await new Promise(function(r) { setTimeout(r, stepMs); });
+      await new Promise(function(r) { setTimeout(r, stepDurationMs); });
       ticker--;
     }
 
@@ -271,7 +309,7 @@
           ? "Sprich jetzt: 'JETZT KOMMEN!'" 
           : "Erlaubnis erteilt!";
       }
-      logSessionAction("Orgasmus-Freigabe (" + totalSeconds + "s beendet)");
+      logSessionAction("Orgasmus-Freigabe (" + targetEdgingDuration + "s beendet)");
       setTimeout(function() {
         var wrap = document.getElementById('countdown-wrapper');
         if (wrap) wrap.classList.add('hidden');
