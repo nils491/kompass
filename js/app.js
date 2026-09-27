@@ -6,10 +6,10 @@
  * - Globale Zustandsverwaltung (currentUser 'A'/'B', currentView)
  * - Persistenz (Laden & Speichern von Antworten, Namen, Anatomie, Safety)
  * - View-Routing (Start-Hub, Fragebogen, Sicherheits-Kodex, Mein Profil)
- * - Partner-Umschaltung & lückenlose Namens-Synchronisation im Header
- * - Sicherheits-Kodex-Konfigurator (6 Module mit Echtzeit-Konsensabgleich)
+ * - Sofortige Bereitstellung aller Event-Handler auf window-Ebene
+ * - Partner-Umschaltung & Namens-Synchronisation im Header
+ * - Sicherheits-Kodex-Konfigurator mit Konsensabgleich
  * - Start-Hub KPI-Aktualisierung (Fortschritt, Tabu-Zähler, Toy-Badge)
- * - Anbindung an CloudSync (Hintergrund-Trigger & Live-Empfang)
  * - Deep-Linking zu Fragen im Bogen via goToSurveyItem
  */
 
@@ -195,11 +195,9 @@
     var nameA = (names && names.A) ? names.A.trim() : 'Partner 1';
     var nameB = (names && names.B) ? names.B.trim() : 'Partner 2';
 
-    // Aktualisiere die Buttons oben rechts
     if (dispA) dispA.innerText = nameA || 'Partner 1';
     if (dispB) dispB.innerText = nameB || 'Partner 2';
 
-    // Aktualisiere die Titelzeile unter dem Logo dynamisch
     if (headerPair) {
       headerPair.innerText = (nameA || 'Partner 1') + " & " + (nameB || 'Partner 2');
     }
@@ -374,9 +372,16 @@
     var hash = window.location.hash || '';
     var match = hash.match(/view=([a-z]+)/);
     var target = match ? match[1] : 'hub';
+
+    var userMatch = hash.match(/user=([AB])/);
+    if (userMatch && userMatch[1]) {
+      currentUser = userMatch[1];
+      window.currentUser = currentUser;
+      updateUserToggleUI();
+    }
+
     switchMainView(target);
 
-    // Deep-Link direkt zu einer Frage ausführen (z. B. #view=survey&jumpItem=14)
     var jumpMatch = hash.match(/jumpItem=(\d+)/);
     if (jumpMatch && jumpMatch[1]) {
       var targetId = parseInt(jumpMatch[1], 10);
@@ -391,4 +396,33 @@
   function goToSurveyItem(itemId) {
     switchMainView('survey');
     setTimeout(function() {
-      if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem ===
+      if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
+        window.SurveyEngine.jumpToItem(itemId);
+      }
+    }, 150);
+  }
+
+  window.switchMainView = switchMainView;
+  window.setCurrentUser = setCurrentUser;
+  window.saveSafetyOption = saveSafetyOption;
+  window.goToSurveyItem = goToSurveyItem;
+  window.saveCoreData = saveCoreData;
+  window.loadCoreData = loadCoreData;
+  window.updateUserToggleUI = updateUserToggleUI;
+  window.updateHubUI = updateHubUI;
+
+  window.addEventListener('hashchange', handleHashNavigation);
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', function() {
+      loadCoreData();
+      handleHashNavigation();
+      updateHubUI();
+    });
+  } else {
+    loadCoreData();
+    handleHashNavigation();
+    updateHubUI();
+  }
+
+})(window);
