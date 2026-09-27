@@ -3,10 +3,12 @@
  * Modul für die persönliche Profil-Auswertung ("Mein Profil"):
  * - Erotisches Archetypen-Radar mit Chart.js
  * - Psychologische 5-Säulen-Balance (Macht, Sensorik, Fürsorge, Thrill, Visuell)
+ * - 🏆 BDSMTest.org-Top-10-Archetypen-Rangliste mit Prozentbalken
  * - Höchste Leidenschaften (Note 5)
  * - 🙈 Scham- & Hemmschwellen-Liste (mit Klicksprung in den Bogen)
  * - Interaktive Tabu-Liste (Note 1) mit Direktsprung ins Fragebogen-Kapitel
  * - Tiefenpsychologisches Gemini-Einzelgutachten mit gezielter Entlastung der markierten Schamthemen
+ * - 🌿 Alltagstransfer & Beziehungs-Integration (Wie lebe ich das im Alltag?)
  */
 
 (function(window) {
@@ -14,6 +16,121 @@
 
   var singleRadarChartInstance = null;
   var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
+
+  var ARCHETYPE_DEFINITIONS = [
+    {
+      id: 'dominant',
+      title: 'Dominant / Führung (Top)',
+      desc: 'Bedürfnis nach Regieführung, Verantwortung und autoritärer Struktur im Spiel.',
+      chapters: [21, 22, 23, 29],
+      role: 'r1',
+      color: 'from-rose-600 to-brand-600'
+    },
+    {
+      id: 'submissive',
+      title: 'Devot / Hingabe (Bottom)',
+      desc: 'Freude am vertrauensvollen Loslassen der Kontrolle, Dienen und Gehorsam.',
+      chapters: [21, 22, 23, 29],
+      role: 'r2',
+      color: 'from-indigo-600 to-purple-600'
+    },
+    {
+      id: 'rigger',
+      title: 'Rigger / Seilkünstler (Shibari)',
+      desc: 'Faszination am Fesseln, Konstruieren von Mustern und Arretieren des Partners.',
+      chapters: [13, 14, 15],
+      role: 'r1',
+      color: 'from-amber-600 to-rose-600'
+    },
+    {
+      id: 'rope_bunny',
+      title: 'Rope Bunny / Seil-Empfänger',
+      desc: 'Sinnliches Aufgehen in Fesselung, Schwerelosigkeit und physischer Begrenzung.',
+      chapters: [13, 14, 15],
+      role: 'r2',
+      color: 'from-pink-600 to-rose-500'
+    },
+    {
+      id: 'sadist',
+      title: 'Sadist / Zuchtmeister (Impact Top)',
+      desc: 'Gezieltes Setzen intensiver Reize (Spanking, Flogger, Klemmen) zur Katharsis.',
+      chapters: [16, 17, 23],
+      role: 'r1',
+      color: 'from-red-700 to-rose-700'
+    },
+    {
+      id: 'masochist',
+      title: 'Masochist / Reizempfänger',
+      desc: 'Transformation von Schmerz- und Druckreizen in Endorphine und Trance.',
+      chapters: [16, 17, 23],
+      role: 'r2',
+      color: 'from-purple-700 to-indigo-700'
+    },
+    {
+      id: 'caregiver',
+      title: 'Caregiver / Fürsorglicher Top',
+      desc: 'Liebevolle Führung, Behutsamkeit, Kuscheln und starker Aftercare-Fokus.',
+      chapters: [19, 30],
+      role: 'r1',
+      color: 'from-teal-600 to-emerald-600'
+    },
+    {
+      id: 'little_pet',
+      title: 'Pet / Schutzbefohlener',
+      desc: 'Sehnsucht nach bedingungsloser Geborgenheit, Umsorgtwerden und Unschuld.',
+      chapters: [19, 30],
+      role: 'r2',
+      color: 'from-cyan-600 to-teal-500'
+    },
+    {
+      id: 'primal_hunter',
+      title: 'Primal Hunter / Urinstinkt Top',
+      desc: 'Jagdinstinkt, raues Raufen, Festhalten, Bisse und ungezähmte Körperlichkeit.',
+      chapters: [18],
+      role: 'r1',
+      color: 'from-amber-700 to-orange-600'
+    },
+    {
+      id: 'primal_prey',
+      title: 'Primal Prey / Beute',
+      desc: 'Erregung durch spielerische Gegenwehr, Gejagt- und Überwältigtwerden.',
+      chapters: [18],
+      role: 'r2',
+      color: 'from-orange-600 to-amber-500'
+    },
+    {
+      id: 'chastity_master',
+      title: 'Keuschheits-Hüter',
+      desc: 'Lust an Kontrolle über Erregung, Orgasmusverweigerung und Schlüsselgewalt.',
+      chapters: [7, 8],
+      role: 'r1',
+      color: 'from-blue-700 to-indigo-800'
+    },
+    {
+      id: 'chastity_locked',
+      title: 'Keuschling / Denial-Empfänger',
+      desc: 'Süße Qual des Aufschubs, Schloss am Genital und Erlaubniserwartung.',
+      chapters: [7, 8],
+      role: 'r2',
+      color: 'from-indigo-800 to-purple-800'
+    },
+    {
+      id: 'voyeur_exhibitionist',
+      title: 'Visuell / Ästhet & Schau-Lust',
+      desc: 'Lingerie, Masken, Spiegel, Zusehen oder sich in Szene setzen.',
+      chapters: [9, 10, 11, 24],
+      role: 'both',
+      color: 'from-fuchsia-600 to-pink-600'
+    },
+    {
+      id: 'sensory_zen',
+      title: 'Sinnlicher Hypnotiseur / Trance',
+      desc: 'Atemsynchronisation, Vagusnerv-Entlastung, Kälte/Wärme und Berührungskunst.',
+      chapters: [1, 2, 30],
+      role: 'both',
+      color: 'from-emerald-600 to-teal-500'
+    }
+  ];
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -63,6 +180,55 @@
       hash |= 0;
     }
     return Math.abs(hash).toString(36);
+  }
+
+  function calculateArchetypeRankings(answers, chapters) {
+    var results = [];
+
+    ARCHETYPE_DEFINITIONS.forEach(function(arch) {
+      var earned = 0;
+      var possible = 0;
+
+      arch.chapters.forEach(function(chId) {
+        var ch = chapters.find(function(c) { return c.id === chId; });
+        if (ch && ch.items) {
+          ch.items.forEach(function(it) {
+            if (it.type !== 'choice') {
+              if (arch.role === 'r1' || arch.role === 'both') {
+                var s1 = answers['it_' + it.id + '_r1'];
+                if (typeof s1 === 'number') {
+                  earned += s1;
+                  possible += 5;
+                }
+              }
+              if (arch.role === 'r2' || arch.role === 'both') {
+                var s2 = answers['it_' + it.id + '_r2'];
+                if (typeof s2 === 'number') {
+                  earned += s2;
+                  possible += 5;
+                }
+              }
+            }
+          });
+        }
+      });
+
+      var percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      results.push({
+        id: arch.id,
+        title: arch.title,
+        desc: arch.desc,
+        color: arch.color,
+        percentage: percentage,
+        possible: possible
+      });
+    });
+
+    results.sort(function(a, b) {
+      return b.percentage - a.percentage;
+    });
+
+    return results;
   }
 
   function renderSingleProfile() {
@@ -143,7 +309,8 @@
       if (valEl) valEl.innerText = pct + ' %';
     });
 
-    // HIGH-PRIO LISTE
+    renderBdsmTestRankings(answers, chapters);
+
     var highListEl = document.getElementById('single-high-prio-list');
     if (highListEl) {
       highListEl.innerHTML = highPrioItems.length > 0 ? highPrioItems.map(function(h) {
@@ -159,7 +326,6 @@
       }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Noch keine 5er-Favoriten vergeben.</p>';
     }
 
-    // TABUS LISTE
     var tabuListEl = document.getElementById('single-tabus-list');
     if (tabuListEl) {
       tabuListEl.innerHTML = tabuItems.length > 0 ? tabuItems.map(function(t) {
@@ -175,11 +341,60 @@
       }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>';
     }
 
-    // SCHAM- & HEMMSCHWELLEN CONTAINER (DYNAMISCH EINFÜGEN WENN ELEMENT EXISTIERT ODER ERSTELLEN)
     renderSingleShameBox(shameItems);
-
     renderRadarChart(curUser, answers, chapters);
     loadCachedSingleInterpretation(curUser);
+  }
+
+  function renderBdsmTestRankings(answers, chapters) {
+    var container = document.getElementById('single-bdsmtest-container');
+    if (!container) {
+      var radarCard = document.getElementById('singleRadarChart')?.closest('.theme-card');
+      if (radarCard && radarCard.parentNode) {
+        var card = document.createElement('div');
+        card.id = 'single-bdsmtest-container';
+        card.className = "theme-card rounded-3xl p-5 border space-y-3.5 shadow-md animate-fade-in";
+        radarCard.parentNode.insertBefore(card, radarCard.nextSibling);
+        container = card;
+      }
+    }
+    if (!container) return;
+
+    var rankings = calculateArchetypeRankings(answers, chapters);
+    var top10 = rankings.slice(0, 10);
+
+    container.innerHTML = `
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🏆</span>
+          <div>
+            <strong class="text-xs sm:text-sm text-white font-extrabold block">Top 10 Archetypen-Rangliste (BDSMTest-Format):</strong>
+            <p class="text-[10px] text-slate-400">Deine führenden Ausprägungen und Rollenneigungen im direkten Prozentvergleich.</p>
+          </div>
+        </div>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800 font-bold">Top 10</span>
+      </div>
+
+      <div class="space-y-2.5 pt-1">
+        ${top10.map(function(item, idx) {
+          return `
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 truncate pr-2">
+                  <span class="text-[10px] font-mono font-bold text-slate-500 w-5 text-left">${idx + 1}.</span>
+                  <strong class="text-slate-100 text-[11px] truncate">${escapeHtml(item.title)}</strong>
+                </div>
+                <span class="font-mono text-xs font-black text-rose-400 flex-shrink-0">${item.percentage} %</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800/80">
+                <div class="h-full bg-gradient-to-r ${item.color} rounded-full transition-all duration-700 shadow-sm" style="width: ${Math.max(4, item.percentage)}%;"></div>
+              </div>
+              <p class="text-[9.5px] text-slate-400 leading-tight pl-6">${escapeHtml(item.desc)}</p>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
   }
 
   function renderSingleShameBox(shameItems) {
@@ -199,7 +414,7 @@
     if (shameItems.length === 0) {
       container.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <strong class="text-xs text-indigo-300 flex items-center gap-1.5">
+          <strong class="text-xs text-indigo-300 flex items-center gap-1.5 font-bold">
             <span>🙈</span><span>Scham- & Hemmschwellen-Bereiche (0)</span>
           </strong>
         </div>
@@ -339,7 +554,7 @@
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <div class="flex items-center gap-2">
             <span class="text-base">✨</span>
-            <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Einzelgutachten</h3>
+            <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches Einzelgutachten & Ratgeber</h3>
           </div>
           <button type="button" onclick="ProfileEngine.generateInterpretation()" class="px-3 py-1 bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold rounded-xl text-xs touch-btn shadow-sm">
             Neu berechnen ↺
@@ -360,6 +575,10 @@
           <div class="p-3.5 rounded-2xl bg-teal-950/30 border border-teal-900/60 space-y-1">
             <strong class="text-teal-200 block text-xs font-bold">3. Scham-Entlastung & Normalisierung:</strong>
             <p>${escapeHtml(report.normalization || '')}</p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-900/60 space-y-1">
+            <strong class="text-amber-200 block text-xs font-bold">4. Alltagstransfer & Beziehungs-Praxis:</strong>
+            <p>${escapeHtml(report.everyday_transfer || report.integration || '')}</p>
           </div>
         </div>
       </div>
@@ -390,8 +609,8 @@
       <div class="theme-card rounded-3xl p-5 border text-center space-y-3 shadow-md">
         <span class="text-2xl block">🔮</span>
         <div>
-          <strong class="text-xs text-white block font-bold">Tiefenpsychologisches Einzelgutachten:</strong>
-          <p class="text-[10.5px] text-slate-400 mt-0.5">Lass deine Bogen-Antworten und Scham-Themen schamfrei und wissenschaftlich fundiert analysieren.</p>
+          <strong class="text-xs text-white block font-bold">Tiefenpsychologisches Einzelgutachten & Alltagstransfer:</strong>
+          <p class="text-[10.5px] text-slate-400 mt-0.5">Analysiere deine Vorlieben, Schamthemen und erhalte fundierte Ratschläge für den Beziehungsalltag.</p>
         </div>
         <button type="button" onclick="ProfileEngine.generateInterpretation()" class="px-5 py-2.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
           ✨ Jetzt KI-Einzelgutachten berechnen
@@ -400,15 +619,18 @@
     `;
   }
 
-  function generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles) {
+  function generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles, topArchetype) {
     var shameText = shameTitles.length > 0
       ? `Deine markierten Hemmschwellen (${shameTitles.slice(0, 3).join(', ')}) spiegeln keine Abweichung wider, sondern belegen den gesunden Wunsch nach geschützten Vertrauensgrenzen. Scham ist in der Sexualpsychologie oft der biologische Wächter vor intimen Wachstumszonen: Wo Scham im sicheren Raum behutsam abgelegt wird, entsteht maximale erotische Tiefe.`
       : `Alle deine Wünsche und Vorlieben sind aus sexualpsychologischer Sicht vollkommen gesund, verständlich und wertvoll. Wie die Forschung (u. a. Wismeijer 2013; Canivet 2025) eindeutig belegt, besitzen Menschen mit ausgeprägten erotischen Fantasien oft eine überdurchschnittliche emotionale Differenzierungsfähigkeit.`;
 
+    var everydayAdvice = `Trage deine Neigungen mit Leichtigkeit in den Alltag: Beginne mit subtilem 'Micro-D/s' oder sinnlichen Ankern – etwa einem festen, bedeutungsvollen Blickkontakt beim Abschied, einer sanften Berührung im Nacken oder diskreten Gesten, die nur ihr beide versteht. Wichtig ist die klare Entkopplung: Echte Alltagsverantwortung und Terminstress bleiben partnerschaftlich-demokratisch, während das erotische Spiel ein bewusster, einvernehmlicher Freiraum bleibt.`;
+
     return {
-      archetype: `${userName} besitzt ein faszinierendes und vielschichtiges erotisches Profil. Im Zentrum steht das Bedürfnis nach Intensität, emotionaler Echtheit und klarer Präsenz. Deine Antworten spiegeln eine Persönlichkeit wider, die Sexualität nicht oberflächlich lebt, sondern als tiefes Eintauchen in Sinnesräume, Vertrauen und Hingabe versteht.`,
+      archetype: `${userName} besitzt ein facettenreiches erotisches Profil mit starkem Fokus auf '${topArchetype || 'Hingabe und sensorische Intensität'}'. Im Zentrum steht das Bedürfnis nach emotionaler Wahrhaftigkeit, klarer Präsenz und geschützten Freiräumen.`,
       motivation: `Deine stärksten Motivationskräfte speisen sich aus der Balance zwischen somatischer Reizwahrnehmung (${pSens}%) und Machtdynamik (${pPower}%). Für dich bedeutet Erotik, Alltagskontrollen bewusst fallenlassen zu können oder Verantwortung mit Feingefühl zu übernehmen. Die Fürsorge-Säule (${pNurt}%) belegt zudem, dass körperliche Grenzerfahrungen für dich immer in Geborgenheit und verlässliche Nähe eingebettet sein müssen.`,
-      normalization: shameText
+      normalization: shameText,
+      everyday_transfer: everydayAdvice
     };
   }
 
@@ -433,11 +655,14 @@
       container.innerHTML = `
         <div class="theme-card rounded-3xl p-8 border text-center space-y-3 shadow-md animate-pulse">
           <div class="w-10 h-10 border-3 border-purple-500/20 border-t-purple-400 rounded-full animate-spin mx-auto"></div>
-          <strong class="text-xs text-purple-200 block font-bold">Analysiere dein psychologisches Profil...</strong>
-          <p class="text-[10.5px] text-slate-400">Gemini wertet deine Antworten und Schamthemen schamfrei aus.</p>
+          <strong class="text-xs text-purple-200 block font-bold">Analysiere dein psychologisches Profil & erstelle Alltagstransfer...</strong>
+          <p class="text-[10.5px] text-slate-400">Gemini wertet deine Antworten, Schamthemen und BDSMTest-Archetypen aus.</p>
         </div>
       `;
     }
+
+    var rankings = calculateArchetypeRankings(userAnswers, chapters);
+    var top3Names = rankings.slice(0, 3).map(function(r) { return r.title + " (" + r.percentage + "%)"; }).join(', ');
 
     var pPower = document.getElementById('bar-val-power') ? document.getElementById('bar-val-power').innerText.replace('%', '').trim() : '50';
     var pSens = document.getElementById('bar-val-sensation') ? document.getElementById('bar-val-sensation').innerText.replace('%', '').trim() : '50';
@@ -448,9 +673,10 @@
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || DEFAULT_PRESET_GEMINI_KEY;
 
     var prompt = `Du bist eine einfühlsame, moderne und wissenschaftlich fundierte Sexualtherapeutin und Beziehungspsychologin.
-Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Einzelgutachten für ${userName}.
+Erstelle ein warmherziges, psychologisch tiefes und absolut schamfreies Einzelgutachten sowie konkreten Alltagstransfer für ${userName}.
 
 PROFIL-DATEN:
+- Top-Archetypen (BDSMTest-Format): ${top3Names}
 - Macht & Hingabe (D/s): ${pPower}%
 - Sensorik & Körperreiz (Impact/Seile): ${pSens}%
 - Fürsorge & Geborgenheit: ${pNurt}%
@@ -462,12 +688,14 @@ TONFALL & ANWEISUNGEN:
 - Sprich ${userName} direkt mit "Du" an.
 - Warmherzig, befreiend, psychologisch fundiert, absolut ohne moralische Wertung.
 - In Feld 3 "normalization": Gehe ganz konkret und therapeutisch entlastend auf die markierten Schamthemen ein (Scham als Wächter intimer Vertrauenszonen, Canivet 2025, Wismeijer 2013).
+- In Feld 4 "everyday_transfer": Gib praxisnahe, konkrete Ratschläge, wie ${userName} diese Sexualität gesund, stressfrei und bereichernd in den Alltag und die Beziehungs-Kommunikation einweben kann (z. B. Micro-D/s, nonverbale Codes, Entkopplung von Alltagsstress, Nachbereitung).
 
-Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
+Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
 {
   "archetype": "Welcher erotische Leit-Archetyp beschreibt ${userName} am treffendsten? (3 bis 5 Sätze)",
   "motivation": "Was sind die unbewussten psychologischen Motivationskräfte hinter diesen Vorlieben? (3 bis 5 Sätze)",
-  "normalization": "Befreiende wissenschaftliche Entlastung von Schamgefühlen und Würdigung der Hemmschwellen (3 bis 5 Sätze)"
+  "normalization": "Befreiende wissenschaftliche Entlastung von Schamgefühlen und Würdigung der Hemmschwellen (3 bis 5 Sätze)",
+  "everyday_transfer": "Konkreter, alltagstauglicher Ratgeber: Wie kann diese Dynamik harmonisch im Beziehungsalltag gelebt werden? (3 bis 5 Sätze)"
 }`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
@@ -509,7 +737,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
     }
 
     if (!finalReport) {
-      finalReport = generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles);
+      finalReport = generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles, rankings[0]?.title);
       showToast("✓ Gutachten aus deinen Bogen-Werten berechnet (Offline-Modus)");
     }
 
@@ -534,7 +762,8 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
 
   window.ProfileEngine = {
     render: renderSingleProfile,
-    generateInterpretation: generateSingleInterpretation
+    generateInterpretation: generateSingleInterpretation,
+    getRankings: calculateArchetypeRankings
   };
 
   window.renderSingleProfile = renderSingleProfile;
