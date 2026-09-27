@@ -4,15 +4,17 @@
  * 
  * Beinhaltet:
  * - Vollständige Erfassung aller Einstellungen, Bogen-Daten, Notizen und Schrank-Toys
- * - NEU: Nahtlose Synchronisation des D/s-Ledgers (Tragezeit, Saldo, Chores, Strafen)
- * - NEU: Lückenlose Echtzeit-Zusammenführung des E2EE-Chatstreams (Aufgaben-Karten, Fotos)
+ * - Nahtlose Synchronisation des D/s-Ledgers (Tragezeit, Saldo, Chores, Strafen)
+ * - Lückenlose Zusammenführung des E2EE-Chatstreams (Aufgaben-Karten, Fotos, System-Feed)
+ * - Beiderseitige Synchronisation des D/s-Opt-In-Status (A & B)
  * - Rollen-Schutz: Gerät A überschreibt niemals Slot B; Gerät B überschreibt niemals Slot A
- * - Robuste Übertragung großer Datenpakete (ntfy 15-MB-Attachment-Support mit echtem Header)
- * - Dateigrößen-Garantie: Modular gehalten, weit unter 800 Zeilen.
+ * - Robuste Übertragung großer Datenpakete (ntfy Attachment-Support mit Fallback)
+ * - Dateigrößen-Garantie: Weit unter 600 Zeilen.
  */
 
 (function(window) {
   'use strict';
+
 
   var NTFY_ENDPOINT = 'https://ntfy.sh';
   var activePairCode = null;
@@ -41,6 +43,7 @@
     }
     return bytes.buffer;
   }
+
 
   async function deriveKeyFromPairCode(code, salt) {
     var cleanCode = String(code || '').toUpperCase().trim();
@@ -120,6 +123,7 @@
     return count;
   }
 
+
   function gatherLocalData() {
     var rawAnswers = localStorage.getItem('kompass_answers');
     var rawNames = localStorage.getItem('kompass_names');
@@ -131,9 +135,11 @@
     var slA = localStorage.getItem('kompass_sharing_level_A');
     var slB = localStorage.getItem('kompass_sharing_level_B');
 
-    // D/s-Ledger & Chat-State auslesen
     var rawLedger = localStorage.getItem('kompass_ledger_state');
     var rawChat = localStorage.getItem('kompass_chat_messages');
+
+    var dsOptinA = localStorage.getItem('kompass_ds_optin_A') === 'true';
+    var dsOptinB = localStorage.getItem('kompass_ds_optin_B') === 'true';
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
     var theme = localStorage.getItem('kompass_theme') || 'dark';
@@ -153,6 +159,10 @@
       sessionDiary: rawDiary ? JSON.parse(rawDiary) : [],
       ledgerState: rawLedger ? JSON.parse(rawLedger) : null,
       chatMessages: rawChat ? JSON.parse(rawChat) : [],
+      dsOptIn: {
+        A: dsOptinA,
+        B: dsOptinB
+      },
       sharingLevels: {
         A: slA ? parseInt(slA, 10) : 4,
         B: slB ? parseInt(slB, 10) : 4
@@ -183,6 +193,7 @@
       sessionDiary: [],
       ledgerState: null,
       chatMessages: [],
+      dsOptIn: { A: false, B: false },
       sharingLevels: { A: 4, B: 4 },
       settings: {}
     };
@@ -246,20 +257,24 @@
       return (b.id || '').localeCompare(a.id || '');
     });
 
+    merged.dsOptIn = {
+      A: (remote.dsOptIn && remote.dsOptIn.A !== undefined) ? remote.dsOptIn.A : (local.dsOptIn ? local.dsOptIn.A : false),
+      B: (remote.dsOptIn && remote.dsOptIn.B !== undefined) ? remote.dsOptIn.B : (local.dsOptIn ? local.dsOptIn.B : false)
+    };
+
     if (remote.ledgerState && (!local.ledgerState || remote.clientTimestamp > (local.ledgerState.updatedAt || 0))) {
       merged.ledgerState = remote.ledgerState;
     } else {
       merged.ledgerState = local.ledgerState || remote.ledgerState;
     }
 
-    // Chat-Nachrichten deduplizieren und chronologisch sortieren
     var chatMap = new Map();
     (local.chatMessages || []).forEach(function(msg) { if (msg && msg.id) chatMap.set(msg.id, msg); });
     (remote.chatMessages || []).forEach(function(msg) {
       if (msg && msg.id) {
         var existing = chatMap.get(msg.id);
         if (!existing || (msg.status && msg.status !== 'pending')) {
-          chatMap.set(msg.id, msg); // Bevorzugt aktualisierte Zustände (z. B. genehmigte Aufgaben)
+          chatMap.set(msg.id, msg);
         }
       }
     });
@@ -269,6 +284,7 @@
 
     return merged;
   }
+
 
   function applyMergedDataLocally(data) {
     if (!data) return;
@@ -287,6 +303,11 @@
       }
       if (data.chatMessages) {
         localStorage.setItem('kompass_chat_messages', JSON.stringify(data.chatMessages));
+      }
+
+      if (data.dsOptIn) {
+        if (data.dsOptIn.A !== undefined) localStorage.setItem('kompass_ds_optin_A', data.dsOptIn.A ? 'true' : 'false');
+        if (data.dsOptIn.B !== undefined) localStorage.setItem('kompass_ds_optin_B', data.dsOptIn.B ? 'true' : 'false');
       }
 
       if (data.sharingLevels) {
@@ -326,11 +347,12 @@
 
       window.dispatchEvent(new CustomEvent('kompass_data_synced', { detail: data }));
 
-      // Wenn das Ledger-Modul geladen ist, gezielt UI aktualisieren
       if (window.LedgerApp && typeof window.LedgerApp.renderAll === 'function') {
         window.LedgerApp.renderAll();
       }
-      if (window.LedgerChat && typeof window.LedgerChat.renderChatStream === 'function') {
+      if (window.ChatApp && typeof window.ChatApp.render === 'function') {
+        window.ChatApp.render();
+      } else if (window.LedgerChat && typeof window.LedgerChat.renderChatStream === 'function') {
         window.LedgerChat.renderChatStream();
       }
 
@@ -349,6 +371,7 @@
   function getCleanTopic(code) {
     return 'kink_vault_' + encodeURIComponent(String(code || '').toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
   }
+
 
   async function pushDataToCloud() {
     if (!isSyncPaired || !activePairCode) return;
@@ -401,6 +424,7 @@
       notifyListeners('status_change', { status: currentSyncStatus, error: e.message });
     }
   }
+
 
   async function pullDataFromCloud() {
     if (!isSyncPaired || !activePairCode) return false;
@@ -486,6 +510,7 @@
     }
     return result;
   }
+
 
   async function createRoom() {
     var newCode = generateRandomRoomCode();
