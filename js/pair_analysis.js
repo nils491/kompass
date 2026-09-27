@@ -526,11 +526,61 @@
     }).join('');
   }
 
-  function renderPairReportCards(report, container) {
+  function getAnswersFingerprint(ans) {
+    if (!ans || typeof ans !== 'object') return '';
+    var keys = Object.keys(ans).sort();
+    var str = '';
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k.indexOf('_note') === -1) {
+        str += k + '=' + ans[k] + ';';
+      }
+    }
+    return str;
+  }
+
+  function hashString(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  function renderPairReportCards(report, container, isOutdated, changeDetailText, generatedAt) {
     if (!container || !report) return;
+
+    var bannerHtml = '';
+    if (isOutdated) {
+      bannerHtml = `
+        <div id="pair-report-outdated-banner" class="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/80 text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg animate-pulse mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl flex-shrink-0">⚠️</span>
+            <div>
+              <strong class="text-xs text-amber-200 block font-bold">Werte wurden verändert</strong>
+              <span class="text-[10.5px] text-slate-300 block mt-0.5">${escapeHtml(changeDetailText || 'Seit der letzten Paar-Analyse wurden Antworten angepasst.')} Das Gutachten basiert noch auf dem Stand vom ${escapeHtml(generatedAt || 'gespeicherten Zeitpunkt')}.</span>
+            </div>
+          </div>
+          <button type="button" onclick="generateAiPairReport()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
+            ✨ Jetzt aktualisieren
+          </button>
+        </div>
+      `;
+    } else if (generatedAt) {
+      bannerHtml = `
+        <div class="flex items-center justify-between text-[10.5px] text-slate-400 mb-2 px-1">
+          <span class="text-teal-300 font-semibold flex items-center gap-1.5">
+            <span>✓</span> Paargutachten aktuell (${escapeHtml(generatedAt)})
+          </span>
+          <span class="text-[9.5px] text-slate-500">Datenbasis synchron</span>
+        </div>
+      `;
+    }
 
     container.innerHTML = `
       <div class="space-y-3 animate-fade-in text-xs leading-relaxed">
+        ${bannerHtml}
         <!-- 1. SYNERGIE & GEMEINSAME MAGIE -->
         <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/70 space-y-1.5 shadow-md">
           <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs uppercase tracking-wide border-b border-indigo-900/60 pb-1.5">
@@ -576,12 +626,35 @@
     if (!out) return;
 
     try {
-      var cached = localStorage.getItem('kompass_cached_pair_report');
-      if (cached) {
-        var parsed = JSON.parse(cached);
-        if (parsed && parsed.synergy) {
-          renderPairReportCards(parsed, out);
-          if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
+      var cachedRaw = localStorage.getItem('kompass_cached_pair_report');
+      if (cachedRaw) {
+        var parsed = JSON.parse(cachedRaw);
+        var reportData = parsed.report || parsed;
+
+        if (reportData && reportData.synergy) {
+          var curHashA = hashString(getAnswersFingerprint(answers.A || {}));
+          var curHashB = hashString(getAnswersFingerprint(answers.B || {}));
+          var isOutdated = false;
+          var changeDetailText = "";
+
+          if (parsed.hashA && parsed.hashB) {
+            var diffA = (parsed.hashA !== curHashA);
+            var diffB = (parsed.hashB !== curHashB);
+
+            if (diffA && diffB) {
+              isOutdated = true;
+              changeDetailText = `Beide Partner (${names.A || 'Partner 1'} & ${names.B || 'Partner 2'}) haben Bewertungen geändert.`;
+            } else if (diffA) {
+              isOutdated = true;
+              changeDetailText = `${names.A || 'Partner 1'} hat persönliche Bewertungen angepasst.`;
+            } else if (diffB) {
+              isOutdated = true;
+              changeDetailText = `${names.B || 'Partner 2'} hat persönliche Bewertungen angepasst.`;
+            }
+          }
+
+          renderPairReportCards(reportData, out, isOutdated, changeDetailText, parsed.generatedAt);
+          if (btn) btn.innerHTML = isOutdated ? "<span>Aktualisieren ↺</span>" : "<span>Neu berechnen ↺</span>";
         }
       }
     } catch (e) {}
@@ -651,6 +724,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
     // WICHTIG: Keine thinkingConfig-Parameter mitsenden, um den Google-Billing/Prepayment-Bug auf Free-Tier-Projekten zu verhindern
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
     var success = false;
+    var finalData = null;
 
     for (var i = 0; i < candidateModels.length; i++) {
       var targetModel = candidateModels[i];
@@ -681,13 +755,9 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
           }
 
           if (parsedData && parsedData.synergy) {
-            try {
-              localStorage.setItem('kompass_cached_pair_report', JSON.stringify(parsedData));
-            } catch (se) {}
-
-            renderPairReportCards(parsedData, out);
-            showToast("✓ Paargutachten erfolgreich berechnet (" + targetModel + ")");
+            finalData = parsedData;
             success = true;
+            showToast("✓ Paargutachten erfolgreich berechnet (" + targetModel + ")");
             break;
           }
         }
@@ -696,15 +766,28 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt diesen vier Feldern:
       }
     }
 
-    // Wenn API-Key kein Guthaben hat oder offline ist: Kostenlose, lokale Berechnung aus den realen Bogen-Scores
-    if (!success && out) {
-      var fallbackData = generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pA_Power, pA_Sens);
+    if (!success) {
+      finalData = generateClientSidePairReport(nameA, nameB, harmony, d5, bridges, tabus, pA_Power, pA_Sens);
+      showToast("✓ Paargutachten aus euren Bogen-Scores berechnet (Kostenlos)");
+    }
+
+    if (finalData) {
+      var nowStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      var curHashA = hashString(getAnswersFingerprint(answers.A || {}));
+      var curHashB = hashString(getAnswersFingerprint(answers.B || {}));
+
+      var cacheEntry = {
+        report: finalData,
+        hashA: curHashA,
+        hashB: curHashB,
+        generatedAt: nowStr
+      };
+
       try {
-        localStorage.setItem('kompass_cached_pair_report', JSON.stringify(fallbackData));
+        localStorage.setItem('kompass_cached_pair_report', JSON.stringify(cacheEntry));
       } catch (se) {}
 
-      renderPairReportCards(fallbackData, out);
-      showToast("✓ Paargutachten aus euren Bogen-Scores berechnet (Kostenlos)");
+      renderPairReportCards(finalData, out, false, "", nowStr);
     }
 
     if (btn) btn.innerHTML = "<span>Neu berechnen ↺</span>";
