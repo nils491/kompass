@@ -205,22 +205,61 @@
     return count > 0 ? (sum / count) : 3.0;
   }
 
+  /**
+   * Mehrstufige Item-Taxonomie (Rasch-Modell / Item Response Theory):
+   * Differenziert strikt zwischen harmloser Basissensorik ("Hand auflegen", Kraulen)
+   * und identitätsprägenden Hochschwellen-Kinks ("Pegging", "Denial", "formelle Zucht").
+   */
   function getItemDiagnosticWeight(it, chId) {
-    if ([21, 22, 23, 29, 7, 8, 13, 16].indexOf(chId) !== -1) {
-      var titleLower = (it.title || '').toLowerCase();
-      if (titleLower.indexOf('zucht') !== -1 || 
-          titleLower.indexOf('kniestand') !== -1 || 
-          titleLower.indexOf('gehorsam') !== -1 || 
-          titleLower.indexOf('strafe') !== -1 ||
-          titleLower.indexOf('spanking') !== -1 ||
-          titleLower.indexOf('keusch') !== -1 ||
-          titleLower.indexOf('denial') !== -1 ||
-          titleLower.indexOf('fessel') !== -1) {
-        return 1.8;
-      }
-      return 1.4;
+    var titleLower = (it.title || '').toLowerCase();
+    var descLower = (it.desc || '').toLowerCase();
+    var textCombined = titleLower + ' ' + descLower;
+
+    // STUFE IV: IDENTITÄTS-TIEFENANKER & HOCHSCHWELLEN-KINKS (Gewicht: 2.4x)
+    if (textCombined.indexOf('pegging') !== -1 ||
+        textCombined.indexOf('strap-on') !== -1 ||
+        textCombined.indexOf('ruined') !== -1 ||
+        textCombined.indexOf('keuschheit') !== -1 ||
+        textCombined.indexOf('käfig') !== -1 ||
+        textCombined.indexOf('denial') !== -1 ||
+        textCombined.indexOf('facesitting') !== -1 ||
+        textCombined.indexOf('queening') !== -1 ||
+        textCombined.indexOf('cbt') !== -1 ||
+        textCombined.indexOf('nadel') !== -1 ||
+        textCombined.indexOf('atemkontrolle') !== -1 ||
+        textCombined.indexOf('breath') !== -1) {
+      return 2.4;
     }
-    return 1.0;
+
+    // STUFE III: STRUKTURBILDENDER KINK & FORMELLES BDSM (Gewicht: 1.8x)
+    if ([21, 22, 23, 29, 7, 8, 13, 14, 16, 17].indexOf(chId) !== -1 ||
+        textCombined.indexOf('zucht') !== -1 ||
+        textCombined.indexOf('kniestand') !== -1 ||
+        textCombined.indexOf('gehorsam') !== -1 ||
+        textCombined.indexOf('strafe') !== -1 ||
+        textCombined.indexOf('spanking') !== -1 ||
+        textCombined.indexOf('fessel') !== -1 ||
+        textCombined.indexOf('shibari') !== -1 ||
+        textCombined.indexOf('flogger') !== -1 ||
+        textCombined.indexOf('paddle') !== -1 ||
+        textCombined.indexOf('knebel') !== -1 ||
+        textCombined.indexOf('peitsche') !== -1) {
+      return 1.8;
+    }
+
+    // STUFE II: EROTISCHE TRANSITION & REIZVERSTÄRKUNG (Gewicht: 1.3x)
+    if ([9, 10, 11, 15, 18, 20, 24, 25].indexOf(chId) !== -1 ||
+        textCombined.indexOf('maske') !== -1 ||
+        textCombined.indexOf('augenbinde') !== -1 ||
+        textCombined.indexOf('raufen') !== -1 ||
+        textCombined.indexOf('wachs') !== -1 ||
+        textCombined.indexOf('lingerie') !== -1 ||
+        textCombined.indexOf('spiegel') !== -1) {
+      return 1.3;
+    }
+
+    // STUFE I: SOMATISCHE BASISSENSORIK & ZÄRTLICHKEIT (Gewicht: 0.9x)
+    return 0.9;
   }
 
   function transformPsychometricRating(rawScore, isShame, userMean) {
