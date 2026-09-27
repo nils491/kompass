@@ -25,23 +25,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#fff1f2',
-              100: '#ffe4e6',
-              200: '#fecdd3',
-              500: '#f43f5e',
-              600: '#e11d48',
-              700: '#be123c',
-              800: '#9f1239',
-              900: '#881337',
-              950: '#4c0519',
+              50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3',
+              500: '#f43f5e', 600: '#e11d48', 700: '#be123c',
+              800: '#9f1239', 900: '#881337', 950: '#4c0519',
             },
             noir: {
-              950: '#000000',
-              900: '#05070c',
-              850: '#0a0e17',
-              800: '#101726',
-              700: '#172238',
-              600: '#233454',
+              950: '#000000', 900: '#05070c', 850: '#0a0e17',
+              800: '#101726', 700: '#172238', 600: '#233454',
             }
           }
         }
@@ -92,26 +82,42 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+      
+      <!-- TOP BAR -->
       <div class="flex items-center justify-between gap-2">
-        <a href="analyse.html" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-brand-600 to-purple-600 border border-amber-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           </div>
-          <div class="truncate">
+          <div class="min-w-0 truncate">
             <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">BDSM- & Vertrauens-Kodex</h1>
             <span class="text-[9.5px] text-amber-300 font-medium block truncate mt-0.5">Leitfaden für Paare & Einsteiger</span>
           </div>
         </a>
 
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-700 to-brand-600 text-white font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
-            <span>Zur Regie 🕯️</span>
+        <!-- DESKTOP ACTIONS -->
+        <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
+          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold text-xs flex items-center gap-1 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
+            <span>💬</span><span>Stream</span>
           </a>
+          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-700 to-brand-600 text-white font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
+            <span>Regie 🕯️</span>
+          </a>
+        </div>
+
+        <!-- MOBILE BURGER BUTTON -->
+        <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <a href="chat.html" class="px-2 py-1.5 bg-brand-950 border border-brand-800 text-brand-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Stream">
+            <span>💬</span>
+          </a>
+          <button type="button" onclick="toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
+            ☰
+          </button>
         </div>
       </div>
 
-      <!-- MAIN NAVIGATION -->
-      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+      <!-- DESKTOP NAVIGATION -->
+      <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </a>
@@ -127,14 +133,96 @@
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Paar-Analyse</span>
         </a>
+        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-brand-300 hover:text-brand-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Paar-Stream 💬</span>
+        </a>
         <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
-          <span>BDSM-Guide 📖</span>
+          <span>Guide 📖</span>
         </button>
+        <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Regie 🕯️</span>
+        </a>
       </nav>
     </div>
   </header>
 
-  <!-- HAUPTINHALT (AUSFÜHRLICHER GUIDE, MINDESTENS 1 DIN A4 SEITE) -->
+  <!-- MOBILE DRAWER / BURGER OVERLAY -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
+    <div class="space-y-4">
+      <!-- DRAWER HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-brand-600 border border-amber-500/40 text-white flex items-center justify-center font-bold text-sm">
+            📖
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
+            <span class="text-[10px] text-slate-400 font-medium block">BDSM- & Vertrauens-Kodex</span>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
+          ✕
+        </button>
+      </div>
+
+      <!-- NAVIGATIONSLINKS -->
+      <div class="space-y-1.5 pt-1">
+        <a href="index.html#view=hub" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=survey" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=safety" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-teal-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-teal-300 flex items-center gap-2"><span>🛡️</span><span>Sicherheits-Kodex</span></span>
+          <span class="text-[10px] text-teal-400 font-bold">6 Module</span>
+        </a>
+
+        <a href="index.html#view=single" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-purple-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-purple-300 flex items-center gap-2"><span>🔮</span><span>Mein Profil (Radar & Top 10)</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="analyse.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-amber-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
+          <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
+        </a>
+
+        <a href="chat.html" class="w-full p-3 rounded-2xl bg-brand-950/40 border border-brand-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-brand-300 flex items-center gap-2"><span>💬</span><span>E2EE Paar-Stream & Sexting</span></span>
+          <span class="text-[10px] text-brand-400 font-bold">Chat ↗</span>
+        </a>
+
+        <a href="ledger.html" class="w-full p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
+          <span class="text-[10px] text-purple-300 font-bold">Optional ↗</span>
+        </a>
+
+        <div class="w-full p-3 rounded-2xl bg-amber-950/60 border border-amber-600 text-left flex items-center justify-between shadow-md">
+          <span class="text-xs font-black text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
+          <span class="text-[10px] text-amber-300 font-bold">Hier aktiv ✓</span>
+        </div>
+
+        <a href="session.html" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-rose-300 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie (Cockpit)</span></span>
+          <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- DRAWER FOOTER -->
+    <div class="pt-4 border-t border-slate-900 text-center">
+      <button type="button" onclick="toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        Schließen ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- HAUPTINHALT -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
 
     <!-- HERO BANNER -->
@@ -251,6 +339,7 @@
           <li><strong>Abschluss von Schuldgefühlen:</strong> Wenn wir im Alltag etwas falsch gemacht haben (z. B. unaufmerksam waren), nagen oft unterschwellige Schuldgefühle. Ein formeller Zuchtakt (z. B. 15 Schläge über das Knie mit anschließendem Dank) schließt die Sache rituell ab. Die Schuld ist physisch „abgegolten“, man ist wieder rein und wird liebevoll in den Arm genommen.</li>
           <li><strong>Katharsis & Durchblutung:</strong> Gezielter Reiz (Spanking, Flogger) führt zu massiver Endorphin-Ausschüttung. Der Schmerz brennt kurz auf, weicht dann einer tiefen, samtigen Wärme und versetzt den Körper in eine wohlige Trance.</li>
           <li><strong>Feste Begrenzung:</strong> Zu wissen, dass der Top klare Regeln setzt und bei Verfehlungen unnachgiebig aber fair reagiert, gibt dem Bottom ein enormes Gefühl von Halt und Geborgenheit.</li>
+          <li><strong>Keuschhaltung & Tease & Denial:</strong> Das Verschließen der männlichen Lust im Keuschheitskäfig (Chastity) entzieht dem Mann die spontane sexuelle Autonomie. Der Schlüssel liegt in der Hand der Partnerin. Für viele Männer bedeutet das die ultimative Befreiung vom eigenen Triebdruck: Die Aufmerksamkeit verschiebt sich zu 100 % auf das Verwöhnen und die Zufriedenheit der Frau, während das Hinauszögern der eigenen Erlösung (Orgasmus-Denial) jede spätere Berührung um ein Vielfaches intensiver macht.</li>
         </ul>
       </div>
     </section>
@@ -282,7 +371,7 @@
           <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
             <span class="text-[10px] font-bold text-pink-300 uppercase">Phase 3</span>
             <strong class="text-white block">Katharsis & Zucht</strong>
-            <p class="text-[10.5px] text-slate-400">Reizintensivierung, Spanking, Edging-Quälerei an der Kante und Zucht.</p>
+            <p class="text-[10.5px] text-slate-400">Reizintensivierung, Spanking, Edging-Quälerei an der Schwelle und Zucht.</p>
           </div>
           <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
             <span class="text-[10px] font-bold text-teal-300 uppercase">Phase 4</span>
@@ -314,6 +403,18 @@
   <footer class="text-center py-4 border-t border-slate-900 text-[10px] text-slate-600">
     Kink- & Beziehungs-Kompass · Wissenschaftlicher Sicherheits- & Vertrauens-Kodex
   </footer>
+
+  <script>
+    function toggleMobileDrawer(open) {
+      var drawer = document.getElementById('mobile-menu-drawer');
+      if (!drawer) return;
+      if (typeof open === 'boolean') {
+        drawer.style.display = open ? 'flex' : 'none';
+      } else {
+        drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
+      }
+    }
+  </script>
 
 </body>
 </html>
