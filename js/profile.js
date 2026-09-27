@@ -4,8 +4,9 @@
  * - Erotisches Archetypen-Radar mit Chart.js
  * - Psychologische 5-Säulen-Balance (Macht, Sensorik, Fürsorge, Thrill, Visuell)
  * - Höchste Leidenschaften (Note 5)
+ * - 🙈 Scham- & Hemmschwellen-Liste (mit Klicksprung in den Bogen)
  * - Interaktive Tabu-Liste (Note 1) mit Direktsprung ins Fragebogen-Kapitel
- * - Tiefenpsychologisches Gemini-Einzelgutachten mit automatischer Änderungs-Erkennung
+ * - Tiefenpsychologisches Gemini-Einzelgutachten mit gezielter Entlastung der markierten Schamthemen
  */
 
 (function(window) {
@@ -91,9 +92,15 @@
 
     var highPrioItems = [];
     var tabuItems = [];
+    var shameItems = [];
 
     chapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
+        var isShame = !!answers['it_' + it.id + '_shame'];
+        if (isShame) {
+          shameItems.push({ id: it.id, title: it.title, desc: it.desc || '' });
+        }
+
         if (it.type !== 'choice') {
           var r1 = answers['it_' + it.id + '_r1'];
           var r2 = answers['it_' + it.id + '_r2'];
@@ -136,11 +143,12 @@
       if (valEl) valEl.innerText = pct + ' %';
     });
 
+    // HIGH-PRIO LISTE
     var highListEl = document.getElementById('single-high-prio-list');
     if (highListEl) {
       highListEl.innerHTML = highPrioItems.length > 0 ? highPrioItems.map(function(h) {
         return `
-          <button type="button" onclick="goToSurveyItem(${h.id})" class="w-full text-left p-2 rounded-xl bg-brand-950/40 hover:bg-brand-950 border border-brand-900/60 hover:border-brand-500 transition group block touch-btn">
+          <button type="button" onclick="goToSurveyItem(${h.id})" class="w-full text-left p-2 rounded-xl bg-brand-950/40 hover:bg-brand-950 border border-brand-900/60 hover:border-brand-500 transition group block touch-btn cursor-pointer">
             <div class="flex items-center justify-between">
               <span class="text-white block font-bold text-[10.5px] group-hover:text-brand-300">${escapeHtml(h.title)}</span>
               <span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-900 text-brand-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
@@ -151,11 +159,12 @@
       }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Noch keine 5er-Favoriten vergeben.</p>';
     }
 
+    // TABUS LISTE
     var tabuListEl = document.getElementById('single-tabus-list');
     if (tabuListEl) {
       tabuListEl.innerHTML = tabuItems.length > 0 ? tabuItems.map(function(t) {
         return `
-          <button type="button" onclick="goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-rose-950/30 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-600 transition group block touch-btn">
+          <button type="button" onclick="goToSurveyItem(${t.id})" class="w-full text-left p-2 rounded-xl bg-rose-950/30 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-600 transition group block touch-btn cursor-pointer">
             <div class="flex items-center justify-between">
               <span class="text-white block font-bold text-[10.5px] group-hover:text-rose-200">${escapeHtml(t.title)}</span>
               <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
@@ -166,8 +175,62 @@
       }).join('') : '<p class="text-slate-500 italic text-[10.5px] text-center py-2">Keine Tabus hinterlegt.</p>';
     }
 
+    // SCHAM- & HEMMSCHWELLEN CONTAINER (DYNAMISCH EINFÜGEN WENN ELEMENT EXISTIERT ODER ERSTELLEN)
+    renderSingleShameBox(shameItems);
+
     renderRadarChart(curUser, answers, chapters);
     loadCachedSingleInterpretation(curUser);
+  }
+
+  function renderSingleShameBox(shameItems) {
+    var container = document.getElementById('single-shame-box-container');
+    if (!container) {
+      var gridParent = document.getElementById('single-high-prio-list')?.closest('.grid');
+      if (gridParent) {
+        var newBox = document.createElement('div');
+        newBox.id = 'single-shame-box-container';
+        newBox.className = "col-span-full theme-card rounded-3xl p-5 border space-y-2 shadow-md";
+        gridParent.parentNode.insertBefore(newBox, gridParent.nextSibling);
+        container = newBox;
+      }
+    }
+    if (!container) return;
+
+    if (shameItems.length === 0) {
+      container.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <strong class="text-xs text-indigo-300 flex items-center gap-1.5">
+            <span>🙈</span><span>Scham- & Hemmschwellen-Bereiche (0)</span>
+          </strong>
+        </div>
+        <p class="text-[10.5px] text-slate-400 italic">Du hast bisher keine Praktik mit dem Scham-Faktor markiert. Du kannst Fragen im Fragebogen jederzeit mit „🙈 Scham“ kennzeichnen.</p>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
+          <strong class="text-xs text-indigo-300 flex items-center gap-1.5 font-bold">
+            <span>🙈</span><span>Scham- & Hemmschwellen-Bereiche (${shameItems.length})</span>
+          </strong>
+          <span class="text-[9.5px] text-indigo-300 font-mono">Sensible Themen</span>
+        </div>
+        <p class="text-[10.5px] text-slate-300 leading-snug">
+          Bei diesen Praktiken spürst du Neugier oder Reiz, empfindest jedoch Scham oder eine Hemmschwelle. Das Gutachten widmet sich gezielt der schamfreien Normalisierung dieser Themen:
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-1 max-h-48 overflow-y-auto pr-1">
+          ${shameItems.map(function(s) {
+            return `
+              <button type="button" onclick="goToSurveyItem(${s.id})" class="p-2.5 rounded-xl bg-indigo-950/40 hover:bg-indigo-950 border border-indigo-800/80 hover:border-indigo-500 text-left transition group block touch-btn cursor-pointer">
+                <div class="flex items-center justify-between">
+                  <span class="text-white block font-bold text-[10.5px] group-hover:text-indigo-200 truncate pr-1">${escapeHtml(s.title)}</span>
+                  <span class="text-[9px] px-1 py-0.5 rounded bg-indigo-900 text-indigo-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition flex-shrink-0">✏️ ↗</span>
+                </div>
+                <span class="text-indigo-300 text-[9px] block mt-0.5 truncate">${escapeHtml(s.desc || 'Hemmschwelle')}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
   }
 
   function renderRadarChart(user, userAnswers, allChapters) {
@@ -328,7 +391,7 @@
         <span class="text-2xl block">🔮</span>
         <div>
           <strong class="text-xs text-white block font-bold">Tiefenpsychologisches Einzelgutachten:</strong>
-          <p class="text-[10.5px] text-slate-400 mt-0.5">Lass deine Bogen-Antworten schamfrei und wissenschaftlich fundiert analysieren.</p>
+          <p class="text-[10.5px] text-slate-400 mt-0.5">Lass deine Bogen-Antworten und Scham-Themen schamfrei und wissenschaftlich fundiert analysieren.</p>
         </div>
         <button type="button" onclick="ProfileEngine.generateInterpretation()" class="px-5 py-2.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
           ✨ Jetzt KI-Einzelgutachten berechnen
@@ -337,11 +400,15 @@
     `;
   }
 
-  function generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis) {
+  function generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles) {
+    var shameText = shameTitles.length > 0
+      ? `Deine markierten Hemmschwellen (${shameTitles.slice(0, 3).join(', ')}) spiegeln keine Abweichung wider, sondern belegen den gesunden Wunsch nach geschützten Vertrauensgrenzen. Scham ist in der Sexualpsychologie oft der biologische Wächter vor intimen Wachstumszonen: Wo Scham im sicheren Raum behutsam abgelegt wird, entsteht maximale erotische Tiefe.`
+      : `Alle deine Wünsche und Vorlieben sind aus sexualpsychologischer Sicht vollkommen gesund, verständlich und wertvoll. Wie die Forschung (u. a. Wismeijer 2013; Canivet 2025) eindeutig belegt, besitzen Menschen mit ausgeprägten erotischen Fantasien oft eine überdurchschnittliche emotionale Differenzierungsfähigkeit.`;
+
     return {
       archetype: `${userName} besitzt ein faszinierendes und vielschichtiges erotisches Profil. Im Zentrum steht das Bedürfnis nach Intensität, emotionaler Echtheit und klarer Präsenz. Deine Antworten spiegeln eine Persönlichkeit wider, die Sexualität nicht oberflächlich lebt, sondern als tiefes Eintauchen in Sinnesräume, Vertrauen und Hingabe versteht.`,
       motivation: `Deine stärksten Motivationskräfte speisen sich aus der Balance zwischen somatischer Reizwahrnehmung (${pSens}%) und Machtdynamik (${pPower}%). Für dich bedeutet Erotik, Alltagskontrollen bewusst fallenlassen zu können oder Verantwortung mit Feingefühl zu übernehmen. Die Fürsorge-Säule (${pNurt}%) belegt zudem, dass körperliche Grenzerfahrungen für dich immer in Geborgenheit und verlässliche Nähe eingebettet sein müssen.`,
-      normalization: `Alle deine Wünsche und Vorlieben sind aus sexualpsychologischer Sicht vollkommen gesund, verständlich und wertvoll. Wie die Forschung (u. a. Wismeijer 2013; Canivet 2025) eindeutig belegt, besitzen Menschen mit ausgeprägten erotischen Fantasien oft eine überdurchschnittliche emotionale Differenzierungsfähigkeit. Deine Lust ist ein Ausdruck deiner Lebendigkeit und verdient bedingungslose Wertschätzung.`
+      normalization: shameText
     };
   }
 
@@ -350,6 +417,16 @@
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var userName = names[curUser] || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
     var userAnswers = (window.answers && window.answers[curUser]) || {};
+    var chapters = window.surveyChapters || [];
+
+    var shameTitles = [];
+    chapters.forEach(function(ch) {
+      (ch.items || []).forEach(function(it) {
+        if (userAnswers['it_' + it.id + '_shame']) {
+          shameTitles.push(it.title);
+        }
+      });
+    });
 
     var container = document.getElementById('single-interpretation-box');
     if (container) {
@@ -357,7 +434,7 @@
         <div class="theme-card rounded-3xl p-8 border text-center space-y-3 shadow-md animate-pulse">
           <div class="w-10 h-10 border-3 border-purple-500/20 border-t-purple-400 rounded-full animate-spin mx-auto"></div>
           <strong class="text-xs text-purple-200 block font-bold">Analysiere dein psychologisches Profil...</strong>
-          <p class="text-[10.5px] text-slate-400">Gemini wertet deine Antworten und Archetypen schamfrei aus.</p>
+          <p class="text-[10.5px] text-slate-400">Gemini wertet deine Antworten und Schamthemen schamfrei aus.</p>
         </div>
       `;
     }
@@ -379,17 +456,18 @@ PROFIL-DATEN:
 - Fürsorge & Geborgenheit: ${pNurt}%
 - Tabubruch & Thrill: ${pThrill}%
 - Visuelle & Fetischreize: ${pVis}%
+- Als schambehaftet markierte Praktiken (${shameTitles.length}): ${shameTitles.slice(0, 6).join(', ') || 'Keine spezifischen Scham-Markierungen'}
 
-TONFALL:
+TONFALL & ANWEISUNGEN:
 - Sprich ${userName} direkt mit "Du" an.
 - Warmherzig, befreiend, psychologisch fundiert, absolut ohne moralische Wertung.
-- Übersetze Kinks in gesunde emotionale Grundbedürfnisse.
+- In Feld 3 "normalization": Gehe ganz konkret und therapeutisch entlastend auf die markierten Schamthemen ein (Scham als Wächter intimer Vertrauenszonen, Canivet 2025, Wismeijer 2013).
 
 Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
 {
   "archetype": "Welcher erotische Leit-Archetyp beschreibt ${userName} am treffendsten? (3 bis 5 Sätze)",
   "motivation": "Was sind die unbewussten psychologischen Motivationskräfte hinter diesen Vorlieben? (3 bis 5 Sätze)",
-  "normalization": "Befreiende wissenschaftliche Entlastung von Schamgefühlen (3 bis 4 Sätze)"
+  "normalization": "Befreiende wissenschaftliche Entlastung von Schamgefühlen und Würdigung der Hemmschwellen (3 bis 5 Sätze)"
 }`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
@@ -431,7 +509,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
     }
 
     if (!finalReport) {
-      finalReport = generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis);
+      finalReport = generateClientSideSingleReport(userName, pPower, pSens, pNurt, pThrill, pVis, shameTitles);
       showToast("✓ Gutachten aus deinen Bogen-Werten berechnet (Offline-Modus)");
     }
 
