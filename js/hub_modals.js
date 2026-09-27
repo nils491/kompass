@@ -487,6 +487,7 @@
     var headerDot = document.getElementById('cloud-sync-status-dot');
     var headerText = document.getElementById('cloud-sync-status-text');
     var hubBadge = document.getElementById('hub-sync-status-badge');
+    var hubDesc = document.getElementById('hub-sync-card-desc');
 
     if (state.isPaired && state.pairCode) {
       if (setupPanel) setupPanel.classList.add('hidden');
@@ -499,6 +500,9 @@
         hubBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800";
         hubBadge.innerText = "Gekoppelt: " + state.pairCode;
       }
+      if (hubDesc) {
+        hubDesc.innerText = "Verschlüsselter Raum aktiv (" + state.pairCode + "). Daten werden automatisch synchronisiert.";
+      }
     } else {
       if (setupPanel) setupPanel.classList.remove('hidden');
       if (activePanel) activePanel.classList.add('hidden');
@@ -508,6 +512,9 @@
       if (hubBadge) {
         hubBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800";
         hubBadge.innerText = "Lokal";
+      }
+      if (hubDesc) {
+        hubDesc.innerText = "Zwei Smartphones sicher koppeln, um den Fragebogen gemeinsam auszufüllen.";
       }
     }
   }
