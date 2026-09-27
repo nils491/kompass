@@ -3,6 +3,7 @@
  * Modul für den 5-Stufen Bestrafungs- & Disziplinar-Wizard in der Schlafzimmer-Regie.
  * 
  * Qualitäts- & Logik-Standards:
+ * - GARANTIERTER DATENZUGRIFF: Lädt Namen und Anatomie verlässlich direkt aus localStorage.
  * - STRIKTE ANATOMISCHE KOMPATIBILITÄT:
  *   * Vulva: Womanizer/Sauger für klitorale Schwellen-Zucht und Ruined Orgasm. Niemals Stroker/Käfig.
  *   * Penis: Penile Schwellen-Quälerei, Ruined Orgasm am Schaft, Keuschheits-Denial, Hodengewichte. Niemals Womanizer.
@@ -29,6 +30,26 @@
     bondage: null,
     sensory: null
   };
+
+  function ensureNamesAndAnatomyLoaded() {
+    if (!window.names || !window.names.A || !window.names.B) {
+      try {
+        var rawNames = localStorage.getItem('kompass_names');
+        if (rawNames) window.names = JSON.parse(rawNames);
+      } catch (e) {}
+    }
+    if (!window.names) window.names = { A: 'Partner 1', B: 'Partner 2' };
+
+    if (!window.anatomy || !window.anatomy.A || !window.anatomy.B) {
+      try {
+        var rawAnat = localStorage.getItem('kompass_anatomy');
+        if (rawAnat) window.anatomy = JSON.parse(rawAnat);
+      } catch (e) {}
+    }
+    if (!window.anatomy) window.anatomy = { A: 'penis', B: 'vulva' };
+  }
+
+  ensureNamesAndAnatomyLoaded();
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -72,6 +93,7 @@
   }
 
   function getMasterActionPool(subName, topName) {
+    ensureNamesAndAnatomyLoaded();
     var subRole = window.subPartner || 'A';
     var subAnat = (window.anatomy && window.anatomy[subRole]) ? window.anatomy[subRole] : 'vulva';
     var isVulva = (subAnat === 'vulva');
@@ -129,7 +151,7 @@
     ];
 
     if (isVulva) {
-      // VULVA: Womanizer / Klitorissauger / Wand (STRIKT NUR BEI FRAU)
+      // VULVA: Womanizer / Klitorissauger / Wand (STRIKT NUR BEI VULVA)
       var suctionTool = sem.clitoral_suction[0] || (sem.wand[0] ? sem.wand[0] : null);
       if (suctionTool) {
         list.push({
@@ -319,6 +341,7 @@
   }
 
   function openDisciplineModal() {
+    ensureNamesAndAnatomyLoaded();
     var m = document.getElementById('modal-incident-discipline');
     if (m) {
       m.classList.remove('hidden');
@@ -361,6 +384,7 @@
   }
 
   function renderWizardStage() {
+    ensureNamesAndAnatomyLoaded();
     for (var i = 1; i <= 5; i++) {
       var stageEl = document.getElementById('wizard-stage-' + i);
       if (stageEl) {
@@ -431,6 +455,7 @@
   }
 
   function selectActionItem(id) {
+    ensureNamesAndAnatomyLoaded();
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var pool = getMasterActionPool(subName, topName);
@@ -471,6 +496,7 @@
   }
 
   function selectPostureItem(id) {
+    ensureNamesAndAnatomyLoaded();
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var pool = getMasterPostures(subName);
     var found = pool.find(function(p) { return p.id === id; });
@@ -510,6 +536,7 @@
   }
 
   function selectBondageItem(id) {
+    ensureNamesAndAnatomyLoaded();
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var pool = getMasterBondages(subName);
     var found = pool.find(function(b) { return b.id === id; });
@@ -549,6 +576,7 @@
   }
 
   function selectSensoryItem(id) {
+    ensureNamesAndAnatomyLoaded();
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var pool = getMasterSensory(subName);
     var found = pool.find(function(s) { return s.id === id; });
@@ -661,6 +689,7 @@
   }
 
   function applyDisciplineProtocol() {
+    ensureNamesAndAnatomyLoaded();
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
 
@@ -687,6 +716,7 @@
   }
 
   async function generateAiDisciplineProposal() {
+    ensureNamesAndAnatomyLoaded();
     var topName = (window.names && window.names[window.topPartner]) || 'Top';
     var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
     var subRole = window.subPartner || 'A';
