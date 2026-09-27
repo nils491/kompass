@@ -409,10 +409,15 @@
     }, 150);
   }
 
+  function goToProfileView() {
+    switchMainView('single');
+  }
+
   window.switchMainView = switchMainView;
   window.setCurrentUser = setCurrentUser;
   window.saveSafetyOption = saveSafetyOption;
   window.goToSurveyItem = goToSurveyItem;
+  window.goToProfileView = goToProfileView;
   window.saveCoreData = saveCoreData;
   window.loadCoreData = loadCoreData;
   window.updateUserToggleUI = updateUserToggleUI;
