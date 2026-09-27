@@ -3,12 +3,11 @@
  * Spezialisiertes Modul für den Bestrafungs-Konfigurator in der Schlafzimmer-Regie.
  * 
  * Features:
- * - Echtes Auslesen der Bogen-Antworten des Bottoms (Noten 2 bis 5)
+ * - Auslesen der Bogen-Antworten des Bottoms unter Beachtung der 4 Freigabestufen
  * - Strikter Ausschluss aller Tabus (Note 1)
- * - Live-Freitextfeld für konkrete Vergehen
- * - Physische Verträglichkeits- & Plausibilitätsprüfung
- * - Unabhängige Härtegrade pro Stufe
- * - Zuverlässiges Öffnen und Schließen mit display: flex / none
+ * - Ausrüstungsauswahl beschränkt auf vorhandene Schrank-Toys, Kleidung & universelle Haushalts-/Körpermittel
+ * - Freitextfeld für situative Maßregelungen
+ * - Physische Verträglichkeitsprüfung & unabhängige Haltungs-/Fesselungsstufen
  */
 
 (function(window) {
@@ -31,13 +30,6 @@
     self_discipline: { label: "Selbstvollzug", hint: "Der Bottom führt die Zucht unter den Augen des Tops selbst aus." }
   };
 
-  /**
-   * Prüft, ob ein Toy für den Bestrafungs-Wizard verfügbar ist.
-   * Zugelassen sind:
-   * 1. Alle im Schrank aktivierten Gegenstände (HubToys.getOwnedIds() oder localStorage)
-   * 2. Typische Kleidung & Fetischtextilien (Gürtel, Schals, Krawatten, Strümpfe, Leder)
-   * 3. Universell vorhandene Haushaltsmittel (flache Hand, Holzwäscheklammern, Kissen, Wand, Eiswürfel, Haarbürste, Kochlöffel)
-   */
   function isToolAvailableInClosetOrHousehold(toolIdOrKeyword) {
     var rawOwned = [];
     if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
@@ -51,7 +43,7 @@
 
     var kw = (toolIdOrKeyword || '').toLowerCase();
 
-    // Immer verfügbar: Natürlicher Körper, Bett, Wand & alltäglicher Haushalt
+    // Immer verfügbar: Körper, Bett, Wand, Boden & alltäglicher Haushalt
     var ALWAYS_ALLOWED = [
       'hand', 'finger', 'körper', 'stimme', 'bett', 'wand', 'ecke', 'boden', 'kniestand', 
       'gürtel', 'krawatte', 'schal', 'tuch', 'handtuch', 'wäscheklammer', 'klammer', 
@@ -126,7 +118,6 @@
 
           // Strikter Ausschluss von Tabus (Note 1) & Einhaltung der Freigabestufe
           if (typeof rating === 'number' && rating >= minRequiredScore && rating <= 5) {
-            // FILTER: Nur aufnehmen, wenn das geforderte Equipment im Schrank existiert oder zum Haushalt/Kleidung gehört!
             var toolDesc = (item.title + " " + (item.desc || '')).toLowerCase();
             if (isToolAvailableInClosetOrHousehold(toolDesc)) {
               matches.push({
@@ -167,7 +158,6 @@
           { id: "corner_time_stand", title: "Corner Time (Stehen in der Ecke)", desc: "10 Minuten aufrechtes Stehen mit Stirn an der Wand ohne Bewegung." }
         ];
 
-        // Nur anbieten, wenn Wäscheklammern im Schrank oder Haushalt vorhanden sind
         if (isToolAvailableInClosetOrHousehold('klammer')) {
           selfOptions.push({ id: "self_clamps", title: "Selbst-Klammerung der Brustwarzen", desc: subName + " setzt sich eigenhändig Holzwäscheklammern und verharrt still." });
         }
@@ -211,7 +201,6 @@
     }
 
     if (stage === 2) {
-      // Haltungen nutzen ausschließlich den eigenen Körper, Boden, Bettkante und Stuhl
       return [
         { id: "hands_behind_back", title: "Aufrechter Kniestand (Hände am Rücken)", desc: "Aufrecht kniend, Kinn angehoben und Hände hinter dem Rücken verschränkt." },
         { id: "over_knees", title: "Quer über den Oberschenkeln des Tops", desc: "Flach über die Oberschenkel gelegt, Becken exponiert." },
@@ -222,20 +211,16 @@
     if (stage === 3) {
       var bondageOptions = [];
 
-      // Leder-Manschetten nur anbieten, wenn wirklich im Schrank vorhanden
       if (isToolAvailableInClosetOrHousehold('cuffs') || isToolAvailableInClosetOrHousehold('manschette') || isToolAvailableInClosetOrHousehold('leder')) {
         bondageOptions.push({ id: "leather_wrist_cuffs", title: "Leder-Handgelenksmanschetten", desc: "Hände hinter dem Rücken arretiert für Bewegungslosigkeit." });
       }
 
-      // Seidenschal / Krawatte / Gürtel ist immer im Kleiderschrank vorhanden
       bondageOptions.push({ id: "silk_tie_scarf", title: "Sanfte Fesselung mit Seidenschal oder Krawatte", desc: "Handgelenke weich vor dem Körper mit Kleidungstextilien verbunden." });
 
-      // Seile nur anbieten, wenn im Schrank aktiv
       if (isToolAvailableInClosetOrHousehold('shibari') || isToolAvailableInClosetOrHousehold('seil') || isToolAvailableInClosetOrHousehold('rope')) {
         bondageOptions.push({ id: "rope_bondage_quick", title: "Seilfesselung (Shibari-Basis)", desc: "Oberkörper oder Hände mit Hanf-/Juteseil fixiert." });
       }
 
-      // Immer verfügbar: Reine Disziplin ohne Hilfsmittel
       bondageOptions.push({ id: "no_bondage", title: "Freie Haltung ohne Fesselung", desc: "Verharren durch reine Willenskraft und Gehorsam." });
 
       return bondageOptions;
@@ -244,22 +229,18 @@
     if (stage === 4) {
       var sensoryOptions = [];
 
-      // Weicher Tuchknebel (Stofftuch / Handtuch aus dem Haushalt) immer verfügbar
       sensoryOptions.push({ id: "soft_cloth_towel", title: "Weicher Tuchknebel (Stofftuch)", desc: "Gefaltetes Stofftuch zwischen den Zähnen zur Dämpfung." });
 
-      // Spezialknebel (Ring-/Ballknebel) nur anbieten, wenn tatsächlich im Schrank!
       if (isToolAvailableInClosetOrHousehold('knebel') || isToolAvailableInClosetOrHousehold('gag')) {
         sensoryOptions.push({ id: "closet_gag", title: "Schrank-Knebel (Ball/Ring)", desc: "Spezialknebel aus eurem Schrank für vollkommene Stille." });
       }
 
-      // Maske: Entweder Schrank-Maske oder Seidenschal als Augenbinde
       if (isToolAvailableInClosetOrHousehold('maske') || isToolAvailableInClosetOrHousehold('blindfold')) {
         sensoryOptions.push({ id: "leather_blindfold_padded", title: "Blickdichte Schlaf-/Ledermaske", desc: "Schaltet den Sehsinn ab für maximale innere Einkehr." });
       } else {
         sensoryOptions.push({ id: "scarf_blindfold", title: "Dunkler Schal als Augenbinde", desc: "Schal um die Augen gebunden für Sinnesreduktion." });
       }
 
-      // Immer verfügbar: Volle Sinneswahrnehmung
       sensoryOptions.push({ id: "no_sensory", title: "Keine sensorische Einschränkung", desc: "Volle visuelle und akustische Wahrnehmung." });
 
       return sensoryOptions;
@@ -278,15 +259,6 @@
 
     var warnBanner = document.getElementById('wizard-conflict-warning');
     var warnText = document.getElementById('wizard-conflict-text');
-
-    if (typeof window.validateDisciplineSetup === 'function') {
-      var validation = window.validateDisciplineSetup(setup);
-      if (!validation.isValid && validation.conflicts && validation.conflicts.length > 0) {
-        if (warnBanner) warnBanner.classList.remove('hidden');
-        if (warnText) warnText.innerText = validation.conflicts[0];
-        return;
-      }
-    }
 
     var handsBack = setup.bondage && (setup.bondage.id === 'leather_wrist_cuffs' || (setup.posture && setup.posture.id === 'hands_behind_back'));
     var isSelfSpank = setup.action && setup.action.id === 'self_spank';
