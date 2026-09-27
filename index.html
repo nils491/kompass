@@ -107,6 +107,11 @@
 
         <!-- QUICK ACTIONS OBERE RECHTE ECKE -->
         <div class="flex items-center gap-1.5 flex-shrink-0">
+          <!-- BDSM GUIDE SCHNELLZUGRIFF -->
+          <a href="guide.html" class="px-2.5 py-1 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-800 text-amber-200 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="BDSM- & Vertrauens-Guide öffnen">
+            <span>📖</span><span class="hidden sm:inline text-[10.5px]">Guide</span>
+          </a>
+
           <!-- CLOUD SYNC STATUS ICON -->
           <button type="button" onclick="openCloudSyncModal()" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs flex items-center gap-1.5 touch-btn" title="Cloud-Kopplung öffnen">
             <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
@@ -152,6 +157,9 @@
         </button>
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Paar-Analyse</span>
+        </a>
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Guide 📖</span>
         </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Regie 🕯️</span>
@@ -222,43 +230,53 @@
           <p class="text-[11px] text-slate-400 leading-snug">Beiderseitige Volltreffer, Brücken und schamfreies KI-Paargutachten.</p>
         </a>
 
-        <!-- KACHEL 5: SCHLAFZIMMER-REGIE -->
+        <!-- KACHEL 5: BDSM- & VERTRAUENS-GUIDE -->
+        <a href="guide.html" class="p-4 rounded-2xl theme-card border border-amber-900/60 text-left space-y-2 transition-all hover:border-amber-500 touch-btn group block bg-gradient-to-br from-amber-950/20 to-noir-900">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">📖</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800">Leitfaden</span>
+          </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">5. BDSM- & Vertrauens-Guide</strong>
+          <p class="text-[11px] text-slate-400 leading-snug">Der Reiz, SSC/RACK, Scham-Entlastung und warum Zucht wirken kann.</p>
+        </a>
+
+        <!-- KACHEL 6: SCHLAFZIMMER-REGIE -->
         <a href="session.html" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-rose-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🕯️</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800">Cockpit</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-rose-300">5. Schlafzimmer-Regie</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-rose-300">6. Schlafzimmer-Regie</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Live-Drehbuch, Edging-Remote, Soundscapes und Bestrafungswizard.</p>
         </a>
 
-        <!-- KACHEL 6: UNSER SCHRANK -->
+        <!-- KACHEL 7: UNSER SCHRANK -->
         <button type="button" onclick="openToyManagementModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🧰</span>
             <span id="hub-toy-count-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">0 Toys</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">6. Unser Schrank</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">7. Unser Schrank</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Vorhandene Ausrüstung, Spielzeuge und Haushaltsmittel verwalten.</p>
         </button>
 
-        <!-- KACHEL 7: MULTI-DEVICE KOPPLUNG -->
+        <!-- KACHEL 8: MULTI-DEVICE KOPPLUNG (BEREINIGT) -->
         <button type="button" onclick="openCloudSyncModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-emerald-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">☁️</span>
             <span id="hub-sync-status-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">Lokal</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-emerald-300">7. Geräte koppeln</strong>
-          <p class="text-[11px] text-slate-400 leading-snug">Verschlüsselter Paar-Code (E2EE) für die Nutzung auf zwei Smartphones.</p>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-emerald-300">8. Geräte koppeln</strong>
+          <p id="hub-sync-card-desc" class="text-[11px] text-slate-400 leading-snug">Ende-zu-Ende-Verschlüsselung (E2EE) für die synchrone Nutzung auf zwei Smartphones.</p>
         </button>
 
-        <!-- KACHEL 8: KI-KINK-RECHERCHE -->
+        <!-- KACHEL 9: KI-KINK-RECHERCHE -->
         <button type="button" onclick="openLexikonModal()" id="hub-tile-ai" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🔍</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Gemini Live</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">8. Kink-Recherche</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">9. Kink-Recherche</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Schamfreie Sofort-Analyse von Praktiken, Reizen und Sicherheitsregeln.</p>
         </button>
       </div>
@@ -553,7 +571,7 @@
 
         <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
           <strong class="text-xs text-white block font-bold">Option 2: Vorhandenem Raum beitreten</strong>
-          <input type="text" id="input-pair-code" placeholder="z. B. KOMPASS-7X49..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono uppercase">
+          <input type="text" id="input-pair-code" placeholder="Paar-Code hier eingeben..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono uppercase">
           <div class="flex gap-2">
             <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Als Partner 1</button>
             <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-brand-950 border border-brand-700 text-brand-200 font-bold text-xs touch-btn">Als Partner 2</button>
@@ -841,14 +859,14 @@
   <script src="data/equipment_catalog.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.3) -->
-  <script src="js/cloud_sync.js?v=4.3"></script>
-  <script src="js/hub_toys.js?v=4.3"></script>
-  <script src="js/kink_research.js?v=4.3"></script>
-  <script src="js/hub_modals.js?v=4.3"></script>
-  <script src="js/survey.js?v=4.3"></script>
-  <script src="js/profile.js?v=4.3"></script>
-  <script src="js/app.js?v=4.3"></script>
+  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.4) -->
+  <script src="js/cloud_sync.js?v=4.4"></script>
+  <script src="js/hub_toys.js?v=4.4"></script>
+  <script src="js/kink_research.js?v=4.4"></script>
+  <script src="js/hub_modals.js?v=4.4"></script>
+  <script src="js/survey.js?v=4.4"></script>
+  <script src="js/profile.js?v=4.4"></script>
+  <script src="js/app.js?v=4.4"></script>
 
 </body>
 </html>
