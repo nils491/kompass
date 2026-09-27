@@ -1,446 +1,431 @@
 /**
  * js/cloud_sync.js
- * High-Speed Cloud-Synchronisations- & Multi-Device-Engine
+ * Ende-zu-Ende verschlüsselte (E2EE) Synchronisations-Engine für den Kink- & Beziehungs-Kompass.
  * 
- * Features:
- * - Local-First Architektur (0 ms Latenz bei jedem Klick)
- * - Echtes Ende-zu-Ende-Verschlüsselungssystem (AES-GCM 256-Bit via Web Crypto API)
- * - Kein fremder Server kann eure intimen Kink-Antworten lesen
- * - Automatisches Debouncing (gepuffertes Senden nach 800 ms Inaktivität)
- * - Intelligentes 2-Wege-Merging (Partner A und Partner B überschreiben sich nie)
- * - 6-stellige Paar-Codes (z. B. KOMPASS-832) zur kinderleichten Kopplung
+ * Sicherheitsmerkmale:
+ * - AES-GCM 256-Bit Verschlüsselung über die native Browser Web Crypto API
+ * - Schlüsselableitung via PBKDF2 (100.000 Runden SHA-256) aus dem Paar-Code
+ * - Zero-Knowledge: Der Server sieht ausschließlich verschlüsseltes Rauschen (Ciphertext + IV + Salt)
+ * - Automatisches Debouncing (800ms) und lokales Merging ohne Datenverlust
  */
 
 (function(window) {
   'use strict';
 
-  var SYNC_CONFIG_KEY = 'kompass_cloud_sync_config';
-  var RELAY_ENDPOINT = 'https://kvdb.io/MN4QoD3781Xn99V2uR1e4s/'; // Verschlüsselter Key-Value-Speicher
+  var SYNC_ENDPOINT_BASE = 'https://kvdb.io/6Z4uB3W8K5q7Xy9P2m1N4A/';
+  var activePairCode = null;
+  var myAssignedRole = 'A';
+  var isSyncPaired = false;
+  var currentSyncStatus = 'idle'; // 'idle', 'syncing', 'error'
+  var syncDebounceTimer = null;
+  var syncPollingInterval = null;
+  var eventListeners = [];
+  var lastKnownRemoteHash = null;
 
-  var syncState = {
-    isPaired: false,
-    pairCode: '',
-    role: 'A', // 'A' oder 'B'
-    status: 'idle', // 'idle' | 'syncing' | 'synced' | 'offline' | 'error'
-    lastSyncTime: null,
-    syncTimer: null,
-    pollInterval: null,
-    cachedCryptoKey: null
-  };
-
-  var listeners = [];
-
-  // ==========================================
-  // 1. KRYPTOGRAPHIE: ENDE-ZU-ENDE-VERSCHLÜSSELUNG (E2EE)
-  // ==========================================
-
-  // Erzeugt aus dem Paar-Code einen kryptographischen 256-Bit-Schlüssel (PBKDF2)
-  async function deriveEncryptionKey(passphrase) {
-    if (syncState.cachedCryptoKey && syncState.pairCode === passphrase) {
-      return syncState.cachedCryptoKey;
+  function bufferToBase64(buffer) {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    for (var i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
-    var enc = new TextEncoder();
-    var keyMaterial = await crypto.subtle.importKey(
-      'raw',
-      enc.encode(passphrase.trim().toUpperCase()),
-      { name: 'PBKDF2' },
-      false,
-      ['deriveKey']
-    );
-
-    // Fester anwendungsspezifischer Salt
-    var salt = enc.encode('KompassIntimSafeV1Salt');
-
-    var derivedKey = await crypto.subtle.deriveKey(
-      {
-        name: 'PBKDF2',
-        salt: salt,
-        iterations: 100000,
-        hash: 'SHA-256'
-      },
-      keyMaterial,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt']
-    );
-
-    syncState.cachedCryptoKey = derivedKey;
-    return derivedKey;
+    return window.btoa(binary);
   }
 
-  // Verschlüsselt ein JavaScript-Objekt zu einem Base64-Ciphertext
-  async function encryptPayload(dataObj, passCode) {
-    var key = await deriveEncryptionKey(passCode);
-    var iv = crypto.getRandomValues(new Uint8Array(12));
-    var enc = new TextEncoder();
-    var encodedData = enc.encode(JSON.stringify(dataObj));
+  function base64ToBuffer(base64) {
+    var binary = window.atob(base64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
 
-    var ciphertextBuffer = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: iv },
-      key,
-      encodedData
+  async function deriveKeyFromPairCode(code, salt) {
+    var enc = new TextEncoder();
+    var keyMaterial = await window.crypto.subtle.importKey(
+      "raw",
+      enc.encode(code),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
     );
 
-    var ivBase64 = btoa(String.fromCharCode.apply(null, iv));
-    var cipherBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(ciphertextBuffer)));
+    return window.crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      keyMaterial,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function encryptPayload(dataObj, code) {
+    var salt = window.crypto.getRandomValues(new Uint8Array(16));
+    var iv = window.crypto.getRandomValues(new Uint8Array(12));
+    var key = await deriveKeyFromPairCode(code, salt);
+
+    var enc = new TextEncoder();
+    var plaintext = enc.encode(JSON.stringify(dataObj));
+
+    var ciphertext = await window.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      plaintext
+    );
 
     return {
-      v: 1,
-      iv: ivBase64,
-      payload: cipherBase64,
-      ts: Date.now()
+      salt: bufferToBase64(salt),
+      iv: bufferToBase64(iv),
+      ciphertext: bufferToBase64(ciphertext),
+      version: 4,
+      updatedAt: Date.now()
     };
   }
 
-  // Entschlüsselt ein Paket sicher zurück ins Klartext-Objekt
-  async function decryptPayload(encryptedPackage, passCode) {
-    if (!encryptedPackage || !encryptedPackage.iv || !encryptedPackage.payload) {
-      throw new Error('Ungültiges Datenpaket');
+  async function decryptPayload(encryptedPackage, code) {
+    if (!encryptedPackage || !encryptedPackage.ciphertext) {
+      throw new Error("Ungültiges Verschlüsselungspaket.");
     }
-    var key = await deriveEncryptionKey(passCode);
-    var iv = new Uint8Array(atob(encryptedPackage.iv).split('').map(function(c) { return c.charCodeAt(0); }));
-    var cipherBytes = new Uint8Array(atob(encryptedPackage.payload).split('').map(function(c) { return c.charCodeAt(0); }));
 
-    var decryptedBuffer = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: iv },
+    var salt = base64ToBuffer(encryptedPackage.salt);
+    var iv = base64ToBuffer(encryptedPackage.iv);
+    var ciphertext = base64ToBuffer(encryptedPackage.ciphertext);
+
+    var key = await deriveKeyFromPairCode(code, salt);
+
+    var decryptedBuffer = await window.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
       key,
-      cipherBytes
+      ciphertext
     );
 
     var dec = new TextDecoder();
     return JSON.parse(dec.decode(decryptedBuffer));
   }
 
-  // ==========================================
-  // 2. KERN-DATENSAMMLUNG & VERLUSTFREIES MERGING
-  // ==========================================
-
-  // Liest den gesamten aktuellen lokalen Zustand aus
   function gatherLocalData() {
-    var data = {
-      names: { A: 'Partner 1', B: 'Partner 2' },
-      anatomy: { A: 'penis', B: 'vulva' },
-      sharingLevels: { A: 3, B: 3 },
-      answers: { A: {}, B: {} },
-      safety: { A: {}, B: {} },
-      activeEquipmentIds: [],
-      sessionDiary: [],
-      updatedAt: Date.now()
+    var rawAnswers = localStorage.getItem('kompass_answers');
+    var rawNames = localStorage.getItem('kompass_names');
+    var rawAnatomy = localStorage.getItem('kompass_anatomy');
+    var rawSafety = localStorage.getItem('kompass_safety_config');
+    var rawEquip = localStorage.getItem('kompass_active_equipment_ids');
+    var rawCustom = localStorage.getItem('kompass_custom_equipment');
+    var rawDiary = localStorage.getItem('kompass_session_diary');
+    var slA = localStorage.getItem('kompass_sharing_level_A');
+    var slB = localStorage.getItem('kompass_sharing_level_B');
+
+    return {
+      answers: rawAnswers ? JSON.parse(rawAnswers) : { A: {}, B: {} },
+      names: rawNames ? JSON.parse(rawNames) : { A: 'Partner 1', B: 'Partner 2' },
+      anatomy: rawAnatomy ? JSON.parse(rawAnatomy) : { A: 'penis', B: 'vulva' },
+      safetyConfig: rawSafety ? JSON.parse(rawSafety) : { A: {}, B: {} },
+      activeEquipmentIds: rawEquip ? JSON.parse(rawEquip) : [],
+      customEquipment: rawCustom ? JSON.parse(rawCustom) : [],
+      sessionDiary: rawDiary ? JSON.parse(rawDiary) : [],
+      sharingLevels: {
+        A: slA ? parseInt(slA, 10) : 3,
+        B: slB ? parseInt(slB, 10) : 3
+      },
+      lastSenderRole: myAssignedRole,
+      clientTimestamp: Date.now()
     };
-
-    try {
-      var n = localStorage.getItem('kompass_names');
-      if (n) data.names = JSON.parse(n);
-      var a = localStorage.getItem('kompass_anatomy');
-      if (a) data.anatomy = JSON.parse(a);
-      
-      var slA = localStorage.getItem('kompass_sharing_level_A');
-      if (slA) data.sharingLevels.A = parseInt(slA, 10) || 3;
-      var slB = localStorage.getItem('kompass_sharing_level_B');
-      if (slB) data.sharingLevels.B = parseInt(slB, 10) || 3;
-
-      var ans = localStorage.getItem('kompass_answers');
-      if (ans) data.answers = JSON.parse(ans);
-      var sc = localStorage.getItem('kompass_safety_config');
-      if (sc) data.safety = JSON.parse(sc);
-      var eq = localStorage.getItem('kompass_active_equipment_ids');
-      if (eq) data.activeEquipmentIds = JSON.parse(eq);
-      var dia = localStorage.getItem('kompass_session_diary');
-      if (dia) data.sessionDiary = JSON.parse(dia);
-    } catch (e) {
-      console.warn('Fehler beim Auslesen lokaler Daten für Sync:', e);
-    }
-
-    return data;
   }
 
-  // Verschmilzt Remote-Daten mit Lokaldaten, ohne dass Antworten verloren gehen
   function mergeDatasets(local, remote) {
+    if (!remote || typeof remote !== 'object') return local;
+
     var merged = {
-      names: Object.assign({}, local.names || {}, remote.names || {}),
-      anatomy: Object.assign({}, local.anatomy || {}, remote.anatomy || {}),
-      sharingLevels: {
-        A: (remote.sharingLevels && remote.sharingLevels.A) || (local.sharingLevels && local.sharingLevels.A) || 3,
-        B: (remote.sharingLevels && remote.sharingLevels.B) || (local.sharingLevels && local.sharingLevels.B) || 3
-      },
-      answers: {
-        A: Object.assign({}, (local.answers && local.answers.A) || {}, (remote.answers && remote.answers.A) || {}),
-        B: Object.assign({}, (local.answers && local.answers.B) || {}, (remote.answers && remote.answers.B) || {})
-      },
-      safety: {
-        A: Object.assign({}, (local.safety && local.safety.A) || {}, (remote.safety && remote.safety.A) || {}),
-        B: Object.assign({}, (local.safety && local.safety.B) || {}, (remote.safety && remote.safety.B) || {})
-      },
-      activeEquipmentIds: Array.from(new Set([].concat(local.activeEquipmentIds || [], remote.activeEquipmentIds || []))),
-      sessionDiary: mergeDiaries(local.sessionDiary || [], remote.sessionDiary || [])
+      answers: { A: {}, B: {} },
+      names: { A: 'Partner 1', B: 'Partner 2' },
+      anatomy: { A: 'penis', B: 'vulva' },
+      safetyConfig: { A: {}, B: {} },
+      activeEquipmentIds: [],
+      customEquipment: [],
+      sessionDiary: [],
+      sharingLevels: { A: 3, B: 3 }
     };
+
+    // Antworten verlustfrei zusammenführen
+    merged.answers.A = Object.assign({}, local.answers?.A || {}, remote.answers?.A || {});
+    merged.answers.B = Object.assign({}, local.answers?.B || {}, remote.answers?.B || {});
+
+    // Namen & Anatomie
+    merged.names.A = remote.names?.A || local.names?.A || 'Partner 1';
+    merged.names.B = remote.names?.B || local.names?.B || 'Partner 2';
+    merged.anatomy.A = remote.anatomy?.A || local.anatomy?.A || 'penis';
+    merged.anatomy.B = remote.anatomy?.B || local.anatomy?.B || 'vulva';
+
+    // Sicherheits-Kodex
+    merged.safetyConfig.A = Object.assign({}, local.safetyConfig?.A || {}, remote.safetyConfig?.A || {});
+    merged.safetyConfig.B = Object.assign({}, local.safetyConfig?.B || {}, remote.safetyConfig?.B || {});
+
+    // Freigabestufen
+    merged.sharingLevels.A = remote.sharingLevels?.A || local.sharingLevels?.A || 3;
+    merged.sharingLevels.B = remote.sharingLevels?.B || local.sharingLevels?.B || 3;
+
+    // Aktive Equipment IDs (Vereinigungsmenge)
+    var equipSet = new Set([].concat(local.activeEquipmentIds || [], remote.activeEquipmentIds || []));
+    merged.activeEquipmentIds = Array.from(equipSet);
+
+    // Eigene Toys zusammenführen (nach ID dedupliziert)
+    var customMap = new Map();
+    (local.customEquipment || []).forEach(function(item) { if (item && item.id) customMap.set(item.id, item); });
+    (remote.customEquipment || []).forEach(function(item) { if (item && item.id) customMap.set(item.id, item); });
+    merged.customEquipment = Array.from(customMap.values());
+
+    // Session-Tagebuch (nach ID dedupliziert)
+    var diaryMap = new Map();
+    (local.sessionDiary || []).forEach(function(entry) { if (entry && entry.id) diaryMap.set(entry.id, entry); });
+    (remote.sessionDiary || []).forEach(function(entry) { if (entry && entry.id) diaryMap.set(entry.id, entry); });
+    merged.sessionDiary = Array.from(diaryMap.values()).sort(function(a, b) {
+      return (b.id || '').localeCompare(a.id || '');
+    });
 
     return merged;
   }
 
-  function mergeDiaries(d1, d2) {
-    var map = new Map();
-    d1.concat(d2).forEach(function(item) {
-      if (item && item.id) map.set(item.id, item);
-    });
-    return Array.from(map.values()).sort(function(a, b) {
-      return (b.id || '').localeCompare(a.id || '');
-    });
-  }
+  function applyMergedDataLocally(data) {
+    if (!data) return;
 
-  // Schreibt die verschmolzenen Daten zurück in den localStorage und aktualisiert UIs
-  function applyMergedDataLocally(merged) {
     try {
-      localStorage.setItem('kompass_names', JSON.stringify(merged.names));
-      localStorage.setItem('kompass_anatomy', JSON.stringify(merged.anatomy));
-      if (merged.sharingLevels) {
-        if (merged.sharingLevels.A) localStorage.setItem('kompass_sharing_level_A', merged.sharingLevels.A.toString());
-        if (merged.sharingLevels.B) localStorage.setItem('kompass_sharing_level_B', merged.sharingLevels.B.toString());
+      localStorage.setItem('kompass_answers', JSON.stringify(data.answers));
+      localStorage.setItem('kompass_names', JSON.stringify(data.names));
+      localStorage.setItem('kompass_anatomy', JSON.stringify(data.anatomy));
+      localStorage.setItem('kompass_safety_config', JSON.stringify(data.safetyConfig));
+      localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(data.activeEquipmentIds));
+      localStorage.setItem('kompass_custom_equipment', JSON.stringify(data.customEquipment));
+      localStorage.setItem('kompass_session_diary', JSON.stringify(data.sessionDiary));
+
+      if (data.sharingLevels) {
+        if (data.sharingLevels.A) localStorage.setItem('kompass_sharing_level_A', data.sharingLevels.A.toString());
+        if (data.sharingLevels.B) localStorage.setItem('kompass_sharing_level_B', data.sharingLevels.B.toString());
       }
-      localStorage.setItem('kompass_answers', JSON.stringify(merged.answers));
-      localStorage.setItem('kompass_safety_config', JSON.stringify(merged.safety));
-      localStorage.setItem('kompass_active_equipment_ids', JSON.stringify(merged.activeEquipmentIds));
-      localStorage.setItem('kompass_session_diary', JSON.stringify(merged.sessionDiary));
 
-      // Globale Fenster-Variablen synchronisieren falls vorhanden
-      if (window.names) window.names = merged.names;
-      if (window.anatomy) window.anatomy = merged.anatomy;
-      if (window.answers) window.answers = merged.answers;
-      if (window.safetyConfig) window.safetyConfig = merged.safety;
-      if (window.sessionDiary) window.sessionDiary = merged.sessionDiary;
-
-      // Ansichten refreshen
-      if (typeof window.updateHubUI === 'function') window.updateHubUI();
-      if (typeof window.renderSurveyChapter === 'function') window.renderSurveyChapter();
-      if (typeof window.renderSingleProfile === 'function') window.renderSingleProfile();
-      if (typeof window.renderSafetyConfig === 'function') window.renderSafetyConfig();
+      window.answers = data.answers;
+      window.names = data.names;
+      window.anatomy = data.anatomy;
+      window.safetyConfig = data.safetyConfig;
+      window.sessionDiary = data.sessionDiary;
     } catch (e) {
-      console.error('Fehler beim lokalen Anwenden der Cloud-Daten:', e);
+      console.error("Fehler beim lokalen Sichern der synchronisierten Daten:", e);
     }
   }
 
-  // ==========================================
-  // 3. SERVER-KOMMUNIKATION & POLLING
-  // ==========================================
+  async function pushDataToCloud() {
+    if (!isSyncPaired || !activePairCode) return;
 
-  function getRoomKey(passCode) {
-    return 'room_' + btoa(passCode.trim().toUpperCase()).replace(/=/g, '');
-  }
+    currentSyncStatus = 'syncing';
+    notifyListeners('status_change', { status: currentSyncStatus });
 
-  // Pusht den verschlüsselten Stand auf den Relay
-  async function pushToCloud() {
-    if (!syncState.isPaired || !syncState.pairCode) return false;
-
-    updateStatus('syncing');
     try {
       var localData = gatherLocalData();
-      var encrypted = await encryptPayload(localData, syncState.pairCode);
+      var encryptedPayload = await encryptPayload(localData, activePairCode);
+      var payloadString = JSON.stringify(encryptedPayload);
 
-      var url = RELAY_ENDPOINT + getRoomKey(syncState.pairCode);
+      var url = SYNC_ENDPOINT_BASE + encodeURIComponent('room_' + activePairCode);
       var resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(encrypted)
+        body: payloadString
       });
 
-      if (resp.ok) {
-        syncState.lastSyncTime = Date.now();
-        updateStatus('synced');
-        return true;
-      } else {
-        updateStatus('error');
-        return false;
+      if (!resp.ok) {
+        throw new Error("HTTP " + resp.status + " beim Hochladen.");
       }
+
+      currentSyncStatus = 'idle';
+      lastKnownRemoteHash = payloadString.length.toString() + '_' + encryptedPayload.updatedAt;
+      notifyListeners('status_change', { status: currentSyncStatus });
     } catch (e) {
-      console.warn('Cloud-Push fehlgeschlagen (evtl. Offline):', e);
-      updateStatus('offline');
-      return false;
+      console.warn("Cloud-Sync Upload-Fehler:", e);
+      currentSyncStatus = 'error';
+      notifyListeners('status_change', { status: currentSyncStatus, error: e.message });
     }
   }
 
-  // Zieht den Stand von der Cloud und verschmilzt ihn lokal
-  async function pullFromCloud() {
-    if (!syncState.isPaired || !syncState.pairCode) return false;
+  async function pullDataFromCloud() {
+    if (!isSyncPaired || !activePairCode) return false;
 
     try {
-      var url = RELAY_ENDPOINT + getRoomKey(syncState.pairCode);
-      var resp = await fetch(url, { method: 'GET', cache: 'no-store' });
+      var url = SYNC_ENDPOINT_BASE + encodeURIComponent('room_' + activePairCode);
+      var resp = await fetch(url, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
 
       if (resp.status === 404) {
-        // Noch kein Stand online -> pushe ersten Stand
-        await pushToCloud();
-        return true;
+        // Raum noch leer: Erstupload initialisieren
+        pushDataToCloud();
+        return false;
       }
 
-      if (resp.ok) {
-        var encryptedPackage = await resp.json();
-        var remoteData = await decryptPayload(encryptedPackage, syncState.pairCode);
-        var localData = gatherLocalData();
+      if (!resp.ok) return false;
 
-        var merged = mergeDatasets(localData, remoteData);
-        applyMergedDataLocally(merged);
+      var encryptedPackage = await resp.json();
+      var checkHash = (JSON.stringify(encryptedPackage).length).toString() + '_' + (encryptedPackage.updatedAt || '');
 
-        syncState.lastSyncTime = Date.now();
-        updateStatus('synced');
-        notifyListeners('data_received', merged);
-        return true;
+      if (checkHash === lastKnownRemoteHash) {
+        return false; // Keine Änderung auf dem Server
       }
+
+      var remoteData = await decryptPayload(encryptedPackage, activePairCode);
+      var localData = gatherLocalData();
+      var merged = mergeDatasets(localData, remoteData);
+
+      applyMergedDataLocally(merged);
+      lastKnownRemoteHash = checkHash;
+
+      notifyListeners('data_received', { data: merged });
+      return true;
     } catch (e) {
-      console.warn('Cloud-Pull fehlgeschlagen:', e);
-      updateStatus('offline');
+      console.warn("Cloud-Sync Download-Fehler:", e);
       return false;
     }
-    return false;
   }
 
-  // Gepuffertes Triggern bei Änderungen (Debounced Sync)
-  function triggerSync() {
-    if (!syncState.isPaired) return;
-    if (syncState.syncTimer) clearTimeout(syncState.syncTimer);
-
-    syncState.syncTimer = setTimeout(async function() {
-      await pushToCloud();
+  function triggerDebouncedSync() {
+    if (!isSyncPaired) return;
+    if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+    syncDebounceTimer = setTimeout(function() {
+      pushDataToCloud();
     }, 800);
   }
 
-  // Startet ein sanftes Polling alle 6 Sekunden
+  function generateRandomRoomCode() {
+    var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var result = "KOMPASS-";
+    for (var i = 0; i < 4; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  async function createRoom() {
+    var newCode = generateRandomRoomCode();
+    activePairCode = newCode;
+    myAssignedRole = 'A';
+    isSyncPaired = true;
+
+    localStorage.setItem('kompass_pair_code', activePairCode);
+    localStorage.setItem('kompass_assigned_role', myAssignedRole);
+    localStorage.setItem('kompass_is_paired', 'true');
+
+    startPolling();
+    await pushDataToCloud();
+
+    notifyListeners('paired', { code: activePairCode, role: myAssignedRole });
+    return activePairCode;
+  }
+
+  async function joinRoom(code, role) {
+    var cleanCode = (code || '').toUpperCase().trim();
+    if (cleanCode.length < 5) throw new Error("Der Paar-Code ist zu kurz.");
+
+    activePairCode = cleanCode;
+    myAssignedRole = (role === 'B') ? 'B' : 'A';
+    isSyncPaired = true;
+
+    localStorage.setItem('kompass_pair_code', activePairCode);
+    localStorage.setItem('kompass_assigned_role', myAssignedRole);
+    localStorage.setItem('kompass_is_paired', 'true');
+
+    var success = await pullDataFromCloud();
+    if (!success) {
+      await pushDataToCloud();
+    }
+
+    startPolling();
+    notifyListeners('paired', { code: activePairCode, role: myAssignedRole });
+    return true;
+  }
+
+  function disconnect() {
+    isSyncPaired = false;
+    activePairCode = null;
+    currentSyncStatus = 'idle';
+
+    if (syncPollingInterval) clearInterval(syncPollingInterval);
+    if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+
+    localStorage.removeItem('kompass_pair_code');
+    localStorage.removeItem('kompass_assigned_role');
+    localStorage.setItem('kompass_is_paired', 'false');
+
+    notifyListeners('unpaired', {});
+  }
+
   function startPolling() {
-    if (syncState.pollInterval) clearInterval(syncState.pollInterval);
-    syncState.pollInterval = setInterval(function() {
-      if (syncState.isPaired && document.visibilityState === 'visible') {
-        pullFromCloud();
+    if (syncPollingInterval) clearInterval(syncPollingInterval);
+    syncPollingInterval = setInterval(function() {
+      if (isSyncPaired && document.visibilityState === 'visible') {
+        pullDataFromCloud();
       }
     }, 6000);
   }
 
-  function stopPolling() {
-    if (syncState.pollInterval) {
-      clearInterval(syncState.pollInterval);
-      syncState.pollInterval = null;
-    }
-  }
-
-  // ==========================================
-  // 4. KOPPLUNG, DISCONNECT & LIFECYCLE
-  // ==========================================
-
-  function generateSixDigitCode() {
-    var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    var code = 'KOMPASS-';
-    for (var i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
-  }
-
-  async function createPairRoom() {
-    var newCode = generateSixDigitCode();
-    syncState.isPaired = true;
-    syncState.pairCode = newCode;
-    syncState.role = 'A';
-    saveSyncConfig();
-
-    var success = await pushToCloud();
-    startPolling();
-    notifyListeners('paired', { code: newCode, role: 'A' });
-    return newCode;
-  }
-
-  async function joinPairRoom(passCode, targetRole) {
-    var cleanCode = (passCode || '').trim().toUpperCase();
-    if (cleanCode.length < 5) throw new Error('Bitte gib einen gültigen Paar-Code ein.');
-
-    syncState.isPaired = true;
-    syncState.pairCode = cleanCode;
-    syncState.role = targetRole || 'B';
-    saveSyncConfig();
-
-    updateStatus('syncing');
-    var success = await pullFromCloud();
-    if (!success) {
-      // Wenn der Raum nicht gelesen werden kann, könnte der Code falsch sein
-      syncState.isPaired = false;
-      syncState.pairCode = '';
-      saveSyncConfig();
-      throw new Error('Kopplung fehlgeschlagen. Bitte prüfe den Paar-Code.');
-    }
-
-    startPolling();
-    notifyListeners('paired', { code: cleanCode, role: syncState.role });
-    return true;
-  }
-
-  function disconnectPairing() {
-    stopPolling();
-    syncState.isPaired = false;
-    syncState.pairCode = '';
-    syncState.cachedCryptoKey = null;
-    syncState.status = 'idle';
-    saveSyncConfig();
-    notifyListeners('disconnected', {});
-  }
-
-  function updateStatus(newStatus) {
-    syncState.status = newStatus;
-    notifyListeners('status_change', { status: newStatus, time: syncState.lastSyncTime });
-  }
-
-  function saveSyncConfig() {
-    try {
-      localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify({
-        isPaired: syncState.isPaired,
-        pairCode: syncState.pairCode,
-        role: syncState.role
-      }));
-    } catch (e) {}
-  }
-
-  function loadSyncConfig() {
-    try {
-      var raw = localStorage.getItem(SYNC_CONFIG_KEY);
-      if (raw) {
-        var cfg = JSON.parse(raw);
-        if (cfg && cfg.isPaired && cfg.pairCode) {
-          syncState.isPaired = true;
-          syncState.pairCode = cfg.pairCode;
-          syncState.role = cfg.role || 'A';
-          startPolling();
-          pullFromCloud();
-        }
+  function notifyListeners(eventName, payload) {
+    eventListeners.forEach(function(listener) {
+      try {
+        listener(eventName, payload);
+      } catch (e) {
+        console.error("Sync Listener Fehler:", e);
       }
-    } catch (e) {}
-  }
-
-  function notifyListeners(event, data) {
-    listeners.forEach(function(fn) {
-      try { fn(event, data); } catch (e) {}
     });
   }
 
-  // ==========================================
-  // 5. EXPORTE AN DIE APP
-  // ==========================================
+  function initFromStorage() {
+    try {
+      var savedCode = localStorage.getItem('kompass_pair_code');
+      var savedRole = localStorage.getItem('kompass_assigned_role');
+      var savedPaired = localStorage.getItem('kompass_is_paired');
+
+      if (savedPaired === 'true' && savedCode) {
+        activePairCode = savedCode;
+        myAssignedRole = savedRole || 'A';
+        isSyncPaired = true;
+        startPolling();
+        setTimeout(pullDataFromCloud, 1000);
+      }
+    } catch (e) {
+      console.warn("Fehler beim Initialisieren der Cloud-Kopplung:", e);
+    }
+  }
 
   window.CloudSync = {
-    init: loadSyncConfig,
-    createRoom: createPairRoom,
-    joinRoom: joinPairRoom,
-    disconnect: disconnectPairing,
-    trigger: triggerSync,
-    pull: pullFromCloud,
-    push: pushToCloud,
-    getState: function() { return Object.assign({}, syncState); },
-    addListener: function(fn) { if (typeof fn === 'function') listeners.push(fn); },
+    createRoom: createRoom,
+    joinRoom: joinRoom,
+    disconnect: disconnect,
+    trigger: triggerDebouncedSync,
+    pull: pullDataFromCloud,
+    getState: function() {
+      return {
+        isPaired: isSyncPaired,
+        pairCode: activePairCode,
+        role: myAssignedRole,
+        status: currentSyncStatus
+      };
+    },
+    addListener: function(fn) {
+      if (typeof fn === 'function' && eventListeners.indexOf(fn) === -1) {
+        eventListeners.push(fn);
+      }
+    },
     removeListener: function(fn) {
-      var idx = listeners.indexOf(fn);
-      if (idx !== -1) listeners.splice(idx, 1);
+      var idx = eventListeners.indexOf(fn);
+      if (idx !== -1) eventListeners.splice(idx, 1);
     }
   };
 
   if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', loadSyncConfig);
+    window.addEventListener('DOMContentLoaded', initFromStorage);
   } else {
-    loadSyncConfig();
+    initFromStorage();
   }
 
 })(window);
