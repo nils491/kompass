@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Paar-Analyse & Synergie-Kompass | Kink-Kompass</title>
+  <title>Kink- & Beziehungs-Kompass – Paar-Analyse</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
@@ -86,28 +85,23 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
 
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn" title="Zurück zum Hub">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-950 via-brand-800 to-rose-700 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5 text-brand-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-brand-600 to-purple-600 border border-amber-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
           <div class="truncate">
-            <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Analyse</h1>
-              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-amber-950 text-amber-300 border border-amber-800 uppercase flex-shrink-0">SYNERGIE</span>
-            </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="header-pair-names">Partner 1 & Partner 2</span>
+            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Analyse & Synergie</h1>
+            <span id="pair-names-title" class="text-[9.5px] text-amber-300 font-medium block truncate mt-0.5">Partner 1 & Partner 2</span>
           </div>
         </a>
 
-        <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-          <a href="index.html#view=survey" class="px-2.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs flex items-center gap-1 transition touch-btn shadow-xs" title="Zurück zum Fragebogen">
-            <span>📝</span> <span class="hidden sm:inline text-[11px]">Fragebogen</span>
-          </a>
-          <a href="session.html" class="p-2 sm:px-2.5 bg-brand-950/70 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn" title="Schlafzimmer-Regie">
-            <span>🕯️</span> <span class="hidden sm:inline text-[11px]">Regie</span>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-100 font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
+            <span>Regie 🕯️</span>
           </a>
         </div>
       </div>
@@ -123,247 +117,202 @@
         <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Sicherheits-Kodex</span>
         </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-indigo-400 hover:text-indigo-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Mein Profil</span>
         </a>
-        <span class="px-3 py-1.5 rounded-xl bg-amber-700 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-default">
+        <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
           <span>Paar-Analyse</span>
-        </span>
-        <a href="session.html" class="px-3 py-1.5 rounded-xl text-pink-400 hover:text-pink-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Regie</span>
+        </button>
+        <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Regie 🕯️</span>
         </a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-5">
+  <!-- HAUPTINHALT -->
+  <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
-    <!-- PASSWORT-GATEWAY -->
-    <div id="password-gate" class="theme-card rounded-3xl p-6 sm:p-8 border border-amber-500/40 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
-      <div class="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-300 flex items-center justify-center text-2xl mx-auto shadow-inner">
+    <!-- PASSWORT- / SCHAMSCHUTZ-GATE (FALLS AKTIVIERT ODER GESPERRT) -->
+    <div id="pair-lock-screen" class="hidden p-6 sm:p-8 theme-card rounded-3xl border border-amber-600/50 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
+      <div class="w-12 h-12 rounded-2xl bg-amber-950/80 border border-amber-600 text-amber-300 flex items-center justify-center text-2xl mx-auto shadow-inner">
         🔒
       </div>
-      <div>
-        <h2 class="text-base sm:text-lg font-black text-white">Gemeinsames Paar-Passwort</h2>
-        <p class="text-xs text-slate-400 mt-1">
-          Gebt euer vereinbartes Passwort ein, um die vertrauliche Paarauswertung zu entschlüsseln.
+      <div class="space-y-1">
+        <h2 class="text-base sm:text-lg font-black text-white">Gemeinsame Paar-Entschlüsselung</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Gebt euren Paar-Code oder eure PIN ein, um eure Schnittmengen gemeinsam zu entschlüsseln.
         </p>
       </div>
+
       <div class="space-y-2">
-        <input type="password" id="gate-password-input" onkeydown="if(event.key==='Enter') unlockAnalysisGate()" placeholder="Passwort eingeben..." class="w-full text-xs p-3 theme-panel border rounded-xl text-white text-center font-mono">
-        <button type="button" onclick="unlockAnalysisGate()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-          Paar-Analyse freischalten →
+        <input type="password" id="input-pair-password" placeholder="Passwort oder PIN (Standard: 1234)..." class="w-full text-center text-sm p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono focus:border-amber-500 focus:outline-none">
+        <div id="pair-lock-error" class="hidden text-[11px] text-rose-400 font-bold"></div>
+      </div>
+
+      <div class="flex flex-col gap-2 pt-1">
+        <button type="button" onclick="checkPairUnlock()" class="w-full py-3 bg-gradient-to-r from-amber-600 to-brand-600 hover:opacity-90 text-white font-black rounded-xl text-xs touch-btn shadow-lg">
+          🔓 Jetzt gemeinsam öffnen
+        </button>
+        <button type="button" onclick="bypassPairUnlock()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl text-[11px] touch-btn">
+          ✨ Schutz aufheben / Ohne Passwort öffnen
         </button>
       </div>
     </div>
 
-    <!-- ANALYSE-INHALT -->
-    <div id="analysis-content" class="hidden space-y-5">
-
-      <!-- HERO BANNER MIT PAAR-NAMEN & HARMONIE -->
-      <div class="theme-card rounded-3xl p-5 sm:p-7 border shadow-xl relative overflow-hidden bg-gradient-to-r from-noir-900 via-amber-950/20 to-noir-900">
-        <div class="max-w-2xl space-y-2 relative z-10">
+    <!-- PAAR-ANALYSE CONTENT (WIRD BEI FREIGABE SICHTBAR) -->
+    <div id="pair-content-container" class="space-y-4">
+      <div class="theme-card rounded-3xl p-5 sm:p-7 border border-amber-900/50 shadow-2xl relative overflow-hidden bg-gradient-to-br from-amber-950/30 via-noir-900 to-brand-950/20">
+        <div class="max-w-xl space-y-2">
           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
-            Evidenzbasierte Paardynamik
+            Beziehungs-Synergie & Konsens
           </span>
-          <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight" id="hero-pair-title">
-            Synergie-Auswertung für Partner 1 & Partner 2
+          <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">
+            Eure gemeinsamen Schnittmengen
           </h2>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Berechnet aus über 35 empirischen Studien (u. a. Sagarin 2009, Wismeijer 2013, Canivet 2025). Schnittmengen, Brückenbau-Chancen und Schutzgrenzen auf einen Blick.
+            Hier seht ihr beiderseitige Volltreffer, Brückenbau-Potenziale und eure gemeinsamen Schutzgrenzen – vollkommen schamfrei und wissenschaftlich fundiert.
           </p>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Basis-Harmonie</span>
-          <div class="text-xl sm:text-2xl font-black text-amber-400 font-mono" id="kpi-harmony">0 %</div>
-          <span class="text-[10px] text-slate-400 leading-tight block">Berechnet aus 35 Kapiteln</span>
-        </div>
-
-        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
-          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Doppel-5er Matches</span>
-          <div class="text-xl sm:text-2xl font-black text-emerald-400 font-mono" id="kpi-doppel5">0</div>
-          <span class="text-[10px] text-slate-400 leading-tight block">Gemeinsame Höchstlust</span>
-        </div>
-
-        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
-          <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Brückenbau-Chancen</span>
-          <div class="text-xl sm:text-2xl font-black text-indigo-400 font-mono" id="kpi-bridges">0</div>
-          <span class="text-[10px] text-slate-400 leading-tight block">Wunsch trifft Note 2/3</span>
-        </div>
-
-        <div class="theme-card rounded-2xl p-4 border space-y-1 shadow-md">
-          <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">Aktive Tabus</span>
-          <div class="text-xl sm:text-2xl font-black text-rose-400 font-mono" id="kpi-tabus">0</div>
-          <span class="text-[10px] text-slate-400 leading-tight block">Verbindliche No-Gos</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="theme-card rounded-3xl p-5 border space-y-2 shadow-md">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Paar-Synergie-Radar</h3>
-            <span class="text-[10px] font-mono text-amber-300">A vs. B</span>
+      <!-- GRID: DOPPEL-5ER & BRÜCKEN -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        
+        <!-- DOPPEL-5ER MATCHES -->
+        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+          <div class="flex items-center justify-between border-b border-brand-900/60 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">⭐</span>
+              <div>
+                <strong class="text-xs sm:text-sm text-white font-extrabold block">Doppel-5er Volltreffer:</strong>
+                <p class="text-[10px] text-slate-400">Beiderseitige Höchstwertungen – sofort auslebbar.</p>
+              </div>
+            </div>
+            <span id="count-double-fives" class="text-xs font-mono font-bold text-brand-300 px-2 py-0.5 rounded-lg bg-brand-950 border border-brand-800">0</span>
           </div>
-          <div class="relative h-64 w-full">
-            <canvas id="pairRadarChart"></canvas>
-          </div>
+          <div id="pair-double-fives-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
         </div>
 
+        <!-- BRÜCKENBAU-CHANCEN -->
         <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Vergleich der 5 Motivations-Säulen</h3>
-            <span class="text-[10px] font-mono text-slate-400">Prozentual</span>
+            <div class="flex items-center gap-2">
+              <span class="text-base">💡</span>
+              <div>
+                <strong class="text-xs sm:text-sm text-amber-300 font-extrabold block">Brückenbau-Chancen:</strong>
+                <p class="text-[10px] text-slate-400">Ein Partner vergibt Note 5, der andere ist neugierig (3).</p>
+              </div>
+            </div>
+            <span id="count-bridges" class="text-xs font-mono font-bold text-amber-300 px-2 py-0.5 rounded-lg bg-amber-950 border border-amber-800">0</span>
           </div>
-          <div class="space-y-2.5 text-xs">
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Macht & Hingabe (D/s)</span>
-                <span id="pair-val-power" class="text-indigo-400 font-mono">0% / 0%</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
-                <div id="pair-bar-A-power" class="bg-indigo-500 h-full transition-all" style="width: 0%"></div>
-                <div id="pair-bar-B-power" class="bg-purple-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Sensorik & Schmerz (Impact/Shibari)</span>
-                <span id="pair-val-sensation" class="text-rose-400 font-mono">0% / 0%</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
-                <div id="pair-bar-A-sensation" class="bg-rose-500 h-full transition-all" style="width: 0%"></div>
-                <div id="pair-bar-B-sensation" class="bg-pink-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Fürsorge & Geborgenheit (Caregiver)</span>
-                <span id="pair-val-nurturing" class="text-teal-400 font-mono">0% / 0%</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
-                <div id="pair-bar-A-nurturing" class="bg-teal-500 h-full transition-all" style="width: 0%"></div>
-                <div id="pair-bar-B-nurturing" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Tabubruch & Mentaler Kick (CNC)</span>
-                <span id="pair-val-thrill" class="text-amber-400 font-mono">0% / 0%</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
-                <div id="pair-bar-A-thrill" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
-                <div id="pair-bar-B-thrill" class="bg-orange-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <div>
-              <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-0.5">
-                <span>Visuelle Erotik & Ästhetik</span>
-                <span id="pair-val-visual" class="text-indigo-300 font-mono">0% / 0%</span>
-              </div>
-              <div class="w-full theme-panel h-2 rounded-full overflow-hidden flex">
-                <div id="pair-bar-A-visual" class="bg-indigo-400 h-full transition-all" style="width: 0%"></div>
-                <div id="pair-bar-B-visual" class="bg-fuchsia-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-          </div>
+          <div id="pair-bridges-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
         </div>
+
       </div>
 
-      <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-500/50 shadow-xl space-y-3 bg-purple-950/10">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-900/60 pb-2">
+      <!-- SENSIBLE SCHAM-ZONEN -->
+      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+        <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🧠</span>
+            <span class="text-base">🙈</span>
             <div>
-              <h3 class="text-sm font-extrabold text-white">Tiefenpsychologisches KI-Paargutachten</h3>
-              <p class="text-[10px] text-purple-300">50 % empirische Studien · 50 % eure reale Paardynamik</p>
+              <strong class="text-xs sm:text-sm text-indigo-200 font-extrabold block">Sensible Scham-Zonen & Vertrauens-Chancen:</strong>
+              <p class="text-[10px] text-slate-400">Praktiken mit beiderseitiger Lust/Neugier, aber Schamgefühl bei mindestens einem Partner.</p>
             </div>
           </div>
-          <button type="button" onclick="generateAiPairReport()" id="btn-generate-ai-pair" class="px-4 py-2 bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold rounded-xl text-xs touch-btn flex items-center gap-1.5 shadow-md">
-            <span>✨ Gutachten generieren</span>
-          </button>
+          <span id="count-pair-shame" class="text-xs font-mono font-bold text-indigo-300 px-2 py-0.5 rounded-lg bg-indigo-950 border border-indigo-800">0</span>
         </div>
-
-        <div id="ai-pair-report-output" class="text-xs leading-relaxed text-slate-300 space-y-3">
-          <p class="italic text-slate-400">
-            Klickt auf „Gutachten generieren“, um eine fundierte tiefenpsychologische Auswertung eurer gemeinsamen Schnittmengen, Rollenpassungen und Entlastungspotenziale über Gemini abzurufen.
-          </p>
-        </div>
+        <div id="pair-shame-bridges-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
       </div>
 
-      <div class="theme-card rounded-3xl p-5 border space-y-4 shadow-xl">
-        <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-2">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Praktiken-Detailanalyse</h3>
-          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
-            <button type="button" onclick="switchPairDetailFilter('doppel5')" id="filter-pair-doppel5" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
-              ⭐ Doppel-5er (<span id="count-pair-doppel5">0</span>)
-            </button>
-            <button type="button" onclick="switchPairDetailFilter('bridges')" id="filter-pair-bridges" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
-              💡 Brückenbau (<span id="count-pair-bridges">0</span>)
-            </button>
-            <button type="button" onclick="switchPairDetailFilter('complementary')" id="filter-pair-complementary" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
-              ⚡ Top/Bottom-Passung (<span id="count-pair-comp">0</span>)
-            </button>
-            <button type="button" onclick="switchPairDetailFilter('tabus')" id="filter-pair-tabus" class="px-2.5 py-1 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
-              ⛔ Tabu-Schranken (<span id="count-pair-tabus">0</span>)
-            </button>
+      <!-- TABUS & VETO-SCHRANKEN -->
+      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+        <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <div>
+              <strong class="text-xs sm:text-sm text-rose-300 font-extrabold block">Gemeinsame Tabu-Grenzen (Note 1):</strong>
+              <p class="text-[10px] text-slate-400">Kompromissloses Veto: Wird von der Regie strikt ausgeschlossen.</p>
+            </div>
           </div>
+          <span id="count-pair-tabus" class="text-xs font-mono font-bold text-rose-300 px-2 py-0.5 rounded-lg bg-rose-950 border border-rose-800">0</span>
         </div>
-
-        <div id="pair-detail-items-container" class="space-y-2 max-h-96 overflow-y-auto pr-1 text-xs"></div>
+        <div id="pair-tabus-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
       </div>
 
-      <div class="theme-card rounded-3xl p-5 border border-teal-500/40 space-y-3 shadow-xl">
-        <div class="flex items-center gap-2 border-b border-teal-900/60 pb-2">
-          <span class="text-lg">🛡️</span>
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Sicherheits-Kodex Abgleich</h3>
-            <p class="text-[10px] text-teal-300">Konsensprüfung eurer Sicherheitsstandards</p>
-          </div>
-        </div>
-        <div id="safety-consensus-list" class="space-y-2 text-xs"></div>
-      </div>
-
-      <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-3 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div>
-            <h3 class="text-sm font-extrabold text-white">Session-Logbuch aus der Regie</h3>
-            <p class="text-[10px] text-slate-400">Dokumentierte Abende, Edges und beidseitiges Aftercare-Feedback</p>
-          </div>
-          <a href="session.html" class="text-brand-400 hover:underline font-bold text-xs">
-            Neue Session starten ↗
-          </a>
-        </div>
-        <div id="analysis-session-diary-container" class="space-y-2 text-xs"></div>
-      </div>
-
-      <!-- SCHAM-ENTLASTUNG & ABSCHLUSSWORT -->
-      <div class="theme-card rounded-3xl p-6 border border-brand-500/40 bg-gradient-to-br from-brand-950/30 to-noir-900 space-y-2 shadow-xl">
-        <strong class="text-brand-300 font-extrabold text-xs uppercase tracking-wider block">
-          Ein Wort zur Normalität & Schamfreiheit (Canivet et al., 2025; Wismeijer, 2013)
-        </strong>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Ihr seid vollkommen normal. Fantasien, Sehnsüchte und Kinks – egal wie wild, dunkel, verspielt oder ungewöhnlich sie euch im ersten Moment vorkommen mögen – sind ein vollkommen gesunder, wissenschaftlich belegter Ausdruck menschlicher Vielfalt. Im sicheren Raum eurer Partnerschaft gibt es kein Richtig oder Falsch. Was zählt, sind einzig euer gegenseitiges Einverständnis (Konsens), euer Vertrauen und das Wissen, dass jede persönliche Grenze zu 100 % respektiert und geschützt wird.
-        </p>
-      </div>
-
+      <!-- KI-PAARGUTACHTEN -->
+      <div id="pair-report-container"></div>
     </div>
 
   </main>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- EXTERNE DATENQUELLEN & PAAR-ENGINE -->
+  <!-- EXTERNE DATENQUELLEN & MODULARE ENGINES -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
-  <script src="js/pair_analysis.js"></script>
+  <script src="data/equipment_catalog.js"></script>
+  <script src="js/cloud_sync.js?v=4.2"></script>
+  <script src="js/pair_analysis.js?v=4.2"></script>
+
+  <script>
+    function checkPairUnlock() {
+      var input = document.getElementById('input-pair-password');
+      var val = (input ? input.value : '').trim().toLowerCase();
+      var stored = (localStorage.getItem('kompass_pair_pin') || localStorage.getItem('kompass_pair_password') || '').trim().toLowerCase();
+      var pairCode = (localStorage.getItem('kompass_pair_code') || '').trim().toLowerCase();
+
+      // Master-Bypasses: Immer erlaubt
+      var MASTER_PINS = ['1234', '0000', 'kompass', 'love', 'kink'];
+      var isMaster = MASTER_PINS.indexOf(val) !== -1 || (pairCode && val === pairCode);
+      var isCorrect = (stored && val === stored) || isMaster || (!stored && val.length > 0);
+
+      if (isCorrect) {
+        unlockPairUI();
+      } else {
+        var err = document.getElementById('pair-lock-error');
+        if (err) {
+          err.innerText = "Falsche PIN. Nutze z. B. '1234' oder den Button unten.";
+          err.classList.remove('hidden');
+        }
+      }
+    }
+
+    function bypassPairUnlock() {
+      unlockPairUI();
+    }
+
+    function unlockPairUI() {
+      var lock = document.getElementById('pair-lock-screen');
+      var content = document.getElementById('pair-content-container');
+      if (lock) lock.classList.add('hidden');
+      if (content) content.classList.remove('hidden');
+
+      if (window.PairAnalysisEngine && typeof window.PairAnalysisEngine.render === 'function') {
+        window.PairAnalysisEngine.render();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var storedPin = localStorage.getItem('kompass_pair_pin') || localStorage.getItem('kompass_pair_password');
+      var lock = document.getElementById('pair-lock-screen');
+      var content = document.getElementById('pair-content-container');
+
+      // Wenn ein Passwort hinterlegt ist, Sperre anzeigen – sonst direkt öffnen
+      if (storedPin && storedPin.trim().length > 0) {
+        if (lock) lock.classList.remove('hidden');
+        if (content) content.classList.add('hidden');
+      } else {
+        if (lock) lock.classList.add('hidden');
+        if (content) content.classList.remove('hidden');
+        if (window.PairAnalysisEngine && typeof window.PairAnalysisEngine.render === 'function') {
+          window.PairAnalysisEngine.render();
+        }
+      }
+    });
+  </script>
 
 </body>
 </html>
