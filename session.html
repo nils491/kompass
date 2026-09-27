@@ -82,18 +82,36 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    @keyframes pulseGiant {
-      0%, 100% {
+    @keyframes countdownBeat {
+      0% {
+        transform: scale(1.16);
+        filter: drop-shadow(0 0 110px rgba(16, 185, 129, 1));
+      }
+      38% {
         transform: scale(0.94);
         filter: drop-shadow(0 0 35px rgba(16, 185, 129, 0.45));
       }
-      50% {
-        transform: scale(1.06);
-        filter: drop-shadow(0 0 95px rgba(16, 185, 129, 0.9));
+      100% {
+        transform: scale(1.0);
+        filter: drop-shadow(0 0 60px rgba(16, 185, 129, 0.7));
       }
     }
-    .animate-pulse-giant {
-      animation: pulseGiant 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    .countdown-beat-active {
+      animation: countdownBeat var(--beat-duration, 1.15s) cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    }
+
+    @keyframes climaxPulse {
+      0%, 100% {
+        transform: scale(1.0);
+        filter: drop-shadow(0 0 70px rgba(52, 211, 153, 0.8));
+      }
+      50% {
+        transform: scale(1.14);
+        filter: drop-shadow(0 0 120px rgba(52, 211, 153, 1));
+      }
+    }
+    .climax-pulse-active {
+      animation: climaxPulse 1.2s ease-in-out infinite;
     }
   </style>
 </head>
@@ -690,7 +708,7 @@
 
           <!-- RIESIGER ZENTRALER DISPLAY-BEREICH (> 70% DER BILDSCHIRMHÖHE) -->
           <div class="flex-1 w-full flex flex-col items-center justify-center my-auto min-h-[68vh] sm:min-h-[72vh] relative">
-            <div id="countdown-display" class="text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none animate-pulse-giant transition-all duration-300 drop-shadow-[0_0_60px_rgba(16,185,129,0.7)] text-center">
+            <div id="countdown-display" class="text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform">
               10
             </div>
             <p id="countdown-cue-text" class="text-xs sm:text-sm text-emerald-200 font-semibold tracking-wide text-center mt-2 px-4 max-w-md drop-shadow">
@@ -790,9 +808,9 @@
       </div>
 
       <div id="zen-view-breath" class="space-y-4 py-4">
-        <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
-          <div id="breath-circle" class="w-28 h-28 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center transition-all duration-1000"></div>
-          <span id="breath-text" class="absolute text-xs font-black text-white">Einatmen (4s)</span>
+        <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
+          <div id="breath-circle" class="w-28 h-28 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center shadow-lg transition-all duration-1000 will-change-transform"></div>
+          <span id="breath-text" class="absolute text-xs font-black text-white pointer-events-none drop-shadow-md text-center px-2">Einatmen (4s)</span>
         </div>
         <p class="text-[10.5px] text-slate-400">Atmet gemeinsam synchron: 4s Einatmen, 7s Halten, 8s langsam Ausatmen.</p>
       </div>
