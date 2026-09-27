@@ -7,6 +7,7 @@
  * - Filter-Engine (Scope: Kapitel / Global; Filter: Alle, Unbeantwortet, Favoriten, Tabus, Hemmschwelle)
  * - Bewertungsblöcke (Stufen 0 bis 5 inkl. "0: Betrifft mich nicht / Entfällt")
  * - Freitext-Notizfelder für persönliche Bemerkungen und Konditionen
+ * - Typsicherer Direktsprung zu beliebigen Fragen mit optischem Puls-Highlight
  * - Direkte Anbindung an die Live-KI-Recherche
  */
 
@@ -91,7 +92,7 @@
     for (var c = 0; c < chapters.length; c++) {
       var items = chapters[c].items || [];
       for (var i = 0; i < items.length; i++) {
-        if (items[i].id === itemId) {
+        if (String(items[i].id) === String(itemId)) {
           foundItem = items[i];
           break;
         }
@@ -103,6 +104,58 @@
     } else if (window.KinkResearch) {
       window.KinkResearch.open();
     }
+  }
+
+  function jumpToItem(itemId) {
+    var chapters = window.surveyChapters || [];
+    var targetChapterIdx = -1;
+    var targetIdStr = String(itemId);
+
+    for (var c = 0; c < chapters.length; c++) {
+      var items = chapters[c].items || [];
+      for (var i = 0; i < items.length; i++) {
+        if (String(items[i].id) === targetIdStr) {
+          targetChapterIdx = c;
+          break;
+        }
+      }
+      if (targetChapterIdx !== -1) break;
+    }
+
+    if (targetChapterIdx === -1) {
+      showToast("Frage nicht im Katalog gefunden.");
+      return;
+    }
+
+    // Filter auf 'all' und Scope auf 'chapter' setzen, damit die Frage garantiert sichtbar ist
+    activeSurveyFilter = 'all';
+    ['all', 'unanswered', 'high', 'tabu', 'shame'].forEach(function(id) {
+      var btn = document.getElementById('filter-btn-' + id);
+      if (btn) {
+        if (id === 'all') btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold bg-brand-700 text-white touch-btn whitespace-nowrap";
+        else btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold theme-panel border text-slate-300 touch-btn whitespace-nowrap";
+      }
+    });
+
+    currentChapterIndex = targetChapterIdx;
+    activeSurveyScope = 'chapter';
+    var btnCh = document.getElementById('scope-btn-chapter');
+    var btnGl = document.getElementById('scope-btn-global');
+    if (btnCh) btnCh.className = "px-2.5 py-1 rounded-lg font-bold bg-brand-950 text-brand-300 border border-brand-800 touch-btn";
+    if (btnGl) btnGl.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
+
+    renderSurveyChapter();
+
+    setTimeout(function() {
+      var itemEl = document.getElementById('survey-item-' + targetIdStr);
+      if (itemEl) {
+        itemEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        itemEl.classList.add('ring-2', 'ring-rose-500', 'shadow-2xl');
+        setTimeout(function() {
+          itemEl.classList.remove('ring-2', 'ring-rose-500', 'shadow-2xl');
+        }, 3200);
+      }
+    }, 150);
   }
 
   function renderSurveyChapter() {
@@ -203,7 +256,7 @@
       var it = entry.item;
       var ch = entry.chapter;
 
-      html += '<div class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4">';
+      html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-4 transition-all duration-500">';
       html += '<div class="flex items-start justify-between gap-2">';
       html += '  <div class="min-w-0 flex-1">';
       if (isGlobal) {
@@ -432,6 +485,7 @@
     nextChapter: nextChapter,
     toggleQuickGrid: toggleChapterQuickGrid,
     jumpToChapter: jumpToChapter,
+    jumpToItem: jumpToItem,
     getProgressData: getGlobalProgressData
   };
 
@@ -446,6 +500,7 @@
   window.nextChapter = nextChapter;
   window.toggleChapterQuickGrid = toggleChapterQuickGrid;
   window.jumpToChapter = jumpToChapter;
+  window.jumpToSurveyItem = jumpToItem;
   window.openItemResearch = openItemResearch;
   window.getGlobalProgressData = getGlobalProgressData;
 
