@@ -151,6 +151,12 @@
 
   function saveCoreData() {
     try {
+      // Vor dem Speichern immer sicherstellen, dass keine leeren Variablen globale Daten überschreiben
+      if (window.answers && typeof window.answers === 'object') answers = window.answers;
+      if (window.names && typeof window.names === 'object') names = window.names;
+      if (window.anatomy && typeof window.anatomy === 'object') anatomy = window.anatomy;
+      if (window.safetyConfig && typeof window.safetyConfig === 'object') safetyConfig = window.safetyConfig;
+
       localStorage.setItem('kompass_current_user', currentUser);
       localStorage.setItem('kompass_names', JSON.stringify(names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(anatomy));
@@ -167,6 +173,7 @@
 
   function setCurrentUser(user) {
     if (user !== 'A' && user !== 'B') return;
+    loadCoreData(); // Zuerst frische Daten aus dem Speicher holen
     currentUser = user;
     window.currentUser = currentUser;
     saveCoreData();
@@ -410,6 +417,16 @@
   window.loadCoreData = loadCoreData;
   window.updateUserToggleUI = updateUserToggleUI;
   window.updateHubUI = updateHubUI;
+
+  // Hört auf Cloud-Aktualisierungen und rendert sofort die Benutzeroberfläche neu
+  window.addEventListener('kompass_data_synced', function() {
+    loadCoreData();
+    updateUserToggleUI();
+    updateHubUI();
+    if (currentView === 'survey' && window.SurveyEngine) window.SurveyEngine.render();
+    if (currentView === 'single' && window.ProfileEngine) window.ProfileEngine.render();
+    if (currentView === 'safety') renderSafetyConfig();
+  });
 
   window.addEventListener('hashchange', handleHashNavigation);
 
