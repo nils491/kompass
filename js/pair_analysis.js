@@ -6,7 +6,7 @@
  * - Brückenbau-Chancen unter Berücksichtigung der 4 Freigabestufen (Schamschutz)
  * - 🙈 Sensible Scham-Zonen (Praktiken mit Scham-Markierung als achtsame Vertrauenschancen)
  * - Absolute Tabu-Schranken (Note 1 schlägt alles - kompromissloser Veto-Schutz)
- * - Anklickbare Tabus und Praktiken mit Direktsprung in den Fragebogen
+ * - Anklickbare Tabus und Praktiken mit partnergenauem Direktsprung in den Fragebogen (&user=A/B)
  * - Dauerhafter Cache für Paargutachten mit Antworten-Fingerprint und personengenauer Änderungs-Erkennung
  * - Schamfreies KI-Paargutachten mit wissenschaftlicher Fundierung
  */
@@ -66,7 +66,6 @@
     return Math.abs(hash).toString(36);
   }
 
-  // STANDARD-FREIGABESTUFE: STUFE 4 (RADIKALE TRANSPARENZ / ALLES ZEIGEN)
   function getSharingLevel(user) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + user);
@@ -75,13 +74,35 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 4; // Standard & Empfehlung: Stufe 4 (Alles zeigen)
+    return 4; // Standard: Stufe 4 (Radikale Transparenz)
+  }
+
+  function getEffectiveAnswers() {
+    var ans = window.answers;
+    if (!ans || (!ans.A && !ans.B)) {
+      try {
+        var stored = localStorage.getItem('kompass_answers');
+        if (stored) ans = JSON.parse(stored);
+      } catch (e) {}
+    }
+    return ans || { A: {}, B: {} };
+  }
+
+  function getEffectiveNames() {
+    var nm = window.names;
+    if (!nm || (!nm.A && !nm.B)) {
+      try {
+        var stored = localStorage.getItem('kompass_names');
+        if (stored) nm = JSON.parse(stored);
+      } catch (e) {}
+    }
+    return nm || { A: 'Partner 1', B: 'Partner 2' };
   }
 
   function calculatePairSynergy() {
     var chapters = window.surveyChapters || [];
-    var answers = window.answers || { A: {}, B: {} };
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var answers = getEffectiveAnswers();
+    var names = getEffectiveNames();
 
     var ansA = answers.A || {};
     var ansB = answers.B || {};
@@ -113,7 +134,7 @@
         if (bR1 === 1) { tabus.push({ item: it, who: 'B', name: names.B, role: 'Aktiv: ' + (it.r1 || 'Ausführen') }); tabuInPractice = true; }
         if (bR2 === 1) { tabus.push({ item: it, who: 'B', name: names.B, role: 'Passiv: ' + (it.r2 || 'Empfangen') }); tabuInPractice = true; }
 
-        if (tabuInPractice) return; // Wenn mindestens einer Note 1 hat, niemals als Match oder Brücke anzeigen!
+        if (tabuInPractice) return;
 
         // 2. SCHAM-ZONEN & SENSIBLE BRÜCKEN ERKENNEN
         if (aShame || bShame) {
@@ -227,7 +248,7 @@
   }
 
   function renderPairAnalysis() {
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var names = getEffectiveNames();
     var synergy = calculatePairSynergy();
 
     var titleA = document.getElementById('pair-names-title');
@@ -297,10 +318,10 @@
       }
     }
 
-    // SCHAM-ZONEN RENDERN (DYNAMISCH EINFÜGEN)
+    // Scham-Zonen rendern
     renderShameBridgesContainer(synergy.shameBridges);
 
-    // Tabus rendern mit absolutem Direktsprung
+    // Tabus rendern mit partnergenauem Direktsprung (&user=A oder &user=B)
     var tabuContainer = document.getElementById('pair-tabus-container');
     var tabuCount = document.getElementById('count-pair-tabus');
     if (tabuCount) tabuCount.innerText = synergy.tabus.length;
@@ -310,12 +331,12 @@
         tabuContainer.innerHTML = '<p class="text-slate-500 italic text-[11px] text-center py-4">Keine Tabus (Note 1) hinterlegt.</p>';
       } else {
         tabuContainer.innerHTML = synergy.tabus.map(function(t) {
-          var targetUrl = "index.html#view=survey&jumpItem=" + t.item.id;
+          var targetUrl = "index.html#view=survey&user=" + encodeURIComponent(t.who) + "&jumpItem=" + t.item.id;
           return `
             <a href="${targetUrl}" class="block p-2.5 rounded-xl bg-rose-950/30 hover:bg-rose-950 border border-rose-900/60 hover:border-rose-600 transition group touch-btn">
               <div class="flex items-center justify-between">
                 <strong class="text-white block font-bold text-[11px] group-hover:text-rose-200">${escapeHtml(t.item.title)}</strong>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Ändern ↗</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-900 text-rose-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Bei ${escapeHtml(t.name)} ändern ↗</span>
               </div>
               <div class="flex items-center justify-between text-[10px] text-rose-300 mt-1">
                 <span>${escapeHtml(t.role)}</span>
@@ -333,7 +354,8 @@
   function renderShameBridgesContainer(shameBridges) {
     var c = document.getElementById('pair-shame-bridges-container');
     if (!c) {
-      var bridgeCard = document.getElementById('pair-bridges-container')?.closest('.theme-card');
+      var bridgeEl = document.getElementById('pair-bridges-container');
+      var bridgeCard = bridgeEl ? bridgeEl.closest('.theme-card') : null;
       if (bridgeCard && bridgeCard.parentNode) {
         var newCard = document.createElement('div');
         newCard.id = 'pair-shame-card';
@@ -382,8 +404,8 @@
     var container = document.getElementById('pair-report-container');
     if (!container) return;
 
-    var answers = window.answers || { A: {}, B: {} };
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var answers = getEffectiveAnswers();
+    var names = getEffectiveNames();
 
     var hashA = hashString(getAnswersFingerprint(answers.A));
     var hashB = hashString(getAnswersFingerprint(answers.B));
@@ -496,8 +518,8 @@
   }
 
   async function generatePairReport() {
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var answers = window.answers || { A: {}, B: {} };
+    var names = getEffectiveNames();
+    var answers = getEffectiveAnswers();
     var synergy = calculatePairSynergy();
 
     var container = document.getElementById('pair-report-container');
