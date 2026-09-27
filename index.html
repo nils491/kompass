@@ -721,7 +721,7 @@
         <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-2 text-xs">
           <div class="flex items-center justify-between">
             <strong class="text-white text-xs block">Deine persönliche Freigabestufe:</strong>
-            <span id="account-sharing-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Stufe 3</span>
+            <span id="account-sharing-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-950 text-brand-300 border border-brand-800">Stufe 4 (Empfohlen)</span>
           </div>
           <p class="text-[10.5px] text-slate-400 leading-snug">
             Bestimmt, wie weit deine Antworten für den Partner in der Analyse und im Bestrafungs-Wizard aufgedeckt werden dürfen.
@@ -736,13 +736,13 @@
               <strong class="text-xs block text-white">2. Bis Neugier (Note 3–5)</strong>
               <span class="text-[10px] text-slate-400 block mt-0.5">Deckt gemeinsame 5er auf und zeigt Brücken, bei denen Neugier besteht.</span>
             </button>
-            <button type="button" onclick="selectAccountSharingLevel(3)" id="btn-share-level-3" class="w-full p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md">
-              <strong class="text-xs block text-white">3. Buße & Duldung freigeben (Note 2–5) [Standard]</strong>
-              <span class="text-[10px] text-brand-200 block mt-0.5">Volle Beziehungs-Synergie: Partner sieht auch deine Note 2 („Duldung/Buße“).</span>
+            <button type="button" onclick="selectAccountSharingLevel(3)" id="btn-share-level-3" class="w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
+              <strong class="text-xs block text-white">3. Buße & Duldung freigeben (Note 2–5)</strong>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Partner sieht auch deine Note 2 („Duldung/Buße“).</span>
             </button>
-            <button type="button" onclick="selectAccountSharingLevel(4)" id="btn-share-level-4" class="w-full p-2.5 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700">
-              <strong class="text-xs block text-white">4. Radikale Transparenz (Alle Noten 1–5)</strong>
-              <span class="text-[10px] text-slate-400 block mt-0.5">Offenes Buch: Partner sieht jede Bewertung und jedes Tabu unzensiert.</span>
+            <button type="button" onclick="selectAccountSharingLevel(4)" id="btn-share-level-4" class="w-full p-2.5 rounded-xl border text-left touch-btn transition bg-brand-950/60 border-brand-500 shadow-md">
+              <strong class="text-xs block text-white">4. Radikale Transparenz (Alle Noten 1–5) [Empfohlen]</strong>
+              <span class="text-[10px] text-brand-200 block mt-0.5">Offenes Buch: Partner sieht jede Bewertung und jedes Tabu unzensiert für maximale Beziehungs-Synergie.</span>
             </button>
           </div>
         </div>
@@ -871,13 +871,13 @@
         <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1.5">
           <div class="flex justify-between items-center">
             <strong class="text-white text-[11px]">Deine Freigabestufe:</strong>
-            <span id="onboard-sharing-label" class="text-[10px] font-bold text-brand-300">3. Buße & Duldung (Standard)</span>
+            <span id="onboard-sharing-label" class="text-[10px] font-bold text-brand-300">4. Radikale Transparenz (Empfohlen)</span>
           </div>
           <div class="grid grid-cols-4 gap-1">
             <button type="button" onclick="setOnboardingSharingLevel(1)" id="onboard-share-1" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">1. Streng</button>
             <button type="button" onclick="setOnboardingSharingLevel(2)" id="onboard-share-2" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">2. Neugier</button>
-            <button type="button" onclick="setOnboardingSharingLevel(3)" id="onboard-share-3" class="py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">3. Buße</button>
-            <button type="button" onclick="setOnboardingSharingLevel(4)" id="onboard-share-4" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">4. Offen</button>
+            <button type="button" onclick="setOnboardingSharingLevel(3)" id="onboard-share-3" class="py-1.5 rounded-lg border text-[10px] font-bold theme-panel text-slate-400 touch-btn">3. Buße</button>
+            <button type="button" onclick="setOnboardingSharingLevel(4)" id="onboard-share-4" class="py-1.5 rounded-lg border text-[10px] font-bold bg-brand-950 border-brand-500 text-white touch-btn">4. Offen ★</button>
           </div>
         </div>
 
