@@ -1,34 +1,36 @@
 /**
  * js/session_staging.js
- * Modul für die Vorbereitungsphase der Schlafzimmer-Regie (Schritte 1 bis 3).
+ * Modul für das Nachttisch-Staging, Rollen-Setup und die Drehbuch-Generierung in der Schlafzimmer-Regie.
  * 
- * Qualitäts-Standards:
- * - Staging-Trennung: Nur Schrank-Inventar sichtbar (Exklusiver Filter auf HubToys.getOwnedIds())
- * - Bereinigung von „Kante“: Konsequent natürliche deutsche Fachbegriffe („Schwelle“, „Höhepunkt-Schwelle“)
- * - Keine Hardcoded API-Keys: Dynamisches Auslesen aus Partner-Settings / LocalStorage
- * - Semantische Drehbuch-Engine (ToyCombinatorics): Echte Zuordnung von Fesseln, Schlägen und Erregung
- * - KI-Drehbuch-Generierung basierend auf dem realen Schrank-Inventar
- * - Umschaltung zwischen Geführtem Drehbuch und Freiem Flow
+ * Qualitäts- & Logik-Standards:
+ * - STRIKTE ANATOMISCHE KOMPATIBILITÄT:
+ *   * Vulva: Womanizer/Sauger/Wand auf Klitoris. Niemals Stroker/Käfig.
+ *   * Penis: Penissleeve/Stroker, Wand am Frenulum/Eichel, Handgriffe. Niemals Womanizer.
+ * - SEMANTISCHE TOY-INTEGRATION:
+ *   * Bondage-Werkzeuge werden ausschließlich für Arretierungen gewählt.
+ *   * Impact-Werkzeuge ausschließlich für Gesäßschläge.
+ *   * Womanizer/Vibratoren exklusiv für Erregungs- und Schwellen-Quälerei.
+ * - NATÜRLICHE DEUTSCHE FACHSPRACHE: Konsequent „Schwelle“ und „Höhepunkt-Schwelle“ statt falscher Übersetzungen.
+ * - ECHTE SCHRANK-FILTERUNG: Im Nachttisch-Staging stehen ausschließlich Toys zur Verfügung, die im Schrank aktiviert sind.
  */
 
 (function(window) {
   'use strict';
 
-  var portalSelectedRoleSetup = 'default';
   var topPartner = 'B';
   var subPartner = 'A';
-  var currentStagingCategory = 'all';
+  var energyTop = 4;
+  var energySub = 4;
+  var sessionDepth = 7;
+  var currentSelectedMode = 'guided'; // 'guided' oder 'free'
+  var activeStagingTab = 'all';
   var stagedTonightIds = [];
   var currentSelectedPlaybook = [];
-  var sessionDepth = 7;
-  var selectedSessionMode = 'guided';
 
-  var names = { A: 'Partner 1', B: 'Partner 2' };
-  var anatomy = { A: 'penis', B: 'vulva' };
-  var answers = { A: {}, B: {} };
-  var isTopVoiceAssistActive = false;
-  var activeSessionVoice = 'Despina';
-  var activeDiscoveredModel = "gemini-3.8-flash";
+  window.topPartner = topPartner;
+  window.subPartner = subPartner;
+  window.sessionDepth = sessionDepth;
+  window.currentSelectedPlaybook = currentSelectedPlaybook;
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -41,10 +43,6 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToastNotification === 'function') {
-      window.showToastNotification(msg);
-      return;
-    }
     if (typeof window.showToast === 'function') {
       window.showToast(msg);
       return;
@@ -63,550 +61,48 @@
   }
 
   function getGeminiApiKey() {
-    // 1. Live-Eingabefelder in Regie oder Account
     var liveInput = document.getElementById('session-gemini-key-input') || 
                     document.getElementById('account-gemini-key');
     if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
-      var liveVal = liveInput.value.trim();
-      try { localStorage.setItem('kompass_gemini_api_key', liveVal); } catch (e) {}
-      return liveVal;
+      return liveInput.value.trim();
     }
-
-    // 2. Globaler Key im LocalStorage
     try {
       var stored = localStorage.getItem('kompass_gemini_api_key');
-      if (stored && stored.trim().length > 10) {
-        return stored.trim();
-      }
+      if (stored && stored.trim().length > 10) return stored.trim();
     } catch (e) {}
-
-    // 3. Partner-spezifische Keys
-    try {
-      var keyA = localStorage.getItem('kompass_gemini_api_key_A');
-      if (keyA && keyA.trim().length > 10) return keyA.trim();
-
-      var keyB = localStorage.getItem('kompass_gemini_api_key_B');
-      if (keyB && keyB.trim().length > 10) return keyB.trim();
-    } catch (e) {}
-
-    // 4. Synchronisierte Einstellungen prüfen
-    try {
-      var rawAnswers = localStorage.getItem('kompass_answers');
-      if (rawAnswers) {
-        var parsed = JSON.parse(rawAnswers);
-        if (parsed && parsed.settings && parsed.settings.geminiApiKey) {
-          return parsed.settings.geminiApiKey.trim();
-        }
-      }
-    } catch (e) {}
-
     return null;
   }
 
   function getClosetCatalog() {
-    if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
-      var ownedIds = window.HubToys.getOwnedIds();
-      var fullCatalog = (typeof window.HubToys.getCombinedCatalog === 'function')
-        ? window.HubToys.getCombinedCatalog()
-        : (window.equipmentCatalog || []);
+    var baseCatalog = window.equipmentCatalog || [];
+    var custom = [];
+    try {
+      var raw = localStorage.getItem('kompass_custom_equipment');
+      if (raw) custom = JSON.parse(raw);
+    } catch (e) {}
+    var combined = baseCatalog.concat(custom);
 
-      try {
-        var rawCustom = localStorage.getItem('kompass_custom_equipment');
-        if (rawCustom) {
-          var parsedCustom = JSON.parse(rawCustom);
-          if (Array.isArray(parsedCustom)) {
-            parsedCustom.forEach(function(c) {
-              if (!fullCatalog.some(function(i) { return i.id === c.id; })) {
-                fullCatalog.push(c);
-              }
-            });
-          }
-        }
-      } catch (e) {}
+    // Strenger Schrank-Filter: Nur aktivierte Gegenstände zulassen!
+    var ownedIds = (window.HubToys && typeof window.HubToys.getOwnedIds === 'function')
+      ? window.HubToys.getOwnedIds()
+      : null;
 
-      return fullCatalog.filter(function(item) {
+    if (ownedIds && Array.isArray(ownedIds)) {
+      return combined.filter(function(item) {
         return ownedIds.indexOf(item.id) !== -1;
       });
     }
-
-    var cat = window.equipmentCatalog || [];
-    return cat.filter(function(i) { return i.defaultPresent; });
-  }
-
-  function loadStagingData() {
-    try {
-      var nm = localStorage.getItem('kompass_names');
-      if (nm && nm !== 'null') names = JSON.parse(nm);
-
-      var an = localStorage.getItem('kompass_anatomy');
-      if (an && an !== 'null') anatomy = JSON.parse(an);
-
-      var ans = localStorage.getItem('kompass_answers');
-      if (ans && ans !== 'null') answers = JSON.parse(ans);
-
-      var stagedRaw = localStorage.getItem('kompass_staged_equipment_ids');
-      if (stagedRaw && stagedRaw !== 'null') {
-        stagedTonightIds = JSON.parse(stagedRaw);
-      } else {
-        var closet = getClosetCatalog();
-        stagedTonightIds = closet.map(function(i) { return i.id; });
-      }
-
-      var v = localStorage.getItem('kompass_session_voice');
-      if (v) activeSessionVoice = v;
-
-      var va = localStorage.getItem('kompass_voice_assist_active');
-      if (va) isTopVoiceAssistActive = (va === 'true');
-
-      var dm = localStorage.getItem('kompass_discovered_model');
-      if (dm && dm.indexOf('2.5') === -1 && dm.indexOf('omni') === -1) {
-        activeDiscoveredModel = dm;
-      } else {
-        activeDiscoveredModel = "gemini-3.8-flash";
-      }
-    } catch (e) {
-      console.error("Staging Data Load Error:", e);
-    }
-
-    if (!names || typeof names !== 'object') names = { A: 'Partner 1', B: 'Partner 2' };
-    if (!anatomy || typeof anatomy !== 'object') anatomy = { A: 'penis', B: 'vulva' };
-    if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
-    if (!stagedTonightIds || !Array.isArray(stagedTonightIds)) stagedTonightIds = [];
-
-    // Nur Ausrüstung zulassen, die noch existiert und im Schrank ist
-    var closetIds = getClosetCatalog().map(function(i) { return i.id; });
-    stagedTonightIds = stagedTonightIds.filter(function(id) { return closetIds.indexOf(id) !== -1; });
-
-    window.names = names;
-    window.answers = answers;
-    window.topPartner = topPartner;
-    window.subPartner = subPartner;
-    window.sessionDepth = sessionDepth;
-    window.isTopVoiceAssistActive = isTopVoiceAssistActive;
-    window.stagedTonightIds = stagedTonightIds;
-  }
-
-  function saveStagedEquipment() {
-    try {
-      localStorage.setItem('kompass_staged_equipment_ids', JSON.stringify(stagedTonightIds));
-    } catch (e) {}
-    window.stagedTonightIds = stagedTonightIds;
-  }
-
-  function selectPortalRoleSetup(setup) {
-    portalSelectedRoleSetup = setup;
-    if (setup === 'default') {
-      topPartner = 'B';
-      subPartner = 'A';
-    } else {
-      topPartner = 'A';
-      subPartner = 'B';
-    }
-    window.topPartner = topPartner;
-    window.subPartner = subPartner;
-    updatePortalRoleCards();
-    setupInitialPlaybook();
-    if (typeof window.updateHeaderTabuCounter === 'function') {
-      window.updateHeaderTabuCounter();
-    }
-  }
-
-  function updatePortalRoleCards() {
-    var bDef = document.getElementById('btn-role-setup-default');
-    var bRev = document.getElementById('btn-role-setup-reversed');
-    var badgeDef = document.getElementById('badge-role-default');
-    var badgeRev = document.getElementById('badge-role-reversed');
-
-    var nameTopDef = document.getElementById('portal-name-top-def');
-    var nameSubDef = document.getElementById('portal-name-sub-def');
-    var nameTopRev = document.getElementById('portal-name-top-rev');
-    var nameSubRev = document.getElementById('portal-name-sub-rev');
-
-    var nameTopDefSub = document.getElementById('portal-name-top-def-sub');
-    var nameTopRevSub = document.getElementById('portal-name-top-rev-sub');
-
-    if (nameTopDef) nameTopDef.innerText = names.B || 'Partner 2';
-    if (nameTopDefSub) nameTopDefSub.innerText = names.B || 'Partner 2';
-    if (nameSubDef) nameSubDef.innerText = names.A || 'Partner 1';
-
-    if (nameTopRev) nameTopRev.innerText = names.A || 'Partner 1';
-    if (nameTopRevSub) nameTopRevSub.innerText = names.A || 'Partner 1';
-    if (nameSubRev) nameSubRev.innerText = names.B || 'Partner 2';
-
-    if (portalSelectedRoleSetup === 'default') {
-      if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
-      if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeDef) { badgeDef.innerText = "✓ Aktiv"; badgeDef.className = "text-sm font-bold text-brand-300"; }
-      if (badgeRev) { badgeRev.innerText = "○"; badgeRev.className = "text-sm font-bold text-slate-500"; }
-    } else {
-      if (bRev) bRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
-      if (bDef) bDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeRev) { badgeRev.innerText = "✓ Aktiv"; badgeRev.className = "text-sm font-bold text-brand-300"; }
-      if (badgeDef) { badgeDef.innerText = "○"; badgeDef.className = "text-sm font-bold text-slate-500"; }
-    }
-
-    var sub = document.getElementById('session-roles-subtitle');
-    if (sub) {
-      sub.innerText = "Top: " + (names[topPartner] || 'Top') + " · Bottom: " + (names[subPartner] || 'Bottom');
-    }
-  }
-
-  function goToPortalStepSafe(step) {
-    [1, 2, 3].forEach(function(s) {
-      var el = document.getElementById('portal-step-' + s);
-      if (el) {
-        if (s === step) el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      }
-    });
-
-    try {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (e) {
-      window.scrollTo(0, 0);
-    }
-  }
-
-  function switchStagingTab(cat) {
-    currentStagingCategory = cat;
-    var allCats = ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'];
-
-    allCats.forEach(function(c) {
-      var btn = document.getElementById('btn-stag-tab-' + c);
-      if (btn) {
-        if (c === cat) {
-          btn.className = "px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap shadow-sm";
-        } else {
-          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
-        }
-      }
-    });
-    renderEquipmentStagingGrid();
-  }
-
-  function updateStagingTabCounters() {
-    var closet = getClosetCatalog();
-    var allCats = ['household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'];
-
-    var allCountEl = document.getElementById('stag-count-all');
-    if (allCountEl) allCountEl.innerText = closet.length;
-
-    var closetTotalEl = document.getElementById('staging-closet-total-count');
-    if (closetTotalEl) closetTotalEl.innerText = closet.length;
-
-    allCats.forEach(function(c) {
-      var count = closet.filter(function(i) { return i.category === c; }).length;
-      var el = document.getElementById('stag-count-' + c);
-      if (el) el.innerText = count;
-    });
-  }
-
-  function renderEquipmentStagingGrid() {
-    var grid = document.getElementById('session-staging-equipment-grid');
-    var countEl = document.getElementById('staging-active-count');
-    var closet = getClosetCatalog();
-    if (!grid) return;
-
-    updateStagingTabCounters();
-
-    if (closet.length === 0) {
-      grid.innerHTML = `
-        <div class="col-span-full p-6 rounded-2xl bg-purple-950/30 border border-purple-800/80 text-center space-y-2">
-          <span class="text-2xl block">🧰</span>
-          <strong class="text-xs text-purple-200 block font-bold">Euer Schrank ist noch leer</strong>
-          <p class="text-[11px] text-slate-400 max-w-sm mx-auto">
-            Aktiviert eure vorhandenen Gegenstände in der Schrank-Verwaltung oder tragt eine Neuanschaffung ein.
-          </p>
-          <div class="flex justify-center gap-2 pt-1">
-            <button type="button" onclick="SessionStaging.openNewToyQuickAdd()" class="px-3 py-1.5 bg-purple-700 text-white font-bold rounded-xl text-xs touch-btn shadow-md">
-              + Neuanschaffung eintragen
-            </button>
-            <button type="button" onclick="HubToys.open()" class="px-3 py-1.5 theme-panel border text-purple-300 font-bold rounded-xl text-xs touch-btn">
-              Schrank öffnen ↗
-            </button>
-          </div>
-        </div>
-      `;
-      if (countEl) countEl.innerText = "0";
-      return;
-    }
-
-    var filtered = (currentStagingCategory === 'all')
-      ? closet
-      : closet.filter(function(i) { return i.category === currentStagingCategory; });
-
-    if (filtered.length === 0) {
-      grid.innerHTML = `
-        <div class="col-span-full p-4 rounded-xl theme-panel border text-center text-slate-400 italic text-[11px]">
-          Keine Schrank-Gegenstände in dieser Kategorie vorhanden.
-          <button type="button" onclick="HubToys.open()" class="text-purple-300 font-bold underline ml-1">Im Schrank aktivieren ↗</button>
-        </div>
-      `;
-      if (countEl) countEl.innerText = stagedTonightIds.length;
-      return;
-    }
-
-    grid.innerHTML = filtered.map(function(item) {
-      var isChecked = stagedTonightIds.indexOf(item.id) !== -1;
-      return `
-        <button type="button" onclick="SessionStaging.toggleStaged('${item.id}')" class="p-2.5 rounded-xl border text-left transition-all touch-btn block ${isChecked ? 'bg-brand-950/60 border-brand-500 text-white font-bold shadow-xs' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
-          <div class="flex items-center justify-between">
-            <span class="truncate text-[10.5px]">${escapeHtml(item.name)}</span>
-            <span class="text-[9.5px] ml-1 flex-shrink-0 ${isChecked ? 'text-brand-300 font-bold' : 'text-slate-600'}">${isChecked ? '✓' : '○'}</span>
-          </div>
-          <p class="text-[9.5px] text-slate-400 font-normal truncate mt-0.5">${escapeHtml(item.desc || '')}</p>
-        </button>
-      `;
-    }).join('');
-
-    if (countEl) countEl.innerText = stagedTonightIds.length;
-  }
-
-  function toggleStagedEquipment(id) {
-    var idx = stagedTonightIds.indexOf(id);
-    if (idx !== -1) {
-      stagedTonightIds.splice(idx, 1);
-    } else {
-      stagedTonightIds.push(id);
-    }
-    saveStagedEquipment();
-    renderEquipmentStagingGrid();
-    setupInitialPlaybook();
-  }
-
-  function selectEquipmentPreset(preset) {
-    var closet = getClosetCatalog();
-
-    if (preset === 'bare') {
-      stagedTonightIds = [];
-      saveStagedEquipment();
-      renderEquipmentStagingGrid();
-      setupInitialPlaybook();
-      showToast("Nachttisch abgeräumt: Nur Hände, Bett & Stimme 🛏️");
-    } else if (preset === 'all') {
-      stagedTonightIds = closet.map(function(i) { return i.id; });
-      saveStagedEquipment();
-      renderEquipmentStagingGrid();
-      setupInitialPlaybook();
-      showToast("Kompletter Schrank für heute bereitgelegt (" + closet.length + " Toys) 🧰");
-    } else if (preset === 'random3') {
-      if (closet.length <= 3) {
-        stagedTonightIds = closet.map(function(i) { return i.id; });
-      } else {
-        var shuffled = shuffleArray(closet.slice());
-        stagedTonightIds = shuffled.slice(0, 3).map(function(i) { return i.id; });
-      }
-      saveStagedEquipment();
-      renderEquipmentStagingGrid();
-      setupInitialPlaybook();
-      showToast("🎲 Zufalls-Mix aktiviert: 3 Toys für heute Nacht ausgewählt!");
-    }
-  }
-
-  function openNewToyQuickAdd() {
-    var panel = document.getElementById('staging-quick-add-panel');
-    var input = document.getElementById('staging-quick-toy-name');
-    if (panel) {
-      panel.classList.remove('hidden');
-      if (input) {
-        input.value = '';
-        input.focus();
-      }
-    }
-  }
-
-  function closeNewToyQuickAdd() {
-    var panel = document.getElementById('staging-quick-add-panel');
-    if (panel) panel.classList.add('hidden');
-  }
-
-  function saveNewToyFromStaging() {
-    var nameInput = document.getElementById('staging-quick-toy-name');
-    var catSelect = document.getElementById('staging-quick-toy-cat');
-
-    var name = (nameInput ? nameInput.value : '').trim();
-    var category = (catSelect ? catSelect.value : 'household') || 'household';
-
-    if (name.length < 2) {
-      showToast("⚠️ Bitte gib einen Namen für das Toy ein.");
-      return;
-    }
-
-    var newId = "custom_" + Date.now();
-    var newToy = {
-      id: newId,
-      name: name,
-      category: category,
-      desc: "In der Regie neu angeschaffter Gegenstand.",
-      defaultPresent: true,
-      isCustom: true
-    };
-
-    try {
-      var custom = [];
-      var raw = localStorage.getItem('kompass_custom_equipment');
-      if (raw) custom = JSON.parse(raw);
-      custom.push(newToy);
-      localStorage.setItem('kompass_custom_equipment', JSON.stringify(custom));
-    } catch (e) {}
-
-    if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
-      var owned = window.HubToys.getOwnedIds();
-      if (owned.indexOf(newId) === -1) {
-        owned.push(newId);
-        window.HubToys.saveOwnedIds(owned);
-      }
-    }
-
-    if (stagedTonightIds.indexOf(newId) === -1) {
-      stagedTonightIds.push(newId);
-      saveStagedEquipment();
-    }
-
-    closeNewToyQuickAdd();
-    renderEquipmentStagingGrid();
-    setupInitialPlaybook();
-
-    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
-      window.CloudSync.trigger();
-    }
-
-    showToast("✨ „" + name + "“ fest im Schrank inventarisiert & bereitgelegt!");
-  }
-
-  function updateCheckinEnergy(userRole, val) {
-    var num = parseInt(val, 10);
-    var topDesc = ["", "Erschöpft & ruhig", "Ausgeglichen", "Präsent & fokussiert", "Kraftvoll & dominant", "Voller Tatendrang"];
-    var subDesc = ["", "Vorsichtig & sensibel", "Ruhig empfangend", "Offen & empfänglich", "Tief hingebungsvoll", "Hungrig nach Führung"];
-
-    if (userRole === 'top') {
-      var lTop = document.getElementById('label-energy-top');
-      var dTop = document.getElementById('desc-energy-top');
-      if (lTop) lTop.innerText = num + " / 5";
-      if (dTop) dTop.innerText = topDesc[num];
-    } else {
-      var lSub = document.getElementById('label-energy-sub');
-      var dSub = document.getElementById('desc-energy-sub');
-      if (lSub) lSub.innerText = num + " / 5";
-      if (dSub) dSub.innerText = subDesc[num];
-    }
-    setupInitialPlaybook();
-  }
-
-  function updateSessionDepth(val) {
-    sessionDepth = parseInt(val, 10);
-    window.sessionDepth = sessionDepth;
-
-    var badge = document.getElementById('label-session-depth');
-    var desc = document.getElementById('desc-session-depth');
-    var labels = ["", "Sanftes Vorspiel", "Zarte Führung", "Sinnlicher Einstieg", "Spürbare Macht", "Klare Unterwerfung", "Fordernde Disziplin", "Intensive Führung", "Strenge Zucht", "Tiefe Hingabe", "Grenzerfahrung"];
-
-    if (badge) badge.innerText = "Stufe " + sessionDepth + " / 10 (" + (labels[sessionDepth] || '') + ")";
-    if (desc) {
-      if (sessionDepth <= 3) desc.innerText = "Fokus auf Entschleunigung, Berührungsqualität und sanftem Halten.";
-      else if (sessionDepth <= 7) desc.innerText = "Feste Führung mit spürbaren Reizen, Fesselung und klarer Disziplinierung.";
-      else desc.innerText = "Strikte Hierarchie, intensive Impact-Reize und lückenlose Kontrolle.";
-    }
-    setupInitialPlaybook();
-  }
-
-  function selectSessionMode(mode) {
-    selectedSessionMode = mode;
-    var bGuided = document.getElementById('btn-mode-guided');
-    var bFree = document.getElementById('btn-mode-free');
-    var bGuidedCheck = document.getElementById('badge-mode-guided');
-    var bFreeCheck = document.getElementById('badge-mode-free');
-    var previewWrap = document.getElementById('playbook-preview-wrap');
-
-    if (mode === 'free') {
-      if (bFree) bFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
-      if (bGuided) bGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (bFreeCheck) { bFreeCheck.innerText = "✓ Gewählt"; bFreeCheck.className = "text-brand-300 font-bold text-xs"; }
-      if (bGuidedCheck) { bGuidedCheck.innerText = "○"; bGuidedCheck.className = "text-slate-500 font-bold text-xs"; }
-      if (previewWrap) previewWrap.classList.add('opacity-40');
-      showToast("Modus: Freier Flow ausgewählt (Keine starren Schritte) 🌊");
-    } else {
-      if (bGuided) bGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
-      if (bFree) bFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (bGuidedCheck) { bGuidedCheck.innerText = "✓ Gewählt"; bGuidedCheck.className = "text-brand-300 font-bold text-xs"; }
-      if (bFreeCheck) { bFreeCheck.innerText = "○"; bFreeCheck.className = "text-slate-500 font-bold text-xs"; }
-      if (previewWrap) previewWrap.classList.remove('opacity-40');
-      showToast("Modus: Geführtes 4-Phasen-Drehbuch ausgewählt 📖");
-    }
-
-    if (window.SessionLive && typeof window.SessionLive.selectMode === 'function') {
-      window.SessionLive.selectMode(mode);
-    }
-  }
-
-  function changeSessionVoice(val) {
-    activeSessionVoice = val;
-    localStorage.setItem('kompass_session_voice', val);
-    showToast("Stimme gewechselt: " + val);
-  }
-
-  function toggleTopVoiceAssistance(checked) {
-    isTopVoiceAssistActive = checked;
-    window.isTopVoiceAssistActive = checked;
-    localStorage.setItem('kompass_voice_assist_active', checked ? 'true' : 'false');
-    var ind = document.getElementById('cockpit-voice-active-indicator');
-    if (ind) {
-      if (checked) ind.classList.remove('hidden');
-      else ind.classList.add('hidden');
-    }
-    showToast(checked ? "Akustische Führung aktiviert" : "Akustische Führung stummgeschaltet");
-  }
-
-  function applyPunishmentVoicePreset() {
-    activeSessionVoice = 'Enceladus';
-    var sel = document.getElementById('session-voice-select');
-    if (sel) sel.value = 'Enceladus';
-    isTopVoiceAssistActive = true;
-    window.isTopVoiceAssistActive = true;
-    var tog = document.getElementById('session-voice-assist-toggle');
-    if (tog) tog.checked = true;
-    localStorage.setItem('kompass_session_voice', 'Enceladus');
-    localStorage.setItem('kompass_voice_assist_active', 'true');
-    showToast("Preset aktiv: Tiefe Männerstimme (Enceladus)");
-    testGeminiVoiceSample();
-  }
-
-  function testGeminiVoiceSample() {
-    if (window.SessionVoice) {
-      if (typeof window.SessionVoice.isPlaying === 'function' && window.SessionVoice.isPlaying()) {
-        window.SessionVoice.stop();
-        return;
-      }
-      if (typeof window.SessionVoice.unlock === 'function') {
-        window.SessionVoice.unlock();
-      }
-    }
-
-    var isMale = (activeSessionVoice === 'Enceladus' || activeSessionVoice === 'Fenrir');
-    var sampleText = isMale
-      ? "Aufrecht stehen, Hände hinter den Rücken und stillhalten."
-      : "Atme tief in den Bauchraum aus und überlass mir die Kontrolle.";
-
-    if (window.SessionVoice && window.SessionVoice.play) {
-      window.SessionVoice.play(sampleText, activeSessionVoice, true);
-    }
-  }
-
-  function shuffleArray(array) {
-    var currentIndex = array.length, randomIndex;
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      var tmp = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = tmp;
-    }
-    return array;
+    return combined;
   }
 
   function setupInitialPlaybook() {
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
+
     var topName = (names && names[topPartner]) || 'Top';
     var subName = (names && names[subPartner]) || 'Bottom';
+    var subAnat = (anatomy && anatomy[subPartner]) ? anatomy[subPartner] : 'vulva';
+    var isVulva = (subAnat === 'vulva');
 
     var closet = getClosetCatalog();
     var availableToys = closet.filter(function(i) {
@@ -614,15 +110,25 @@
     });
 
     var sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
-      ? window.ToyCombinatorics.buildSummary(availableToys)
-      : { impact: [], bondage: [], clitoral_suction: [], vibrator: [], clamps: [], sensory_deprivation: [] };
+      ? window.ToyCombinatorics.buildSummary(availableToys, subAnat)
+      : { impact: [], bondage: [], clitoral_suction: [], male_stroker: [], wand: [], vibrator: [], clamps: [] };
 
     var bondageTool = sem.bondage.length > 0 ? sem.bondage[0] : "Krawatte oder Seidenschal";
     var impactTool = sem.impact.length > 0 ? sem.impact[0] : "die flache Hand oder ein Ledergürtel";
 
-    var arousalTool = sem.clitoral_suction.length > 0 
-      ? sem.clitoral_suction[0] 
-      : (sem.vibrator.length > 0 ? sem.vibrator[0] : "gezielte Handberührungen");
+    // ANATOMISCH KORREKTE ZUORDNUNG FÜR PHASE 3 (SCHWELLENKONTROLLE)
+    var arousalTool = "";
+    if (isVulva) {
+      // VULVA: Womanizer / Sauger / Wand
+      arousalTool = sem.clitoral_suction.length > 0 
+        ? sem.clitoral_suction[0] 
+        : (sem.wand.length > 0 ? sem.wand[0] : (sem.vibrator.length > 0 ? sem.vibrator[0] : "gezielte Handberührungen an der Klitoris"));
+    } else {
+      // PENIS: Fleshlight / Stroker / Wand an Eichel (NIEMALS Womanizer!)
+      arousalTool = sem.male_stroker.length > 0
+        ? sem.male_stroker[0]
+        : (sem.wand.length > 0 ? (sem.wand[0] + " an der Eichel") : "gezielte Griffe am Schaft");
+    }
 
     var tool1 = availableToys.length > 0 ? availableToys[0].name : "Nackte Hände";
 
@@ -689,21 +195,331 @@
     renderPlaybookPreview();
   }
 
+  function selectRoleSetup(choice) {
+    if (choice === 'reversed') {
+      topPartner = 'A';
+      subPartner = 'B';
+    } else {
+      topPartner = 'B';
+      subPartner = 'A';
+    }
+    window.topPartner = topPartner;
+    window.subPartner = subPartner;
+    updateRoleSelectionUI();
+    setupInitialPlaybook();
+  }
+
+  function updateRoleSelectionUI() {
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var nameA = names.A || 'Partner 1';
+    var nameB = names.B || 'Partner 2';
+
+    var elDefTop = document.getElementById('portal-name-top-def');
+    var elDefTopSub = document.getElementById('portal-name-top-def-sub');
+    var elDefSub = document.getElementById('portal-name-sub-def');
+
+    var elRevTop = document.getElementById('portal-name-top-rev');
+    var elRevTopSub = document.getElementById('portal-name-top-rev-sub');
+    var elRevSub = document.getElementById('portal-name-sub-rev');
+
+    if (elDefTop) elDefTop.innerText = nameB;
+    if (elDefTopSub) elDefTopSub.innerText = nameB;
+    if (elDefSub) elDefSub.innerText = nameA;
+
+    if (elRevTop) elRevTop.innerText = nameA;
+    if (elRevTopSub) elRevTopSub.innerText = nameA;
+    if (elRevSub) elRevSub.innerText = nameB;
+
+    var btnDef = document.getElementById('btn-role-setup-default');
+    var btnRev = document.getElementById('btn-role-setup-reversed');
+    var badgeDef = document.getElementById('badge-role-default');
+    var badgeRev = document.getElementById('badge-role-reversed');
+
+    if (topPartner === 'B') {
+      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
+      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (badgeDef) { badgeDef.innerText = "✓ Aktiv"; badgeDef.className = "text-sm font-bold text-brand-300"; }
+      if (badgeRev) { badgeRev.innerText = "○"; badgeRev.className = "text-sm font-bold text-slate-500"; }
+    } else {
+      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
+      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (badgeRev) { badgeRev.innerText = "✓ Aktiv"; badgeRev.className = "text-sm font-bold text-brand-300"; }
+      if (badgeDef) { badgeDef.innerText = "○"; badgeDef.className = "text-sm font-bold text-slate-500"; }
+    }
+
+    var rolesSubtitle = document.getElementById('session-roles-subtitle');
+    if (rolesSubtitle) {
+      rolesSubtitle.innerText = `Top: ${names[topPartner]} · Bottom: ${names[subPartner]}`;
+    }
+  }
+
+  function goToStep(stepNumber) {
+    [1, 2, 3].forEach(function(s) {
+      var section = document.getElementById('portal-step-' + s);
+      if (section) {
+        if (s === stepNumber) section.classList.remove('hidden');
+        else section.classList.add('hidden');
+      }
+    });
+
+    if (stepNumber === 2) {
+      renderEquipmentGrid();
+    } else if (stepNumber === 3) {
+      setupInitialPlaybook();
+    }
+
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function updateEnergy(who, val) {
+    var v = parseInt(val, 10);
+    var labels = ["", "Erschöpft / Zerstreut", "Ruhig / Sanft", "Aufmerksam", "Präsent & Fokussiert", "Volle Hingabe & Kraft"];
+    if (who === 'top') {
+      energyTop = v;
+      var lblTop = document.getElementById('label-energy-top');
+      var descTop = document.getElementById('desc-energy-top');
+      if (lblTop) lblTop.innerText = v + " / 5";
+      if (descTop) descTop.innerText = labels[v] || "";
+    } else {
+      energySub = v;
+      var lblSub = document.getElementById('label-energy-sub');
+      var descSub = document.getElementById('desc-energy-sub');
+      if (lblSub) lblSub.innerText = v + " / 5";
+      if (descSub) descSub.innerText = labels[v] || "";
+    }
+  }
+
+  function updateDepth(val) {
+    sessionDepth = parseInt(val, 10);
+    window.sessionDepth = sessionDepth;
+
+    var lbl = document.getElementById('label-session-depth');
+    var desc = document.getElementById('desc-session-depth');
+
+    var descs = [
+      "",
+      "Stufe 1 / 10: Sanftes Kennenlernen & Kuschel-Setting",
+      "Stufe 2 / 10: Zarte Sinnesreduktion & Streichreize",
+      "Stufe 3 / 10: Erste Fesselung mit Tuch oder Schal",
+      "Stufe 4 / 10: Mäßiges Versohlen mit der Handfläche",
+      "Stufe 5 / 10: Feste Führung & Kniestand (Nadu)",
+      "Stufe 6 / 10: Spanking mit Mitzählen & Augenbinde",
+      "Stufe 7 / 10: Intensive Führung mit Fesselung & Disziplin",
+      "Stufe 8 / 10: Scharfer Reiz (Lederflogger / Gerte) & Edging",
+      "Stufe 9 / 10: Tiefe Katharsis & erzwungener Kontrollverlust",
+      "Stufe 10 / 10: Grenzbereich & absolute Hingabe"
+    ];
+
+    if (lbl) lbl.innerText = descs[sessionDepth] || `Stufe ${sessionDepth} / 10`;
+    if (desc) desc.innerText = "Abgestimmte Intensität für das Drehbuch und die Disziplinierung.";
+  }
+
+  function renderEquipmentGrid() {
+    var container = document.getElementById('session-staging-equipment-grid');
+    if (!container) return;
+
+    var items = getClosetCatalog();
+
+    var counts = {
+      all: items.length,
+      household: 0,
+      bondage: 0,
+      impact: 0,
+      sensory: 0,
+      cbt_clamps: 0,
+      toys_anal: 0,
+      special: 0
+    };
+
+    items.forEach(function(i) {
+      if (counts[i.category] !== undefined) counts[i.category]++;
+    });
+
+    for (var cat in counts) {
+      var countSpan = document.getElementById('stag-count-' + cat);
+      if (countSpan) countSpan.innerText = counts[cat].toString();
+    }
+
+    var filtered = items.filter(function(i) {
+      if (activeStagingTab === 'all') return true;
+      return i.category === activeStagingTab;
+    });
+
+    var closetTotalCount = document.getElementById('staging-closet-total-count');
+    var stagingActiveCount = document.getElementById('staging-active-count');
+    if (closetTotalCount) closetTotalCount.innerText = items.length.toString();
+    if (stagingActiveCount) stagingActiveCount.innerText = stagedTonightIds.length.toString();
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full p-4 text-center text-slate-400 theme-panel rounded-xl text-xs space-y-1">
+          <span>In dieser Kategorie sind aktuell keine Toys im Schrank aktiviert.</span>
+          <button type="button" onclick="HubToys.open()" class="text-purple-300 font-bold hover:underline block mx-auto">
+            Im Schrank aktivieren ↗
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(function(item) {
+      var isStaged = stagedTonightIds.indexOf(item.id) !== -1;
+      return `
+        <div onclick="SessionStaging.toggleToy('${item.id}')" class="p-2.5 rounded-xl border text-left cursor-pointer transition touch-btn flex items-center justify-between gap-2 ${isStaged ? 'bg-purple-950/60 border-purple-500 shadow-sm' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
+          <div class="truncate min-w-0">
+            <strong class="text-xs text-white block truncate">${escapeHtml(item.name)}</strong>
+            <span class="text-[9.5px] text-slate-400 block truncate">${escapeHtml(item.desc || '')}</span>
+          </div>
+          <span class="text-xs font-mono font-black ${isStaged ? 'text-purple-300' : 'text-slate-600'}">${isStaged ? '✓' : '○'}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleToyStaged(toyId) {
+    var idx = stagedTonightIds.indexOf(toyId);
+    if (idx !== -1) {
+      stagedTonightIds.splice(idx, 1);
+    } else {
+      stagedTonightIds.push(toyId);
+    }
+    renderEquipmentGrid();
+  }
+
+  function selectEquipmentPreset(preset) {
+    var all = getClosetCatalog();
+    if (preset === 'all') {
+      stagedTonightIds = all.map(function(i) { return i.id; });
+      showToast("Alle Schrank-Gegenstände für heute bereitgelegt ✨");
+    } else if (preset === 'bare') {
+      stagedTonightIds = [];
+      showToast("Nachttisch abgeräumt: Nur Hände, Bett & Stimme aktiv 🛏️");
+    } else if (preset === 'random3') {
+      var shuffled = all.slice().sort(function() { return 0.5 - Math.random(); });
+      stagedTonightIds = shuffled.slice(0, 3).map(function(i) { return i.id; });
+      showToast("3 Gegenstände als Inspiration ausgewählt 🎲");
+    }
+    renderEquipmentGrid();
+  }
+
+  function switchStagingTab(tabName) {
+    activeStagingTab = tabName;
+    ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(function(t) {
+      var btn = document.getElementById('btn-stag-tab-' + t);
+      if (btn) {
+        if (t === tabName) {
+          btn.className = "px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap shadow-sm";
+        } else {
+          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
+        }
+      }
+    });
+    renderEquipmentGrid();
+  }
+
+  function openNewToyQuickAdd() {
+    var p = document.getElementById('staging-quick-add-panel');
+    if (p) p.classList.remove('hidden');
+  }
+
+  function closeNewToyQuickAdd() {
+    var p = document.getElementById('staging-quick-add-panel');
+    if (p) p.classList.add('hidden');
+  }
+
+  function saveNewToyFromStaging() {
+    var inputName = document.getElementById('staging-quick-toy-name');
+    var selectCat = document.getElementById('staging-quick-toy-cat');
+
+    var nameVal = (inputName ? inputName.value : '').trim();
+    var catVal = (selectCat ? selectCat.value : 'household');
+
+    if (!nameVal) {
+      showToast("Bitte gib dem Gegenstand einen Namen.");
+      return;
+    }
+
+    var newToy = {
+      id: "toy_custom_" + Date.now(),
+      name: nameVal,
+      category: catVal,
+      desc: "Eigenanschaffung für heute",
+      isCustom: true
+    };
+
+    var customList = [];
+    try {
+      var raw = localStorage.getItem('kompass_custom_equipment');
+      if (raw) customList = JSON.parse(raw);
+    } catch (e) {}
+    customList.push(newToy);
+    localStorage.setItem('kompass_custom_equipment', JSON.stringify(customList));
+
+    if (window.HubToys && typeof window.HubToys.toggleOwned === 'function') {
+      window.HubToys.toggleOwned(newToy.id);
+    }
+
+    stagedTonightIds.push(newToy.id);
+    closeNewToyQuickAdd();
+    if (inputName) inputName.value = '';
+    renderEquipmentGrid();
+    showToast("✓ Im Schrank inventarisiert und auf den Nachttisch gelegt!");
+  }
+
+  function selectMode(mode) {
+    currentSelectedMode = mode;
+    var btnGuided = document.getElementById('btn-mode-guided');
+    var btnFree = document.getElementById('btn-mode-free');
+    var badgeGuided = document.getElementById('badge-mode-guided');
+    var badgeFree = document.getElementById('badge-mode-free');
+    var previewWrap = document.getElementById('playbook-preview-wrap');
+
+    if (mode === 'guided') {
+      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
+      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (badgeGuided) { badgeGuided.innerText = "✓ Gewählt"; badgeGuided.className = "text-brand-300 font-bold text-xs"; }
+      if (badgeFree) { badgeFree.innerText = "○"; badgeFree.className = "text-slate-500 font-bold text-xs"; }
+      if (previewWrap) previewWrap.classList.remove('opacity-40', 'pointer-events-none');
+    } else {
+      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-indigo-950/50 border-indigo-500 shadow-md block w-full";
+      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (badgeFree) { badgeFree.innerText = "✓ Gewählt"; badgeFree.className = "text-indigo-300 font-bold text-xs"; }
+      if (badgeGuided) { badgeGuided.innerText = "○"; badgeGuided.className = "text-slate-500 font-bold text-xs"; }
+      if (previewWrap) previewWrap.classList.add('opacity-40', 'pointer-events-none');
+    }
+
+    if (window.SessionLive && typeof window.SessionLive.selectMode === 'function') {
+      window.SessionLive.selectMode(mode);
+    }
+  }
+
   function renderPlaybookPreview() {
     var c = document.getElementById('playbook-preview-container');
     if (!c) return;
 
+    if (currentSelectedPlaybook.length === 0) {
+      c.innerHTML = '<p class="text-slate-500 italic text-center py-4 text-xs">Keine Drehbuchschritte geladen.</p>';
+      return;
+    }
+
     c.innerHTML = currentSelectedPlaybook.map(function(step, idx) {
       return `
-        <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1">
-          <div class="flex items-center justify-between text-[10.5px]">
-            <span class="font-mono text-purple-300 font-bold">${step.phase ? step.phase.split(':')[0] : 'Phase ' + (idx + 1)} · Schritt ${idx + 1}</span>
-            <span class="text-white font-bold">${escapeHtml(step.title)}</span>
+        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-brand-400 font-mono font-black">${idx + 1}.</span>
+              <strong class="text-white text-xs">${escapeHtml(step.title)}</strong>
+            </div>
+            <span class="text-[9.5px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">${escapeHtml(step.phase || '')}</span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(step.desc)}</p>
-          <div class="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
-            <span class="truncate pr-1">👑 Top: ${escapeHtml(step.top)}</span>
-            <span class="truncate pl-1">🧎 Bottom: ${escapeHtml(step.sub)}</span>
+          <div class="grid grid-cols-2 gap-2 pt-1 text-[10px]">
+            <div class="p-1.5 rounded-lg bg-slate-900 text-brand-200">👑 <strong>Top:</strong> ${escapeHtml(step.top || '')}</div>
+            <div class="p-1.5 rounded-lg bg-slate-900 text-indigo-200">🧎 <strong>Bottom:</strong> ${escapeHtml(step.sub || '')}</div>
           </div>
         </div>
       `;
@@ -715,10 +531,17 @@
     showToast("Drehbuch neu gewürfelt 🎲");
   }
 
-  async function generateAiPlaybookFromCloset() {
+  async function generateAiPlaybook() {
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
+
+    var topName = (names && names[topPartner]) || 'Top';
+    var subName = (names && names[subPartner]) || 'Bottom';
+    var subAnat = (anatomy && anatomy[subPartner]) ? anatomy[subPartner] : 'vulva';
+
     var apiKey = getGeminiApiKey();
     if (!apiKey) {
-      showToast("⚠️ Bitte hinterlege einen Gemini API-Key in den Einstellungen.");
+      showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte trage deinen Key in den Einstellungen ein.");
       return;
     }
 
@@ -727,127 +550,174 @@
       return stagedTonightIds.indexOf(i.id) !== -1;
     });
 
-    var topName = (names && names[topPartner]) || 'Top';
-    var subName = (names && names[subPartner]) || 'Bottom';
-    var subAnat = (anatomy && anatomy[subPartner]) || 'vulva';
+    var briefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
+      ? window.ToyCombinatorics.generateAiPromptBriefing(availableToys, subAnat)
+      : ("Anatomie: " + subAnat);
 
-    var semanticBriefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
-      ? window.ToyCombinatorics.generateAiPromptBriefing(availableToys)
-      : "Ausrüstung: Hände, Bettkante, Gürtel";
+    showToast("⏳ Gemini schneidet das Drehbuch auf eure Schrank-Toys zu...");
 
-    showToast("⏳ Analysiere Schrank-Toys & berechne Drehbuch...");
+    var prompt = `Du bist eine erfahrene, psychologisch feinfühlige BDSM-Regisseurin für das Paar ${topName} (Top) und ${subName} (Bottom).
+Erstelle ein zusammenhängendes, hochintensives 4-Phasen-Drehbuch (genau 8 Schritte) für den heutigen Abend.
 
-    var prompt = `Du bist ein erfahrener BDSM-Regisseur und Szenenplaner.
-Entwirf ein maßgeschneidertes, realistisches 4-Phasen-Drehbuch für eine einvernehmliche Session zwischen ${topName} (Top) und ${subName} (Bottom, Anatomie: ${subAnat}).
+${briefing}
+INTENSITÄTS-STUFE: ${sessionDepth} / 10
+ENERGIELEVEL: Top: ${energyTop}/5 · Bottom: ${energySub}/5
 
-HEUTE BEREITGELEGTE TOYS:
-${semanticBriefing}
+STRIKTE REGELN:
+- Verwende ausschließlich reale Gegenstände aus der Liste oder Hände/Bett/Wand.
+- Ein Womanizer/Sauger darf NIEMALS am Penis angewendet werden!
+- Phase 1: Warm-up & Zentrierung (Schritt 1 & 2)
+- Phase 2: Machtaufbau & Begrenzung (Schritt 3 & 4)
+- Phase 3: Katharsis, Zucht & Schwellen-Quälerei (Schritt 5 & 6)
+- Phase 4: Urteilsspruch & Aftercare (Schritt 7 & 8)
 
-REGELN:
-- Kein schwülstiger Märchenonkel-Ton; klare und erwachsene BDSM-Fachsprache.
-- Druckwellenvibratoren (z. B. Womanizer) oder Vibratoren sind KEINE Fesseln und KEINE Schlagwerkzeuge! Sie dienen ausschließlich für Klitoris-/Genital-Schwellenkontrolle oder Ruined Orgasm.
-- Fesseln/Seile arretieren; Impact-Tools versohlen das Gesäß.
-- Verwende das natürliche deutsche Wort „Schwelle“ oder „Höhepunkt-Schwelle“ statt unpassender Ausdrücke wie „Kante“.
-- Erstelle exakt 8 chronologische Schritte (je 2 pro Phase: Phase 1 Warm-up, Phase 2 Machtaufbau, Phase 3 Katharsis & Schwellenkontrolle, Phase 4 Aftercare).
-
-Antworte AUSSCHLIESSLICH als valides JSON-Array:
+Antworte AUSSCHLIESSLICH als valides JSON:
 [
   {
     "phase": "Phase 1: Warm-up & Zentrierung",
     "title": "Titel des Schritts",
-    "desc": "Was getan wird (1-2 Sätze)",
-    "top": "Konkrete Regie-Anweisung für ${topName}",
-    "sub": "Haltung und Erleben für ${subName}"
+    "desc": "Handlungsszene in 2 Sätzen",
+    "top": "Konkrete Führungsanweisung für ${topName}",
+    "sub": "Hingabe- und Körperhaltung für ${subName}"
   }
 ]`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
-    var resultPlaybook = null;
+    var parsedSteps = null;
 
     for (var i = 0; i < candidateModels.length; i++) {
+      var model = candidateModels[i];
       try {
-        var resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + candidateModels[i] + ":generateContent?key=" + encodeURIComponent(apiKey), {
+        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.35, responseMimeType: "application/json" }
+            generationConfig: { temperature: 0.3, responseMimeType: "application/json" }
           })
         });
 
         if (resp.ok) {
-          var resJson = await resp.json();
-          var raw = resJson?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-          var parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length >= 6) {
-            resultPlaybook = parsed;
+          var resData = await resp.json();
+          var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+          try {
+            parsedSteps = JSON.parse(rawJson);
+          } catch (pe) {
+            var match = rawJson.match(/\[[\s\S]*\]/);
+            parsedSteps = match ? JSON.parse(match[0]) : null;
+          }
+
+          if (parsedSteps && Array.isArray(parsedSteps) && parsedSteps.length >= 4) {
             break;
           }
         }
       } catch (e) {}
     }
 
-    if (resultPlaybook) {
-      currentSelectedPlaybook = resultPlaybook;
+    if (parsedSteps && Array.isArray(parsedSteps)) {
+      currentSelectedPlaybook = parsedSteps;
       window.currentSelectedPlaybook = currentSelectedPlaybook;
       renderPlaybookPreview();
-      showToast("✨ KI-Drehbuch maßgeschneidert auf eure Toys erstellt!");
+      showToast("✓ Drehbuch erfolgreich per KI auf eure Toys zugeschnitten!");
     } else {
-      showToast("⚠️ KI-Generierung nicht erreichbar. Nutze das Standard-Drehbuch.");
+      showToast("⚠️ KI-Drehbuch nicht erreichbar. Standard-Drehbuch geladen.");
+      setupInitialPlaybook();
     }
   }
 
-  function initStaging() {
-    loadStagingData();
-    updatePortalRoleCards();
-    renderEquipmentStagingGrid();
-    setupInitialPlaybook();
+  function toggleVoiceAssist(active) {
+    window.isTopVoiceAssistActive = active;
+    try {
+      localStorage.setItem('kompass_voice_assist_active', active ? 'true' : 'false');
+    } catch (e) {}
+
+    var indicator = document.getElementById('cockpit-voice-active-indicator');
+    if (indicator) {
+      indicator.innerText = active ? "🔊 Stimme aktiv" : "Stumm";
+    }
+
+    if (active) {
+      if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+        window.SessionVoice.unlock();
+      }
+      showToast("Akustische Regiestimme aktiviert 🔊");
+    } else {
+      if (window.SessionVoice && typeof window.SessionVoice.stop === 'function') {
+        window.SessionVoice.stop();
+      }
+      showToast("Regiestimme stummgeschaltet 🔇");
+    }
+  }
+
+  function changeVoice(voiceName) {
+    try {
+      localStorage.setItem('kompass_session_voice', voiceName);
+    } catch (e) {}
+    showToast("Stimme ausgewählt: " + voiceName);
+  }
+
+  function testVoiceSample() {
+    var sel = document.getElementById('session-voice-select');
+    var voiceName = sel ? sel.value : 'Despina';
+    var topName = (window.names && window.names[window.topPartner]) || 'Top';
+    var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
+
+    var sampleText = `Blickkontakt halten, ${subName}. ${topName} führt ab jetzt jeden deiner Atemzüge.`;
+
+    if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      window.SessionVoice.play(sampleText, voiceName, true);
+    }
+  }
+
+  function applyPunishmentVoicePreset() {
+    var sel = document.getElementById('session-voice-select');
+    if (sel) sel.value = "Enceladus";
+    changeVoice("Enceladus");
+    toggleVoiceAssist(true);
+    var toggleBox = document.getElementById('session-voice-assist-toggle');
+    if (toggleBox) toggleBox.checked = true;
+    showToast("⚡ Zucht-Preset aktiv: Enceladus (Autoritäre Männerstimme)");
   }
 
   window.SessionStaging = {
-    init: initStaging,
-    selectRoleSetup: selectPortalRoleSetup,
-    goToStep: goToPortalStepSafe,
-    updateEnergy: updateCheckinEnergy,
-    updateDepth: updateSessionDepth,
-    selectMode: selectSessionMode,
-    switchCategoryTab: switchStagingTab,
-    toggleStaged: toggleStagedEquipment,
+    selectRoleSetup: selectRoleSetup,
+    goToStep: goToStep,
+    updateEnergy: updateEnergy,
+    updateDepth: updateDepth,
+    renderEquipment: renderEquipmentGrid,
+    toggleToy: toggleToyStaged,
+    selectPreset: selectEquipmentPreset,
+    switchTab: switchStagingTab,
     openNewToyQuickAdd: openNewToyQuickAdd,
     closeNewToyQuickAdd: closeNewToyQuickAdd,
     saveNewToyFromStaging: saveNewToyFromStaging,
-    changeVoice: changeSessionVoice,
-    toggleVoiceAssist: toggleTopVoiceAssistance,
-    applyPunishmentVoicePreset: applyPunishmentVoicePreset,
-    testVoiceSample: testGeminiVoiceSample,
+    selectMode: selectMode,
     rerollPlaybook: rerollPlaybook,
-    generateAiPlaybook: generateAiPlaybookFromCloset,
-    refreshCloset: function() {
-      loadStagingData();
-      renderEquipmentStagingGrid();
-      setupInitialPlaybook();
-    }
+    generateAiPlaybook: generateAiPlaybook,
+    toggleVoiceAssist: toggleVoiceAssist,
+    changeVoice: changeVoice,
+    testVoiceSample: testVoiceSample,
+    applyPunishmentVoicePreset: applyPunishmentVoicePreset
   };
 
-  // Legacy-Verdrahtung für direkte HTML-Onclick-Handler
-  window.selectPortalRoleSetup = selectPortalRoleSetup;
-  window.goToPortalStepSafe = goToPortalStepSafe;
-  window.selectSessionMode = selectSessionMode;
-  window.switchStagingTab = switchStagingTab;
-  window.toggleStagingEquipment = toggleStagedEquipment;
+  window.selectRoleSetup = selectRoleSetup;
+  window.goToStagingStep = goToStep;
+  window.updateEnergy = updateEnergy;
+  window.updateDepth = updateDepth;
+  window.renderEquipmentGrid = renderEquipmentGrid;
+  window.toggleToyStaged = toggleToyStaged;
   window.selectEquipmentPreset = selectEquipmentPreset;
-  window.updateCheckinEnergy = updateCheckinEnergy;
-  window.updateSessionDepth = updateSessionDepth;
-  window.changeSessionVoice = changeSessionVoice;
-  window.toggleTopVoiceAssistance = toggleTopVoiceAssistance;
-  window.applyPunishmentVoicePreset = applyPunishmentVoicePreset;
-  window.testGeminiVoiceSample = testGeminiVoiceSample;
+  window.switchStagingTab = switchStagingTab;
+  window.selectMode = selectMode;
   window.rerollPlaybook = rerollPlaybook;
+  window.generateAiPlaybook = generateAiPlaybook;
 
   if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initStaging);
+    window.addEventListener('DOMContentLoaded', function() {
+      updateRoleSelectionUI();
+    });
   } else {
-    initStaging();
+    updateRoleSelectionUI();
   }
 
 })(window);
