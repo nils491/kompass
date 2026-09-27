@@ -109,10 +109,6 @@
 
         <!-- DESKTOP ACTIONS (AB md: SICHTBAR) -->
         <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
-          <a href="guide.html" class="px-2.5 py-1 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-800 text-amber-200 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="BDSM- & Vertrauens-Guide öffnen">
-            <span>📖</span><span class="text-[10.5px]">Guide</span>
-          </a>
-
           <button type="button" onclick="openCloudSyncModal()" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs flex items-center gap-1.5 touch-btn" title="Cloud-Kopplung öffnen">
             <span id="cloud-sync-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
             <span id="cloud-sync-status-text" class="text-[10px] font-mono text-slate-300 font-bold">Lokal</span>
@@ -705,13 +701,22 @@
           <p class="text-[10px] text-slate-400">Änderungen werden automatisch im Hintergrund synchronisiert.</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="handleShareInviteLink()" class="py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs touch-btn shadow-md flex items-center justify-center gap-1.5">
-            <span>💬</span><span>WhatsApp Link</span>
+        <div class="space-y-2">
+          <!-- DIREKTLINK FÜR DAS EIGENE IPHONE -->
+          <button type="button" onclick="handleCopySelfLink()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-700 to-rose-600 hover:opacity-90 text-white font-extrabold text-xs touch-btn shadow-md flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span>📱</span><span>Link für mein eigenes iPhone (Partner 1)</span></span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-black/30 text-rose-200">Kopieren 📋</span>
           </button>
-          <button type="button" onclick="handleCopyInviteLink()" class="py-2.5 px-3 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn flex items-center justify-center gap-1.5">
-            <span>📋</span><span>Link kopieren</span>
-          </button>
+
+          <!-- EINLADUNG FÜR DEN PARTNER -->
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="handleShareInviteLink('B')" class="py-2.5 px-3 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs touch-btn shadow-md flex items-center justify-center gap-1.5">
+              <span>💬</span><span>Partner (WhatsApp)</span>
+            </button>
+            <button type="button" onclick="handleCopyPartnerLink()" class="py-2.5 px-3 rounded-xl theme-panel border border-slate-700 text-slate-300 font-bold text-xs touch-btn flex items-center justify-center gap-1.5">
+              <span>📋</span><span>Partner-Link</span>
+            </button>
+          </div>
         </div>
 
         <div class="flex justify-between items-center pt-2 border-t border-slate-800">
