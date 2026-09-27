@@ -14,7 +14,6 @@
 (function(window) {
   'use strict';
 
-  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var portalSelectedRoleSetup = 'default';
   var topPartner = 'B';
   var subPartner = 'A';
@@ -489,7 +488,18 @@
       var stored = localStorage.getItem('kompass_gemini_api_key');
       if (stored && stored.trim().length > 10) return stored.trim();
     } catch (e) {}
-    return DEFAULT_PRESET_GEMINI_KEY;
+
+    try {
+      var rawAnswers = localStorage.getItem('kompass_answers');
+      if (rawAnswers) {
+        var parsed = JSON.parse(rawAnswers);
+        if (parsed && parsed.settings && parsed.settings.geminiApiKey) {
+          return parsed.settings.geminiApiKey.trim();
+        }
+      }
+    } catch (e) {}
+
+    return null;
   }
 
   function saveSessionGeminiKey(val) {
@@ -678,9 +688,9 @@
       {
         phase: "Phase 3: Katharsis & Zucht",
         title: "Edging & Erregungskontrolle",
-        desc: topName + " treibt " + subName + " gezielt an die Kante des Höhepunkts und befiehlt Stillstand.",
-        top: "Führe die Erregung präzise an die Kante und fordere Reglosigkeit.",
-        sub: "Spüre das Pochen an der Kante und gehorche dem Stopp-Befehl."
+        desc: topName + " treibt " + subName + " gezielt an die Schwelle des Höhepunkts und befiehlt Stillstand.",
+        top: "Führe die Erregung präzise an die Höhepunkt-Schwelle und fordere Reglosigkeit.",
+        sub: "Spüre das Pochen an der Schwelle und gehorche dem Stopp-Befehl."
       },
       {
         phase: "Phase 4: Katharsis & Aftercare",
