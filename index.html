@@ -571,8 +571,9 @@
 
         <div class="p-3.5 rounded-2xl theme-panel border space-y-2">
           <strong class="text-xs text-white block font-bold">Option 2: Vorhandenem Raum beitreten</strong>
-          <input type="text" id="input-pair-code" placeholder="Paar-Code hier eingeben..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono uppercase">
-          <div class="flex gap-2">
+          <input type="text" id="input-pair-code" placeholder="Paar-Code (z. B. KOMPASS-XXXX) oder Link hier einfügen..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
+          <span class="text-[10px] text-slate-400 block leading-tight">Tipp: Du kannst hier auch direkt den kopierten WhatsApp-Einladungslink einfügen.</span>
+          <div class="flex gap-2 pt-1">
             <button type="button" onclick="handleJoinPairRoom('A')" class="flex-1 py-2 rounded-xl theme-panel border text-slate-300 font-bold text-xs touch-btn">Als Partner 1</button>
             <button type="button" onclick="handleJoinPairRoom('B')" class="flex-1 py-2 rounded-xl bg-brand-950 border border-brand-700 text-brand-200 font-bold text-xs touch-btn">Als Partner 2</button>
           </div>
