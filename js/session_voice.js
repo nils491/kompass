@@ -2,43 +2,62 @@
  * js/session_voice.js
  * Modul für die Regiestimme in der Schlafzimmer-Regie und im Edging-Cockpit.
  * 
- * Features & Fehlerbehebungen:
- * - Sofortige Audio-Freischaltung (AudioContext + Audio-Element) bei jeder Benutzerinteraktion
- * - iOS Safari / WebKit Resilienz: Überwindung der Asynchronitäts-Sperre nach API-Fetches
- * - Gemini TTS API Kaskade (Flash-TTS / Flash-Lite-TTS) mit 0-ms Cache
- * - Nahtloses Web-Speech-API-Fallback (speechSynthesis) bei Kontingent-Erschöpfung (HTTP 402/429)
- * - Sanftes Audio-Ducking (Hintergrundmusik fährt während Ansagen sanft auf 20% herunter)
+ * Qualitäts- & Sicherheitsstandards:
+ * - Kein Hardcoded API-Key: Liest dynamisch den Key aus den Einstellungen der Partner aus
+ * - Strikte Verbannung der Roboterstimme: WebSpeech komplett deaktiviert
+ * - Eindeutige Toast-Meldungen bei fehlendem Key oder Quota-Überschreitung
+ * - 0-ms Audio-Blob-Caching für wiederholte Befehle und Countdowns
+ * - Exakte Audio-Events ('playing', 'ended') zur Synchronisation mit dem visuellen Ticker
  */
 
 (function(window) {
   'use strict';
 
-  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
   var ttsAudioCache = {};
   var previewTimeout = null;
   var isVoiceCurrentlyPlaying = false;
-  var activeDiscoveredTtsModel = "gemini-3.8-flash-tts";
   var voiceAudioCtx = null;
   var unlockedAudioElement = null;
 
   function getGeminiApiKey() {
-    var liveInput = document.getElementById('session-gemini-key-input') || document.getElementById('account-gemini-key');
+    // 1. Live-Eingabefelder in Regie oder Account
+    var liveInput = document.getElementById('session-gemini-key-input') || 
+                    document.getElementById('account-gemini-key');
     if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
       var liveVal = liveInput.value.trim();
-      if (liveVal !== DEFAULT_PRESET_GEMINI_KEY) {
-        try { localStorage.setItem('kompass_gemini_api_key', liveVal); } catch (e) {}
-        return liveVal;
-      }
+      try { localStorage.setItem('kompass_gemini_api_key', liveVal); } catch (e) {}
+      return liveVal;
     }
 
+    // 2. Globaler Key im LocalStorage
     try {
       var stored = localStorage.getItem('kompass_gemini_api_key');
-      if (stored && stored.trim().length > 10 && stored.trim() !== DEFAULT_PRESET_GEMINI_KEY) {
+      if (stored && stored.trim().length > 10) {
         return stored.trim();
       }
     } catch (e) {}
 
-    return DEFAULT_PRESET_GEMINI_KEY;
+    // 3. Partner-spezifische Keys (Partner A oder Partner B)
+    try {
+      var keyA = localStorage.getItem('kompass_gemini_api_key_A');
+      if (keyA && keyA.trim().length > 10) return keyA.trim();
+
+      var keyB = localStorage.getItem('kompass_gemini_api_key_B');
+      if (keyB && keyB.trim().length > 10) return keyB.trim();
+    } catch (e) {}
+
+    // 4. Synchronisierte Einstellungen prüfen
+    try {
+      var rawAnswers = localStorage.getItem('kompass_answers');
+      if (rawAnswers) {
+        var parsed = JSON.parse(rawAnswers);
+        if (parsed && parsed.settings && parsed.settings.geminiApiKey) {
+          return parsed.settings.geminiApiKey.trim();
+        }
+      }
+    } catch (e) {}
+
+    return null;
   }
 
   function showToast(msg) {
@@ -97,7 +116,6 @@
         }
       }
 
-      // Stummes 1-Sample-Audio abspielen, um WebKit-Autoplay dauerhaft zu entriegeln
       if (unlockedAudioElement && (!unlockedAudioElement.src || unlockedAudioElement.src.startsWith('data:'))) {
         unlockedAudioElement.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
         var playPromise = unlockedAudioElement.play();
@@ -181,8 +199,9 @@
       previewTimeout = null;
     }
 
+    // Falls WebSpeech jemals aktiv war, sofort abbrechen und stummschalten
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+      try { window.speechSynthesis.cancel(); } catch (e) {}
     }
 
     if (unlockedAudioElement) {
@@ -198,65 +217,8 @@
     }
   }
 
-  function speakViaWebSpeech(cleanText, voiceName, isPreview) {
-    return new Promise(function(resolve) {
-      if (!('speechSynthesis' in window)) {
-        updatePreviewButtons('idle');
-        resolve();
-        return;
-      }
-
-      stopActiveVoicePlayback();
-      isVoiceCurrentlyPlaying = true;
-      if (isPreview) updatePreviewButtons('playing');
-
-      if (typeof window.applyAudioDucking === 'function') {
-        window.applyAudioDucking(true);
-      }
-
-      var utter = new SpeechSynthesisUtterance(cleanText);
-      utter.lang = 'de-DE';
-
-      var isMale = (voiceName === 'Enceladus' || voiceName === 'Fenrir');
-      utter.pitch = isMale ? 0.82 : 0.95;
-      utter.rate = isMale ? 0.92 : 0.96;
-
-      var availableVoices = window.speechSynthesis.getVoices() || [];
-      var chosenVoice = availableVoices.find(function(v) {
-        if (v.lang && v.lang.startsWith('de')) {
-          var vName = v.name.toLowerCase();
-          if (isMale) return vName.indexOf('male') !== -1 || vName.indexOf('hans') !== -1 || vName.indexOf('markus') !== -1;
-          return vName.indexOf('female') !== -1 || vName.indexOf('anna') !== -1 || vName.indexOf('marlene') !== -1;
-        }
-        return false;
-      }) || availableVoices.find(function(v) { return v.lang && v.lang.startsWith('de'); });
-
-      if (chosenVoice) utter.voice = chosenVoice;
-
-      utter.onend = function() {
-        isVoiceCurrentlyPlaying = false;
-        updatePreviewButtons('idle');
-        if (typeof window.applyAudioDucking === 'function') {
-          window.applyAudioDucking(false);
-        }
-        resolve();
-      };
-
-      utter.onerror = function() {
-        isVoiceCurrentlyPlaying = false;
-        updatePreviewButtons('idle');
-        if (typeof window.applyAudioDucking === 'function') {
-          window.applyAudioDucking(false);
-        }
-        resolve();
-      };
-
-      window.speechSynthesis.speak(utter);
-    });
-  }
-
   function playAudioUrlDirectly(url, isPreview) {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
       stopActiveVoicePlayback();
       unlockAudioPlaybackEngine();
 
@@ -289,8 +251,8 @@
       }
 
       unlockedAudioElement.onended = cleanup;
-      unlockedAudioElement.onerror = function() {
-        // Fallback falls der Audio-Blob nicht dekodiert werden kann
+      unlockedAudioElement.onerror = function(err) {
+        console.warn("Audio Element Playback Error:", err);
         cleanup();
       };
 
@@ -308,7 +270,7 @@
             }, 5000);
           }
         }).catch(function(err) {
-          console.warn("Audio element play error, falling back to WebSpeech:", err);
+          console.warn("Audio play() blocked:", err);
           cleanup();
         });
       }
@@ -333,43 +295,43 @@
 
     if (isPreview) updatePreviewButtons('loading');
 
-    // 0-ms Audio-Cache Treffer
+    // Sofortiger 0-ms Cache Treffer
     if (ttsAudioCache[cacheKey]) {
       return playAudioUrlDirectly(ttsAudioCache[cacheKey], isPreview);
     }
 
     var apiKey = getGeminiApiKey();
 
-    // Bei fehlendem oder fehlerhaftem Key sofort den WebSpeech-Fallback nutzen
-    if (!apiKey || apiKey.length < 10) {
-      return speakViaWebSpeech(cleanText, voiceToUse, isPreview);
+    if (!apiKey) {
+      updatePreviewButtons('idle');
+      showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte trage deinen Key in den Einstellungen ein.");
+      return;
     }
 
+    // Aktive Gemini-TTS-Modell-Kaskade
     var candidateModels = [
-      activeDiscoveredTtsModel,
-      "gemini-3.8-flash-tts",
-      "gemini-3.8-flash-lite-tts",
-      "gemini-2.5-flash-preview-tts"
+      "gemini-2.5-flash-preview-tts",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite-preview-tts",
+      "gemini-2.5-pro-preview-tts"
     ];
 
-    var playedSuccessfully = false;
+    var payload = {
+      contents: [{ role: "user", parts: [{ text: cleanText }] }],
+      generationConfig: {
+        responseModalities: ["AUDIO"],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: voiceToUse }
+          }
+        }
+      }
+    };
+
+    var lastErrorMessage = "";
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];
-      if (!model) continue;
-
-      var payload = {
-        contents: [{ role: "user", parts: [{ text: cleanText }] }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voiceToUse }
-            }
-          }
-        }
-      };
-
       try {
         var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(apiKey);
         var resp = await fetch(url, {
@@ -388,20 +350,28 @@
             var wavBlob = decodeAudioPayload(audioBase64, mimeType);
             var blobUrl = URL.createObjectURL(wavBlob);
             ttsAudioCache[cacheKey] = blobUrl;
-            activeDiscoveredTtsModel = model;
 
-            playedSuccessfully = true;
             return playAudioUrlDirectly(blobUrl, isPreview);
           }
+        } else {
+          var errData = await resp.json().catch(function() { return {}; });
+          var msg = errData?.error?.message || ("HTTP " + resp.status);
+          lastErrorMessage = msg;
+          console.warn("Gemini TTS Failover: " + model + " (" + resp.status + "): " + msg);
         }
       } catch (e) {
-        // Weitermachen zum nächsten Modell oder Fallback
+        lastErrorMessage = e.message || "Netzwerkfehler";
+        console.warn("Gemini TTS Network Retry for " + model, e);
       }
     }
 
-    // Wenn alle TTS-Modelle scheitern (z. B. Rate-Limit / Quota 402 / Offline): Ausweichen auf WebSpeech
-    if (!playedSuccessfully) {
-      return speakViaWebSpeech(cleanText, voiceToUse, isPreview);
+    // NIEMALS auf WebSpeech-Roboterstimme zurückfallen! Stattdessen saubere Toast-Meldung
+    updatePreviewButtons('idle');
+    var isQuotaError = lastErrorMessage.indexOf('quota') !== -1 || lastErrorMessage.indexOf('429') !== -1 || lastErrorMessage.indexOf('RESOURCE_EXHAUSTED') !== -1;
+    if (isQuotaError) {
+      showToast("⚠️ Gemini Sprach-Kontingent erreicht. Bitte kurz warten oder Key prüfen.");
+    } else {
+      showToast("⚠️ Gemini Sprach-API aktuell nicht erreichbar. Keine Audio-Ausgabe.");
     }
   }
 
@@ -410,7 +380,6 @@
     stop: stopActiveVoicePlayback,
     unlock: unlockAudioPlaybackEngine,
     isPlaying: function() { return isVoiceCurrentlyPlaying; },
-    preloadCore: function() {},
     getApiKey: getGeminiApiKey
   };
 
@@ -418,7 +387,6 @@
   window.stopActiveVoicePlayback = stopActiveVoicePlayback;
   window.unlockAudioEngineOnUserGesture = unlockAudioPlaybackEngine;
 
-  // Globales Entriegeln bei der allerersten Touch- oder Klick-Geste
   document.addEventListener('touchstart', unlockAudioPlaybackEngine, { once: true, passive: true });
   document.addEventListener('click', unlockAudioPlaybackEngine, { once: true, passive: true });
 
