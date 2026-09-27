@@ -4,8 +4,9 @@
  * 
  * Beinhaltet:
  * - Vollständige Erfassung ALLER Einstellungen (API-Key, Rufnamen, Anatomie, Zoom, Theme, Stimme)
- * - Robuste Übertragung großer Datenpakete (ntfy 15-MB-Attachment-Support)
- * - Intelligenter Deep-Merge aller Fragebogen-Antworten (Partner 1 & Partner 2)
+ * - Robuste Übertragung großer Datenpakete (ntfy 15-MB-Attachment-Support mit echtem Header)
+ * - Rollen-Schutz: Gerät A überschreibt niemals Slot B; Gerät B überschreibt niemals Slot A
+ * - Kein Überschreiben mit leeren Daten beim Beitreten
  * - Ausfallsicherer Sofort-Transfer
  */
 
@@ -41,10 +42,11 @@
   }
 
   async function deriveKeyFromPairCode(code, salt) {
+    var cleanCode = String(code || '').toUpperCase().trim();
     var enc = new TextEncoder();
     var keyMaterial = await window.crypto.subtle.importKey(
       "raw",
-      enc.encode(code),
+      enc.encode(cleanCode),
       { name: "PBKDF2" },
       false,
       ["deriveKey"]
@@ -108,6 +110,15 @@
     return JSON.parse(dec.decode(decryptedBuffer));
   }
 
+  function countAnsweredQuestions(answersObj) {
+    if (!answersObj || typeof answersObj !== 'object') return 0;
+    var count = 0;
+    Object.keys(answersObj).forEach(function(k) {
+      if (k.indexOf('_note') === -1) count++;
+    });
+    return count;
+  }
+
   function gatherLocalData() {
     var rawAnswers = localStorage.getItem('kompass_answers');
     var rawNames = localStorage.getItem('kompass_names');
@@ -119,12 +130,13 @@
     var slA = localStorage.getItem('kompass_sharing_level_A');
     var slB = localStorage.getItem('kompass_sharing_level_B');
 
-    // EINSTELLUNGEN VOLLSTÄNDIG MITERFASSEN
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
     var theme = localStorage.getItem('kompass_theme') || 'dark';
     var textZoom = localStorage.getItem('kompass_text_zoom') || '100';
     var voice = localStorage.getItem('kompass_session_voice') || 'Despina';
     var voiceAssist = localStorage.getItem('kompass_voice_assist_active') || 'false';
+
+    var myRole = localStorage.getItem('kompass_assigned_role') || myAssignedRole || 'A';
 
     return {
       answers: rawAnswers ? JSON.parse(rawAnswers) : (window.answers || { A: {}, B: {} }),
@@ -146,20 +158,16 @@
         voiceAssist: voiceAssist,
         onboarded: true
       },
-      lastSenderRole: myAssignedRole,
+      lastSenderRole: myRole,
       clientTimestamp: Date.now()
     };
   }
 
-  function countAnsweredQuestions(answersObj) {
-    if (!answersObj || typeof answersObj !== 'object') return 0;
-    var count = 0;
-    Object.keys(answersObj).forEach(function(k) {
-      if (k.indexOf('_note') === -1) count++;
-    });
-    return count;
-  }
-
+  /**
+   * ROLLEN-INTEGRIERTER MERGE:
+   * Gerät A darf NIEMALS Name, Anatomie oder Antworten von B überschreiben.
+   * Gerät B darf NIEMALS Name, Anatomie oder Antworten von A überschreiben.
+   */
   function mergeDatasets(local, remote) {
     if (!remote || typeof remote !== 'object') return local;
 
@@ -175,36 +183,64 @@
       settings: {}
     };
 
-    // Antworten zusammenführen: Alle vorhandenen Antworten beibehalten
-    merged.answers.A = Object.assign({}, local.answers?.A || {}, remote.answers?.A || {});
-    merged.answers.B = Object.assign({}, local.answers?.B || {}, remote.answers?.B || {});
+    var senderRole = remote.lastSenderRole || 'unknown';
+    var localAnswersCountA = countAnsweredQuestions(local.answers?.A);
+    var remoteAnswersCountA = countAnsweredQuestions(remote.answers?.A);
+    var localAnswersCountB = countAnsweredQuestions(local.answers?.B);
+    var remoteAnswersCountB = countAnsweredQuestions(remote.answers?.B);
 
-    // Falls ein Gerät mehr Antworten hat, werden diese vollständig übernommen
-    if (countAnsweredQuestions(remote.answers?.A) >= countAnsweredQuestions(local.answers?.A)) {
+    // 1. ANTWORTEN SLOT A:
+    // Wenn remote von Gerät A stammt oder mehr A-Antworten hat -> Remote übernehmen
+    if (senderRole === 'A' || remoteAnswersCountA >= localAnswersCountA) {
       merged.answers.A = Object.assign({}, local.answers?.A || {}, remote.answers?.A || {});
+    } else {
+      merged.answers.A = Object.assign({}, remote.answers?.A || {}, local.answers?.A || {});
     }
-    if (countAnsweredQuestions(remote.answers?.B) >= countAnsweredQuestions(local.answers?.B)) {
+
+    // 2. ANTWORTEN SLOT B:
+    // Wenn remote von Gerät B stammt oder mehr B-Antworten hat -> Remote übernehmen
+    if (senderRole === 'B' || remoteAnswersCountB >= localAnswersCountB) {
       merged.answers.B = Object.assign({}, local.answers?.B || {}, remote.answers?.B || {});
+    } else {
+      merged.answers.B = Object.assign({}, remote.answers?.B || {}, local.answers?.B || {});
     }
 
-    // Namen
-    merged.names.A = (remote.names?.A && remote.names.A !== 'Partner 1') ? remote.names.A : (local.names?.A || 'Partner 1');
-    merged.names.B = (remote.names?.B && remote.names.B !== 'Partner 2') ? remote.names.B : (local.names?.B || 'Partner 2');
+    // 3. NAMEN:
+    // Slot A gehört Partner 1; Slot B gehört Partner 2
+    if (senderRole === 'A' && remote.names?.A && remote.names.A !== 'Partner 1') {
+      merged.names.A = remote.names.A;
+    } else {
+      merged.names.A = (local.names?.A && local.names.A !== 'Partner 1') ? local.names.A : (remote.names?.A || 'Partner 1');
+    }
 
-    // Anatomie & Sicherheit
-    merged.anatomy.A = remote.anatomy?.A || local.anatomy?.A || 'penis';
-    merged.anatomy.B = remote.anatomy?.B || local.anatomy?.B || 'vulva';
+    if (senderRole === 'B' && remote.names?.B && remote.names.B !== 'Partner 2') {
+      merged.names.B = remote.names.B;
+    } else {
+      merged.names.B = (local.names?.B && local.names.B !== 'Partner 2') ? local.names.B : (remote.names?.B || 'Partner 2');
+    }
 
+    // 4. ANATOMIE:
+    if (senderRole === 'A' && remote.anatomy?.A) merged.anatomy.A = remote.anatomy.A;
+    else merged.anatomy.A = local.anatomy?.A || remote.anatomy?.A || 'penis';
+
+    if (senderRole === 'B' && remote.anatomy?.B) merged.anatomy.B = remote.anatomy.B;
+    else merged.anatomy.B = local.anatomy?.B || remote.anatomy?.B || 'vulva';
+
+    // 5. SICHERHEIT & FREIGABESTUFEN:
     merged.safetyConfig.A = Object.assign({}, local.safetyConfig?.A || {}, remote.safetyConfig?.A || {});
     merged.safetyConfig.B = Object.assign({}, local.safetyConfig?.B || {}, remote.safetyConfig?.B || {});
 
     merged.sharingLevels.A = remote.sharingLevels?.A || local.sharingLevels?.A || 4;
     merged.sharingLevels.B = remote.sharingLevels?.B || local.sharingLevels?.B || 4;
 
-    // Einstellungen (API-Key, Theme, Zoom, Stimme)
+    // 6. EINSTELLUNGEN:
+    // Wenn remote einen API-Key hat, übernehmen
     merged.settings = Object.assign({}, local.settings || {}, remote.settings || {});
+    if (remote.settings?.geminiApiKey && (!local.settings?.geminiApiKey || local.settings.geminiApiKey.length < 5)) {
+      merged.settings.geminiApiKey = remote.settings.geminiApiKey;
+    }
 
-    // Toys & Schrank
+    // 7. TOYS & SCHRANK:
     var equipSet = new Set([].concat(local.activeEquipmentIds || [], remote.activeEquipmentIds || []));
     merged.activeEquipmentIds = Array.from(equipSet);
 
@@ -240,11 +276,10 @@
         if (data.sharingLevels.B) localStorage.setItem('kompass_sharing_level_B', data.sharingLevels.B.toString());
       }
 
-      // EINSTELLUNGEN WIEDERHERSTELLEN
       if (data.settings) {
-        if (data.settings.geminiApiKey) {
+        if (data.settings.geminiApiKey && data.settings.geminiApiKey.length > 5) {
           localStorage.setItem('kompass_gemini_api_key', data.settings.geminiApiKey);
-          var keyInput = document.getElementById('account-gemini-key');
+          var keyInput = document.getElementById('account-gemini-key') || document.getElementById('session-gemini-key-input');
           if (keyInput) keyInput.value = data.settings.geminiApiKey;
         }
         if (data.settings.theme) {
@@ -301,22 +336,33 @@
       var topic = getCleanTopic(activePairCode);
       var payloadString = JSON.stringify(encryptedPayload);
 
-      // 15-MB-Attachment-Endpoint bei ntfy nutzen (verhindert das 4-KB-Limit)
-      var putUrl = NTFY_ENDPOINT + '/' + topic + '?filename=vault.json';
+      // KORREKTE NTFY ATTACHMENT-HEADER:
+      // 'Filename' und 'X-Filename' stellen sicher, dass ntfy das Attachment-Limit (15 MB) freigibt
+      var putUrl = NTFY_ENDPOINT + '/' + topic;
 
       var resp = await fetch(putUrl, {
         method: 'PUT',
         headers: {
           'Title': 'KompassSync',
-          'Tags': 'shield,lock'
+          'Tags': 'shield,lock',
+          'Filename': 'vault.json',
+          'X-Filename': 'vault.json',
+          'Content-Type': 'application/json'
         },
         body: payloadString
       });
 
       if (!resp.ok) {
-        // Fallback auf Standard-POST
-        resp = await fetch(NTFY_ENDPOINT + '/' + topic, {
+        // Fallback: Standard POST
+        resp = await fetch(putUrl, {
           method: 'POST',
+          headers: {
+            'Title': 'KompassSync',
+            'Tags': 'shield,lock',
+            'Filename': 'vault.json',
+            'X-Filename': 'vault.json',
+            'Content-Type': 'application/json'
+          },
           body: payloadString
         });
       }
@@ -357,7 +403,7 @@
         try {
           var parsedMsg = JSON.parse(lines[i]);
           
-          // Fall 1: Anhang vorhanden (Großes Datenpaket)
+          // Fall 1: Anhang vorhanden
           if (parsedMsg.attachment && parsedMsg.attachment.url) {
             try {
               var fileResp = await fetch(parsedMsg.attachment.url, { cache: 'no-store' });
@@ -371,9 +417,10 @@
             } catch (errAttach) {}
           }
 
-          // Fall 2: Inline-Nachricht (Kleines Datenpaket)
+          // Fall 2: Inline-Nachricht (Body)
           if (parsedMsg.event === 'message' && parsedMsg.message) {
-            var maybeEnc = JSON.parse(parsedMsg.message);
+            var maybeEnc = null;
+            try { maybeEnc = JSON.parse(parsedMsg.message); } catch (eJson) {}
             if (maybeEnc && maybeEnc.ciphertext && maybeEnc.iv) {
               latestEncrypted = maybeEnc;
               break;
@@ -426,13 +473,14 @@
     isSyncPaired = true;
 
     localStorage.setItem('kompass_pair_code', activePairCode);
-    localStorage.setItem('kompass_assigned_role', myAssignedRole);
+    localStorage.setItem('kompass_assigned_role', 'A');
     localStorage.setItem('kompass_is_paired', 'true');
+    localStorage.setItem('kompass_onboarded', 'true');
 
     await pushDataToCloud();
     startPolling();
 
-    notifyListeners('paired', { code: activePairCode, role: myAssignedRole });
+    notifyListeners('paired', { code: activePairCode, role: 'A' });
     return activePairCode;
   }
 
@@ -447,14 +495,23 @@
     localStorage.setItem('kompass_pair_code', activePairCode);
     localStorage.setItem('kompass_assigned_role', myAssignedRole);
     localStorage.setItem('kompass_is_paired', 'true');
+    localStorage.setItem('kompass_onboarded', 'true');
 
+    // Mehrfache Pull-Versuche mit Pause (verhindert leeres Überschreiben)
     var success = await pullDataFromCloud();
     if (!success) {
-      await new Promise(function(r) { setTimeout(r, 800); });
+      await new Promise(function(r) { setTimeout(r, 600); });
+      success = await pullDataFromCloud();
+    }
+    if (!success) {
+      await new Promise(function(r) { setTimeout(r, 1200); });
       success = await pullDataFromCloud();
     }
 
-    if (!success) {
+    // WICHTIG: Ein beitretendes Gerät darf NIEMALS leere Daten hochladen!
+    // Erst wenn lokale Antworten existieren, wird gepusht.
+    var currentLocalAnswers = countAnsweredQuestions((window.answers && window.answers[myAssignedRole]));
+    if (currentLocalAnswers > 0) {
       await pushDataToCloud();
     }
 
@@ -480,6 +537,7 @@
 
       var finalRole = (targetRole === 'B') ? 'B' : 'A';
       localStorage.setItem('kompass_assigned_role', finalRole);
+      localStorage.setItem('kompass_onboarded', 'true');
       if (typeof window.setCurrentUser === 'function') window.setCurrentUser(finalRole);
 
       return true;
@@ -509,7 +567,7 @@
       if (isSyncPaired && document.visibilityState === 'visible') {
         pullDataFromCloud();
       }
-    }, 12000);
+    }, 10000);
   }
 
   function notifyListeners(eventName, payload) {
@@ -529,7 +587,7 @@
         myAssignedRole = savedRole || 'A';
         isSyncPaired = true;
         startPolling();
-        setTimeout(pullDataFromCloud, 800);
+        setTimeout(pullDataFromCloud, 600);
       }
     } catch (e) {}
   }
