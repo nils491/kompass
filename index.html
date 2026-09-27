@@ -485,9 +485,7 @@
 
   </main>
 
-  <!-- ======================================================== -->
   <!-- MODALS -->
-  <!-- ======================================================== -->
 
   <!-- MODAL: CLOUD SYNC & PAAR-KOPPLUNG -->
   <div id="modal-cloud-sync" style="display: none;" onclick="if(event.target===this) closeCloudSyncModal()" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
@@ -661,16 +659,16 @@
           </div>
         </div>
 
-        <!-- KATEGORIE-CHIPS (HORIZONTAL SCROLLBAR, KEINE TEXTÜBERLAGERUNG) -->
+        <!-- KATEGORIE-CHIPS -->
         <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <!-- 3. SCROLLBARES KARTEN-GRID (FLEX-1 & MIN-H-0 GEGEN CLIPPING) -->
+      <!-- 3. SCROLLBARES KARTEN-GRID -->
       <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
         <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
 
-      <!-- 4. MODAL FOOTER (FEST) -->
+      <!-- 4. MODAL FOOTER -->
       <div class="px-4 sm:px-6 py-3 border-t border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-950/60 text-xs">
         <span class="text-[11px] text-slate-300">
           Im Schrank: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong> Gegenstände
@@ -1008,20 +1006,13 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-[220] space-y-2 pointer-events-none"></div>
 
   <!-- EXTERNE DATENQUELLEN & SCRIPTS -->
-  <script src="data/scientific_studies.js?v=4.0"></script>
-  <script src="data/questions_part1.js?v=4.0"></script>
-  <script src="data/questions_part2.js?v=4.0"></script>
-  <script src="data/equipment_catalog.js?v=4.0"></script>
+  <script src="data/scientific_studies.js?v=4.2"></script>
+  <script src="data/questions_part1.js?v=4.2"></script>
+  <script src="data/questions_part2.js?v=4.2"></script>
+  <script src="data/equipment_catalog.js?v=4.2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- MODULARE APP-ENGINES -->
-  <script src="js/cloud_sync.js?v=4.0"></script>
-  <script src="js/hub_toys.js?v=4.0"></script>
-  <script src="js/kink_research.js?v=4.0"></script>
-  <script src="js/hub_modals.js?v=4.0"></script>
-  <script src="js/survey.js?v=4.0"></script>
-  <script src="js/profile.js?v=4.0"></script>
-  <script src="js/app.js?v=4.0"></script>
-
-</body>
-</html>
+  <!-- MODULARE APP-ENGINES (MIT CACHE-BUSTING V4.2) -->
+  <script src="js/cloud_sync.js?v=4.2"></script>
+  <script src="js/hub_toys.js?v=4.2"></script>
+  <script src="js/kink_research.
