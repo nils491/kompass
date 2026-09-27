@@ -1,6 +1,14 @@
 /**
  * js/hub_modals.js
  * Modal-, Account-, Onboarding-, Text-Zoom- & Kopplungs-Controller für den Kink- & Beziehungs-Kompass.
+ * 
+ * Beinhaltet:
+ * - Text-Zoom & Barrierefreiheit (100%, 115%, 130%)
+ * - Profil- & Kontoverwaltung (Rufnamen, Anatomie, Freigabestufen 1-4, Gemini API-Key, Regiestimme)
+ * - Robuste iPhone-Kopplung (Sofort-Push vor Link-Generierung, ultrakompakter Link)
+ * - Automatisches Laden & Entschlüsseln beim Öffnen auf dem Smartphone (inkl. aller Einstellungen)
+ * - Tabu-Modal mit Direktsprung in den Fragebogen
+ * - Onboarding-Assistent für neue Geräte
  */
 
 (function(window) {
@@ -17,8 +25,8 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
       return;
     }
     var c = document.getElementById('toast-container');
@@ -31,7 +39,7 @@
     setTimeout(function() {
       el.classList.add('opacity-0');
       setTimeout(function() { el.remove(); }, 300);
-    }, 2500);
+    }, 2800);
   }
 
   function applyTextZoom(level) {
@@ -131,20 +139,12 @@
 
     window.names[curUser] = cleanVal || (curUser === 'A' ? 'Partner 1' : 'Partner 2');
 
-    if (typeof window.saveCoreData === 'function') {
-      window.saveCoreData();
-    }
-    if (typeof window.updateUserToggleUI === 'function') {
-      window.updateUserToggleUI();
-    }
-    if (typeof window.updateHubUI === 'function') {
-      window.updateHubUI();
-    }
+    if (typeof window.saveCoreData === 'function') window.saveCoreData();
+    if (typeof window.updateUserToggleUI === 'function') window.updateUserToggleUI();
+    if (typeof window.updateHubUI === 'function') window.updateHubUI();
 
     var activeNameDisplay = document.getElementById('account-active-username');
-    if (activeNameDisplay) {
-      activeNameDisplay.innerText = window.names[curUser];
-    }
+    if (activeNameDisplay) activeNameDisplay.innerText = window.names[curUser];
 
     showToast("Rufname gespeichert: " + window.names[curUser]);
   }
@@ -170,10 +170,10 @@
     var bVul = document.getElementById('acc-anat-my-vulva');
 
     if (anat === 'penis') {
-      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-sm";
       if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     } else {
-      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-sm";
       if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     }
   }
@@ -232,6 +232,9 @@
   function saveGeminiKeyInAccount(key) {
     var cleanKey = (key || '').trim();
     localStorage.setItem('kompass_gemini_api_key', cleanKey);
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
+    }
     showToast("Gemini API-Key gespeichert ✓");
   }
 
@@ -261,6 +264,9 @@
 
   function saveVoiceInAccount(voice) {
     localStorage.setItem('kompass_session_voice', voice);
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
+    }
     showToast("Regiestimme gewählt: " + voice);
   }
 
@@ -277,6 +283,7 @@
 
   function toggleThemeInAccount() {
     var isDark = document.documentElement.classList.contains('dark');
+    var newTheme = isDark ? 'light' : 'dark';
     if (isDark) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('kompass_theme', 'light');
@@ -285,6 +292,10 @@
       document.documentElement.classList.add('dark');
       localStorage.setItem('kompass_theme', 'dark');
       showToast("Dunkles Farbschema aktiviert 🌙");
+    }
+
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
     }
   }
 
@@ -340,8 +351,8 @@
 
     if (typeof window.saveCoreData === 'function') window.saveCoreData();
     if (typeof window.updateHubUI === 'function') window.updateHubUI();
-    if (window.SurveyEngine) window.SurveyEngine.render();
-    if (window.ProfileEngine) window.ProfileEngine.render();
+    if (window.SurveyEngine && typeof window.SurveyEngine.render === 'function') window.SurveyEngine.render();
+    if (window.ProfileEngine && typeof window.ProfileEngine.render === 'function') window.ProfileEngine.render();
 
     cancelResetConfirmation();
     closeAccountModal();
@@ -397,10 +408,10 @@
     var bVul = document.getElementById('onboard-anat-A-vulva');
 
     if (anat === 'penis') {
-      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-sm";
       if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     } else {
-      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn shadow-sm";
       if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     }
   }
@@ -433,12 +444,7 @@
     var codeDisp = document.getElementById('onboard-code-display');
     var code = codeDisp ? codeDisp.innerText : '';
     if (code) {
-      var temp = document.createElement('input');
-      temp.value = code;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
+      copyViaTempInput(code);
       showToast("Paar-Code kopiert: " + code + " ✓");
     }
   }
@@ -521,7 +527,7 @@
 
   async function handleCreatePairRoom() {
     if (window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
-      showToast("⏳ Erstelle verschlüsselten Paar-Raum...");
+      showToast("⏳ Erstelle verschlüsselten Raum & sichere Daten...");
       var code = await window.CloudSync.createRoom();
       updateCloudSyncUI();
       showToast("Paar-Raum aktiv: " + code + " ✨");
@@ -536,8 +542,8 @@
       return;
     }
 
-    // Sofort-Transfer Auto-Erkennung: Falls der verschlüsselte Text-Schlüssel direkt ins Feld eingefügt wurde
-    if (rawInput.length > 50 && rawInput.indexOf(' ') === -1 && rawInput.indexOf('?') === -1 && rawInput.indexOf('/') === -1) {
+    // Auto-Erkennung Sofort-Transfer-Schlüssel (Base64)
+    if (rawInput.length > 60 && rawInput.indexOf(' ') === -1 && rawInput.indexOf('?') === -1 && rawInput.indexOf('/') === -1) {
       if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
         try {
           window.CloudSync.importDirect(rawInput, role);
@@ -604,7 +610,7 @@
       var transferString = window.CloudSync.exportDirect();
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(transferString).then(function() {
-          showToast("📋 Sofort-Transfer kopiert! Am Handy einfach im Feld einfügen.");
+          showToast("📋 Sofort-Transfer kopiert! Am Handy im Feld einfügen.");
         }).catch(function() {
           copyViaTempInput(transferString);
         });
@@ -619,33 +625,13 @@
   function copyViaTempInput(text) {
     var temp = document.createElement('textarea');
     temp.value = text;
+    temp.style.position = 'fixed';
+    temp.style.opacity = '0';
     document.body.appendChild(temp);
     temp.select();
     document.execCommand('copy');
     document.body.removeChild(temp);
-    showToast("📋 Sofort-Transfer kopiert! Am Handy einfach im Feld einfügen.");
-  }
-
-  function handleImportDirectTransfer(role) {
-    var input = document.getElementById('input-pair-code');
-    var raw = (input ? input.value : '').trim();
-    if (!raw) {
-      showToast("Bitte füge zuerst den Transfer-Schlüssel in das Feld ein.");
-      return;
-    }
-    if (window.CloudSync && typeof window.CloudSync.importDirect === 'function') {
-      try {
-        window.CloudSync.importDirect(raw, role);
-        if (typeof window.loadCoreData === 'function') window.loadCoreData();
-        if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
-        updateCloudSyncUI();
-        if (typeof window.updateHubUI === 'function') window.updateHubUI();
-        closeCloudSyncModal();
-        showToast("✓ Daten erfolgreich übertragen!");
-      } catch (e) {
-        showToast("⚠️ Ungültiger Transfer-Schlüssel.");
-      }
-    }
+    showToast("📋 In die Zwischenablage kopiert!");
   }
 
   function buildPairUrl(targetRole) {
@@ -654,45 +640,32 @@
       : {};
     var code = state.pairCode || localStorage.getItem('kompass_pair_code') || '';
     if (!code) {
-      if (window.CloudSync && typeof window.CloudSync.createRoom === 'function') {
-        window.CloudSync.createRoom();
-        code = localStorage.getItem('kompass_pair_code') || 'KOMPASS-SYNC';
-      } else {
-        code = 'KOMPASS-SYNC';
-      }
+      code = 'KOMPASS-' + Math.floor(100 + Math.random() * 900);
+      localStorage.setItem('kompass_pair_code', code);
+      localStorage.setItem('kompass_is_paired', 'true');
     }
 
     var role = targetRole || 'A';
     var base = window.location.href.split('?')[0].split('#')[0];
 
-    // Datenpaket direkt in den Link einbinden (Zero-Server-Sofortübertragung)
-    var transferPayload = '';
-    if (window.CloudSync && typeof window.CloudSync.exportDirect === 'function') {
-      try {
-        transferPayload = window.CloudSync.exportDirect();
-      } catch (e) {}
-    }
-
-    var url = base + "?pair=" + encodeURIComponent(code) + "&role=" + encodeURIComponent(role);
-    if (transferPayload) {
-      url += "#sync=" + encodeURIComponent(transferPayload);
-    }
-    return url;
+    // Schlanke URL (nur ~40 Zeichen), damit kein Messenger den Link kürzen kann
+    return base + "?pair=" + encodeURIComponent(code) + "&role=" + encodeURIComponent(role);
   }
 
-  function handleCopySelfLink() {
+  async function handleCopySelfLink() {
     if (window.location.protocol === 'file:') {
       handleExportDirectTransfer();
       showToast("⚠️ Hinweis: Auf dem PC läuft file://. Kopiere den Schlüssel und füge ihn am Handy ein!");
       return;
     }
 
-    var selfUrl = buildPairUrl('A');
-    if (!selfUrl) {
-      showToast("Erstelle zuerst einen Paar-Code.");
-      return;
+    // 1. Garantiert frische Daten VOR dem Link-Kopieren in die Cloud pushen
+    if (window.CloudSync && typeof window.CloudSync.push === 'function') {
+      showToast("⏳ Sichere alle Antworten & Einstellungen in der Cloud...");
+      await window.CloudSync.push();
     }
 
+    var selfUrl = buildPairUrl('A');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(selfUrl).then(function() {
         showToast("📱 Direktlink für dein iPhone kopiert! In Safari öffnen 📋");
@@ -706,13 +679,11 @@
     }
   }
 
-  function handleCopyPartnerLink() {
-    var partnerUrl = buildPairUrl('B');
-    if (!partnerUrl) {
-      showToast("Erstelle zuerst einen Paar-Code.");
-      return;
+  async function handleCopyPartnerLink() {
+    if (window.CloudSync && typeof window.CloudSync.push === 'function') {
+      await window.CloudSync.push();
     }
-
+    var partnerUrl = buildPairUrl('B');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(partnerUrl).then(function() {
         showToast("Partner-Link kopiert (Partner 2) 📋");
@@ -729,10 +700,6 @@
   function handleShareInviteLink(roleOverride) {
     var targetRole = roleOverride || 'B';
     var inviteUrl = buildPairUrl(targetRole);
-    if (!inviteUrl) {
-      showToast("Erstelle zuerst einen Paar-Code.");
-      return;
-    }
 
     var text = "Hier ist unser sicherer Schlüssel für den Kink- & Beziehungs-Kompass:\n" + inviteUrl;
 
@@ -784,7 +751,7 @@
       var pairCode = searchParams.get('pair');
       var role = searchParams.get('role') || 'A';
 
-      // 1. In-URL Sofortübertragung aus Hash (#sync=...) oder Suchparameter
+      // 1. In-URL Sofortübertragung aus Hash (#sync=...)
       var rawSync = '';
       var hash = window.location.hash || '';
       if (hash.indexOf('sync=') !== -1) {
@@ -803,19 +770,26 @@
           if (typeof window.updateHubUI === 'function') window.updateHubUI();
 
           var countA = (window.answers && window.answers.A) ? Object.keys(window.answers.A).filter(function(k){return k.indexOf('_note')===-1;}).length : 0;
-          showToast("✓ iPhone synchronisiert! " + countA + " Antworten für Partner 1 geladen ✨");
+          showToast("✓ iPhone synchronisiert! " + countA + " Antworten für " + (role === 'A' ? 'Partner 1' : 'Partner 2') + " geladen ✨");
         } catch (err) {
           console.warn("Fehler beim In-URL Import:", err);
         }
       }
 
-      // 2. Automatische Raumkopplung
+      // 2. Automatische Cloud-Kopplung bei Link-Klick
       if (pairCode && window.CloudSync && typeof window.CloudSync.joinRoom === 'function') {
         window.CloudSync.joinRoom(pairCode, role).then(function() {
           if (typeof window.loadCoreData === 'function') window.loadCoreData();
           if (typeof window.setCurrentUser === 'function') window.setCurrentUser(role);
           updateCloudSyncUI();
           if (typeof window.updateHubUI === 'function') window.updateHubUI();
+
+          var count = (window.answers && window.answers[role]) 
+            ? Object.keys(window.answers[role]).filter(function(k){ return k.indexOf('_note') === -1; }).length 
+            : 0;
+
+          var name = (window.names && window.names[role]) ? window.names[role] : ('Partner ' + role);
+          showToast("✓ iPhone gekoppelt! " + count + " Antworten für " + name + " aktiviert ✨");
         }).catch(function(e) {});
       }
     } catch (e) {}
@@ -948,7 +922,6 @@
   window.handleCreatePairRoom = handleCreatePairRoom;
   window.handleJoinPairRoom = handleJoinPairRoom;
   window.handleExportDirectTransfer = handleExportDirectTransfer;
-  window.handleImportDirectTransfer = handleImportDirectTransfer;
   window.handleCopySelfLink = handleCopySelfLink;
   window.handleCopyPartnerLink = handleCopyPartnerLink;
   window.handleShareInviteLink = handleShareInviteLink;
