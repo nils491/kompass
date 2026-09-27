@@ -4,9 +4,10 @@
  * - Session-Timer (60:00) mit Pause & +10m Verlängerung
  * - Safeword-Ampel (Grün, Gelb, Rot) mit Audio-Ducking & Stopp-Signal
  * - Dynamische Cockpit-Präsentation je nach Modus (Geführt vs. Freier Flow)
- * - Animierte 4-7-8 Vagus-Atmung (Pulsierender Kreis & Phasen-Wechsel)
+ * - 🧘 Tiefenentspannte, organisch fließende 4-7-8 Vagus-Atmung mit stetig wachsendem Kreis
  * - Session-Tagebuch & Aftercare-Protokoll
- * - Interaktive Tabu-Schranken & VERLÄSSLICHE Tabu-Zähler-Aktualisierung im Header
+ * - Bereinigung von „Kante“ hin zu natürlicher deutscher Sprache („Schwelle“, „Plateau“)
+ * - Verlässliche Tabu-Zähler-Aktualisierung im Header
  */
 
 (function(window) {
@@ -22,7 +23,7 @@
   var liveStepIndex = 0;
   var currentSessionLog = [];
 
-  var breathPhase = 0;
+  var breathPhase = 0; // 0: Einatmen (4s), 1: Halten (7s), 2: Ausatmen (8s)
   var breathTimerInterval = null;
   var breathSecondsLeft = 4;
 
@@ -81,15 +82,16 @@
     allChapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
         if (it.type !== 'choice') {
-          // Top darf es nicht aktiv ausführen wollen (Note 1)
           if (uAnswersTop['it_' + it.id + '_r1'] === 1) count++;
-          // Bottom hat ein Veto gegen den Empfang (Note 1)
           if (uAnswersSub['it_' + it.id + '_r2'] === 1) count++;
         }
       });
     });
 
     counterEl.innerText = count;
+
+    var mobCountEl = document.getElementById('session-tabu-counter-mobile');
+    if (mobCountEl) mobCountEl.innerText = count;
   }
 
   async function acquireScreenWakeLock() {
@@ -219,7 +221,9 @@
     if (subRole) subRole.innerText = step.sub;
     if (phasePill && currentSessionMode !== 'free') phasePill.innerText = step.phase ? step.phase.split(':')[0] : 'Phase';
 
-    var isEdgingStep = (step.title && (step.title.toLowerCase().indexOf('edging') !== -1 || step.title.toLowerCase().indexOf('kante') !== -1 || step.title.toLowerCase().indexOf('höhepunkt') !== -1));
+    var lowerTitle = (step.title || '').toLowerCase();
+    var isEdgingStep = (lowerTitle.indexOf('edging') !== -1 || lowerTitle.indexOf('schwelle') !== -1 || lowerTitle.indexOf('kante') !== -1 || lowerTitle.indexOf('höhepunkt') !== -1);
+    
     var edgingBanner = document.getElementById('guided-edging-callout');
     var edgingFocusBadge = document.getElementById('edging-focus-badge');
     var edgingCockpitPanel = document.getElementById('edging-cockpit-panel');
@@ -340,11 +344,54 @@
     }
   }
 
+  function applyBreathingCirclePhase(phase) {
+    var circle = document.getElementById('breath-circle');
+    if (!circle) return;
+
+    if (phase === 0) {
+      // EINATMEN (4 Sekunden): Kreis dehnt sich harmonisch und majestätisch aus
+      circle.style.transition = "transform 4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 4s ease, border-color 4s ease";
+      circle.style.transform = "scale(1.48)";
+      circle.style.boxShadow = "0 0 55px rgba(45, 212, 191, 0.75), inset 0 0 25px rgba(45, 212, 191, 0.4)";
+      circle.style.borderColor = "rgba(94, 234, 212, 0.95)";
+    } else if (phase === 1) {
+      // ATEM HALTEN (7 Sekunden): Ruhiges, stabiles Glühen auf maximaler Weite
+      circle.style.transition = "transform 1.5s ease-in-out, box-shadow 1.5s ease-in-out";
+      circle.style.transform = "scale(1.50)";
+      circle.style.boxShadow = "0 0 70px rgba(45, 212, 191, 0.95), inset 0 0 35px rgba(45, 212, 191, 0.55)";
+      circle.style.borderColor = "rgba(255, 255, 255, 0.9)";
+    } else {
+      // LANGSAM AUSATMEN (8 Sekunden): Weiches, tief entspannendes Zurücksinken
+      circle.style.transition = "transform 8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 8s ease, border-color 8s ease";
+      circle.style.transform = "scale(1.0)";
+      circle.style.boxShadow = "0 0 15px rgba(45, 212, 191, 0.2)";
+      circle.style.borderColor = "rgba(45, 212, 191, 0.5)";
+    }
+  }
+
+  function updateBreathingText(phase, secondsLeft) {
+    var text = document.getElementById('breath-text');
+    if (!text) return;
+
+    if (phase === 0) {
+      text.innerText = "Einatmen (" + secondsLeft + "s)";
+      text.className = "absolute text-xs sm:text-sm font-black text-teal-200 pointer-events-none drop-shadow-md text-center px-2";
+    } else if (phase === 1) {
+      text.innerText = "Atem halten (" + secondsLeft + "s)";
+      text.className = "absolute text-xs sm:text-sm font-black text-white pointer-events-none drop-shadow-md text-center px-2";
+    } else {
+      text.innerText = "Langsam ausatmen (" + secondsLeft + "s)";
+      text.className = "absolute text-xs sm:text-sm font-black text-slate-300 pointer-events-none drop-shadow-md text-center px-2";
+    }
+  }
+
   function startVagusBreathingAnimation() {
     stopVagusBreathingAnimation();
     breathPhase = 0;
     breathSecondsLeft = 4;
-    tickVagusBreathing();
+
+    applyBreathingCirclePhase(breathPhase);
+    updateBreathingText(breathPhase, breathSecondsLeft);
 
     breathTimerInterval = setInterval(function() {
       breathSecondsLeft--;
@@ -353,35 +400,11 @@
         if (breathPhase === 0) breathSecondsLeft = 4;
         else if (breathPhase === 1) breathSecondsLeft = 7;
         else breathSecondsLeft = 8;
+
+        applyBreathingCirclePhase(breathPhase);
       }
-      tickVagusBreathing();
+      updateBreathingText(breathPhase, breathSecondsLeft);
     }, 1000);
-  }
-
-  function tickVagusBreathing() {
-    var circle = document.getElementById('breath-circle');
-    var text = document.getElementById('breath-text');
-    if (!circle || !text) return;
-
-    if (breathPhase === 0) {
-      circle.style.transition = "transform 4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 4s ease";
-      circle.style.transform = "scale(1.42)";
-      circle.style.boxShadow = "0 0 45px rgba(45, 212, 191, 0.65)";
-      text.innerText = "Einatmen (" + breathSecondsLeft + "s)";
-      text.className = "absolute text-xs sm:text-sm font-black text-teal-200 pointer-events-none drop-shadow-md text-center px-2";
-    } else if (breathPhase === 1) {
-      circle.style.transition = "none";
-      circle.style.transform = "scale(1.42)";
-      circle.style.boxShadow = "0 0 60px rgba(45, 212, 191, 0.85)";
-      text.innerText = "Atem halten (" + breathSecondsLeft + "s)";
-      text.className = "absolute text-xs sm:text-sm font-black text-white pointer-events-none drop-shadow-md text-center px-2";
-    } else {
-      circle.style.transition = "transform 8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 8s ease";
-      circle.style.transform = "scale(1.0)";
-      circle.style.boxShadow = "0 0 15px rgba(45, 212, 191, 0.2)";
-      text.innerText = "Langsam ausatmen (" + breathSecondsLeft + "s)";
-      text.className = "absolute text-xs sm:text-sm font-black text-slate-300 pointer-events-none drop-shadow-md text-center px-2";
-    }
   }
 
   function stopVagusBreathingAnimation() {
@@ -515,7 +538,7 @@
             <div>👑 Top: ${escapeHtml(entry.top || 'Top')}</div>
             <div>🧎 Bottom: ${escapeHtml(entry.bottom || 'Bottom')}</div>
             <div>⏱️ Dauer: ${entry.durationMinutes || 1} Min</div>
-            <div>🎢 Edges: ${entry.edgeCount || 0}</div>
+            <div>⚡ Schwellen: ${entry.edgeCount || 0}</div>
           </div>
           ${entry.topFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-brand-300">Top:</strong> ${escapeHtml(entry.topFeedback)}</div>` : ''}
           ${entry.bottomFeedback ? `<div class="p-2 rounded-xl bg-slate-900 text-[10.5px]"><strong class="text-indigo-300">Bottom:</strong> ${escapeHtml(entry.bottomFeedback)}</div>` : ''}
