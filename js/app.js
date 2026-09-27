@@ -364,6 +364,26 @@
     var match = hash.match(/view=([a-z]+)/);
     var target = match ? match[1] : 'hub';
     switchMainView(target);
+
+    // Deep-Link direkt zu einer Frage ausführen (z. B. #view=survey&jumpItem=14)
+    var jumpMatch = hash.match(/jumpItem=(\d+)/);
+    if (jumpMatch && jumpMatch[1]) {
+      var targetId = parseInt(jumpMatch[1], 10);
+      setTimeout(function() {
+        if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
+          window.SurveyEngine.jumpToItem(targetId);
+        }
+      }, 200);
+    }
+  }
+
+  function goToSurveyItem(itemId) {
+    switchMainView('survey');
+    setTimeout(function() {
+      if (window.SurveyEngine && typeof window.SurveyEngine.jumpToItem === 'function') {
+        window.SurveyEngine.jumpToItem(itemId);
+      }
+    }, 100);
   }
 
   function initApp() {
@@ -394,6 +414,7 @@
   window.renderSafetyConfig = renderSafetyConfig;
   window.updateHubUI = updateHubUI;
   window.showToast = showToast;
+  window.goToSurveyItem = goToSurveyItem;
 
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', initApp);
