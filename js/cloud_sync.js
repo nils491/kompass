@@ -15,6 +15,7 @@
 
   var REST_API_ENDPOINT = 'https://api.restful-api.dev/objects';
   var REGISTRY_ENDPOINT = 'https://api.keyval.org';
+  var NTFY_REGISTRY_BASE = 'https://ntfy.sh';
 
   var activePairCode = null;
   var remoteObjectId = null;
@@ -249,19 +250,44 @@
   }
 
   async function resolveRemoteObjectId(code) {
-    if (remoteObjectId) return remoteObjectId;
+    if (remoteObjectId && remoteObjectId.length > 5) return remoteObjectId;
     var storedId = localStorage.getItem('kompass_sync_remote_id');
-    if (storedId) {
+    if (storedId && storedId.length > 5) {
       remoteObjectId = storedId;
       return remoteObjectId;
     }
 
-    // Abfrage der Registry für den Raum-Code
+    var cleanTopic = 'kink_room_' + encodeURIComponent(String(code).toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
+
+    // 1. Primärer Versuch: NTFY.sh Registry (CORS-offen, extrem stabil auf allen Mobilgeräten)
     try {
-      var resp = await fetch(REGISTRY_ENDPOINT + '/get/kink_room_' + encodeURIComponent(code));
+      var ntfyResp = await fetch(NTFY_REGISTRY_BASE + '/' + cleanTopic + '/json?poll=1&since=all', {
+        cache: 'no-store'
+      });
+      if (ntfyResp.ok) {
+        var text = await ntfyResp.text();
+        var lines = text.trim().split('\n');
+        for (var i = lines.length - 1; i >= 0; i--) {
+          try {
+            var msgObj = JSON.parse(lines[i]);
+            if (msgObj.event === 'message' && msgObj.message && msgObj.message.trim().length > 5) {
+              remoteObjectId = msgObj.message.trim();
+              localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
+              return remoteObjectId;
+            }
+          } catch (err) {}
+        }
+      }
+    } catch (e) {
+      console.warn("NTFY Registry Abfrage fehlgeschlagen:", e);
+    }
+
+    // 2. Sekundärer Fallback: KeyVal.org
+    try {
+      var resp = await fetch(REGISTRY_ENDPOINT + '/get/' + cleanTopic);
       if (resp.ok) {
         var foundId = (await resp.text()).trim();
-        if (foundId && foundId.length > 3) {
+        if (foundId && foundId.length > 5) {
           remoteObjectId = foundId;
           localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
           return remoteObjectId;
@@ -314,12 +340,23 @@
         if (resObj && resObj.id) {
           remoteObjectId = resObj.id;
           localStorage.setItem('kompass_sync_remote_id', remoteObjectId);
-
-          // In Registry registrieren
-          try {
-            await fetch(REGISTRY_ENDPOINT + '/set/kink_room_' + encodeURIComponent(activePairCode) + '/' + encodeURIComponent(remoteObjectId));
-          } catch (re) {}
         }
+      }
+
+      // Raum in beiden Registries hinterlegen, damit Partner-Geräte ihn sofort über den Code finden
+      if (remoteObjectId) {
+        var cleanTopic = 'kink_room_' + encodeURIComponent(String(activePairCode).toUpperCase().trim().replace(/[^A-Z0-9]/g, ''));
+        try {
+          await fetch(NTFY_REGISTRY_BASE + '/' + cleanTopic, {
+            method: 'POST',
+            body: remoteObjectId,
+            headers: { 'Title': 'KompassSync' }
+          });
+        } catch (ne) {}
+
+        try {
+          await fetch(REGISTRY_ENDPOINT + '/set/' + cleanTopic + '/' + encodeURIComponent(remoteObjectId));
+        } catch (re) {}
       }
 
       currentSyncStatus = 'idle';
@@ -411,7 +448,7 @@
     if (cleanCode.length < 5) throw new Error("Der Paar-Code ist zu kurz.");
 
     activePairCode = cleanCode;
-    if (directObjectId) {
+    if (directObjectId && directObjectId.length > 5) {
       remoteObjectId = directObjectId;
       localStorage.setItem('kompass_sync_remote_id', directObjectId);
     }
@@ -424,13 +461,13 @@
 
     var success = await pullDataFromCloud();
     if (!success) {
-      // Wenn der direkte Download noch nichts geliefert hat, Registry kurz abfragen
+      // Wenn der direkte Download noch nichts geliefert hat, Registry nochmals gezielt abfragen
       await resolveRemoteObjectId(activePairCode);
       success = await pullDataFromCloud();
     }
 
     if (!success) {
-      throw new Error("Keine Daten für '" + cleanCode + "' gefunden. Wurde der Raum auf dem ersten Gerät bereits erstellt?");
+      throw new Error("Keine Daten für '" + cleanCode + "' gefunden. Wurde der Raum auf dem ersten Gerät bereits erstellt und einmal gespeichert?");
     }
 
     startPolling();
