@@ -134,15 +134,13 @@
           </button>
         </div>
 
-        <!-- MOBILE QUICK BAR & BURGER BUTTON (NUR AUF SMARTPHONES SICHTBAR) -->
+        <!-- MOBILE QUICK BAR & BURGER BUTTON -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
-          <!-- MOBILE PARTNER QUICK BADGE -->
           <button type="button" onclick="togglePartnerQuickMobile()" class="px-2 py-1 rounded-xl bg-brand-950 border border-brand-700/80 text-brand-300 text-[11px] font-bold touch-btn flex items-center gap-1" title="Partner wechseln">
             <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
             <span id="mobile-quick-partner-label">P1</span>
           </button>
 
-          <!-- MOBILE BURGER BUTTON -->
           <button type="button" onclick="toggleMobileDrawer(true)" id="btn-mobile-burger" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
             ☰
           </button>
@@ -163,10 +161,10 @@
         <button type="button" onclick="switchMainView('single')" id="nav-btn-single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Mein Profil</span>
         </button>
-        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="Paar-Analyse & Synergie öffnen">
           <span>Paar-Analyse</span>
         </a>
-        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="BDSM- & Vertrauens-Guide öffnen">
           <span>Guide 📖</span>
         </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
@@ -234,12 +232,13 @@
           <span class="text-slate-500 text-xs">→</span>
         </button>
 
-        <a href="analyse.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-amber-500 text-left flex items-center justify-between touch-btn group block">
+        <!-- KLARE TRENNUNG: PAAR-ANALYSE vs GUIDE -->
+        <a href="analyse.html" class="w-full p-3 rounded-2xl bg-amber-950/30 border border-amber-600/80 hover:border-amber-400 text-left flex items-center justify-between touch-btn group block">
           <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
-          <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
+          <span class="text-[10px] text-amber-300 font-bold">Doppel-5er ↗</span>
         </a>
 
-        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
+        <a href="guide.html" class="w-full p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-700 text-left flex items-center justify-between touch-btn group block">
           <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
           <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
         </a>
@@ -334,21 +333,21 @@
           <p class="text-[11px] text-slate-400 leading-snug">Archetypen-Radar, 5 Motivationssäulen und persönliches KI-Einzelgutachten.</p>
         </button>
 
-        <!-- KACHEL 4: PAAR-ANALYSE -->
-        <a href="analyse.html" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-amber-500 touch-btn group block">
+        <!-- KACHEL 4: PAAR-ANALYSE (EINDEUTIG ZU analyse.html) -->
+        <a href="analyse.html" class="p-4 rounded-2xl theme-card border border-amber-800/80 hover:border-amber-400 text-left space-y-2 transition-all touch-btn group block bg-gradient-to-br from-amber-950/30 via-noir-900 to-amber-950/10 shadow-sm" title="Eure Paar-Analyse öffnen">
           <div class="flex items-center justify-between">
             <span class="text-xl">💫</span>
-            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800">Doppel-5er</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-700">Doppel-5er</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">4. Paar-Analyse</strong>
-          <p class="text-[11px] text-slate-400 leading-snug">Beiderseitige Volltreffer, Brücken und schamfreies KI-Paargutachten.</p>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">4. Paar-Analyse & Synergie</strong>
+          <p class="text-[11px] text-slate-300 leading-snug">Beiderseitige Volltreffer, Brücken und schamfreies KI-Paargutachten.</p>
         </a>
 
-        <!-- KACHEL 5: BDSM- & VERTRAUENS-GUIDE -->
-        <a href="guide.html" class="p-4 rounded-2xl theme-card border border-amber-900/60 text-left space-y-2 transition-all hover:border-amber-500 touch-btn group block bg-gradient-to-br from-amber-950/20 to-noir-900">
+        <!-- KACHEL 5: BDSM- & VERTRAUENS-GUIDE (EINDEUTIG ZU guide.html) -->
+        <a href="guide.html" class="p-4 rounded-2xl theme-card border border-slate-800 hover:border-amber-600 text-left space-y-2 transition-all touch-btn group block bg-slate-900/60 shadow-sm" title="Ausführlichen BDSM-Leitfaden lesen">
           <div class="flex items-center justify-between">
             <span class="text-xl">📖</span>
-            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-800">Leitfaden</span>
+            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-amber-200 border border-slate-700">Leitfaden</span>
           </div>
           <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">5. BDSM- & Vertrauens-Guide</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Der Reiz, SSC/RACK, Scham-Entlastung und warum Zucht wirken kann.</p>
