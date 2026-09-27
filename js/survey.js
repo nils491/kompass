@@ -63,11 +63,9 @@
   function canEditCurrentProfile() {
     var myDeviceRole = getMyAssignedDeviceRole();
     if (!myDeviceRole) {
-      // Lokaler Modus ohne Kopplung
       return true;
     }
     var curUser = window.currentUser || 'A';
-    // Strenger Manipulationsschutz: Nur das eigene Profil darf verändert werden
     return curUser === myDeviceRole;
   }
 
@@ -371,7 +369,6 @@
 
       html += '<div id="survey-item-' + it.id + '" class="theme-card rounded-2xl p-4 sm:p-5 border shadow-sm space-y-3.5 transition-all duration-500">';
       
-      // KOPFBEREICH: Titel links, Aktionsbuttons rechts
       html += '<div class="space-y-1.5">';
       html += '  <div class="flex items-start justify-between gap-2">';
       html += '    <div class="min-w-0 flex-1">';
@@ -399,7 +396,6 @@
       html += '    </div>';
       html += '  </div>';
 
-      // VOLLFLÄCHIGER BESCHREIBUNGSTEXT: Nutzt jetzt die volle Breite des Containers ohne gequetscht zu werden!
       if (it.desc) {
         html += '  <p class="text-[11.5px] text-slate-300/90 leading-relaxed w-full">' + escapeHtml(it.desc) + '</p>';
       }
