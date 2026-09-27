@@ -1,15 +1,13 @@
 /**
  * js/session_edging.js
- * Spezialisiertes Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
+ * Modul für die Edging-Fernbedienung des Tops in der Schlafzimmer-Regie.
  * 
- * Features:
- * - Lückenlose Zahlenfolgen: Jede Zahl des Countdowns wird ausgesprochen (keine Übersprünge).
- * - Einhaltung der Sekundendauer mit sexy Zwischenflüstern.
- * - Startzahl-Staffelung (z.B. bei 20s ab 16, bei 30s ab 22), damit Taktung & Zwischenrufe perfekt harmonieren.
- * - Synchrone visuelle Großanzeige für den Top.
- * - Umschaltung: App-Stimme (Gemini) vs. Selbst sprechen (visuelle Atem-Cues).
- * - Cooldown-Timer (45s), Kanten-Zähler und Zeitstempel.
- * - Höhepunkt-Urteile: Freigabe, Ruined Orgasm, Lustverweigerung (Denial).
+ * Features & Fehlerbehebungen:
+ * - Sofortige Audio-Freischaltung (SessionVoice.unlock()) bei allen Klicks
+ * - Zuverlässige Sprachausgabe im Modus 'gemini' unabhängig von Vorab-Toggles
+ * - Vollständige Ansage aller Zahlen ohne Auslassungen
+ * - Rhythmisches Beat-Display synchron zur Sprachausgabe
+ * - Cooldown-Timer, Kanten-Zähler und Höhepunkt-Entscheidungen
  */
 
 (function(window) {
@@ -65,6 +63,10 @@
     var bGemini = document.getElementById('btn-voice-mode-gemini');
     var lbl = document.getElementById('label-current-voice-mode');
 
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+
     if (mode === 'self') {
       if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition bg-indigo-950/60 border-indigo-500 shadow-md";
       if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
@@ -74,6 +76,10 @@
       if (bGemini) bGemini.className = "p-2 rounded-xl border text-left touch-btn transition bg-purple-950/60 border-purple-500 shadow-md";
       if (bSelf) bSelf.className = "p-2 rounded-xl border text-left touch-btn transition theme-panel border-slate-800 text-slate-400 hover:border-slate-700";
       if (lbl) { lbl.innerText = "Gemini spricht laut"; lbl.className = "text-[10px] font-mono text-purple-300 font-bold"; }
+      
+      // Sprachführung sicherstellen
+      window.isTopVoiceAssistActive = true;
+      try { localStorage.setItem('kompass_voice_assist_active', 'true'); } catch (e) {}
       showToast("Modus: Gemini-App-Stimme spricht ins Zimmer 🔊");
     }
   }
@@ -102,7 +108,7 @@
       window.SessionAudio.adjustEnergy('energy');
     }
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function' && Math.random() < 0.35) {
+    if (countdownVoiceMode === 'gemini' && window.SessionVoice && typeof window.SessionVoice.play === 'function' && Math.random() < 0.35) {
       var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
       var phrase = "";
       if (activeArousalLevel <= 3) phrase = "Ganz ruhig atmen, " + subName + ". Wir bauen die Spannung langsam auf.";
@@ -114,6 +120,10 @@
   }
 
   function registerEdgeReachedWrapper() {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+
     edgeCount++;
     lastEdgeTimestamp = Date.now();
     var hitsEl = document.getElementById('edging-total-hits');
@@ -124,7 +134,7 @@
     startLastEdgeTimer();
     startCooldownBreathingTimer();
 
-    if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+    if (countdownVoiceMode === 'gemini' && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Kante! Hände sofort weg und stillhalten!");
     }
   }
@@ -159,6 +169,9 @@
   }
 
   function openReleaseChoiceModal() {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
     var panel = document.getElementById('release-choice-subpanel');
     if (panel) panel.classList.toggle('hidden');
   }
@@ -174,41 +187,28 @@
       var btn = document.getElementById('btn-cd-dur-' + s);
       if (btn) {
         if (s === targetEdgingDuration) {
-          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn";
+          btn.className = "py-1.5 rounded-lg border text-[10.5px] font-bold bg-emerald-950 border-emerald-500 text-emerald-300 touch-btn";
         } else {
-          btn.className = "py-1 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
+          btn.className = "py-1.5 rounded-lg border text-[10.5px] font-bold theme-panel text-slate-400 touch-btn";
         }
       }
     });
   }
 
   function getCountdownConfig(durationSeconds) {
-    // Liefert Startzahl und Schrittzeit, damit ALLE Zahlen aufgesagt werden
-    // und die Gesamtdauer exakt der gewählten Sekundenzahl entspricht
-    if (durationSeconds === 5) {
-      return { startNum: 5, stepMs: 1100 };
-    }
-    if (durationSeconds === 20) {
-      // 16 Zahlen (16 bis 1) + 4 gezielte Zwischenrufe = ~20s Gesamtdauer
-      return { startNum: 16, stepMs: 1220 };
-    }
-    if (durationSeconds === 30) {
-      // 22 Zahlen (22 bis 1) + 6 gezielte Zwischenrufe = ~30s Gesamtdauer
-      return { startNum: 22, stepMs: 1320 };
-    }
-    // Standard: 10 Sekunden (10 bis 1 lückenlos)
+    if (durationSeconds === 5) return { startNum: 5, stepMs: 1100 };
+    if (durationSeconds === 20) return { startNum: 16, stepMs: 1220 };
+    if (durationSeconds === 30) return { startNum: 22, stepMs: 1320 };
     return { startNum: 10, stepMs: 1150 };
   }
 
   function buildDynamicCountdownSpeechText(durationSeconds, subName) {
     var name = subName || 'mein Schatz';
 
-    // 5 Sekunden: 5, 4, 3, 2, 1 (alle Zahlen ausgesprochen)
     if (durationSeconds === 5) {
       return "Fünf... Vier... Blick zu mir... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
     }
 
-    // 20 Sekunden: 16 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
     if (durationSeconds === 20) {
       return "Sechzehn... nicht bewegen, " + name + "... " +
              "Fünfzehn... Vierzehn... tief in den Bauchraum atmen... " +
@@ -218,7 +218,6 @@
              "Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
     }
 
-    // 30 Sekunden: 22 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
     if (durationSeconds === 30) {
       return "Zweiundzwanzig... Einundzwanzig... Zwanzig... ganz ruhig ausatmen, " + name + "... " +
              "Neunzehn... Achtzehn... Siebzehn... Sechzehn... spüre jeden Herzschlag... " +
@@ -227,7 +226,6 @@
              "Sieben... Sechs... Fünf... Vier... Drei... Zwei... Eins... Jetzt! Explodiere für mich!";
     }
 
-    // 10 Sekunden: 10 bis 1 (JEDE einzelne Zahl wird ohne Auslassung aufgesagt)
     return "Zehn... tief durchatmen... Neun... Acht... stillhalten, " + name + "... " +
            "Sieben... Sechs... spüre die Hitze... " +
            "Fünf... Vier... Drei... Zwei... Eins... Jetzt! Lass alles los und komm für mich!";
@@ -242,13 +240,16 @@
       disp.style.setProperty('--beat-duration', (stepMs / 1000) + 's');
     }
 
-    // CSS Reflow erzwingen, damit die Animation exakt mit dem Zahlenwechsel von vorne zündet
     disp.classList.remove('countdown-beat-active', 'climax-pulse-active');
     void disp.offsetWidth;
     disp.classList.add('countdown-beat-active');
   }
 
   function executeReleaseImmediate() {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+
     logSessionAction("Orgasmus-Freigabe (Sofort)");
     var panel = document.getElementById('release-choice-subpanel');
     if (panel) panel.classList.add('hidden');
@@ -256,12 +257,16 @@
 
     if (countdownVoiceMode === 'self') {
       showToast("🗣️ Sprich jetzt: 'Jetzt! Lass alles los und komm für mich!'");
-    } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+    } else if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
     }
   }
 
   function executeReleaseWithCountdown() {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+
     var panel = document.getElementById('release-choice-subpanel');
     var wrap = document.getElementById('countdown-wrapper');
     var cueText = document.getElementById('countdown-cue-text');
@@ -297,12 +302,11 @@
     var subName = (window.names && window.names[window.subPartner]) || 'mein Schatz';
     var fullCountdownText = buildDynamicCountdownSpeechText(targetEdgingDuration, subName);
 
-    logSessionAction("Geführter Atem-Countdown (" + targetEdgingDuration + "s ab Zahl " + config.startNum + ") gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
+    logSessionAction("Geführter Atem-Countdown (" + targetEdgingDuration + "s) gestartet [" + (countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini') + "]");
 
-    // Startet die visuelle Großanzeige synchron mit Beat auf jeden Zähler
     runVisualCountdownTicker(countdownRunId, config.startNum, config.stepMs);
 
-    if (countdownVoiceMode === 'gemini' && window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+    if (countdownVoiceMode === 'gemini' && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play(fullCountdownText).then(function() {
         var disp = document.getElementById('countdown-display');
         if (disp) {
@@ -401,12 +405,16 @@
   }
 
   function finalizeEdgingDecision(decision) {
+    if (window.SessionVoice && typeof window.SessionVoice.unlock === 'function') {
+      window.SessionVoice.unlock();
+    }
+
     if (decision === 'ruined') {
       logSessionAction("Ruined Orgasm angeordnet");
       showToast("Ruined Orgasm vollzogen!");
       if (countdownVoiceMode === 'self') {
         showToast("🗣️ Sprich jetzt: 'Hände weg! Stillhalten und auskrampfen!'");
-      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      } else if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Hände weg! Stillhalten und auskrampfen... Vielleicht beim nächsten Mal.");
       }
     } else if (decision === 'denial') {
@@ -417,7 +425,7 @@
       }
       if (countdownVoiceMode === 'self') {
         showToast("🗣️ Sprich jetzt: 'Schluss für heute. Du bleibst ungelöst.'");
-      } else if (window.isTopVoiceAssistActive && window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      } else if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
         window.SessionVoice.play("Schluss für heute. Du bleibst ungelöst.");
       }
     }
@@ -455,7 +463,6 @@
     }
   };
 
-  // Direktanbindungen an window für alle inline HTML-Attribute
   window.setCountdownVoiceMode = setCountdownVoiceMode;
   window.setEdgingStimulator = setEdgingStimulator;
   window.handleArousalSliderTouch = handleArousalSliderTouch;
