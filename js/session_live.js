@@ -6,7 +6,7 @@
  * - Dynamische Cockpit-Präsentation je nach Modus (Geführt vs. Freier Flow)
  * - Animierte 4-7-8 Vagus-Atmung (Pulsierender Kreis & Phasen-Wechsel)
  * - Session-Tagebuch & Aftercare-Protokoll
- * - Interaktive Tabu-Schranken mit Direktsprung zur Frage im Bogen
+ * - Interaktive Tabu-Schranken & VERLÄSSLICHE Tabu-Zähler-Aktualisierung im Header
  */
 
 (function(window) {
@@ -56,6 +56,40 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function updateHeaderTabuCounter() {
+    var counterEl = document.getElementById('session-tabu-counter');
+    if (!counterEl) return;
+
+    var allChapters = window.surveyChapters || [];
+    var answers = window.answers || { A: {}, B: {} };
+    if (!answers.A && !answers.B) {
+      try {
+        var stored = localStorage.getItem('kompass_answers');
+        if (stored) answers = JSON.parse(stored);
+      } catch (e) {}
+    }
+
+    var topPartner = window.topPartner || 'B';
+    var subPartner = window.subPartner || 'A';
+
+    var uAnswersTop = answers[topPartner] || {};
+    var uAnswersSub = answers[subPartner] || {};
+
+    var count = 0;
+    allChapters.forEach(function(ch) {
+      (ch.items || []).forEach(function(it) {
+        if (it.type !== 'choice') {
+          // Top darf es nicht aktiv ausführen wollen (Note 1)
+          if (uAnswersTop['it_' + it.id + '_r1'] === 1) count++;
+          // Bottom hat ein Veto gegen den Empfang (Note 1)
+          if (uAnswersSub['it_' + it.id + '_r2'] === 1) count++;
+        }
+      });
+    });
+
+    counterEl.innerText = count;
   }
 
   async function acquireScreenWakeLock() {
@@ -513,6 +547,13 @@
 
     var allChapters = window.surveyChapters || [];
     var answers = window.answers || { A: {}, B: {} };
+    if (!answers.A && !answers.B) {
+      try {
+        var stored = localStorage.getItem('kompass_answers');
+        if (stored) answers = JSON.parse(stored);
+      } catch (e) {}
+    }
+
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     var topPartner = window.topPartner || 'B';
     var subPartner = window.subPartner || 'A';
@@ -596,7 +637,8 @@
     openDiary: openSessionDiaryModal,
     closeDiary: closeSessionDiaryModal,
     openTabus: openSessionTabuModal,
-    closeTabus: closeSessionTabuModal
+    closeTabus: closeSessionTabuModal,
+    updateTabuCounter: updateHeaderTabuCounter
   };
 
   window.startLiveSessionWrapper = startLiveSession;
@@ -617,5 +659,12 @@
   window.closeSessionDiaryModal = closeSessionDiaryModal;
   window.openSessionTabuModal = openSessionTabuModal;
   window.closeSessionTabuModal = closeSessionTabuModal;
+  window.updateHeaderTabuCounter = updateHeaderTabuCounter;
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', updateHeaderTabuCounter);
+  } else {
+    setTimeout(updateHeaderTabuCounter, 50);
+  }
 
 })(window);
