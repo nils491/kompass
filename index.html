@@ -1,4 +1,4 @@
-<html lang="de" class="dark">
+ok<html lang="de" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -135,6 +135,10 @@
 
         <!-- MOBILE QUICK BAR & BURGER BUTTON -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <a href="chat.html" class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white touch-btn flex items-center justify-center text-xs" title="Paar-Stream & Chat">
+            💬
+          </a>
+
           <button type="button" onclick="togglePartnerQuickMobile()" class="px-2 py-1 rounded-xl bg-brand-950 border border-brand-700/80 text-brand-300 text-[11px] font-bold touch-btn flex items-center gap-1" title="Partner wechseln">
             <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
             <span id="mobile-quick-partner-label">P1</span>
@@ -163,8 +167,8 @@
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="Paar-Analyse & Synergie öffnen">
           <span>Paar-Analyse</span>
         </a>
-        <a href="ledger.html" class="px-3 py-1.5 rounded-xl text-purple-300 hover:text-purple-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="D/s-Ledger, Aufgaben & Vertrag öffnen">
-          <span>Ledger 🗝️</span>
+        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-rose-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="E2EE Paar-Stream & Sexting öffnen">
+          <span>Stream 💬</span>
         </a>
         <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn" title="BDSM- & Vertrauens-Guide öffnen">
           <span>Guide 📖</span>
@@ -176,40 +180,6 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER / BURGER OVERLAY -->
-  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
-    <div class="space-y-4">
-      <!-- DRAWER HEADER -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-900 to-rose-600 border border-brand-500/40 text-white flex items-center justify-center font-bold text-sm">
-            ✨
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
-            <span id="mobile-drawer-pair-names" class="text-[10px] text-slate-400 font-medium block">Partner 1 & Partner 2</span>
-          </div>
-        </div>
-        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
-          ✕
-        </button>
-      </div>
-
-      <!-- PARTNER-UMSCHALTER IM BURGER-MENÜ -->
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-        <span class="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider block">Aktiver Partner auf diesem Gerät:</span>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" id="mobile-drawer-btn-A" onclick="setCurrentUser('A'); toggleMobileDrawer(false);" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition bg-brand-700 border-brand-500 text-white shadow-md">
-            <span class="block text-xs" id="mobile-drawer-name-A">Partner 1</span>
-            <span class="text-[9px] opacity-80 block font-normal">Profil aktiv ✓</span>
-          </button>
-          <button type="button" id="mobile-drawer-btn-B" onclick="setCurrentUser('B'); toggleMobileDrawer(false);" class="py-2.5 px-3 rounded-xl border text-left touch-btn font-bold transition theme-panel text-slate-400">
-            <span class="block text-xs" id="mobile-drawer-name-B">Partner 2</span>
-            <span class="text-[9px] opacity-60 block font-normal">Antippen zum Wechsel</span>
-          </button>
-        </div>
-      </div>
-
       <!-- NAVIGATIONSLINKS -->
       <div class="space-y-1.5 pt-1">
         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block px-1">Bereiche:</span>
@@ -218,6 +188,11 @@
           <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
           <span class="text-slate-500 text-xs">→</span>
         </button>
+
+        <a href="chat.html" class="w-full p-3 rounded-2xl bg-gradient-to-r from-brand-950/60 to-rose-950/40 border border-brand-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-rose-200 flex items-center gap-2"><span>💬</span><span>Paar-Stream & Sexting</span></span>
+          <span class="text-[10px] font-mono text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-black/40">E2EE 🔒</span>
+        </a>
 
         <button type="button" onclick="switchMainView('survey'); toggleMobileDrawer(false);" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group">
           <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
@@ -234,15 +209,15 @@
           <span class="text-slate-500 text-xs">→</span>
         </button>
 
-        <!-- KLARE TRENNUNG: PAAR-ANALYSE vs GUIDE -->
         <a href="analyse.html" class="w-full p-3 rounded-2xl bg-amber-950/30 border border-amber-600/80 hover:border-amber-400 text-left flex items-center justify-between touch-btn group block">
           <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
           <span class="text-[10px] text-amber-300 font-bold">Doppel-5er ↗</span>
         </a>
 
-        <a href="ledger.html" class="w-full p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 hover:border-purple-600 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
-          <span class="text-[10px] text-purple-300 font-bold">Aktiv ↗</span>
+        <!-- OPTIONALER D/s- & VERTRAGS-BEREICH IM BURGER-MENÜ -->
+        <a href="ledger.html" class="w-full p-3 rounded-2xl bg-purple-950/30 border border-purple-900 hover:border-purple-600 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-bold text-purple-300 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag (Optional)</span></span>
+          <span class="text-[10px] text-purple-400 font-mono" id="mobile-drawer-ledger-label">Modul ↗</span>
         </a>
 
         <a href="guide.html" class="w-full p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-700 text-left flex items-center justify-between touch-btn group block">
@@ -310,103 +285,127 @@
       <!-- KACHELN GRID -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
         
-        <!-- KACHEL 1: FRAGEBOGEN -->
+        <!-- KACHEL 1: PAAR-STREAM & SEXTING (PROMINENT FÜR ALLE PAARE) -->
+        <a href="chat.html" class="p-4 rounded-2xl theme-card border border-brand-800/80 hover:border-brand-500 text-left space-y-2 transition-all touch-btn group block bg-gradient-to-br from-brand-950/40 via-noir-900 to-rose-950/20 shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="text-xl">💬</span>
+            <span class="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800">E2EE 🔒</span>
+          </div>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-brand-300">1. Paar-Stream & Sexting</strong>
+          <p class="text-[11px] text-slate-300 leading-snug">Verschlüsseltes Flüstern, intime Fotos mit Verwisch-Schutz & gemeinsamer Feed.</p>
+        </a>
+
+        <!-- KACHEL 2: FRAGEBOGEN -->
         <button type="button" onclick="switchMainView('survey')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-brand-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">📋</span>
             <span id="hub-survey-pct-badge" class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800">0 %</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-brand-300">1. Der Fragebogen</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-brand-300">2. Der Fragebogen</strong>
           <p class="text-[11px] text-slate-400 leading-snug">36 strukturierte Kapitel von Romantik bis BDSM mit Noten von 0 bis 5.</p>
         </button>
 
-        <!-- KACHEL 2: SICHERHEITS-KODEX -->
+        <!-- KACHEL 3: SICHERHEITS-KODEX -->
         <button type="button" onclick="switchMainView('safety')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-teal-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🛡️</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-teal-950 text-teal-300 border border-teal-800">6 Module</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-teal-300">2. Sicherheits-Kodex</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-teal-300">3. Sicherheits-Kodex</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Notfall-Werkzeug, Safewords, Knebelsignale und 24h-Aftercare abstimmen.</p>
         </button>
 
-        <!-- KACHEL 3: MEIN PROFIL -->
+        <!-- KACHEL 4: MEIN PROFIL -->
         <button type="button" onclick="switchMainView('single')" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🔮</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Radar & KI</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">3. Mein Profil</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">4. Mein Profil</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Archetypen-Radar, 5 Motivationssäulen und persönliches KI-Einzelgutachten.</p>
         </button>
 
-        <!-- KACHEL 4: PAAR-ANALYSE (EINDEUTIG ZU analyse.html) -->
+        <!-- KACHEL 5: PAAR-ANALYSE (EINDEUTIG ZU analyse.html) -->
         <a href="analyse.html" class="p-4 rounded-2xl theme-card border border-amber-800/80 hover:border-amber-400 text-left space-y-2 transition-all touch-btn group block bg-gradient-to-br from-amber-950/30 via-noir-900 to-amber-950/10 shadow-sm" title="Eure Paar-Analyse öffnen">
           <div class="flex items-center justify-between">
             <span class="text-xl">💫</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-amber-950 text-amber-300 border border-amber-700">Doppel-5er</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">4. Paar-Analyse & Synergie</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">5. Paar-Analyse & Synergie</strong>
           <p class="text-[11px] text-slate-300 leading-snug">Beiderseitige Volltreffer, Brücken und schamfreies KI-Paargutachten.</p>
         </a>
 
-        <!-- KACHEL 5: D/S-LEDGER & VERTRAG -->
-        <a href="ledger.html" class="p-4 rounded-2xl theme-card border border-purple-900/80 hover:border-purple-500 text-left space-y-2 transition-all touch-btn group block bg-gradient-to-br from-purple-950/40 via-noir-900 to-purple-950/10 shadow-sm" title="D/s-Ledger, Aufgaben & Vertrag öffnen">
-          <div class="flex items-center justify-between">
-            <span class="text-xl">🗝️</span>
-            <span id="hub-ledger-badge" class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Ledger</span>
+        <!-- KACHEL 6: D/S-LEDGER & VERTRAG (OPTIONALES OPT-IN MODUL) -->
+        <div class="p-4 rounded-2xl theme-card border border-purple-900/60 text-left space-y-2 transition-all flex flex-col justify-between bg-gradient-to-br from-purple-950/20 via-noir-900 to-purple-950/10 shadow-sm relative group">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xl">🗝️</span>
+              <span id="hub-ledger-badge" class="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">
+                Optional
+              </span>
+            </div>
+            <strong class="text-xs text-white block font-extrabold">6. D/s-Ledger & Vertrag</strong>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Aufgaben, Strafen, Keuschheits-Uhr, Beziehungsvertrag & Top-Coach.
+            </p>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">5. D/s-Ledger & Vertrag</strong>
-          <p class="text-[11px] text-slate-300 leading-snug">Aufgaben, Strafenkatalog, E2EE-Stream, Beziehungsvertrag & Top-Coach.</p>
-        </a>
+          <div class="pt-2 border-t border-purple-900/40 flex items-center justify-between gap-1.5">
+            <button type="button" onclick="toggleDsOptIn()" id="hub-ds-optin-toggle-btn" class="px-2.5 py-1.5 rounded-xl border text-[10px] font-bold touch-btn theme-panel border-slate-700 text-slate-300 hover:text-white">
+              Deaktiviert ○
+            </button>
+            <a href="ledger.html" class="px-3 py-1.5 rounded-xl bg-purple-900/80 hover:bg-purple-800 text-purple-200 font-extrabold text-[10.5px] touch-btn flex items-center gap-1 shadow-xs">
+              <span>Öffnen</span><span>↗</span>
+            </a>
+          </div>
+        </div>
 
-        <!-- KACHEL 6: BDSM- & VERTRAUENS-GUIDE (EINDEUTIG ZU guide.html) -->
+        <!-- KACHEL 7: BDSM- & VERTRAUENS-GUIDE -->
         <a href="guide.html" class="p-4 rounded-2xl theme-card border border-slate-800 hover:border-amber-600 text-left space-y-2 transition-all touch-btn group block bg-slate-900/60 shadow-sm" title="Ausführlichen BDSM-Leitfaden lesen">
           <div class="flex items-center justify-between">
             <span class="text-xl">📖</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-amber-200 border border-slate-700">Leitfaden</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">6. BDSM- & Vertrauens-Guide</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-amber-300">7. BDSM- & Vertrauens-Guide</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Der Reiz, SSC/RACK, Scham-Entlastung und warum Zucht wirken kann.</p>
         </a>
 
-        <!-- KACHEL 7: SCHLAFZIMMER-REGIE -->
+        <!-- KACHEL 8: SCHLAFZIMMER-REGIE -->
         <a href="session.html" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-rose-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🕯️</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800">Cockpit</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-rose-300">7. Schlafzimmer-Regie</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-rose-300">8. Schlafzimmer-Regie</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Live-Drehbuch, Edging-Remote, Soundscapes und Bestrafungswizard.</p>
         </a>
 
-        <!-- KACHEL 8: UNSER SCHRANK -->
+        <!-- KACHEL 9: UNSER SCHRANK -->
         <button type="button" onclick="openToyManagementModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🧰</span>
             <span id="hub-toy-count-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">0 Toys</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">8. Unser Schrank</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">9. Unser Schrank</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Vorhandene Ausrüstung, Spielzeuge und Haushaltsmittel verwalten.</p>
         </button>
 
-        <!-- KACHEL 9: MULTI-DEVICE KOPPLUNG -->
+        <!-- KACHEL 10: MULTI-DEVICE KOPPLUNG -->
         <button type="button" onclick="openCloudSyncModal()" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-emerald-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">☁️</span>
             <span id="hub-sync-status-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">Lokal</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-emerald-300">9. Geräte koppeln</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-emerald-300">10. Geräte koppeln</strong>
           <p id="hub-sync-card-desc" class="text-[11px] text-slate-400 leading-snug">Zwei Smartphones sicher koppeln, um den Fragebogen gemeinsam auszufüllen.</p>
         </button>
 
-        <!-- KACHEL 10: KI-KINK-RECHERCHE -->
+        <!-- KACHEL 11: KI-KINK-RECHERCHE -->
         <button type="button" onclick="openLexikonModal()" id="hub-tile-ai" class="p-4 rounded-2xl theme-card border text-left space-y-2 transition-all hover:border-purple-500 touch-btn group block">
           <div class="flex items-center justify-between">
             <span class="text-xl">🔍</span>
             <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800">Gemini Live</span>
           </div>
-          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">10. Kink-Recherche</strong>
+          <strong class="text-xs text-white block font-extrabold group-hover:text-purple-300">11. Kink-Recherche</strong>
           <p class="text-[11px] text-slate-400 leading-snug">Schamfreie Sofort-Analyse von Praktiken, Reizen und Sicherheitsregeln.</p>
         </button>
       </div>
