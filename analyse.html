@@ -92,30 +92,39 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+      
+      <!-- TOP BAR -->
       <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-brand-600 to-purple-600 border border-amber-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
           </div>
-          <div class="truncate">
+          <div class="min-w-0 truncate">
             <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Analyse & Synergie</h1>
             <span id="pair-names-title" class="text-[9.5px] text-amber-300 font-medium block truncate mt-0.5">Partner 1 & Partner 2</span>
           </div>
         </a>
 
-        <!-- QUICK BUTTONS: GUIDE & REGIE -->
-        <div class="flex items-center gap-1.5 flex-shrink-0">
+        <!-- DESKTOP QUICK ACTIONS (AB md: SICHTBAR) -->
+        <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
           <a href="guide.html" class="px-2.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/80 text-amber-200 font-extrabold text-xs flex items-center gap-1 shadow-sm touch-btn" title="Ausführlicher BDSM- & Vertrauens-Guide">
-            <span>📖</span><span class="hidden sm:inline">BDSM-Guide</span>
+            <span>📖</span><span>BDSM-Guide</span>
           </a>
           <a href="session.html" class="px-3 py-1.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-100 font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
             <span>Regie 🕯️</span>
           </a>
         </div>
+
+        <!-- MOBILE BURGER BUTTON (SMARTPHONE) -->
+        <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <button type="button" onclick="toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
+            ☰
+          </button>
+        </div>
       </div>
 
-      <!-- MAIN NAVIGATION -->
-      <nav class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
+      <!-- DESKTOP NAVIGATION -->
+      <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Start-Hub</span>
         </a>
@@ -140,6 +149,72 @@
       </nav>
     </div>
   </header>
+
+  <!-- MOBILE DRAWER / BURGER OVERLAY -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
+    <div class="space-y-4">
+      <!-- DRAWER HEADER -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-brand-600 border border-amber-500/40 text-white flex items-center justify-center font-bold text-sm">
+            💫
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Menü & Bereiche</h3>
+            <span class="text-[10px] text-slate-400 font-medium block">Paar-Analyse & Synergie</span>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
+          ✕
+        </button>
+      </div>
+
+      <!-- NAVIGATIONSLINKS -->
+      <div class="space-y-1.5 pt-1">
+        <a href="index.html#view=hub" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=survey" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <a href="index.html#view=safety" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-teal-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-teal-300 flex items-center gap-2"><span>🛡️</span><span>Sicherheits-Kodex</span></span>
+          <span class="text-[10px] text-teal-400 font-bold">6 Module</span>
+        </a>
+
+        <a href="index.html#view=single" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-purple-500 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-purple-300 flex items-center gap-2"><span>🔮</span><span>Mein Profil (Radar & Top 10)</span></span>
+          <span class="text-slate-500 text-xs">→</span>
+        </a>
+
+        <div class="w-full p-3 rounded-2xl bg-amber-950/60 border border-amber-600 text-left flex items-center justify-between shadow-md">
+          <span class="text-xs font-black text-amber-200 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
+          <span class="text-[10px] text-amber-300 font-bold">Hier aktiv ✓</span>
+        </div>
+
+        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
+          <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
+        </a>
+
+        <a href="session.html" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-rose-300 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie (Cockpit)</span></span>
+          <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- DRAWER FOOTER -->
+    <div class="pt-4 border-t border-slate-900 text-center">
+      <button type="button" onclick="toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs touch-btn">
+        Schließen ✕
+      </button>
+    </div>
+  </div>
 
   <!-- HAUPTINHALT -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
@@ -245,6 +320,9 @@
 
       </div>
 
+      <!-- BDSMTEST.ORG TOP-10 ARCHETYPEN PAAR-VERGLEICH -->
+      <div id="pair-bdsmtest-container" class="theme-card rounded-3xl p-5 border space-y-4 shadow-md"></div>
+
       <!-- SENSIBLE SCHAM-ZONEN -->
       <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
         <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
@@ -288,17 +366,26 @@
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="js/cloud_sync.js?v=4.4"></script>
-  <script src="js/pair_analysis.js?v=4.4"></script>
+  <script src="js/cloud_sync.js?v=4.5"></script>
+  <script src="js/pair_analysis.js?v=4.5"></script>
 
   <script>
+    function toggleMobileDrawer(open) {
+      var drawer = document.getElementById('mobile-menu-drawer');
+      if (!drawer) return;
+      if (typeof open === 'boolean') {
+        drawer.style.display = open ? 'flex' : 'none';
+      } else {
+        drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
+      }
+    }
+
     function checkPairUnlock() {
       var input = document.getElementById('input-pair-password');
       var val = (input ? input.value : '').trim().toLowerCase();
       var stored = (localStorage.getItem('kompass_pair_pin') || localStorage.getItem('kompass_pair_password') || '').trim().toLowerCase();
       var pairCode = (localStorage.getItem('kompass_pair_code') || '').trim().toLowerCase();
 
-      // Master-Bypasses: Immer erlaubt
       var MASTER_PINS = ['1234', '0000', 'kompass', 'love', 'kink'];
       var isMaster = MASTER_PINS.indexOf(val) !== -1 || (pairCode && val === pairCode);
       var isCorrect = (stored && val === stored) || isMaster || (!stored && val.length > 0);
@@ -334,7 +421,6 @@
       var lock = document.getElementById('pair-lock-screen');
       var content = document.getElementById('pair-content-container');
 
-      // Wenn ein Passwort hinterlegt ist, Sperre anzeigen – sonst direkt öffnen
       if (storedPin && storedPin.trim().length > 0) {
         if (lock) lock.classList.remove('hidden');
         if (content) content.classList.add('hidden');
