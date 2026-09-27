@@ -1,8 +1,10 @@
 /**
  * js/pair_analysis.js
  * Modul für die Beziehungs-Synergie und Paar-Analyse ("Paar-Analyse"):
+ * - Standard-Freigabestufe: Stufe 4 (Radikale Transparenz / Alles zeigen)
  * - Doppel-5er Matches (Beiderseitige Volltreffer)
  * - Brückenbau-Chancen unter Berücksichtigung der 4 Freigabestufen (Schamschutz)
+ * - 🙈 Sensible Scham-Zonen (Praktiken mit Scham-Markierung als achtsame Vertrauenschancen)
  * - Absolute Tabu-Schranken (Note 1 schlägt alles - kompromissloser Veto-Schutz)
  * - Anklickbare Tabus und Praktiken mit Direktsprung in den Fragebogen
  * - Dauerhafter Cache für Paargutachten mit Antworten-Fingerprint und personengenauer Änderungs-Erkennung
@@ -64,6 +66,7 @@
     return Math.abs(hash).toString(36);
   }
 
+  // STANDARD-FREIGABESTUFE: STUFE 4 (RADIKALE TRANSPARENZ / ALLES ZEIGEN)
   function getSharingLevel(user) {
     try {
       var stored = localStorage.getItem('kompass_sharing_level_' + user);
@@ -72,7 +75,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 3;
+    return 4; // Standard & Empfehlung: Stufe 4 (Alles zeigen)
   }
 
   function calculatePairSynergy() {
@@ -88,6 +91,7 @@
 
     var doubleFives = [];
     var bridges = [];
+    var shameBridges = [];
     var tabus = [];
 
     chapters.forEach(function(ch) {
@@ -99,6 +103,9 @@
         var bR1 = ansB['it_' + it.id + '_r1'];
         var bR2 = ansB['it_' + it.id + '_r2'];
 
+        var aShame = !!ansA['it_' + it.id + '_shame'];
+        var bShame = !!ansB['it_' + it.id + '_shame'];
+
         // 1. ABSOLUTES TABU-VETO: Note 1 schlägt alles!
         var tabuInPractice = false;
         if (aR1 === 1) { tabus.push({ item: it, who: 'A', name: names.A, role: 'Aktiv: ' + (it.r1 || 'Ausführen') }); tabuInPractice = true; }
@@ -108,6 +115,19 @@
 
         if (tabuInPractice) return; // Wenn mindestens einer Note 1 hat, niemals als Match oder Brücke anzeigen!
 
+        // 2. SCHAM-ZONEN & SENSIBLE BRÜCKEN ERKENNEN
+        if (aShame || bShame) {
+          var hasInterestA = (aR1 >= 2 || aR2 >= 2);
+          var hasInterestB = (bR1 >= 2 || bR2 >= 2);
+          if (hasInterestA && hasInterestB) {
+            shameBridges.push({
+              item: it,
+              shamePartner: aShame && bShame ? 'Beide' : (aShame ? names.A : names.B),
+              hint: aShame && bShame ? 'Beiderseitige Hemmschwelle' : ('Hemmschwelle bei ' + (aShame ? names.A : names.B))
+            });
+          }
+        }
+
         // Konstellation 1: A führt aus (R1), B empfängt (R2)
         if (typeof aR1 === 'number' && typeof bR2 === 'number') {
           if (aR1 === 5 && bR2 === 5) {
@@ -116,10 +136,10 @@
               actor: names.A,
               receiver: names.B,
               actorRole: it.r1 || 'Ausführen',
-              receiverRole: it.r2 || 'Empfangen'
+              receiverRole: it.r2 || 'Empfangen',
+              isShame: aShame || bShame
             });
           } else if (aR1 === 5 && (bR2 === 2 || bR2 === 3)) {
-            // Prüfung des Schamschutzes von B
             var allowed = (bR2 === 3 && lvlB >= 2) || (bR2 === 2 && lvlB >= 3) || (lvlB === 4);
             if (allowed) {
               bridges.push({
@@ -130,11 +150,11 @@
                 receiverScore: bR2,
                 actorRole: it.r1 || 'Ausführen',
                 receiverRole: it.r2 || 'Empfangen',
-                type: (bR2 === 3 ? 'Neugier' : 'Duldung / Buße')
+                type: (bR2 === 3 ? 'Neugier' : 'Duldung / Buße'),
+                isShame: aShame || bShame
               });
             }
           } else if (bR2 === 5 && (aR1 === 2 || aR1 === 3)) {
-            // Prüfung des Schamschutzes von A
             var allowedA = (aR1 === 3 && lvlA >= 2) || (aR1 === 2 && lvlA >= 3) || (lvlA === 4);
             if (allowedA) {
               bridges.push({
@@ -145,7 +165,8 @@
                 receiverScore: bR2,
                 actorRole: it.r1 || 'Ausführen',
                 receiverRole: it.r2 || 'Empfangen',
-                type: (aR1 === 3 ? 'Neugier' : 'Duldung / Buße')
+                type: (aR1 === 3 ? 'Neugier' : 'Duldung / Buße'),
+                isShame: aShame || bShame
               });
             }
           }
@@ -159,7 +180,8 @@
               actor: names.B,
               receiver: names.A,
               actorRole: it.r1 || 'Ausführen',
-              receiverRole: it.r2 || 'Empfangen'
+              receiverRole: it.r2 || 'Empfangen',
+              isShame: aShame || bShame
             });
           } else if (bR1 === 5 && (aR2 === 2 || aR2 === 3)) {
             var allowedBtoA = (aR2 === 3 && lvlA >= 2) || (aR2 === 2 && lvlA >= 3) || (lvlA === 4);
@@ -172,7 +194,8 @@
                 receiverScore: aR2,
                 actorRole: it.r1 || 'Ausführen',
                 receiverRole: it.r2 || 'Empfangen',
-                type: (aR2 === 3 ? 'Neugier' : 'Duldung / Buße')
+                type: (aR2 === 3 ? 'Neugier' : 'Duldung / Buße'),
+                isShame: aShame || bShame
               });
             }
           } else if (aR2 === 5 && (bR1 === 2 || bR1 === 3)) {
@@ -186,7 +209,8 @@
                 receiverScore: aR2,
                 actorRole: it.r1 || 'Ausführen',
                 receiverRole: it.r2 || 'Empfangen',
-                type: (bR1 === 3 ? 'Neugier' : 'Duldung / Buße')
+                type: (bR1 === 3 ? 'Neugier' : 'Duldung / Buße'),
+                isShame: aShame || bShame
               });
             }
           }
@@ -197,6 +221,7 @@
     return {
       doubleFives: doubleFives,
       bridges: bridges,
+      shameBridges: shameBridges,
       tabus: tabus
     };
   }
@@ -222,7 +247,10 @@
           return `
             <a href="${targetUrl}" class="block p-3 rounded-2xl bg-brand-950/40 hover:bg-brand-950 border border-brand-800/80 hover:border-brand-500 transition-all touch-btn group">
               <div class="flex items-center justify-between">
-                <strong class="text-xs text-white group-hover:text-brand-300 font-extrabold">${escapeHtml(m.item.title)}</strong>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <strong class="text-xs text-white group-hover:text-brand-300 font-extrabold">${escapeHtml(m.item.title)}</strong>
+                  ${m.isShame ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">🙈 Scham-Faktor</span>' : ''}
+                </div>
                 <span class="text-[9px] px-2 py-0.5 rounded-md bg-brand-900 text-brand-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">⭐ Doppel-5er ↗</span>
               </div>
               <div class="flex items-center gap-3 text-[10.5px] text-slate-300 mt-1.5 flex-wrap">
@@ -252,7 +280,10 @@
           return `
             <a href="${targetUrl}" class="block p-3 rounded-2xl bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all touch-btn group">
               <div class="flex items-center justify-between">
-                <strong class="text-xs text-white group-hover:text-amber-300 font-extrabold">${escapeHtml(b.item.title)}</strong>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <strong class="text-xs text-white group-hover:text-amber-300 font-extrabold">${escapeHtml(b.item.title)}</strong>
+                  ${b.isShame ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-bold">🙈 Scham</span>' : ''}
+                </div>
                 <span class="text-[9px] px-2 py-0.5 rounded-md border font-bold ${badgeColor}">💡 ${escapeHtml(b.type)} ↗</span>
               </div>
               <div class="flex items-center gap-3 text-[10.5px] text-slate-300 mt-1.5 flex-wrap">
@@ -265,6 +296,9 @@
         }).join('');
       }
     }
+
+    // SCHAM-ZONEN RENDERN (DYNAMISCH EINFÜGEN)
+    renderShameBridgesContainer(synergy.shameBridges);
 
     // Tabus rendern mit absolutem Direktsprung
     var tabuContainer = document.getElementById('pair-tabus-container');
@@ -294,6 +328,54 @@
     }
 
     loadCachedPairReport();
+  }
+
+  function renderShameBridgesContainer(shameBridges) {
+    var c = document.getElementById('pair-shame-bridges-container');
+    if (!c) {
+      var bridgeCard = document.getElementById('pair-bridges-container')?.closest('.theme-card');
+      if (bridgeCard && bridgeCard.parentNode) {
+        var newCard = document.createElement('div');
+        newCard.id = 'pair-shame-card';
+        newCard.className = "theme-card rounded-3xl p-5 border space-y-3 shadow-md";
+        newCard.innerHTML = `
+          <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🙈</span>
+              <div>
+                <strong class="text-xs sm:text-sm text-indigo-200 font-extrabold block">Sensible Scham-Zonen & Vertrauens-Chancen:</strong>
+                <p class="text-[10px] text-slate-400">Praktiken mit beiderseitiger Lust/Neugier, aber Schamgefühl bei mindestens einem Partner.</p>
+              </div>
+            </div>
+            <span id="count-pair-shame" class="text-xs font-mono font-bold text-indigo-300 px-2 py-0.5 rounded-lg bg-indigo-950 border border-indigo-800">0</span>
+          </div>
+          <div id="pair-shame-bridges-container" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+        `;
+        bridgeCard.parentNode.insertBefore(newCard, bridgeCard.nextSibling);
+        c = document.getElementById('pair-shame-bridges-container');
+      }
+    }
+    if (!c) return;
+
+    var countBadge = document.getElementById('count-pair-shame');
+    if (countBadge) countBadge.innerText = (shameBridges || []).length;
+
+    if (!shameBridges || shameBridges.length === 0) {
+      c.innerHTML = '<p class="text-slate-500 italic text-[11px] text-center py-2">Keine geteilten Scham-Themen markiert.</p>';
+    } else {
+      c.innerHTML = shameBridges.map(function(sb) {
+        var targetUrl = "index.html#view=survey&jumpItem=" + sb.item.id;
+        return `
+          <a href="${targetUrl}" class="block p-2.5 rounded-xl bg-indigo-950/30 hover:bg-indigo-950 border border-indigo-900/60 hover:border-indigo-600 transition group touch-btn">
+            <div class="flex items-center justify-between">
+              <strong class="text-white block font-bold text-[11px] group-hover:text-indigo-200">${escapeHtml(sb.item.title)}</strong>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-900 text-indigo-200 font-bold group-hover:bg-brand-600 group-hover:text-white transition">✏️ Im Bogen öffnen ↗</span>
+            </div>
+            <span class="text-indigo-300 text-[10px] block mt-0.5">🙈 ${escapeHtml(sb.hint)}</span>
+          </a>
+        `;
+      }).join('');
+    }
   }
 
   function loadCachedPairReport() {
@@ -389,11 +471,11 @@
             <p>${escapeHtml(report.synergy || '')}</p>
           </div>
           <div class="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-900/60 space-y-1">
-            <strong class="text-indigo-200 block text-xs font-bold">2. Schamfreie Brücken & Wachstumschancen:</strong>
+            <strong class="text-indigo-200 block text-xs font-bold">2. Schamfreie Brücken & Vertrauens-Chancen:</strong>
             <p>${escapeHtml(report.bridges || '')}</p>
           </div>
           <div class="p-3.5 rounded-2xl bg-teal-950/20 border border-teal-900/60 space-y-1">
-            <strong class="text-teal-200 block text-xs font-bold">3. Vertrauens-Kodex & Sicherheitskultur:</strong>
+            <strong class="text-teal-200 block text-xs font-bold">3. Vertrauens-Kodex & Scham-Entlastung:</strong>
             <p>${escapeHtml(report.safety || '')}</p>
           </div>
         </div>
@@ -401,10 +483,14 @@
     `;
   }
 
-  function generateClientSidePairReport(names, doubleFivesCount, bridgesCount, tabusCount) {
+  function generateClientSidePairReport(names, doubleFivesCount, bridgesCount, tabusCount, shameBridgesCount) {
+    var shameText = shameBridgesCount > 0
+      ? `Mit ${shameBridgesCount} identifizierten Scham-Zonen habt ihr wertvolle Wachstumsfelder erschlossen: Wo Lust auf Scham trifft, wird Vertrauen lebendig. Wenn der Top hier entschleunigt und behutsam führt, verwandelt sich Scham in tiefste Hingabe.`
+      : `Besonders wertvoll sind eure ${bridgesCount} identifizierten Brücken. Sie laden ein zu behutsamen Experimenten im geschützten Raum, ohne dass jemals Druck entsteht.`;
+
     return {
       synergy: `${names.A} und ${names.B} teilen ein kraftvolles, komplementäres erotisches Spannungsfeld. Mit ${doubleFivesCount} beiderseitigen Volltreffern verfügt ihr über eine solide Basis unmittelbarer Lust, die ohne Zögern gelebt werden kann. Eure Antworten spiegeln ein tiefes Bedürfnis nach Authentizität, Loslassen und gegenseitiger Präsenz wider.`,
-      bridges: `Besonders wertvoll sind eure ${bridgesCount} identifizierten Brücken. Hier treffen Neugier und die Bereitschaft zur Duldung für den Partner aufeinander. Sexualpsychologisch (u. a. Canivet 2025; Wismeijer 2013) sind genau diese Zonen der Nährboden für langfristige Leidenschaft: Sie laden ein zu behutsamen Experimenten im geschützten Raum, ohne dass jemals Druck entsteht.`,
+      bridges: shameText,
       safety: `Mit ${tabusCount} definierten Tabus beweist ihr eine gesunde, reife Grenzziehung. Wahre erotische Hingabe kann nur dort entstehen, wo das 'Nein' absolut heilig ist. Eure Vereinbarungen bieten das perfekte Sicherheitsnetz, in dem beide Partner die Kontrolle vertrauensvoll abgeben dürfen.`
     };
   }
@@ -420,7 +506,7 @@
         <div class="theme-card rounded-3xl p-8 border text-center space-y-3 shadow-md animate-pulse">
           <div class="w-10 h-10 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mx-auto"></div>
           <strong class="text-xs text-amber-200 block font-bold">Erstelle tiefenpsychologisches Paargutachten...</strong>
-          <p class="text-[10.5px] text-slate-400">Gemini analysiert eure Doppel-5er, Brücken und Schutzgrenzen.</p>
+          <p class="text-[10.5px] text-slate-400">Gemini analysiert eure Doppel-5er, Scham-Zonen und Schutzgrenzen.</p>
         </div>
       `;
     }
@@ -433,17 +519,18 @@ Erstelle ein warmherziges, inspirierendes und absolut schamfreies Paargutachten 
 DATEN ZUR SYNERGIE:
 - Beiderseitige Doppel-5er Matches: ${synergy.doubleFives.length}
 - Brückenbau-Potenziale (5 zu 3 / 2): ${synergy.bridges.length}
+- Sensible Scham-Zonen (Lust mit Hemmschwelle): ${synergy.shameBridges.length}
 - Definierte Veto-Tabus (Note 1): ${synergy.tabus.length}
 
 TONFALL:
 - Warmherzig, befreiend, partnerschaftlich ("Ihr"-Form).
+- Gehe in Feld 2 "bridges" explizit auf die ${synergy.shameBridges.length} Scham-Zonen ein: Erkläre, wie Scham durch behutsame Führung und Verlangsamung in tiefes Vertrauen umgewandelt wird (Canivet 2025).
 - Würdige Tabus als wertvolle Sicherheitsgrenzen, die Hingabe erst möglich machen.
-- Übersetze Kink-Motive in gesunde relationale Grundbedürfnisse.
 
 Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
 {
   "synergy": "Eure Beziehungs- und Machtdynamik (3 bis 5 Sätze)",
-  "bridges": "Schamfreie Würdigung der Brücken und Wachstumspotenziale (3 bis 5 Sätze)",
+  "bridges": "Schamfreie Würdigung der Brücken und sensiblen Scham-Zonen (3 bis 5 Sätze)",
   "safety": "Vertrauenskultur und Schutz der Grenzen (3 bis 4 Sätze)"
 }`;
 
@@ -486,7 +573,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen drei Feldern:
     }
 
     if (!finalReport) {
-      finalReport = generateClientSidePairReport(names, synergy.doubleFives.length, synergy.bridges.length, synergy.tabus.length);
+      finalReport = generateClientSidePairReport(names, synergy.doubleFives.length, synergy.bridges.length, synergy.tabus.length, synergy.shameBridges.length);
       showToast("✓ Paargutachten aus Bogenwerten berechnet (Offline-Modus)");
     }
 
