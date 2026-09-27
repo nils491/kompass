@@ -138,11 +138,11 @@
     var bVul = document.getElementById('acc-anat-my-vulva');
 
     if (anat === 'penis') {
-      if (bPen) bPen.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-      if (bVul) bVul.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     } else {
-      if (bVul) bVul.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
-      if (bPen) bPen.className = "flex-1 py-1.5 px-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
+      if (bVul) bVul.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold bg-brand-950 border-brand-500 text-white touch-btn";
+      if (bPen) bPen.className = "flex-1 py-2 rounded-xl border text-[11px] font-bold theme-panel text-slate-400 touch-btn";
     }
   }
 
@@ -154,7 +154,7 @@
         if (num >= 1 && num <= 4) return num;
       }
     } catch (e) {}
-    return 4; // Standard: Stufe 4 (Radikale Transparenz / Alles zeigen)
+    return 4; // Standard & Empfehlung: Stufe 4 (Radikale Transparenz / Alles zeigen)
   }
 
   function selectAccountSharingLevel(lvl) {
@@ -683,28 +683,4 @@
   window.closeOnboardingModal = closeOnboardingModal;
   window.goToOnboardStep = goToOnboardStep;
   window.setOnboardingAnatomy = setOnboardingAnatomy;
-  window.setOnboardingSharingLevel = setOnboardingSharingLevel;
-  window.copyOnboardCode = copyOnboardCode;
-  window.completeOnboarding = completeOnboarding;
-
-  window.openCloudSyncModal = openCloudSyncModal;
-  window.closeCloudSyncModal = closeCloudSyncModal;
-  window.handleCreatePairRoom = handleCreatePairRoom;
-  window.handleJoinPairRoom = handleJoinPairRoom;
-  window.handleShareInviteLink = handleShareInviteLink;
-  window.handleCopyInviteLink = handleCopyInviteLink;
-  window.handleManualSyncNow = handleManualSyncNow;
-  window.handleDisconnectPairing = handleDisconnectPairing;
-  window.updateCloudSyncUI = updateCloudSyncUI;
-
-  window.openTabuModal = openTabuModal;
-  window.closeTabuModal = closeTabuModal;
-  window.handleTabuItemClick = handleTabuItemClick;
-
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initModals);
-  } else {
-    initModals();
-  }
-
-})(window);
+  window.setOnboardingSharingLevel = setOnboardingSharingLevel
