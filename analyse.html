@@ -25,23 +25,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#fff1f2',
-              100: '#ffe4e6',
-              200: '#fecdd3',
-              500: '#f43f5e',
-              600: '#e11d48',
-              700: '#be123c',
-              800: '#9f1239',
-              900: '#881337',
-              950: '#4c0519',
+              50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3',
+              500: '#f43f5e', 600: '#e11d48', 700: '#be123c',
+              800: '#9f1239', 900: '#881337', 950: '#4c0519',
             },
             noir: {
-              950: '#000000',
-              900: '#05070c',
-              850: '#0a0e17',
-              800: '#101726',
-              700: '#172238',
-              600: '#233454',
+              950: '#000000', 900: '#05070c', 850: '#0a0e17',
+              800: '#101726', 700: '#172238', 600: '#233454',
             }
           }
         }
@@ -105,18 +95,24 @@
           </div>
         </a>
 
-        <!-- DESKTOP QUICK ACTIONS (AB md: SICHTBAR) -->
+        <!-- DESKTOP ACTIONS -->
         <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
-          <a href="guide.html" class="px-2.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/80 text-amber-200 font-extrabold text-xs flex items-center gap-1 shadow-sm touch-btn" title="Ausführlicher BDSM- & Vertrauens-Guide">
-            <span>📖</span><span>BDSM-Guide</span>
+          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold text-xs flex items-center gap-1 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
+            <span>💬</span><span>Stream</span>
+          </a>
+          <a href="guide.html" class="px-2.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/80 text-amber-200 font-extrabold text-xs flex items-center gap-1 shadow-sm touch-btn" title="BDSM- & Vertrauens-Guide">
+            <span>📖</span><span>Guide</span>
           </a>
           <a href="session.html" class="px-3 py-1.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-100 font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
             <span>Regie 🕯️</span>
           </a>
         </div>
 
-        <!-- MOBILE BURGER BUTTON (SMARTPHONE) -->
+        <!-- MOBILE BURGER BUTTON -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+          <a href="chat.html" class="px-2 py-1.5 bg-brand-950 border border-brand-800 text-brand-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Stream">
+            <span>💬</span>
+          </a>
           <button type="button" onclick="toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
             ☰
           </button>
@@ -140,7 +136,10 @@
         <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
           <span>Paar-Analyse</span>
         </button>
-        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-amber-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-brand-300 hover:text-brand-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
+          <span>Paar-Stream 💬</span>
+        </a>
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
           <span>Guide 📖</span>
         </a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
@@ -196,6 +195,16 @@
           <span class="text-[10px] text-amber-300 font-bold">Hier aktiv ✓</span>
         </div>
 
+        <a href="chat.html" class="w-full p-3 rounded-2xl bg-brand-950/40 border border-brand-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-brand-300 flex items-center gap-2"><span>💬</span><span>E2EE Paar-Stream & Sexting</span></span>
+          <span class="text-[10px] text-brand-400 font-bold">Chat ↗</span>
+        </a>
+
+        <a href="ledger.html" class="w-full p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 text-left flex items-center justify-between touch-btn group block">
+          <span class="text-xs font-extrabold text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
+          <span class="text-[10px] text-purple-300 font-bold">Optional ↗</span>
+        </a>
+
         <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
           <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
           <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
@@ -219,7 +228,7 @@
   <!-- HAUPTINHALT -->
   <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
 
-    <!-- PASSWORT- / SCHAMSCHUTZ-GATE (FALLS AKTIVIERT ODER GESPERRT) -->
+    <!-- PASSWORT- / SCHAMSCHUTZ-GATE -->
     <div id="pair-lock-screen" class="hidden p-6 sm:p-8 theme-card rounded-3xl border border-amber-600/50 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
       <div class="w-12 h-12 rounded-2xl bg-amber-950/80 border border-amber-600 text-amber-300 flex items-center justify-center text-2xl mx-auto shadow-inner">
         🔒
@@ -287,7 +296,7 @@
               <span class="text-base">💡</span>
               <div>
                 <strong class="text-xs sm:text-sm text-amber-300 font-extrabold block">Brückenbau-Chancen:</strong>
-                <p class="text-[10px] text-slate-400">Ein Partner vergibt Note 5, der andere ist neugierig (3).</p>
+                <p class="text-[10px] text-slate-400">Ein Partner vergibt Note 5, der andere ist offen/neugierig.</p>
               </div>
             </div>
             <span id="count-bridges" class="text-xs font-mono font-bold text-amber-300 px-2 py-0.5 rounded-lg bg-amber-950 border border-amber-800">0</span>
@@ -343,8 +352,8 @@
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="js/cloud_sync.js?v=4.5"></script>
-  <script src="js/pair_analysis.js?v=4.5"></script>
+  <script src="js/cloud_sync.js?v=5.0"></script>
+  <script src="js/pair_analysis.js?v=5.0"></script>
 
   <script>
     function toggleMobileDrawer(open) {
