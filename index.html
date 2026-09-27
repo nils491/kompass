@@ -567,43 +567,44 @@
     </div>
   </div>
 
-  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
-  <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 p-4 sm:p-6 space-y-3.5 shadow-2xl max-h-[90vh] flex flex-col justify-between text-xs">
-      <!-- HEADER -->
-      <div class="flex items-center justify-between border-b border-purple-900/60 pb-2.5">
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) REDESIGNED -->
+  <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
+      
+      <!-- 1. MODAL HEADER (FEST) -->
+      <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base shadow-inner">🧰</div>
           <div>
-            <h3 class="text-sm sm:text-base font-extrabold text-white">Toy-Verwaltung (Unser Schrank)</h3>
-            <p class="text-[10.5px] text-slate-400">Verwalte euer Inventar; die Schlafzimmer-Regie greift nur auf aktivierte Gegenstände zu.</p>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">Unser Schrank (Toy-Verwaltung)</h3>
+            <p class="text-[10.5px] text-slate-400">Verwalte euer Inventar; die Regie greift nur auf aktivierte Gegenstände zu.</p>
           </div>
         </div>
         <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- AKTIONEN & SUCHE -->
-      <div class="space-y-2">
+      <!-- 2. STEUERUNG, SUCHE & FILTER (FEST AM OBEREN RAND) -->
+      <div class="px-4 sm:px-6 py-3 border-b border-slate-800/80 space-y-2.5 flex-shrink-0 bg-slate-950/30">
+        
+        <!-- SUCHE & AKTIONEN -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-          <!-- SUCHE -->
           <div class="relative flex-1 min-w-0">
-            <input type="text" id="toy-search-input" oninput="HubToys.handleSearch(this.value)" placeholder="🔍 Gegenstand suchen..." class="w-full text-xs px-3 py-2 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none">
+            <input type="text" id="toy-search-input" oninput="HubToys.handleSearch(this.value)" placeholder="🔍 Gegenstand suchen..." class="w-full text-xs px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none">
           </div>
-          <!-- BUTTONS -->
           <div class="flex items-center gap-1.5 flex-shrink-0">
-            <button type="button" onclick="HubToys.toggleNewToyForm()" id="btn-toggle-new-toy" class="px-3 py-2 rounded-xl bg-purple-900/80 hover:bg-purple-800 border border-purple-700 text-purple-200 font-extrabold text-xs flex items-center gap-1.5 touch-btn shadow-sm">
+            <button type="button" onclick="HubToys.toggleNewToyForm()" id="btn-toggle-new-toy" class="px-3 py-2 rounded-xl bg-purple-900/90 hover:bg-purple-800 border border-purple-700 text-purple-200 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
               <span>+</span><span>Neues Toy</span>
             </button>
             <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[10px]">
-              <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold touch-btn" title="Alle Katalog-Gegenstände aktivieren">Alles da</button>
-              <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1.5 rounded-lg text-amber-300 hover:text-amber-200 font-bold touch-btn" title="Nur Haushaltsgegenstände">Haushalt</button>
-              <button type="button" onclick="HubToys.promptClearInventory()" class="px-2 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 font-bold touch-btn" title="Inventar leeren">Leeren</button>
+              <button type="button" onclick="presetToyManagement('all')" class="px-2 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold" title="Alle Katalog-Gegenstände aktivieren">Alles da</button>
+              <button type="button" onclick="presetToyManagement('household_only')" class="px-2 py-1.5 rounded-lg text-amber-300 hover:text-amber-200 font-bold" title="Nur Haushaltsgegenstände">Haushalt</button>
+              <button type="button" onclick="HubToys.promptClearInventory()" class="px-2 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 font-bold" title="Inventar leeren">Leeren</button>
             </div>
           </div>
         </div>
 
         <!-- FORMULAR: NEUES TOY ANLEGEN (MIT LIVE-AUTOABGLEICH) -->
-        <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/30 border border-purple-800/80 space-y-3 animate-fade-in">
+        <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2.5 animate-fade-in">
           <div class="flex items-center justify-between border-b border-purple-900/50 pb-1.5">
             <strong class="text-xs text-purple-200 flex items-center gap-1.5">
               <span>✨</span><span>Neuen Gegenstand zum Schrank hinzufügen</span>
@@ -611,16 +612,16 @@
             <button type="button" onclick="HubToys.toggleNewToyForm()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Schließen</button>
           </div>
 
-          <div class="space-y-2 text-xs">
+          <div class="space-y-2">
             <div>
               <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Name des Gegenstands:</label>
-              <input type="text" id="input-new-toy-name" oninput="HubToys.checkToyNameMatch(this.value)" placeholder="z. B. Japanische Reitgerte, Holzklammern, Kaltwachskerzen..." class="w-full text-xs p-2.5 bg-slate-900 border border-purple-800/80 rounded-xl text-white placeholder-slate-500 focus:border-purple-400 focus:outline-none">
+              <input type="text" id="input-new-toy-name" oninput="HubToys.checkToyNameMatch(this.value)" placeholder="z. B. Reitgerte, Holzklammern, Kaltwachskerzen, Seidenschal..." class="w-full text-xs p-2.5 bg-slate-900 border border-purple-800/80 rounded-xl text-white placeholder-slate-500 focus:border-purple-400 focus:outline-none">
             </div>
 
             <!-- AUTOABGLEICH FEEDBACK BOX -->
-            <div id="toy-match-feedback-box" class="hidden p-2.5 rounded-xl border text-[11px] space-y-1.5"></div>
+            <div id="toy-match-feedback-box" class="hidden"></div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5" id="new-toy-category-row">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Kategorie:</label>
                 <select id="select-new-toy-category" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
@@ -640,7 +641,7 @@
             </div>
 
             <div class="flex justify-end pt-1">
-              <button type="button" onclick="HubToys.saveNewCustomToy()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+              <button type="button" onclick="HubToys.saveNewCustomToy()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs shadow-md transition">
                 Toy anlegen & aktivieren ✓
               </button>
             </div>
@@ -648,7 +649,7 @@
         </div>
 
         <!-- SICHERHEITS-WARNUNG BEIM LEEREN -->
-        <div id="toy-clear-confirm-box" class="hidden p-3 rounded-2xl bg-rose-950/60 border border-rose-800 text-rose-200 space-y-2 animate-pulse">
+        <div id="toy-clear-confirm-box" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700 text-rose-200 space-y-2 animate-pulse">
           <div class="flex items-center gap-2">
             <span class="text-lg">⚠️</span>
             <div>
@@ -657,33 +658,28 @@
             </div>
           </div>
           <div class="flex justify-end gap-2 pt-1 border-t border-rose-900/50">
-            <button type="button" onclick="HubToys.cancelClearInventory()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold touch-btn">Abbrechen</button>
-            <button type="button" onclick="HubToys.confirmClearInventory()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs touch-btn shadow-md">Ja, alles abwählen</button>
+            <button type="button" onclick="HubToys.cancelClearInventory()" class="px-3 py-1.5 rounded-xl theme-panel border text-slate-300 text-xs font-bold">Abbrechen</button>
+            <button type="button" onclick="HubToys.confirmClearInventory()" class="px-3.5 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md">Ja, alles abwählen</button>
           </div>
         </div>
 
-        <!-- ZÄHLER & KATEGORIEN-FILTER -->
-        <div class="flex items-center justify-between gap-2 border-t border-b border-slate-800/80 py-1.5 flex-wrap">
-          <span class="text-[11px] text-slate-300">Im Schrank vorhanden: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong></span>
-          <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-full">
-            <button type="button" onclick="filterToyManagementCat('all')" id="btn-toy-cat-all" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">Alle</button>
-            <button type="button" onclick="filterToyManagementCat('household')" id="btn-toy-cat-household" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🏠 Haushalt</button>
-            <button type="button" onclick="filterToyManagementCat('bondage')" id="btn-toy-cat-bondage" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">⛓️ Fesselung</button>
-            <button type="button" onclick="filterToyManagementCat('impact')" id="btn-toy-cat-impact" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">✋ Impact</button>
-            <button type="button" onclick="filterToyManagementCat('sensory')" id="btn-toy-cat-sensory" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🙈 Sensorik</button>
-            <button type="button" onclick="filterToyManagementCat('cbt_clamps')" id="btn-toy-cat-cbt_clamps" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">⚡ CBT</button>
-            <button type="button" onclick="filterToyManagementCat('toys_anal')" id="btn-toy-cat-toys_anal" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🍑 Toys</button>
-            <button type="button" onclick="filterToyManagementCat('special')" id="btn-toy-cat-special" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">🕯️ Spezial</button>
-          </div>
-        </div>
+        <!-- KATEGORIE-CHIPS (HORIZONTAL SCROLLBAR, KEINE TEXTÜBERLAGERUNG) -->
+        <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <!-- TOY GRID (GROSSZÜGIG, MEHRZEILIG & LESBAR) -->
-      <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto flex-1 pr-1"></div>
+      <!-- 3. SCROLLBARES KARTEN-GRID (FLEX-1 & MIN-H-0 GEGEN CLIPPING) -->
+      <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
+        <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
 
-      <!-- FOOTER -->
-      <div class="pt-2 border-t border-slate-800 flex justify-end items-center gap-2">
-        <button type="button" onclick="closeToyManagementModal()" class="px-5 py-2 bg-purple-900 hover:bg-purple-800 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">Fertig & Schließen</button>
+      <!-- 4. MODAL FOOTER (FEST) -->
+      <div class="px-4 sm:px-6 py-3 border-t border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-950/60 text-xs">
+        <span class="text-[11px] text-slate-300">
+          Im Schrank: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong> Gegenstände
+        </span>
+        <button type="button" onclick="closeToyManagementModal()" class="px-5 py-2 bg-purple-900 hover:bg-purple-800 text-white font-extrabold rounded-xl text-xs shadow-md transition">
+          Fertig & Schließen
+        </button>
       </div>
     </div>
   </div>
