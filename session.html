@@ -13,6 +13,10 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
     })();
 
     tailwind.config = {
@@ -136,19 +140,16 @@
 
         <!-- QUICK CONTROLS -->
         <div class="flex items-center gap-1.5 flex-shrink-0">
-          <!-- AMBIENT MUSIK TOGGLE -->
           <button type="button" onclick="SessionAudio.toggle()" id="btn-ambient-header" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition touch-btn cursor-pointer" title="Hintergrundmusik starten/pausieren">
             <span id="ambient-status-icon">🎵</span>
             <span id="ambient-status-label" class="hidden sm:inline text-[10.5px]">Musik</span>
           </button>
 
-          <!-- TABU COUNTER -->
           <button type="button" onclick="SessionLive.openTabus()" class="px-2 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-800 text-rose-300 font-bold rounded-xl text-xs flex items-center gap-1 transition touch-btn cursor-pointer" title="Tabu-Grenzen der Session anzeigen">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
             <span id="session-tabu-counter">0</span>
           </button>
 
-          <!-- TAGEBUCH -->
           <button type="button" onclick="SessionLive.openDiary()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center font-bold text-sm touch-btn cursor-pointer" title="Logbuch / Bisherige Sessions">
             📖
           </button>
@@ -202,7 +203,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <!-- SETUP DEFAULT: B FÜHRT A -->
           <button type="button" onclick="SessionStaging.selectRoleSetup('default')" id="btn-role-setup-default" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black uppercase text-brand-300 tracking-wide">Führung: <span id="portal-name-top-def">Partner 2</span></span>
@@ -212,7 +212,6 @@
             <p class="text-[11px] text-slate-300 leading-snug">🧎 <span id="portal-name-sub-def">Partner 1</span> empfängt als Bottom und gibt die Kontrolle ab.</p>
           </button>
 
-          <!-- SETUP REVERSED: A FÜHRT B -->
           <button type="button" onclick="SessionStaging.selectRoleSetup('reversed')" id="btn-role-setup-reversed" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black uppercase text-slate-400 tracking-wide">Führung: <span id="portal-name-top-rev">Partner 1</span></span>
@@ -243,9 +242,7 @@
           <p class="text-xs text-slate-300">Wählt aus eurem Schrank, was heute bereitliegt, und stimmt euer Energielevel ab.</p>
         </div>
 
-        <!-- ENERGIE & TIEFE -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <!-- TOP CHECK-IN -->
           <div class="theme-card rounded-2xl p-4 border space-y-2">
             <div class="flex items-center justify-between">
               <strong class="text-white text-xs block">👑 Top-Energie:</strong>
@@ -255,7 +252,6 @@
             <input type="range" min="1" max="5" value="4" oninput="SessionStaging.updateEnergy('top', this.value)" class="w-full accent-brand-500 cursor-pointer">
           </div>
 
-          <!-- BOTTOM CHECK-IN -->
           <div class="theme-card rounded-2xl p-4 border space-y-2">
             <div class="flex items-center justify-between">
               <strong class="text-white text-xs block">🧎 Bottom-Hingabe:</strong>
@@ -266,7 +262,6 @@
           </div>
         </div>
 
-        <!-- SESSION-INTENSITÄT (1-10) -->
         <div class="theme-card rounded-2xl p-4 border space-y-2 text-xs">
           <div class="flex items-center justify-between">
             <strong class="text-white text-xs block">Gewünschte Intensität / Tiefe:</strong>
@@ -283,7 +278,6 @@
               <strong class="text-white block text-xs">Ausrüstung für heute Abend (Nachttisch-Staging)</strong>
               <p class="text-[10.5px] text-slate-400">Nur Gegenstände aus eurem Schrank. Wählt aus, was heute griffbereit liegt.</p>
             </div>
-            <!-- BESSERE ALTERNATIVE ZU HAUSHALT & ALLES BEREIT + NEUANSCHAFFUNG -->
             <div class="flex items-center gap-1.5 flex-wrap">
               <button type="button" onclick="SessionStaging.openNewToyQuickAdd()" class="px-2.5 py-1 rounded-lg bg-purple-900/90 hover:bg-purple-800 border border-purple-700 text-purple-200 text-[10.5px] font-extrabold touch-btn shadow-sm flex items-center gap-1">
                 <span>+</span><span>Neuanschaffung</span>
@@ -300,7 +294,6 @@
             </div>
           </div>
 
-          <!-- SCHNELLFORMULAR: NEUANSCHAFFUNG DIREKT IN DER REGIE -->
           <div id="staging-quick-add-panel" class="hidden p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2 animate-fade-in">
             <div class="flex items-center justify-between border-b border-purple-900/50 pb-1">
               <strong class="text-xs text-purple-200 flex items-center gap-1">
@@ -335,7 +328,6 @@
             <span class="text-emerald-400 font-bold">Immer aktiv ✓</span>
           </div>
 
-          <!-- KATEGORIE-TABS MIT "ALLE ANZEIGEN" ALS ERSTER BUTTON -->
           <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 border-b border-slate-800/80">
             <button type="button" onclick="switchStagingTab('all')" id="btn-stag-tab-all" class="px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap">
               ✨ Alle Schrank-Toys (<span id="stag-count-all">0</span>)
@@ -365,7 +357,6 @@
 
           <div id="session-staging-equipment-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1"></div>
 
-          <!-- FOOTER: DIREKTES ÖFFNEN DER VERWALTUNG STATT NAVIGATION ZUM HUB -->
           <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-[10.5px]">
             <span class="text-slate-400">Heute bereitgelegt: <strong id="staging-active-count" class="text-purple-300 font-mono font-bold">0</strong> von <span id="staging-closet-total-count" class="text-white font-bold">0</span> Schrank-Toys</span>
             <button type="button" onclick="HubToys.open()" class="text-purple-300 hover:text-purple-200 font-bold hover:underline flex items-center gap-1 touch-btn">
@@ -441,7 +432,7 @@
         <div class="flex justify-between items-center pt-2">
           <button type="button" onclick="SessionStaging.goToStep(1)" class="text-xs text-slate-400 hover:text-white font-bold">← Zurück</button>
           <button type="button" onclick="SessionStaging.goToStep(3)" class="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-black text-xs touch-btn shadow-md flex items-center gap-1.5">
-            <span>Weiter zu Schritt 3: Drehbuch</span><span>→</span>
+            <span>Weiter zu Schritt 3: Modus & Drehbuch</span><span>→</span>
           </button>
         </div>
       </section>
@@ -451,35 +442,39 @@
         <div class="theme-card rounded-3xl p-5 border space-y-1 shadow-md">
           <div class="flex items-center justify-between">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-950 text-rose-300 border border-rose-800 inline-block">
-              Schritt 3 von 3: Drehbuch & Modus
+              Schritt 3 von 3: Modus & Drehbuch
             </span>
             <button type="button" onclick="SessionStaging.goToStep(2)" class="text-xs text-slate-400 hover:text-white font-bold">← Ausrüstung anpassen</button>
           </div>
-          <h2 class="text-base sm:text-lg font-black text-white">Das 4-Phasen-Drehbuch für heute</h2>
-          <p class="text-xs text-slate-300">Zusammengestellt aus eurer Ausrüstung, den Rollen und eurer heutigen Energie.</p>
+          <h2 class="text-base sm:text-lg font-black text-white">Wählt eure Spielvariante für heute</h2>
+          <p class="text-xs text-slate-300">Wählt zwischen dem geführten Drehbuch und freiem Flow.</p>
         </div>
 
-        <!-- MODUS AUSWAHL -->
+        <!-- MODUS AUSWAHL CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <button type="button" onclick="SessionLive.selectMode('guided')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/40 border-brand-500 shadow-md">
+          <button type="button" id="btn-mode-guided" onclick="SessionStaging.selectMode('guided')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full">
             <div class="flex items-center justify-between">
               <strong class="text-white text-xs block">1. Geführtes Drehbuch</strong>
-              <span class="text-brand-300 font-bold text-xs">Empfohlen ★</span>
+              <span id="badge-mode-guided" class="text-brand-300 font-bold text-xs">✓ Gewählt</span>
             </div>
-            <p class="text-[11px] text-slate-300">Schritt-für-Schritt durch 4 Phasen. Die App blendet passende Anweisungen für Top und Bottom ein.</p>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Schritt-für-Schritt durch 4 Phasen. Die App blendet passende Anweisungen für Top und Bottom ein und führt euch durch den Abend.
+            </p>
           </button>
 
-          <button type="button" onclick="SessionLive.selectMode('free')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700">
+          <button type="button" id="btn-mode-free" onclick="SessionStaging.selectMode('free')" class="p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full">
             <div class="flex items-center justify-between">
               <strong class="text-white text-xs block">2. Freier Flow</strong>
-              <span class="text-slate-500 text-xs">Spontan</span>
+              <span id="badge-mode-free" class="text-slate-500 font-bold text-xs">○</span>
             </div>
-            <p class="text-[11px] text-slate-400">Keine starren Schritte. Voller Zugriff auf Timer, Safewords, Edging-Cockpit und Soundscapes.</p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Keine starren Drehbuchschritte. Ihr bestimmt den Ablauf spontan selbst und nutzt frei das Edging-Cockpit, Safewords, Timer & Soundscapes.
+            </p>
           </button>
         </div>
 
         <!-- DREHBUCH VORSCHAU LISTE -->
-        <div class="space-y-2">
+        <div id="playbook-preview-wrap" class="space-y-2 transition-opacity duration-300">
           <div class="flex items-center justify-between px-1">
             <strong class="text-xs text-white">Geplante Schritte (4 Phasen):</strong>
             <button type="button" onclick="SessionStaging.rerollPlaybook()" class="text-brand-300 text-xs font-bold hover:underline">
@@ -535,6 +530,17 @@
         </button>
       </div>
 
+      <!-- BANNER FÜR FREIEN FLOW -->
+      <div id="free-flow-info-banner" class="hidden p-4 rounded-2xl bg-indigo-950/40 border border-indigo-700/80 space-y-1 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🌊</span>
+          <strong class="text-white font-extrabold text-xs">Freier Flow aktiv</strong>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-snug">
+          Keine vorgegebenen Schritte. Top und Bottom gestalten das Spiel frei nach eigenem Gefühl. Alle Werkzeuge stehen euch nach Bedarf zur Verfügung.
+        </p>
+      </div>
+
       <!-- GEFÜHRTER SCHRITT (WIRD BEI MODE 'GUIDED' ANGEZEIGT) -->
       <div id="guided-step-container" class="theme-card rounded-3xl p-5 border border-brand-900/40 space-y-3 shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -563,7 +569,6 @@
           </div>
         </div>
 
-        <!-- AUTOMATISCHES EDGING-CALLOUT IM DREHBUCH -->
         <div id="guided-edging-callout" class="hidden p-3 rounded-2xl bg-pink-950/50 border border-pink-500/80 flex items-center justify-between gap-2 shadow-lg animate-pulse">
           <div class="flex items-center gap-2">
             <span class="text-xl">⚡</span>
@@ -597,14 +602,12 @@
             </div>
           </div>
 
-          <!-- STIMULATION DURCH WEN -->
           <div class="flex items-center p-0.5 bg-slate-900 rounded-xl border border-slate-800 text-[10.5px]">
             <button type="button" onclick="SessionEdging.setStimulator('top')" id="btn-stim-top" class="px-3 py-1 rounded-lg font-bold bg-brand-950 border border-brand-500 text-brand-200 touch-btn">Top berührt</button>
             <button type="button" onclick="SessionEdging.setStimulator('bottom_self')" id="btn-stim-bottom" class="px-3 py-1 rounded-lg font-bold theme-panel text-slate-400 touch-btn">Bottom berührt sich</button>
           </div>
         </div>
 
-        <!-- NEUER SPRACHMODUS: TOP SPRICHT SELBST VS. GEMINI APP-STIMME -->
         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
           <div class="flex items-center justify-between">
             <strong class="text-white text-[11px] block">Wer spricht den Countdown & die Kantenbefehle?</strong>
@@ -628,7 +631,6 @@
           </div>
         </div>
 
-        <!-- ERREGUNGSSCHIEBEREGEL (1-10) -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <strong class="text-white text-[11px]">Aktuelle Erregungsstufe:</strong>
@@ -640,7 +642,6 @@
           </div>
         </div>
 
-        <!-- STATS & KANTEN ZÄHLER -->
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="p-3 rounded-2xl theme-panel border border-slate-800 space-y-1">
             <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Bisherige Kanten (Edges):</span>
@@ -652,7 +653,6 @@
           </div>
         </div>
 
-        <!-- HAUPT-AKTIONEN: KANTE ERREICHT & FREIGABE -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button type="button" onclick="SessionEdging.registerEdge()" class="py-3 px-4 rounded-2xl bg-pink-900 hover:bg-pink-800 border border-pink-600 text-white font-black text-xs touch-btn shadow-lg flex items-center justify-center gap-1.5">
             <span>⚡</span><span>KANTE ERREICHT! (Hände weg)</span>
@@ -669,7 +669,6 @@
             <button type="button" onclick="SessionEdging.openReleaseChoice()" class="text-slate-400 hover:text-white text-xs font-bold">✕ Schließen</button>
           </div>
 
-          <!-- COUNTDOWN DAUER AUSWAHL (5s, 10s, 20s, 30s) -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between text-[11px]">
               <span class="text-slate-300 font-bold">Dauer des Atem-Countdowns:</span>
@@ -693,9 +692,8 @@
           </div>
         </div>
 
-        <!-- COUNTDOWN OVERLAY / DISPLAY (IMMERSIVES VOLLBILD > 70% DES BILDSCHIRMS) -->
+        <!-- COUNTDOWN OVERLAY -->
         <div id="countdown-wrapper" style="display: none;" class="hidden fixed inset-0 z-[150] bg-black/95 backdrop-blur-2xl flex flex-col justify-between items-center p-4 sm:p-8 select-none overflow-hidden animate-fade-in">
-          <!-- OBERE STATUSZEILE -->
           <div class="w-full max-w-xl flex items-center justify-between pt-2 px-2 text-xs">
             <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-950/80 text-emerald-300 border border-emerald-600/80 flex items-center gap-1.5 shadow-lg">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -706,7 +704,6 @@
             </span>
           </div>
 
-          <!-- RIESIGER ZENTRALER DISPLAY-BEREICH (> 70% DER BILDSCHIRMHÖHE) -->
           <div class="flex-1 w-full flex flex-col items-center justify-center my-auto min-h-[68vh] sm:min-h-[72vh] relative">
             <div id="countdown-display" class="text-[44vw] sm:text-[38vh] font-black font-mono tracking-tighter leading-none text-emerald-400 select-none transition-all duration-200 text-center will-change-transform">
               10
@@ -716,7 +713,6 @@
             </p>
           </div>
 
-          <!-- UNTERE STEUERUNGSLEISTE: PAUSE & ABBRECHEN DAUERHAFT SICHTBAR -->
           <div class="w-full max-w-md flex items-center justify-center gap-4 pb-4 sm:pb-6 z-10">
             <button type="button" onclick="SessionEdging.pauseCountdown()" id="btn-pause-countdown" class="flex-1 py-4 px-6 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 text-slate-100 font-black text-sm tracking-wide shadow-2xl touch-btn flex items-center justify-center gap-2">
               <span>⏸</span><span id="btn-pause-countdown-text">Pause</span>
@@ -727,7 +723,6 @@
           </div>
         </div>
 
-        <!-- FINISHER ENTSCHEIDUNGEN (RUINED & DENIAL) -->
         <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800 text-xs">
           <button type="button" onclick="SessionEdging.finalizeDecision('ruined')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-300 font-bold touch-btn">
             🥀 Ruined Orgasm anordnen
@@ -738,7 +733,7 @@
         </div>
       </div>
 
-      <!-- ZUSATZ-WERKZEUGE: BESTRAFUNG, ATEMÜBUNG & AFTERCARE -->
+      <!-- ZUSATZ-WERKZEUGE -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
         <button type="button" onclick="SessionDiscipline.open()" class="p-3.5 rounded-2xl theme-panel border border-slate-800 hover:border-slate-700 text-left space-y-1 touch-btn">
           <strong class="text-white block text-xs">⚖️ Bestrafungs-Wizard</strong>
@@ -926,11 +921,9 @@
     </div>
   </div>
 
-  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) DIREKT IN DER REGIE EINGEBETTET -->
+  <!-- MODAL: TOY-VERWALTUNG (UNSER SCHRANK) -->
   <div id="modal-toy-management" style="display: none;" onclick="if(event.target===this) closeToyManagementModal()" class="fixed inset-0 z-[140] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
     <div class="theme-card rounded-3xl max-w-2xl w-full border border-purple-500/40 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden text-xs">
-      
-      <!-- 1. MODAL HEADER -->
       <div class="px-4 sm:px-6 py-3.5 border-b border-purple-900/60 flex items-center justify-between flex-shrink-0 bg-slate-950/60">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-2xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center font-bold text-base shadow-inner">🧰</div>
@@ -942,7 +935,6 @@
         <button type="button" onclick="closeToyManagementModal()" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
-      <!-- 2. STEUERUNG & FILTER -->
       <div class="px-4 sm:px-6 py-3 border-b border-slate-800/80 space-y-2.5 flex-shrink-0 bg-slate-950/30">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
           <div class="relative flex-1 min-w-0">
@@ -958,7 +950,6 @@
           </div>
         </div>
 
-        <!-- FORMULAR: NEUES TOY ANLEGEN -->
         <div id="new-toy-form-panel" class="hidden p-3.5 rounded-2xl bg-purple-950/40 border border-purple-800/80 space-y-2.5 animate-fade-in">
           <div class="flex items-center justify-between border-b border-purple-900/50 pb-1.5">
             <strong class="text-xs text-purple-200 flex items-center gap-1.5">
@@ -999,7 +990,6 @@
           </div>
         </div>
 
-        <!-- SICHERHEITS-WARNUNG BEIM LEEREN -->
         <div id="toy-clear-confirm-box" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700 text-rose-200 space-y-2 animate-pulse">
           <div class="flex items-center gap-2">
             <span class="text-lg">⚠️</span>
@@ -1017,12 +1007,10 @@
         <div id="toy-category-chips-container" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full"></div>
       </div>
 
-      <!-- 3. SCROLLBARES GRID -->
       <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
         <div id="toy-management-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
 
-      <!-- 4. MODAL FOOTER -->
       <div class="px-4 sm:px-6 py-3 border-t border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-950/60 text-xs">
         <span class="text-[11px] text-slate-300">
           Im Schrank: <strong id="toy-management-active-count" class="text-purple-300 font-mono font-bold">0</strong> Gegenstände
@@ -1036,19 +1024,19 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- EXTERNE DATENQUELLEN & MODULARE REGIE-ENGINES (MIT CACHE-BUSTING V4.2) -->
+  <!-- EXTERNE DATENQUELLEN & MODULARE REGIE-ENGINES -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="js/cloud_sync.js?v=4.2"></script>
-  <script src="js/hub_toys.js?v=4.2"></script>
-  <script src="js/session_voice.js?v=4.2"></script>
-  <script src="js/session_discipline.js?v=4.2"></script>
-  <script src="js/session_audio.js?v=4.2"></script>
-  <script src="js/session_staging.js?v=4.2"></script>
-  <script src="js/session_edging.js?v=4.2"></script>
-  <script src="js/session_live.js?v=4.2"></script>
+  <script src="js/cloud_sync.js?v=4.4"></script>
+  <script src="js/hub_toys.js?v=4.4"></script>
+  <script src="js/session_voice.js?v=4.4"></script>
+  <script src="js/session_discipline.js?v=4.4"></script>
+  <script src="js/session_audio.js?v=4.4"></script>
+  <script src="js/session_staging.js?v=4.4"></script>
+  <script src="js/session_edging.js?v=4.4"></script>
+  <script src="js/session_live.js?v=4.4"></script>
 
 </body>
 </html>
