@@ -1,7 +1,8 @@
 /**
  * js/pair_analysis.js
  * Modul für die Beziehungs-Synergie & Paar-Analyse ("analyse.html"):
- * - Grundlegende Rollen-Orientierung (Top / Bottom / Switcher) mit situativem Flexibilitäts-Hinweis
+ * - Verfeinerte BDSMTest-Orientierungs-Formel (Top / Bottom / True-Switch / Dom-leaning / Sub-leaning)
+ * - Umfassender Handlungsleitfaden für ALLE 4 Paarkonstellationen (Switch/Switch, Top/Top, Bottom/Bottom, Top/Bottom)
  * - BDSMTest.org-Top-10-Archetypen-Paarvergleich mit vergleichenden Prozentbalken
  * - Doppel-5er-Volltreffer (Sofort auslebbar)
  * - Brückenbau-Chancen (5er trifft auf 3er/4er unter Berücksichtigung der 4 Freigabestufen)
@@ -212,8 +213,72 @@
     return 4;
   }
 
+  /**
+   * Psychometrische Hilfsfunktionen:
+   * 1. Berechnet den individuellen Notenschnitt eines Nutzers (Response-Style-Bias).
+   * 2. Ermittelt Kernanker-Gewichte (w_i = 1.8 für strukturbildende D/s- & Macht-Items).
+   * 3. Kalibriert Rohwerte ipsativ und boostet latente Scham-Sehnsüchte.
+   */
+  function calculateIndividualRatingMean(answersUser) {
+    if (!answersUser || typeof answersUser !== 'object') return 3.0;
+    var sum = 0, count = 0;
+    Object.keys(answersUser).forEach(function(k) {
+      if (k.indexOf('_note') === -1 && k.indexOf('_shame') === -1 && k.indexOf('_choice') === -1) {
+        var val = answersUser[k];
+        // 0 (Entfällt) wird für den Schnitt nicht gewertet
+        if (typeof val === 'number' && val > 0) {
+          sum += val;
+          count++;
+        }
+      }
+    });
+    return count > 0 ? (sum / count) : 3.0;
+  }
+
+  function getItemDiagnosticWeight(it, chId) {
+    // Kernanker: Kapitel für formelle Macht, Zucht, Fesselung, Keuschheit & Schmerz-Katharsis
+    if ([21, 22, 23, 29, 7, 8, 13, 16].indexOf(chId) !== -1) {
+      var titleLower = (it.title || '').toLowerCase();
+      // Spezifische Kernanker-Items erhalten höchstes diagnostisches Gewicht
+      if (titleLower.indexOf('zucht') !== -1 || 
+          titleLower.indexOf('kniestand') !== -1 || 
+          titleLower.indexOf('gehorsam') !== -1 || 
+          titleLower.indexOf('strafe') !== -1 ||
+          titleLower.indexOf('spanking') !== -1 ||
+          titleLower.indexOf('keusch') !== -1 ||
+          titleLower.indexOf('denial') !== -1 ||
+          titleLower.indexOf('fessel') !== -1) {
+        return 1.8;
+      }
+      return 1.4;
+    }
+    return 1.0;
+  }
+
+  function transformPsychometricRating(rawScore, isShame, userMean) {
+    if (typeof rawScore !== 'number' || rawScore <= 0) return 0;
+
+    // A. Ipsative Zentrierung: Gleicht ab, ob der Nutzer generell sparsam (z. B. Schnitt 2.8) oder euphorisch (z. B. Schnitt 4.3) wertet
+    var calibrationOffset = (3.0 - userMean) * 0.35;
+    var calibratedScore = Math.max(1.0, Math.min(5.0, rawScore + calibrationOffset));
+
+    // B. Scham-Faktor: Wenn Scham markiert ist und Note >= 3, spiegelt das einen hochgradig affektiven, latenten Wunsch wider
+    if (isShame && rawScore >= 3) {
+      calibratedScore = Math.min(5.0, calibratedScore * 1.25);
+    }
+
+    return calibratedScore;
+  }
+
+  /**
+   * Berechnet die Archetypen-Scores nach psychometrisch gewichteter Matrix:
+   * - 0 (Entfällt) wird strikt aus Zähler UND Nenner herausgerechnet (keine Benachteiligung).
+   * - Kernanker-Gewichtung (w_i) multipliziert relevante Fragen.
+   * - Ipsative Kalibrierung gleicht subjektive Skalen-Niveaus aus.
+   */
   function calculatePartnerArchetypeRankings(answersUser, chapters) {
     var results = {};
+    var userMean = calculateIndividualRatingMean(answersUser);
 
     var powerChapters = [21, 22, 23, 29];
     var domEarned = 0, domPossible = 0;
@@ -226,15 +291,27 @@
           if (it.type !== 'choice') {
             var s1 = answersUser['it_' + it.id + '_r1'];
             var s2 = answersUser['it_' + it.id + '_r2'];
-            if (typeof s1 === 'number') { domEarned += s1; domPossible += 5; }
-            if (typeof s2 === 'number') { subEarned += s2; subPossible += 5; }
+            var isShame = !!answersUser['it_' + it.id + '_shame'];
+            var weight = getItemDiagnosticWeight(it, chId);
+
+            // Nur einrechnen, wenn s > 0 (0: Entfällt darf den Nenner nicht verzerren!)
+            if (typeof s1 === 'number' && s1 > 0) {
+              var t1 = transformPsychometricRating(s1, isShame, userMean);
+              domEarned += (t1 * weight);
+              domPossible += (5 * weight);
+            }
+            if (typeof s2 === 'number' && s2 > 0) {
+              var t2 = transformPsychometricRating(s2, isShame, userMean);
+              subEarned += (t2 * weight);
+              subPossible += (5 * weight);
+            }
           }
         });
       }
     });
 
-    var pDom = domPossible > 0 ? Math.round((domEarned / domPossible) * 100) : 0;
-    var pSub = subPossible > 0 ? Math.round((subEarned / subPossible) * 100) : 0;
+    var pDom = domPossible > 0 ? Math.min(100, Math.round((domEarned / domPossible) * 100)) : 0;
+    var pSub = subPossible > 0 ? Math.min(100, Math.round((subEarned / subPossible) * 100)) : 0;
 
     ARCHETYPE_DEFINITIONS.forEach(function(arch) {
       var earned = 0;
@@ -242,12 +319,13 @@
       var percentage = 0;
 
       if (arch.role === 'switch') {
-        var minScore = Math.min(pDom, pSub);
-        var avgScore = (pDom + pSub) / 2;
+        var avg = (pDom + pSub) / 2;
         var diff = Math.abs(pDom - pSub);
-        var balanceFactor = Math.max(0.4, 1 - (diff / 100) * 0.6);
-        var rawSwitch = (minScore * 0.75 + avgScore * 0.25) * (diff <= 25 ? 1.12 : balanceFactor);
-        percentage = Math.min(100, Math.max(0, Math.round(rawSwitch)));
+        var balancePenalty = 1 - (diff / 100) * 0.45;
+        var dualDriveBoost = (pDom >= 30 && pSub >= 30) ? 1.08 : 0.92;
+        
+        var calculatedSwitch = Math.round(avg * balancePenalty * dualDriveBoost);
+        percentage = Math.min(100, Math.max(0, calculatedSwitch));
         possible = domPossible + subPossible;
       } else {
         arch.chapters.forEach(function(chId) {
@@ -255,25 +333,28 @@
           if (ch && ch.items) {
             ch.items.forEach(function(it) {
               if (it.type !== 'choice') {
+                var weight = getItemDiagnosticWeight(it, chId);
+                var isShame = !!answersUser['it_' + it.id + '_shame'];
+
                 if (arch.role === 'r1' || arch.role === 'both') {
                   var s1 = answersUser['it_' + it.id + '_r1'];
-                  if (typeof s1 === 'number') {
-                    earned += s1;
-                    possible += 5;
+                  if (typeof s1 === 'number' && s1 > 0) {
+                    earned += (transformPsychometricRating(s1, isShame, userMean) * weight);
+                    possible += (5 * weight);
                   }
                 }
                 if (arch.role === 'r2' || arch.role === 'both') {
                   var s2 = answersUser['it_' + it.id + '_r2'];
-                  if (typeof s2 === 'number') {
-                    earned += s2;
-                    possible += 5;
+                  if (typeof s2 === 'number' && s2 > 0) {
+                    earned += (transformPsychometricRating(s2, isShame, userMean) * weight);
+                    possible += (5 * weight);
                   }
                 }
               }
             });
           }
         });
-        percentage = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+        percentage = possible > 0 ? Math.min(100, Math.round((earned / possible) * 100)) : 0;
       }
 
       results[arch.id] = {
@@ -286,41 +367,159 @@
         pSub: pSub
       };
     });
+
     return results;
   }
 
+  /**
+   * Klassische BDSM-Typologisierung mit differenzierten Switch-Subtypen:
+   * - True Switch (Ausgeprägt beidhändig, Differenz <= 18)
+   * - Dom-leaning Switch (Primär Top mit echter Hingabe-Sehnsucht)
+   * - Sub-leaning Switch (Primär Bottom mit aktivem Führungs-Impuls)
+   * - Klarer Top (Dominant)
+   * - Klarer Bottom (Devot)
+   */
   function determineCoreOrientation(rankings) {
     var pDom = (rankings.dominant && rankings.dominant.percentage) || 0;
     var pSub = (rankings.submissive && rankings.submissive.percentage) || 0;
     var pSwitch = (rankings.switch && rankings.switch.percentage) || 0;
+    var diff = Math.abs(pDom - pSub);
 
-    if (pSwitch >= 55 || (pDom >= 45 && pSub >= 45 && Math.abs(pDom - pSub) <= 25)) {
+    // 1. Ausgeprägter True Switch (beide Pole lebendig, enge Differenz)
+    if (pDom >= 35 && pSub >= 35 && diff <= 18) {
       return {
-        label: "Ausgeprägter Switch (Rollenwechsler)",
-        badge: "🔄 Switch",
-        desc: "Beide Pole sind lebendig: Lust an Regie & Führung ebenso wie am Loslassen und Dienen.",
-        color: "text-purple-300 bg-purple-950/80 border-purple-700",
+        type: 'switch_true',
+        label: "Ausgeprägter Switch (Beidseitig)",
+        badge: "🔄 True Switch",
+        desc: "Lust an aktiver Regie und Führung ebenso intensiv vorhanden wie am vertrauensvollen Loslassen und Dienen.",
+        color: "text-purple-300 bg-purple-950/80 border-purple-600",
         scores: "Top: " + pDom + "% · Bottom: " + pSub + "% · Switch: " + pSwitch + "%"
       };
-    } else if (pDom > pSub) {
-      var isStrong = (pDom - pSub >= 30);
+    }
+
+    // 2. Dom-leaning Switch (Führt überwiegend, schätzt aber gelegentliche Hingabe)
+    if (pDom > pSub && pSub >= 30 && diff <= 40) {
       return {
-        label: isStrong ? "Klarer Top (Dominant)" : "Tendenz zum Top (Führend)",
-        badge: "👑 Top",
-        desc: "Fokus auf Führung, Verantwortung, Struktur und achtsame Regie im erotischen Raum.",
-        color: "text-rose-300 bg-rose-950/80 border-rose-700",
-        scores: "Top: " + pDom + "% · Bottom: " + pSub + "%"
-      };
-    } else {
-      var isStrongSub = (pSub - pDom >= 30);
-      return {
-        label: isStrongSub ? "Klarer Bottom (Devot)" : "Tendenz zum Bottom (Hingabe)",
-        badge: "🧎 Bottom",
-        desc: "Fokus auf vertrauensvolles Loslassen der Kontrolle, Empfangen und Genuss des Dienens.",
-        color: "text-indigo-300 bg-indigo-950/80 border-indigo-700",
-        scores: "Bottom: " + pSub + "% · Top: " + pDom + "%"
+        type: 'switch_dom',
+        label: "Dom-Leaning Switch (Führend mit Switch-Ader)",
+        badge: "👑🔄 Dom-Switch",
+        desc: "Nimmt bevorzugt die Regie und Verantwortung in die Hand, genießt es aber zutiefst, bei absolutem Vertrauen die Kontrolle abzugeben.",
+        color: "text-rose-300 bg-rose-950/80 border-rose-600",
+        scores: "Top: " + pDom + "% · Bottom: " + pSub + "% (Switch: " + pSwitch + "%)"
       };
     }
+
+    // 3. Sub-leaning Switch (Empfängt überwiegend, hat aber aktive Impulse)
+    if (pSub > pDom && pDom >= 30 && diff <= 40) {
+      return {
+        type: 'switch_sub',
+        label: "Sub-Leaning Switch (Hingebungsvoll mit Führungs-Potenzial)",
+        badge: "🧎🔄 Sub-Switch",
+        desc: "Sucht primär das Loslassen und Dienen, spürt jedoch situativ den Drang, den Partner zu fordern, zu necken oder zu erziehen.",
+        color: "text-indigo-300 bg-indigo-950/80 border-indigo-600",
+        scores: "Bottom: " + pSub + "% · Top: " + pDom + "% (Switch: " + pSwitch + "%)"
+      };
+    }
+
+    // 4. Eindeutiger Top (Klar führend)
+    if (pDom >= pSub) {
+      var isStrong = (diff >= 35);
+      return {
+        type: 'top',
+        label: isStrong ? "Klarer Top (Dominant)" : "Führende Orientierung (Top)",
+        badge: "👑 Top",
+        desc: "Fokus auf Führung, Struktur, Verantwortung und achtsame Regieführung im erotischen Machtspiel.",
+        color: "text-rose-400 bg-rose-950/90 border-rose-700",
+        scores: "Top: " + pDom + "% · Bottom: " + pSub + "%"
+      };
+    }
+
+    // 5. Eindeutiger Bottom (Klar hingebungsvoll)
+    var isStrongSub = (diff >= 35);
+    return {
+      type: 'bottom',
+      label: isStrongSub ? "Klarer Bottom (Devot)" : "Hingebungsvolle Orientierung (Bottom)",
+      badge: "🧎 Bottom",
+      desc: "Fokus auf vertrauensvolle Selbstaufgabe, Empfangen und die heilsame Katharsis des Dienens.",
+      color: "text-cyan-300 bg-indigo-950/90 border-cyan-700",
+      scores: "Bottom: " + pSub + "% · Top: " + pDom + "%"
+    };
+  }
+
+  /**
+   * Erstellt den fundierten Beziehungs- und Handlungsleitfaden für die 4 Grundkonstellationen:
+   * - Switch / Switch
+   * - Top / Top
+   * - Bottom / Bottom
+   * - Top / Bottom (Komplementär)
+   */
+  function buildDynamicGuidance(typeA, typeB, nameA, nameB) {
+    var isSwitchA = (typeA.indexOf('switch') !== -1);
+    var isSwitchB = (typeB.indexOf('switch') !== -1);
+    var isTopA = (typeA === 'top' || typeA === 'switch_dom');
+    var isTopB = (typeB === 'top' || typeB === 'switch_dom');
+    var isSubA = (typeA === 'bottom' || typeA === 'switch_sub');
+    var isSubB = (typeB === 'bottom' || typeB === 'switch_sub');
+
+    // KONSTELLATION 1: BEIDE SIND SWITCHES
+    if (isSwitchA && isSwitchB) {
+      return {
+        constellationTitle: "🔄 Die Chamäleon-Dynamik (Switch / Switch)",
+        summary: `Sowohl ${nameA} als auch ${nameB} besitzen die Gabe und Neigung, beide Seiten der Macht zu empfinden. Das ist die vielseitigste aller Konstellationen – verlangt jedoch ein klares System.`,
+        pitfall: "<strong>Die Höflichkeits-Falle:</strong> Ohne Absprache fragt jeder: <em>„Was möchtest du heute?“</em>, worauf der andere antwortet: <em>„Egal, mach du!“</em>. Das erotische Momentum verpufft in Unentschlossenheit.",
+        actionGuide: [
+          "<strong>1. Das Token-Prinzip:</strong> Nutzt einen symbolischen Gegenstand (z. B. einen Ring, einen Schlüssel oder einen kleinen Stein auf dem Nachttisch). Wer den Gegenstand auf seine Seite legt, hat heute bedingungslos die Regie – der andere lässt sich führen.",
+          "<strong>2. Kalender-Schichten:</strong> Vereinbart Tage: <em>„Freitag ist deine Nacht (du führst mich) – Sonntag gehört mir (ich führe dich).“</em>",
+          "<strong>3. Szenen-Inversion:</strong> Fortgeschrittene Switches wechseln innerhalb einer Session: Ein Part beginnt zart und dienend, bevor er durch ein codiertes Signal den Raum dreht und den Partner überraschend überwältigt."
+        ],
+        badgeColor: "border-purple-600 bg-purple-950/40 text-purple-200"
+      };
+    }
+
+    // KONSTELLATION 2: BEIDE SIND TOP-ORIENTIERT (Top / Top)
+    if (isTopA && isTopB && !isSubA && !isSubB) {
+      return {
+        constellationTitle: "⚡ Die Duell-Dynamik (Top / Top)",
+        summary: `Bei ${nameA} und ${nameB} treffen zwei starke Führungsnaturen aufeinander. Keiner von beiden möchte gerne die Kontrolle an die Bettkante abtreten.`,
+        pitfall: "<strong>Realer Machtkampf:</strong> Wenn beide gleichzeitig die Führung erzwingen wollen, schlägt das Spiel schnell in echten Alltagsfrust oder Gereiztheit um.",
+        actionGuide: [
+          "<strong>1. Primal Raufen & Kräftemessen:</strong> Nutzt spielerisches Raufen, Festhalten oder Kitzeln auf der Matratze: Wer zuerst beide Schultern am Boden hat oder abklopft (Tap-Out), ist für den restlichen Abend der Bottom.",
+          "<strong>2. Domänen-Aufteilung:</strong> Teilt eure Vorlieben nach Fachgebieten auf: Partner 1 übernimmt die absolute Hoheit über Fesselungen & Seile; Partner 2 führt unangefochten bei Spanking, Zucht oder Orgasmuskontrolle.",
+          "<strong>3. Co-Dominanz:</strong> Konzentriert eure dominante Energie gemeinsam auf sensorische Rituale oder erotische Spiele, bei denen die Struktur und die Hingabe an die gemeinsame Ästhetik im Vordergrund stehen."
+        ],
+        badgeColor: "border-rose-600 bg-rose-950/40 text-rose-200"
+      };
+    }
+
+    // KONSTELLATION 3: BEIDE SIND BOTTOM-ORIENTIERT (Bottom / Bottom)
+    if (isSubA && isSubB && !isTopA && !isTopB) {
+      return {
+        constellationTitle: "🧎 Das Sehnsuchts-Paar (Bottom / Bottom)",
+        summary: `Sowohl ${nameA} als auch ${nameB} sehnen sich vor allem nach dem Loslassen, Verwöhntwerden und der süßen Befreiung von Alltagsverantwortung.`,
+        pitfall: "<strong>Die Hemmung zur Härte:</strong> Beide möchten geführt werden, doch keiner traut sich, aktiv Kommandos zu erteilen, zu fesseln oder Schläge zu setzen, aus Angst, dem anderen wehzutun.",
+        actionGuide: [
+          "<strong>1. Service-Dominanz (Führen durch Dienen):</strong> Dominanz muss nicht böse sein! Ein Partner übernimmt die Führung mit dem Motiv, den anderen maximal zu verwöhnen (*„Ich befehle dir, jetzt die Augen zu schließen und dich von mir massieren zu lassen“*).",
+          "<strong>2. Die App als neutraler 'Dritter Top':</strong> Nutzt das <em>Geführte Drehbuch</em> oder den <em>Bestrafungs-Wizard</em> in der Schlafzimmer-Regie. Da die App die Anweisungen vorgibt, muss keiner von euch die unangenehme Härte erfinden – ihr folgt beide einfach der Regie.",
+          "<strong>3. Reihum-Verwöhnrituale:</strong> Jeder Partner erhält 30 Minuten reine, ungestörte Empfängerzeit mit Augenbinde, während der andere liebevoll aktiv agiert."
+        ],
+        badgeColor: "border-cyan-600 bg-indigo-950/40 text-cyan-200"
+      };
+    }
+
+    // KONSTELLATION 4: KLASSISCH KOMPLEMENTÄR (Ein Top, ein Bottom)
+    var topName = isTopA ? nameA : nameB;
+    var subName = isTopA ? nameB : nameA;
+    return {
+      constellationTitle: "👑 Klassische Komplementarität (Top & Bottom)",
+      summary: `Mit ${topName} als Führendem und ${subName} als Hingebungsvollem habt ihr eine organisch ineinandergreifende Grundenergie. Hier herrscht sofortige Stabilität.`,
+      pitfall: "<strong>Alltags-Verschleppung:</strong> Die Gefahr besteht darin, die erotische D/s-Rolle in die Partnerschaft zu übertragen – oder den Bottom mit der Zeit als selbstverständlich anzusehen.",
+      actionGuide: [
+        "<strong>1. Saubere Trennung von Alltag und Spiel:</strong> Am Frühstückstisch, bei Finanzen und Entscheidungen seid ihr gleichberechtigte Partner auf Augenhöhe. Erst im Schlafzimmer oder nach vereinbartem Startsignal gilt die Hierarchie.",
+        "<strong>2. Tiefe Aftercare als Pflicht:</strong> Nach intensiver Führung braucht der Bottom Decken, Wasser und körperliches Halten, um den Hormonabfall (Subdrop) sanft aufzufangen.",
+        "<strong>3. Regelmäßige Check-ins:</strong> Führt einmal im Monat ein ruhiges Gespräch bei Tageslicht: <em>„Passt das Maß an Strenge noch? Gibt es neue Wünsche oder Schamthemen?“</em>"
+      ],
+      badgeColor: "border-amber-600 bg-amber-950/40 text-amber-200"
+    };
   }
 
   function renderPairRoleOrientationCard(rankA, rankB, names) {
@@ -330,7 +529,7 @@
       if (gridEl && gridEl.parentNode) {
         var card = document.createElement('div');
         card.id = 'pair-core-orientation-card';
-        card.className = "theme-card rounded-3xl p-5 border border-amber-900/60 space-y-3.5 shadow-lg bg-gradient-to-br from-amber-950/20 via-noir-900 to-purple-950/20";
+        card.className = "theme-card rounded-3xl p-5 border border-amber-900/60 space-y-4 shadow-lg bg-gradient-to-br from-amber-950/20 via-noir-900 to-purple-950/20";
         gridEl.parentNode.insertBefore(card, gridEl);
         container = card;
       }
@@ -342,16 +541,7 @@
     var nameA = names.A || 'Partner 1';
     var nameB = names.B || 'Partner 2';
 
-    var matchNotice = "";
-    if (orientA.badge.indexOf("Switch") !== -1 && orientB.badge.indexOf("Switch") !== -1) {
-      matchNotice = "✨ <strong>Switch-Match:</strong> Beide Partner besitzen Lust an beiden Rollen – maximale Abwechslung und wechselseitiges Führen sind möglich!";
-    } else if (orientA.badge.indexOf("Top") !== -1 && orientB.badge.indexOf("Bottom") !== -1) {
-      matchNotice = "👑 <strong>Klassische Komplementarität:</strong> Klare Verteilung zwischen Regie und Hingabe schafft sofortige Stabilität.";
-    } else if (orientA.badge.indexOf("Bottom") !== -1 && orientB.badge.indexOf("Top") !== -1) {
-      matchNotice = "👑 <strong>Klassische Komplementarität:</strong> Klare Verteilung zwischen Regie und Hingabe schafft sofortige Stabilität.";
-    } else {
-      matchNotice = "💡 <strong>Vielseitige Synergie:</strong> Feste Neigungen treffen auf flexible Spielräume.";
-    }
+    var guide = buildDynamicGuidance(orientA.type, orientB.type, nameA, nameB);
 
     container.innerHTML = `
       <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -359,7 +549,7 @@
           <span class="text-xl">⚖️</span>
           <div>
             <strong class="text-xs sm:text-sm text-white font-extrabold block">Grundlegende Rollen-Orientierung (Top / Bottom / Switch):</strong>
-            <p class="text-[10.5px] text-slate-400">Auf einen Blick: Zu welcher Grundenergie neigt ihr im erotischen Machtspiel?</p>
+            <p class="text-[10.5px] text-slate-400">Verfeinerte BDSMTest-Berechnung eurer ureigenen Macht- & Hingabe-Neigungen.</p>
           </div>
         </div>
       </div>
@@ -388,12 +578,32 @@
         </div>
       </div>
 
-      <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 text-[10.5px] text-slate-300">
-        ${matchNotice}
+      <!-- HANDLUNGSLEITFADEN FÜR DIESE SPEZIFISCHE PAARKONSTELLATION -->
+      <div class="p-4 rounded-2xl border ${guide.badgeColor} space-y-2.5 text-xs">
+        <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+          <strong class="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
+            <span>✨</span><span>Euer Paarleitfaden: ${guide.constellationTitle}</span>
+          </strong>
+        </div>
+        
+        <p class="text-[11px] text-slate-200 leading-relaxed">${guide.summary}</p>
+        
+        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-[10.5px] text-amber-200">
+          ⚠️ ${guide.pitfall}
+        </div>
+
+        <div class="space-y-1.5 pt-1">
+          <strong class="text-[11px] text-white block">Konkrete Empfehlungen für euer Zusammenspiel:</strong>
+          <ul class="space-y-1 text-[10.5px] text-slate-300">
+            ${guide.actionGuide.map(function(item) {
+              return `<li class="flex items-start gap-1.5"><span class="text-amber-400 font-bold">▸</span><span>${item}</span></li>`;
+            }).join('')}
+          </ul>
+        </div>
       </div>
 
-      <p class="text-[10.5px] text-slate-400 italic leading-snug border-t border-slate-800/60 pt-2 px-1">
-        💡 <strong>Wichtiger Hinweis:</strong> Diese Rollenneigungen sind keine starren Schubladen. Ob man führen oder loslassen möchte, hängt ganz natürlich von Tagesform, Alltagsstress, Stimmung und der jeweiligen Dynamik zwischen euch ab.
+      <p class="text-[10px] text-slate-400 italic leading-snug border-t border-slate-800/60 pt-2 px-1">
+        💡 <strong>Wichtiger Paar-Grundsatz:</strong> Diese Rollenneigungen sind keine starren Schubladen. Ob man führen oder sich fallenlassen möchte, hängt ganz natürlich von Tagesform, Zyklus, Alltagsstress, Arbeitsbelastung und der jeweiligen Chemie zwischen euch ab.
       </p>
     `;
   }
@@ -590,7 +800,6 @@
         }
 
         // BRÜCKENBAU-CHANCEN (5er trifft auf 3er oder 4er)
-        // Unter Berücksichtigung der Freigabestufen (Stufe 1 = nur 4/5, Stufe 2 = ab 3, Stufe 3/4 = ab 2)
         var minAllowedA = (sharingA === 1) ? 4 : (sharingA === 2 ? 3 : 2);
         var minAllowedB = (sharingB === 1) ? 4 : (sharingB === 2 ? 3 : 2);
 
@@ -675,18 +884,18 @@
       }).join('') : '<p class="text-slate-500 italic text-[11px] text-center py-4">Keine Veto-Grenzen (Note 1) hinterlegt.</p>';
     }
 
-    // BDSMTest.org Top 10 Ranglisten-Paarvergleich rendern
-    renderPairBdsmTestRankings(answers, chapters, names);
-
-    // Grundlegende Rollen-Orientierung (Top / Bottom / Switch) rendern
+    // 1. Rollen-Orientierungs-Karte mit Beziehungs-Leitfaden
     var rankA = calculatePartnerArchetypeRankings(answers.A || {}, chapters);
     var rankB = calculatePartnerArchetypeRankings(answers.B || {}, chapters);
     renderPairRoleOrientationCard(rankA, rankB, names);
 
-    // Scham-Zonen rendern
+    // 2. BDSMTest.org Top 10 Ranglisten-Paarvergleich rendern
+    renderPairBdsmTestRankings(answers, chapters, names);
+
+    // 3. Scham-Zonen rendern
     renderPairShameBridges(answers, chapters, names);
 
-    // KI-Gutachten laden
+    // 4. KI-Gutachten laden
     loadCachedPairInterpretation();
   }
 
@@ -782,7 +991,7 @@
         <span class="text-2xl block">🔮</span>
         <div>
           <strong class="text-xs text-white block font-bold">Tiefenpsychologisches KI-Paargutachten:</strong>
-          <p class="text-[10.5px] text-slate-400 mt-0.5">Gemeinsame Synergien, Schamentlastung und konkrete Ritual-Impulse für euren Alltag.</p>
+          <p class="text-[10.5px] text-slate-400 mt-0.5">Gemeinsame Synergien, Schamentlastung und konkrete Ritual-Impulse für euren Beziehungsalltag.</p>
         </div>
         <button type="button" onclick="PairAnalysisEngine.generateInterpretation()" class="px-5 py-2.5 bg-gradient-to-r from-purple-700 to-brand-600 hover:from-purple-600 hover:to-brand-500 text-white font-extrabold rounded-xl text-xs touch-btn shadow-lg">
           ✨ Jetzt Paargutachten berechnen
@@ -792,11 +1001,11 @@
   }
 
   function generateClientSidePairReport(nameA, nameB, orientA, orientB, topSynergies) {
-    var synergyText = `Zwischen ${nameA} (${orientA.badge}) und ${nameB} (${orientB.badge}) besteht ein facettenreiches erotisches Spannungsfeld. ${orientA.badge.indexOf("Switch") !== -1 || orientB.badge.indexOf("Switch") !== -1 ? "Durch die vorhandene Switch-Fähigkeit bleibt eure Dynamik außergewöhnlich beweglich und anpassungsfähig an wechselnde Alltagsphasen." : "Die klare Rollenverteilung bietet ein sofortiges Gefühl von Halt und verlässlicher Sicherheit."}`;
+    var synergyText = `Zwischen ${nameA} (${orientA.badge}) und ${nameB} (${orientB.badge}) besteht ein vielschichtiges erotisches Macht- und Hingabefeld. ${orientA.badge.indexOf("Switch") !== -1 || orientB.badge.indexOf("Switch") !== -1 ? "Durch die vorhandenen Switch-Neigungen besitzt ihr die Fähigkeit, das Zepter dynamisch zu übergeben und flexibel auf unterschiedliche Alltagsphasen zu reagieren." : "Die klare komplementäre Rollenverteilung gibt beiden Partnern sofortige Orientierung, Halt und emotionale Verlässlichkeit."}`;
 
     var growthText = topSynergies.length > 0
-      ? `Eure stärksten gemeinsamen Schnittmengen liegen in Bereichen wie ${topSynergies.slice(0, 3).join(', ')}. Hier könnt ihr ohne Hemmungen ansetzen, da beide Partner von derselben somatischen und psychologischen Neugier getragen werden.`
-      : `Euer Profil zeichnet sich durch spannende Kontraste aus. Nutzt Brückenbau-Themen, um spielerisch und ohne Leistungsdruck herauszufinden, wie weit ihr euch gegenseitig in neue Zonen führen möchtet.`;
+      ? `Eure intensivsten gemeinsamen Schnittmengen liegen in Bereichen wie ${topSynergies.slice(0, 3).join(', ')}. Hier könnt ihr ohne Hemmungen ansetzen, da beide Partner von derselben somatischen und psychologischen Neugier getragen werden.`
+      : `Euer Profil zeichnet sich durch reizvolle Kontraste aus. Nutzt Brückenbau-Themen, um spielerisch und ohne Leistungsdruck herauszufinden, wie weit ihr euch gegenseitig in neue Erfahrungsräume führen möchtet.`;
 
     var safetyText = `Schamgefühle und Hemmschwellen sind in der Paar-Sexualität vollkommen normal. Wie die moderne Paar- und Kink-Forschung belegt, sind Paare mit ausgeprägter erotischer Differenzierung besonders beziehungsstabil. Wo Tabus (Note 1) absolut unangetastet bleiben, entsteht erst der sichere Raum, in dem Schamgefühle liebevoll abgelegt werden können.`;
 
@@ -842,24 +1051,31 @@
     });
 
     var apiKey = localStorage.getItem('kompass_gemini_api_key') || '';
+    var meanA = calculateIndividualRatingMean(answers.A).toFixed(1);
+    var meanB = calculateIndividualRatingMean(answers.B).toFixed(1);
 
     var prompt = `Du bist eine renommierte, einfühlsame und wissenschaftlich fundierte Paar- und Sexualtherapeutin.
 Erstelle ein warmherziges, inspirierendes und schamfreies Paargutachten für ${nameA} und ${nameB}.
 
-PAAR-PROFIL:
-- ${nameA}: Orientierung '${orientA.label}' (${orientA.scores})
-- ${nameB}: Orientierung '${orientB.label}' (${orientB.scores})
+PSYCHOMETRISCH KALIBRIERTE DATEN:
+- ${nameA}: Orientierung '${orientA.label}' (${orientA.scores}) · Notenschnitt (Antwortstil): Ø ${meanA} / 5
+- ${nameB}: Orientierung '${orientB.label}' (${orientB.scores}) · Notenschnitt (Antwortstil): Ø ${meanB} / 5
 - Beiderseitige Doppel-5er Leidenschaften (${topMatches.length}): ${topMatches.slice(0, 6).join(', ') || 'Ausgeprägte komplementäre Synergien'}
+
+METHODISCHER HINWEIS ZUR INTERPRETATION:
+- Die Daten wurden psychometrisch kalibriert: Kernanker (Zucht, Fesselung, Keuschheit) wurden gewichtet, irrelevante Fragen (Note 0) herausgerechnet und Scham-Markierungen als latente Wünsche interpretiert.
+- Wenn ein Partner einen niedrigeren Notenschnitt hat, wertet er selektiver – seine hohen Noten wiegen emotional noch schwerer.
 
 TONFALL & ANWEISUNGEN:
 - Sprich ${nameA} und ${nameB} als Paar liebevoll, modern und therapeutisch entlastend an ("Ihr").
 - Keine moralische Bewertung, volle Würdigung von Macht- und Hingabe-Bedürfnissen.
+- Gehe explizit auf die Konstellation ein (Top/Bottom, Switch/Switch, Top/Top oder Bottom/Bottom).
 - In Feld 3 "safety": Betone, wie wichtig strikte Tabus sind, um Schamgefühle behutsam auflösen zu können.
 - In Feld 4 "everyday_transfer": Gib alltagstaugliche Ratschläge für Rituale, Micro-D/s, nonverbale Signale und saubere Trennung von Alltagsverantwortung und Schlafzimmerspiel.
 
 Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
 {
-  "synergy": "Eure erotische Grunddynamik & Zusammenspiel von ${nameA} und ${nameB} (3 bis 5 Sätze)",
+  "synergy": "Eure erotische Grunddynamik & Zusammenspiel von ${nameA} und ${nameB} unter Einbezug der psychometrischen Kalibrierung (3 bis 5 Sätze)",
   "growth": "Wo liegen eure stärksten Brücken und Wachstumschancen? (3 bis 5 Sätze)",
   "safety": "Scham-Entlastung, Vertrauensgrenzen & Wertschätzung von Tabus (3 bis 5 Sätze)",
   "everyday_transfer": "Konkreter, praxisnaher Ratgeber: Wie ihr diese Dynamik harmonisch in den Beziehungsalltag einwebt (3 bis 5 Sätze)"
@@ -932,7 +1148,8 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
     render: renderPairAnalysis,
     generateInterpretation: generatePairInterpretation,
     calculateRankings: calculatePartnerArchetypeRankings,
-    determineOrientation: determineCoreOrientation
+    determineOrientation: determineCoreOrientation,
+    buildGuidance: buildDynamicGuidance
   };
 
   window.renderPairAnalysis = renderPairAnalysis;
