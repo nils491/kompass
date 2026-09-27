@@ -1,11 +1,12 @@
 /**
  * js/pair_analysis.js
  * Modul für die Beziehungs-Synergie & Paar-Analyse ("analyse.html"):
+ * - Robuste, direkte Datenbeschaffung aus localStorage und Sync-Cache
  * - Verfeinerte BDSMTest-Orientierungs-Formel (Top / Bottom / True-Switch / Dom-leaning / Sub-leaning)
  * - Umfassender Handlungsleitfaden für ALLE 4 Paarkonstellationen (Switch/Switch, Top/Top, Bottom/Bottom, Top/Bottom)
  * - BDSMTest.org-Top-10-Archetypen-Paarvergleich mit vergleichenden Prozentbalken
  * - Doppel-5er-Volltreffer (Sofort auslebbar)
- * - Brückenbau-Chancen (5er trifft auf 3er/4er unter Berücksichtigung der 4 Freigabestufen)
+ * - Vollständige Brückenbau-Chancen (Top-geführt & Bottom-initiiert, 5 trifft auf 3/4)
  * - Sensible Scham-Zonen & Vertrauens-Chancen
  * - Gemeinsame Tabu-Charta (Note 1 Vetos)
  * - Wissenschaftlich fundiertes Gemini-Paargutachten mit Beziehungs-Alltagstransfer
@@ -180,6 +181,60 @@
     }, 2800);
   }
 
+  function getLoadedPairAnswers() {
+    var result = { A: {}, B: {} };
+
+    // 1. Zuerst aus localStorage laden (absolut verlässlich auf eigenständigen Seiten wie analyse.html)
+    try {
+      var raw = localStorage.getItem('kompass_answers');
+      if (raw && raw !== 'null') {
+        var parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.A && typeof parsed.A === 'object') result.A = parsed.A;
+          if (parsed.B && typeof parsed.B === 'object') result.B = parsed.B;
+        }
+      }
+    } catch (e) {
+      console.warn("Fehler beim Laden von kompass_answers aus localStorage:", e);
+    }
+
+    // 2. Abgleich mit window.answers
+    if (window.answers && typeof window.answers === 'object') {
+      if (window.answers.A && Object.keys(window.answers.A).length > 0) {
+        result.A = Object.assign({}, result.A, window.answers.A);
+      }
+      if (window.answers.B && Object.keys(window.answers.B).length > 0) {
+        result.B = Object.assign({}, result.B, window.answers.B);
+      }
+    }
+
+    window.answers = result;
+    return result;
+  }
+
+  function getLoadedPairNames() {
+    var result = { A: 'Partner 1', B: 'Partner 2' };
+
+    try {
+      var raw = localStorage.getItem('kompass_names');
+      if (raw && raw !== 'null') {
+        var parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.A && String(parsed.A).trim().length > 0) result.A = String(parsed.A).trim();
+          if (parsed.B && String(parsed.B).trim().length > 0) result.B = String(parsed.B).trim();
+        }
+      }
+    } catch (e) {}
+
+    if (window.names && typeof window.names === 'object') {
+      if (window.names.A && String(window.names.A).trim().length > 0) result.A = String(window.names.A).trim();
+      if (window.names.B && String(window.names.B).trim().length > 0) result.B = String(window.names.B).trim();
+    }
+
+    window.names = result;
+    return result;
+  }
+
   function getAnswersFingerprint(answers) {
     if (!answers || typeof answers !== 'object') return '';
     var keys = Object.keys(answers).sort();
@@ -213,20 +268,15 @@
     return 4;
   }
 
-  /**
-   * Psychometrische Hilfsfunktionen:
-   * 1. Berechnet den individuellen Notenschnitt eines Nutzers (Response-Style-Bias).
-   * 2. Ermittelt Kernanker-Gewichte (w_i = 1.8 für strukturbildende D/s- & Macht-Items).
-   * 3. Kalibriert Rohwerte ipsativ und boostet latente Scham-Sehnsüchte.
-   */
   function calculateIndividualRatingMean(answersUser) {
     if (!answersUser || typeof answersUser !== 'object') return 3.0;
     var sum = 0, count = 0;
     Object.keys(answersUser).forEach(function(k) {
       if (k.indexOf('_note') === -1 && k.indexOf('_shame') === -1 && k.indexOf('_choice') === -1) {
-        var val = answersUser[k];
+        var rawVal = answersUser[k];
+        var val = Number(rawVal);
         // 0 (Entfällt) wird für den Schnitt nicht gewertet
-        if (typeof val === 'number' && val > 0) {
+        if (!isNaN(val) && val > 0) {
           sum += val;
           count++;
         }
@@ -235,18 +285,12 @@
     return count > 0 ? (sum / count) : 3.0;
   }
 
-  /**
-   * Mehrstufige Item-Taxonomie (Rasch-Modell / Item Response Theory):
-   * Differenziert strikt zwischen harmloser Basissensorik ("Hand auflegen", Kraulen)
-   * und identitätsprägenden Hochschwellen-Kinks ("Pegging", "Denial", "formelle Zucht").
-   */
   function getItemDiagnosticWeight(it, chId) {
     var titleLower = (it.title || '').toLowerCase();
     var descLower = (it.desc || '').toLowerCase();
     var textCombined = titleLower + ' ' + descLower;
 
     // STUFE IV: IDENTITÄTS-TIEFENANKER & HOCHSCHWELLEN-KINKS (Gewicht: 2.4x)
-    // Hohe soziokulturelle Hemmschwelle, Rolleninversion oder maximale Auslieferung
     if (textCombined.indexOf('pegging') !== -1 ||
         textCombined.indexOf('strap-on') !== -1 ||
         textCombined.indexOf('ruined') !== -1 ||
@@ -263,8 +307,8 @@
     }
 
     // STUFE III: STRUKTURBILDENDER KINK & FORMELLES BDSM (Gewicht: 1.8x)
-    // Klare Hierarchie, Schmerz-Katharsis oder Arretierung
-    if ([21, 22, 23, 29, 7, 8, 13, 14, 16, 17].indexOf(chId) !== -1 ||
+    var numCh = Number(chId);
+    if ([21, 22, 23, 29, 7, 8, 13, 14, 16, 17].indexOf(numCh) !== -1 ||
         textCombined.indexOf('zucht') !== -1 ||
         textCombined.indexOf('kniestand') !== -1 ||
         textCombined.indexOf('gehorsam') !== -1 ||
@@ -280,8 +324,7 @@
     }
 
     // STUFE II: EROTISCHE TRANSITION & REIZVERSTÄRKUNG (Gewicht: 1.3x)
-    // Reizwäsche, Masken, Primal Raufen, Dirty Talk, Wachs
-    if ([9, 10, 11, 15, 18, 20, 24, 25].indexOf(chId) !== -1 ||
+    if ([9, 10, 11, 15, 18, 20, 24, 25].indexOf(numCh) !== -1 ||
         textCombined.indexOf('maske') !== -1 ||
         textCombined.indexOf('augenbinde') !== -1 ||
         textCombined.indexOf('raufen') !== -1 ||
@@ -292,33 +335,29 @@
     }
 
     // STUFE I: SOMATISCHE BASISSENSORIK & ZÄRTLICHKEIT (Gewicht: 0.9x)
-    // "Hand auflegen", Atmen, Kuscheln, Massagen – universell angenehm, aber geringe BDSM-Trennschärfe
     return 0.9;
   }
 
   function transformPsychometricRating(rawScore, isShame, userMean) {
-    if (typeof rawScore !== 'number' || rawScore <= 0) return 0;
+    var score = Number(rawScore);
+    if (isNaN(score) || score <= 0) return 0;
 
-    // A. Ipsative Zentrierung: Gleicht ab, ob der Nutzer generell sparsam (z. B. Schnitt 2.8) oder euphorisch (z. B. Schnitt 4.3) wertet
+    // A. Ipsative Zentrierung: Gleicht ab, ob der Nutzer generell sparsam oder euphorisch wertet
     var calibrationOffset = (3.0 - userMean) * 0.35;
-    var calibratedScore = Math.max(1.0, Math.min(5.0, rawScore + calibrationOffset));
+    var calibratedScore = Math.max(1.0, Math.min(5.0, score + calibrationOffset));
 
-    // B. Scham-Faktor: Wenn Scham markiert ist und Note >= 3, spiegelt das einen hochgradig affektiven, latenten Wunsch wider
-    if (isShame && rawScore >= 3) {
+    // B. Scham-Faktor: Wenn Scham markiert ist und Note >= 3, spiegelt das einen latenten Wunsch wider
+    if (isShame && score >= 3) {
       calibratedScore = Math.min(5.0, calibratedScore * 1.25);
     }
 
     return calibratedScore;
   }
 
-  /**
-   * Berechnet die Archetypen-Scores nach psychometrisch gewichteter Matrix:
-   * - 0 (Entfällt) wird strikt aus Zähler UND Nenner herausgerechnet (keine Benachteiligung).
-   * - Kernanker-Gewichtung (w_i) multipliziert relevante Fragen.
-   * - Ipsative Kalibrierung gleicht subjektive Skalen-Niveaus aus.
-   */
   function calculatePartnerArchetypeRankings(answersUser, chapters) {
     var results = {};
+    if (!answersUser || typeof answersUser !== 'object') answersUser = {};
+    if (!chapters || !Array.isArray(chapters)) chapters = window.surveyChapters || [];
     var userMean = calculateIndividualRatingMean(answersUser);
 
     var powerChapters = [21, 22, 23, 29];
@@ -326,22 +365,23 @@
     var subEarned = 0, subPossible = 0;
 
     powerChapters.forEach(function(chId) {
-      var ch = chapters.find(function(c) { return c.id === chId; });
+      var ch = chapters.find(function(c) { return Number(c.id) === Number(chId); });
       if (ch && ch.items) {
         ch.items.forEach(function(it) {
           if (it.type !== 'choice') {
-            var s1 = answersUser['it_' + it.id + '_r1'];
-            var s2 = answersUser['it_' + it.id + '_r2'];
+            var raw1 = answersUser['it_' + it.id + '_r1'];
+            var raw2 = answersUser['it_' + it.id + '_r2'];
+            var s1 = (raw1 !== undefined && raw1 !== null && raw1 !== '') ? Number(raw1) : NaN;
+            var s2 = (raw2 !== undefined && raw2 !== null && raw2 !== '') ? Number(raw2) : NaN;
             var isShame = !!answersUser['it_' + it.id + '_shame'];
             var weight = getItemDiagnosticWeight(it, chId);
 
-            // Nur einrechnen, wenn s > 0 (0: Entfällt darf den Nenner nicht verzerren!)
-            if (typeof s1 === 'number' && s1 > 0) {
+            if (!isNaN(s1) && s1 > 0) {
               var t1 = transformPsychometricRating(s1, isShame, userMean);
               domEarned += (t1 * weight);
               domPossible += (5 * weight);
             }
-            if (typeof s2 === 'number' && s2 > 0) {
+            if (!isNaN(s2) && s2 > 0) {
               var t2 = transformPsychometricRating(s2, isShame, userMean);
               subEarned += (t2 * weight);
               subPossible += (5 * weight);
@@ -350,6 +390,31 @@
         });
       }
     });
+
+    // Fallback: Falls die reinen Machtkapitel 21-29 noch nicht ausgefüllt wurden, ziehen wir D/s-Reize aus dem Gesamtkatalog heran
+    if (domPossible === 0 && subPossible === 0) {
+      chapters.forEach(function(ch) {
+        (ch.items || []).forEach(function(it) {
+          if (it.type !== 'choice') {
+            var raw1 = answersUser['it_' + it.id + '_r1'];
+            var raw2 = answersUser['it_' + it.id + '_r2'];
+            var s1 = (raw1 !== undefined && raw1 !== null && raw1 !== '') ? Number(raw1) : NaN;
+            var s2 = (raw2 !== undefined && raw2 !== null && raw2 !== '') ? Number(raw2) : NaN;
+            var isShame = !!answersUser['it_' + it.id + '_shame'];
+            var weight = getItemDiagnosticWeight(it, ch.id);
+
+            if (!isNaN(s1) && s1 > 0) {
+              domEarned += (transformPsychometricRating(s1, isShame, userMean) * weight);
+              domPossible += (5 * weight);
+            }
+            if (!isNaN(s2) && s2 > 0) {
+              subEarned += (transformPsychometricRating(s2, isShame, userMean) * weight);
+              subPossible += (5 * weight);
+            }
+          }
+        });
+      });
+    }
 
     var pDom = domPossible > 0 ? Math.min(100, Math.round((domEarned / domPossible) * 100)) : 0;
     var pSub = subPossible > 0 ? Math.min(100, Math.round((subEarned / subPossible) * 100)) : 0;
@@ -370,23 +435,26 @@
         possible = domPossible + subPossible;
       } else {
         arch.chapters.forEach(function(chId) {
-          var ch = chapters.find(function(c) { return c.id === chId; });
+          var ch = chapters.find(function(c) { return Number(c.id) === Number(chId); });
           if (ch && ch.items) {
             ch.items.forEach(function(it) {
               if (it.type !== 'choice') {
                 var weight = getItemDiagnosticWeight(it, chId);
                 var isShame = !!answersUser['it_' + it.id + '_shame'];
 
+                var raw1 = answersUser['it_' + it.id + '_r1'];
+                var raw2 = answersUser['it_' + it.id + '_r2'];
+                var s1 = (raw1 !== undefined && raw1 !== null && raw1 !== '') ? Number(raw1) : NaN;
+                var s2 = (raw2 !== undefined && raw2 !== null && raw2 !== '') ? Number(raw2) : NaN;
+
                 if (arch.role === 'r1' || arch.role === 'both') {
-                  var s1 = answersUser['it_' + it.id + '_r1'];
-                  if (typeof s1 === 'number' && s1 > 0) {
+                  if (!isNaN(s1) && s1 > 0) {
                     earned += (transformPsychometricRating(s1, isShame, userMean) * weight);
                     possible += (5 * weight);
                   }
                 }
                 if (arch.role === 'r2' || arch.role === 'both') {
-                  var s2 = answersUser['it_' + it.id + '_r2'];
-                  if (typeof s2 === 'number' && s2 > 0) {
+                  if (!isNaN(s2) && s2 > 0) {
                     earned += (transformPsychometricRating(s2, isShame, userMean) * weight);
                     possible += (5 * weight);
                   }
@@ -412,14 +480,6 @@
     return results;
   }
 
-  /**
-   * Klassische BDSM-Typologisierung mit differenzierten Switch-Subtypen:
-   * - True Switch (Ausgeprägt beidhändig, Differenz <= 18)
-   * - Dom-leaning Switch (Primär Top mit echter Hingabe-Sehnsucht)
-   * - Sub-leaning Switch (Primär Bottom mit aktivem Führungs-Impuls)
-   * - Klarer Top (Dominant)
-   * - Klarer Bottom (Devot)
-   */
   function determineCoreOrientation(rankings) {
     var pDom = (rankings.dominant && rankings.dominant.percentage) || 0;
     var pSub = (rankings.submissive && rankings.submissive.percentage) || 0;
@@ -487,13 +547,6 @@
     };
   }
 
-  /**
-   * Erstellt den fundierten Beziehungs- und Handlungsleitfaden für die 4 Grundkonstellationen:
-   * - Switch / Switch
-   * - Top / Top
-   * - Bottom / Bottom
-   * - Top / Bottom (Komplementär)
-   */
   function buildDynamicGuidance(typeA, typeB, nameA, nameB) {
     var isSwitchA = (typeA.indexOf('switch') !== -1);
     var isSwitchB = (typeB.indexOf('switch') !== -1);
@@ -509,7 +562,7 @@
         summary: `Sowohl ${nameA} als auch ${nameB} besitzen die Gabe und Neigung, beide Seiten der Macht zu empfinden. Das ist die vielseitigste aller Konstellationen – verlangt jedoch ein klares System.`,
         pitfall: "<strong>Die Höflichkeits-Falle:</strong> Ohne Absprache fragt jeder: <em>„Was möchtest du heute?“</em>, worauf der andere antwortet: <em>„Egal, mach du!“</em>. Das erotische Momentum verpufft in Unentschlossenheit.",
         actionGuide: [
-          "<strong>1. Das Token-Prinzip:</strong> Nutzt einen symbolischen Gegenstand (z. B. einen Ring, einen Schlüssel oder einen kleinen Stein auf dem Nachttisch). Wer den Gegenstand auf seine Seite legt, hat heute bedingungslos die Regie – der andere lässt sich führen.",
+          "<strong>1. Das Token-Prinzip:</strong> Nutzt einen symbolischen Gegenstand (z. B. einen Ring oder einen Stein auf dem Nachttisch). Wer den Gegenstand auf seine Seite legt, hat heute bedingungslos die Regie – der andere lässt sich führen.",
           "<strong>2. Kalender-Schichten:</strong> Vereinbart Tage: <em>„Freitag ist deine Nacht (du führst mich) – Sonntag gehört mir (ich führe dich).“</em>",
           "<strong>3. Szenen-Inversion:</strong> Fortgeschrittene Switches wechseln innerhalb einer Session: Ein Part beginnt zart und dienend, bevor er durch ein codiertes Signal den Raum dreht und den Partner überraschend überwältigt."
         ],
@@ -522,11 +575,11 @@
       return {
         constellationTitle: "⚡ Die Duell-Dynamik (Top / Top)",
         summary: `Bei ${nameA} und ${nameB} treffen zwei starke Führungsnaturen aufeinander. Keiner von beiden möchte gerne die Kontrolle an die Bettkante abtreten.`,
-        pitfall: "<strong>Realer Machtkampf:</strong> Wenn beide gleichzeitig die Führung erzwingen wollen, schlägt das Spiel schnell in echten Alltagsfrust oder Gereiztheit um.",
+        pitfall: "<strong>Realer Machtkampf:</strong> Wenn beide gleichzeitig die Führung erzwingen wollen, schlägt das Spiel schnell in Frust oder Gereiztheit um.",
         actionGuide: [
-          "<strong>1. Primal Raufen & Kräftemessen:</strong> Nutzt spielerisches Raufen, Festhalten oder Kitzeln auf der Matratze: Wer zuerst beide Schultern am Boden hat oder abklopft (Tap-Out), ist für den restlichen Abend der Bottom.",
-          "<strong>2. Domänen-Aufteilung:</strong> Teilt eure Vorlieben nach Fachgebieten auf: Partner 1 übernimmt die absolute Hoheit über Fesselungen & Seile; Partner 2 führt unangefochten bei Spanking, Zucht oder Orgasmuskontrolle.",
-          "<strong>3. Co-Dominanz:</strong> Konzentriert eure dominante Energie gemeinsam auf sensorische Rituale oder erotische Spiele, bei denen die Struktur und die Hingabe an die gemeinsame Ästhetik im Vordergrund stehen."
+          "<strong>1. Primal Raufen & Kräftemessen:</strong> Nutzt spielerisches Raufen auf der Matratze: Wer zuerst abklopft (Tap-Out), ist für den restlichen Abend der Bottom.",
+          "<strong>2. Domänen-Aufteilung:</strong> Teilt eure Vorlieben auf: Ein Partner führt bei Fesselungen; der andere führt bei Spanking oder Orgasmuskontrolle.",
+          "<strong>3. Co-Dominanz:</strong> Konzentriert eure dominante Energie gemeinsam auf sensorische Rituale oder Ästhetik."
         ],
         badgeColor: "border-rose-600 bg-rose-950/40 text-rose-200"
       };
@@ -537,11 +590,11 @@
       return {
         constellationTitle: "🧎 Das Sehnsuchts-Paar (Bottom / Bottom)",
         summary: `Sowohl ${nameA} als auch ${nameB} sehnen sich vor allem nach dem Loslassen, Verwöhntwerden und der süßen Befreiung von Alltagsverantwortung.`,
-        pitfall: "<strong>Die Hemmung zur Härte:</strong> Beide möchten geführt werden, doch keiner traut sich, aktiv Kommandos zu erteilen, zu fesseln oder Schläge zu setzen, aus Angst, dem anderen wehzutun.",
+        pitfall: "<strong>Die Hemmung zur Härte:</strong> Beide möchten geführt werden, doch keiner traut sich, aktiv Kommandos zu erteilen oder Schläge zu setzen.",
         actionGuide: [
           "<strong>1. Service-Dominanz (Führen durch Dienen):</strong> Dominanz muss nicht böse sein! Ein Partner übernimmt die Führung mit dem Motiv, den anderen maximal zu verwöhnen (*„Ich befehle dir, jetzt die Augen zu schließen und dich von mir massieren zu lassen“*).",
-          "<strong>2. Die App als neutraler 'Dritter Top':</strong> Nutzt das <em>Geführte Drehbuch</em> oder den <em>Bestrafungs-Wizard</em> in der Schlafzimmer-Regie. Da die App die Anweisungen vorgibt, muss keiner von euch die unangenehme Härte erfinden – ihr folgt beide einfach der Regie.",
-          "<strong>3. Reihum-Verwöhnrituale:</strong> Jeder Partner erhält 30 Minuten reine, ungestörte Empfängerzeit mit Augenbinde, während der andere liebevoll aktiv agiert."
+          "<strong>2. Die App als neutraler 'Dritter Top':</strong> Nutzt das <em>Geführte Drehbuch</em> in der Schlafzimmer-Regie. Da die App die Anweisungen vorgibt, folgt ihr beide einfach der Regie.",
+          "<strong>3. Reihum-Verwöhnrituale:</strong> Jeder Partner erhält 30 Minuten reine Empfängerzeit mit Augenbinde, während der andere liebevoll aktiv agiert."
         ],
         badgeColor: "border-cyan-600 bg-indigo-950/40 text-cyan-200"
       };
@@ -555,9 +608,9 @@
       summary: `Mit ${topName} als Führendem und ${subName} als Hingebungsvollem habt ihr eine organisch ineinandergreifende Grundenergie. Hier herrscht sofortige Stabilität.`,
       pitfall: "<strong>Alltags-Verschleppung:</strong> Die Gefahr besteht darin, die erotische D/s-Rolle in die Partnerschaft zu übertragen – oder den Bottom mit der Zeit als selbstverständlich anzusehen.",
       actionGuide: [
-        "<strong>1. Saubere Trennung von Alltag und Spiel:</strong> Am Frühstückstisch, bei Finanzen und Entscheidungen seid ihr gleichberechtigte Partner auf Augenhöhe. Erst im Schlafzimmer oder nach vereinbartem Startsignal gilt die Hierarchie.",
-        "<strong>2. Tiefe Aftercare als Pflicht:</strong> Nach intensiver Führung braucht der Bottom Decken, Wasser und körperliches Halten, um den Hormonabfall (Subdrop) sanft aufzufangen.",
-        "<strong>3. Regelmäßige Check-ins:</strong> Führt einmal im Monat ein ruhiges Gespräch bei Tageslicht: <em>„Passt das Maß an Strenge noch? Gibt es neue Wünsche oder Schamthemen?“</em>"
+        "<strong>1. Saubere Trennung von Alltag und Spiel:</strong> Am Frühstückstisch und bei Entscheidungen seid ihr gleichberechtigte Partner auf Augenhöhe. Erst nach vereinbartem Startsignal gilt die Hierarchie.",
+        "<strong>2. Tiefe Aftercare als Pflicht:</strong> Nach intensiver Führung braucht der Bottom Decken, Wasser und körperliches Halten, um den Hormonabfall (Subdrop) aufzufangen.",
+        "<strong>3. Regelmäßige Check-ins:</strong> Führt einmal im Monat ein ruhiges Gespräch: <em>„Passt das Maß an Strenge noch? Gibt es neue Wünsche oder Schamthemen?“</em>"
       ],
       badgeColor: "border-amber-600 bg-amber-950/40 text-amber-200"
     };
@@ -590,7 +643,7 @@
           <span class="text-xl">⚖️</span>
           <div>
             <strong class="text-xs sm:text-sm text-white font-extrabold block">Grundlegende Rollen-Orientierung (Top / Bottom / Switch):</strong>
-            <p class="text-[10.5px] text-slate-400">Verfeinerte BDSMTest-Berechnung eurer ureigenen Macht- & Hingabe-Neigungen.</p>
+            <p class="text-[10.5px] text-slate-400">Verfeinerte BDSMTest-Berechnung eurer Macht- & Hingabe-Neigungen.</p>
           </div>
         </div>
       </div>
@@ -644,7 +697,7 @@
       </div>
 
       <p class="text-[10px] text-slate-400 italic leading-snug border-t border-slate-800/60 pt-2 px-1">
-        💡 <strong>Wichtiger Paar-Grundsatz:</strong> Diese Rollenneigungen sind keine starren Schubladen. Ob man führen oder sich fallenlassen möchte, hängt ganz natürlich von Tagesform, Zyklus, Alltagsstress, Arbeitsbelastung und der jeweiligen Chemie zwischen euch ab.
+        💡 <strong>Wichtiger Paar-Grundsatz:</strong> Diese Rollenneigungen sind keine starren Schubladen. Ob man führen oder sich fallenlassen möchte, hängt ganz natürlich von Tagesform, Zyklus, Alltagsstress und der Chemie zwischen euch ab.
       </p>
     `;
   }
@@ -734,15 +787,18 @@
         var isShameB = !!answers.B?.['it_' + it.id + '_shame'];
 
         if (isShameA || isShameB) {
-          var r1_A = answers.A?.['it_' + it.id + '_r1'];
-          var r2_A = answers.A?.['it_' + it.id + '_r2'];
-          var r1_B = answers.B?.['it_' + it.id + '_r1'];
-          var r2_B = answers.B?.['it_' + it.id + '_r2'];
+          var r1_A = Number(answers.A?.['it_' + it.id + '_r1']);
+          var r2_A = Number(answers.A?.['it_' + it.id + '_r2']);
+          var r1_B = Number(answers.B?.['it_' + it.id + '_r1']);
+          var r2_B = Number(answers.B?.['it_' + it.id + '_r2']);
 
-          var hasPositiveInterest = (r1_A >= 3 || r2_A >= 3 || r1_B >= 3 || r2_B >= 3);
-          var isTabu = (r1_A === 1 || r2_A === 1 || r1_B === 1 || r2_B === 1);
+          var maxA = Math.max(isNaN(r1_A) ? 0 : r1_A, isNaN(r2_A) ? 0 : r2_A);
+          var maxB = Math.max(isNaN(r1_B) ? 0 : r1_B, isNaN(r2_B) ? 0 : r2_B);
 
-          if (hasPositiveInterest && !isTabu) {
+          var hasPositiveInterest = (maxA >= 3 || maxB >= 3);
+          var isFullTabu = (r1_A === 1 && r2_A === 1) || (r1_B === 1 && r2_B === 1);
+
+          if (hasPositiveInterest && !isFullTabu) {
             var whoShame = [];
             if (isShameA) whoShame.push(nameA);
             if (isShameB) whoShame.push(nameB);
@@ -751,7 +807,7 @@
               item: it,
               chapter: ch,
               whoShame: whoShame.join(' & '),
-              scores: `${nameA}: ${Math.max(r1_A || 0, r2_A || 0)}/5 · ${nameB}: ${Math.max(r1_B || 0, r2_B || 0)}/5`
+              scores: `${nameA}: ${maxA}/5 · ${nameB}: ${maxB}/5`
             });
           }
         }
@@ -782,7 +838,7 @@
   }
 
   function renderPairAnalysis() {
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var names = getLoadedPairNames();
     var nameA = names.A || 'Partner 1';
     var nameB = names.B || 'Partner 2';
 
@@ -790,13 +846,7 @@
     if (headerTitle) headerTitle.innerText = nameA + " & " + nameB;
 
     var chapters = window.surveyChapters || [];
-    var answers = window.answers || { A: {}, B: {} };
-    if (!answers.A && !answers.B) {
-      try {
-        var stored = localStorage.getItem('kompass_answers');
-        if (stored) answers = JSON.parse(stored);
-      } catch (e) {}
-    }
+    var answers = getLoadedPairAnswers();
 
     var sharingA = getSharingLevel('A');
     var sharingB = getSharingLevel('B');
@@ -805,63 +855,93 @@
     var bridges = [];
     var tabus = [];
 
+    var minAllowedA = (sharingA === 1) ? 4 : (sharingA === 2 ? 3 : 2);
+    var minAllowedB = (sharingB === 1) ? 4 : (sharingB === 2 ? 3 : 2);
+
     chapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
         if (it.type === 'choice') return;
 
-        var r1_A = answers.A?.['it_' + it.id + '_r1'];
-        var r2_A = answers.A?.['it_' + it.id + '_r2'];
-        var r1_B = answers.B?.['it_' + it.id + '_r1'];
-        var r2_B = answers.B?.['it_' + it.id + '_r2'];
+        var raw1_A = answers.A ? answers.A['it_' + it.id + '_r1'] : undefined;
+        var raw2_A = answers.A ? answers.A['it_' + it.id + '_r2'] : undefined;
+        var raw1_B = answers.B ? answers.B['it_' + it.id + '_r1'] : undefined;
+        var raw2_B = answers.B ? answers.B['it_' + it.id + '_r2'] : undefined;
 
-        // TABU-PRÜFUNG (Note 1)
+        var r1_A = (raw1_A !== undefined && raw1_A !== null && raw1_A !== '') ? Number(raw1_A) : NaN;
+        var r2_A = (raw2_A !== undefined && raw2_A !== null && raw2_A !== '') ? Number(raw2_A) : NaN;
+        var r1_B = (raw1_B !== undefined && raw1_B !== null && raw1_B !== '') ? Number(raw1_B) : NaN;
+        var r2_B = (raw2_B !== undefined && raw2_B !== null && raw2_B !== '') ? Number(raw2_B) : NaN;
+
+        // 1. TABU-PRÜFUNG (Note 1)
         if (r1_A === 1) tabus.push({ item: it, who: nameA, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
         if (r2_A === 1) tabus.push({ item: it, who: nameA, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
         if (r1_B === 1) tabus.push({ item: it, who: nameB, role: 'Aktiv: ' + (it.r1 || 'Ausführen') });
         if (r2_B === 1) tabus.push({ item: it, who: nameB, role: 'Passiv: ' + (it.r2 || 'Empfangen') });
 
-        // Wenn ein Partner Note 1 vergeben hat, wird es niemals als Match/Brücke gelistet
-        if (r1_A === 1 || r2_A === 1 || r1_B === 1 || r2_B === 1) return;
-
-        // DOPPEL-5ER: Konstellation 1 (A führt als r1, B empfängt als r2)
-        if (r1_A === 5 && r2_B === 5) {
+        // 2. DOPPEL-5ER: Konstellation A (A führt als r1, B empfängt als r2)
+        if (r1_A === 5 && r2_B === 5 && r1_A !== 1 && r2_B !== 1) {
           doubleFives.push({
             item: it,
-            roles: `${nameA} (Aktiv) & ${nameB} (Passiv)`,
+            roles: `${nameA} führt (Aktiv) & ${nameB} empfängt (Passiv)`,
             desc: it.desc || ''
           });
         }
-        // DOPPEL-5ER: Konstellation 2 (B führt als r1, A empfängt als r2)
-        if (r1_B === 5 && r2_A === 5) {
+        // DOPPEL-5ER: Konstellation B (B führt als r1, A empfängt als r2)
+        if (r1_B === 5 && r2_A === 5 && r1_B !== 1 && r2_A !== 1) {
           doubleFives.push({
             item: it,
-            roles: `${nameB} (Aktiv) & ${nameA} (Passiv)`,
+            roles: `${nameB} führt (Aktiv) & ${nameA} empfängt (Passiv)`,
+            desc: it.desc || ''
+          });
+        }
+        // DOPPEL-5ER: Konstellation C (Gemeinsame beiderseitige Aktiv-Lust, wenn Rollen symmetrisch sind)
+        if (r1_A === 5 && r1_B === 5 && r1_A !== 1 && r1_B !== 1 && it.r1 && it.r2 && it.r1 === it.r2) {
+          doubleFives.push({
+            item: it,
+            roles: `Beide brennen dafür (${nameA} & ${nameB})`,
             desc: it.desc || ''
           });
         }
 
-        // BRÜCKENBAU-CHANCEN (5er trifft auf 3er oder 4er)
-        var minAllowedA = (sharingA === 1) ? 4 : (sharingA === 2 ? 3 : 2);
-        var minAllowedB = (sharingB === 1) ? 4 : (sharingB === 2 ? 3 : 2);
-
-        // A will 5, B hat Interesse (3 oder 4)
-        if (r1_A === 5 && (r2_B === 3 || r2_B === 4) && r2_B >= minAllowedB) {
+        // 3. BRÜCKENBAU-CHANCEN (5er trifft auf 3er oder 4er):
+        // Fall 1: A will führen (r1_A = 5), B ist offen zu empfangen (r2_B in [3, 4])
+        if (r1_A === 5 && (r2_B === 3 || r2_B === 4) && r1_A !== 1 && r2_B !== 1 && r2_B >= minAllowedB) {
           bridges.push({
             item: it,
             initiator: nameA,
             receiver: nameB,
-            roleDesc: `${nameA} brennt dafür (5) · ${nameB} ist offen/neugierig (${r2_B})`,
+            roleDesc: `${nameA} will führen (5) · ${nameB} ist offen (${r2_B})`,
             action: `Aktiv: ${it.r1 || 'Ausführen'}`
           });
         }
-        // B will 5, A hat Interesse (3 oder 4)
-        if (r1_B === 5 && (r2_A === 3 || r2_A === 4) && r2_A >= minAllowedA) {
+        // Fall 2: B will führen (r1_B = 5), A ist offen zu empfangen (r2_A in [3, 4])
+        if (r1_B === 5 && (r2_A === 3 || r2_A === 4) && r1_B !== 1 && r2_A !== 1 && r2_A >= minAllowedA) {
           bridges.push({
             item: it,
             initiator: nameB,
             receiver: nameA,
-            roleDesc: `${nameB} brennt dafür (5) · ${nameA} ist offen/neugierig (${r2_A})`,
+            roleDesc: `${nameB} will führen (5) · ${nameA} ist offen (${r2_A})`,
             action: `Aktiv: ${it.r1 || 'Ausführen'}`
+          });
+        }
+        // Fall 3: A will empfangen (r2_A = 5), B ist offen zu führen (r1_B in [3, 4])
+        if (r2_A === 5 && (r1_B === 3 || r1_B === 4) && r2_A !== 1 && r1_B !== 1 && r1_B >= minAllowedB) {
+          bridges.push({
+            item: it,
+            initiator: nameA,
+            receiver: nameB,
+            roleDesc: `${nameA} sehnt sich nach Hingabe (5) · ${nameB} führt offen (${r1_B})`,
+            action: `Passiv: ${it.r2 || 'Empfangen'}`
+          });
+        }
+        // Fall 4: B will empfangen (r2_B = 5), A ist offen zu führen (r1_A in [3, 4])
+        if (r2_B === 5 && (r1_A === 3 || r1_A === 4) && r2_B !== 1 && r1_A !== 1 && r1_A >= minAllowedA) {
+          bridges.push({
+            item: it,
+            initiator: nameB,
+            receiver: nameA,
+            roleDesc: `${nameB} sehnt sich nach Hingabe (5) · ${nameA} führt offen (${r1_A})`,
+            action: `Passiv: ${it.r2 || 'Empfangen'}`
           });
         }
       });
@@ -1014,7 +1094,7 @@
         var parsed = JSON.parse(raw);
         var reportData = parsed.report || parsed;
         if (reportData && reportData.synergy) {
-          var answers = window.answers || { A: {}, B: {} };
+          var answers = getLoadedPairAnswers();
           var curHashA = hashString(getAnswersFingerprint(answers.A));
           var curHashB = hashString(getAnswersFingerprint(answers.B));
           var curCombinedHash = curHashA + '_' + curHashB;
@@ -1061,10 +1141,10 @@
   }
 
   async function generatePairInterpretation() {
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var names = getLoadedPairNames();
     var nameA = names.A || 'Partner 1';
     var nameB = names.B || 'Partner 2';
-    var answers = window.answers || { A: {}, B: {} };
+    var answers = getLoadedPairAnswers();
     var chapters = window.surveyChapters || [];
 
     var container = document.getElementById('pair-report-container');
@@ -1086,8 +1166,13 @@
     var topMatches = [];
     chapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
-        if (answers.A?.['it_' + it.id + '_r1'] === 5 && answers.B?.['it_' + it.id + '_r2'] === 5) topMatches.push(it.title);
-        if (answers.B?.['it_' + it.id + '_r1'] === 5 && answers.A?.['it_' + it.id + '_r2'] === 5) topMatches.push(it.title);
+        var r1_A = Number(answers.A ? answers.A['it_' + it.id + '_r1'] : NaN);
+        var r2_A = Number(answers.A ? answers.A['it_' + it.id + '_r2'] : NaN);
+        var r1_B = Number(answers.B ? answers.B['it_' + it.id + '_r1'] : NaN);
+        var r2_B = Number(answers.B ? answers.B['it_' + it.id + '_r2'] : NaN);
+
+        if (r1_A === 5 && r2_B === 5) topMatches.push(it.title);
+        if (r1_B === 5 && r2_A === 5) topMatches.push(it.title);
       });
     });
 
@@ -1185,12 +1270,18 @@ Antworte AUSSCHLIESSLICH als valides JSON mit genau diesen vier Feldern:
     }
   }
 
+  // Live-Re-Render bei Cloud-Synchronisation
+  window.addEventListener('kompass_data_synced', function() {
+    renderPairAnalysis();
+  });
+
   window.PairAnalysisEngine = {
     render: renderPairAnalysis,
     generateInterpretation: generatePairInterpretation,
     calculateRankings: calculatePartnerArchetypeRankings,
     determineOrientation: determineCoreOrientation,
-    buildGuidance: buildDynamicGuidance
+    buildGuidance: buildDynamicGuidance,
+    loadData: getLoadedPairAnswers
   };
 
   window.renderPairAnalysis = renderPairAnalysis;
