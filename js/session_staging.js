@@ -8,7 +8,7 @@
  * - "+ Neuanschaffung"-Schnellformular: Legt Toys fest im Schrank an & stellt sie für heute bereit
  * - "✨ Alle Schrank-Toys"-Tab als primäre Übersicht aller Kategorien
  * - Intelligente Staging-Presets: "Kompletter Schrank", "🎲 Zufalls-Mix (3)" und "🛏️ Nur Hände & Bett"
- * - Direkte Anbindung an HubToys: Schrank-Verwaltung öffnet direkt in der Regie
+ * - Spielmodus-Wahl: 'guided' (Geführtes Drehbuch) vs. 'free' (Freier Flow) mit visueller Umschaltung
  */
 
 (function(window) {
@@ -18,10 +18,11 @@
   var portalSelectedRoleSetup = 'default';
   var topPartner = 'B';
   var subPartner = 'A';
-  var currentStagingCategory = 'all'; // Standard: Alle Schrank-Toys
-  var stagedTonightIds = []; // Was heute auf dem Nachttisch liegt
+  var currentStagingCategory = 'all';
+  var stagedTonightIds = [];
   var currentSelectedPlaybook = [];
   var sessionDepth = 7;
+  var selectedSessionMode = 'guided'; // 'guided' oder 'free'
 
   var names = { A: 'Partner 1', B: 'Partner 2' };
   var anatomy = { A: 'penis', B: 'vulva' };
@@ -37,7 +38,6 @@
         ? window.HubToys.getCombinedCatalog()
         : (window.equipmentCatalog || []);
 
-      // Eigene Custom-Toys aus dem Speicher ergänzen
       try {
         var rawCustom = localStorage.getItem('kompass_custom_equipment');
         if (rawCustom) {
@@ -52,13 +52,11 @@
         }
       } catch (e) {}
 
-      // Nur Toys zurückgeben, die tatsächlich im Schrank aktiv sind
       return fullCatalog.filter(function(item) {
         return ownedIds.indexOf(item.id) !== -1;
       });
     }
 
-    // Fallback falls HubToys noch lädt
     var cat = window.equipmentCatalog || [];
     return cat.filter(function(i) { return i.defaultPresent; });
   }
@@ -74,12 +72,10 @@
       var ans = localStorage.getItem('kompass_answers');
       if (ans && ans !== 'null') answers = JSON.parse(ans);
 
-      // Nachttisch-Staging für heute Abend aus eigenem Speicher laden
       var stagedRaw = localStorage.getItem('kompass_staged_equipment_ids');
       if (stagedRaw && stagedRaw !== 'null') {
         stagedTonightIds = JSON.parse(stagedRaw);
       } else {
-        // Standard: Zunächst alle im Schrank vorhandenen Toys bereitstellen
         var closet = getClosetCatalog();
         stagedTonightIds = closet.map(function(i) { return i.id; });
       }
@@ -111,7 +107,6 @@
     if (!answers || typeof answers !== 'object') answers = { A: {}, B: {} };
     if (!stagedTonightIds || !Array.isArray(stagedTonightIds)) stagedTonightIds = [];
 
-    // Bereinigen: Nur Toys bereitstellen, die auch noch im Schrank existieren
     var closetIds = getClosetCatalog().map(function(i) { return i.id; });
     stagedTonightIds = stagedTonightIds.filter(function(id) { return closetIds.indexOf(id) !== -1; });
 
@@ -241,7 +236,6 @@
 
     updateStagingTabCounters();
 
-    // Fall A: Noch gar keine Toys im Schrank aktiv
     if (closet.length === 0) {
       grid.innerHTML = `
         <div class="col-span-full p-6 rounded-2xl bg-purple-950/30 border border-purple-800/80 text-center space-y-2">
@@ -375,7 +369,6 @@
       isCustom: true
     };
 
-    // 1. In custom equipment speichern
     try {
       var custom = [];
       var raw = localStorage.getItem('kompass_custom_equipment');
@@ -384,7 +377,6 @@
       localStorage.setItem('kompass_custom_equipment', JSON.stringify(custom));
     } catch (e) {}
 
-    // 2. Fest im Schrank (activeEquipmentIds) aktivieren
     if (window.HubToys && typeof window.HubToys.getOwnedIds === 'function') {
       var owned = window.HubToys.getOwnedIds();
       if (owned.indexOf(newId) === -1) {
@@ -401,7 +393,6 @@
       } catch (e) {}
     }
 
-    // 3. Direkt auf den Nachttisch für heute Abend legen
     if (stagedTonightIds.indexOf(newId) === -1) {
       stagedTonightIds.push(newId);
       saveStagedEquipment();
@@ -465,16 +456,31 @@
   }
 
   function selectSessionMode(mode) {
+    selectedSessionMode = mode;
+    var bGuided = document.getElementById('btn-mode-guided');
+    var bFree = document.getElementById('btn-mode-free');
+    var bGuidedCheck = document.getElementById('badge-mode-guided');
+    var bFreeCheck = document.getElementById('badge-mode-free');
+    var previewWrap = document.getElementById('playbook-preview-wrap');
+
+    if (mode === 'free') {
+      if (bFree) bFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
+      if (bGuided) bGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (bFreeCheck) { bFreeCheck.innerText = "✓ Gewählt"; bFreeCheck.className = "text-brand-300 font-bold text-xs"; }
+      if (bGuidedCheck) { bGuidedCheck.innerText = "○"; bGuidedCheck.className = "text-slate-500 font-bold text-xs"; }
+      if (previewWrap) previewWrap.classList.add('opacity-40');
+      showToast("Modus: Freier Flow ausgewählt (Keine starren Schritte) 🌊");
+    } else {
+      if (bGuided) bGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
+      if (bFree) bFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
+      if (bGuidedCheck) { bGuidedCheck.innerText = "✓ Gewählt"; bGuidedCheck.className = "text-brand-300 font-bold text-xs"; }
+      if (bFreeCheck) { bFreeCheck.innerText = "○"; bFreeCheck.className = "text-slate-500 font-bold text-xs"; }
+      if (previewWrap) previewWrap.classList.remove('opacity-40');
+      showToast("Modus: Geführtes 4-Phasen-Drehbuch ausgewählt 📖");
+    }
+
     if (window.SessionLive && typeof window.SessionLive.selectMode === 'function') {
       window.SessionLive.selectMode(mode);
-    } else {
-      if (mode === 'guided') {
-        goToPortalStepSafe(3);
-      } else {
-        if (typeof window.startLiveSessionWrapper === 'function') {
-          window.startLiveSessionWrapper();
-        }
-      }
     }
   }
 
@@ -617,7 +623,6 @@
     var topName = (names && names[topPartner]) || 'Top';
     var subName = (names && names[subPartner]) || 'Bottom';
 
-    // Holt exklusiv die für heute Abend bereitgestellten Tools
     var closet = getClosetCatalog();
     var availableToys = closet.filter(function(i) {
       return stagedTonightIds.indexOf(i.id) !== -1;
@@ -772,7 +777,6 @@
     }
   }
 
-  // Hook für HubToys.close(): Wenn im Schrank etwas geändert wird, Staging sofort neu synchronisieren
   var originalCloseToyModal = window.closeToyManagementModal;
   window.closeToyManagementModal = function() {
     if (typeof originalCloseToyModal === 'function') {
@@ -811,7 +815,6 @@
     }
   };
 
-  // Globale Aliase für Inline-HTML-Event-Handler
   window.selectPortalRoleSetup = selectPortalRoleSetup;
   window.goToPortalStepSafe = goToPortalStepSafe;
   window.selectSessionMode = selectSessionMode;
