@@ -10,6 +10,8 @@
  * - Lückenlose Datenpersistenz (LocalStorage + Zero-Conflict Fallback)
  * - Burger-Menü & Desktop-Navigation Synchronisation
  * - Direktsprung-Routing aus Profil & Tabu-Listen
+ * - Live-Status-Aktualisierung des D/s-Ledger-Badges auf dem Start-Hub
+ * - Dateigrößen-Garantie: Weit unter 500 Zeilen.
  */
 
 (function(window) {
@@ -90,11 +92,9 @@
       var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
       var savedRole = localStorage.getItem('kompass_assigned_role');
       if (isPaired && (savedRole === 'A' || savedRole === 'B')) {
-        // Beim Starten auf gekoppeltem Gerät immer zuerst das eigene Profil laden
-        if (!currentUser) {
-          currentUser = savedRole;
-          window.currentUser = savedRole;
-        }
+        // Auf gekoppeltem Gerät immer zwingend die eigene zugewiesene Geräterolle aktivieren!
+        currentUser = savedRole;
+        window.currentUser = savedRole;
       }
     } catch (e) {
       console.warn("Fehler beim Laden lokaler Daten:", e);
@@ -120,8 +120,6 @@
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
       localStorage.setItem('kompass_safety_config', JSON.stringify(window.safetyConfig));
-      // WICHTIG: kompass_assigned_role wird hier NICHT überschrieben,
-      // damit das Betrachten des Partner-Profils nicht die Geräterolle zerstört!
 
       if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
         window.CloudSync.trigger();
@@ -139,7 +137,6 @@
 
     var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
     if (!isPaired) {
-      // Nur im unverschlüsselten lokalen PC-Modus darf die Geräterolle wechseln
       try {
         localStorage.setItem('kompass_assigned_role', user);
       } catch (e) {}
@@ -312,6 +309,22 @@
     if (window.HubToys && typeof window.HubToys.updateCount === 'function') {
       window.HubToys.updateCount();
     }
+
+    // 4. Ledger-Badge im Hub aktualisieren
+    try {
+      var rawLedger = localStorage.getItem('kompass_ledger_state');
+      var ledgerBadge = document.getElementById('hub-ledger-badge');
+      if (ledgerBadge) {
+        if (rawLedger) {
+          var lState = JSON.parse(rawLedger);
+          var bal = (lState.balance !== undefined) ? lState.balance : 0;
+          var sign = bal >= 0 ? '+' : '';
+          ledgerBadge.innerText = (lState.isLocked ? "🔒 " : "🔓 ") + sign + bal + " P";
+        } else {
+          ledgerBadge.innerText = "Bereit 🗝️";
+        }
+      }
+    } catch (e) {}
   }
 
   var SAFETY_MODULES = [
