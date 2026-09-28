@@ -1,15 +1,15 @@
 /**
  * js/ledger_contract.js
  * Modul für den Dynamischen Beziehungs- & Sklavenvertrag, rollenabhängigen Tabuschutz,
- * digitale Touchscreen-Signaturen und den KI-Paragraphen-Assistenten.
+ * digitale Touchscreen-Signaturen und den Paragraphen-Assistenten.
  * 
  * Beinhaltet:
  * - Automatische Generierung aus Fragebogen-Noten & Synergien
  * - Rollenabhängige Tabu-Filterung (§ 5: Bottom nur r2=1, Top nur r1=1)
  * - Editierbarer Draft-Modus mit Klausel-Verwaltung (§ 1 bis § 7)
  * - Touch-Signatur-Canvas für beide Partner
- * - Paragraphen-Such- & Vorschlagsassistent für Bestrafungen
- * - Dateigrößen-Garantie: Weit unter 500 Zeilen.
+ * - Paragraphen-Suchassistent für Bestrafungen
+ * - Keine Verwendung von alert() oder confirm()
  */
 
 (function(window) {
@@ -78,7 +78,7 @@
     if (!contractState || typeof contractState !== 'object') {
       contractState = {
         version: "1.0 Draft",
-        status: "draft", // 'draft' oder 'active'
+        status: "draft",
         clauses: JSON.parse(JSON.stringify(DEFAULT_CLAUSES)),
         signatureTop: null,
         signatureSub: null,
@@ -106,7 +106,8 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   function showToast(msg) {
@@ -146,7 +147,7 @@
     }
     if (verLbl) verLbl.innerText = contractState.version || "Version 1.0";
 
-    container.innerHTML = contractState.clauses.map(function(cl, idx) {
+    container.innerHTML = contractState.clauses.map(function(cl) {
       return `
         <div class="theme-card rounded-2xl p-4 sm:p-5 border border-slate-800 space-y-2 shadow-xs" id="clause-card-${cl.id}">
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
@@ -171,6 +172,31 @@
     renderSignatureBoxes();
   }
 
+  function renderSignatureBoxes() {
+    var boxTop = document.getElementById('sig-box-top');
+    var boxSub = document.getElementById('sig-box-sub');
+
+    if (boxTop) {
+      if (contractState.signatureTop) {
+        boxTop.innerHTML = `<img src="${contractState.signatureTop}" alt="Signatur Top" class="max-h-16 mx-auto object-contain">`;
+        boxTop.className = "h-20 rounded-xl border border-brand-700 bg-brand-950/20 flex items-center justify-center p-1 shadow-inner";
+      } else {
+        boxTop.innerHTML = `<span class="text-slate-500 font-serif italic text-xs">Noch nicht unterzeichnet</span>`;
+        boxTop.className = "h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center";
+      }
+    }
+
+    if (boxSub) {
+      if (contractState.signatureSub) {
+        boxSub.innerHTML = `<img src="${contractState.signatureSub}" alt="Signatur Bottom" class="max-h-16 mx-auto object-contain">`;
+        boxSub.className = "h-20 rounded-xl border border-indigo-700 bg-indigo-950/20 flex items-center justify-center p-1 shadow-inner";
+      } else {
+        boxSub.innerHTML = `<span class="text-slate-500 font-serif italic text-xs">Noch nicht unterzeichnet</span>`;
+        boxSub.className = "h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center";
+      }
+    }
+  }
+
   function generateContractFromSurvey() {
     if (!isUserTop()) {
       showToast("🔒 Nur der Keyholder kann den Vertrag generieren.");
@@ -192,7 +218,7 @@
     var allChapters = window.surveyChapters || [];
     var filteredTabus = [];
 
-    // STRIKTE ROLLENFILTERUNG:
+    // Strikte Rollenfilterung:
     // 1. Beim Bottom NUR Tabus beim Empfangen (r2 = 1)
     // 2. Beim Top NUR Tabus beim Ausführen (r1 = 1)
     allChapters.forEach(function(ch) {
@@ -216,7 +242,6 @@
     var newClauses = JSON.parse(JSON.stringify(DEFAULT_CLAUSES));
     newClauses[4].content = tabuClauseContent;
 
-    // Keuschheits-Klausel personalisieren
     var hw = ledgerState.hardware || 'penis_micro';
     var hwLabels = {
       penis_curved: 'Ergonomic Curved Peniskäfig',
@@ -237,33 +262,8 @@
     renderContract();
     showToast("✨ Vertrag aus Bogen & Rollen generiert!");
 
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent("📜 Neuer D/s-Vertragsentwurf aus Fragebogen-Noten generiert. Bereit zur Prüfung.");
-    }
-  }
-
-  function renderSignatureBoxes() {
-    var boxTop = document.getElementById('sig-box-top');
-    var boxSub = document.getElementById('sig-box-sub');
-
-    if (boxTop) {
-      if (contractState.signatureTop) {
-        boxTop.innerHTML = `<img src="${contractState.signatureTop}" alt="Signatur Top" class="max-h-16 mx-auto object-contain">`;
-        boxTop.className = "h-20 rounded-xl border border-brand-700 bg-brand-950/20 flex items-center justify-center p-1 shadow-inner";
-      } else {
-        boxTop.innerHTML = `<span class="text-slate-500 font-serif italic text-xs">Noch nicht unterzeichnet</span>`;
-        boxTop.className = "h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center";
-      }
-    }
-
-    if (boxSub) {
-      if (contractState.signatureSub) {
-        boxSub.innerHTML = `<img src="${contractState.signatureSub}" alt="Signatur Bottom" class="max-h-16 mx-auto object-contain">`;
-        boxSub.className = "h-20 rounded-xl border border-indigo-700 bg-indigo-950/20 flex items-center justify-center p-1 shadow-inner";
-      } else {
-        boxSub.innerHTML = `<span class="text-slate-500 font-serif italic text-xs">Noch nicht unterzeichnet</span>`;
-        boxSub.className = "h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center";
-      }
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent("📜 Neuer D/s-Vertragsentwurf aus Fragebogen-Noten generiert. Bereit zur Prüfung.");
     }
   }
 
@@ -360,15 +360,14 @@
       contractState.signatureSub = dataUrl;
     }
 
-    // Wenn beide signiert haben: Vertrag wird aktiv besiegelt!
     if (contractState.signatureTop && contractState.signatureSub) {
       contractState.status = "active";
       contractState.signedAt = Date.now();
       contractState.version = "1.0 Besiegelt (" + new Date().toLocaleDateString('de-DE') + ")";
       showToast("📜 Vertrag von beiden Partnern besiegelt & in Kraft getreten! ✓");
 
-      if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-        window.LedgerChat.postSystemEvent("✍️ Der D/s-Beziehungsvertrag wurde von beiden Partnern feierlich unterzeichnet und besiegelt!");
+      if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+        window.ChatApp.postSystemEvent("✍️ Der D/s-Beziehungsvertrag wurde von beiden Partnern feierlich unterzeichnet und besiegelt!");
       }
     } else {
       showToast("Unterschrift gespeichert. Zweite Signatur steht noch aus.");
@@ -382,7 +381,7 @@
   function findMatchingClausesForInfraction(infractionReason) {
     loadContractState();
     if (!contractState || contractState.status !== 'active') {
-      return []; // Assistent schaltet sich NUR bei besiegeltem Vertrag ein!
+      return [];
     }
 
     var text = (infractionReason || '').toLowerCase().trim();
@@ -403,13 +402,11 @@
       var score = 0;
       var clText = (cl.title + " " + cl.content).toLowerCase();
 
-      // Direkte Wort-Treffer
       var words = text.split(/\s+/);
       words.forEach(function(w) {
         if (w.length > 3 && clText.indexOf(w) !== -1) score += 35;
       });
 
-      // Synonyme / Schlagwörter prüfen
       var kws = keywordsMap[cl.id] || [];
       kws.forEach(function(kw) {
         if (text.indexOf(kw) !== -1) score += 40;
