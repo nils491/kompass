@@ -9,7 +9,7 @@
  * - Schicksals-Würfel (24h-Intervall) mit automatischer Chat-Benachrichtigung
  * - Aufgaben-, Vergehen- & Belohnungs-Shop Verwaltung
  * - Strafen-Verhandlung & Ablass-Buchung mit Paar-Logbuch-Export
- * - Dateigrößen-Garantie: Weit unter 500 Zeilen.
+ * - Strikte Einhaltung der Schutzregeln: Keine Verwendung von alert() oder confirm()
  */
 
 (function(window) {
@@ -21,11 +21,11 @@
     hardware: 'penis_micro',
     keyStorage: 'kSafe (72h)',
     isLocked: true,
-    lockedSince: Date.now() - (3 * 24 * 3600 * 1000), // 3 Tage Default
+    lockedSince: Date.now() - (3 * 24 * 3600 * 1000),
     balance: 120,
     lastDiceRoll: 0,
     hygieneConfig: {
-      mode: 'points', // 'points' oder 'physical'
+      mode: 'points',
       ratePts: 15,
       ratePhys: '2 Schläge auf das Gesäß'
     },
@@ -37,7 +37,7 @@
     lastClimax: {
       timestamp: Date.now() - (5 * 24 * 3600 * 1000),
       type: 'ruined',
-      note: 'In Session #12 mit Magic Wand am Point of no Return abgebrochen.'
+      note: 'In Session mit Magic Wand am Point of no Return abgebrochen.'
     },
     chores: [
       { id: 'c1', title: 'Küche & Bad gründlich reinigen', points: 30, cat: 'household' },
@@ -73,7 +73,6 @@
     if (!state || typeof state !== 'object') {
       state = JSON.parse(JSON.stringify(DEFAULT_LEDGER_STATE));
     }
-    // Sicherstellen, dass alle Unterstrukturen vorhanden sind
     if (!state.hygieneConfig) state.hygieneConfig = { mode: 'points', ratePts: 15, ratePhys: '2 Schläge auf das Gesäß' };
     if (!state.chores) state.chores = DEFAULT_LEDGER_STATE.chores;
     if (!state.infractions) state.infractions = DEFAULT_LEDGER_STATE.infractions;
@@ -94,7 +93,7 @@
 
   function getMyRole() {
     var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
-    if (!isPaired) return 'A'; // Ungekoppelt: Standard Top A
+    if (!isPaired) return 'A';
     return localStorage.getItem('kompass_assigned_role') || 'A';
   }
 
@@ -125,10 +124,9 @@
   function renderDashboard() {
     loadLedgerState();
     var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var topName = names[state.keyholder] || 'Partner ' + state.keyholder;
-    var subName = names[state.cagedPartner] || 'Partner ' + state.cagedPartner;
+    var topName = names[state.keyholder] || ('Partner ' + state.keyholder);
+    var subName = names[state.cagedPartner] || ('Partner ' + state.cagedPartner);
 
-    // Header Rollen & Balance
     var headerRoles = document.getElementById('ledger-header-roles');
     if (headerRoles) headerRoles.innerText = "Keyholder: " + topName + " · Keuschling: " + subName;
 
@@ -141,7 +139,6 @@
     if (headerBalMob) headerBalMob.innerText = balText;
     if (dashBal) dashBal.innerText = balText;
 
-    // Tragedauer-Berechnung
     var wearEl = document.getElementById('dash-wear-duration');
     if (wearEl) {
       if (state.isLocked && state.lockedSince) {
@@ -155,7 +152,6 @@
       }
     }
 
-    // Schloss-Titel & Button
     var devTitle = document.getElementById('dash-device-title');
     var btnLock = document.getElementById('btn-toggle-lock');
     var lockBadge = document.getElementById('ledger-lock-status-badge');
@@ -185,7 +181,6 @@
         : "px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase flex-shrink-0";
     }
 
-    // Key Location & Challenge
     var keyLocEl = document.getElementById('dash-key-location');
     if (keyLocEl) keyLocEl.innerText = state.keyStorage || 'kSafe (72h)';
 
@@ -206,7 +201,6 @@
       }
     }
 
-    // Orgasmus-Chronik
     var clDate = document.getElementById('dash-climax-date');
     var clDesc = document.getElementById('dash-climax-details');
     if (state.lastClimax && state.lastClimax.timestamp) {
@@ -216,7 +210,6 @@
       if (clDesc) clDesc.innerText = state.lastClimax.note || 'Im Logbuch archiviert.';
     }
 
-    // Hygiene Matrix Label
     var ruleDesc = document.getElementById('hygiene-rule-desc');
     if (ruleDesc) {
       ruleDesc.innerText = (state.hygieneConfig.mode === 'points')
@@ -224,7 +217,6 @@
         : (state.hygieneConfig.ratePhys + " / Min");
     }
 
-    // Schreibschutz-Banner prüfen
     applyRoleAccessControl();
   }
 
@@ -236,11 +228,9 @@
       else banner.classList.remove('hidden');
     }
 
-    // Top-spezifische Buttons sperren / ausgrauen falls Bottom
     var topOnlyButtons = [
       'btn-toggle-lock', 'btn-open-role-cfg', 'btn-cfg-hygiene',
-      'btn-new-challenge', 'btn-new-chore', 'btn-new-infraction',
-      'btn-new-reward', 'btn-sign-top'
+      'btn-gen-contract', 'btn-sign-top'
     ];
     topOnlyButtons.forEach(function(btnId) {
       var btn = document.getElementById(btnId);
@@ -259,7 +249,6 @@
     loadLedgerState();
     var isTop = isUserTop();
 
-    // 1. Chores Liste
     var choresContainer = document.getElementById('chores-list-container');
     if (choresContainer) {
       if (state.chores.length === 0) {
@@ -281,7 +270,6 @@
       }
     }
 
-    // 2. Infractions Liste
     var infraContainer = document.getElementById('infractions-list-container');
     if (infraContainer) {
       if (state.infractions.length === 0) {
@@ -317,7 +305,6 @@
       }
     }
 
-    // 3. Rewards Shop
     var rewContainer = document.getElementById('rewards-list-container');
     if (rewContainer) {
       rewContainer.innerHTML = state.rewards.map(function(r) {
@@ -351,9 +338,8 @@
 
     showToast("15m Hygiene-Duschpause gestartet! Schloss darf abgenommen werden.");
 
-    // Event im Chat posten
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent("🚿 15-Minuten Hygiene-Duschpause gestartet. Nach Ablauf muss das Schloss verriegelt sein!");
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent("🚿 15-Minuten Hygiene-Duschpause gestartet. Nach Ablauf muss das Schloss verriegelt sein!");
     }
 
     hygieneTimerInterval = setInterval(function() {
@@ -363,7 +349,6 @@
         var s = hygieneSecondsRemaining % 60;
         if (disp) disp.innerText = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
       } else {
-        // Überziehung!
         hygieneOverdueMinutes++;
         if (disp) {
           disp.innerText = "⚠️ +" + hygieneOverdueMinutes + "m ÜBERZOGEN!";
@@ -375,7 +360,6 @@
   }
 
   function applyHygieneOverduePenalty(overdueMins) {
-    // Nur 1x je volle Minute buchen
     if (hygieneSecondsRemaining % 60 !== 0) return;
     loadLedgerState();
 
@@ -384,13 +368,13 @@
       state.balance -= ptsLoss;
       saveLedgerState();
       renderDashboard();
-      if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-        window.LedgerChat.postSystemEvent("⚠️ Duschpause um " + overdueMins + " Min. überzogen: -" + ptsLoss + " Punkte verbucht!");
+      if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+        window.ChatApp.postSystemEvent("⚠️ Duschpause um " + overdueMins + " Min. überzogen: -" + ptsLoss + " Punkte verbucht!");
       }
     } else {
       var physText = state.hygieneConfig.ratePhys;
-      if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-        window.LedgerChat.postSystemEvent("⚠️ Duschpause um " + overdueMins + " Min. überzogen: Automatisch fällig: " + physText);
+      if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+        window.ChatApp.postSystemEvent("⚠️ Duschpause um " + overdueMins + " Min. überzogen: Automatisch fällig: " + physText);
       }
     }
   }
@@ -434,8 +418,8 @@
     if (desc) desc.innerText = eventMsg;
     showToast(eventMsg);
 
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent(eventMsg);
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent(eventMsg);
     }
   }
 
@@ -456,7 +440,7 @@
 
     if (origTitle) origTitle.innerText = inf.title + " (" + inf.penalty + " & " + inf.points + " P)";
     if (inAct) inAct.value = "10 Schläge vollzogen (abgemildert)";
-    if (inPts) inPts.value = Math.abs(inf.points) * 2; // Punkte-Ablass verdoppelt
+    if (inPts) inPts.value = Math.abs(inf.points) * 2;
     if (inChore) inChore.value = "";
 
     openModal('modal-negotiate-penalty');
@@ -483,8 +467,8 @@
     if (specialChore) logText += " Sonderaufgabe: " + specialChore;
 
     showToast("Urteil im Ledger verbucht ✓");
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent(logText);
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent(logText);
     }
   }
 
@@ -494,15 +478,15 @@
     var inf = state.infractions.find(function(i) { return i.id === infractionId; });
     if (!inf) return;
 
-    state.balance += inf.points; // points ist negativ
+    state.balance += inf.points;
     saveLedgerState();
     renderDashboard();
 
     var logText = "⚖️ Strafe vollzogen: " + inf.title + " (" + inf.penalty + ", " + inf.points + " P).";
     showToast("Strafe vollzogen & Punkte abgezogen ✓");
 
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent(logText);
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent(logText);
     }
   }
 
@@ -524,13 +508,13 @@
     var msg = "🎁 Belohnung eingelöst: '" + rew.title + "' für " + rew.cost + " Punkte!";
     showToast(msg);
 
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent(msg);
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent(msg);
     }
   }
 
   function switchTab(tabId) {
-    ['dashboard', 'chat', 'chores', 'contract', 'ai_coach'].forEach(function(t) {
+    ['dashboard', 'chores', 'contract', 'ai_coach'].forEach(function(t) {
       var view = document.getElementById('view-ledger-' + t);
       var btn = document.getElementById('tab-btn-' + t);
       if (view) {
@@ -546,9 +530,7 @@
       }
     });
 
-    if (tabId === 'chat' && window.LedgerChat && typeof window.LedgerChat.renderChatStream === 'function') {
-      window.LedgerChat.renderChatStream();
-    } else if (tabId === 'chores') {
+    if (tabId === 'chores') {
       renderChoresAndRewards();
     } else if (tabId === 'contract' && window.LedgerContract && typeof window.LedgerContract.renderContract === 'function') {
       window.LedgerContract.renderContract();
@@ -596,8 +578,8 @@
 
     var msg = state.isLocked ? "🔒 Verschluss verriegelt!" : "🔓 Verschluss abgenommen!";
     showToast(msg);
-    if (window.LedgerChat && typeof window.LedgerChat.postSystemEvent === 'function') {
-      window.LedgerChat.postSystemEvent(msg);
+    if (window.ChatApp && typeof window.ChatApp.postSystemEvent === 'function') {
+      window.ChatApp.postSystemEvent(msg);
     }
   }
 
@@ -629,7 +611,6 @@
     state.keyStorage = inKey ? inKey.value.trim() : 'kSafe';
 
     if (newKh !== state.keyholder) {
-      // Rollenwechsel! Bisheriges Regime wird pausiert
       state.keyholder = newKh;
       state.cagedPartner = (newKh === 'A') ? 'B' : 'A';
       showToast("⚡ Rollen gewechselt! Bisheriger Vertrag pausiert.");
