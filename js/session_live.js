@@ -349,19 +349,16 @@
     if (!circle) return;
 
     if (phase === 0) {
-      // EINATMEN (4 Sekunden): Kreis dehnt sich harmonisch und majestätisch aus
       circle.style.transition = "transform 4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 4s ease, border-color 4s ease";
       circle.style.transform = "scale(1.48)";
       circle.style.boxShadow = "0 0 55px rgba(45, 212, 191, 0.75), inset 0 0 25px rgba(45, 212, 191, 0.4)";
       circle.style.borderColor = "rgba(94, 234, 212, 0.95)";
     } else if (phase === 1) {
-      // ATEM HALTEN (7 Sekunden): Ruhiges, stabiles Glühen auf maximaler Weite
       circle.style.transition = "transform 1.5s ease-in-out, box-shadow 1.5s ease-in-out";
       circle.style.transform = "scale(1.50)";
       circle.style.boxShadow = "0 0 70px rgba(45, 212, 191, 0.95), inset 0 0 35px rgba(45, 212, 191, 0.55)";
       circle.style.borderColor = "rgba(255, 255, 255, 0.9)";
     } else {
-      // LANGSAM AUSATMEN (8 Sekunden): Weiches, tief entspannendes Zurücksinken
       circle.style.transition = "transform 8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 8s ease, border-color 8s ease";
       circle.style.transform = "scale(1.0)";
       circle.style.boxShadow = "0 0 15px rgba(45, 212, 191, 0.2)";

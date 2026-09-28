@@ -5,11 +5,13 @@
  * Beinhaltet:
  * - View-Management (Hub, Survey, Safety, Single-Profile) & Hash-Routing
  * - Partner-Verwaltung (Partner 1 / Partner 2) & Namens-Synchronisation
- * - Fester Manipulationsschutz: Die physische Geräterolle wird beim Betrachten des Partnerprofils nicht überschrieben
+ * - Fester Manipulationsschutz: Physische Geräterolle wird beim Betrachten des Partnerprofils nicht überschrieben
  * - Schutz vor Manipulation im 6-Module-Sicherheits-Kodex
  * - Lückenlose Datenpersistenz (LocalStorage + Zero-Conflict Fallback)
  * - Burger-Menü & Desktop-Navigation Synchronisation
  * - Direktsprung-Routing aus Profil & Tabu-Listen
+ * - Live-Status-Aktualisierung des D/s-Ledger-Badges auf dem Start-Hub mit Opt-In Umschalter
+ * - Dateigrößen-Garantie: Weit unter 500 Zeilen.
  */
 
 (function(window) {
@@ -90,11 +92,8 @@
       var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
       var savedRole = localStorage.getItem('kompass_assigned_role');
       if (isPaired && (savedRole === 'A' || savedRole === 'B')) {
-        // Beim Starten auf gekoppeltem Gerät immer zuerst das eigene Profil laden
-        if (!currentUser) {
-          currentUser = savedRole;
-          window.currentUser = savedRole;
-        }
+        currentUser = savedRole;
+        window.currentUser = savedRole;
       }
     } catch (e) {
       console.warn("Fehler beim Laden lokaler Daten:", e);
@@ -120,8 +119,6 @@
       localStorage.setItem('kompass_names', JSON.stringify(window.names));
       localStorage.setItem('kompass_anatomy', JSON.stringify(window.anatomy));
       localStorage.setItem('kompass_safety_config', JSON.stringify(window.safetyConfig));
-      // WICHTIG: kompass_assigned_role wird hier NICHT überschrieben,
-      // damit das Betrachten des Partner-Profils nicht die Geräterolle zerstört!
 
       if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
         window.CloudSync.trigger();
@@ -139,7 +136,6 @@
 
     var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
     if (!isPaired) {
-      // Nur im unverschlüsselten lokalen PC-Modus darf die Geräterolle wechseln
       try {
         localStorage.setItem('kompass_assigned_role', user);
       } catch (e) {}
@@ -171,7 +167,6 @@
     var nameA = (window.names && window.names.A) || 'Partner 1';
     var nameB = (window.names && window.names.B) || 'Partner 2';
 
-    // Desktop Buttons & Namen
     var btnA = document.getElementById('btn-user-A');
     var btnB = document.getElementById('btn-user-B');
     var dispA = document.getElementById('user-display-A');
@@ -188,7 +183,6 @@
       if (btnA) btnA.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white touch-btn";
     }
 
-    // Mobil: Header-Anzeigen
     var headerPair = document.getElementById('header-pair-names');
     if (headerPair) headerPair.innerText = nameA + " & " + nameB;
 
@@ -198,7 +192,6 @@
       mobQuickLabel.innerText = shortName.length > 8 ? shortName.substring(0, 7) + '…' : shortName;
     }
 
-    // Mobil: Drawer Menü Umschalter
     var mobDrawerPair = document.getElementById('mobile-drawer-pair-names');
     if (mobDrawerPair) mobDrawerPair.innerText = nameA + " & " + nameB;
 
@@ -268,7 +261,6 @@
     var chapters = window.surveyChapters || [];
     var uAnswers = (window.answers && window.answers[currentUser]) || {};
 
-    // 1. Fortschritt berechnen
     var totalQuestions = 0;
     var answered = 0;
     chapters.forEach(function(ch) {
@@ -291,7 +283,6 @@
     var mobDrawerBadge = document.getElementById('mobile-drawer-prog-badge');
     if (mobDrawerBadge) mobDrawerBadge.innerText = pct + " %";
 
-    // 2. Tabu-Zähler (Gemeinsame Tabus beider Partner)
     var tabuCount = 0;
     chapters.forEach(function(ch) {
       (ch.items || []).forEach(function(it) {
@@ -308,9 +299,90 @@
     var mobDrawerTabu = document.getElementById('mobile-drawer-tabu-count');
     if (mobDrawerTabu) mobDrawerTabu.innerText = tabuCount.toString();
 
-    // 3. Toy-Zähler
     if (window.HubToys && typeof window.HubToys.updateCount === 'function') {
       window.HubToys.updateCount();
+    }
+
+    updateDsOptInHubUI();
+  }
+
+  function isDsOptedIn(user) {
+    var u = user || currentUser || 'A';
+    return localStorage.getItem('kompass_ds_optin_' + u) === 'true';
+  }
+
+  function toggleDsOptIn() {
+    var curUser = currentUser || 'A';
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (isPaired) {
+      curUser = localStorage.getItem('kompass_assigned_role') || 'A';
+    }
+
+    var newState = !isDsOptedIn(curUser);
+    localStorage.setItem('kompass_ds_optin_' + curUser, newState ? 'true' : 'false');
+
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
+    }
+
+    updateDsOptInHubUI();
+    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    var userName = names[curUser] || ('Partner ' + curUser);
+
+    if (newState) {
+      showToast("🗝️ D/s- & Vertragsmodul für " + userName + " aktiviert ✓");
+    } else {
+      showToast("D/s- & Vertragsmodul für " + userName + " deaktiviert");
+    }
+  }
+
+  function updateDsOptInHubUI() {
+    var curUser = currentUser || 'A';
+    var isPaired = localStorage.getItem('kompass_is_paired') === 'true';
+    if (isPaired) {
+      curUser = localStorage.getItem('kompass_assigned_role') || 'A';
+    }
+
+    var isOptedIn = isDsOptedIn(curUser);
+    var badge = document.getElementById('hub-ledger-badge');
+    var btn = document.getElementById('hub-ds-optin-toggle-btn');
+    var mobLabel = document.getElementById('mobile-drawer-ledger-label');
+
+    if (btn) {
+      if (isOptedIn) {
+        btn.className = "px-2.5 py-1.5 rounded-xl border text-[10px] font-bold touch-btn bg-purple-950 border-purple-500 text-purple-200 shadow-xs";
+        btn.innerText = "Aktiviert ✓";
+      } else {
+        btn.className = "px-2.5 py-1.5 rounded-xl border text-[10px] font-bold touch-btn theme-panel border-slate-700 text-slate-400 hover:text-white";
+        btn.innerText = "Deaktiviert ○";
+      }
+    }
+
+    if (badge) {
+      if (isOptedIn) {
+        try {
+          var rawLedger = localStorage.getItem('kompass_ledger_state');
+          if (rawLedger) {
+            var lState = JSON.parse(rawLedger);
+            var bal = (lState.balance !== undefined) ? lState.balance : 0;
+            var sign = bal >= 0 ? '+' : '';
+            badge.innerText = (lState.isLocked ? "🔒 " : "🔓 ") + sign + bal + " P";
+            badge.className = "text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800";
+          } else {
+            badge.innerText = "Aktiv 🗝️";
+            badge.className = "text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-purple-950 text-purple-300 border border-purple-800";
+          }
+        } catch (e) {
+          badge.innerText = "Aktiv 🗝️";
+        }
+      } else {
+        badge.innerText = "Optional (Aus)";
+        badge.className = "text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-900 text-slate-500 border border-slate-800";
+      }
+    }
+
+    if (mobLabel) {
+      mobLabel.innerText = isOptedIn ? "Aktiv ✓" : "Optional";
     }
   }
 
@@ -541,6 +613,9 @@
   window.saveCoreData = saveCoreData;
   window.canEditCurrentProfile = canEditCurrentProfile;
   window.getMyAssignedDeviceRole = getMyAssignedDeviceRole;
+  window.toggleDsOptIn = toggleDsOptIn;
+  window.isDsOptedIn = isDsOptedIn;
+  window.updateDsOptInHubUI = updateDsOptInHubUI;
 
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', initApp);

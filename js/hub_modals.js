@@ -320,7 +320,6 @@
   }
 
   function openOnboardingModal() {
-    // Wenn bereits gekoppelt, Onboarding NIEMALS öffnen
     if (localStorage.getItem('kompass_is_paired') === 'true') return;
 
     var m = document.getElementById('modal-onboarding');

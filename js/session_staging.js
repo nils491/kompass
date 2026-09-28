@@ -77,8 +77,8 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
       return;
     }
     var c = document.getElementById('toast-container');
@@ -154,12 +154,10 @@
     // ANATOMISCH KORREKTE ZUORDNUNG FÜR PHASE 3 (SCHWELLENKONTROLLE)
     var arousalTool = "";
     if (isVulva) {
-      // VULVA: Womanizer / Sauger / Wand
       arousalTool = sem.clitoral_suction.length > 0 
         ? sem.clitoral_suction[0] 
         : (sem.wand.length > 0 ? sem.wand[0] : (sem.vibrator.length > 0 ? sem.vibrator[0] : "gezielte Handberührungen an der Klitoris"));
     } else {
-      // PENIS: Fleshlight / Stroker / Wand an Eichel (NIEMALS Womanizer!)
       arousalTool = sem.male_stroker.length > 0
         ? sem.male_stroker[0]
         : (sem.wand.length > 0 ? (sem.wand[0] + " an der Eichel") : "gezielte Griffe am Schaft");
@@ -394,7 +392,7 @@
       container.innerHTML = `
         <div class="col-span-full p-4 text-center text-slate-400 theme-panel rounded-xl text-xs space-y-1">
           <span>In dieser Kategorie sind aktuell keine Toys im Schrank aktiviert.</span>
-          <button type="button" onclick="if(typeof openToyManagementModal==='function') openToyManagementModal(); else if(window.HubToys && typeof window.HubToys.open==='function') window.HubToys.open();" class="text-purple-300 font-bold hover:underline block mx-auto">
+          <button type="button" onclick="if(window.HubToys && typeof window.HubToys.open==='function') window.HubToys.open();" class="text-purple-300 font-bold hover:underline block mx-auto">
             Im Schrank aktivieren ↗
           </button>
         </div>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kink- & Beziehungs-Kompass – Paar-Stream & Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function() {
+      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3',
+              500: '#f43f5e', 600: '#e11d48', 700: '#be123c',
+              800: '#9f1239', 900: '#881337', 950: '#4c0519',
+            },
+            noir: {
+              950: '#000000', 900: '#05070c', 850: '#0a0e17',
+              800: '#101726', 700: '#172238', 600: '#233454',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+    }
+    html.dark body { background-color: #000000 !important; color: #f8fafc !important; }
+    html.dark .theme-card { background-color: #060911 !important; border-color: #172033 !important; color: #f8fafc !important; }
+    html.dark .theme-panel { background-color: #0b111e !important; border-color: #1e2b44 !important; color: #e2e8f0 !important; }
+    html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
+    html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
+
+    .touch-btn {
+      min-height: 44px;
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .touch-btn:active { transform: scale(0.98); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .privacy-blur {
+      filter: blur(16px);
+      transition: filter 0.25s ease-in-out;
+    }
+    .privacy-blur:active, .privacy-blur.revealed {
+      filter: blur(0px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
+    <div class="max-w-3xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-900 via-brand-700 to-indigo-600 border border-brand-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </div>
+          <div class="truncate min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Stream & Sexting</h1>
+              <span id="chat-security-badge" class="px-1.5 py-0.5 rounded text-[8px] font-mono font-black bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase flex-shrink-0">E2EE 🔒</span>
+            </div>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="chat-header-names">Partner 1 & Partner 2</span>
+          </div>
+        </a>
+
+        <!-- ACTIONS -->
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button type="button" onclick="ChatApp.clearHistoryPrompt()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white touch-btn text-xs" title="Chat-Verlauf leeren">
+            🗑️
+          </button>
+          <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold text-xs touch-btn">
+            Hub 🏠
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HAUPTINHALT -->
+  <main class="max-w-3xl mx-auto p-2 sm:p-4 flex-1 w-full flex flex-col min-h-0">
+    
+    <div class="theme-card rounded-3xl border border-slate-800/80 shadow-2xl flex-1 flex flex-col h-[calc(100vh-140px)] sm:h-[calc(100vh-150px)] overflow-hidden">
+      
+      <!-- SUB-HEADER MIT MODUS-STATUS -->
+      <div class="px-4 py-2 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/40 flex-shrink-0 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-[10px] text-slate-300">Verschlüsselter Direktkanal</span>
+        </div>
+        <div id="chat-ds-mode-indicator" class="flex items-center gap-1 text-[9.5px]">
+          <!-- Dynamisch: D/s inaktiv (Standard) oder D/s aktiv -->
+        </div>
+      </div>
+
+      <!-- NACHRICHTEN-STREAM -->
+      <div id="chat-messages-container" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 pr-1.5 no-scrollbar">
+        <!-- Dynamisch befüllt -->
+      </div>
+
+      <!-- AUFGABEN-DRAWER FÜR D/s (NUR SICHTBAR WENN AUF DIESEM GERÄT D/s AKTIV) -->
+      <div id="bottom-task-drawer" class="hidden p-2.5 rounded-2xl bg-purple-950/70 border-t border-purple-800/80 space-y-1.5 animate-fade-in flex-shrink-0">
+        <div class="flex items-center justify-between border-b border-purple-900/60 pb-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs">📋</span>
+            <span class="text-[10px] font-black text-purple-200 uppercase tracking-wide">Offene Pflichten (Antippen zum Einreichen):</span>
+          </div>
+          <button type="button" onclick="ChatApp.toggleTaskDrawer(false)" class="text-slate-400 hover:text-white text-xs font-bold px-1">✕</button>
+        </div>
+        <div id="bottom-task-quick-list" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <!-- Dynamisch befüllt -->
+        </div>
+      </div>
+
+      <!-- INPUT BAR -->
+      <div class="p-2 sm:p-3 border-t border-slate-800/80 bg-slate-950/60 flex items-center gap-1.5 flex-shrink-0">
+        <!-- D/s AUFGABEN-BUTTON (NUR WENN D/s LOKAL AKTIVIERT) -->
+        <button type="button" id="btn-toggle-task-drawer" onclick="ChatApp.handleTaskDrawerClick()" class="hidden p-2.5 rounded-xl bg-purple-950/80 border border-purple-700/80 text-purple-200 hover:bg-purple-900 touch-btn font-bold text-xs" title="Pflicht einreichen">
+          📋 Pflicht
+        </button>
+
+        <button type="button" onclick="document.getElementById('chat-photo-input').click()" class="p-2.5 rounded-xl theme-panel border border-slate-700 text-slate-300 hover:text-white touch-btn font-bold text-xs flex items-center justify-center" title="Foto aufnehmen / senden">
+          📷
+        </button>
+        <input type="file" id="chat-photo-input" accept="image/*" capture="environment" onchange="ChatApp.handlePhotoUpload(this)" class="hidden">
+        
+        <input type="text" id="chat-text-input" onkeydown="if(event.key==='Enter') ChatApp.sendTextMessage()" placeholder="Nachricht oder Flüstern..." class="flex-1 text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none">
+        
+        <button type="button" onclick="ChatApp.sendTextMessage()" class="px-4 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md flex items-center gap-1">
+          <span>➤</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- TOAST BENACHRICHTIGUNGEN -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
+
+  <!-- EXTERNE BIBLIOTHEKEN & MODULARE CHAT-ENGINE -->
+  <script src="js/cloud_sync.js?v=5.0"></script>
+  <script src="js/chat.js?v=5.0"></script>
+
+</body>
+</html>

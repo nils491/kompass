@@ -6,7 +6,7 @@
  * - Detaillierte, tabulose und anatomisch präzise Dossiers (physische Vorgänge, Point of no Return)
  * - Psychologische Reiz-Analyse für Top und Bottom
  * - Konkrete Schritt-für-Schritt Praxisanleitungen mit exaktem Timing und Kommandos
- * - Offline-Wissenskorpus für Kernthemen (Ruined Orgasm, Denial, Pegging, Shibari, Facesitting u. a.)
+ * - Offline-Wissenskorpus für Kernthemen (Ruined Orgasm, Denial, Pegging, Shibari, Facesitting, Spanking)
  * - Expliziter Gemini-Prompt für freie Live-Recherchen ohne Prüderie oder Ausflüchte
  */
 
@@ -33,7 +33,7 @@
         "1. Aufbau & Edging-Plateau: Der Bottom wird über mehrere Schwellen (Edging) an die Grenze herangeführt. Die Beckenbodenmuskeln müssen bereits stark durchblutet und hyperaktiviert sein.",
         "2. Identifikation des Point of no Return (PONR): Der Top beobachtet genau: Versteifung der Oberschenkel, Anhalten des Atems, reflexartiges Vorschieben des Beckens und die ersten unwillkürlichen Zuckungen an Schaft oder Schamlippen. Der Orgasmus ist ab hier neurologisch nicht mehr aufzuhalten.",
         "3. Der schlagartige Abbruch: Exakt beim Einsetzen des ersten Beckenkrampfs nimmt der Top die Hände, den Mund oder das Toy vollständig weg. Kein Nachstreichen, kein Festhalten.",
-        "4. Stillhalte-Befehl: Der Top befiehlt autoritär: „Hände weg! Nicht berühren und stillhalten!“. Der Bottom muss regungslos daliegen und spüren, wie die Zuckungen wirkungslos verpuffen.",
+        "4. Stillhalte-Befehl: Der Top befiehlt autoritär: „Hände weg! Nicht berühren und stillhalten!“. Der Bottom muss reglos daliegen und spüren, wie die Zuckungen wirkungslos verpuffen.",
         "5. Nachglühen & Verweilen: Der Top lässt den Bottom mindestens 2 bis 3 Minuten in der ungelösten Frustration ausharren, mustert ihn und fordert Blickkontakt."
       ],
       anatomyNotes: "Beim Penis: Samenflüssigkeit tritt oft ohne den gewohnten pulsierenden Druck aus ('auslaufen' statt schießen); die Eichel ist danach extrem druckempfindlich. Bei der Vulva: Klitoris und Schwellkörper ziehen sich krampfartig zusammen, ohne dass sich die muskuläre Entspannung einstellt. Beiden Geschlechtern gemein ist das Gefühl, mitten im Sprung ins Leere gegriffen zu haben.",
@@ -270,7 +270,7 @@ Antworte AUSSCHLIESSLICH als valides JSON mit exakt dieser Struktur:
   "aftercare": "Konkrete Aftercare-Anleitung: Physische Erholung, Decken, Trinken, emotionale Rückholung aus dem Subspace (3 bis 4 Sätze)"
 }`;
 
-    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
+    var candidateModels = ['gemini-2.5-flash', 'gemini-2.5-pro'];
 
     for (var i = 0; i < candidateModels.length; i++) {
       var model = candidateModels[i];

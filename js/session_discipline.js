@@ -2,15 +2,15 @@
  * js/session_discipline.js
  * Modul für den 5-Stufen Bestrafungs- & Disziplinar-Wizard in der Schlafzimmer-Regie.
  * 
- * Qualitäts- & Logik-Standards:
- * - GARANTIERTER DATENZUGRIFF: Lädt Namen und Anatomie verlässlich direkt aus localStorage.
+ * Qualitäts- & Tonfall-Standards:
+ * - EMOTIONAL & LEICHT VERSTÄNDLICH: Psychologische Tiefe statt kühler Medizinsprache.
+ *   Erklärt klar, wie Rituale den Kopf befreien, Schuld abtragen und Nähe schenken.
+ * - GARANTIERTER DATENZUGRIFF: Verlässlicher Abruf von Namen und Anatomie aus localStorage.
  * - STRIKTE ANATOMISCHE KOMPATIBILITÄT:
  *   * Vulva: Womanizer/Sauger für klitorale Schwellen-Zucht und Ruined Orgasm. Niemals Stroker/Käfig.
  *   * Penis: Penile Schwellen-Quälerei, Ruined Orgasm am Schaft, Keuschheits-Denial, Hodengewichte. Niemals Womanizer.
- * - SACHLICHE RATIONALE: Jede Maßnahme und Zahl (5, 15, 20 Schläge, 3 Min Haltedauer) ist somatisch und physiologisch begründet.
- * - ERWACHSENER BDSM-TONFALL: Keine kitschigen Märchenfloskeln; klare, respektvolle und autoritäre Sprache.
- * - VOLLSTÄNDIGE AUSFÜHRUNGS-ANWEISUNGEN: Präzise Vorgaben für den Top zu Haltung, Rhythmus und Handhabung.
- * - ECHTES WÜRFELN: Ausgeschlossene Optionen wandern in den Discard-Pool und werden nicht im Kreis rotiert.
+ * - SOUVERÄNER BDSM-TONFALL: Respektvoll, autoritär, erotisch und einvernehmlich (SSC).
+ * - VOLLSTÄNDIGE ANWEISUNGEN: Klare Führungshilfen für den Top zu Haltung, Rhythmus und Halt.
  */
 
 (function(window) {
@@ -111,99 +111,96 @@
       : { clitoral_suction: [], male_stroker: [], male_chastity: [], scrotum_cbt: [], wand: [], vibrator: [], impact: [], clamps: [] };
 
     var list = [
-      // KATEGORIE 1: IMPACT MIT KLAREM ZÄHLPROTOKOLL & PHYSIOLOGISCHER RATIONALE
       {
         id: "action_formal_spank_15",
         cat: ["duty", "mouth"],
-        title: "✋ 15 gezielte Handtreffer mit Lautzählung",
-        rationale: "15 Treffer: Die ersten 5 aktivieren die Kapillaren und erwärmen das Gewebe. Die Treffer 6 bis 15 setzen die Reizschwelle für die Endorphinausschüttung. Das laute Zählen bindet die Aufmerksamkeit und verhindert mentales Wegdriften.",
-        desc: topName + " verabreicht 15 Schläge mit der flachen Hand auf das entblößte Gesäß. " + subName + " zählt jeden Treffer mit einer Sekunde Verzögerung laut und deutlich mit.",
-        execution: "Schlagzone ausschließlich auf den großen Gesäßmuskel (Gluteus maximus) konzentrieren. Finger geschlossen halten. Nach jedem Schlag auf das laute Zählen warten. Bei Versprechern wird nicht erhöht, sondern der Rhythmus verlangsamt.",
-        ratingBadge: "⚖️ 15 Schläge · Endorphin-Fokus"
+        title: "✋ 15 gezielte Schläge mit andächtigem Mitzählen",
+        rationale: "15 Treffer zum Loslassen: Die ersten 5 Schläge holen den Geist aus dem Alltagstrott direkt ins Hier und Jetzt. Die weiteren Treffer lösen die innere Anspannung, tilgen das schlechte Gewissen körperlich und schenken die heilsame Erleichterung, sich ganz in die Hände des Tops fallenzulassen.",
+        desc: topName + " verabreicht 15 beherzte, gleichmäßige Schläge mit der flachen Hand auf das Gesäß. " + subName + " zählt jeden Treffer andächtig und laut mit.",
+        execution: "Finger geschlossen halten, gleichmäßigen Rhythmus aus dem Handgelenk führen. Nach jedem Schlag auf das Mitzählen warten. Bei Zögern den Rhythmus verlangsamen, um die Hingabe zu vertiefen.",
+        ratingBadge: "⚖️ 15 Schläge · Befreiende Sühne"
       },
       {
         id: "action_warning_spank_5",
         cat: ["posture", "mouth"],
         title: "✋ 5 trockene Warnschläge zur Zentrierung",
-        rationale: "5 Treffer: Rein sensorische Intervention. Keine Schmerzkatharsis, sondern ein scharfer Weckruf für das vegetative Nervensystem zur sofortigen Wiederherstellung der mentalen Präsenz.",
-        desc: "Fünf kurze, akzentuierte Treffer auf die Sitzbeinhöcker, gefolgt von sofortigem Handauflegen zur Beruhigung.",
-        execution: "Die Schläge trocken und präzise setzen. Direkt nach dem 5. Schlag die Handfläche 20 Sekunden flach und fest auflegen, bis der Atem synchronisiert ist.",
-        ratingBadge: "⚡ 5 Schläge · Nerven-Fokus"
+        rationale: "Ein klarer, liebevoller Weckruf: Keine schwere Strafe, sondern eine unmissverständliche Erinnerung daran, wer im Raum führt und Halt gibt. Schüttelt Gedanken ab und schenkt sofortigen Fokus.",
+        desc: "Fünf kurze, akzentuierte Treffer auf die Sitzfläche, unmittelbar gefolgt von warmem, festem Handauflegen.",
+        execution: "Die Schläge trocken und präzise setzen. Direkt nach dem 5. Schlag die Handfläche 20 Sekunden flach und fest auflegen, bis der Atem von " + subName + " ruhig und synchron wird.",
+        ratingBadge: "⚡ 5 Schläge · Schneller Fokus"
       },
       {
         id: "action_belt_ritual_20",
         cat: ["duty", "self_discipline"],
         title: "⚡ 20 Schläge mit gefaltetem Ledergürtel",
-        rationale: "20 Treffer: Ein formal begrenztes Ritual. Leder erzeugt einen schärferen, oberflächlichen Reiz als die Hand. 20 Schläge sind physisch sicher, erfordern aber klare Haltungskontrolle.",
-        desc: topName + " nutzt den gefalteten Ledergürtel. Schläge im 3-Sekunden-Takt gleichmäßig auf beide Pobacken verteilt.",
-        execution: "Gürtel doppelt legen, Schnalle fest in der Führungshand halten. Ausschwingen nur aus dem Handgelenk, niemals aus der Schulter. Nierengegend strikt meiden.",
-        ratingBadge: "🔥 20 Schläge · Formale Korrektur"
+        rationale: "Ein formelles Übergangs-Ritual: Der klare Klang und das brennende Leder fordern pure Haltung. Es befreit den Bottom von der Last, perfekt sein zu müssen – der Schmerz begleicht die Verfehlung und stiftet tiefe innere Ruhe.",
+        desc: topName + " nutzt den gefalteten Ledergürtel. Die Treffer verteilen sich im 3-Sekunden-Takt gleichmäßig auf beide Pobacken.",
+        execution: "Gürtel doppelt nehmen, Schnalle fest in der Hand umschließen. Schläge aus dem Handgelenk führen; Nieren und Steißbein strikt meiden.",
+        ratingBadge: "🔥 20 Schläge · Würdevolles Ritual"
       },
       {
         id: "action_flogger_steady",
         cat: ["duty", "orgasm"],
         title: "🪶 2 Minuten kontinuierlicher Flogger-Rhythmus",
-        rationale: "Zeitfenster 2 Minuten: Schnelle, leichte Fransenreize erzeugen eine flächige Hyperämie (Rötung) ohne tiefe Hämatombildung. Dient der sensorischen Überflutung vor weiteren Anweisungen.",
-        desc: "Gleichmäßiges, schwirrendes Abstreichen und rhythmische Schläge über Gesäß und Oberschenkelrückseite.",
-        execution: "Konstantes Tempo halten (ca. 60–80 Schläge pro Minute). Den Körper des Bottoms dabei scharf beobachten; keine Treffer auf die Kniekehlen.",
-        ratingBadge: "⏱️ 2 Min · Reizüberflutung"
+        rationale: "Sinnliche Reizüberflutung: Das schwirrende Leder hüllt die Haut in eine wohlige Hitzewelle. Der Kopf schaltet ab, das Gedankenkarussell verstummt und macht Platz für reine Hingabe.",
+        desc: "Rhythmisches, schwirrendes Abstreichen und federnde Schläge über Gesäß und Oberschenkelrückseite.",
+        execution: "Ein meditatives, konstantes Tempo halten (ca. 60–80 Schläge pro Minute). Den Körper des Partners achtsam beobachten und Kniekehlen frei lassen.",
+        ratingBadge: "⏱️ 2 Min · Gedankenstille"
       }
     ];
 
     if (isVulva) {
-      // VULVA: Womanizer / Klitorissauger / Wand (STRIKT NUR BEI VULVA)
       var suctionTool = sem.clitoral_suction[0] || (sem.wand[0] ? sem.wand[0] : null);
       if (suctionTool) {
         list.push({
           id: "action_suction_overstim_punish",
           cat: ["orgasm", "duty"],
-          title: "⚡ Klitorale Reizüberlastung mit " + suctionTool,
-          rationale: "Sensorische Disziplin: Zwingt den Körper, einem extrem intensiven Lustreiz standzuhalten, ohne nachzugeben oder das Becken zu bewegen.",
-          desc: topName + " platziert den " + suctionTool + " auf der Klitoris. " + subName + " muss 90 Sekunden regungslos verharren, darf nicht vorstoßen und muss den Atem flach halten.",
-          execution: "Gerät auf mittlerer Stufe aufsetzen. Jedes Ausweichzucken führt zu einer kurzen Pause und erneutem Ansetzen. Nach 90 Sekunden schlagartig stoppen.",
-          ratingBadge: "🎢 90 Sek · Klitoris-Kontrolle (" + suctionTool + ")"
+          title: "⚡ Klitorale Schwellen-Geduld mit " + suctionTool,
+          rationale: "Sinnliche Demut: Zwingt den Körper, einer überwältigenden Welle der Lust standzuhalten, ohne unruhig vorzustoßen. Eine zutiefst erotische Schulung von Vertrauen und Geduld.",
+          desc: topName + " setzt den " + suctionTool + " sanft auf die Klitoris. " + subName + " muss 90 Sekunden stillhalten, darf dem Reiz nicht ausweichen und muss den Blick ruhig halten.",
+          execution: "Gerät auf mittlerer Stufe aufsetzen. Jedes Ausweichzucken führt zu einer kurzen Pause und neuem Ansetzen. Nach 90 Sekunden abrupt stoppen.",
+          ratingBadge: "🎢 90 Sek · Ergebene Geduld"
         });
         list.push({
           id: "action_suction_ruined_punish",
           cat: ["orgasm", "mouth"],
           title: "🥀 Gezielter Orgasmusabbruch (Ruined) mit " + suctionTool,
-          rationale: "Machtdemonstration über den Reflex: Entkoppelt den körperlichen Muskelkrampf von der Belohnung. Macht deutlich, wer über den Höhepunkt bestimmt.",
-          desc: topName + " treibt " + subName + " mit dem " + suctionTool + " gezielt an den Point of no Return. Beim ersten Muskelzucken wird das Gerät abrupt entfernt; jede Berührung wird untersagt.",
-          execution: "Den Schwellenanstieg genau beobachten (Atemstillstand, Oberschenkelspannung). Genau beim ersten Beckenkrampf das Gerät wegnehmen und 'Stillhalten!' befehlen.",
-          ratingBadge: "🔒 Macht über den Reflex"
+          rationale: "Hingabe an die Regie: Der Höhepunkt verpufft im entscheidenden Moment. Das entkoppelt den Genuss vom Zwang zur schnellen Erlösung und beweist, wer souverän über die Lust wacht.",
+          desc: topName + " treibt " + subName + " mit dem " + suctionTool + " an die Grenze. Beim ersten unwillkürlichen Beckenkrampf wird das Gerät sofort entfernt und jede Berührung untersagt.",
+          execution: "Den Schwellenanstieg aufmerksam beobachten. Genau beim ersten echten Krampf das Gerät wegnehmen und sanft, aber unmissverständlich 'Stillhalten!' befehlen.",
+          ratingBadge: "🔒 Sanfte Entmachtung"
         });
       }
     } else {
-      // PENIS: Fleshlight / Stroker / Wand am Frenulum / Keuschheits-Denial (NIEMALS Womanizer!)
       var strokerTool = sem.male_stroker[0] || (sem.wand[0] ? (sem.wand[0] + " an der Eichel") : "gezielte Handberührungen");
       list.push({
         id: "action_penis_denial_punish",
         cat: ["orgasm", "duty"],
-        title: "⚡ Penile Schwellen-Quälerei mit " + strokerTool,
-        rationale: "Reiz-Aufschub: Härtet die Selbstkontrolle des Mannes ab. Zwingt das vegetative Nervensystem, maximale Erregung auszuhalten, ohne den Point of no Return zu überschreiten.",
-        desc: topName + " stimuliert den Penis von " + subName + " mit " + strokerTool + " bis Stufe 9. Beim geringsten Vorstoßen oder Lautbefehl stoppt der Top schlagartig und verbietet jedes Bewegen.",
-        execution: "Den Schaft rhythmisch stimulieren, Eichel beobachten. Bei Rötung und Atemstillstand die Hand sofort abnehmen und Blickkontakt einfordern.",
-        ratingBadge: "🎢 Schwellen-Disziplin (Penis)"
+        title: "⚡ Penile Schwellen-Zucht mit " + strokerTool,
+        rationale: "Befreiung vom Triebdruck: Bringt den Mann an den Rand des Kontrollverlusts und zwingt ihn innezuhalten. Schult eiserne Selbstbeherrschung und richtet die volle Aufmerksamkeit auf die Partnerin.",
+        desc: topName + " stimuliert den Penis von " + subName + " mit " + strokerTool + " bis zur Schwelle. Beim leisesten Vorstoßen stoppt die Hand und verlangt absolute Reglosigkeit.",
+        execution: "Den Schaft rhythmisch umschließen. Wenn die Atmung stockt, die Hand sofort abnehmen, den Atem synchronisieren und tiefen Blickkontakt fordern.",
+        ratingBadge: "🎢 Schwellen-Hingabe"
       });
       list.push({
         id: "action_penis_ruined_punish",
         cat: ["orgasm", "mouth"],
         title: "🥀 Ruined Orgasm am Schaft (Point of no Return)",
-        rationale: "Muskelentladung ohne Dopamin: Der Samen tritt rein muskulär ohne befriedigende Reibung aus. Entmachtet die männliche Libido vollständig.",
-        desc: topName + " treibt den Penis an den Point of no Return. In der Millisekunde des ersten Ejakulationskrampfs wird jede Berührung gestoppt: " + subName + " darf nicht nachhelfen.",
-        execution: "Beim Einsetzen der ersten Kontraktion am Damm/Beckenboden die Hand sofort wegziehen und 'Hände auf den Rücken!' befehlen.",
-        ratingBadge: "🔒 Orgasmusentmachtung"
+        rationale: "Süße Entmachtung: Das Glied entlädt sich rein muskulär ohne belohnende Reibung. Nimmt dem Mann das fordernde Ego und hinterlässt eine tiefe, intime Ergebenheit.",
+        desc: topName + " führt den Penis an den Point of no Return. Beim ersten Krampfen zieht der Top die Hände vollständig zurück: " + subName + " darf nicht nachhelfen.",
+        execution: "Genau bei der ersten Beckenbodenkontraktion die Hand wegnehmen und 'Hände flach auf die Oberschenkel!' gebieten.",
+        ratingBadge: "🔒 Reine Ergebung"
       });
 
       if (sem.male_chastity.length > 0) {
         list.push({
           id: "action_cage_confinement",
           cat: ["orgasm", "duty"],
-          title: "🔒 Keuschheits-Arretierung im " + sem.male_chastity[0],
-          rationale: "Vollkommener Entzug der körperlichen Souveränität: Der Penis wird mechanisch verriegelt, sodass jede Erektion schmerzhaft unterbunden wird.",
-          desc: topName + " schließt den Penis im " + sem.male_chastity[0] + " ein. Schlüsselgewalt verbleibt beim Top.",
-          execution: "Sitz des Käfigs im schlaffen Zustand prüfen, Schloss schließen und den Schlüssel demonstrativ an sich nehmen.",
-          ratingBadge: "🔒 Totale Keuschheit"
+          title: "🔒 Keuschheits-Verwahrung im " + sem.male_chastity[0],
+          rationale: "Vollkommene Abgabe der Kontrolle: Der Mann übergibt die Verantwortung über seine Lust vollständig in die Hände der Partnerin. Befreit vom Zwang zur eigenen Befriedigung.",
+          desc: topName + " schließt den Penis im " + sem.male_chastity[0] + " ein. Der Schlüssel verbleibt sichtbar beim Top.",
+          execution: "Sitz des Käfigs im schlaffen Zustand prüfen, Schloss verriegeln und den Schlüssel demonstrativ an einer Halskette tragen.",
+          ratingBadge: "🔒 Volles Vertrauen"
         });
       }
     }
@@ -213,28 +210,28 @@
         id: "action_wall_sit_penance",
         cat: ["posture", "duty"],
         title: "🧱 3 Minuten Wandhocke (Wall-Sit) im 90-Grad-Winkel",
-        rationale: "3 Minuten Haltedauer: Nach 90 Sekunden setzt die Laktatbildung in den Quadrizepsmuskeln ein. Die physische Belastung ist gelenkschonend, verlangt aber reine Willenskraft zur Disziplinierung.",
-        desc: subName + " lehnt den Rücken flach an die Wand, Oberschenkel waagerecht zum Boden. Die Hände ruhen flach auf dem Kopf.",
-        execution: "Prüfen, dass die Knie exakt im 90-Grad-Winkel stehen. Rutscht das Becken nach unten oder heben die Hände ab, wird die Restzeit um 30 Sekunden verlängert.",
-        ratingBadge: "⏱️ 3 Min · Isometrische Ausdauer"
+        rationale: "Stille innere Disziplin: Eine ehrliche Prüfung der Willenskraft ohne Schläge. Das Brennen in den Oberschenkeln erdet den Geist und lässt allen Stolz und Trotz verfliegen.",
+        desc: subName + " lehnt den Rücken flach an die Wand, Oberschenkel waagerecht zum Boden. Die Hände ruhen andächtig auf dem Kopf.",
+        execution: "Prüfen, dass die Knie stabil im rechten Winkel stehen. Rutscht das Becken nach unten, erinnert der Top mit ruhiger Stimme an die Haltung.",
+        ratingBadge: "⏱️ 3 Min · Reine Willenskraft"
       },
       {
         id: "action_ice_contrast_fire",
         cat: ["posture", "orgasm"],
-        title: "🧊 Thermischer Kontrast: Eisstreichung & Handauflegen",
-        rationale: "Thermorezeptoren-Reiz: Kältereiz verengt die Gefäße schlagartig; das anschließende warme Handauflegen erzeugt ein intensives Brennen und schärft die taktile Wahrnehmung.",
-        desc: "Ein Eiswürfel wird 60 Sekunden langsam über die Innenschenkel geführt, unmittelbar gefolgt von festem Handauflegen.",
-        execution: "Den Eiswürfel in ständiger Bewegung halten, um Kälteverbrennungen zu vermeiden. Danach sofort die warme Handfläche mit Druck aufpressen.",
-        ratingBadge: "❄️🔥 Somatischer Schock"
+        title: "🧊 Eisstreichung & warmes Handauflegen",
+        rationale: "Sinnlicher Schock zur Erdung: Die prickelnde Kälte holt den Körper sofort aus Gedankenkreisen heraus. Das anschließende warme Handauflegen schenkt Geborgenheit und tiefe Erleichterung.",
+        desc: "Ein Eiswürfel wird langsam über die Innenschenkel geführt, unmittelbar gefolgt von festem, wärmendem Handauflegen.",
+        execution: "Den Eiswürfel in ständiger sanfter Bewegung halten. Anschließend sofort die warme Handfläche mit liebevollem Druck aufpressen.",
+        ratingBadge: "❄️🔥 Sinnliche Erdung"
       },
       {
         id: "action_self_spank_mirror",
         cat: ["self_discipline", "mouth"],
         title: "🪞 20 eigenhändige Schläge vor dem Spiegel",
-        rationale: "20 Treffer im Selbstvollzug: Verhindert passive Schonung. Der Bottom muss die physische Korrektur selbst dosieren und den visuellen Blickkontakt halten.",
-        desc: subName + " kniet vor dem Spiegel, blickt sich in die Augen und verabreicht sich selbst 20 kräftige Schläge auf das Gesäß.",
-        execution: topName + " steht dahinter, korrigiert die Schlagkraft, falls der Bottom zögert, und zählt mit. Zu schwache Schläge zählen nicht.",
-        ratingBadge: "🪞 20 Schläge · Selbstüberwindung"
+        rationale: "Ehrliche Selbstbegegnung: Verhindert bequemes Wegdriften. Der Bottom vollzieht die eigene Korrektur aktiv und muss sich dabei selbst mit all seinen Gefühlen im Spiegel annehmen.",
+        desc: subName + " kniet vor dem Spiegel, blickt sich aufrichtig in die Augen und verabreicht sich selbst 20 hörbare Schläge auf das Gesäß.",
+        execution: topName + " steht würdevoll dahinter, korrigiert die Entschlossenheit der Schläge und zählt laut mit. Zu zögerliche Schläge zählen nicht.",
+        ratingBadge: "🪞 20 Schläge · Mutige Selbsterkenntnis"
       }
     );
 
@@ -245,30 +242,30 @@
     return [
       {
         id: "posture_kneeling_nadu",
-        title: "🧎 Strenger Nadu-Kniestand zu Füßen des Tops",
-        desc: subName + " kniet aufrecht mit geschlossenen Knien und gestrecktem Rumpf direkt vor dem Sessel des Tops. Die Hände liegen flach auf den Oberschenkeln.",
-        execution: "Der Rücken muss vollkommen gerade sein. Kein Absitzen auf den Fersen erlaubt; Blick auf die Brusthöhe des Tops fixieren.",
+        title: "🧎 Nadu-Kniestand zu Füßen des Tops",
+        desc: subName + " kniet aufrecht mit geschlossenen Knien und gestreckter Wirbelsäule direkt vor dem Sessel des Tops. Die Hände ruhen flach auf den Schenkeln.",
+        execution: "Der Oberkörper bleibt stolz und aufgerichtet, der Blick ruht respektvoll auf Brusthöhe des Tops. Kein lässiges Absitzen auf den Fersen.",
         badge: "Klassische Demut"
       },
       {
         id: "posture_over_knee",
         title: "🛋️ Über-die-Knie (Over-The-Knee / OTK)",
-        desc: subName + " liegt quer über den Oberschenkeln des sitzenden Tops. Das Becken ist leicht nach oben gekippt, die Füße berühren den Boden.",
-        execution: "Top legt den linken Unterarm fest über den unteren Rücken des Bottoms zur Arretierung. Gesäß frei exponieren.",
-        badge: "Volle Auslieferung"
+        desc: subName + " liegt quer über den Oberschenkeln des sitzenden Tops. Das Becken ist leicht angehoben, die Beine ruhen am Boden.",
+        execution: "Top legt den linken Arm schützend und fest über den unteren Rücken zur Arretierung. Das Gesäß ist völlig frei und wehrlos exponiert.",
+        badge: "Volle Geborgenheit"
       },
       {
         id: "posture_bed_edge_90",
         title: "🛏️ 90-Grad-Vorbeuge über die Bettkante",
-        desc: subName + " steht barfuß am Boden, beugt den Oberkörper im 90-Grad-Winkel über das Bett. Die Hände greifen die Bettkante.",
-        execution: "Knie müssen absolut durchgedrückt bleiben. Fersen stehen fest auf dem Boden; Gesäß nach hinten herausstrecken.",
-        badge: "Exponierte Glutealzone"
+        desc: subName + " steht barfuß am Boden, beugt den Oberkörper im rechten Winkel über das Bett und umfasst fest die Bettkante.",
+        execution: "Die Knie bleiben gestreckt, die Fersen stehen fest auf dem Boden. Das Gesäß wird dem Top aufrecht und ohne Ausweichen dargeboten.",
+        badge: "Vollkommene Exposition"
       },
       {
         id: "posture_hands_behind_head",
         title: "🧍 Standhaltung: Hände im Nacken verschränkt",
-        desc: subName + " steht mit schulterbreiten Beinen aufrecht im Raum. Die Finger sind fest im Nacken verschränkt, Ellenbogen nach hinten gezogen.",
-        execution: "Brustkorb maximal öffnen. Die Ellenbogen dürfen zu keinem Zeitpunkt nach vorne sinken.",
+        desc: subName + " steht aufrecht und schulterbreit im Raum. Die Finger sind fest im Nacken verschränkt, die Ellenbogen weit nach hinten gezogen.",
+        execution: "Der Brustkorb bleibt weit geöffnet. Jedes Vorfallen der Ellenbogen korrigiert der Top mit einer kurzen Berührung.",
         badge: "Spannungshaltung"
       }
     ];
@@ -278,31 +275,31 @@
     return [
       {
         id: "bondage_wrists_behind_back",
-        title: "⛓️ Handgelenke fest hinter dem Rücken arretiert",
-        desc: "Die Handgelenke von " + subName + " werden hinter dem Rücken mit Manschetten oder Seil eng zusammengeführt.",
-        execution: "Puls an den Daumenballen vor und nach dem Fixieren prüfen. Ein Fingerbreit Spielraum zwischen Fessel und Haut lassen.",
-        badge: "Aktionsunfähigkeit"
+        title: "⛓️ Hände hinter dem Rücken arretiert",
+        desc: "Die Handgelenke von " + subName + " werden hinter dem Rücken mit weichen Manschetten oder einem Tuch sicher zusammengeführt.",
+        execution: "Vor und nach dem Schließen den Puls an den Handgelenken prüfen. Immer einen Fingerbreit Spielraum zwischen Band und Haut lassen.",
+        badge: "Befreiende Wehrlosigkeit"
       },
       {
         id: "bondage_elbow_straps",
-        title: "💪 Ellenbogen-Zusammenführung (Box Tie Vorstufe)",
-        desc: "Die Oberarme werden dicht hinter dem Rücken arretiert, was die Schulterblätter zusammenpresst und den Brustkorb öffnet.",
-        execution: "Nervus radialis an der Oberarm-Außenseite polstern. Bei Kribbeln in den Fingern sofort 1 cm lockern.",
-        badge: "Stolze Wehrlosigkeit"
+        title: "💪 Ellenbogen-Zusammenführung (Stolze Haltung)",
+        desc: "Die Oberarme werden dicht hinter dem Rücken arretiert. Das öffnet den Brustkorb weit und verhindert jedes Schützen des Körpers.",
+        execution: "Druckstellen weich polstern. Bei Kribbeln oder Kältegefühl in den Händen die Manschette sofort um einen Zentimeter lockern.",
+        badge: "Aufrechte Hingabe"
       },
       {
         id: "bondage_thigh_spreader",
-        title: "⚡ Schenkelspreizung mit Spreizstange / Fixierband",
-        desc: "Die Oberschenkel werden fixiert und auf maximalen Abstand gehalten. Jedes Schließen der Beine ist mechanisch unmöglich.",
-        execution: "Knöchel mit breiten Manschetten sichern. Auf symmetrischen Sitz und bequeme Beckenlage achten.",
-        badge: "Vollkommene Exposition"
+        title: "⚡ Schenkelspreizung mit Spreizband",
+        desc: "Die Oberschenkel werden fixiert und auf sicherem Abstand gehalten. Ein Schließen der Beine aus Scham ist unmöglich.",
+        execution: "Die Knöchel mit breiten Bändern sichern. Auf eine entspannte Lage des Beckens achten, damit keine Zerrung entsteht.",
+        badge: "Verletzliche Offenheit"
       },
       {
         id: "bondage_free_will",
         title: "✋ Reine Willens-Disziplin (Ohne physische Seile)",
-        desc: subName + " wird nicht gefesselt. Das Einhalten der Haltung basiert rein auf mentalem Gehorsam und Selbstkontrolle.",
-        execution: "Jede unwillkürliche Bewegung wird sofort verbal korrigiert. Prüft die mentale Festigkeit des Bottoms.",
-        badge: "Mentaler Gehorsam"
+        desc: subName + " wird nicht gefesselt. Das Halten der Position basiert allein auf innerer Festigkeit, Gehorsam und Vertrauen.",
+        execution: "Jede unwillkürliche Bewegung wird sofort mit einem ruhigen Wort korrigiert. Prüft die mentale Hingabe des Bottoms.",
+        badge: "Innerer Gehorsam"
       }
     ];
   }
@@ -311,30 +308,30 @@
     return [
       {
         id: "sensory_blindfold_dark",
-        title: "🙈 Vollständige visuelle Deprivation (Augenbinde)",
-        desc: subName + " wird die Sicht komplett genommen. Jeder Reiz und Schlag trifft ohne optische Vorwarnung ein.",
-        execution: "Binde lichtdicht anlegen. Vor dem ersten Schlag kurz mit der Handfläche den Rücken berühren, um das Hören zu schärfen.",
-        badge: "Erwartungsspannung"
+        title: "🙈 Sanfte Augenbinde (Dunkelheit)",
+        desc: subName + " wird die Sicht genommen. Jeder Reiz, jedes Wort und jede Berührung trifft ohne optische Vorwarnung intensiver ein.",
+        execution: "Binde lichtdicht und bequem anlegen. Vor der ersten Berührung kurz mit der Handfläche den Rücken streichen, um das Vertrauen zu stärken.",
+        badge: "Spannung im Dunkeln"
       },
       {
         id: "sensory_gag_speechless",
-        title: "🤐 Knebelung (Ball-, Ring- oder Tuchknebel)",
-        desc: "Verhindert Widerworte und Proteste; erlaubt ausschließlich nonverbale Laute und Kehlkopf-Reaktionen.",
-        execution: "Nasenatmung vorab prüfen. Ein nonverbales Notfallsignal (Hand fallenlassen / Klopfen) ist zwingende Pflicht.",
-        badge: "Verbaler Entzug"
+        title: "🤐 Knebelung (Ball- oder Tuchknebel)",
+        desc: "Verhindert Widersprüche und Ausreden. Lässt nur noch ehrliche Kehlkopflaute und das Atmen zu.",
+        execution: "Freie Nasenatmung vorab sicherstellen! Ein eindeutiges nonverbales Signal (zweimaliges Klopfen oder Gegenstand fallenlassen) ist Pflicht.",
+        badge: "Stille Ergebung"
       },
       {
         id: "sensory_clamps_nipples",
-        title: "🔥 Schmerz-Lust-Klammern an den Brustwarzen",
-        desc: "Krokodil- oder Clover-Klemmen setzen einen permanenten Druckreiz, der parallel zu den Schlägen pulsiert.",
-        execution: "Klemmen erst nach 1 Minute anspannen. Nach maximal 15 Minuten abnehmen und die Durchblutung sanft ausstreichen.",
+        title: "🔥 Schmerz-Lust-Klemmen an den Brustwarzen",
+        desc: "Sanfte Klemmen setzen einen pulsierenden Druckreiz, der parallel zu den Worten und Schlägen pocht.",
+        execution: "Klemmen erst nach einer Minute sanft nachstellen. Nach maximal 15 Minuten abnehmen und die Durchblutung liebevoll ausstreichen.",
         badge: "Dauerspannung"
       },
       {
         id: "sensory_none",
-        title: "👁️ Volle Sinneswahrnehmung mit Zwangsblickkontakt",
-        desc: subName + " behält alle Sinne, muss aber ununterbrochenen Blickkontakt mit dem Top halten.",
-        execution: "Jedes Senken der Augen wird sofort untersagt. Erfordert maximale psychologische Standhaftigkeit.",
+        title: "👁️ Volle Sicht mit festem Blickkontakt-Zwang",
+        desc: subName + " behält alle Sinne, muss dem Top aber ununterbrochen fest in die Augen blicken.",
+        execution: "Jedes Ausweichen der Augen mit einem ruhigen 'Augen zu mir' unterbinden. Vertieft die emotionale Nähe enorm.",
         badge: "Blickkontakt-Zwang"
       }
     ];
@@ -399,11 +396,11 @@
 
     var stageLabels = [
       "",
-      "Stufe 1 von 5: Maßnahme & Rationale",
+      "Stufe 1 von 5: Maßnahme & Bedeutung",
       "Stufe 2 von 5: Körperhaltung",
-      "Stufe 3 von 5: Arretierung & Fesselung",
-      "Stufe 4 von 5: Sensorische Kontrolle",
-      "Stufe 5 von 5: Vollzugsprotokoll"
+      "Stufe 3 von 5: Fesselung & Halt",
+      "Stufe 4 von 5: Sensorischer Fokus",
+      "Stufe 5 von 5: Vollzugs-Protokoll"
     ];
 
     if (subTitle) subTitle.innerText = stageLabels[wizardCurrentStage];
@@ -447,7 +444,7 @@
             <strong class="text-xs text-white block">${escapeHtml(item.title)}</strong>
             <span class="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-brand-300 font-bold">${item.ratingBadge}</span>
           </div>
-          <p class="text-[10.5px] text-amber-200/90 leading-snug"><strong>Rationale:</strong> ${escapeHtml(item.rationale)}</p>
+          <p class="text-[10.5px] text-amber-200/90 leading-snug"><strong>Bedeutung für euch:</strong> ${escapeHtml(item.rationale)}</p>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(item.desc)}</p>
         </div>
       `;
@@ -489,7 +486,7 @@
             <span class="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-indigo-300 font-bold">${item.badge}</span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(item.desc)}</p>
-          <p class="text-[10px] text-slate-400 leading-snug"><strong>Ausführung:</strong> ${escapeHtml(item.execution)}</p>
+          <p class="text-[10px] text-slate-400 leading-snug"><strong>Führungshinweis:</strong> ${escapeHtml(item.execution)}</p>
         </div>
       `;
     }).join('');
@@ -529,7 +526,7 @@
             <span class="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-purple-300 font-bold">${item.badge}</span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(item.desc)}</p>
-          <p class="text-[10px] text-slate-400 leading-snug"><strong>Ausführung:</strong> ${escapeHtml(item.execution)}</p>
+          <p class="text-[10px] text-slate-400 leading-snug"><strong>Sicherheit & Halt:</strong> ${escapeHtml(item.execution)}</p>
         </div>
       `;
     }).join('');
@@ -569,7 +566,7 @@
             <span class="text-[9.5px] px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-teal-300 font-bold">${item.badge}</span>
           </div>
           <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(item.desc)}</p>
-          <p class="text-[10px] text-slate-400 leading-snug"><strong>Ausführung:</strong> ${escapeHtml(item.execution)}</p>
+          <p class="text-[10px] text-slate-400 leading-snug"><strong>Führungshinweis:</strong> ${escapeHtml(item.execution)}</p>
         </div>
       `;
     }).join('');
@@ -588,12 +585,12 @@
     var c = document.getElementById('summary-discipline-breakdown');
     if (!c) return;
 
-    var act = wizardSelections.action || { title: "Spanking", rationale: "Standard", execution: "Flach mit der Hand" };
+    var act = wizardSelections.action || { title: "Spanking", rationale: "Zentrierung", execution: "Flach mit der Hand" };
     var pos = wizardSelections.posture || { title: "Kniestand", execution: "Aufrecht" };
     var bon = wizardSelections.bondage || { title: "Keine Fesseln", execution: "Freier Wille" };
     var sen = wizardSelections.sensory || { title: "Blickkontakt", execution: "Augen offen" };
 
-    var reasonText = wizardCustomReason || "Fehlverhalten im Spiel / Verletzung der Haltungsregeln";
+    var reasonText = wizardCustomReason || "Fehlverhalten im Spiel / Unaufmerksamkeit";
 
     c.innerHTML = `
       <div class="space-y-3">
@@ -607,12 +604,12 @@
           <div class="p-3 rounded-xl bg-brand-950/40 border border-brand-800 space-y-1">
             <div class="flex items-center justify-between">
               <strong class="text-brand-300 text-xs">1. Disziplinarmaßnahme:</strong>
-              <span class="text-[9px] font-mono text-slate-400">Gluteus / Physis</span>
+              <span class="text-[9px] font-mono text-slate-400">Reiz & Klärung</span>
             </div>
             <strong class="text-white block text-xs">${escapeHtml(act.title)}</strong>
             <p class="text-[10.5px] text-slate-300 leading-snug">${escapeHtml(act.rationale || '')}</p>
             <div class="p-2 rounded-lg bg-slate-900/80 border border-brand-900/60 text-[10px] text-slate-300">
-              <strong class="text-brand-200">Arbeitsanweisung für ${escapeHtml(topName)}:</strong> ${escapeHtml(act.execution || '')}
+              <strong class="text-brand-200">Führungshinweis für ${escapeHtml(topName)}:</strong> ${escapeHtml(act.execution || '')}
             </div>
           </div>
 
@@ -624,31 +621,31 @@
             </div>
             <strong class="text-white block text-xs">${escapeHtml(pos.title)}</strong>
             <div class="p-2 rounded-lg bg-slate-900/80 border border-indigo-900/60 text-[10px] text-slate-300">
-              <strong class="text-indigo-200">Arbeitsanweisung für ${escapeHtml(topName)}:</strong> ${escapeHtml(pos.execution || '')}
+              <strong class="text-indigo-200">Führungshinweis für ${escapeHtml(topName)}:</strong> ${escapeHtml(pos.execution || '')}
             </div>
           </div>
 
           <!-- 3. ARRETIERUNG -->
           <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-800 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-purple-300 text-xs">3. Arretierung & Fesselung:</strong>
-              <span class="text-[9px] font-mono text-slate-400">Begrenzung</span>
+              <strong class="text-purple-300 text-xs">3. Arretierung & Begrenzung:</strong>
+              <span class="text-[9px] font-mono text-slate-400">Halt</span>
             </div>
             <strong class="text-white block text-xs">${escapeHtml(bon.title)}</strong>
             <div class="p-2 rounded-lg bg-slate-900/80 border border-purple-900/60 text-[10px] text-slate-300">
-              <strong class="text-purple-200">Arbeitsanweisung für ${escapeHtml(topName)}:</strong> ${escapeHtml(bon.execution || '')}
+              <strong class="text-purple-200">Sicherheitshinweis für ${escapeHtml(topName)}:</strong> ${escapeHtml(bon.execution || '')}
             </div>
           </div>
 
           <!-- 4. SENSORIK -->
           <div class="p-3 rounded-xl bg-teal-950/40 border border-teal-800 space-y-1">
             <div class="flex items-center justify-between">
-              <strong class="text-teal-300 text-xs">4. Sensorische Kontrolle:</strong>
-              <span class="text-[9px] font-mono text-slate-400">Reizfokus</span>
+              <strong class="text-teal-300 text-xs">4. Sensorischer Fokus:</strong>
+              <span class="text-[9px] font-mono text-slate-400">Wahrnehmung</span>
             </div>
             <strong class="text-white block text-xs">${escapeHtml(sen.title)}</strong>
             <div class="p-2 rounded-lg bg-slate-900/80 border border-teal-900/60 text-[10px] text-slate-300">
-              <strong class="text-teal-200">Arbeitsanweisung für ${escapeHtml(topName)}:</strong> ${escapeHtml(sen.execution || '')}
+              <strong class="text-teal-200">Führungshinweis für ${escapeHtml(topName)}:</strong> ${escapeHtml(sen.execution || '')}
             </div>
           </div>
         </div>
@@ -744,34 +741,35 @@
 
     showToast("⏳ Berechne maßgeschneiderten Disziplinar-Vorschlag...");
 
-    var prompt = `Du bist ein erfahrener, psychologisch präziser BDSM-Regisseur für ein einvernehmliches Paar (${topName} als Top, ${subName} als Bottom).
-Erstelle für folgendes Vergehen eine ernste, erwachsene und anatomisch fehlerfreie Disziplinar-Sequenz.
+    var prompt = `Du bist ein erfahrener, psychologisch feinfühliger BDSM-Regisseur für ein einvernehmliches Paar (${topName} als Top, ${subName} als Bottom).
+Erstelle für folgendes Vergehen eine sinnliche, tiefgreifende und leicht verständliche Disziplinar-Sequenz.
 
 ANLASS: „${reasonText}“
 ${briefing}
 
-STRIKTE QUALITÄTS- & LOGIK-VORGABEN:
-- Keine Märchenonkel-Floskeln, kein Kitsch, keine Schwulst.
-- Ernsthafter, direkter und moderner BDSM-Kontext zwischen einvernehmlichen Erwachsenen.
-- Zahlen (z. B. 15 Schläge oder 3 Minuten) MÜSSEN physiologisch und somatisch begründet sein (Kapillardurchblutung, Endorphinausschüttung, Laktatschwelle).
-- STRIKTE ANATOMISCHE REGEL: Ein Womanizer/Klitorissauger darf NIEMALS an einem Penis-Träger angewendet werden! Bei Männern nur Penissleeve, Wand auf Eichel, Hodengewicht oder Hand.
+STRIKTE VORGABEN ZUR SPRACHE & TONFALL (SEHR WICHTIG):
+- KEINE KÜHLE MEDIZIN- ODER ANATOMIESPRACHE: Verwende keine distanzierten Fachbegriffe wie „Kapillardurchblutung“, „Laktatschwelle“, „Gluteus maximus“ oder „Vasokonstriktion“.
+- EMOTIONAL & LEICHT VERSTÄNDLICH: Erkläre warm, lebendig und psychologisch nachvollziehbar, was die Strafe für beide bedeutet.
+  * Warum hilft sie dem Bottom, Schuldgefühle abzutragen, den Kopf frei zu bekommen und sich geborgen fallen zu lassen?
+  * Wie schenkt der Top dadurch klare Grenzen, Verlässlichkeit und spürbare Führung?
+- ANATOMISCHE REGEL: Ein Womanizer/Klitorissauger darf NIEMALS an einem Penis angewendet werden! Bei Männern nur Penissleeve, Wand auf Eichel, Hodengewicht oder Hand.
 
 Antworte AUSSCHLIESSLICH als valides JSON:
 {
-  "actionTitle": "Kurzer Titel der Maßnahme mit Icon",
-  "actionRationale": "Somatische Begründung der Wiederholungszahl / Dauer (2 Sätze)",
-  "actionDesc": "Genaue Beschreibung des Vorgangs",
-  "actionExecution": "Konkrete Arbeitsanweisung für ${topName} (Griff, Schlagzone, Rhythmus)",
+  "actionTitle": "Kurzer, packender Titel der Maßnahme mit Icon",
+  "actionRationale": "Erotisch-psychologische Bedeutung in 2 leicht verständlichen Sätzen: Warum befreit das den Geist und schenkt dem Bottom Halt?",
+  "actionDesc": "Lebendige, bildhafte Beschreibung des Vorgangs",
+  "actionExecution": "Einfache, klare Arbeitsanweisung für ${topName} (Handhabung, Haltung, Rhythmus)",
   "postureTitle": "Körperhaltung mit Icon",
-  "postureDesc": "Genaue Haltungsanweisung",
-  "postureExecution": "Arbeitsanweisung für ${topName} zur Haltungskontrolle",
-  "bondageTitle": "Fesselung mit Icon",
-  "bondageDesc": "Genaue Arretierung",
-  "bondageExecution": "Sicherheits- & Arbeitsanweisung für ${topName}",
-  "sensoryTitle": "Sensorik / Kontrolle mit Icon",
+  "postureDesc": "Genaue Haltungsanweisung in alltagstauglicher Sprache",
+  "postureExecution": "Praktischer Hinweis für ${topName} zur Haltungskontrolle",
+  "bondageTitle": "Arretierung mit Icon",
+  "bondageDesc": "Genaue Begrenzung",
+  "bondageExecution": "Sicherheits- & Wohlfühlhinweis für ${topName}",
+  "sensoryTitle": "Sensorischer Fokus mit Icon",
   "sensoryDesc": "Genaue Sinnesbeeinflussung",
-  "sensoryExecution": "Arbeitsanweisung für ${topName}",
-  "spokenCommand": "Ein einziger strenger, autoritärer Satz, den ${topName} wörtlich zu ${subName} spricht"
+  "sensoryExecution": "Praktischer Führungshinweis für ${topName}",
+  "spokenCommand": "Ein einziger strenger, souveräner Satz, den ${topName} wörtlich zu ${subName} spricht"
 }`;
 
     var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
@@ -785,7 +783,7 @@ Antworte AUSSCHLIESSLICH als valides JSON:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3, responseMimeType: "application/json" }
+            generationConfig: { temperature: 0.35, responseMimeType: "application/json" }
           })
         });
 

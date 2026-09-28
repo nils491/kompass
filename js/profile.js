@@ -15,7 +15,6 @@
   'use strict';
 
   var singleRadarChartInstance = null;
-  var DEFAULT_PRESET_GEMINI_KEY = "AQ.Ab8RN6JPCCiVtM7sRRbm1x8kmAJwRNAN-OMH3X1pL-Z04C69yw";
 
   var ARCHETYPE_DEFINITIONS = [
     {
@@ -151,8 +150,8 @@
   }
 
   function showToast(msg) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(msg);
+    if (typeof window.showToastNotification === 'function') {
+      window.showToastNotification(msg);
       return;
     }
     var c = document.getElementById('toast-container');
@@ -205,17 +204,11 @@
     return count > 0 ? (sum / count) : 3.0;
   }
 
-  /**
-   * Mehrstufige Item-Taxonomie (Rasch-Modell / Item Response Theory):
-   * Differenziert strikt zwischen harmloser Basissensorik ("Hand auflegen", Kraulen)
-   * und identitätsprägenden Hochschwellen-Kinks ("Pegging", "Denial", "formelle Zucht").
-   */
   function getItemDiagnosticWeight(it, chId) {
     var titleLower = (it.title || '').toLowerCase();
     var descLower = (it.desc || '').toLowerCase();
     var textCombined = titleLower + ' ' + descLower;
 
-    // STUFE IV: IDENTITÄTS-TIEFENANKER & HOCHSCHWELLEN-KINKS (Gewicht: 2.4x)
     if (textCombined.indexOf('pegging') !== -1 ||
         textCombined.indexOf('strap-on') !== -1 ||
         textCombined.indexOf('ruined') !== -1 ||
@@ -231,7 +224,6 @@
       return 2.4;
     }
 
-    // STUFE III: STRUKTURBILDENDER KINK & FORMELLES BDSM (Gewicht: 1.8x)
     if ([21, 22, 23, 29, 7, 8, 13, 14, 16, 17].indexOf(chId) !== -1 ||
         textCombined.indexOf('zucht') !== -1 ||
         textCombined.indexOf('kniestand') !== -1 ||
@@ -247,7 +239,6 @@
       return 1.8;
     }
 
-    // STUFE II: EROTISCHE TRANSITION & REIZVERSTÄRKUNG (Gewicht: 1.3x)
     if ([9, 10, 11, 15, 18, 20, 24, 25].indexOf(chId) !== -1 ||
         textCombined.indexOf('maske') !== -1 ||
         textCombined.indexOf('augenbinde') !== -1 ||
@@ -258,7 +249,6 @@
       return 1.3;
     }
 
-    // STUFE I: SOMATISCHE BASISSENSORIK & ZÄRTLICHKEIT (Gewicht: 0.9x)
     return 0.9;
   }
 
@@ -276,7 +266,6 @@
     var results = [];
     var userMean = calculateUserRatingMean(answers);
 
-    // Vorab-Ermittlung von Top- und Bottom-Werten für die Switch-Formel
     var powerChapters = [21, 22, 23, 29];
     var domEarned = 0, domPossible = 0;
     var subEarned = 0, subPossible = 0;
@@ -410,7 +399,6 @@
           var weight = getItemDiagnosticWeight(it, ch.id);
 
           function addPointsAndMax(val) {
-            // Nur gültige Antworten > 0 fließen ein (0 wird neutralisiert!)
             if (typeof val === 'number' && val > 0) {
               var calibrated = transformPsychometricRating(val, isShame, userMean) * weight;
               var maxScore = 5 * weight;
