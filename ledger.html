@@ -65,13 +65,6 @@
     .touch-btn:active { transform: scale(0.98); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .privacy-blur {
-      filter: blur(14px);
-      transition: filter 0.2s ease-in-out;
-    }
-    .privacy-blur:active, .privacy-blur.revealed {
-      filter: blur(0px);
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -98,6 +91,9 @@
           <div class="px-3 py-1.5 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 font-mono font-bold text-xs flex items-center gap-1" title="Aktueller Punktestand">
             <span>🪙</span><span id="header-balance-display">0 P</span>
           </div>
+          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold text-xs flex items-center gap-1 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
+            <span>💬</span><span>Stream</span>
+          </a>
           <button type="button" onclick="LedgerApp.openStealthMode()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 touch-btn" title="Stealth-Panikmodus (Diskretes Notizbuch)">
             🕶️
           </button>
@@ -109,16 +105,21 @@
         <!-- MOBILE BURGER BUTTON -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
           <span class="px-2 py-1 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 font-mono font-black text-[11px]" id="header-balance-mobile">0 P</span>
+          <a href="chat.html" class="px-2 py-1.5 bg-brand-950 border border-brand-800 text-brand-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Stream">
+            <span>💬</span>
+          </a>
           <button type="button" onclick="LedgerApp.toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü">
             ☰
           </button>
         </div>
       </div>
+
       <!-- DESKTOP NAV -->
       <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Start-Hub</a>
         <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Fragebogen</a>
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition whitespace-nowrap touch-btn">Paar-Analyse</a>
+        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-brand-300 hover:text-brand-100 transition whitespace-nowrap touch-btn">Paar-Stream 💬</a>
         <button type="button" class="px-3 py-1.5 rounded-xl bg-purple-800 text-white shadow-xs whitespace-nowrap cursor-default">Ledger & Vertrag</button>
         <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition whitespace-nowrap touch-btn">Guide 📖</a>
         <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition whitespace-nowrap touch-btn">Regie 🕯️</a>
@@ -153,9 +154,13 @@
           <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
           <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
         </a>
+        <a href="chat.html" class="w-full p-3 rounded-2xl bg-brand-950/40 border border-brand-800/80 text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-extrabold text-brand-300 flex items-center gap-2"><span>💬</span><span>E2EE Paar-Stream & Sexting</span></span>
+          <span class="text-[10px] text-brand-400 font-bold">Chat ↗</span>
+        </a>
         <div class="w-full p-3 rounded-2xl bg-purple-950/60 border border-purple-600 text-left flex items-center justify-between shadow-md">
           <span class="text-xs font-black text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
-          <span class="text-[10px] text-purple-300 font-bold">Aktiv ✓</span>
+          <span class="text-[10px] text-purple-300 font-bold">Hier aktiv ✓</span>
         </div>
         <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn block">
           <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
@@ -166,6 +171,7 @@
           <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
         </a>
       </div>
+
       <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
         <button type="button" onclick="LedgerApp.toggleMobileDrawer(false); LedgerApp.openStealthMode();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
           <span class="text-xs block font-bold text-slate-200">🕶️ Stealth-Panik</span>
@@ -197,29 +203,14 @@
       <span class="px-2 py-0.5 rounded bg-indigo-900 text-indigo-300 font-mono text-[10px] font-bold flex-shrink-0">Read-Only</span>
     </div>
 
-    <!-- PAUSIERT-BANNER BEI ROLLENWECHSEL -->
-    <div id="switch-paused-banner" class="hidden p-3.5 rounded-2xl bg-amber-950/70 border border-amber-600 text-amber-200 text-xs flex items-center justify-between gap-2 shadow-lg animate-fade-in">
-      <div class="flex items-center gap-2.5">
-        <span class="text-xl">⏸️</span>
-        <div>
-          <strong class="text-white block font-bold text-xs">Bisheriges Regime pausiert (Switch-Modus)</strong>
-          <span class="text-[10.5px] text-slate-300 block leading-snug" id="switch-paused-text">Der Vertrag und die Routinen des bisherigen Tops sind eingefroren.</span>
-        </div>
-      </div>
-      <button type="button" onclick="LedgerApp.openReactivationModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-xs touch-btn flex-shrink-0 shadow-md">
-        Reaktivieren ↺
-      </button>
-    </div>
-
     <!-- SUB-NAV TABS -->
     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 border-b border-slate-800/80">
       <button type="button" onclick="LedgerApp.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-purple-700 text-white touch-btn shadow-sm whitespace-nowrap">
         📊 Status & Saldo
       </button>
-      <button type="button" onclick="LedgerApp.switchTab('chat')" id="tab-btn-chat" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap flex items-center gap-1.5">
-        <span>💬 E2EE-Stream & Tasks</span>
-        <span id="chat-unread-badge" class="hidden w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
-      </button>
+      <a href="chat.html" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-brand-300 hover:text-white touch-btn whitespace-nowrap flex items-center gap-1.5">
+        <span>💬 E2EE-Stream & Tasks ↗</span>
+      </a>
       <button type="button" onclick="LedgerApp.switchTab('chores')" id="tab-btn-chores" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
         🧎 Pflichten & Shop
       </button>
@@ -230,6 +221,7 @@
         <span>✨ Top-Assistent</span>
       </button>
     </div>
+
     <!-- VIEW 1: DASHBOARD (STATUS, HYGIENE, WÜRFEL, CHRONIK) -->
     <div id="view-ledger-dashboard" class="space-y-4 animate-fade-in">
       
@@ -288,6 +280,7 @@
           </button>
         </div>
       </div>
+
       <!-- SCHNELL-AKTIONEN: DUSCHPAUSE & WÜRFEL -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
         
@@ -349,9 +342,6 @@
               <span class="text-[10px] text-slate-400">Verlängerungen aus der Regie werden hier addiert.</span>
             </div>
           </div>
-          <button type="button" onclick="LedgerApp.openNewChallengeModal()" id="btn-new-challenge" class="px-3 py-1.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn shadow-sm">
-            + Challenge anlegen
-          </button>
         </div>
         <div id="active-challenge-box" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 italic text-center py-4">
           Aktuell läuft keine feste Challenge. Lege eine neue an oder verhänge eine Zeitstrafe in der Regie.
@@ -359,62 +349,8 @@
       </div>
 
     </div>
-    <!-- VIEW 2: E2EE PAAR-STREAM, SEXTING & INTERAKTIVE AUFGABEN -->
-    <div id="view-ledger-chat" class="hidden space-y-3 animate-fade-in text-xs">
-      <div class="theme-card rounded-3xl p-4 border border-purple-900/60 shadow-xl flex flex-col h-[74vh]">
-        
-        <!-- CHAT HEADER -->
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 flex-shrink-0">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <div>
-              <strong class="text-white block text-xs">E2EE-Paar-Stream & Sexting</strong>
-              <span class="text-[9.5px] text-slate-400 font-mono">Ende-zu-Ende verschlüsselt</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="LedgerChat.clearChatHistory()" id="btn-clear-chat" class="px-2.5 py-1 rounded-xl theme-panel border border-slate-800 text-slate-400 hover:text-white text-[10px] touch-btn" title="Chat-Verlauf leeren">
-              🗑️ Leeren
-            </button>
-          </div>
-        </div>
 
-        <!-- CHAT MESSAGE LIST -->
-        <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 p-2 my-2 pr-1 no-scrollbar">
-          <!-- Dynamisch durch js/ledger_chat.js befüllt -->
-        </div>
-
-        <!-- BOTTOM TASK DRAWER (Einklappbare Schnell-Leiste für offene Pflichten) -->
-        <div id="bottom-task-drawer" class="hidden p-2.5 rounded-2xl bg-purple-950/60 border border-purple-800/80 mb-2 space-y-1.5 animate-fade-in flex-shrink-0">
-          <div class="flex items-center justify-between border-b border-purple-900/60 pb-1">
-            <span class="text-[10px] font-black text-purple-200 uppercase tracking-wide">📋 Offene Pflichten (Antippen zum Einreichen als Karte):</span>
-            <button type="button" onclick="LedgerChat.toggleBottomTaskDrawer(false)" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
-          </div>
-          <div id="bottom-task-quick-list" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-            <!-- Dynamisch durch js/ledger_chat.js befüllt -->
-          </div>
-        </div>
-
-        <!-- CHAT INPUT BAR -->
-        <div class="pt-2 border-t border-slate-800 flex items-center gap-1.5 flex-shrink-0">
-          <button type="button" onclick="LedgerChat.toggleBottomTaskDrawer()" id="btn-toggle-task-drawer" class="p-2.5 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 hover:bg-purple-900 touch-btn font-bold text-xs" title="Pflicht einreichen">
-            📋 Pflicht
-          </button>
-          <button type="button" onclick="document.getElementById('chat-photo-input').click()" class="p-2.5 rounded-xl theme-panel border border-slate-700 text-slate-300 hover:text-white touch-btn font-bold text-xs" title="Verschlüsseltes Foto aufnehmen / senden">
-            📷
-          </button>
-          <input type="file" id="chat-photo-input" accept="image/*" capture="environment" onchange="LedgerChat.handlePhotoUpload(this)" class="hidden">
-          
-          <input type="text" id="chat-text-input" onkeydown="if(event.key==='Enter') LedgerChat.sendTextMessage()" placeholder="Intime Nachricht oder Flüstern..." class="flex-1 text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none">
-          
-          <button type="button" onclick="LedgerChat.sendTextMessage()" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            Senden ➤
-          </button>
-        </div>
-
-      </div>
-    </div>
-    <!-- VIEW 3: PFLICHTEN, VERGEHEN & BELOHNUNGS-SHOP -->
+    <!-- VIEW 2: PFLICHTEN, VERGEHEN & BELOHNUNGS-SHOP -->
     <div id="view-ledger-chores" class="hidden space-y-4 animate-fade-in text-xs">
       
       <!-- AUFGABEN-VERWALTUNG (CHORES) -->
@@ -424,9 +360,6 @@
             <strong class="text-xs sm:text-sm text-white font-extrabold block">Tages-Pflichten & Dienstanweisungen:</strong>
             <p class="text-[10px] text-slate-400">Aufgaben, die der Bottom erledigen und zur Belohnung einreichen kann.</p>
           </div>
-          <button type="button" onclick="LedgerApp.openNewChoreModal()" id="btn-new-chore" class="px-3 py-1.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn">
-            + Neue Pflicht
-          </button>
         </div>
         <div id="chores-list-container" class="space-y-2"></div>
       </div>
@@ -438,9 +371,6 @@
             <strong class="text-xs sm:text-sm text-rose-300 font-extrabold block">Vergehen & Strafpunkte:</strong>
             <p class="text-[10px] text-slate-400">Katalog von Regelverstößen mit Punktabzug, Schlägen und Paragraphen-Verknüpfung.</p>
           </div>
-          <button type="button" onclick="LedgerApp.openNewInfractionModal()" id="btn-new-infraction" class="px-3 py-1.5 rounded-xl bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-200 font-bold text-xs touch-btn">
-            + Vergehen anlegen
-          </button>
         </div>
         <div id="infractions-list-container" class="space-y-2"></div>
       </div>
@@ -452,15 +382,13 @@
             <strong class="text-xs sm:text-sm text-amber-200 font-extrabold block">Tribut- & Belohnungs-Shop:</strong>
             <p class="text-[10px] text-slate-400">Hier löst der Bottom seine erarbeiteten Punkte für Privilegien ein.</p>
           </div>
-          <button type="button" onclick="LedgerApp.openNewRewardModal()" id="btn-new-reward" class="px-3 py-1.5 rounded-xl bg-amber-950 hover:bg-amber-900 border border-amber-800 text-amber-200 font-bold text-xs touch-btn">
-            + Privileg anlegen
-          </button>
         </div>
         <div id="rewards-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
       </div>
 
     </div>
-    <!-- VIEW 4: DER DYNAMISCHE BEZIEHUNGS- & SKLAVENVERTRAG -->
+
+    <!-- VIEW 3: DER DYNAMISCHE BEZIEHUNGS- & SKLAVENVERTRAG -->
     <div id="view-ledger-contract" class="hidden space-y-4 animate-fade-in text-xs">
       
       <div class="theme-card rounded-3xl p-5 sm:p-6 border border-amber-800/80 shadow-2xl bg-gradient-to-br from-amber-950/30 via-noir-900 to-purple-950/20 space-y-3">
@@ -477,9 +405,6 @@
             <button type="button" onclick="LedgerContract.generateFromSurvey()" id="btn-gen-contract" class="px-3 py-1.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold text-xs touch-btn shadow-md flex items-center gap-1">
               <span>✨</span><span>Aus Fragebogen generieren</span>
             </button>
-            <button type="button" onclick="LedgerContract.openAddClauseModal()" id="btn-add-clause" class="px-2.5 py-1.5 rounded-xl theme-panel border border-slate-700 text-slate-300 font-bold text-xs touch-btn">
-              + Klausel
-            </button>
           </div>
         </div>
         <p class="text-[11px] text-slate-300 leading-relaxed">
@@ -494,9 +419,7 @@
       </div>
 
       <!-- KLAUSELN CONTAINER -->
-      <div id="contract-clauses-container" class="space-y-3">
-        <!-- Dynamisch durch js/ledger_contract.js gerendert -->
-      </div>
+      <div id="contract-clauses-container" class="space-y-3"></div>
 
       <!-- UNTERSCHRIFTEN BLOCK -->
       <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-4 shadow-xl">
@@ -527,7 +450,8 @@
       </div>
 
     </div>
-    <!-- VIEW 5: DER KI-FÜHRUNGSASSISTENT FÜR DEN TOP -->
+
+    <!-- VIEW 4: DER KI-FÜHRUNGSASSISTENT FÜR DEN TOP -->
     <div id="view-ledger-ai_coach" class="hidden space-y-4 animate-fade-in text-xs">
       
       <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-800 shadow-2xl bg-gradient-to-br from-purple-950/40 via-noir-900 to-indigo-950/30 space-y-3">
@@ -585,14 +509,13 @@
           <strong class="text-xs text-white block font-extrabold">Verhaltensmuster & Vertrags-Reibung:</strong>
           <span class="text-[10px] text-slate-400 font-mono">Letzte 30 Tage</span>
         </div>
-        <div id="ai-coach-friction-list" class="space-y-2">
-          <!-- Dynamisch durch js/ledger_coach.js gerendert -->
-        </div>
+        <div id="ai-coach-friction-list" class="space-y-2"></div>
       </div>
 
     </div>
 
   </main>
+
   <!-- MODAL: ROLLEN- & HARDWARE CONFIG -->
   <div id="modal-ledger-role-config" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
@@ -615,15 +538,15 @@
           <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Verschluss-Hardware:</label>
           <select id="cfg-select-hardware" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
             <option value="penis_curved">🍆 Peniskäfig: Standard / Ergonomic Curved (Alltag)</option>
-            <option value="penis_micro">🍆 Peniskäfig: Micro / Stub (<= 35mm, Demut)</option>
+            <option value="penis_micro">🍆 Peniskäfig: Micro / Stub (&lt;= 35mm, Demut)</option>
             <option value="penis_flat">🍆 Peniskäfig: Flat / Schild (Unsichtbar, Funishment)</option>
             <option value="penis_inverted">🍆 Peniskäfig: Inverted / Negativ (Fettpolster-Retraktion)</option>
-            <option value="female_belt">🌸 Weiblicher Keuschheitsgürtel (Belt & Labia Shield)</option>
+            <option value="female_belt">🌸 Weiblicher Keuschheitsgürtel (Belt &amp; Labia Shield)</option>
           </select>
         </div>
 
         <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Schlüssel-Aufbewahrungsort & Siegel:</label>
+          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Schlüssel-Aufbewahrungsort &amp; Siegel:</label>
           <input type="text" id="cfg-input-key-storage" placeholder="z. B. kSafe (72h), Halskette, Einweg-Plombe #8492..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
         </div>
       </div>
@@ -670,6 +593,7 @@
       </div>
     </div>
   </div>
+
   <!-- MODAL: STRAFEN-VERHANDLUNG & ABLASS -->
   <div id="modal-negotiate-penalty" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border border-amber-500/40 p-5 space-y-3.5 shadow-2xl text-xs">
@@ -762,7 +686,7 @@
   <div id="stealth-mode-overlay" style="display: none;" class="fixed inset-0 z-[200] bg-white text-slate-800 p-6 flex flex-col justify-between font-sans">
     <div class="max-w-xl mx-auto w-full space-y-4 pt-4">
       <div class="border-b pb-2 flex justify-between items-center">
-        <h2 class="text-lg font-bold text-slate-900">Meeting Notes & Project Action Items</h2>
+        <h2 class="text-lg font-bold text-slate-900">Meeting Notes &amp; Project Action Items</h2>
         <button type="button" onclick="LedgerApp.closeStealthMode()" class="text-xs text-slate-400 hover:text-slate-600">✕ Schließen</button>
       </div>
       <div class="space-y-2 text-xs text-slate-600">
@@ -778,19 +702,19 @@
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- EXTERNE DATENQUELLEN & MODULARE LEDGER-ENGINES -->
+  <!-- EXTERNE DATENQUELLEN & MODULARE ENGINES -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="data/toy_combinatorics.js?v=4.6"></script>
-  <script src="data/chastity_database.js?v=4.6"></script>
-  <script src="js/cloud_sync.js?v=4.6"></script>
-  <script src="js/hub_toys.js?v=4.6"></script>
-  <script src="js/ledger_app.js?v=4.6"></script>
-  <script src="js/ledger_chat.js?v=4.6"></script>
-  <script src="js/ledger_contract.js?v=4.6"></script>
-  <script src="js/ledger_coach.js?v=4.6"></script>
+  <script src="data/toy_combinatorics.js?v=5.0"></script>
+  <script src="data/chastity_database.js?v=5.0"></script>
+  <script src="js/cloud_sync.js?v=5.0"></script>
+  <script src="js/hub_toys.js?v=5.0"></script>
+  <script src="js/chat.js?v=5.0"></script>
+  <script src="js/ledger_app.js?v=5.0"></script>
+  <script src="js/ledger_contract.js?v=5.0"></script>
+  <script src="js/ledger_coach.js?v=5.0"></script>
 
 </body>
 </html>
