@@ -152,7 +152,7 @@
 
     if (apiKey) {
       try {
-        var prompt = `Du bist ein hochkarätiger, erfahrener BDSM- und D/s-Führungsberater für ${topName} (Top/Keyholder).
+        var prompt = `Du bist ein erfahrener BDSM- und D/s-Führungsberater für ${topName} (Top/Keyholder).
 Erstelle für den heutigen Tag eine prägnante, inspirierende und alltagstaugliche Regie-Direktive zur Führung von ${subName} (Bottom/Keuschling).
 
 KONTEXT:
@@ -169,15 +169,21 @@ Erstelle 3 kurze, aufeinander aufbauende Impulse:
 
 Antworte direkt in freundlichem, souveränem Top-Tonfall (max. 4 bis 5 Sätze insgesamt).`;
 
-        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+        var candidateModels = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+        for (var i = 0; i < candidateModels.length; i++) {
+          try {
+            var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${candidateModels[i]}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
 
-        if (resp.ok) {
-          var data = await resp.json();
-          aiResult = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (resp.ok) {
+              var data = await resp.json();
+              aiResult = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (aiResult) break;
+            }
+          } catch (eModel) {}
         }
       } catch (err) {
         console.warn("Fehler beim KI-Aufruf für Führungsdirektive:", err);
