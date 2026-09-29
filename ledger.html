@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kink- & Beziehungs-Kompass – D/s-Ledger & Vertrag</title>
+  <title>PACTUM – Das Protokoll & Beziehungsvertrag</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function() {
@@ -36,7 +36,7 @@
     };
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
     :root {
       --sat: env(safe-area-inset-top, 0px);
       --sab: env(safe-area-inset-bottom, 0px);
@@ -49,6 +49,9 @@
       padding-bottom: var(--sab);
       padding-left: var(--sal);
       padding-right: var(--sar);
+    }
+    .font-serif-title {
+      font-family: 'Playfair Display', Georgia, serif;
     }
     html.dark body { background-color: #000000 !important; color: #f8fafc !important; }
     html.dark .theme-card { background-color: #060911 !important; border-color: #172033 !important; color: #f8fafc !important; }
@@ -65,6 +68,21 @@
     .touch-btn:active { transform: scale(0.98); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @media print {
+      body { background-color: #ffffff !important; color: #000000 !important; }
+      header, nav, #bottom-readonly-banner, .no-print { display: none !important; }
+      #view-ledger-contract { display: block !important; }
+      body.print-blank-signatures #sig-box-top img,
+      body.print-blank-signatures #sig-box-sub img { display: none !important; }
+      body.print-blank-signatures #sig-box-top::after,
+      body.print-blank-signatures #sig-box-sub::after {
+        content: "[ Siegel / Namenszug ]";
+        color: #94a3b8;
+        font-family: monospace;
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
@@ -74,42 +92,43 @@
     <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
         <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-900 via-indigo-700 to-brand-600 border border-purple-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-950 via-indigo-900 to-brand-800 border border-purple-500/40 text-purple-200 flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
           </div>
           <div class="truncate min-w-0">
             <div class="flex items-center gap-1.5">
-              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">D/s-Ledger & Vertrag</h1>
-              <span id="ledger-lock-status-badge" class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-950 text-purple-300 border border-purple-800 uppercase flex-shrink-0">🔒 AKTIV</span>
+              <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate font-serif-title">PACTUM · Das Protokoll</h1>
+              <span id="ledger-lock-status-badge" class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-800 uppercase flex-shrink-0">OFFEN</span>
             </div>
-            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="ledger-header-roles">Keyholder: Partner 1 · Keuschling: Partner 2</span>
+            <span class="text-[9.5px] text-slate-400 font-medium block truncate mt-0.5" id="ledger-header-roles">Top: Partner 1 · Bottom: Partner 2</span>
           </div>
         </a>
 
         <!-- DESKTOP ACTIONS -->
         <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
-          <div class="px-3 py-1.5 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 font-mono font-bold text-xs flex items-center gap-1" title="Aktueller Punktestand">
-            <span>🪙</span><span id="header-balance-display">0 P</span>
+          <div class="px-3 py-1.5 rounded-xl bg-purple-950/70 border border-purple-800 text-purple-200 font-mono font-bold text-xs flex items-center gap-1.5" title="Aktueller Saldo (Tribut-Konto)">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="header-balance-display">0 P</span>
           </div>
-          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold text-xs flex items-center gap-1 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
-            <span>💬</span><span>Stream</span>
+          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1.5 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
+            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+            <span>Stream</span>
           </a>
-          <button type="button" onclick="LedgerApp.openStealthMode()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 touch-btn" title="Stealth-Panikmodus (Diskretes Notizbuch)">
-            🕶️
+          <button type="button" onclick="LedgerApp.openBreakGlass()" class="px-2.5 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold text-xs flex items-center gap-1 touch-btn" title="Notfall-Entsiegelung (Break-Glass)">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z"/></svg>
+            <span>Not-Aus</span>
           </button>
-          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-700 to-brand-600 text-white font-black text-xs touch-btn shadow-md">
-            Regie 🕯️
+          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-800 to-brand-700 text-white font-bold text-xs touch-btn shadow-md flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
+            <span>Regie</span>
           </a>
         </div>
 
         <!-- MOBILE BURGER BUTTON -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
-          <span class="px-2 py-1 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 font-mono font-black text-[11px]" id="header-balance-mobile">0 P</span>
-          <a href="chat.html" class="px-2 py-1.5 bg-brand-950 border border-brand-800 text-brand-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Stream">
-            <span>💬</span>
-          </a>
-          <button type="button" onclick="LedgerApp.toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü">
-            ☰
+          <span class="px-2 py-1 rounded-xl bg-purple-950 border border-purple-800 text-purple-200 font-mono font-bold text-[11px]" id="header-balance-mobile">0 P</span>
+          <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='flex'" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
           </button>
         </div>
       </div>
@@ -119,10 +138,10 @@
         <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Start-Hub</a>
         <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Fragebogen</a>
         <a href="analyse.html" class="px-3 py-1.5 rounded-xl text-amber-300 hover:text-white transition whitespace-nowrap touch-btn">Paar-Analyse</a>
-        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-brand-300 hover:text-brand-100 transition whitespace-nowrap touch-btn">Paar-Stream 💬</a>
-        <button type="button" class="px-3 py-1.5 rounded-xl bg-purple-800 text-white shadow-xs whitespace-nowrap cursor-default">Ledger & Vertrag</button>
-        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition whitespace-nowrap touch-btn">Guide 📖</a>
-        <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition whitespace-nowrap touch-btn">Regie 🕯️</a>
+        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Paar-Stream</a>
+        <button type="button" class="px-3 py-1.5 rounded-xl bg-purple-900/90 text-white shadow-xs whitespace-nowrap cursor-default border border-purple-700">Das Protokoll</button>
+        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition whitespace-nowrap touch-btn">Guide</a>
+        <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-300 hover:text-white transition whitespace-nowrap touch-btn">Regie</a>
       </nav>
     </div>
   </header>
@@ -132,59 +151,59 @@
     <div class="space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-900 to-brand-600 border border-purple-500/40 text-white flex items-center justify-center font-bold text-sm">🗝️</div>
+          <div class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-600 text-purple-300 flex items-center justify-center font-bold text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+          </div>
           <div>
-            <h3 class="text-sm font-black text-white">Menü & Navigation</h3>
-            <span class="text-[10px] text-slate-400 font-medium block">D/s-Ledger & Beziehungsvertrag</span>
+            <h3 class="text-sm font-bold text-white font-serif-title">PACTUM OS</h3>
+            <span class="text-[10px] text-slate-400 font-medium block">Das Protokoll &amp; Beziehungsvertrag</span>
           </div>
         </div>
-        <button type="button" onclick="LedgerApp.toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">✕</button>
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
 
       <div class="space-y-1.5 pt-1">
         <a href="index.html#view=hub" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-white flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
+          <span class="text-xs font-bold text-white">Start-Hub</span>
           <span class="text-slate-500 text-xs">→</span>
         </a>
         <a href="index.html#view=survey" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-white flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
+          <span class="text-xs font-bold text-white">Fragebogen (36 Kapitel)</span>
           <span class="text-slate-500 text-xs">→</span>
         </a>
         <a href="analyse.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-amber-300 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
+          <span class="text-xs font-bold text-amber-300">Paar-Analyse &amp; Synergie</span>
           <span class="text-[10px] text-amber-400 font-bold">Doppel-5er</span>
         </a>
-        <a href="chat.html" class="w-full p-3 rounded-2xl bg-brand-950/40 border border-brand-800/80 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-brand-300 flex items-center gap-2"><span>💬</span><span>E2EE Paar-Stream & Sexting</span></span>
-          <span class="text-[10px] text-brand-400 font-bold">Chat ↗</span>
+        <a href="chat.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-slate-300">E2EE Paar-Stream</span>
+          <span class="text-slate-500 text-xs">→</span>
         </a>
         <div class="w-full p-3 rounded-2xl bg-purple-950/60 border border-purple-600 text-left flex items-center justify-between shadow-md">
-          <span class="text-xs font-black text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
+          <span class="text-xs font-bold text-purple-200">Das Protokoll &amp; Vertrag</span>
           <span class="text-[10px] text-purple-300 font-bold">Hier aktiv ✓</span>
         </div>
-        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
-          <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
+        <a href="guide.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-slate-300">BDSM- &amp; Vertrauens-Guide</span>
+          <span class="text-slate-500 text-xs">→</span>
         </a>
-        <a href="session.html" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-left flex items-center justify-between touch-btn block">
-          <span class="text-xs font-extrabold text-rose-300 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie</span></span>
+        <a href="session.html" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-rose-300">Schlafzimmer-Regie</span>
           <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
         </a>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
-        <button type="button" onclick="LedgerApp.toggleMobileDrawer(false); LedgerApp.openStealthMode();" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
-          <span class="text-xs block font-bold text-slate-200">🕶️ Stealth-Panik</span>
-          <span class="text-[10px] text-slate-400 block">Diskretes Notizbuch</span>
-        </button>
-        <button type="button" onclick="LedgerApp.toggleMobileDrawer(false); LedgerApp.switchTab('contract');" class="p-2.5 rounded-xl theme-panel border text-slate-300 text-left space-y-0.5 touch-btn">
-          <span class="text-xs block font-bold text-amber-300">📜 Vertrag</span>
-          <span class="text-[10px] text-slate-400 block">D/s-Vereinbarung</span>
+      <div class="pt-2 border-t border-slate-800">
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'; LedgerApp.openBreakGlass();" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800 text-rose-200 text-left space-y-0.5 touch-btn">
+          <strong class="text-xs block font-bold">🚨 Notfall-Entsiegelung (Break-Glass)</strong>
+          <span class="text-[10px] text-rose-300/80 block">RACK-Sicherheitsprotokoll bei Schwellung oder Notfall</span>
         </button>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-900 text-center">
-      <button type="button" onclick="LedgerApp.toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 text-slate-300 font-bold rounded-xl text-xs touch-btn">Schließen ✕</button>
+      <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'" class="w-full py-2.5 bg-slate-900 text-slate-300 font-bold rounded-xl text-xs touch-btn">Schließen ✕</button>
     </div>
   </div>
 
@@ -194,54 +213,48 @@
     <!-- SCHREIBGESCHÜTZT-BANNER FÜR BOTTOM -->
     <div id="bottom-readonly-banner" class="hidden p-3.5 rounded-2xl bg-indigo-950/70 border border-indigo-700/80 text-indigo-200 text-xs flex items-center justify-between gap-2 shadow-lg animate-fade-in">
       <div class="flex items-center gap-2.5">
-        <span class="text-xl">🔒</span>
+        <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
         <div>
-          <strong class="text-white block font-bold text-xs">Schreibgeschützter Einblick (Keuschling / Bottom)</strong>
-          <span class="text-[10.5px] text-slate-300 block leading-snug">Du kannst alle Zähler, Pflichten und Verträge einsehen. Konfiguration und Genehmigungen liegen exklusiv beim Top.</span>
+          <strong class="text-white block font-bold text-xs">Schreibgeschützter Einblick (Bottom / Keuschling)</strong>
+          <span class="text-[10.5px] text-slate-300 block leading-snug">Du kannst alle Zähler, Pflichten und Verträge einsehen. Konfiguration und Belohnungsfreigaben obliegen dem Top.</span>
         </div>
       </div>
-      <span class="px-2 py-0.5 rounded bg-indigo-900 text-indigo-300 font-mono text-[10px] font-bold flex-shrink-0">Read-Only</span>
+      <span class="px-2 py-0.5 rounded bg-indigo-900 text-indigo-300 font-mono text-[9.5px] font-bold flex-shrink-0">Read-Only</span>
     </div>
 
     <!-- SUB-NAV TABS -->
     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 border-b border-slate-800/80">
-      <button type="button" onclick="LedgerApp.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-purple-700 text-white touch-btn shadow-sm whitespace-nowrap">
-        📊 Status & Saldo
+      <button type="button" onclick="LedgerApp.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-700 text-white touch-btn shadow-sm whitespace-nowrap">
+        Status &amp; Saldo
       </button>
-      <a href="chat.html" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-brand-300 hover:text-white touch-btn whitespace-nowrap flex items-center gap-1.5">
-        <span>💬 E2EE-Stream & Tasks ↗</span>
-      </a>
-      <button type="button" onclick="LedgerApp.switchTab('chores')" id="tab-btn-chores" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
-        🧎 Pflichten & Shop
+      <button type="button" onclick="LedgerApp.switchTab('chores')" id="tab-btn-chores" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-300 touch-btn whitespace-nowrap">
+        Pflichten &amp; Aufgaben
       </button>
-      <button type="button" onclick="LedgerApp.switchTab('contract')" id="tab-btn-contract" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap">
-        📜 Beziehungsvertrag
+      <button type="button" onclick="LedgerApp.switchTab('contract')" id="tab-btn-contract" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-300 touch-btn whitespace-nowrap">
+        Beziehungsvertrag
       </button>
-      <button type="button" onclick="LedgerApp.switchTab('ai_coach')" id="tab-btn-ai_coach" class="px-3.5 py-2 rounded-xl text-xs font-bold theme-panel text-purple-300 touch-btn whitespace-nowrap flex items-center gap-1">
-        <span>✨ Top-Assistent</span>
+      <button type="button" onclick="LedgerApp.switchTab('ai_coach')" id="tab-btn-ai_coach" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-300 touch-btn whitespace-nowrap flex items-center gap-1">
+        <span>Führungs-Coach</span>
       </button>
     </div>
 
-    <!-- VIEW 1: DASHBOARD (STATUS, HYGIENE, WÜRFEL, CHRONIK) -->
+    <!-- VIEW 1: DASHBOARD (STATUS, RATIO, MIKRO-HYGIENE, WÜRFEL, CHRONIK) -->
     <div id="view-ledger-dashboard" class="space-y-4 animate-fade-in">
       
       <!-- TOP STATUS CARD -->
-      <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-900/60 shadow-xl bg-gradient-to-br from-purple-950/40 via-noir-900 to-brand-950/20 space-y-4">
+      <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-900/60 shadow-xl bg-gradient-to-br from-purple-950/40 via-noir-900 to-indigo-950/20 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-900/50 pb-3">
           <div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-950 text-purple-300 border border-purple-800 inline-block">
-              Keuschheits- & D/s-Status
+            <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase tracking-wider bg-purple-950 text-purple-300 border border-purple-800 inline-block">
+              Keuschheits- &amp; Verschluss-Status
             </span>
-            <h2 class="text-base sm:text-xl font-black text-white mt-1" id="dash-device-title">
-              Verschluss aktiv: Cherrykeeper Micro
+            <h2 class="text-base sm:text-xl font-bold text-white mt-1" id="dash-device-title">
+              Frei / Unverschlossen (Cherrykeeper Micro)
             </h2>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" onclick="LedgerApp.toggleLockState()" id="btn-toggle-lock" class="px-3.5 py-1.5 rounded-xl bg-rose-950 hover:bg-rose-900 border border-rose-700 text-rose-200 font-extrabold text-xs touch-btn">
-              🔒 Verschlossen
-            </button>
-            <button type="button" onclick="LedgerApp.openRoleConfigModal()" id="btn-open-role-cfg" class="w-8 h-8 rounded-xl theme-panel border border-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs touch-btn" title="Rollen & Hardware konfigurieren">
-              ⚙️
+            <button type="button" onclick="LedgerApp.toggleLockState()" id="btn-toggle-lock" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs touch-btn">
+              Besiegeln
             </button>
           </div>
         </div>
@@ -250,61 +263,47 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-0.5">
             <span class="text-[10px] text-slate-400 block font-medium">Aktuelle Tragedauer:</span>
-            <strong class="text-sm sm:text-base font-black font-mono text-purple-300" id="dash-wear-duration">0T 0h 0m</strong>
+            <strong class="text-sm sm:text-base font-bold font-mono text-purple-300" id="dash-wear-duration">Nicht versiegelt (0T)</strong>
           </div>
           <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-0.5">
-            <span class="text-[10px] text-slate-400 block font-medium">Tribut-Konto:</span>
-            <strong class="text-sm sm:text-base font-black font-mono text-amber-300" id="dash-balance-points">0 P</strong>
-          </div>
-          <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-0.5">
-            <span class="text-[10px] text-slate-400 block font-medium">Aktive Challenge:</span>
-            <strong class="text-xs font-bold text-emerald-300 truncate block" id="dash-challenge-title">Keine</strong>
+            <span class="text-[10px] text-slate-400 block font-medium">Tribut-Saldo:</span>
+            <strong class="text-sm sm:text-base font-bold font-mono text-amber-300" id="dash-balance-points">0 P</strong>
           </div>
           <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-0.5">
             <span class="text-[10px] text-slate-400 block font-medium">Schlüsselgewalt:</span>
-            <strong class="text-xs font-bold text-slate-200 truncate block" id="dash-key-location">kSafe (72h)</strong>
+            <strong class="text-xs font-bold text-slate-200 truncate block mt-0.5" id="dash-key-location">kSafe</strong>
           </div>
-        </div>
-
-        <!-- ORGASMUS-CHRONIK BANNER -->
-        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs">
-          <div class="flex items-center gap-2.5">
-            <span class="text-xl">🥀</span>
-            <div>
-              <strong class="text-white block text-xs">Letzter Höhepunkt: <span id="dash-climax-date" class="text-pink-300">Noch keiner erfasst</span></strong>
-              <p class="text-[10.5px] text-slate-400 mt-0.5" id="dash-climax-details">Status wird aus den Live-Sessions synchronisiert.</p>
-            </div>
+          <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-0.5">
+            <span class="text-[10px] text-slate-400 block font-medium">Duschpausen-Sanktion:</span>
+            <strong class="text-xs font-bold text-rose-300 truncate block mt-0.5" id="hygiene-rule-desc">-15 P / Min</strong>
           </div>
-          <button type="button" onclick="LedgerApp.openClimaxLoggerModal()" id="btn-manual-climax" class="px-3 py-1.5 rounded-xl theme-panel border border-slate-700 text-slate-300 font-bold text-[10.5px] touch-btn flex-shrink-0">
-            + Manuell eintragen
-          </button>
         </div>
       </div>
+
+      <!-- ORGASMUS-RATIO WIDGET CONTAINER -->
+      <div id="ledger-ratio-widget-container"></div>
+
+      <!-- UROLOGISCHE MIKRO-HYGIENE (BALANITIS-SCHUTZ) -->
+      <div id="urological-hygiene-container"></div>
 
       <!-- SCHNELL-AKTIONEN: DUSCHPAUSE & WÜRFEL -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
         
-        <!-- HYGIENE TIMER CARD MIT ÜBERZIEHUNGS-MATRIX -->
+        <!-- HYGIENE TIMER CARD -->
         <div class="theme-card rounded-3xl p-5 border border-teal-900/60 space-y-3 shadow-md">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-lg">🚿</span>
+              <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
               <strong class="text-xs text-white block">15m-Hygiene-Duschpause</strong>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="LedgerApp.openHygienePenaltyModal()" id="btn-cfg-hygiene" class="text-[10px] text-teal-400 hover:underline font-bold">Matrix ⚙️</button>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">Hygiene</span>
-            </div>
+            <span class="text-[9.5px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 font-bold">Pflege</span>
           </div>
-          <p class="text-[11px] text-slate-300 leading-snug">
-            Gestattet das Abnehmen zur Intimpflege und Rasur. Bei Ablauf muss das Schloss wieder verriegelt sein.
+          <p class="text-[10.5px] text-slate-300 leading-snug">
+            Gestattet das Abnehmen des Käfigs zur Intimpflege und Wundversorgung. Nach Ablauf muss das Schloss wieder verriegelt sein.
           </p>
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[10.5px] text-slate-400">
-            <span>Überziehungs-Strafe: </span><strong id="hygiene-rule-desc" class="text-rose-300">-15 P / Min</strong>
-          </div>
           <div class="flex items-center justify-between pt-1">
             <span class="text-xs font-mono font-bold text-teal-300" id="hygiene-timer-display">15:00</span>
-            <button type="button" onclick="LedgerApp.startHygieneTimer()" id="btn-hygiene-start" class="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
+            <button type="button" onclick="LedgerApp.startHygieneTimer()" id="btn-hygiene-start" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-bold rounded-xl text-xs touch-btn shadow-md">
               Starten (15m)
             </button>
           </div>
@@ -314,73 +313,58 @@
         <div class="theme-card rounded-3xl p-5 border border-amber-900/60 space-y-3 shadow-md">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-lg">🎲</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="4"/><circle cx="8" cy="8" r="1.25" fill="currentColor"/><circle cx="16" cy="8" r="1.25" fill="currentColor"/><circle cx="12" cy="12" r="1.25" fill="currentColor"/><circle cx="8" cy="16" r="1.25" fill="currentColor"/><circle cx="16" cy="16" r="1.25" fill="currentColor"/></svg>
               <strong class="text-xs text-white block">Der Schicksals-Würfel</strong>
             </div>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">1x alle 24h</span>
+            <span class="text-[9.5px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">Exklusiv Top</span>
           </div>
-          <p class="text-[11px] text-slate-300 leading-snug" id="dice-status-desc">
-            Würfelt um Verlängerung (+24h), Strafen, Bonuspunkte oder die seltene Duschpause.
+          <p class="text-[10.5px] text-slate-300 leading-snug" id="dice-status-desc">
+            1x alle 24h: Würfelt um Verlängerung (+24h), Zuchtmaßnahme, Bonuspunkte oder Duschpause.
           </p>
           <div class="flex items-center justify-between pt-1">
-            <span class="text-base font-black font-mono text-amber-300" id="dice-result-badge">🎲 ?</span>
-            <button type="button" onclick="LedgerApp.rollDiceOfFate()" id="btn-roll-dice" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-              Jetzt würfeln
+            <span class="text-xs font-bold font-mono text-amber-300" id="dice-result-badge">Bereit</span>
+            <button type="button" onclick="LedgerApp.rollDiceOfFate()" id="btn-roll-dice" class="px-4 py-2 bg-amber-800 hover:bg-amber-700 text-white font-bold rounded-xl text-xs touch-btn shadow-md">
+              Schicksalswurf
             </button>
           </div>
         </div>
 
       </div>
 
-      <!-- CHALLENGE-CONTAINER -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md text-xs">
+      <!-- DELTA-LEDGER TRANSAKTIONS-LOGBUCH (ATOMAR) -->
+      <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-3 shadow-md text-xs">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🏆</span>
-            <div>
-              <strong class="text-xs sm:text-sm text-white block font-extrabold">Aktive Challenge & Zeitstrafen:</strong>
-              <span class="text-[10px] text-slate-400">Verlängerungen aus der Regie werden hier addiert.</span>
-            </div>
+          <div class="space-y-0.5">
+            <strong class="text-xs text-white block font-bold">Transaktions-Logbuch (Delta-Ledger)</strong>
+            <span class="text-[10px] text-slate-400">Atomare Buchungshistorie mit Zeitstempel &amp; Urheber</span>
           </div>
+          <span class="text-[10px] font-mono text-slate-500">Event Sourcing</span>
         </div>
-        <div id="active-challenge-box" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 italic text-center py-4">
-          Aktuell läuft keine feste Challenge. Lege eine neue an oder verhänge eine Zeitstrafe in der Regie.
-        </div>
+        <div id="ledger-transactions-list" class="space-y-2"></div>
       </div>
 
     </div>
 
-    <!-- VIEW 2: PFLICHTEN, VERGEHEN & BELOHNUNGS-SHOP -->
+    <!-- VIEW 2: PFLICHTEN, INTERVALL-TASKS & BELOHNUNGS-SHOP -->
     <div id="view-ledger-chores" class="hidden space-y-4 animate-fade-in text-xs">
       
-      <!-- AUFGABEN-VERWALTUNG (CHORES) -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+      <!-- AUFGABEN- & INTERVALL-STEUERUNG (HUBTASKS) -->
+      <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-3 shadow-md">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <div>
-            <strong class="text-xs sm:text-sm text-white font-extrabold block">Tages-Pflichten & Dienstanweisungen:</strong>
-            <p class="text-[10px] text-slate-400">Aufgaben, die der Bottom erledigen und zur Belohnung einreichen kann.</p>
+            <strong class="text-xs sm:text-sm text-white font-bold block">Pflichten-Register &amp; Alltags-Service:</strong>
+            <p class="text-[10px] text-slate-400">Intervall-Aufgaben mit Fälligkeitsprüfung und 1-Tap Einreichung für den Bottom.</p>
           </div>
         </div>
-        <div id="chores-list-container" class="space-y-2"></div>
+        <div id="tasks-manager-container"></div>
       </div>
 
-      <!-- STRAFEN-KATALOG (INFRACTIONS MIT VERHANDLUNGS-ABPASS) -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-        <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
-          <div>
-            <strong class="text-xs sm:text-sm text-rose-300 font-extrabold block">Vergehen & Strafpunkte:</strong>
-            <p class="text-[10px] text-slate-400">Katalog von Regelverstößen mit Punktabzug, Schlägen und Paragraphen-Verknüpfung.</p>
-          </div>
-        </div>
-        <div id="infractions-list-container" class="space-y-2"></div>
-      </div>
-
-      <!-- BELOHNUNGS-SHOP -->
+      <!-- BELOHNUNGS-SHOP (BITTGESUCHE STATT KAUFHAUS-BDSM) -->
       <div class="theme-card rounded-3xl p-5 border border-amber-900/60 space-y-3 shadow-md">
         <div class="flex items-center justify-between border-b border-amber-900/60 pb-2">
-          <div>
-            <strong class="text-xs sm:text-sm text-amber-200 font-extrabold block">Tribut- & Belohnungs-Shop:</strong>
-            <p class="text-[10px] text-slate-400">Hier löst der Bottom seine erarbeiteten Punkte für Privilegien ein.</p>
+          <div class="space-y-0.5">
+            <strong class="text-xs sm:text-sm text-amber-200 font-bold block">Tribut- &amp; Belohnungs-Gnadengesuche:</strong>
+            <p class="text-[10px] text-slate-400">Reine Gesuche an den Top – Freigabe und Einlösung obliegen allein dem Ermessen des Tops (§ 3 Abs. 4).</p>
           </div>
         </div>
         <div id="rewards-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
@@ -388,32 +372,44 @@
 
     </div>
 
-    <!-- VIEW 3: DER DYNAMISCHE BEZIEHUNGS- & SKLAVENVERTRAG -->
+    <!-- VIEW 3: DER DYNAMISCHE PSYCHOSOMATISCHE BEZIEHUNGSVERTRAG -->
     <div id="view-ledger-contract" class="hidden space-y-4 animate-fade-in text-xs">
       
       <div class="theme-card rounded-3xl p-5 sm:p-6 border border-amber-800/80 shadow-2xl bg-gradient-to-br from-amber-950/30 via-noir-900 to-purple-950/20 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-900/60 pb-2">
           <div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
+            <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
               Verbindlicher D/s-Kodex
             </span>
-            <h2 class="text-base sm:text-xl font-black text-white mt-1">
-              Der Dynamische Beziehungs- & Sklavenvertrag
+            <h2 class="text-base sm:text-xl font-bold text-white mt-1 font-serif-title">
+              Pactum Intimum · Beziehungsvertrag
             </h2>
           </div>
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="LedgerContract.generateFromSurvey()" id="btn-gen-contract" class="px-3 py-1.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-purple-200 font-extrabold text-xs touch-btn shadow-md flex items-center gap-1">
-              <span>✨</span><span>Aus Fragebogen generieren</span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" onclick="LedgerContract.generateFromSurvey()" id="btn-gen-contract" class="px-3 py-1.5 rounded-xl bg-purple-900/90 hover:bg-purple-800 text-purple-200 font-bold text-xs touch-btn shadow-md flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+              <span>Aus Profil synthetisieren</span>
+            </button>
+            <button type="button" onclick="LedgerContract.exportRedacted()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-300 font-bold text-xs touch-btn flex items-center gap-1.5 shadow-sm" title="Geschwärzte Urkunde für Foren oder Social Media exportieren">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/></svg>
+              <span>Redacted Seal</span>
+            </button>
+            <button type="button" onclick="LedgerContract.openPrintDialog()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs touch-btn flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/></svg>
+              <span>Drucken</span>
             </button>
           </div>
         </div>
-        <p class="text-[11px] text-slate-300 leading-relaxed">
-          Gespeist aus euren Bogen-Noten, Synergien und <strong>rollenabhängig gefilterten Tabus</strong> (beim Bottom nur Tabus beim Empfangen). Liegt als editierbarer Entwurf vor, bis beide Partner per Touchscreen digital unterzeichnen.
+        <p class="text-[10.5px] text-slate-300 leading-relaxed">
+          Gespeist aus euren Bogen-Noten, Synergien und <strong>rollenabhängig gefilterten Tabus</strong>. Beinhaltet strikte Schutzklauseln gegen verdeckte Regie (§ 2 Abs. 3), Schweigepflicht über Verschluss &amp; Lust (§ 3 Abs. 4) und Reverse Aftercare (§ 4 Abs. 2).
         </p>
+
+        <!-- PSYCHOSOMATISCHES HARMONIE-BANNER -->
+        <div id="contract-harmony-banner"></div>
 
         <!-- STATUS PILL -->
         <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-          <span class="text-slate-300 font-bold" id="contract-status-label">Status: Entwurf (Unsigniert)</span>
+          <span class="text-slate-300 font-bold" id="contract-status-label">Status: Entwurf (Editierbar)</span>
           <span class="text-amber-400 font-mono text-[10px]" id="contract-version-label">Version 1.0 Draft</span>
         </div>
       </div>
@@ -423,27 +419,27 @@
 
       <!-- UNTERSCHRIFTEN BLOCK -->
       <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-4 shadow-xl">
-        <strong class="text-xs text-white block font-extrabold border-b border-slate-800 pb-2">
-          Feierliche Unterzeichnung auf dem Bildschirm:
+        <strong class="text-xs text-white block font-bold border-b border-slate-800 pb-2">
+          Ratifizierung &amp; Digitale Signaturen:
         </strong>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-center">
-            <strong class="text-xs text-brand-300 block" id="sig-label-top">Signatur Top: Partner 1</strong>
-            <div id="sig-box-top" class="h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 font-serif italic text-sm">
+            <strong class="text-xs text-purple-300 block" id="sig-label-top">Signatur Top</strong>
+            <div id="sig-box-top" class="h-20 rounded-2xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 font-serif italic text-xs">
               Noch nicht unterzeichnet
             </div>
-            <button type="button" onclick="LedgerContract.openSignatureModal('top')" id="btn-sign-top" class="w-full py-1.5 rounded-xl bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs touch-btn">
-              ✍️ Als Top signieren
+            <button type="button" onclick="LedgerContract.openSignatureModal('top')" id="btn-sign-top" class="w-full py-2 rounded-xl bg-purple-900/90 hover:bg-purple-800 text-white font-bold text-xs touch-btn">
+              Als Top ratifizieren
             </button>
           </div>
 
           <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-center">
-            <strong class="text-xs text-indigo-300 block" id="sig-label-sub">Signatur Bottom: Partner 2</strong>
-            <div id="sig-box-sub" class="h-20 rounded-xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 font-serif italic text-sm">
+            <strong class="text-xs text-indigo-300 block" id="sig-label-sub">Signatur Bottom</strong>
+            <div id="sig-box-sub" class="h-20 rounded-2xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 font-serif italic text-xs">
               Noch nicht unterzeichnet
             </div>
-            <button type="button" onclick="LedgerContract.openSignatureModal('sub')" id="btn-sign-sub" class="w-full py-1.5 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-white font-bold text-xs touch-btn">
-              ✍️ Als Bottom signieren
+            <button type="button" onclick="LedgerContract.openSignatureModal('sub')" id="btn-sign-sub" class="w-full py-2 rounded-xl bg-indigo-900/90 hover:bg-indigo-800 text-white font-bold text-xs touch-btn">
+              Als Bottom ratifizieren
             </button>
           </div>
         </div>
@@ -457,36 +453,38 @@
       <div class="theme-card rounded-3xl p-5 sm:p-6 border border-purple-800 shadow-2xl bg-gradient-to-br from-purple-950/40 via-noir-900 to-indigo-950/30 space-y-3">
         <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
           <div class="flex items-center gap-2">
-            <span class="text-xl">👑</span>
+            <div class="text-purple-300">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
             <div>
-              <h2 class="text-sm sm:text-base font-black text-white">Der Top-Führungsassistent & D/s-Coach</h2>
-              <span class="text-[10px] text-purple-300 font-medium">Exklusiver Ratgeber, Teasing-Rhythmus & Berufs-Kontext</span>
+              <h2 class="text-sm sm:text-base font-bold text-white font-serif-title">Top-Führungsassistent &amp; D/s-Coach</h2>
+              <span class="text-[10px] text-purple-300 font-medium">Fokus: Entlastung der Spielleitung &amp; Teasing-Rhythmus</span>
             </div>
           </div>
-          <button type="button" onclick="LedgerCoach.generateDailyDirective()" class="px-3.5 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs touch-btn shadow-md">
-            ✨ Neue Direktive
+          <button type="button" onclick="LedgerCoach.generateDailyDirective()" class="px-3.5 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-xl text-xs touch-btn shadow-md">
+            Tages-Direktive berechnen
           </button>
         </div>
-        <p class="text-[11px] text-slate-300 leading-relaxed">
-          Nimmt dem Top den mentalen Druck bei der Alltagsführung: Stimmt das Teasing auf den Beruf des Bottoms ab, verhindert Frustration durch geplante Schwellen-Quälerei und liefert faire Zucht-Pläne.
+        <p class="text-[10.5px] text-slate-300 leading-relaxed">
+          Schützt den Top vor <em>Top Fatigue</em>: Stimmt Alltags-Impulse auf den Beruf des Bottoms ab, verhindert Dumpfheit durch kontrollierte Reize und sorgt für verlässliche Entlastung im Haushalt.
         </p>
       </div>
 
       <!-- BERUFS- & ALLTAGSPROFIL DES BOTTOMS -->
       <div class="theme-card rounded-2xl p-4 border border-slate-800 space-y-2 text-xs">
         <div class="flex items-center justify-between">
-          <strong class="text-white text-xs block">Berufs- & Alltags-Kontext des Bottoms:</strong>
+          <strong class="text-white text-xs block">Berufs- &amp; Alltags-Kontext des Bottoms:</strong>
           <span class="text-[10px] font-mono text-purple-300" id="coach-workplace-label">Büro / Homeoffice</span>
         </div>
         <select id="coach-workplace-select" onchange="LedgerCoach.setWorkplace(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          <option value="desk_office">🏢 Büro / Homeoffice (Langes Sitzen, Meetings)</option>
-          <option value="craft_physical">🔨 Handwerk / Körperlich (Bücken, Schwitzen, Leitersteigen)</option>
-          <option value="medical_service">🩺 Pflege / Gastronomie (8–12h Stehen, enge Kasacks)</option>
-          <option value="driver_field">🚗 Fahrer / Außendienst (Autositz, Vibration, Pendler)</option>
-          <option value="shift_variable">🌙 Schichtdienst (Verschobener Biorhythmus, Tagesschlaf)</option>
+          <option value="desk_office">Büro / Homeoffice (Langes Sitzen, Meetings)</option>
+          <option value="craft_physical">Handwerk / Körperlich (Bücken, Schwitzen, Leitersteigen)</option>
+          <option value="medical_service">Pflege / Gastronomie (8–12h Stehen, enge Kasacks)</option>
+          <option value="driver_field">Fahrer / Außendienst (Autositz, Vibration, Pendler)</option>
+          <option value="shift_variable">Schichtdienst (Verschobener Biorhythmus, Tagesschlaf)</option>
         </select>
         <p class="text-[10.5px] text-slate-400" id="coach-workplace-hint">
-          Dauerdruck auf Schambein und Hodenansatz im Sitzen. Teasing: Versteckter Vibrator bei Video-Calls oder Beckenboden-Kontraktion (Kegels).
+          Dauerdruck auf Schambein und Hodenansatz im Sitzen. Teasing: Kegel-Befehle oder diskreter Foto-Appell.
         </p>
       </div>
 
@@ -494,20 +492,21 @@
       <div id="ai-coach-directive-card" class="theme-card rounded-3xl p-5 border border-indigo-900/60 space-y-2.5 shadow-md">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
           <strong class="text-xs text-indigo-300 font-bold flex items-center gap-1.5">
-            <span>✨</span><span>Aktuelle Tages-Empfehlung für den Top:</span>
+            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            <span>Aktuelle Tages-Direktive für den Top:</span>
           </strong>
-          <span class="text-[9.5px] font-mono text-slate-500">Gemini Live</span>
+          <span class="text-[9.5px] font-mono text-slate-500">Regie-Impuls</span>
         </div>
         <div id="ai-coach-directive-content" class="text-[11px] text-slate-300 leading-relaxed">
-          Tippe oben auf „Neue Direktive“, um auf Basis der getrackten Verstöße, des Keuschheits-Tages und des Berufs-Kontexts einen maßgeschneiderten Führungsplan zu berechnen.
+          Tippe oben auf „Tages-Direktive berechnen“, um auf Basis der Tragetage, des Berufs und der Top-Entlastung 3 prägnante Impulse zu erhalten.
         </div>
       </div>
 
-      <!-- FRICTION & HABIT ANALYTICS -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
+      <!-- REIBUNGS- & MUSTER-ANALYTIK -->
+      <div class="theme-card rounded-3xl p-5 border border-slate-800 space-y-3 shadow-md">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <strong class="text-xs text-white block font-extrabold">Verhaltensmuster & Vertrags-Reibung:</strong>
-          <span class="text-[10px] text-slate-400 font-mono">Letzte 30 Tage</span>
+          <strong class="text-xs text-white block font-bold">Verhaltensmuster &amp; Vertrags-Reibung:</strong>
+          <span class="text-[10px] text-slate-400 font-mono">Friction Analytics</span>
         </div>
         <div id="ai-coach-friction-list" class="space-y-2"></div>
       </div>
@@ -520,201 +519,63 @@
   <div id="modal-ledger-role-config" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="theme-card rounded-3xl max-w-md w-full border border-purple-500/40 p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
-        <h3 class="text-sm font-extrabold text-white">Rollen, Hardware & Switch-Modus</h3>
-        <button type="button" onclick="LedgerApp.closeModal('modal-ledger-role-config')" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
+        <h3 class="text-sm font-bold text-white">Rollen &amp; Keuschheits-Hardware</h3>
+        <button type="button" onclick="document.getElementById('modal-ledger-role-config').style.display='none'" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
       </div>
 
       <div class="space-y-3">
         <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Wer ist Keyholder / Top?</label>
+          <label class="text-[10.5px] font-mono text-slate-400 uppercase block mb-1">Wer führt als Top / Keyholder?</label>
           <select id="cfg-select-keyholder" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
             <option value="A">Partner 1</option>
             <option value="B">Partner 2</option>
           </select>
-          <span class="text-[10px] text-slate-400 block mt-1">Hinweis: Wechselt die Leitung, wird der bisherige Vertrag in den Ruhezustand versetzt.</span>
         </div>
 
         <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Verschluss-Hardware:</label>
+          <label class="text-[10.5px] font-mono text-slate-400 uppercase block mb-1">Verschluss-Hardware:</label>
           <select id="cfg-select-hardware" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-            <option value="penis_curved">🍆 Peniskäfig: Standard / Ergonomic Curved (Alltag)</option>
-            <option value="penis_micro">🍆 Peniskäfig: Micro / Stub (&lt;= 35mm, Demut)</option>
-            <option value="penis_flat">🍆 Peniskäfig: Flat / Schild (Unsichtbar, Funishment)</option>
-            <option value="penis_inverted">🍆 Peniskäfig: Inverted / Negativ (Fettpolster-Retraktion)</option>
-            <option value="female_belt">🌸 Weiblicher Keuschheitsgürtel (Belt &amp; Labia Shield)</option>
+            <option value="penis_cherrykeeper">Cherrykeeper Micro Stub (&lt;= 35mm)</option>
+            <option value="penis_cobra">Kink3D Cobra (SLS-Nylon)</option>
+            <option value="penis_viper">Kink3D Viper (Kompakt)</option>
+            <option value="penis_holytrainer">HolyTrainer V6 (Bioresin)</option>
+            <option value="penis_jailbird">Mature Metal Jailbird (Edelstahl)</option>
+            <option value="penis_cb6000">CB-6000 Polycarbonat</option>
+            <option value="penis_flat">Flat Shield (Nun-Cage)</option>
+            <option value="female_belt">Weiblicher Keuschheitsgürtel (Belt)</option>
           </select>
         </div>
 
         <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Schlüssel-Aufbewahrungsort &amp; Siegel:</label>
-          <input type="text" id="cfg-input-key-storage" placeholder="z. B. kSafe (72h), Halskette, Einweg-Plombe #8492..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
+          <label class="text-[10.5px] font-mono text-slate-400 uppercase block mb-1">Schlüssel-Aufbewahrungsort &amp; PIN:</label>
+          <input type="text" id="cfg-input-key-storage" placeholder="z. B. kSafe (Tresor), Einweg-Plombe #8492..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-        <button type="button" onclick="LedgerApp.closeModal('modal-ledger-role-config')" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs">Abbrechen</button>
-        <button type="button" onclick="LedgerApp.saveRoleConfig()" class="px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white font-extrabold rounded-xl text-xs shadow-md">Speichern ✓</button>
+        <button type="button" onclick="document.getElementById('modal-ledger-role-config').style.display='none'" class="px-4 py-2 bg-slate-900 border border-slate-700 text-slate-300 font-bold rounded-xl text-xs">Abbrechen</button>
+        <button type="button" onclick="LedgerApp.saveRoleConfig && LedgerApp.saveRoleConfig()" class="px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-xl text-xs shadow-md">Speichern ✓</button>
       </div>
-    </div>
-  </div>
-
-  <!-- MODAL: HYGIENE-ÜBERZIEHUNGS-MATRIX CONFIG -->
-  <div id="modal-hygiene-penalty-config" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-teal-500/40 p-5 space-y-3.5 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-teal-900/60 pb-2">
-        <h3 class="text-sm font-extrabold text-white">Hygiene-Überziehungs-Matrix</h3>
-        <button type="button" onclick="LedgerApp.closeModal('modal-hygiene-penalty-config')" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Art der Überziehungs-Sanktion:</label>
-          <select id="cfg-hygiene-mode" onchange="LedgerApp.updateHygienePenaltyModeUI(this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-            <option value="points">🪙 Punkte-Abzug je Minute</option>
-            <option value="physical">✋ Physische Strafe je Minute (Schläge / Liegestütze)</option>
-          </select>
-        </div>
-
-        <div id="hygiene-pts-setting" class="space-y-1">
-          <label class="text-[10.5px] font-bold text-slate-300 block">Punkteabzug je angefangene Minute:</label>
-          <input type="number" id="cfg-hygiene-rate-pts" value="15" min="5" max="100" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
-        </div>
-
-        <div id="hygiene-phys-setting" class="hidden space-y-2">
-          <label class="text-[10.5px] font-bold text-slate-300 block">Physische Maßnahme je Minute:</label>
-          <input type="text" id="cfg-hygiene-rate-phys" value="2 Schläge auf das Gesäß" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-          <span class="text-[10px] text-slate-400 block">z. B. „2 Schläge auf das Gesäß“ oder „5 Liegestütze“ je Minute Verspätung.</span>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-        <button type="button" onclick="LedgerApp.closeModal('modal-hygiene-penalty-config')" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs">Abbrechen</button>
-        <button type="button" onclick="LedgerApp.saveHygienePenaltyConfig()" class="px-5 py-2 bg-teal-700 hover:bg-teal-600 text-white font-extrabold rounded-xl text-xs shadow-md">Übernehmen ✓</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: STRAFEN-VERHANDLUNG & ABLASS -->
-  <div id="modal-negotiate-penalty" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-amber-500/40 p-5 space-y-3.5 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-amber-900/60 pb-2">
-        <h3 class="text-sm font-extrabold text-white">Strafe nach Verhandlung anpassen</h3>
-        <button type="button" onclick="LedgerApp.closeModal('modal-negotiate-penalty')" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="p-3 rounded-2xl bg-amber-950/40 border border-amber-700/80 space-y-1">
-        <span class="text-[10px] text-amber-300 uppercase tracking-wider block">Ursprüngliches Strafmaß:</span>
-        <strong class="text-xs text-white block" id="nego-orig-title">20 Schläge mit dem Ledergürtel</strong>
-      </div>
-
-      <div class="space-y-2.5">
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Tatsächlich vollzogene Maßnahme / Schläge:</label>
-          <input type="text" id="nego-input-actual-punishment" placeholder="z. B. 10 Schläge vollzogen..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-        </div>
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Zusätzlicher Punkte-Ablass (Abzug):</label>
-          <input type="number" id="nego-input-points-deducted" value="80" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono">
-        </div>
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Vereinbarte Sonderaufgabe (optional):</label>
-          <input type="text" id="nego-input-special-chore" placeholder="z. B. Auto gründlich waschen..." class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white">
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-        <button type="button" onclick="LedgerApp.closeModal('modal-negotiate-penalty')" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs">Abbrechen</button>
-        <button type="button" onclick="LedgerApp.saveNegotiatedPenalty()" class="px-5 py-2 bg-amber-700 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs shadow-md">Im Logbuch verbuchen ✓</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: MANUELLER ORGASMUS-EINTRAG -->
-  <div id="modal-ledger-climax" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-pink-500/40 p-5 space-y-4 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-pink-900/60 pb-2">
-        <h3 class="text-sm font-extrabold text-white">Höhepunkt dokumentieren</h3>
-        <button type="button" onclick="LedgerApp.closeModal('modal-ledger-climax')" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Art des Höhepunkts:</label>
-          <select id="climax-select-type" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium">
-            <option value="ruined">🥀 Ruined Orgasm (Am PONR abgebrochen)</option>
-            <option value="full">✨ Volle Freigabe (Erlaubter Orgasmus)</option>
-            <option value="prostate">🍑 Prostata- / Analer Orgasmus (ohne Genitalberührung)</option>
-            <option value="denial">🔒 Lustverweigerung (Denial nach Schwelle)</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-[10.5px] font-bold text-slate-300 block mb-1">Notiz / Feedback des Tops:</label>
-          <input type="text" id="climax-input-note" placeholder="z. B. Spontane Freigabe am Morgen, sehr gehorsam..." class="w-full text-xs p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-        <button type="button" onclick="LedgerApp.closeModal('modal-ledger-climax')" class="px-4 py-2 theme-panel border text-slate-300 font-bold rounded-xl text-xs">Abbrechen</button>
-        <button type="button" onclick="LedgerApp.saveClimaxEntry()" class="px-5 py-2 bg-pink-700 hover:bg-pink-600 text-white font-extrabold rounded-xl text-xs shadow-md">Im Logbuch sichern ✓</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: DIGITALE TOUCH-SIGNATUR -->
-  <div id="modal-contract-signature" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-    <div class="theme-card rounded-3xl max-w-md w-full border border-amber-500/40 p-5 space-y-3.5 shadow-2xl text-xs">
-      <div class="flex items-center justify-between border-b border-amber-900/60 pb-2">
-        <h3 class="text-sm font-extrabold text-white" id="sig-modal-title">Vertrag unterzeichnen</h3>
-        <button type="button" onclick="LedgerApp.closeModal('modal-contract-signature')" class="w-8 h-8 rounded-xl theme-panel border text-slate-400 hover:text-white font-bold flex items-center justify-center touch-btn">✕</button>
-      </div>
-      <p class="text-[10.5px] text-slate-300">Zeichne mit dem Finger deine Unterschrift auf dem Feld:</p>
-      
-      <div class="w-full h-36 bg-slate-950 rounded-2xl border border-slate-700 relative overflow-hidden">
-        <canvas id="signature-canvas" class="w-full h-full cursor-crosshair"></canvas>
-      </div>
-
-      <div class="flex justify-between items-center pt-1 border-t border-slate-800">
-        <button type="button" onclick="LedgerContract.clearSignatureCanvas()" class="text-slate-400 hover:text-white text-xs font-bold">Löschen</button>
-        <button type="button" onclick="LedgerContract.saveSignature()" class="px-5 py-2 bg-amber-700 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs shadow-md">
-          Unterschrift speichern ✓
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEALTH PANIK OVERLAY -->
-  <div id="stealth-mode-overlay" style="display: none;" class="fixed inset-0 z-[200] bg-white text-slate-800 p-6 flex flex-col justify-between font-sans">
-    <div class="max-w-xl mx-auto w-full space-y-4 pt-4">
-      <div class="border-b pb-2 flex justify-between items-center">
-        <h2 class="text-lg font-bold text-slate-900">Meeting Notes &amp; Project Action Items</h2>
-        <button type="button" onclick="LedgerApp.closeStealthMode()" class="text-xs text-slate-400 hover:text-slate-600">✕ Schließen</button>
-      </div>
-      <div class="space-y-2 text-xs text-slate-600">
-        <p>• Q4 Roadmap Review: Finalize deliverables by Thursday afternoon.</p>
-        <p>• Budget Allocation: Review infrastructure and cloud migration expenses.</p>
-        <p>• Vendor Alignment: Prepare contract draft for feedback cycle.</p>
-      </div>
-    </div>
-    <div class="text-center text-[10px] text-slate-400 pb-2">
-      Tippe oben rechts auf Schließen, um zurückzukehren.
     </div>
   </div>
 
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
 
-  <!-- EXTERNE DATENQUELLEN & MODULARE ENGINES -->
+  <!-- EXTERNE DATENQUELLEN & SCRIPTS -->
   <script src="data/scientific_studies.js"></script>
   <script src="data/questions_part1.js"></script>
   <script src="data/questions_part2.js"></script>
   <script src="data/equipment_catalog.js"></script>
-  <script src="data/toy_combinatorics.js?v=5.0"></script>
-  <script src="data/chastity_database.js?v=5.0"></script>
-  <script src="js/cloud_sync.js?v=5.0"></script>
-  <script src="js/hub_toys.js?v=5.0"></script>
-  <script src="js/chat.js?v=5.0"></script>
-  <script src="js/ledger_app.js?v=5.0"></script>
-  <script src="js/ledger_contract.js?v=5.0"></script>
-  <script src="js/ledger_coach.js?v=5.0"></script>
+  <script src="data/toy_combinatorics.js"></script>
+  <script src="data/chastity_database.js"></script>
+  <script src="js/hub_photos.js"></script>
+  <script src="js/hub_toys.js"></script>
+  <script src="js/cloud_sync.js"></script>
+  <script src="js/ledger_ratio.js"></script>
+  <script src="js/ledger_tasks.js"></script>
+  <script src="js/ledger_app.js"></script>
+  <script src="js/ledger_contract.js"></script>
+  <script src="js/ledger_coach.js"></script>
 
 </body>
 </html>
