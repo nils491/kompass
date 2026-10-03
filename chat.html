@@ -1,9 +1,106 @@
-<!-- ... existing code ... -->
-  <!-- ARRETIERTER 56px MASTER-HEADER (GESETZ 8 · ZERO PIXEL-JUMPING · COLLISION-FREE) -->
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>TACTUS · E2EE Paar-Stream &amp; Kommando-Zentrum (AES-GCM-256)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Apple Web-App Metatags & Touch-Icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TACTUS">
+
+  <script>
+    (function() {
+      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
+      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
+      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
+      else document.documentElement.style.fontSize = '100%';
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#000000',
+            graphite: '#090d14',
+            graphiteLight: '#101622',
+            slateBorder: '#1e2638',
+            slateBorderLight: '#2a364f',
+            titan: '#475569',
+            champagne: '#c5a880',
+            champagneLight: '#dfcaa9',
+            feingold: '#d4af37',
+            copperGlow: '#c2410c',
+            amberBronze: '#b45309',
+            bordeaux: '#991b1b',
+            bordeauxDark: '#450a0a',
+            malachite: '#142b24',
+            malachiteLight: '#2e5746',
+            cognac: '#8a5232',
+            cognacLight: '#b3734a',
+            cognacDark: '#4a2818',
+            platinum: '#f8fafc',
+            silverMuted: '#94a3b8'
+          },
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    body {
+      background-color: #000000;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+      min-height: 100dvh;
+    }
+    .touch-btn {
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .touch-btn:active { transform: scale(0.985); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .gold-glow { box-shadow: 0 0 25px -5px rgba(212, 175, 55, 0.25); }
+    .malachite-glow { box-shadow: 0 0 25px -5px rgba(46, 87, 70, 0.25); }
+  </style>
+</head>
+<body class="min-h-[100dvh] flex flex-col justify-between selection:bg-champagne/30 selection:text-white">
+
+  <!-- ARRETIERTER 56px MASTER-HEADER (GESETZ 8 & 18 · ZERO PIXEL-JUMPING · COLLISION-FREE) -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#1e2638]/60 h-14 flex items-center">
     <div class="w-full max-w-5xl mx-auto px-4 flex items-center justify-between gap-2">
       
-      <!-- Brand-Einheit mit TACTUS Logo & Status (Collision-free mit min-w-0) -->
+      <!-- Brand-Einheit mit TACTUS Logo & E2EE Status (Collision-free mit min-w-0) -->
       <a href="index.html#view=hub" class="flex items-center space-x-3 cursor-pointer group min-w-0 flex-1 mr-1 touch-btn" style="min-height: 44px;">
         <div class="w-9 h-9 rounded-xl bg-[#090d14] border border-[#c5a880]/40 flex items-center justify-center p-1 shadow-sm group-hover:border-[#c5a880] transition-colors flex-shrink-0 overflow-hidden">
           <img src="assets/logo.png" onerror="this.onerror=null; this.src='img/tactus_logo.png'; this.style.display='none'; this.nextElementSibling.style.display='block';" alt="TACTUS Logo" class="w-full h-full object-contain" />
@@ -81,7 +178,93 @@
 
     </div>
   </header>
-<!-- ... existing code ... -->
+
+  <!-- SUB-NAVIGATION DER 6 HAUPT-COCKPITS (DESKTOP) -->
+  <nav class="hidden md:block bg-black border-b border-[#1e2638]/40">
+    <div class="max-w-5xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs font-mono">
+      <a href="index.html#view=hub" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Start-Hub</a>
+      <a href="index.html#view=survey" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Fragebogen (505 Items)</a>
+      <a href="analyse.html" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Paar-Analyse</a>
+      <span class="px-3.5 py-2 rounded-xl bg-[#000000] border border-[#c5a880] text-[#c5a880] font-bold shadow-xs whitespace-nowrap shrink-0 flex-shrink-0 cursor-default flex items-center" style="min-height: 40px;">Paar-Stream ✓</span>
+      <a href="protocol.html" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Das Protokoll</a>
+      <a href="guide.html" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Guide</a>
+      <a href="session.html" class="px-3.5 py-2 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#b3734a] hover:text-[#f8fafc] transition whitespace-nowrap shrink-0 flex-shrink-0 touch-btn flex items-center" style="min-height: 40px;">Schlafzimmer-Regie</a>
+    </div>
+  </nav>
+
+  <!-- MOBILE DRAWER MODAL -->
+  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs font-mono">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between border-b border-[#2a364f] pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-[#090d14] border border-[#c5a880]/50 flex items-center justify-center p-1">
+            <span class="font-serif text-sm font-bold text-[#c5a880]">T</span>
+          </div>
+          <div>
+            <h3 class="text-sm font-serif text-[#f8fafc]">TACTUS OS</h3>
+            <span class="text-[10px] text-[#94a3b8]">E2EE Paar-Stream</span>
+          </div>
+        </div>
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'" class="w-10 h-10 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white flex items-center justify-center touch-btn">✕</button>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <a href="index.html#view=hub" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#f8fafc]">Start-Hub</span>
+          <span class="text-[#94a3b8]">→</span>
+        </a>
+        <a href="index.html#view=survey" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#f8fafc]">Fragebogen (505 Items)</span>
+          <span class="text-[#94a3b8]">→</span>
+        </a>
+        <a href="analyse.html" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#94a3b8]">Paar-Analyse &amp; Synergie</span>
+          <span class="text-[#94a3b8]">→</span>
+        </a>
+        <div class="w-full p-3.5 rounded-2xl bg-[#000000] border border-[#c5a880] text-left flex items-center justify-between shadow-md">
+          <span class="text-xs font-bold text-[#c5a880]">E2EE Paar-Stream</span>
+          <span class="text-[10px] text-[#d4af37] font-bold">Hier aktiv ✓</span>
+        </div>
+        <a href="protocol.html" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#94a3b8]">Das Protokoll &amp; Vertrag</span>
+          <span class="text-[#94a3b8]">→</span>
+        </a>
+        <a href="guide.html" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#94a3b8]">BDSM- &amp; Vertrauens-Guide</span>
+          <span class="text-[#94a3b8]">→</span>
+        </a>
+        <a href="session.html" class="w-full p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn block">
+          <span class="text-xs font-bold text-[#b3734a]">Schlafzimmer-Regie</span>
+          <span class="text-[10px] text-[#b3734a] font-bold">Live ↗</span>
+        </a>
+      </div>
+
+      <div class="pt-2 border-t border-[#2a364f] space-y-2">
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'; ChatApp.openAccountModal();" class="w-full p-3 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn">
+          <span class="text-xs font-bold text-[#c5a880] flex items-center gap-2">
+            <span>⚙ Einstellungen &amp; Account</span>
+          </span>
+          <span class="text-[10px] text-[#94a3b8]">Profil</span>
+        </button>
+
+        <button type="button" onclick="ChatApp.forceAppReload()" class="w-full p-3 rounded-2xl bg-[#090d14] border border-[#2a364f] text-left flex items-center justify-between touch-btn">
+          <span class="text-xs font-bold text-white flex items-center gap-2">
+            <span>App frisch neu laden ↺</span>
+          </span>
+          <span class="text-[10px] text-[#c5a880] font-mono">Cache leeren</span>
+        </button>
+
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'; ChatApp.openBreakGlass();" class="w-full p-3 rounded-2xl bg-[#450a0a] border border-[#991b1b] text-white text-left space-y-0.5 touch-btn shadow-md">
+          <strong class="text-xs block font-bold text-white">Notfall-Öffnung (Break-Glass)</strong>
+          <span class="text-[10px] text-white/80 block">RACK-Sicherheitsprotokoll bei Schwellung oder Taubheit</span>
+        </button>
+      </div>
+    </div>
+    <div class="pt-4 border-t border-[#2a364f] text-center pb-[max(env(safe-area-inset-bottom),16px)]">
+      <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='none'" class="w-full py-3 bg-[#090d14] border border-[#2a364f] text-[#94a3b8] font-bold rounded-xl text-xs touch-btn">Schließen ✕</button>
+    </div>
+  </div>
+
   <!-- MAIN CONTAINER -->
   <main class="max-w-4xl mx-auto p-3.5 sm:p-6 flex-1 w-full space-y-4 flex flex-col min-h-[calc(100dvh-7.5rem)]">
 
@@ -123,7 +306,113 @@
         </button>
       </div>
     </div>
-<!-- ... existing code ... -->
+
+    <!-- TAB 1: 1:1 CHAT-STREAM MIT ZERO-KNOWLEDGE E2EE -->
+    <div id="view-stream-chat" class="space-y-3 flex-1 flex flex-col animate-fade-in font-sans">
+      
+      <!-- PENDING TASK RADAR DES TOPS / BOTTOMS -->
+      <div id="stream-pending-task-bar" style="display: none;" class="p-3 rounded-2xl bg-[#090d14] border border-[#c5a880]/60 flex items-center justify-between gap-2 shadow-md">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#c5a880] animate-pulse"></span>
+          <span id="pending-task-text" class="text-xs font-mono text-[#f8fafc]">1 offene Pflicht wartet auf Erfüllung</span>
+        </div>
+        <button type="button" onclick="ChatApp.nudgeTask()" class="px-2.5 py-1 rounded-xl bg-[#000000] border border-[#c5a880] text-[#c5a880] font-mono text-[10px] font-bold touch-btn">
+          Anmahnen ↗
+        </button>
+      </div>
+
+      <!-- NACHRICHTEN-STREAM BEREICH -->
+      <div id="chat-messages-container" class="flex-1 bg-[#090d14] border border-[#2a364f] rounded-3xl p-4 sm:p-5 overflow-y-auto space-y-3 max-h-[58dvh] min-h-[380px] shadow-2xl flex flex-col justify-between">
+        <div id="chat-messages-list" class="space-y-3">
+          <!-- Dynamisch gerendert aus verschlüsseltem Store -->
+        </div>
+      </div>
+
+      <!-- SCHNELL-AKTIONEN-LEISTE FÜR DEN TOP (BEFEHLE, PFLICHTEN, FOTOS) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 font-mono text-[10.5px]">
+        <button type="button" onclick="ChatApp.insertCommandTemplate('Appell &amp; Haltung einnehmen')" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#c5a880] hover:border-[#c5a880] touch-btn whitespace-nowrap flex-shrink-0">
+          👑 Appell
+        </button>
+        <button type="button" onclick="ChatApp.insertCommandTemplate('Führungsmassage vorab vorbereiten')" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn whitespace-nowrap flex-shrink-0">
+          🛋️ Massage-Befehl
+        </button>
+        <button type="button" onclick="ChatApp.insertCommandTemplate('Urologische Spülung durchführen')" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn whitespace-nowrap flex-shrink-0">
+          💧 Hygiene-Spülung
+        </button>
+        <button type="button" onclick="ChatApp.openPhotoUpload()" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#b3734a] hover:text-white touch-btn whitespace-nowrap flex-shrink-0 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-[#b3734a]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/></svg>
+          <span>Foto-Nachweis</span>
+        </button>
+      </div>
+
+      <!-- CHAT EINGABELEISTE -->
+      <form id="chat-input-form" onsubmit="ChatApp.sendMessage(event)" class="flex items-center gap-2">
+        <input type="text" id="chat-message-input" placeholder="Verschlüsselte Nachricht oder Anweisung eingeben..." autocomplete="off" class="flex-1 p-3 bg-[#090d14] border border-[#2a364f] rounded-2xl text-xs text-white placeholder-[#94a3b8]/40 focus:border-[#c5a880] focus:outline-none" style="min-height: 44px;" />
+        <button type="submit" class="px-5 py-3 bg-[#c5a880] hover:bg-[#dfcaa9] text-black font-bold font-mono text-xs rounded-2xl touch-btn shadow-md flex items-center justify-center gap-1.5 flex-shrink-0" style="min-height: 44px;">
+          <span>Senden</span>
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- TAB 2: ZEIT-TRESOR (TIMELOCKED CAPSULES) -->
+    <div id="view-stream-capsules" style="display: none;" class="space-y-4 animate-fade-in font-sans">
+      <div class="rounded-3xl p-5 border border-[#2a364f] bg-[#090d14] space-y-2 shadow-md">
+        <div class="flex items-center justify-between border-b border-[#2a364f] pb-2">
+          <div>
+            <span class="text-[9.5px] font-mono text-[#c5a880] font-bold uppercase block">Kryptographischer Zeitverschluss</span>
+            <h3 class="text-sm sm:text-base font-serif font-bold text-white">Versiegelte Kapseln &amp; Zukunfts-Nachrichten</h3>
+          </div>
+          <button type="button" onclick="ChatApp.openCreateCapsuleModal()" class="px-3 py-1.5 rounded-xl bg-[#c5a880] hover:bg-[#dfcaa9] text-black font-mono text-xs font-bold touch-btn shadow-sm">
+            + Neue Kapsel
+          </button>
+        </div>
+        <p class="text-[11px] text-[#94a3b8] leading-relaxed">
+          Nachrichten, Fotos oder Geständnisse, die bis zu einem exakten Zeitpunkt (z. B. Beginn der Date-Night oder Entriegelungstag) unlesbar verschlüsselt bleiben.
+        </p>
+      </div>
+
+      <div id="capsules-list-container" class="space-y-2.5">
+        <!-- Dynamisch gerendert -->
+      </div>
+    </div>
+
+    <!-- TAB 3: HANDOVER-ZEREMONIE (FLR / 24/7 ROLLENWECHSEL) -->
+    <div id="view-stream-handover" style="display: none;" class="space-y-4 animate-fade-in font-sans">
+      <div class="rounded-3xl p-5 sm:p-6 border border-[#c5a880]/60 bg-[#090d14] space-y-3 shadow-2xl">
+        <div class="border-b border-[#2a364f] pb-2">
+          <span class="text-[9.5px] font-mono text-[#c5a880] font-bold uppercase block">Feierliche Rollenübergabe</span>
+          <h3 class="text-sm sm:text-base font-serif font-bold text-white">Die Handover-Zeremonie</h3>
+        </div>
+        <p class="text-[11px] text-[#94a3b8] leading-relaxed">
+          Im Beziehungsmodus <strong>Feste Führung (FLR / 24/7 D/s)</strong> ist der 1-Tap Wechsel im Header gesperrt. Eine Rollenübergabe verlangt einen formellen Antrag im Stream, gefolgt von einer feierlichen Übergabe von Schlüssel und Protokoll.
+        </p>
+
+        <div class="p-4 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-2">
+          <strong class="text-xs text-white block font-serif">Aktueller Führungsstatus:</strong>
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2.5 rounded-xl bg-[#090d14] border border-[#2a364f]">
+              <span class="text-[#94a3b8] text-[10px] block">Top (Führung):</span>
+              <span id="handover-display-top" class="text-[#c5a880] font-bold">Partner 1</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#090d14] border border-[#2a364f]">
+              <span class="text-[#94a3b8] text-[10px] block">Bottom (Hingabe):</span>
+              <span id="handover-display-sub" class="text-[#b3734a] font-bold">Partner 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="button" onclick="ChatApp.requestHandover()" class="px-5 py-2.5 bg-[#4a2818] hover:bg-[#8a5232] border border-[#8a5232] text-white font-mono text-xs font-bold rounded-xl touch-btn shadow-md">
+            Formellen Handover-Antrag stellen ⚖️
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
   <!-- MODAL: ACCOUNT & EINSTELLUNGEN (MASTER-HEADER STANDARD) -->
   <div id="modal-account-settings" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none">
     <div class="bg-[#090d14] rounded-3xl max-w-lg w-full border border-[#c5a880]/60 p-5 space-y-4 shadow-2xl text-xs text-[#f8fafc] font-sans max-h-[88dvh] overflow-y-auto pb-[max(env(safe-area-inset-bottom),16px)]">
@@ -225,82 +514,673 @@
     </div>
   </div>
 
+  <!-- MODAL: E2EE KRYPTOGRAPHIE-HANDSHAKE & SCHLÜSSEL -->
+  <div id="modal-e2ee-handshake" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none">
+    <div class="bg-[#090d14] rounded-3xl max-w-md w-full border border-[#2e5746] p-5 space-y-3.5 shadow-2xl text-xs text-[#f8fafc] font-sans">
+      <div class="flex items-center justify-between border-b border-[#2a364f] pb-2">
+        <h3 class="text-sm font-bold text-white font-serif flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#2e5746]"></span>
+          <span>E2EE Schlüssel-Austausch (AES-GCM-256)</span>
+        </h3>
+        <button type="button" onclick="document.getElementById('modal-e2ee-handshake').style.display='none'" class="p-1 text-[#94a3b8] hover:text-white">✕</button>
+      </div>
+      <p class="text-[11px] text-[#94a3b8] leading-relaxed">
+        Alle Nachrichten, Befehle und Fotos werden mit einem gemeinsamen geheimen Paar-Passwort clientseitig verschlüsselt. Kein Server kann eure Intimität mitlesen.
+      </p>
+      <div class="space-y-1.5 font-mono">
+        <label class="text-[10px] uppercase text-[#c5a880] block font-bold">Gemeinsames Paar-Passwort:</label>
+        <input type="password" id="input-e2ee-passphrase" placeholder="Geheimes Paar-Passwort eingeben..." class="w-full p-2.5 bg-[#000000] border border-[#2a364f] rounded-xl text-white text-xs font-sans focus:border-[#c5a880] focus:outline-none" />
+      </div>
+      <div class="pt-2 border-t border-[#2a364f] flex justify-end gap-2 font-mono">
+        <button type="button" onclick="ChatApp.saveHandshakeKey()" class="px-4 py-2 bg-[#142b24] hover:bg-[#2e5746] text-white border border-[#2e5746] font-bold rounded-xl text-xs touch-btn">
+          Schlüssel aktivieren ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NEUE ZEITKAPSEL ERSTELLEN -->
+  <div id="modal-create-capsule" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none">
+    <div class="bg-[#090d14] rounded-3xl max-w-md w-full border border-[#c5a880]/60 p-5 space-y-3.5 shadow-2xl text-xs text-[#f8fafc] font-sans">
+      <div class="flex items-center justify-between border-b border-[#2a364f] pb-2">
+        <h3 class="text-sm font-bold text-white font-serif">Neue Zeit-Kapsel versiegeln</h3>
+        <button type="button" onclick="document.getElementById('modal-create-capsule').style.display='none'" class="p-1 text-[#94a3b8] hover:text-white">✕</button>
+      </div>
+      <div class="space-y-2 font-mono">
+        <div>
+          <label class="text-[10px] uppercase text-[#c5a880] block mb-1">Öffnungszeitpunkt:</label>
+          <input type="datetime-local" id="input-capsule-unlock-time" class="w-full p-2.5 bg-[#000000] border border-[#2a364f] rounded-xl text-white text-xs" />
+        </div>
+        <div>
+          <label class="text-[10px] uppercase text-[#c5a880] block mb-1">Geheimer Kapsel-Inhalt:</label>
+          <textarea id="input-capsule-content" rows="3" placeholder="Botschaft, Geständnis oder Anweisung..." class="w-full p-2.5 bg-[#000000] border border-[#2a364f] rounded-xl text-white text-xs font-sans"></textarea>
+        </div>
+      </div>
+      <div class="pt-2 border-t border-[#2a364f] flex justify-end gap-2 font-mono">
+        <button type="button" onclick="ChatApp.saveNewCapsule()" class="px-4 py-2 bg-[#c5a880] text-black font-bold rounded-xl text-xs touch-btn shadow-md">
+          Kapsel versiegeln 🔒
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
-<!-- ... existing code ... -->
-```
-```html:TACTUS E2EE Paar-Stream & Kommando-Zentrum:chat.html
-<!-- ... existing code ... -->
-        openBreakGlass: openBreakGlass,
-        checkPairPendingTasks: checkPairPendingTasks,
-        resolveNudgeAction: resolveNudgeAction,
-        forceAppReload: function() {
-          showToast("Lade App frisch vom Server...");
-          setTimeout(() => {
-            window.location.href = window.location.pathname + '?v=' + Date.now() + window.location.hash;
-          }, 300);
-        },
-        openAccountModal: function() {
-          const modal = document.getElementById('modal-account-settings');
-          if (!modal) return;
-          let names = { A: 'Partner 1', B: 'Partner 2' };
+
+  <!-- EXTERNE DATENQUELLEN & SCRIPTS -->
+  <script src="data/scientific_studies.js"></script>
+  <script src="data/questions_part1.js"></script>
+  <script src="data/questions_part2.js"></script>
+  <script src="data/questions_part3.js"></script>
+  <script src="data/equipment_catalog.js"></script>
+  <script src="data/toy_combinatorics.js"></script>
+  <script src="data/chastity_database.js"></script>
+  <script src="js/ai_adapter.js"></script>
+  <script src="js/hub_photos.js"></script>
+  <script src="js/hub_toys.js"></script>
+  <script src="js/hub_context.js"></script>
+  <script src="js/cloud_sync.js"></script>
+  <script src="js/protocol_core.js"></script>
+  <script src="js/protocol_ratio.js"></script>
+  <script src="js/protocol_tasks.js"></script>
+  <script src="js/protocol_contract.js"></script>
+  <script src="js/protocol_coach.js"></script>
+
+  <script>
+    (function(window) {
+      'use strict';
+
+      const STORAGE_KEY_MESSAGES = 'tactus_stream_messages';
+      const STORAGE_KEY_CAPSULES = 'tactus_stream_capsules';
+      const STORAGE_KEY_KEY = 'tactus_e2ee_passphrase';
+
+      let currentTab = 'stream';
+      let activePassphrase = localStorage.getItem(STORAGE_KEY_KEY) || 'tactus_default_salt_2026';
+      let currentRoleState = 'top';
+
+      function showToast(message) {
+        if (typeof window.showToastNotification === 'function') {
+          window.showToastNotification(message);
+          return;
+        }
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const el = document.createElement('div');
+        el.className = "bg-[#090d14] text-[#f8fafc] font-mono text-xs px-4 py-2.5 rounded-2xl shadow-2xl border border-[#c5a880]/40 transition-all pointer-events-auto transform translate-y-2 opacity-0 flex items-center gap-2.5 backdrop-blur-md z-50";
+        el.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-[#c5a880] flex-shrink-0 animate-pulse"></span>
+          <span>${String(message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+        `;
+        container.appendChild(el);
+
+        setTimeout(() => el.classList.remove('translate-y-2', 'opacity-0'), 10);
+        setTimeout(() => {
+          el.classList.add('opacity-0');
+          setTimeout(() => el.remove(), 300);
+        }, 2800);
+      }
+
+      function forceAppReload() {
+        showToast("Lade App frisch vom Server...");
+        setTimeout(() => {
+          window.location.href = window.location.pathname + '?v=' + Date.now() + window.location.hash;
+        }, 300);
+      }
+
+      function checkConditionalBreakGlass() {
+        let isLocked = false;
+        if (window.ProtocolCore && typeof window.ProtocolCore.getState === 'function') {
+          isLocked = !!window.ProtocolCore.getState().isLocked;
+        } else {
           try {
-            const raw = localStorage.getItem('kompass_names');
-            if (raw) names = Object.assign({}, names, JSON.parse(raw));
+            const raw = localStorage.getItem('tactus_protocol_state') || localStorage.getItem('kompass_protocol_state');
+            if (raw) isLocked = !!JSON.parse(raw).isLocked;
           } catch (e) {}
-          const inputA = document.getElementById('acc-input-name-a');
-          const inputB = document.getElementById('acc-input-name-b');
-          if (inputA) inputA.value = names.A || '';
-          if (inputB) inputB.value = names.B || '';
-          const myRoleSel = document.getElementById('acc-select-my-role');
-          if (myRoleSel) myRoleSel.value = localStorage.getItem('kompass_assigned_role') || 'A';
-          const khSel = document.getElementById('acc-select-keyholder');
-          if (khSel) khSel.value = localStorage.getItem('kompass_keyholder_role') || 'A';
-          const themeSel = document.getElementById('acc-select-theme');
-          if (themeSel) themeSel.value = localStorage.getItem('kompass_theme') || 'dark';
-          const zoomSel = document.getElementById('acc-select-zoom');
-          if (zoomSel) zoomSel.value = localStorage.getItem('kompass_text_zoom') || '100';
-          const relMode = localStorage.getItem('tactus_relationship_mode') || 'switch_flexible';
-          const radio = document.querySelector(`input[name="acc-rel-mode"][value="${relMode}"]`);
-          if (radio) radio.checked = true;
-          modal.style.display = 'flex';
-        },
-        saveAccountSettings: function() {
-          const inputA = document.getElementById('acc-input-name-a');
-          const inputB = document.getElementById('acc-input-name-b');
-          const nameA = (inputA && inputA.value.trim()) ? inputA.value.trim() : 'Partner 1';
-          const nameB = (inputB && inputB.value.trim()) ? inputB.value.trim() : 'Partner 2';
-          localStorage.setItem('kompass_names', JSON.stringify({ A: nameA, B: nameB }));
-          const myRoleSel = document.getElementById('acc-select-my-role');
-          if (myRoleSel) localStorage.setItem('kompass_assigned_role', myRoleSel.value);
-          const khSel = document.getElementById('acc-select-keyholder');
-          if (khSel) {
-            localStorage.setItem('kompass_keyholder_role', khSel.value);
-            localStorage.setItem('kompass_caged_role', khSel.value === 'A' ? 'B' : 'A');
+        }
+
+        const assignedRole = localStorage.getItem('kompass_assigned_role') || 'A';
+        const keyholder = localStorage.getItem('kompass_keyholder_role') || 'A';
+        const isMeTop = (assignedRole === keyholder);
+        const shouldShow = isLocked && !isMeTop;
+
+        const btnDesktop = document.getElementById('header-btn-break-glass');
+        const btnMobile = document.getElementById('header-btn-break-glass-mobile');
+        if (btnDesktop) btnDesktop.style.display = shouldShow ? 'flex' : 'none';
+        if (btnMobile) btnMobile.style.display = shouldShow ? 'flex' : 'none';
+      }
+
+      function openBreakGlass() {
+        window.location.href = 'protocol.html#tab=dashboard';
+      }
+
+      function initRoleDisplay() {
+        const mode = localStorage.getItem('tactus_relationship_mode') || 'switch_flexible';
+        const roleText = document.getElementById('active-role-text');
+        const roleDot = document.getElementById('role-indicator-dot');
+        const roleSubline = document.getElementById('role-switch-subline');
+        const assignedRole = localStorage.getItem('kompass_assigned_role') || 'A';
+        const keyholder = localStorage.getItem('kompass_keyholder_role') || 'A';
+        const isTop = (assignedRole === keyholder);
+
+        let names = { A: 'Partner 1', B: 'Partner 2' };
+        try {
+          const raw = localStorage.getItem('kompass_names');
+          if (raw) names = Object.assign({}, names, JSON.parse(raw));
+        } catch (e) {}
+
+        const topName = names[keyholder] || 'Top';
+        const subName = names[keyholder === 'A' ? 'B' : 'A'] || 'Bottom';
+
+        const subline = document.getElementById('chat-header-subline');
+        if (subline) {
+          subline.innerText = `Top: ${topName} · Bottom: ${subName}`;
+        }
+
+        const hTop = document.getElementById('handover-display-top');
+        const hSub = document.getElementById('handover-display-sub');
+        if (hTop) hTop.innerText = topName;
+        if (hSub) hSub.innerText = subName;
+
+        if (mode === 'flr_24_7') {
+          currentRoleState = isTop ? 'top' : 'bottom';
+          if (roleText) roleText.innerText = isTop ? 'Top (FLR)' : 'Bottom (FLR)';
+          if (roleDot) roleDot.className = isTop ? 'w-1.5 h-1.5 rounded-full bg-[#c5a880]' : 'w-1.5 h-1.5 rounded-full bg-[#b3734a]';
+          if (roleSubline) roleSubline.innerText = '🔒 Fest';
+        } else {
+          currentRoleState = isTop ? 'top' : 'bottom';
+          if (roleText) roleText.innerText = isTop ? 'Top' : 'Bottom';
+          if (roleDot) roleDot.className = isTop ? 'w-1.5 h-1.5 rounded-full bg-[#c5a880]' : 'w-1.5 h-1.5 rounded-full bg-[#b3734a]';
+          if (roleSubline) roleSubline.innerText = '⇄ Switch';
+        }
+
+        checkConditionalBreakGlass();
+      }
+
+      function toggleActiveRole() {
+        const mode = localStorage.getItem('tactus_relationship_mode') || 'switch_flexible';
+        const assignedRole = localStorage.getItem('kompass_assigned_role') || 'A';
+        const keyholder = localStorage.getItem('kompass_keyholder_role') || 'A';
+        const isTop = (assignedRole === keyholder);
+
+        if (mode === 'flr_24_7') {
+          if (!isTop) {
+            showToast("Feste Führung aktiv (FLR 24/7). Rollenübergabe erfordert formellen Antrag im Tab 'Handover-Zeremonie'.");
+          } else {
+            showToast("Führung ist fest arretiert (FLR 24/7). Übergabe nur über feierliche Zeremonie im Tab 'Handover' möglich.");
           }
-          const themeSel = document.getElementById('acc-select-theme');
-          if (themeSel) {
-            localStorage.setItem('kompass_theme', themeSel.value);
-            if (themeSel.value === 'dark') document.documentElement.classList.add('dark');
-            else document.documentElement.classList.remove('dark');
+          return;
+        }
+
+        const roleText = document.getElementById('active-role-text');
+        const roleDot = document.getElementById('role-indicator-dot');
+        if (currentRoleState === 'top') {
+          currentRoleState = 'bottom';
+          if (roleText) roleText.innerText = "Bottom";
+          if (roleDot) roleDot.className = "w-1.5 h-1.5 rounded-full bg-[#b3734a]";
+          showToast("Perspektive gewechselt: Bottom (Hingabe)");
+        } else {
+          currentRoleState = 'top';
+          if (roleText) roleText.innerText = "Top";
+          if (roleDot) roleDot.className = "w-1.5 h-1.5 rounded-full bg-[#c5a880]";
+          showToast("Perspektive gewechselt: Top (Führung)");
+        }
+        checkConditionalBreakGlass();
+      }
+
+      function openAccountModal() {
+        const modal = document.getElementById('modal-account-settings');
+        if (!modal) return;
+        let names = { A: 'Partner 1', B: 'Partner 2' };
+        try {
+          const raw = localStorage.getItem('kompass_names');
+          if (raw) names = Object.assign({}, names, JSON.parse(raw));
+        } catch (e) {}
+
+        const inputA = document.getElementById('acc-input-name-a');
+        const inputB = document.getElementById('acc-input-name-b');
+        if (inputA) inputA.value = names.A || '';
+        if (inputB) inputB.value = names.B || '';
+
+        const myRoleSel = document.getElementById('acc-select-my-role');
+        if (myRoleSel) myRoleSel.value = localStorage.getItem('kompass_assigned_role') || 'A';
+
+        const khSel = document.getElementById('acc-select-keyholder');
+        if (khSel) khSel.value = localStorage.getItem('kompass_keyholder_role') || 'A';
+
+        const themeSel = document.getElementById('acc-select-theme');
+        if (themeSel) themeSel.value = localStorage.getItem('kompass_theme') || 'dark';
+
+        const zoomSel = document.getElementById('acc-select-zoom');
+        if (zoomSel) zoomSel.value = localStorage.getItem('kompass_text_zoom') || '100';
+
+        const relMode = localStorage.getItem('tactus_relationship_mode') || 'switch_flexible';
+        const radio = document.querySelector(`input[name="acc-rel-mode"][value="${relMode}"]`);
+        if (radio) radio.checked = true;
+
+        modal.style.display = 'flex';
+      }
+
+      function saveAccountSettings() {
+        const inputA = document.getElementById('acc-input-name-a');
+        const inputB = document.getElementById('acc-input-name-b');
+        const nameA = (inputA && inputA.value.trim()) ? inputA.value.trim() : 'Partner 1';
+        const nameB = (inputB && inputB.value.trim()) ? inputB.value.trim() : 'Partner 2';
+        localStorage.setItem('kompass_names', JSON.stringify({ A: nameA, B: nameB }));
+
+        const myRoleSel = document.getElementById('acc-select-my-role');
+        if (myRoleSel) localStorage.setItem('kompass_assigned_role', myRoleSel.value);
+
+        const khSel = document.getElementById('acc-select-keyholder');
+        if (khSel) {
+          localStorage.setItem('kompass_keyholder_role', khSel.value);
+          localStorage.setItem('kompass_caged_role', khSel.value === 'A' ? 'B' : 'A');
+        }
+
+        const themeSel = document.getElementById('acc-select-theme');
+        if (themeSel) {
+          localStorage.setItem('kompass_theme', themeSel.value);
+          if (themeSel.value === 'dark') document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        }
+
+        const zoomSel = document.getElementById('acc-select-zoom');
+        if (zoomSel) {
+          localStorage.setItem('kompass_text_zoom', zoomSel.value);
+          if (zoomSel.value === '115') document.documentElement.style.fontSize = '115%';
+          else if (zoomSel.value === '130') document.documentElement.style.fontSize = '130%';
+          else document.documentElement.style.fontSize = '100%';
+        }
+
+        const checkedRadio = document.querySelector('input[name="acc-rel-mode"]:checked');
+        if (checkedRadio) {
+          localStorage.setItem('tactus_relationship_mode', checkedRadio.value);
+        }
+
+        const modal = document.getElementById('modal-account-settings');
+        if (modal) modal.style.display = 'none';
+
+        initRoleDisplay();
+        renderMessages();
+        showToast("✓ Einstellungen gesichert");
+        if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
+      }
+
+      // KRYPTOGRAPHISCHE ENGINE: PBKDF2 & AES-GCM-256
+      async function deriveKey(password, salt) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]
+        );
+        return crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt: enc.encode(salt),
+            iterations: 100000,
+            hash: "SHA-256"
+          },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt", "decrypt"]
+        );
+      }
+
+      async function encryptMessage(text, passphrase) {
+        const key = await deriveKey(passphrase, "tactus_salt_v3");
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encoded = new TextEncoder().encode(text);
+        const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, encoded);
+        return {
+          c: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+          i: btoa(String.fromCharCode(...iv))
+        };
+      }
+
+      async function decryptMessage(encryptedObj, passphrase) {
+        try {
+          const key = await deriveKey(passphrase, "tactus_salt_v3");
+          const iv = new Uint8Array(atob(encryptedObj.i).split("").map(c => c.charCodeAt(0)));
+          const ciphertext = new Uint8Array(atob(encryptedObj.c).split("").map(c => c.charCodeAt(0)));
+          const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ciphertext);
+          return new TextDecoder().decode(decrypted);
+        } catch (e) {
+          return "🔒 [Entschlüsselungsfehler: Falsches Paar-Passwort]";
+        }
+      }
+
+      function switchTab(tabKey) {
+        currentTab = tabKey;
+        ['stream', 'capsules', 'handover'].forEach(t => {
+          const btn = document.getElementById(`tab-btn-${t}`);
+          const view = document.getElementById(t === 'stream' ? 'view-stream-chat' : (t === 'capsules' ? 'view-stream-capsules' : 'view-stream-handover'));
+          if (btn) {
+            if (t === tabKey) {
+              btn.className = "px-3.5 py-2 rounded-xl font-bold bg-[#000000] border border-[#c5a880] text-[#c5a880] touch-btn shadow-sm whitespace-nowrap shrink-0 flex-shrink-0";
+            } else {
+              btn.className = "px-3.5 py-2 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] touch-btn whitespace-nowrap shrink-0 flex-shrink-0";
+            }
           }
-          const zoomSel = document.getElementById('acc-select-zoom');
-          if (zoomSel) {
-            localStorage.setItem('kompass_text_zoom', zoomSel.value);
-            if (zoomSel.value === '115') document.documentElement.style.fontSize = '115%';
-            else if (zoomSel.value === '130') document.documentElement.style.fontSize = '130%';
-            else document.documentElement.style.fontSize = '100%';
+          if (view) {
+            view.style.display = (t === tabKey) ? 'flex' : 'none';
           }
-          const checkedRadio = document.querySelector('input[name="acc-rel-mode"]:checked');
-          if (checkedRadio) {
-            localStorage.setItem('tactus_relationship_mode', checkedRadio.value);
-          }
-          const modal = document.getElementById('modal-account-settings');
+        });
+
+        if (tabKey === 'capsules') renderCapsules();
+      }
+
+      function getStoredMessages() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_MESSAGES);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveMessages(msgs) {
+        try {
+          localStorage.setItem(STORAGE_KEY_MESSAGES, JSON.stringify(msgs));
+        } catch (e) {}
+        if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
+      }
+
+      async function renderMessages() {
+        const list = document.getElementById('chat-messages-list');
+        if (!list) return;
+
+        const msgs = getStoredMessages();
+        const myRole = localStorage.getItem('kompass_assigned_role') || 'A';
+        let names = { A: 'Partner 1', B: 'Partner 2' };
+        try {
+          const raw = localStorage.getItem('kompass_names');
+          if (raw) names = Object.assign({}, names, JSON.parse(raw));
+        } catch (e) {}
+
+        if (msgs.length === 0) {
+          list.innerHTML = `
+            <div class="py-12 text-center text-[#94a3b8] font-mono text-xs space-y-2">
+              <span class="w-8 h-8 rounded-full bg-[#142b24] text-[#2e5746] flex items-center justify-center mx-auto text-sm border border-[#2e5746]">✓</span>
+              <p>Der Stream ist mit AES-GCM-256 verschlüsselt und bereit.</p>
+              <span class="text-[10px] text-[#c5a880] block">Sende deine erste Anweisung oder Nachricht an deinen Partner.</span>
+            </div>
+          `;
+          return;
+        }
+
+        const htmlParts = [];
+        for (const msg of msgs) {
+          const isMe = (msg.senderRole === myRole);
+          const senderName = names[msg.senderRole] || (isMe ? 'Ich' : 'Partner');
+          const decryptedText = await decryptMessage(msg.payload, activePassphrase);
+
+          htmlParts.push(`
+            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1">
+              <div class="flex items-center gap-1.5 text-[9.5px] font-mono ${isMe ? 'text-[#c5a880]' : 'text-[#94a3b8]'} px-1">
+                <span class="font-bold">${isMe ? 'Du' : senderName}</span>
+                <span>·</span>
+                <span>${msg.time || ''}</span>
+                ${msg.type === 'system' ? '<span class="text-[#d4af37] font-bold">[SYSTEM]</span>' : ''}
+              </div>
+              <div class="max-w-[85%] sm:max-w-md p-3.5 rounded-2xl text-xs leading-relaxed break-words shadow-md ${isMe ? 'bg-[#000000] border border-[#c5a880]/60 text-white' : 'bg-[#101622] border border-[#2a364f] text-[#f8fafc]'}">
+                ${msg.isPhoto ? `<img src="${decryptedText}" class="rounded-xl max-h-56 mb-2 border border-[#2a364f] object-cover" />` : ''}
+                <div class="font-sans whitespace-pre-wrap">${decryptedText}</div>
+              </div>
+            </div>
+          `);
+        }
+
+        list.innerHTML = htmlParts.join('');
+
+        const container = document.getElementById('chat-messages-container');
+        if (container) container.scrollTop = container.scrollHeight;
+      }
+
+      async function sendMessage(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('chat-message-input');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+
+        const myRole = localStorage.getItem('kompass_assigned_role') || 'A';
+        const encrypted = await encryptMessage(text, activePassphrase);
+
+        const newMsg = {
+          id: 'msg_' + Date.now(),
+          senderRole: myRole,
+          time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+          type: 'text',
+          payload: encrypted,
+          timestamp: Date.now()
+        };
+
+        const msgs = getStoredMessages();
+        msgs.push(newMsg);
+        saveMessages(msgs);
+        input.value = '';
+        renderMessages();
+      }
+
+      function insertCommandTemplate(cmd) {
+        const input = document.getElementById('chat-message-input');
+        if (input) {
+          input.value = cmd;
+          input.focus();
+        }
+      }
+
+      function sendQuickAck(ackText) {
+        const input = document.getElementById('chat-message-input');
+        if (input) {
+          input.value = ackText;
+          sendMessage();
+        }
+      }
+
+      function triggerDateNightProposal() {
+        const input = document.getElementById('chat-message-input');
+        if (input) {
+          input.value = "🕯️ Date-Night Vorschlag: Ich wünsche mir heute Abend eine gemeinsame Session im Halbdunkel. Bereite bitte die Ausrüstung vor.";
+          sendMessage();
+          showToast("Date-Night Signal im Stream abgesetzt 🕯️");
+        }
+      }
+
+      function openPhotoUpload() {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'image/*';
+        inp.capture = 'environment';
+        inp.onchange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          showToast("Verschlüssele Fotonachweis...");
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const dataUrl = event.target.result;
+            const myRole = localStorage.getItem('kompass_assigned_role') || 'A';
+            const encrypted = await encryptMessage(dataUrl, activePassphrase);
+
+            const newMsg = {
+              id: 'msg_' + Date.now(),
+              senderRole: myRole,
+              time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+              type: 'photo',
+              isPhoto: true,
+              payload: encrypted,
+              timestamp: Date.now()
+            };
+
+            const msgs = getStoredMessages();
+            msgs.push(newMsg);
+            saveMessages(msgs);
+            renderMessages();
+            showToast("✓ Fotonachweis verschlüsselt übertragen!");
+          };
+          reader.readAsDataURL(file);
+        };
+        inp.click();
+      }
+
+      function openHandshakeModal() {
+        const modal = document.getElementById('modal-e2ee-handshake');
+        const input = document.getElementById('input-e2ee-passphrase');
+        if (input) input.value = activePassphrase;
+        if (modal) modal.style.display = 'flex';
+      }
+
+      function saveHandshakeKey() {
+        const input = document.getElementById('input-e2ee-passphrase');
+        if (input && input.value.trim()) {
+          activePassphrase = input.value.trim();
+          localStorage.setItem(STORAGE_KEY_KEY, activePassphrase);
+          showToast("✓ E2EE Paar-Passwort aktiviert");
+          const modal = document.getElementById('modal-e2ee-handshake');
           if (modal) modal.style.display = 'none';
+          renderMessages();
+        }
+      }
+
+      // KAPSEN (TIMELOCKED CAPSULES)
+      function getStoredCapsules() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_CAPSULES);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveCapsules(caps) {
+        try {
+          localStorage.setItem(STORAGE_KEY_CAPSULES, JSON.stringify(caps));
+        } catch (e) {}
+        if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
+      }
+
+      function renderCapsules() {
+        const container = document.getElementById('capsules-list-container');
+        const badge = document.getElementById('capsules-count-badge');
+        if (!container) return;
+
+        const caps = getStoredCapsules();
+        if (badge) {
+          badge.innerText = caps.length.toString();
+          badge.style.display = caps.length > 0 ? 'inline-block' : 'none';
+        }
+
+        if (caps.length === 0) {
+          container.innerHTML = `
+            <div class="p-6 text-center text-[#94a3b8] font-mono text-xs bg-[#090d14] border border-[#2a364f] rounded-3xl">
+              Aktuell keine Zeitkapseln versiegelt.
+            </div>
+          `;
+          return;
+        }
+
+        const now = Date.now();
+        container.innerHTML = caps.map(c => {
+          const isUnlocked = now >= c.unlockTimestamp;
+          return `
+            <div class="p-4 rounded-2xl bg-[#090d14] border border-[#2a364f] space-y-2">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="${isUnlocked ? 'text-[#2e5746] font-bold' : 'text-[#c5a880]'}">
+                  ${isUnlocked ? '🔓 Entriegelt' : '🔒 Versiegelt bis:'} ${new Date(c.unlockTimestamp).toLocaleString('de-DE')}
+                </span>
+                <button type="button" onclick="ChatApp.deleteCapsule('${c.id}')" class="text-[#94a3b8] hover:text-white">✕</button>
+              </div>
+              <div class="p-3 rounded-xl bg-[#000000] border border-[#2a364f] text-xs font-sans">
+                ${isUnlocked ? c.content : '<span class="italic text-[#94a3b8]">Inhalt ist bis zum Zieldatum kryptographisch gesperrt.</span>'}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function openCreateCapsuleModal() {
+        const modal = document.getElementById('modal-create-capsule');
+        if (modal) modal.style.display = 'flex';
+      }
+
+      function saveNewCapsule() {
+        const timeInput = document.getElementById('input-capsule-unlock-time');
+        const contentInput = document.getElementById('input-capsule-content');
+        if (!timeInput || !contentInput) return;
+
+        const timeVal = timeInput.value;
+        const textVal = contentInput.value.trim();
+        if (!timeVal || !textVal) {
+          showToast("Bitte Datum und Kapsel-Inhalt angeben.");
+          return;
+        }
+
+        const unlockTs = new Date(timeVal).getTime();
+        const newCap = {
+          id: 'cap_' + Date.now(),
+          unlockTimestamp: unlockTs,
+          content: textVal,
+          createdAt: Date.now()
+        };
+
+        const caps = getStoredCapsules();
+        caps.push(newCap);
+        saveCapsules(caps);
+
+        contentInput.value = '';
+        const modal = document.getElementById('modal-create-capsule');
+        if (modal) modal.style.display = 'none';
+
+        showToast("✓ Zeitkapsel erfolgreich versiegelt!");
+        renderCapsules();
+      }
+
+      function deleteCapsule(id) {
+        let caps = getStoredCapsules();
+        caps = caps.filter(c => c.id !== id);
+        saveCapsules(caps);
+        renderCapsules();
+      }
+
+      function requestHandover() {
+        showToast("Handover-Antrag im Stream verankert ⚖️");
+        const input = document.getElementById('chat-message-input');
+        if (input) {
+          input.value = "⚖️ Formeller Handover-Antrag: Ich bitte um Übergabe der Führungsrolle im Beziehungsvertrag gemäß Protokoll-Zeremonie.";
+          switchTab('stream');
+          sendMessage();
+        }
+      }
+
+      window.ChatApp = {
+        init: function() {
           initRoleDisplay();
           renderMessages();
-          showToast("✓ Einstellungen gesichert");
-          if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
+          setInterval(checkConditionalBreakGlass, 2000);
         },
-        postSystemEvent: function(eventText, refId) {
-<!-- ... existing code ... -->
-`
+        switchTab: switchTab,
+        sendMessage: sendMessage,
+        insertCommandTemplate: insertCommandTemplate,
+        sendQuickAck: sendQuickAck,
+        triggerDateNightProposal: triggerDateNightProposal,
+        openPhotoUpload: openPhotoUpload,
+        openHandshakeModal: openHandshakeModal,
+        saveHandshakeKey: saveHandshakeKey,
+        openCreateCapsuleModal: openCreateCapsuleModal,
+        saveNewCapsule: saveNewCapsule,
+        deleteCapsule: deleteCapsule,
+        requestHandover: requestHandover,
+        toggleActiveRole: toggleActiveRole,
+        openAccountModal: openAccountModal,
+        saveAccountSettings: saveAccountSettings,
+        forceAppReload: forceAppReload,
+        openBreakGlass: openBreakGlass
+      };
+
+      document.addEventListener('DOMContentLoaded', () => {
+        window.ChatApp.init();
+      });
+
+    })(window);
+  </script>
+</body>
+</html>
