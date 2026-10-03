@@ -107,9 +107,26 @@
     .climax-pulse-active {
       animation: climaxPulse 1.2s ease-in-out infinite;
     }
+
+    #nightstand-dimmer-layer {
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    body.nightstand-dimmed #nightstand-dimmer-layer {
+      pointer-events: auto;
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body class="min-h-[100dvh] flex flex-col justify-between selection:bg-champagne/30 selection:text-white">
+
+  <!-- 85% OLED-NACHTTISCH DIMMER OVERLAY -->
+  <div id="nightstand-dimmer-layer" onclick="SessionRuntime.toggleNightstandDimmer()" class="fixed inset-0 z-[120] bg-black opacity-0 transition-opacity flex items-center justify-center cursor-pointer select-none">
+    <div class="px-5 py-3 rounded-2xl bg-[#090d14] border border-[#c5a880]/50 text-[#c5a880] text-xs font-mono font-bold shadow-2xl flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-[#c5a880] animate-pulse"></span>
+      <span>Nachttisch-Dimmer aktiv · Tippen zum Aufhellen</span>
+    </div>
+  </div>
 
   <!-- ARRETIERTER 56px MASTER-HEADER (GESETZ 8 & 18 · ZERO PIXEL-JUMPING · COLLISION-FREE) -->
   <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#1e2638]/60 h-14 flex items-center">
@@ -592,6 +609,51 @@
         </div>
       </div>
 
+      <!-- IN-SESSION AUDIO- & SOUNDSCAPE-REGIE -->
+      <div class="rounded-2xl p-3.5 bg-[#000000] border border-[#2a364f] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs font-mono shadow-md">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[10.5px] text-[#c5a880] font-bold flex items-center gap-1">
+            <span>🎵</span><span>Klangwelt:</span>
+          </span>
+          <div class="flex items-center gap-1 flex-wrap">
+            <button type="button" onclick="SessionRuntime.switchSoundscape('dark_drone')" id="btn-soundscape-dark_drone" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn shadow-sm">
+              55Hz Subspace
+            </button>
+            <button type="button" onclick="SessionRuntime.switchSoundscape('vagus_432')" id="btn-soundscape-vagus_432" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn">
+              432Hz Vagus
+            </button>
+            <button type="button" onclick="SessionRuntime.switchSoundscape('tantric_pulse')" id="btn-soundscape-tantric_pulse" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn">
+              Tantrischer Puls
+            </button>
+            <button type="button" onclick="SessionRuntime.switchSoundscape('spotify')" id="btn-soundscape-spotify" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-[#2e5746] touch-btn">
+              Spotify ↗
+            </button>
+            <button type="button" onclick="SessionRuntime.switchSoundscape('silence')" id="btn-soundscape-silence" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-red-400 touch-btn">
+              Stille 🔇
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between sm:justify-end gap-2.5 pt-1 sm:pt-0 border-t sm:border-t-0 border-[#2a364f]/60">
+          <!-- Live-Lautstärkeregler -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9.5px] text-[#94a3b8]">Vol:</span>
+            <input type="range" min="0" max="1" step="0.05" value="0.75" oninput="if(window.SessionAudio) window.SessionAudio.setMasterVolume(this.value);" class="w-20 sm:w-24 accent-[#c5a880] cursor-pointer h-1.5 bg-[#090d14] rounded-lg">
+          </div>
+
+          <!-- AirPlay & Android Cast Routing Button -->
+          <button type="button" onclick="if(window.SessionAudio) window.SessionAudio.triggerSpeakerPicker();" class="px-2.5 py-1 rounded-lg bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#c5a880] text-[10px] font-bold touch-btn flex items-center gap-1" title="Lautsprecher / AirPlay / Bluetooth wählen">
+            <svg class="w-3.5 h-3.5 text-[#c5a880]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/></svg>
+            <span>AirPlay</span>
+          </button>
+
+          <!-- 85% OLED Nachttisch-Dimmer Taster -->
+          <button type="button" onclick="SessionRuntime.toggleNightstandDimmer()" class="px-2.5 py-1 rounded-lg bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#dfcaa9] text-[10px] font-bold touch-btn flex items-center gap-1" title="Bildschirm für Schlafzimmer dimmen">
+            <span>🌙</span><span>Dimmen</span>
+          </button>
+        </div>
+      </div>
+
       <!-- SAFEWORD EMERGENCY BAR (GRÜN, GELB, ROT) -->
       <div class="grid grid-cols-3 gap-2 font-mono text-xs">
         <button type="button" onclick="SessionLive.triggerSafeword('green')" class="py-3 px-3 rounded-2xl bg-[#142b24] hover:bg-[#2e5746] border border-[#2e5746] text-white font-bold flex items-center justify-center gap-1.5 touch-btn shadow-md">
@@ -908,6 +970,7 @@
   <script src="js/hub_context.js"></script>
   <script src="js/cloud_sync.js"></script>
   <script src="js/protocol_core.js"></script>
+  <script src="js/protocol_ratio.js"></script>
   <script src="js/session_voice.js"></script>
   <script src="js/session_discipline.js"></script>
   <script src="js/session_audio.js"></script>
@@ -1112,6 +1175,36 @@
         if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
       }
 
+      function switchSoundscape(presetId) {
+        if (!window.SessionAudio) return;
+
+        ['dark_drone', 'vagus_432', 'tantric_pulse', 'spotify', 'silence'].forEach(id => {
+          const btn = document.getElementById(`btn-soundscape-${id}`);
+          if (btn) {
+            if (id === presetId) {
+              btn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#000000] border-[#c5a880] text-[#c5a880] touch-btn shadow-sm";
+            } else {
+              btn.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn";
+            }
+          }
+        });
+
+        if (presetId === 'silence') {
+          window.SessionAudio.stopDrone();
+          showToast("Klanglandschaft pausiert 🔇");
+        } else if (presetId === 'spotify') {
+          window.SessionAudio.playTonalityMusic('sovereign_warm');
+          showToast("Spotify-Stream & Klangwelt gestartet 🎵");
+        } else {
+          window.SessionAudio.playDrone(presetId);
+          showToast(`Klangwelt aktiv: ${presetId === 'vagus_432' ? '432Hz Vagus' : (presetId === 'tantric_pulse' ? 'Tantrischer Puls' : '55Hz Subspace')}`);
+        }
+      }
+
+      function toggleNightstandDimmer() {
+        document.body.classList.toggle('nightstand-dimmed');
+      }
+
       window.SessionRuntime = {
         initRoleDisplay: initRoleDisplay,
         toggleActiveRole: toggleActiveRole,
@@ -1120,6 +1213,8 @@
         forceAppReload: forceAppReload,
         openAccountModal: openAccountModal,
         saveAccountSettings: saveAccountSettings,
+        switchSoundscape: switchSoundscape,
+        toggleNightstandDimmer: toggleNightstandDimmer,
         init: function() {
           initRoleDisplay();
           checkConditionalBreakGlass();
