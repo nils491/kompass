@@ -1,11 +1,16 @@
 /**
  * js/session_edging.js
- * TACTUS Echte JOI-Engine, 1:1 Audio-Visual Synchronisation & Fullscreen-Countdown (V3.0 Haute-Horlogerie)
+ * TACTUS Echte JOI-Engine, Ziel-spezifische Sprachsteuerung & Fullscreen-Countdown (V3.0 Haute-Horlogerie)
  * Offizielle Web-Präsenz: tactus.digital
  * 
  * TACTUS FEATURE CONTRACT:
- * [✓] Strikte Terminologie: Ausschließlich "Edge", "Edges", "Edging" (Keine "Kanten" / "Schwellen"!)
+ * [✓] Strikte Terminologie-Doktrin: Ausschließlich "Edge", "Edges", "Edging" (Keine "Kanten" / "Schwellen"!)
  * [✓] Echte Gemini-Stimmführung (Despina, Aoede, Enceladus, Fenrir) via SessionVoice.play()
+ * [✓] 3-Wege Ziel-Steuerung:
+ *     - 'release': Volle Gunst-Freigabe / Erlaubter Orgasmus
+ *     - 'ruined': Ruinierter Orgasmus / Entladung ohne Reibung & Verweilen
+ *     - 'denial': Triebaufschub / Lustverweigerung vor dem Orgasmus
+ * [✓] Ziel-spezifische Regietexte & Befehl bei Sekunde 0 (Denial-Kaltstopp vs. Ruined-Befehl vs. Release)
  * [✓] 1:1 Audio-Visual Synchronisation: Ladebalken ("Stimme fokussiert die Edge...") wartet exakt
  *     auf das 'playing'-Event von <audio id="master-voice-audio">, bevor die Ziffern starten
  * [✓] Intelligentes Zahlen-Verweilen: Die Zahl bleibt stehen und pulsiert im Takt (countdown-beat-active),
@@ -15,8 +20,8 @@
  * [✓] Umschaltbarer Regie-Modus: [Top spricht selbst] vs. [App-Stimme (Gemini)]
  * [✓] Stimulations-Wahlschalter: [Top berührt] vs. [Bottom berührt sich]
  * [✓] Taster "⚡ EDGE ERREICHT! (Hände weg)" mit Beat-Drop Mute & 45s Abkühlphase
- * [✓] Schneller Zugriff auf den 5-Stufen Bestrafungs- & Disziplinar-Wizard (SessionDiscipline)
- * [✓] Orgasmus-Entscheidung: Ruined Orgasm, Denial (Lustverweigerung) oder Freigabe
+ * [✓] Sofort-Zugriff auf den 5-Stufen Bestrafungs- & Disziplinar-Wizard (SessionDiscipline)
+ * [✓] Automatische Buchung in ProtocolRatio.record() zur Protokoll-Governance
  * [✓] 100 % UTF-8 Integrität, Haute-Horlogerie Design tokens, keine window.alert() Aufrufe
  */
 
@@ -25,13 +30,14 @@
 
   let activeArousalLevel = 5;
   let edgingStimulationBy = 'top'; // 'top' | 'bottom_self'
+  let targetSessionGoal = 'release'; // 'release' | 'ruined' | 'denial'
   let edgeCount = 0;
   let lastEdgeTimestamp = null;
   let lastEdgeIntervalTimer = null;
   let cooldownTimerInterval = null;
   let cooldownSecondsRemaining = 45;
 
-  let targetEdgingDuration = 20; // Default: 20 Sekunden
+  let targetEdgingDuration = 20; // Default: 20 Sekunden JOI
   let currentEdgingCountdown = 20;
   let isCountdownActive = false;
   let isEdgingCountdownPaused = false;
@@ -80,6 +86,47 @@
     }
   }
 
+  function setTargetSessionGoal(goal) {
+    targetSessionGoal = goal;
+    const btnRelease = document.getElementById('btn-goal-release');
+    const btnRuined = document.getElementById('btn-goal-ruined');
+    const btnDenial = document.getElementById('btn-goal-denial');
+    const badge = document.getElementById('active-goal-indicator-badge');
+
+    if (btnRelease) {
+      btnRelease.className = (goal === 'release')
+        ? "py-2 px-3 rounded-xl font-bold bg-[#142b24] border border-[#2e5746] text-[#2e5746] touch-btn shadow-sm"
+        : "py-2 px-3 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn";
+    }
+    if (btnRuined) {
+      btnRuined.className = (goal === 'ruined')
+        ? "py-2 px-3 rounded-xl font-bold bg-[#4a2818] border border-[#8a5232] text-[#f8fafc] touch-btn shadow-sm"
+        : "py-2 px-3 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn";
+    }
+    if (btnDenial) {
+      btnDenial.className = (goal === 'denial')
+        ? "py-2 px-3 rounded-xl font-bold bg-[#450a0a] border border-[#991b1b] text-white touch-btn shadow-sm"
+        : "py-2 px-3 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn";
+    }
+
+    if (badge) {
+      if (goal === 'release') {
+        badge.innerText = "Ziel: Volle Freigabe";
+        badge.className = "text-[10px] font-mono text-[#2e5746] font-bold";
+      } else if (goal === 'ruined') {
+        badge.innerText = "Ziel: Ruined Orgasm";
+        badge.className = "text-[10px] font-mono text-[#b3734a] font-bold";
+      } else {
+        badge.innerText = "Ziel: Lustverweigerung (Denial)";
+        badge.className = "text-[10px] font-mono text-[#ef4444] font-bold";
+      }
+    }
+
+    if (goal === 'release') showToast("🎯 Ziel festgelegt: Volle Orgasmus-Freigabe");
+    else if (goal === 'ruined') showToast("🎯 Ziel festgelegt: Ruined Orgasm (Krämpfe ohne Reibung)");
+    else showToast("🎯 Ziel festgelegt: Denial (Triebaufschub & Verweigerung)");
+  }
+
   function setCountdownVoiceMode(mode) {
     countdownVoiceMode = mode;
     const bSelf = document.getElementById('btn-voice-mode-self');
@@ -91,16 +138,16 @@
     }
 
     if (mode === 'self') {
-      if (bSelf) bSelf.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-[#000000] border-[#c5a880] text-white shadow-md";
-      if (bGemini) bGemini.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:border-slate-700";
+      if (bSelf) bSelf.className = "p-3 rounded-xl border text-left touch-btn transition bg-[#000000] border-[#c5a880] text-white shadow-md";
+      if (bGemini) bGemini.className = "p-3 rounded-xl border text-left touch-btn transition bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:border-slate-700";
       if (lbl) {
         lbl.innerText = "Top spricht selbst";
         lbl.className = "text-[10px] font-mono text-[#c5a880] font-bold";
       }
-      showToast("Modus: Top gibt die Edge-Befehle selbst 🗣️");
+      showToast("Modus: Top gibt die Edge-Befehle selbst 🗣️️");
     } else {
-      if (bGemini) bGemini.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-[#000000] border-[#c5a880] text-[#c5a880] shadow-md";
-      if (bSelf) bSelf.className = "p-2.5 rounded-xl border text-left touch-btn transition bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:border-slate-700";
+      if (bGemini) bGemini.className = "p-3 rounded-xl border text-left touch-btn transition bg-[#000000] border-[#c5a880] text-[#c5a880] shadow-md";
+      if (bSelf) bSelf.className = "p-3 rounded-xl border text-left touch-btn transition bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:border-slate-700";
       if (lbl) {
         lbl.innerText = "Gemini spricht laut";
         lbl.className = "text-[10px] font-mono text-[#c5a880] font-bold";
@@ -244,8 +291,17 @@
     });
   }
 
-  function buildJoiCountdownTimeline(durationSeconds, subName) {
+  function buildJoiCountdownTimeline(durationSeconds, subName, goal = 'release') {
     const name = subName || 'Bottom';
+
+    let zeroStep = null;
+    if (goal === 'denial') {
+      zeroStep = { num: 0, text: `Null! Stopp! Hände sofort weg, ${name}! Du bleibst heute ungelöst!`, cue: "STOPP · DENIAL!", durMs: 4000 };
+    } else if (goal === 'ruined') {
+      zeroStep = { num: 0, text: `Null! Ruined! Hände weg und stillhalten beim Auskrampfen!`, cue: "RUINED ORGASM!", durMs: 4000 };
+    } else {
+      zeroStep = { num: 0, text: `Jetzt! Lass alles los und explodiere für mich!`, cue: "KOMMEN · RELEASE!", durMs: 4000 };
+    }
 
     if (durationSeconds <= 7) {
       return [
@@ -253,8 +309,8 @@
         { num: 4, text: "Vier... Blick fest zu mir...", cue: "Nicht wegschauen...", durMs: 2000 },
         { num: 3, text: "Drei... spüre die Hitze...", cue: "Gleich hast du es...", durMs: 1900 },
         { num: 2, text: "Zwei...", cue: "Bereithalten...", durMs: 1400 },
-        { num: 1, text: "Eins...", cue: "Jetzt...", durMs: 1400 },
-        { num: 0, text: "Jetzt! Lass alles los und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+        { num: 1, text: "Eins...", cue: "Letzte Sekunde...", durMs: 1400 },
+        zeroStep
       ];
     }
 
@@ -267,10 +323,10 @@
         { num: 6, text: "Sechs... Spüre die Glut im Becken...", cue: "Das Pochen halten...", durMs: 2300 },
         { num: 5, text: "Fünf...", cue: "Fast an der Grenze...", durMs: 1500 },
         { num: 4, text: "Vier... Halt die Spannung...", cue: "Bleib bei mir...", durMs: 2000 },
-        { num: 3, text: "Drei...", cue: "Gleich darfst du...", durMs: 1500 },
-        { num: 2, text: "Zwei... Bereithalten...", cue: "Kurz vor der Erlösung...", durMs: 1800 },
-        { num: 1, text: "Eins...", cue: "Loslassen...", durMs: 1400 },
-        { num: 0, text: "Jetzt! Lass alles los und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+        { num: 3, text: "Drei...", cue: "Gleich kommt das Urteil...", durMs: 1500 },
+        { num: 2, text: "Zwei... Bereithalten...", cue: "Kurz vor der Entscheidung...", durMs: 1800 },
+        { num: 1, text: "Eins...", cue: "Spannung am Limit...", durMs: 1400 },
+        zeroStep
       ];
     }
 
@@ -288,11 +344,11 @@
         { num: 7, text: "Sieben...", cue: "Ausharren...", durMs: 1400 },
         { num: 6, text: "Sechs... Gleich hast du es geschafft...", cue: "Blick zu mir...", durMs: 2200 },
         { num: 5, text: "Fünf...", cue: "Die Welle rollt an...", durMs: 1400 },
-        { num: 4, text: `Vier... Bereithalten, ${name}...`, cue: "Gleich explodieren...", durMs: 2000 },
+        { num: 4, text: `Vier... Bereithalten, ${name}...`, cue: "Gleich fällt das Urteil...", durMs: 2000 },
         { num: 3, text: "Drei...", cue: "Jeden Herzschlag spüren...", durMs: 1400 },
         { num: 2, text: "Zwei... Noch ein Atemzug...", cue: "Letzter Halt...", durMs: 1900 },
-        { num: 1, text: "Eins...", cue: "Alles öffnen...", durMs: 1400 },
-        { num: 0, text: "Jetzt! Explodiere für mich!", cue: "KOMMEN!", durMs: 4000 }
+        { num: 1, text: "Eins...", cue: "Vollkommener Fokus...", durMs: 1400 },
+        zeroStep
       ];
     }
 
@@ -312,17 +368,17 @@
       { num: 13, text: "Dreizehn...", cue: "Becken öffnen...", durMs: 1500 },
       { num: 12, text: "Zwölf... Der Druck steigt unaufhaltsam...", cue: "Kurz vor dem Überlaufen...", durMs: 2400 },
       { num: 11, text: "Elf...", cue: "Blick fest zu mir...", durMs: 1500 },
-      { num: 10, text: "Zehn. Gleich erlöse ich dich.", cue: "Die letzten zehn Sekunden...", durMs: 2300 },
+      { num: 10, text: "Zehn. Gleich verkünde ich dein Urteil.", cue: "Die letzten zehn Sekunden...", durMs: 2300 },
       { num: 9, text: "Neun...", cue: "Atem anhalten...", durMs: 1500 },
-      { num: 8, text: "Acht... Spüre die Erlösung nahen...", cue: "Alles pulsiert...", durMs: 2200 },
+      { num: 8, text: "Acht... Spüre die Grenze nahen...", cue: "Alles pulsiert...", durMs: 2200 },
       { num: 7, text: "Sieben...", cue: "Fast am Ziel...", durMs: 1500 },
       { num: 6, text: "Sechs... Noch ein kurzes Ausharren...", cue: "Reglos bleiben...", durMs: 2100 },
       { num: 5, text: "Fünf...", cue: "Welle bereitstellen...", durMs: 1500 },
       { num: 4, text: "Vier... Bereithalten...", cue: "Körper ganz spüren...", durMs: 2000 },
       { num: 3, text: "Drei...", cue: "Zwei Atemzüge...", durMs: 1500 },
       { num: 2, text: "Zwei... Gleich darfst du...", cue: "Jetzt bereitmachen...", durMs: 1800 },
-      { num: 1, text: "Eins...", cue: "Loslassen...", durMs: 1400 },
-      { num: 0, text: "Jetzt! Lass alles fließen und komm für mich!", cue: "KOMMEN!", durMs: 4000 }
+      { num: 1, text: "Eins...", cue: "Spannung am Limit...", durMs: 1400 },
+      zeroStep
     ];
   }
 
@@ -360,6 +416,15 @@
     } else if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
       window.SessionVoice.play("Jetzt! Lass alles los und komm für mich!");
     }
+
+    if (window.ProtocolRatio && typeof window.ProtocolRatio.record === 'function') {
+      window.ProtocolRatio.record({
+        beneficiary: 'sub',
+        type: 'release',
+        note: `Sofortige Freigabe (${edgeCount} Edges)`,
+        source: 'session_edging'
+      });
+    }
   }
 
   async function executeReleaseWithCountdown() {
@@ -383,7 +448,7 @@
     const subRole = localStorage.getItem('kompass_caged_role') || 'A';
     const names = window.names || { A: 'Partner 1', B: 'Partner 2' };
     const subName = names[subRole] || 'Bottom';
-    const timeline = buildJoiCountdownTimeline(targetEdgingDuration, subName);
+    const timeline = buildJoiCountdownTimeline(targetEdgingDuration, subName, targetSessionGoal);
 
     currentEdgingCountdown = timeline[0].num;
     isCountdownActive = true;
@@ -393,7 +458,7 @@
 
     if (btnText) btnText.innerText = "Pause";
 
-    logSessionAction(`Geführter JOI-Atem-Countdown (${targetEdgingDuration}s) gestartet [${countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini'}]`);
+    logSessionAction(`JOI-Countdown (${targetEdgingDuration}s · Ziel: ${targetSessionGoal}) gestartet [${countdownVoiceMode === 'self' ? 'Top spricht selbst' : 'Gemini'}]`);
 
     if (countdownVoiceMode === 'self') {
       if (pill) {
@@ -450,20 +515,7 @@
 
       window.SessionVoice.play(fullSpeechText).then(() => {
         if (thisRunId !== countdownRunId) return;
-        const endDisp = document.getElementById('countdown-display');
-        const endCue = document.getElementById('countdown-cue-text');
-        if (endDisp) {
-          endDisp.classList.remove('countdown-beat-active');
-          endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-[#dfcaa9] select-none climax-pulse-active transition-all duration-300 text-center block";
-          endDisp.innerText = "KOMMEN!";
-        }
-        if (endCue) endCue.innerText = "Erlaubnis erteilt! Lass alles los!";
-        setTimeout(() => {
-          if (wrap) {
-            wrap.classList.add('hidden');
-            wrap.style.display = 'none';
-          }
-        }, 4500);
+        handleCountdownResolutionAtZero(targetSessionGoal);
       }).catch(err => {
         removeLoadingProgressUi();
         showToast("⚠️ Audio-Verbindung unterbrochen");
@@ -496,7 +548,6 @@
 
   async function runTimelineTicker(runId, timeline) {
     const disp = document.getElementById('countdown-display');
-    const cueText = document.getElementById('countdown-cue-text');
 
     for (let i = 0; i < timeline.length; i++) {
       if (!isCountdownActive || runId !== countdownRunId) break;
@@ -508,27 +559,77 @@
       }
 
       if (step.num === 0) {
-        if (disp) {
-          disp.classList.remove('countdown-beat-active');
-          disp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-[#dfcaa9] select-none climax-pulse-active transition-all duration-300 text-center block";
-          disp.innerText = "KOMMEN!";
-        }
-        if (cueText) {
-          cueText.innerText = (countdownVoiceMode === 'self') 
-            ? "Sprich jetzt: 'JETZT KOMMEN!'" 
-            : "Erlaubnis erteilt! Lass alles los!";
-        }
-        logSessionAction(`Orgasmus-Freigabe (${targetEdgingDuration}s beendet)`);
+        handleCountdownResolutionAtZero(targetSessionGoal);
         break;
       }
 
       triggerDisplayBeat(step.num.toString(), step.durMs, step.cue);
       await new Promise(r => setTimeout(r, step.durMs));
     }
+  }
+
+  function handleCountdownResolutionAtZero(goal) {
+    const endDisp = document.getElementById('countdown-display');
+    const endCue = document.getElementById('countdown-cue-text');
+    const wrap = document.getElementById('countdown-wrapper');
+
+    if (goal === 'denial') {
+      if (endDisp) {
+        endDisp.classList.remove('countdown-beat-active');
+        endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-[#ef4444] select-none transition-all duration-300 text-center block";
+        endDisp.innerText = "DENIAL!";
+      }
+      if (endCue) {
+        endCue.innerText = (countdownVoiceMode === 'self')
+          ? "Sprich jetzt: 'STOPP! HÄNDE WEG!'"
+          : "Stopp! Du bleibst ungelöst!";
+      }
+      if (window.SessionAudio && typeof window.SessionAudio.coldStop === 'function') {
+        window.SessionAudio.coldStop();
+      }
+      logSessionAction(`Orgasmus-Verweigerung (Denial nach ${targetEdgingDuration}s)`);
+      startCooldownBreathingTimer();
+    } else if (goal === 'ruined') {
+      if (endDisp) {
+        endDisp.classList.remove('countdown-beat-active');
+        endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-[#b3734a] select-none transition-all duration-300 text-center block";
+        endDisp.innerText = "RUINED!";
+      }
+      if (endCue) {
+        endCue.innerText = (countdownVoiceMode === 'self')
+          ? "Sprich jetzt: 'HÄNDE WEG! STILLHALTEN!'"
+          : "Ruined Orgasm! Stillhalten und auskrampfen!";
+      }
+      if (window.SessionAudio && typeof window.SessionAudio.coldStop === 'function') {
+        window.SessionAudio.coldStop();
+      }
+      logSessionAction(`Ruined Orgasm vollzogen (${targetEdgingDuration}s beendet)`);
+      startCooldownBreathingTimer();
+    } else {
+      if (endDisp) {
+        endDisp.classList.remove('countdown-beat-active');
+        endDisp.className = "text-[16vw] sm:text-[20vh] font-black font-mono tracking-normal leading-none text-[#dfcaa9] select-none climax-pulse-active transition-all duration-300 text-center block";
+        endDisp.innerText = "KOMMEN!";
+      }
+      if (endCue) {
+        endCue.innerText = (countdownVoiceMode === 'self') 
+          ? "Sprich jetzt: 'JETZT KOMMEN!'" 
+          : "Erlaubnis erteilt! Lass alles los!";
+      }
+      logSessionAction(`Orgasmus-Freigabe (${targetEdgingDuration}s beendet)`);
+    }
+
+    if (window.ProtocolRatio && typeof window.ProtocolRatio.record === 'function') {
+      window.ProtocolRatio.record({
+        beneficiary: 'sub',
+        type: goal,
+        note: `JOI-Countdown Ausgang (${edgeCount} Edges · Ziel: ${goal})`,
+        source: 'session_edging'
+      });
+    }
 
     setTimeout(() => {
-      const wrap = document.getElementById('countdown-wrapper');
-      if (wrap && runId === countdownRunId) {
+      if (wrap) {
         wrap.classList.add('hidden');
         wrap.style.display = 'none';
       }
@@ -633,10 +734,10 @@
             <span class="text-xl">⚡</span>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-white font-serif">Edging-Regie (JOI)</h3>
+                <h3 class="text-sm font-bold text-white font-serif">Edging-Regie &amp; JOI-Engine</h3>
                 <span id="edging-focus-badge" class="hidden px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#4a2818] text-[#f8fafc] border border-[#8a5232] animate-pulse">DREHBUCH-FOKUS</span>
               </div>
-              <p class="text-[10.5px] text-[#94a3b8]">Erregungskontrolle, synchrone Atem-Countdowns &amp; Orgasmus-Entscheid.</p>
+              <p class="text-[10.5px] text-[#94a3b8]">Erregungskontrolle, zielgesteuerte Atem-Countdowns &amp; Orgasmus-Entscheid.</p>
             </div>
           </div>
 
@@ -648,6 +749,28 @@
             <!-- SCHNELLZUGRIFF AUF 5-STUFEN BESTRAFUNG -->
             <button type="button" onclick="if(window.SessionDiscipline) window.SessionDiscipline.open();" class="px-2.5 py-1 rounded-xl bg-[#450a0a] hover:bg-[#991b1b] border border-[#991b1b] text-white font-mono text-[10.5px] font-bold touch-btn shadow-sm" title="Zucht-Wizard öffnen">
               ⚖️ Zucht-Wizard
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-WEGE ZIEL-STEUERUNG DER SESSION -->
+        <div class="p-3.5 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-2 text-xs font-sans">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-[11px] block font-bold">🎯 Ziel der heutigen Edging-Session:</strong>
+            <span id="active-goal-indicator-badge" class="text-[10px] font-mono text-[#2e5746] font-bold">Ziel: Volle Freigabe</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs">
+            <button type="button" id="btn-goal-release" onclick="SessionEdging.setGoal('release')" class="py-2 px-3 rounded-xl font-bold bg-[#142b24] border border-[#2e5746] text-[#2e5746] touch-btn shadow-sm text-left">
+              <span class="block">✨ 1. Freigabe</span>
+              <span class="text-[9.5px] font-normal text-[#94a3b8] block">Voller Orgasmus erlaubt</span>
+            </button>
+            <button type="button" id="btn-goal-ruined" onclick="SessionEdging.setGoal('ruined')" class="py-2 px-3 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn text-left">
+              <span class="block">🥀 2. Ruined</span>
+              <span class="text-[9.5px] font-normal text-[#94a3b8] block">Krämpfe ohne Reibung</span>
+            </button>
+            <button type="button" id="btn-goal-denial" onclick="SessionEdging.setGoal('denial')" class="py-2 px-3 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-white touch-btn text-left">
+              <span class="block">🔒 3. Denial</span>
+              <span class="text-[9.5px] font-normal text-[#94a3b8] block">Triebaufschub &amp; Verweigerung</span>
             </button>
           </div>
         </div>
@@ -688,7 +811,7 @@
           </div>
         </div>
 
-        <!-- KANTEN-TELEMETRIE KACHELN -->
+        <!-- EDGING-TELEMETRIE KACHELN -->
         <div class="grid grid-cols-2 gap-2 text-xs font-mono">
           <div class="p-3.5 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-1">
             <span class="text-[10px] text-[#94a3b8] uppercase tracking-wider block font-bold">Bisherige Edges:</span>
@@ -706,18 +829,18 @@
             <span>⚡</span><span>EDGE ERREICHT! (Hände weg)</span>
           </button>
           <button type="button" onclick="SessionEdging.openReleaseChoice()" class="py-3 px-4 rounded-2xl bg-[#142b24] hover:bg-[#2e5746] border border-[#2e5746] text-white font-black text-xs touch-btn shadow-lg flex items-center justify-center gap-1.5">
-            <span>✨</span><span>Kommen lassen... (Freigabe)</span>
+            <span>⏱️</span><span>JOI-Countdown öffnen...</span>
           </button>
         </div>
 
-        <!-- SUBPANEL FREIGABE-STEPER -->
+        <!-- SUBPANEL FREIGABE- & DAUER-STEPPER -->
         <div id="release-choice-subpanel" class="hidden p-4 rounded-3xl bg-[#000000] border border-[#c5a880]/60 space-y-3.5 animate-fade-in text-xs shadow-2xl font-sans">
           <div class="flex items-center justify-between border-b border-[#2a364f] pb-2">
             <div class="flex items-center gap-2">
               <span class="text-[#c5a880] text-base">⏱️</span>
               <div>
-                <strong class="text-white text-xs font-bold block font-serif">Höhepunkt-Freigabe &amp; JOI-Dauer:</strong>
-                <span class="text-[10px] text-[#94a3b8]">Jerk-Off Instruction Takt &amp; Atemführung anpassen</span>
+                <strong class="text-white text-xs font-bold block font-serif">JOI-Atem-Countdown konfigurieren:</strong>
+                <span class="text-[10px] text-[#94a3b8]">Jerk-Off Instruction Takt &amp; Dauer anpassen</span>
               </div>
             </div>
             <button type="button" onclick="SessionEdging.openReleaseChoice()" class="text-[#94a3b8] hover:text-white text-xs font-bold px-2 py-1 rounded-lg">✕</button>
@@ -761,7 +884,7 @@
           <div class="w-full max-w-xl flex items-center justify-between pt-2 px-2 text-xs">
             <span class="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest bg-[#000000] text-[#c5a880] border border-[#c5a880]/60 flex items-center gap-1.5 shadow-lg font-bold">
               <span class="w-2 h-2 rounded-full bg-[#c5a880] animate-ping"></span>
-              Atem-Countdown zum Orgasmus
+              Atem-Countdown zum Urteil
             </span>
             <span id="countdown-mode-pill" class="text-[10px] font-mono text-[#c5a880] font-bold bg-[#090d14] px-2.5 py-1 rounded-lg border border-[#2a364f]">
               Live
@@ -787,7 +910,7 @@
           </div>
         </div>
 
-        <!-- FINALE ENTSCHEIDUNGEN -->
+        <!-- FINALE ENTSCHEIDUNGEN UNTEN -->
         <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#2a364f] text-xs font-mono">
           <button type="button" onclick="SessionEdging.finalizeDecision('ruined')" class="py-2.5 px-3 rounded-xl bg-[#000000] hover:bg-[#101622] border border-[#2a364f] text-[#b3734a] font-bold touch-btn">
             🥀 Ruined Orgasm anordnen
@@ -805,6 +928,7 @@
     render: renderEdgingCockpit,
     setVoiceMode: setCountdownVoiceMode,
     setStimulator: setEdgingStimulator,
+    setGoal: setTargetSessionGoal,
     handleArousal: handleArousalSliderTouch,
     registerEdge: registerEdgeReachedWrapper,
     startCooldown: startCooldownBreathingTimer,
@@ -830,7 +954,6 @@
 
   window.SessionEdging = api;
 
-  // Initialisieren / Rendern falls Container bereits im DOM vorhanden
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
