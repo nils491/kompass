@@ -1,424 +1,303 @@
-<!DOCTYPE html>
-<html lang="de" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kink- & Beziehungs-Kompass – Paar-Analyse</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    (function() {
-      var savedTheme = localStorage.getItem('kompass_theme') || 'dark';
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      var savedZoom = localStorage.getItem('kompass_text_zoom') || '100';
-      if (savedZoom === '115') document.documentElement.style.fontSize = '115%';
-      else if (savedZoom === '130') document.documentElement.style.fontSize = '130%';
-      else document.documentElement.style.fontSize = '100%';
-    })();
-
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3',
-              500: '#f43f5e', 600: '#e11d48', 700: '#be123c',
-              800: '#9f1239', 900: '#881337', 950: '#4c0519',
-            },
-            noir: {
-              950: '#000000', 900: '#05070c', 850: '#0a0e17',
-              800: '#101726', 700: '#172238', 600: '#233454',
-            }
-          }
-        }
-      }
-    };
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
-    
-    :root {
-      --sat: env(safe-area-inset-top, 0px);
-      --sab: env(safe-area-inset-bottom, 0px);
-      --sal: env(safe-area-inset-left, 0px);
-      --sar: env(safe-area-inset-right, 0px);
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      padding-bottom: var(--sab);
-      padding-left: var(--sal);
-      padding-right: var(--sar);
-    }
-    
-    html.dark body { background-color: #000000 !important; color: #f8fafc !important; }
-    html.dark .theme-card { background-color: #060911 !important; border-color: #172033 !important; color: #f8fafc !important; }
-    html.dark .theme-panel { background-color: #0b111e !important; border-color: #1e2b44 !important; color: #e2e8f0 !important; }
-
-    html:not(.dark) body { background-color: #f8fafc !important; color: #0f172a !important; }
-    html:not(.dark) .theme-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
-    html:not(.dark) .theme-panel { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #1e293b !important; }
-
-    .touch-btn {
-      min-height: 44px;
-      transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .touch-btn:active {
-      transform: scale(0.98);
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white transition-colors duration-200">
-
-  <!-- HEADER -->
-  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-slate-900 shadow-sm" style="padding-top: max(8px, var(--sat));">
-    <div class="max-w-4xl mx-auto px-3 sm:px-6 pb-2 space-y-1.5">
+<!-- ... existing code ... -->
+  <!-- ARRETIERTER 56px MASTER-HEADER (GESETZ 8 · ZERO PIXEL-JUMPING · COLLISION-FREE) -->
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-[#1e2638]/60 h-14 flex items-center">
+    <div class="w-full max-w-5xl mx-auto px-4 flex items-center justify-between gap-2">
       
-      <!-- TOP BAR -->
-      <div class="flex items-center justify-between gap-2">
-        <a href="index.html#view=hub" class="flex items-center space-x-2.5 min-w-0 text-left group touch-btn cursor-pointer flex-1">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-brand-600 to-purple-600 border border-amber-500/40 text-white flex items-center justify-center shadow-lg p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20m10-10H2"/></svg>
-          </div>
-          <div class="min-w-0 truncate">
-            <h1 class="text-xs sm:text-sm font-black tracking-tight leading-none text-white truncate">Paar-Analyse & Synergie</h1>
-            <span id="pair-names-title" class="text-[9.5px] text-amber-300 font-medium block truncate mt-0.5">Partner 1 & Partner 2</span>
-          </div>
-        </a>
-
-        <!-- DESKTOP ACTIONS -->
-        <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
-          <a href="chat.html" class="px-2.5 py-1.5 rounded-xl bg-brand-950/80 hover:bg-brand-900 border border-brand-800 text-brand-200 font-bold text-xs flex items-center gap-1 shadow-sm touch-btn" title="E2EE Paar-Stream öffnen">
-            <span>💬</span><span>Stream</span>
-          </a>
-          <a href="guide.html" class="px-2.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/80 text-amber-200 font-extrabold text-xs flex items-center gap-1 shadow-sm touch-btn" title="BDSM- & Vertrauens-Guide">
-            <span>📖</span><span>Guide</span>
-          </a>
-          <a href="session.html" class="px-3 py-1.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-100 font-black text-xs flex items-center gap-1.5 shadow-md touch-btn">
-            <span>Regie 🕯️</span>
-          </a>
+      <!-- Brand-Einheit mit TACTUS Logo & Status (Collision-free mit min-w-0) -->
+      <a href="index.html#view=hub" class="flex items-center space-x-3 cursor-pointer group min-w-0 flex-1 mr-1 touch-btn" style="min-height: 44px;">
+        <div class="w-9 h-9 rounded-xl bg-[#090d14] border border-[#c5a880]/40 flex items-center justify-center p-1 shadow-sm group-hover:border-[#c5a880] transition-colors flex-shrink-0 overflow-hidden">
+          <img src="assets/logo.png" onerror="this.onerror=null; this.src='img/tactus_logo.png'; this.style.display='none'; this.nextElementSibling.style.display='block';" alt="TACTUS Logo" class="w-full h-full object-contain" />
+          <svg class="w-5 h-5 text-[#c5a880] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M5 8c3.5-3 10.5-3 14 0M7 16c2.5 2.5 7.5 2.5 10 0" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" fill-opacity="0.3" stroke="currentColor" />
+          </svg>
         </div>
-
-        <!-- MOBILE BURGER BUTTON -->
-        <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
-          <a href="chat.html" class="px-2 py-1.5 bg-brand-950 border border-brand-800 text-brand-300 font-bold rounded-xl text-xs flex items-center gap-1 touch-btn" title="Stream">
-            <span>💬</span>
-          </a>
-          <button type="button" onclick="toggleMobileDrawer(true)" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü öffnen">
-            ☰
-          </button>
+        <div class="min-w-0 truncate">
+          <div class="flex items-center gap-1.5">
+            <span class="font-serif text-sm sm:text-base tracking-widest text-[#f8fafc] font-semibold leading-none truncate">TACTUS</span>
+            <span id="ledger-lock-status-badge" class="px-1.5 py-0.5 rounded text-[8.5px] font-mono tracking-widest bg-[#090d14] border border-[#c5a880]/40 text-[#c5a880] uppercase font-bold flex-shrink-0">OFFEN</span>
+          </div>
+          <span class="text-[9.5px] font-mono text-[#94a3b8] block leading-none mt-1 truncate" id="ledger-header-roles">Top: Partner 1 · Bottom: Partner 2</span>
         </div>
+      </a>
+
+      <!-- Desktop Quick Actions (Standardisierter 5-Button Master Cluster) -->
+      <div class="hidden md:flex items-center space-x-2 flex-shrink-0">
+        <!-- 1. In-App Cache-Buster & Reload Button -->
+        <button type="button" onclick="ProtocolRuntime.forceAppReload()" class="w-10 h-10 rounded-xl bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#94a3b8] hover:text-[#c5a880] flex items-center justify-center transition touch-btn" style="min-height: 40px;" title="App frisch vom Server neu laden (Cache leeren)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </button>
+
+        <!-- 2. Switch-Rollenanzeige mit 1-Tap Umschaltung -->
+        <button type="button" onclick="ProtocolRuntime.toggleActiveRole()" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] border border-[#2a364f] text-[11px] font-mono text-[#94a3b8] hover:text-[#f8fafc] hover:border-[#c5a880]/40 transition flex items-center gap-1.5 touch-btn" style="min-height: 40px;" title="Rollenwechsel (Top / Bottom)">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#c5a880]" id="role-indicator-dot"></span>
+          <span id="active-role-text" class="text-[#f8fafc] font-semibold">Top</span>
+          <span class="text-[9px] text-[#94a3b8]/60" id="role-switch-subline">⇄ Switch</span>
+        </button>
+
+        <!-- 3. Ausrüstungsschrank Button -->
+        <button type="button" onclick="if(window.HubToys) window.HubToys.open();" class="px-2.5 py-1.5 rounded-xl bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] text-xs font-mono font-medium flex items-center gap-1.5 touch-btn" style="min-height: 40px;" title="Ausrüstungsschrank öffnen">
+          <svg class="w-3.5 h-3.5 text-[#c5a880]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+          <span>Schrank</span>
+        </button>
+
+        <!-- 4. Konditionales RACK Break-Glass (Rollenspezifisch nur für den verschlossenen Bottom) -->
+        <button type="button" id="header-btn-break-glass" onclick="ProtocolCore.openBreakGlass()" style="display: none;" class="px-2.5 py-1.5 rounded-xl bg-[#450a0a] hover:bg-[#991b1b] border border-[#991b1b] text-white font-mono text-xs font-bold flex items-center gap-1 touch-btn shadow-sm animate-pulse" style="min-height: 40px;" title="RACK Notfall-Öffnung (Break-Glass)">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z"/></svg>
+          <span>Notfall</span>
+        </button>
+
+        <!-- 5. Universal-Settings Button (Master-Header Standard) -->
+        <button type="button" onclick="ProtocolRuntime.openAccountModal()" class="w-10 h-10 rounded-xl bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#94a3b8] hover:text-[#c5a880] flex items-center justify-center transition touch-btn" style="min-height: 40px;" title="Einstellungen &amp; Account">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.004.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.241.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
       </div>
 
-      <!-- DESKTOP NAVIGATION -->
-      <nav class="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs font-bold -mx-1 px-1">
-        <a href="index.html#view=hub" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Start-Hub</span>
-        </a>
-        <a href="index.html#view=survey" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Fragebogen</span>
-        </a>
-        <a href="index.html#view=safety" class="px-3 py-1.5 rounded-xl text-teal-400 hover:text-teal-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Sicherheits-Kodex</span>
-        </a>
-        <a href="index.html#view=single" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Mein Profil</span>
-        </a>
-        <button type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn cursor-default">
-          <span>Paar-Analyse</span>
+      <!-- Mobile Actions (iPhone 15 Pro optimiert mit Touch-Targets >= 44px) -->
+      <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
+        <!-- In-App Reload Mobile -->
+        <button type="button" onclick="ProtocolRuntime.forceAppReload()" class="w-10 h-10 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#c5a880] flex items-center justify-center touch-btn" title="Neu laden / Update prüfen">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
         </button>
-        <a href="chat.html" class="px-3 py-1.5 rounded-xl text-brand-300 hover:text-brand-100 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Paar-Stream 💬</span>
-        </a>
-        <a href="guide.html" class="px-3 py-1.5 rounded-xl text-amber-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Guide 📖</span>
-        </a>
-        <a href="session.html" class="px-3 py-1.5 rounded-xl text-rose-400 hover:text-rose-200 transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 touch-btn">
-          <span>Regie 🕯️</span>
-        </a>
-      </nav>
+
+        <!-- Konditionales Break-Glass Mobile -->
+        <button type="button" id="header-btn-break-glass-mobile" onclick="ProtocolCore.openBreakGlass()" style="display: none;" class="w-10 h-10 rounded-xl bg-[#450a0a] border border-[#991b1b] text-white flex items-center justify-center touch-btn animate-pulse" title="Notfall-Öffnung">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z"/></svg>
+        </button>
+
+        <!-- Mobile Drawer Menü -->
+        <button type="button" onclick="document.getElementById('mobile-menu-drawer').style.display='flex'" class="w-10 h-10 rounded-xl bg-[#090d14] border border-[#2a364f] text-[#f8fafc] flex items-center justify-center font-bold text-base touch-btn shadow-sm" title="Menü">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+      </div>
+
     </div>
   </header>
+<!-- ... existing code ... -->
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto p-3.5 sm:p-6 flex-1 w-full space-y-4">
 
-  <!-- MOBILE DRAWER / BURGER OVERLAY -->
-  <div id="mobile-menu-drawer" style="display: none;" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 overflow-y-auto animate-fade-in text-xs">
-    <div class="space-y-4">
-      <!-- DRAWER HEADER -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-brand-600 border border-amber-500/40 text-white flex items-center justify-center font-bold text-sm">
-            💫
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-white">Menü & Bereiche</h3>
-            <span class="text-[10px] text-slate-400 font-medium block">Paar-Analyse & Synergie</span>
-          </div>
+    <!-- ROLLEN-BANNER FÜR DEN BOTTOM -->
+    <div id="bottom-readonly-banner" class="hidden p-3.5 rounded-2xl bg-[#090d14] border border-[#8a5232] text-[#f8fafc] text-xs flex items-center justify-between gap-2 shadow-lg animate-fade-in font-sans">
+      <div class="flex items-center gap-2.5">
+        <svg class="w-5 h-5 text-[#b3734a] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+        <div>
+          <strong class="text-white block font-bold text-xs">Ansicht für den dienenden Partner (Bottom)</strong>
+          <span class="text-[10.5px] text-[#94a3b8] block leading-snug">Du kannst alle Zähler, Pflichten, Strafen und den Kodex einsehen. Anpassungen und Freigaben obliegen dem Top.</span>
         </div>
-        <button type="button" onclick="toggleMobileDrawer(false)" class="w-9 h-9 rounded-xl theme-panel border border-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center touch-btn text-base">
-          ✕
+      </div>
+      <span class="px-2 py-0.5 rounded bg-[#000000] text-[#b3734a] border border-[#8a5232] font-mono text-[9.5px] font-bold flex-shrink-0">Einblick</span>
+    </div>
+
+    <!-- SUB-NAV TABS DER 4 PROTOKOLL-VIEWS (INKLUSIVE SALDO-ANZEIGE & LOGBUCH-LINK) -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-[#2a364f] pb-2 font-mono text-xs gap-2">
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <button type="button" onclick="ProtocolCore.switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-2 rounded-xl font-bold bg-[#000000] border border-[#c5a880] text-[#c5a880] touch-btn shadow-sm whitespace-nowrap shrink-0 flex-shrink-0">
+          1. Status &amp; Saldo
+        </button>
+        <button type="button" onclick="ProtocolCore.switchTab('chores')" id="tab-btn-chores" class="px-3.5 py-2 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] touch-btn whitespace-nowrap shrink-0 flex-shrink-0">
+          2. Pflichten &amp; Zucht
+        </button>
+        <button type="button" onclick="ProtocolCore.switchTab('contract')" id="tab-btn-contract" class="px-3.5 py-2 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] touch-btn whitespace-nowrap shrink-0 flex-shrink-0">
+          3. Beziehungsvertrag
+        </button>
+        <button type="button" onclick="ProtocolCore.switchTab('ai_coach')" id="tab-btn-ai_coach" class="px-3.5 py-2 rounded-xl font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] hover:text-[#f8fafc] touch-btn whitespace-nowrap shrink-0 flex-shrink-0 flex items-center gap-1">
+          <span>4. Führungs-Coach</span>
         </button>
       </div>
 
-      <!-- NAVIGATIONSLINKS -->
-      <div class="space-y-1.5 pt-1">
-        <a href="index.html#view=hub" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>🏠</span><span>Start-Hub</span></span>
-          <span class="text-slate-500 text-xs">→</span>
-        </a>
-
-        <a href="index.html#view=survey" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-brand-500 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-white group-hover:text-brand-300 flex items-center gap-2"><span>📋</span><span>Fragebogen</span></span>
-          <span class="text-slate-500 text-xs">→</span>
-        </a>
-
-        <a href="index.html#view=safety" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-teal-500 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-teal-300 flex items-center gap-2"><span>🛡️</span><span>Sicherheits-Kodex</span></span>
-          <span class="text-[10px] text-teal-400 font-bold">6 Module</span>
-        </a>
-
-        <a href="index.html#view=single" class="w-full p-3 rounded-2xl theme-panel border border-slate-800 hover:border-purple-500 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-purple-300 flex items-center gap-2"><span>🔮</span><span>Mein Profil (Radar & Top 10)</span></span>
-          <span class="text-slate-500 text-xs">→</span>
-        </a>
-
-        <div class="w-full p-3 rounded-2xl bg-amber-950/60 border border-amber-600 text-left flex items-center justify-between shadow-md">
-          <span class="text-xs font-black text-amber-200 flex items-center gap-2"><span>💫</span><span>Paar-Analyse & Synergie</span></span>
-          <span class="text-[10px] text-amber-300 font-bold">Hier aktiv ✓</span>
+      <!-- RECHTE AKTIONEN: SALDO & LOGBUCH-LINK -->
+      <div class="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 font-mono text-xs">
+        <!-- Live-Saldo Anzeige hier perfekt & ergonomisch platziert -->
+        <div class="px-3 py-1.5 rounded-xl bg-[#090d14] border border-[#c5a880]/40 text-[#c5a880] font-mono font-bold text-xs flex items-center gap-1.5 shadow-sm whitespace-nowrap" title="Aktueller Saldo (Tribut-Konto)">
+          <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="header-balance-display">0 P</span>
         </div>
 
-        <a href="chat.html" class="w-full p-3 rounded-2xl bg-brand-950/40 border border-brand-800/80 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-brand-300 flex items-center gap-2"><span>💬</span><span>E2EE Paar-Stream & Sexting</span></span>
-          <span class="text-[10px] text-brand-400 font-bold">Chat ↗</span>
-        </a>
-
-        <a href="ledger.html" class="w-full p-3 rounded-2xl bg-purple-950/40 border border-purple-800/80 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-purple-200 flex items-center gap-2"><span>🗝️</span><span>D/s-Ledger & Vertrag</span></span>
-          <span class="text-[10px] text-purple-300 font-bold">Optional ↗</span>
-        </a>
-
-        <a href="guide.html" class="w-full p-3 rounded-2xl bg-amber-950/40 border border-amber-800/80 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-amber-200 flex items-center gap-2"><span>📖</span><span>BDSM- & Vertrauens-Guide</span></span>
-          <span class="text-[10px] text-amber-300 font-bold">Leitfaden ↗</span>
-        </a>
-
-        <a href="session.html" class="w-full p-3 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-left flex items-center justify-between touch-btn group block">
-          <span class="text-xs font-extrabold text-rose-300 flex items-center gap-2"><span>🕯️</span><span>Schlafzimmer-Regie (Cockpit)</span></span>
-          <span class="text-[10px] text-rose-400 font-bold">Live ↗</span>
+        <a href="session.html#view=logbook" class="px-3 py-1.5 rounded-xl bg-[#090d14] hover:bg-[#101622] border border-[#2a364f] text-[#d4af37] hover:text-white touch-btn whitespace-nowrap flex items-center gap-1.5 shadow-sm">
+          <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+          <span>Logbuch ↗</span>
         </a>
       </div>
     </div>
+<!-- ... existing code ... -->
+  <!-- MODAL: ACCOUNT & EINSTELLUNGEN (MASTER-HEADER STANDARD) -->
+  <div id="modal-account-settings" style="display: none;" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none">
+    <div class="bg-[#090d14] rounded-3xl max-w-lg w-full border border-[#c5a880]/60 p-5 space-y-4 shadow-2xl text-xs text-[#f8fafc] font-sans max-h-[88dvh] overflow-y-auto pb-[max(env(safe-area-inset-bottom),16px)]">
+      
+      <div class="flex items-center justify-between border-b border-[#2a364f] pb-3">
+        <div>
+          <span class="text-[9.5px] font-mono uppercase tracking-wider text-[#c5a880] font-bold block">System-Zentrale</span>
+          <h3 class="text-sm sm:text-base font-serif text-white font-bold">Profil, Einstellungen &amp; Beziehungsmodus</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('modal-account-settings').style.display='none'" class="w-9 h-9 rounded-xl bg-[#000000] border border-[#2a364f] text-[#94a3b8] hover:text-white flex items-center justify-center touch-btn">✕</button>
+      </div>
 
-    <!-- DRAWER FOOTER -->
-    <div class="pt-4 border-t border-slate-900 text-center">
-      <button type="button" onclick="toggleMobileDrawer(false)" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs touch-btn">
-        Schließen ✕
-      </button>
+      <!-- 1. ERSCHEINUNGSBILD -->
+      <div class="p-3.5 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-2.5">
+        <span class="text-[10px] font-mono uppercase text-[#c5a880] font-bold block">1. Erscheinungsbild:</span>
+        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div>
+            <label class="text-[9.5px] text-[#94a3b8] uppercase block mb-1">Theme:</label>
+            <select id="acc-select-theme" class="w-full text-xs p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white">
+              <option value="dark">Dark OLED (Tiefschwarz #000)</option>
+              <option value="light">Light Mode</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[9.5px] text-[#94a3b8] uppercase block mb-1">Text-Zoom:</label>
+            <select id="acc-select-zoom" class="w-full text-xs p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white">
+              <option value="100">100 % (Standard)</option>
+              <option value="115">115 % (Groß)</option>
+              <option value="130">130 % (Nachttisch-Senior)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. PARTNER-NAMEN & IDENTITÄT -->
+      <div class="p-3.5 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-2.5">
+        <span class="text-[10px] font-mono uppercase text-[#c5a880] font-bold block">2. Partner &amp; Identität:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[9.5px] font-mono text-[#c5a880] uppercase block mb-1 font-bold">Partner 1 (Name A):</label>
+            <input type="text" id="acc-input-name-a" placeholder="z. B. Alex" class="w-full p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white text-xs font-sans focus:border-[#c5a880] focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[9.5px] font-mono text-[#b3734a] uppercase block mb-1 font-bold">Partner 2 (Name B):</label>
+            <input type="text" id="acc-input-name-b" placeholder="z. B. Sam" class="w-full p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white text-xs font-sans focus:border-[#b3734a] focus:outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
+          <div>
+            <label class="text-[9.5px] text-[#94a3b8] uppercase block mb-1">Wer bedient dieses Gerät?</label>
+            <select id="acc-select-my-role" class="w-full text-xs p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white focus:border-[#c5a880]">
+              <option value="A">Partner 1 (Name A)</option>
+              <option value="B">Partner 2 (Name B)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[9.5px] text-[#94a3b8] uppercase block mb-1">Führung (Top):</label>
+            <select id="acc-select-keyholder" class="w-full text-xs p-2.5 bg-[#090d14] border border-[#2a364f] rounded-xl text-white focus:border-[#c5a880]">
+              <option value="A">Partner 1 führt als Top</option>
+              <option value="B">Partner 2 führt als Top</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. BEZIEHUNGS-MODUS -->
+      <div class="p-3.5 rounded-2xl bg-[#000000] border border-[#2a364f] space-y-2.5">
+        <span class="text-[10px] font-mono uppercase text-[#c5a880] font-bold block">3. Beziehungsmodus:</span>
+        <div class="space-y-1.5 font-sans">
+          <label class="p-2.5 rounded-xl border border-[#2a364f] bg-[#090d14] flex items-start gap-2.5 cursor-pointer">
+            <input type="radio" name="acc-rel-mode" value="casual_bedroom" class="mt-0.5 accent-[#c5a880]" />
+            <div>
+              <strong class="text-xs text-white block">1. Casual &amp; Schlafzimmer-Paare</strong>
+              <span class="text-[9.5px] text-[#94a3b8] block">Fokus rein auf Erotik, Staging &amp; Edging. Pflichten inaktiv.</span>
+            </div>
+          </label>
+          <label class="p-2.5 rounded-xl border border-[#2a364f] bg-[#090d14] flex items-start gap-2.5 cursor-pointer">
+            <input type="radio" name="acc-rel-mode" value="switch_flexible" class="mt-0.5 accent-[#c5a880]" />
+            <div>
+              <strong class="text-xs text-white block">2. Switch &amp; Flexibel (Beidseitig)</strong>
+              <span class="text-[9.5px] text-[#94a3b8] block">Freier 1-Tap Rollenwechsel im Header.</span>
+            </div>
+          </label>
+          <label class="p-2.5 rounded-xl border border-[#2a364f] bg-[#090d14] flex items-start gap-2.5 cursor-pointer">
+            <input type="radio" name="acc-rel-mode" value="flr_24_7" class="mt-0.5 accent-[#c5a880]" />
+            <div>
+              <strong class="text-xs text-white block">3. Feste Führung (FLR / 24/7 D/s)</strong>
+              <span class="text-[9.5px] text-[#94a3b8] block">Header-Wechsel gesperrt; Übergabe nur per Zeremonie im Stream.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-[#2a364f] flex justify-end gap-2 font-mono">
+        <button type="button" onclick="document.getElementById('modal-account-settings').style.display='none'" class="px-4 py-2.5 bg-[#000000] border border-[#2a364f] text-[#94a3b8] font-bold rounded-xl text-xs touch-btn">Abbrechen</button>
+        <button type="button" onclick="ProtocolRuntime.saveAccountSettings()" class="px-5 py-2.5 bg-[#c5a880] hover:bg-[#dfcaa9] text-black font-bold rounded-xl text-xs touch-btn shadow-md">Speichern ✓</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- HAUPTINHALT -->
-  <main class="max-w-4xl mx-auto p-3 sm:p-6 flex-1 w-full space-y-4">
-
-    <!-- PASSWORT- / SCHAMSCHUTZ-GATE -->
-    <div id="pair-lock-screen" class="hidden p-6 sm:p-8 theme-card rounded-3xl border border-amber-600/50 shadow-2xl text-center space-y-4 max-w-md mx-auto my-8">
-      <div class="w-12 h-12 rounded-2xl bg-amber-950/80 border border-amber-600 text-amber-300 flex items-center justify-center text-2xl mx-auto shadow-inner">
-        🔒
-      </div>
-      <div class="space-y-1">
-        <h2 class="text-base sm:text-lg font-black text-white">Gemeinsame Paar-Entschlüsselung</h2>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Gebt euren Paar-Code oder eure PIN ein, um eure Schnittmengen gemeinsam zu entschlüsseln.
-        </p>
-      </div>
-
-      <div class="space-y-2">
-        <input type="password" id="input-pair-password" placeholder="Passwort oder PIN (Standard: 1234)..." class="w-full text-center text-sm p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono focus:border-amber-500 focus:outline-none">
-        <div id="pair-lock-error" class="hidden text-[11px] text-rose-400 font-bold"></div>
-      </div>
-
-      <div class="flex flex-col gap-2 pt-1">
-        <button type="button" onclick="checkPairUnlock()" class="w-full py-3 bg-gradient-to-r from-amber-600 to-brand-600 hover:opacity-90 text-white font-black rounded-xl text-xs touch-btn shadow-lg">
-          🔓 Jetzt gemeinsam öffnen
-        </button>
-        <button type="button" onclick="bypassPairUnlock()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl text-[11px] touch-btn">
-          ✨ Schutz aufheben / Ohne Passwort öffnen
-        </button>
-      </div>
-    </div>
-
-    <!-- PAAR-ANALYSE CONTENT -->
-    <div id="pair-content-container" class="space-y-4">
-      <div class="theme-card rounded-3xl p-5 sm:p-7 border border-amber-900/50 shadow-2xl relative overflow-hidden bg-gradient-to-br from-amber-950/30 via-noir-900 to-brand-950/20">
-        <div class="max-w-xl space-y-2">
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 border border-amber-800 inline-block">
-            Beziehungs-Synergie & Konsens
-          </span>
-          <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">
-            Eure gemeinsamen Schnittmengen
-          </h2>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Hier seht ihr beiderseitige Volltreffer, Brückenbau-Potenziale und eure gemeinsamen Schutzgrenzen – vollkommen schamfrei und wissenschaftlich fundiert.
-          </p>
-        </div>
-      </div>
-
-      <!-- GRID: DOPPEL-5ER & BRÜCKEN -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-        
-        <!-- DOPPEL-5ER MATCHES -->
-        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-          <div class="flex items-center justify-between border-b border-brand-900/60 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="text-base">⭐</span>
-              <div>
-                <strong class="text-xs sm:text-sm text-white font-extrabold block">Doppel-5er Volltreffer:</strong>
-                <p class="text-[10px] text-slate-400">Beiderseitige Höchstwertungen – sofort auslebbar.</p>
-              </div>
-            </div>
-            <span id="count-double-fives" class="text-xs font-mono font-bold text-brand-300 px-2 py-0.5 rounded-lg bg-brand-950 border border-brand-800">0</span>
-          </div>
-          <div id="pair-double-fives-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-        </div>
-
-        <!-- BRÜCKENBAU-CHANCEN -->
-        <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="text-base">💡</span>
-              <div>
-                <strong class="text-xs sm:text-sm text-amber-300 font-extrabold block">Brückenbau-Chancen:</strong>
-                <p class="text-[10px] text-slate-400">Ein Partner vergibt Note 5, der andere ist offen/neugierig.</p>
-              </div>
-            </div>
-            <span id="count-bridges" class="text-xs font-mono font-bold text-amber-300 px-2 py-0.5 rounded-lg bg-amber-950 border border-amber-800">0</span>
-          </div>
-          <div id="pair-bridges-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-        </div>
-
-      </div>
-
-      <!-- BDSMTEST.ORG TOP-10 ARCHETYPEN PAAR-VERGLEICH -->
-      <div id="pair-bdsmtest-container" class="theme-card rounded-3xl p-5 border space-y-4 shadow-md"></div>
-
-      <!-- SENSIBLE SCHAM-ZONEN -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-        <div class="flex items-center justify-between border-b border-indigo-900/60 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🙈</span>
-            <div>
-              <strong class="text-xs sm:text-sm text-indigo-200 font-extrabold block">Sensible Scham-Zonen & Vertrauens-Chancen:</strong>
-              <p class="text-[10px] text-slate-400">Praktiken mit beiderseitiger Lust/Neugier, aber Schamgefühl bei mindestens einem Partner.</p>
-            </div>
-          </div>
-          <span id="count-pair-shame" class="text-xs font-mono font-bold text-indigo-300 px-2 py-0.5 rounded-lg bg-indigo-950 border border-indigo-800">0</span>
-        </div>
-        <div id="pair-shame-bridges-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-      </div>
-
-      <!-- TABUS & VETO-SCHRANKEN -->
-      <div class="theme-card rounded-3xl p-5 border space-y-3 shadow-md">
-        <div class="flex items-center justify-between border-b border-rose-900/60 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-            <div>
-              <strong class="text-xs sm:text-sm text-rose-300 font-extrabold block">Gemeinsame Tabu-Grenzen (Note 1):</strong>
-              <p class="text-[10px] text-slate-400">Kompromissloses Veto: Wird von der Regie strikt ausgeschlossen.</p>
-            </div>
-          </div>
-          <span id="count-pair-tabus" class="text-xs font-mono font-bold text-rose-300 px-2 py-0.5 rounded-lg bg-rose-950 border border-rose-800">0</span>
-        </div>
-        <div id="pair-tabus-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-      </div>
-
-      <!-- KI-PAARGUTACHTEN -->
-      <div id="pair-report-container"></div>
-    </div>
-
-  </main>
-
   <div id="toast-container" class="fixed bottom-4 right-4 z-[160] space-y-2 pointer-events-none"></div>
-
-  <!-- EXTERNE DATENQUELLEN & MODULARE ENGINES -->
-  <script src="data/scientific_studies.js"></script>
-  <script src="data/questions_part1.js"></script>
-  <script src="data/questions_part2.js"></script>
-  <script src="data/equipment_catalog.js"></script>
-  <script src="js/cloud_sync.js?v=5.0"></script>
-  <script src="js/pair_analysis.js?v=5.0"></script>
-
-  <script>
-    function toggleMobileDrawer(open) {
-      var drawer = document.getElementById('mobile-menu-drawer');
-      if (!drawer) return;
-      if (typeof open === 'boolean') {
-        drawer.style.display = open ? 'flex' : 'none';
-      } else {
-        drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
-      }
-    }
-
-    function checkPairUnlock() {
-      var input = document.getElementById('input-pair-password');
-      var val = (input ? input.value : '').trim().toLowerCase();
-      var stored = (localStorage.getItem('kompass_pair_pin') || localStorage.getItem('kompass_pair_password') || '').trim().toLowerCase();
-      var pairCode = (localStorage.getItem('kompass_pair_code') || '').trim().toLowerCase();
-
-      var MASTER_PINS = ['1234', '0000', 'kompass', 'love', 'kink'];
-      var isMaster = MASTER_PINS.indexOf(val) !== -1 || (pairCode && val === pairCode);
-      var isCorrect = (stored && val === stored) || isMaster || (!stored && val.length > 0);
-
-      if (isCorrect) {
-        unlockPairUI();
-      } else {
-        var err = document.getElementById('pair-lock-error');
-        if (err) {
-          err.innerText = "Falsche PIN. Nutze z. B. '1234' oder den Button unten.";
-          err.classList.remove('hidden');
-        }
-      }
-    }
-
-    function bypassPairUnlock() {
-      unlockPairUI();
-    }
-
-    function unlockPairUI() {
-      var lock = document.getElementById('pair-lock-screen');
-      var content = document.getElementById('pair-content-container');
-      if (lock) lock.classList.add('hidden');
-      if (content) content.classList.remove('hidden');
-
-      if (window.PairAnalysisEngine && typeof window.PairAnalysisEngine.render === 'function') {
-        window.PairAnalysisEngine.render();
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      var storedPin = localStorage.getItem('kompass_pair_pin') || localStorage.getItem('kompass_pair_password');
-      var lock = document.getElementById('pair-lock-screen');
-      var content = document.getElementById('pair-content-container');
-
-      if (storedPin && storedPin.trim().length > 0) {
-        if (lock) lock.classList.remove('hidden');
-        if (content) content.classList.add('hidden');
-      } else {
-        if (lock) lock.classList.add('hidden');
-        if (content) content.classList.remove('hidden');
-        if (window.PairAnalysisEngine && typeof window.PairAnalysisEngine.render === 'function') {
-          window.PairAnalysisEngine.render();
-        }
-      }
-    });
-  </script>
-
-</body>
-</html>
+<!-- ... existing code ... -->
+```
+```html:Das Protokoll, Pflichten & Beziehungsvertrag:protocol.html
+<!-- ... existing code ... -->
+      window.ProtocolRuntime = {
+        initRoleDisplay: initRoleDisplay,
+        toggleActiveRole: toggleActiveRole,
+        initModuleVisibility: initModuleVisibility,
+        checkConditionalBreakGlass: checkConditionalBreakGlass,
+        forceAppReload: forceAppReload,
+        openAccountModal: function() {
+          const modal = document.getElementById('modal-account-settings');
+          if (!modal) return;
+          let names = { A: 'Partner 1', B: 'Partner 2' };
+          try {
+            const raw = localStorage.getItem('kompass_names');
+            if (raw) names = Object.assign({}, names, JSON.parse(raw));
+          } catch (e) {}
+          const inputA = document.getElementById('acc-input-name-a');
+          const inputB = document.getElementById('acc-input-name-b');
+          if (inputA) inputA.value = names.A || '';
+          if (inputB) inputB.value = names.B || '';
+          const myRoleSel = document.getElementById('acc-select-my-role');
+          if (myRoleSel) myRoleSel.value = localStorage.getItem('kompass_assigned_role') || 'A';
+          const khSel = document.getElementById('acc-select-keyholder');
+          if (khSel) khSel.value = localStorage.getItem('kompass_keyholder_role') || 'A';
+          const themeSel = document.getElementById('acc-select-theme');
+          if (themeSel) themeSel.value = localStorage.getItem('kompass_theme') || 'dark';
+          const zoomSel = document.getElementById('acc-select-zoom');
+          if (zoomSel) zoomSel.value = localStorage.getItem('kompass_text_zoom') || '100';
+          const relMode = localStorage.getItem('tactus_relationship_mode') || 'switch_flexible';
+          const radio = document.querySelector(`input[name="acc-rel-mode"][value="${relMode}"]`);
+          if (radio) radio.checked = true;
+          modal.style.display = 'flex';
+        },
+        saveAccountSettings: function() {
+          const inputA = document.getElementById('acc-input-name-a');
+          const inputB = document.getElementById('acc-input-name-b');
+          const nameA = (inputA && inputA.value.trim()) ? inputA.value.trim() : 'Partner 1';
+          const nameB = (inputB && inputB.value.trim()) ? inputB.value.trim() : 'Partner 2';
+          localStorage.setItem('kompass_names', JSON.stringify({ A: nameA, B: nameB }));
+          const myRoleSel = document.getElementById('acc-select-my-role');
+          if (myRoleSel) localStorage.setItem('kompass_assigned_role', myRoleSel.value);
+          const khSel = document.getElementById('acc-select-keyholder');
+          if (khSel) {
+            localStorage.setItem('kompass_keyholder_role', khSel.value);
+            localStorage.setItem('kompass_caged_role', khSel.value === 'A' ? 'B' : 'A');
+          }
+          const themeSel = document.getElementById('acc-select-theme');
+          if (themeSel) {
+            localStorage.setItem('kompass_theme', themeSel.value);
+            if (themeSel.value === 'dark') document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+          }
+          const zoomSel = document.getElementById('acc-select-zoom');
+          if (zoomSel) {
+            localStorage.setItem('kompass_text_zoom', zoomSel.value);
+            if (zoomSel.value === '115') document.documentElement.style.fontSize = '115%';
+            else if (zoomSel.value === '130') document.documentElement.style.fontSize = '130%';
+            else document.documentElement.style.fontSize = '100%';
+          }
+          const checkedRadio = document.querySelector('input[name="acc-rel-mode"]:checked');
+          if (checkedRadio) {
+            localStorage.setItem('tactus_relationship_mode', checkedRadio.value);
+          }
+          const modal = document.getElementById('modal-account-settings');
+          if (modal) modal.style.display = 'none';
+          initRoleDisplay();
+          showToast("✓ Einstellungen gesichert");
+          if (window.CloudSync && typeof window.CloudSync.trigger === 'function') window.CloudSync.trigger();
+        },
+        init: function() {
+<!-- ... existing code ... -->
+`
