@@ -1,28 +1,59 @@
 /**
  * js/session_staging.js
- * Modul für das Nachttisch-Staging, Rollen-Setup und die Drehbuch-Generierung in der Schlafzimmer-Regie.
+ * TACTUS Schlafzimmer-Staging Cockpit, 3-Schritte-Vorbereitung & KI-Playbook (V3.0 Haute-Horlogerie)
+ * Offizielle Web-Präsenz: tactus.digital
  * 
- * Qualitäts- & Logik-Standards:
- * - GARANTIERTER DATENZUGRIFF: Lädt Namen und Anatomie verlässlich direkt aus localStorage.
- * - PERSISTENTES STAGING: Speichert bereitgelegte Toys im localStorage, damit sie beim Neuladen erhalten bleiben.
- * - STRIKTE ANATOMISCHE KOMPATIBILITÄT:
- *   * Vulva: Womanizer/Sauger/Wand auf Klitoris. Niemals Stroker/Käfig.
- *   * Penis: Penissleeve/Stroker, Wand am Frenulum/Eichel, Handgriffe. Niemals Womanizer.
- * - SEMANTISCHE TOY-INTEGRATION:
- *   * Bondage-Werkzeuge werden ausschließlich für Arretierungen gewählt.
- *   * Impact-Werkzeuge ausschließlich für Gesäßschläge.
- *   * Womanizer/Vibratoren exklusiv für Erregungs- und Schwellen-Quälerei.
- * - NATÜRLICHE DEUTSCHE FACHSPRACHE: Konsequent „Schwelle“ und „Höhepunkt-Schwelle“ statt falscher Übersetzungen.
- * - ECHTE SCHRANK-FILTERUNG: Im Nachttisch-Staging stehen ausschließlich Toys zur Verfügung, die im Schrank aktiviert sind.
+ * TACTUS FEATURE CONTRACT:
+ * [✓] Strikte Terminologie: Ausschließlich "Edge", "Edges", "Edging" (Keine "Kanten" / "Schwellen"!)
+ * [✓] Echte Gemini-Stimmführung via SessionVoice.play()
+ * [✓] 3-Schritte-Vorbereitung (Rollen-Setup -> Nachttisch-Staging -> Modus & Drehbuch)
+ * [✓] Top-Energie (1–5) & Bottom-Hingabe (1–5) Slider mit somatischen Beschreibungen
+ * [✓] Schrank-Filterung & Quick-Add für Neuanschaffungen direkt auf den Nachttisch
+ * [✓] Stimmen-Probehören (5s Live-Sample) & Zucht-Preset (Enceladus)
+ * [✓] 4-Phasen-Drehbuch mit 8 Schritten & generativem Gemini KI-Zuschnitt auf Schrank-Toys
+ * [✓] Strikte anatomische Kompatibilität (Vulva vs. Penis)
+ * [✓] 100 % UTF-8 Integrität, Haute-Horlogerie Design tokens, keine window.alert() Aufrufe
  */
 
 (function(window) {
   'use strict';
 
+  const STORAGE_KEY_NAMES = 'kompass_names';
+  const STORAGE_KEY_ANATOMY = 'kompass_anatomy';
+  const STORAGE_KEY_STAGED_IDS = 'kompass_staged_tonight_ids';
+  const STORAGE_KEY_STAGING_BUNDLE = 'tactus_staging_bundle';
+  const STORAGE_KEY_CUSTOM_EQUIPMENT = 'kompass_custom_equipment';
+  const STORAGE_KEY_API_KEY = 'tactus_ai_custom_key';
+  const STORAGE_KEY_API_KEY_LEGACY = 'kompass_gemini_api_key';
+  const STORAGE_KEY_GEMINI_MODEL = 'tactus_gemini_active_model';
+  const STORAGE_KEY_VOICE_ACTIVE = 'kompass_voice_assist_active';
+  const STORAGE_KEY_VOICE_NAME = 'kompass_session_voice';
+
+  let topPartner = 'B';
+  let subPartner = 'A';
+  let energyTop = 4;
+  let energySub = 4;
+  let sessionDepth = 7;
+  let currentSelectedMode = 'guided'; // 'guided' | 'free'
+  let activeStagingTab = 'all';
+
+  let stagedTonightIds = [];
+  try {
+    const rawStaged = localStorage.getItem(STORAGE_KEY_STAGED_IDS);
+    if (rawStaged) stagedTonightIds = JSON.parse(rawStaged) || [];
+  } catch (e) {}
+
+  let currentSelectedPlaybook = [];
+
+  window.topPartner = topPartner;
+  window.subPartner = subPartner;
+  window.sessionDepth = sessionDepth;
+  window.currentSelectedPlaybook = currentSelectedPlaybook;
+
   function ensureNamesAndAnatomyLoaded() {
     if (!window.names || !window.names.A || !window.names.B) {
       try {
-        var rawNames = localStorage.getItem('kompass_names');
+        const rawNames = localStorage.getItem(STORAGE_KEY_NAMES);
         if (rawNames) window.names = JSON.parse(rawNames);
       } catch (e) {}
     }
@@ -30,7 +61,7 @@
 
     if (!window.anatomy || !window.anatomy.A || !window.anatomy.B) {
       try {
-        var rawAnat = localStorage.getItem('kompass_anatomy');
+        const rawAnat = localStorage.getItem(STORAGE_KEY_ANATOMY);
         if (rawAnat) window.anatomy = JSON.parse(rawAnat);
       } catch (e) {}
     }
@@ -39,31 +70,13 @@
 
   ensureNamesAndAnatomyLoaded();
 
-  var topPartner = 'B';
-  var subPartner = 'A';
-  var energyTop = 4;
-  var energySub = 4;
-  var sessionDepth = 7;
-  var currentSelectedMode = 'guided'; // 'guided' oder 'free'
-  var activeStagingTab = 'all';
-
-  var stagedTonightIds = [];
-  try {
-    var rawStaged = localStorage.getItem('kompass_staged_tonight_ids');
-    if (rawStaged) stagedTonightIds = JSON.parse(rawStaged) || [];
-  } catch (e) {}
-
-  var currentSelectedPlaybook = [];
-
-  window.topPartner = topPartner;
-  window.subPartner = subPartner;
-  window.sessionDepth = sessionDepth;
-  window.currentSelectedPlaybook = currentSelectedPlaybook;
-
   function saveStagedToys() {
     try {
-      localStorage.setItem('kompass_staged_tonight_ids', JSON.stringify(stagedTonightIds));
+      localStorage.setItem(STORAGE_KEY_STAGED_IDS, JSON.stringify(stagedTonightIds));
     } catch (e) {}
+    if (window.CloudSync && typeof window.CloudSync.trigger === 'function') {
+      window.CloudSync.trigger();
+    }
   }
 
   function escapeHtml(str) {
@@ -81,142 +94,157 @@
       window.showToastNotification(msg);
       return;
     }
-    var c = document.getElementById('toast-container');
+    const c = document.getElementById('toast-container');
     if (!c) return;
-    var el = document.createElement('div');
-    el.className = "bg-slate-900 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 transition-all pointer-events-auto transform translate-y-2 opacity-0";
-    el.innerText = msg;
+    const el = document.createElement('div');
+    el.className = "bg-[#090d14] text-[#f8fafc] font-mono text-xs px-4 py-2.5 rounded-2xl shadow-2xl border border-[#c5a880]/40 transition-all pointer-events-auto transform translate-y-2 opacity-0 flex items-center gap-2.5 backdrop-blur-md z-50";
+    el.innerHTML = `
+      <span class="w-2 h-2 rounded-full bg-[#c5a880] flex-shrink-0 animate-pulse"></span>
+      <span>${escapeHtml(msg)}</span>
+    `;
     c.appendChild(el);
-    setTimeout(function() { el.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-    setTimeout(function() {
+    setTimeout(() => el.classList.remove('translate-y-2', 'opacity-0'), 10);
+    setTimeout(() => {
       el.classList.add('opacity-0');
-      setTimeout(function() { el.remove(); }, 300);
+      setTimeout(() => el.remove(), 300);
     }, 2800);
   }
 
   function getGeminiApiKey() {
-    var liveInput = document.getElementById('session-gemini-key-input') || 
-                    document.getElementById('account-gemini-key');
+    try {
+      const customKey = localStorage.getItem(STORAGE_KEY_API_KEY);
+      if (customKey && customKey.trim().length > 10) return customKey.trim();
+      const legacyKey = localStorage.getItem(STORAGE_KEY_API_KEY_LEGACY);
+      if (legacyKey && legacyKey.trim().length > 10) return legacyKey.trim();
+    } catch (e) {}
+
+    const liveInput = document.getElementById('acc-input-ai-key') || 
+                      document.getElementById('session-gemini-key-input') || 
+                      document.getElementById('account-gemini-key');
     if (liveInput && liveInput.value && liveInput.value.trim().length > 10) {
       return liveInput.value.trim();
     }
-    try {
-      var stored = localStorage.getItem('kompass_gemini_api_key');
-      if (stored && stored.trim().length > 10) return stored.trim();
-    } catch (e) {}
     return null;
   }
 
   function getClosetCatalog() {
-    var baseCatalog = window.equipmentCatalog || [];
-    var custom = [];
+    let baseCatalog = [];
+    if (window.EquipmentCatalog && typeof window.EquipmentCatalog.getAll === 'function') {
+      baseCatalog = window.EquipmentCatalog.getAll();
+    } else if (Array.isArray(window.equipmentCatalog)) {
+      baseCatalog = window.equipmentCatalog;
+    }
+
+    let custom = [];
     try {
-      var raw = localStorage.getItem('kompass_custom_equipment');
+      const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_EQUIPMENT) || localStorage.getItem('tactus_custom_equipment');
       if (raw) custom = JSON.parse(raw);
     } catch (e) {}
-    var combined = baseCatalog.concat(custom);
 
-    // Strenger Schrank-Filter: Nur aktivierte Gegenstände zulassen!
-    var ownedIds = (window.HubToys && typeof window.HubToys.getOwnedIds === 'function')
-      ? window.HubToys.getOwnedIds()
-      : null;
+    const combined = baseCatalog.concat(custom);
+
+    let ownedIds = null;
+    if (window.HubToys && typeof window.HubToys.getOwned === 'function') {
+      ownedIds = window.HubToys.getOwned();
+    } else {
+      try {
+        const rawOwned = localStorage.getItem('tactus_owned_equipment') || localStorage.getItem('kompass_owned_equipment');
+        if (rawOwned) ownedIds = JSON.parse(rawOwned);
+      } catch (e) {}
+    }
 
     if (ownedIds && Array.isArray(ownedIds)) {
-      return combined.filter(function(item) {
-        return ownedIds.indexOf(item.id) !== -1;
-      });
+      return combined.filter(item => ownedIds.includes(item.id));
     }
     return combined;
   }
 
   function setupInitialPlaybook() {
     ensureNamesAndAnatomyLoaded();
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
+    const names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    const anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
-    var topName = (names && names[topPartner]) || 'Top';
-    var subName = (names && names[subPartner]) || 'Bottom';
-    var subAnat = (anatomy && anatomy[subPartner]) ? anatomy[subPartner] : 'vulva';
-    var isVulva = (subAnat === 'vulva');
+    const topName = names[topPartner] || 'Top';
+    const subName = names[subPartner] || 'Bottom';
+    const subAnat = anatomy[subPartner] || 'vulva';
+    const isVulva = (subAnat === 'vulva');
 
-    var closet = getClosetCatalog();
-    var availableToys = closet.filter(function(i) {
-      return stagedTonightIds.indexOf(i.id) !== -1;
-    });
+    const closet = getClosetCatalog();
+    const availableToys = closet.filter(i => stagedTonightIds.includes(i.id));
 
-    var sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
+    const sem = (window.ToyCombinatorics && typeof window.ToyCombinatorics.buildSummary === 'function')
       ? window.ToyCombinatorics.buildSummary(availableToys, subAnat)
       : { impact: [], bondage: [], clitoral_suction: [], male_stroker: [], wand: [], vibrator: [], clamps: [] };
 
-    var bondageTool = sem.bondage.length > 0 ? sem.bondage[0] : "Krawatte oder Seidenschal";
-    var impactTool = sem.impact.length > 0 ? sem.impact[0] : "die flache Hand oder ein Ledergürtel";
+    const bondageTool = (sem.bondage && sem.bondage.length > 0) ? sem.bondage[0] : "Krawatte oder Seidenschal";
+    const impactTool = (sem.impact && sem.impact.length > 0) ? sem.impact[0] : "die flache Hand oder ein Ledergürtel";
 
-    // ANATOMISCH KORREKTE ZUORDNUNG FÜR PHASE 3 (SCHWELLENKONTROLLE)
-    var arousalTool = "";
+    // Strikte anatomische Zuordnung für Phase 3 (Edging)
+    let arousalTool = "";
     if (isVulva) {
-      arousalTool = sem.clitoral_suction.length > 0 
-        ? sem.clitoral_suction[0] 
-        : (sem.wand.length > 0 ? sem.wand[0] : (sem.vibrator.length > 0 ? sem.vibrator[0] : "gezielte Handberührungen an der Klitoris"));
+      arousalTool = (sem.clitoral_suction && sem.clitoral_suction.length > 0)
+        ? sem.clitoral_suction[0]
+        : ((sem.wand && sem.wand.length > 0) ? sem.wand[0] : ((sem.vibrator && sem.vibrator.length > 0) ? sem.vibrator[0] : "gezielte Handberührungen an der Klitoris"));
     } else {
-      arousalTool = sem.male_stroker.length > 0
+      arousalTool = (sem.male_stroker && sem.male_stroker.length > 0)
         ? sem.male_stroker[0]
-        : (sem.wand.length > 0 ? (sem.wand[0] + " an der Eichel") : "gezielte Griffe am Schaft");
+        : ((sem.wand && sem.wand.length > 0) ? `${sem.wand[0]} an der Eichel` : "gezielte Griffe am Schaft");
     }
 
-    var tool1 = availableToys.length > 0 ? availableToys[0].name : "Nackte Hände";
+    const tool1 = availableToys.length > 0 ? availableToys[0].name : "Nackte Hände";
 
     currentSelectedPlaybook = [
       {
         phase: "Phase 1: Warm-up & Zentrierung",
         title: "Ankommen & Blickkontakt-Führung",
-        desc: topName + " nimmt " + subName + " an den Schultern und fordert ununterbrochenen Blickkontakt bei ruhiger Atemsynchronisation.",
+        desc: `${topName} nimmt ${subName} an den Schultern und fordert ununterbrochenen Blickkontakt bei ruhiger Atemsynchronisation.`,
         top: "Lege deine Hände ruhig auf die Schultern und gib den Atemrhythmus vor.",
         sub: "Lass die Schultern sinken, blicke tief in die Augen und atme synchron aus."
       },
       {
         phase: "Phase 1: Warm-up & Zentrierung",
         title: "Hauterwärmung & Streichreize",
-        desc: "Mit " + tool1 + " werden Reizlinien über Nacken, Rücken und Schenkelinnenseiten gezogen.",
-        top: "Streiche mit " + tool1 + " fordernd über die Haut und beobachte die Reaktionen.",
+        desc: `Mit ${tool1} werden Reizlinien über Nacken, Rücken und Schenkelinnenseiten gezogen.`,
+        top: `Streiche mit ${tool1} fordernd über die Haut und beobachte die Reaktionen.`,
         sub: "Halte vollkommen still und spüre die wachsende Hitze auf der Haut."
       },
       {
         phase: "Phase 2: Machtaufbau & Begrenzung",
-        title: "Fixierung mit " + bondageTool,
-        desc: topName + " fixiert die Hände von " + subName + " mit " + bondageTool + " sicher vor oder hinter dem Körper.",
-        top: "Schließe " + bondageTool + " sicher um die Handgelenke und prüfe den festen Sitz.",
+        title: `Fixierung mit ${bondageTool}`,
+        desc: `${topName} fixiert die Hände von ${subName} mit ${bondageTool} sicher vor oder hinter dem Körper.`,
+        top: `Schließe ${bondageTool} sicher um die Handgelenke und prüfe den festen Sitz.`,
         sub: "Gib deine Hände bereitwillig ab und spüre das Loslassen der Verantwortung."
       },
       {
         phase: "Phase 2: Machtaufbau & Begrenzung",
         title: "Demutshaltung am Boden",
-        desc: subName + " begibt sich aufrecht in den Kniestand (Nadu/Seiza) zu Füßen des Tops.",
+        desc: `${subName} begibt sich aufrecht in den Kniestand (Nadu/Seiza) zu Füßen des Tops.`,
         top: "Nimm auf dem Sessel Platz und mustere die Haltung deines Partners.",
         sub: "Knie mit aufrechter Wirbelsäule und geneigtem Kopf vor dem Top."
       },
       {
         phase: "Phase 3: Katharsis & Zucht",
-        title: "Fordernde Reizsetzung mit " + impactTool,
-        desc: "Gezielte, rhythmische Reize mit " + impactTool + " auf das entblößte Gesäß zur Durchwärmung.",
-        top: "Setze dosierte Treffer mit " + impactTool + " und achte auf das Mitzählen.",
+        title: `Fordernde Reizsetzung mit ${impactTool}`,
+        desc: `Gezielte, rhythmische Reize mit ${impactTool} auf das entblößte Gesäß zur Durchwärmung.`,
+        top: `Setze dosierte Treffer mit ${impactTool} und achte auf das Mitzählen.`,
         sub: "Zähle jeden Treffer laut und andächtig mit."
       },
       {
         phase: "Phase 3: Katharsis & Zucht",
-        title: "Schwellen-Quälerei mit " + arousalTool,
-        desc: topName + " nutzt " + arousalTool + ", um " + subName + " gezielt an die Höhepunkt-Schwelle zu treiben – und befiehlt schlagartigen Stillstand.",
-        top: "Führe die Erregung mit " + arousalTool + " an die Schwelle und fordere absolute Reglosigkeit.",
-        sub: "Spüre das Pochen an der Schwelle und gehorche dem Stopp-Befehl."
+        title: `Edging-Führung mit ${arousalTool}`,
+        desc: `${topName} nutzt ${arousalTool}, um ${subName} gezielt an die Edge zu treiben – und befiehlt schlagartigen Stillstand.`,
+        top: `Führe die Erregung mit ${arousalTool} an die Edge und fordere absolute Reglosigkeit.`,
+        sub: "Spüre das Pochen an der Edge und gehorche dem Stopp-Befehl."
       },
       {
-        phase: "Phase 4: Katharsis & Aftercare",
+        phase: "Phase 4: Urteil & Aftercare",
         title: "Höhepunkt-Entscheidung des Tops",
-        desc: topName + " entscheidet souverän am Edging-Cockpit über Freigabe, Ruined Orgasm oder Denial.",
+        desc: `${topName} entscheidet souverän am Edging-Cockpit über Freigabe, Ruined Orgasm oder Denial.`,
         top: "Triff deine Entscheidung am Edging-Cockpit und verkünde das Urteil.",
         sub: "Harre reglos aus und nimm das Urteil deines Tops an."
       },
       {
-        phase: "Phase 4: Katharsis & Aftercare",
+        phase: "Phase 4: Urteil & Aftercare",
         title: "Aftercare & Decken-Geborgenheit",
         desc: "Lösen aller Fesseln. Festes Halten in dicken Decken mit Wasser und Wärme.",
         top: "Nimm deinen Partner fest in den Arm, hülle ihn in Decken und schenke Ruhe.",
@@ -240,21 +268,24 @@
     window.subPartner = subPartner;
     updateRoleSelectionUI();
     setupInitialPlaybook();
+    if (typeof window.updateHeaderTabuCounter === 'function') {
+      window.updateHeaderTabuCounter();
+    }
   }
 
   function updateRoleSelectionUI() {
     ensureNamesAndAnatomyLoaded();
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var nameA = names.A || 'Partner 1';
-    var nameB = names.B || 'Partner 2';
+    const names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    const nameA = names.A || 'Partner 1';
+    const nameB = names.B || 'Partner 2';
 
-    var elDefTop = document.getElementById('portal-name-top-def');
-    var elDefTopSub = document.getElementById('portal-name-top-def-sub');
-    var elDefSub = document.getElementById('portal-name-sub-def');
+    const elDefTop = document.getElementById('portal-name-top-def');
+    const elDefTopSub = document.getElementById('portal-name-top-def-sub');
+    const elDefSub = document.getElementById('portal-name-sub-def');
 
-    var elRevTop = document.getElementById('portal-name-top-rev');
-    var elRevTopSub = document.getElementById('portal-name-top-rev-sub');
-    var elRevSub = document.getElementById('portal-name-sub-rev');
+    const elRevTop = document.getElementById('portal-name-top-rev');
+    const elRevTopSub = document.getElementById('portal-name-top-rev-sub');
+    const elRevSub = document.getElementById('portal-name-sub-rev');
 
     if (elDefTop) elDefTop.innerText = nameB;
     if (elDefTopSub) elDefTopSub.innerText = nameB;
@@ -264,32 +295,32 @@
     if (elRevTopSub) elRevTopSub.innerText = nameA;
     if (elRevSub) elRevSub.innerText = nameB;
 
-    var btnDef = document.getElementById('btn-role-setup-default');
-    var btnRev = document.getElementById('btn-role-setup-reversed');
-    var badgeDef = document.getElementById('badge-role-default');
-    var badgeRev = document.getElementById('badge-role-reversed');
+    const btnDef = document.getElementById('btn-role-setup-default');
+    const btnRev = document.getElementById('btn-role-setup-reversed');
+    const badgeDef = document.getElementById('badge-role-default');
+    const badgeRev = document.getElementById('badge-role-reversed');
 
     if (topPartner === 'B') {
-      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
-      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeDef) { badgeDef.innerText = "✓ Aktiv"; badgeDef.className = "text-sm font-bold text-brand-300"; }
-      if (badgeRev) { badgeRev.innerText = "○"; badgeRev.className = "text-sm font-bold text-slate-500"; }
+      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#000000] border-[#c5a880] shadow-md block w-full";
+      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#090d14] border-[#2a364f] hover:border-slate-700 block w-full";
+      if (badgeDef) { badgeDef.innerText = "✓ Aktiv"; badgeDef.className = "text-xs font-mono font-bold text-[#c5a880]"; }
+      if (badgeRev) { badgeRev.innerText = "○"; badgeRev.className = "text-xs font-mono font-bold text-[#94a3b8]"; }
     } else {
-      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/30 border-brand-500 shadow-md block w-full";
-      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeRev) { badgeRev.innerText = "✓ Aktiv"; badgeRev.className = "text-sm font-bold text-brand-300"; }
-      if (badgeDef) { badgeDef.innerText = "○"; badgeDef.className = "text-sm font-bold text-slate-500"; }
+      if (btnRev) btnRev.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#000000] border-[#c5a880] shadow-md block w-full";
+      if (btnDef) btnDef.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#090d14] border-[#2a364f] hover:border-slate-700 block w-full";
+      if (badgeRev) { badgeRev.innerText = "✓ Aktiv"; badgeRev.className = "text-xs font-mono font-bold text-[#c5a880]"; }
+      if (badgeDef) { badgeDef.innerText = "○"; badgeDef.className = "text-xs font-mono font-bold text-[#94a3b8]"; }
     }
 
-    var rolesSubtitle = document.getElementById('session-roles-subtitle');
+    const rolesSubtitle = document.getElementById('session-roles-subtitle');
     if (rolesSubtitle) {
       rolesSubtitle.innerText = `Top: ${names[topPartner]} · Bottom: ${names[subPartner]}`;
     }
   }
 
   function goToStep(stepNumber) {
-    [1, 2, 3].forEach(function(s) {
-      var section = document.getElementById('portal-step-' + s);
+    [1, 2, 3].forEach(s => {
+      const section = document.getElementById('portal-step-' + s);
       if (section) {
         if (s === stepNumber) section.classList.remove('hidden');
         else section.classList.add('hidden');
@@ -310,19 +341,19 @@
   }
 
   function updateEnergy(who, val) {
-    var v = parseInt(val, 10);
-    var labels = ["", "Erschöpft / Zerstreut", "Ruhig / Sanft", "Aufmerksam", "Präsent & Fokussiert", "Volle Hingabe & Kraft"];
+    const v = parseInt(val, 10);
+    const labels = ["", "Erschöpft / Zerstreut", "Ruhig / Sanft", "Aufmerksam", "Präsent & Fokussiert", "Volle Hingabe & Kraft"];
     if (who === 'top') {
       energyTop = v;
-      var lblTop = document.getElementById('label-energy-top');
-      var descTop = document.getElementById('desc-energy-top');
-      if (lblTop) lblTop.innerText = v + " / 5";
+      const lblTop = document.getElementById('label-energy-top');
+      const descTop = document.getElementById('desc-energy-top');
+      if (lblTop) lblTop.innerText = `${v} / 5`;
       if (descTop) descTop.innerText = labels[v] || "";
     } else {
       energySub = v;
-      var lblSub = document.getElementById('label-energy-sub');
-      var descSub = document.getElementById('desc-energy-sub');
-      if (lblSub) lblSub.innerText = v + " / 5";
+      const lblSub = document.getElementById('label-energy-sub');
+      const descSub = document.getElementById('desc-energy-sub');
+      if (lblSub) lblSub.innerText = `${v} / 5`;
       if (descSub) descSub.innerText = labels[v] || "";
     }
   }
@@ -331,10 +362,10 @@
     sessionDepth = parseInt(val, 10);
     window.sessionDepth = sessionDepth;
 
-    var lbl = document.getElementById('label-session-depth');
-    var desc = document.getElementById('desc-session-depth');
+    const lbl = document.getElementById('label-session-depth');
+    const desc = document.getElementById('desc-session-depth');
 
-    var descs = [
+    const descs = [
       "",
       "Stufe 1 / 10: Sanftes Kennenlernen & Kuschel-Setting",
       "Stufe 2 / 10: Zarte Sinnesreduktion & Streichreize",
@@ -353,46 +384,60 @@
   }
 
   function renderEquipmentGrid() {
-    var container = document.getElementById('session-staging-equipment-grid');
+    const container = document.getElementById('session-staging-equipment-grid');
     if (!container) return;
 
-    var items = getClosetCatalog();
+    // Bundle-Übernahme aus dem Schrank falls vorhanden
+    try {
+      const rawBundle = localStorage.getItem(STORAGE_KEY_STAGING_BUNDLE);
+      if (rawBundle) {
+        const bundleIds = JSON.parse(rawBundle);
+        if (Array.isArray(bundleIds) && bundleIds.length > 0) {
+          stagedTonightIds = bundleIds;
+          saveStagedToys();
+          localStorage.removeItem(STORAGE_KEY_STAGING_BUNDLE);
+        }
+      }
+    } catch (e) {}
 
-    var counts = {
+    const items = getClosetCatalog();
+
+    const counts = {
       all: items.length,
       household: 0,
       bondage: 0,
       impact: 0,
       sensory: 0,
-      cbt_clamps: 0,
-      toys_anal: 0,
-      special: 0
+      chastity: 0,
+      furniture: 0,
+      care: 0
     };
 
-    items.forEach(function(i) {
-      if (counts[i.category] !== undefined) counts[i.category]++;
+    items.forEach(i => {
+      const cat = i.category;
+      if (counts[cat] !== undefined) counts[cat]++;
     });
 
-    for (var cat in counts) {
-      var countSpan = document.getElementById('stag-count-' + cat);
+    for (const cat in counts) {
+      const countSpan = document.getElementById('stag-count-' + cat);
       if (countSpan) countSpan.innerText = counts[cat].toString();
     }
 
-    var filtered = items.filter(function(i) {
+    const filtered = items.filter(i => {
       if (activeStagingTab === 'all') return true;
       return i.category === activeStagingTab;
     });
 
-    var closetTotalCount = document.getElementById('staging-closet-total-count');
-    var stagingActiveCount = document.getElementById('staging-active-count');
+    const closetTotalCount = document.getElementById('staging-closet-total-count');
+    const stagingActiveCount = document.getElementById('staging-active-count');
     if (closetTotalCount) closetTotalCount.innerText = items.length.toString();
     if (stagingActiveCount) stagingActiveCount.innerText = stagedTonightIds.length.toString();
 
     if (filtered.length === 0) {
       container.innerHTML = `
-        <div class="col-span-full p-4 text-center text-slate-400 theme-panel rounded-xl text-xs space-y-1">
+        <div class="col-span-full p-4 text-center text-[#94a3b8] bg-[#000000] border border-[#2a364f] rounded-2xl text-xs space-y-1 font-mono">
           <span>In dieser Kategorie sind aktuell keine Toys im Schrank aktiviert.</span>
-          <button type="button" onclick="if(window.HubToys && typeof window.HubToys.open==='function') window.HubToys.open();" class="text-purple-300 font-bold hover:underline block mx-auto">
+          <button type="button" onclick="if(window.HubToys && typeof window.HubToys.open==='function') window.HubToys.open();" class="text-[#c5a880] font-bold hover:underline block mx-auto">
             Im Schrank aktivieren ↗
           </button>
         </div>
@@ -400,22 +445,22 @@
       return;
     }
 
-    container.innerHTML = filtered.map(function(item) {
-      var isStaged = stagedTonightIds.indexOf(item.id) !== -1;
+    container.innerHTML = filtered.map(item => {
+      const isStaged = stagedTonightIds.includes(item.id);
       return `
-        <div onclick="SessionStaging.toggleToy('${item.id}')" class="p-2.5 rounded-xl border text-left cursor-pointer transition touch-btn flex items-center justify-between gap-2 ${isStaged ? 'bg-purple-950/60 border-purple-500 shadow-sm' : 'theme-panel border-slate-800 text-slate-400 hover:border-slate-700'}">
+        <div onclick="SessionStaging.toggleToy('${item.id}')" class="p-2.5 rounded-xl border text-left cursor-pointer transition touch-btn flex items-center justify-between gap-2 ${isStaged ? 'bg-[#000000] border-[#c5a880] text-white shadow-sm' : 'bg-[#090d14] border-[#2a364f] text-[#94a3b8] hover:border-slate-700'}">
           <div class="truncate min-w-0">
-            <strong class="text-xs text-white block truncate">${escapeHtml(item.name)}</strong>
-            <span class="text-[9.5px] text-slate-400 block truncate">${escapeHtml(item.desc || '')}</span>
+            <strong class="text-xs text-white block truncate font-sans">${escapeHtml(item.name)}</strong>
+            <span class="text-[9.5px] text-[#94a3b8] block truncate font-mono">${escapeHtml(item.somaticEffect || item.desc || '')}</span>
           </div>
-          <span class="text-xs font-mono font-black ${isStaged ? 'text-purple-300' : 'text-slate-600'}">${isStaged ? '✓' : '○'}</span>
+          <span class="text-xs font-mono font-bold ${isStaged ? 'text-[#c5a880]' : 'text-[#2a364f]'}">${isStaged ? '✓' : '○'}</span>
         </div>
       `;
     }).join('');
   }
 
   function toggleToyStaged(toyId) {
-    var idx = stagedTonightIds.indexOf(toyId);
+    const idx = stagedTonightIds.indexOf(toyId);
     if (idx !== -1) {
       stagedTonightIds.splice(idx, 1);
     } else {
@@ -426,16 +471,16 @@
   }
 
   function selectEquipmentPreset(preset) {
-    var all = getClosetCatalog();
+    const all = getClosetCatalog();
     if (preset === 'all') {
-      stagedTonightIds = all.map(function(i) { return i.id; });
+      stagedTonightIds = all.map(i => i.id);
       showToast("Alle Schrank-Gegenstände für heute bereitgelegt ✨");
     } else if (preset === 'bare') {
       stagedTonightIds = [];
       showToast("Nachttisch abgeräumt: Nur Hände, Bett & Stimme aktiv 🛏️");
     } else if (preset === 'random3') {
-      var shuffled = all.slice().sort(function() { return 0.5 - Math.random(); });
-      stagedTonightIds = shuffled.slice(0, 3).map(function(i) { return i.id; });
+      const shuffled = all.slice().sort(() => 0.5 - Math.random());
+      stagedTonightIds = shuffled.slice(0, 3).map(i => i.id);
       showToast("3 Gegenstände als Inspiration ausgewählt 🎲");
     }
     saveStagedToys();
@@ -444,13 +489,13 @@
 
   function switchStagingTab(tabName) {
     activeStagingTab = tabName;
-    ['all', 'household', 'bondage', 'impact', 'sensory', 'cbt_clamps', 'toys_anal', 'special'].forEach(function(t) {
-      var btn = document.getElementById('btn-stag-tab-' + t);
+    ['all', 'bondage', 'impact', 'chastity', 'sensory', 'furniture', 'care'].forEach(t => {
+      const btn = document.getElementById('btn-stag-tab-' + t);
       if (btn) {
         if (t === tabName) {
-          btn.className = "px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-brand-700 text-white touch-btn whitespace-nowrap shadow-sm";
+          btn.className = "px-3 py-1.5 rounded-xl text-[10.5px] font-bold bg-[#000000] border border-[#c5a880] text-[#c5a880] touch-btn whitespace-nowrap shadow-sm";
         } else {
-          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold theme-panel text-slate-300 touch-btn whitespace-nowrap";
+          btn.className = "px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold bg-[#090d14] border border-[#2a364f] text-[#94a3b8] touch-btn whitespace-nowrap";
         }
       }
     });
@@ -458,45 +503,54 @@
   }
 
   function openNewToyQuickAdd() {
-    var p = document.getElementById('staging-quick-add-panel');
+    const p = document.getElementById('staging-quick-add-panel');
     if (p) p.classList.remove('hidden');
   }
 
   function closeNewToyQuickAdd() {
-    var p = document.getElementById('staging-quick-add-panel');
+    const p = document.getElementById('staging-quick-add-panel');
     if (p) p.classList.add('hidden');
   }
 
   function saveNewToyFromStaging() {
-    var inputName = document.getElementById('staging-quick-toy-name');
-    var selectCat = document.getElementById('staging-quick-toy-cat');
+    const inputName = document.getElementById('staging-quick-toy-name');
+    const selectCat = document.getElementById('staging-quick-toy-cat');
 
-    var nameVal = (inputName ? inputName.value : '').trim();
-    var catVal = (selectCat ? selectCat.value : 'household');
+    const nameVal = (inputName ? inputName.value : '').trim();
+    const catVal = (selectCat ? selectCat.value : 'bondage');
 
     if (!nameVal) {
       showToast("Bitte gib dem Gegenstand einen Namen.");
       return;
     }
 
-    var newToy = {
+    const newToy = {
       id: "toy_custom_" + Date.now(),
       name: nameVal,
       category: catVal,
-      desc: "Eigenanschaffung für heute",
+      somaticEffect: "Neuanschaffung für heute",
       isCustom: true
     };
 
-    var customList = [];
+    let customList = [];
     try {
-      var raw = localStorage.getItem('kompass_custom_equipment');
+      const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_EQUIPMENT) || localStorage.getItem('tactus_custom_equipment');
       if (raw) customList = JSON.parse(raw);
     } catch (e) {}
     customList.push(newToy);
-    localStorage.setItem('kompass_custom_equipment', JSON.stringify(customList));
+    localStorage.setItem(STORAGE_KEY_CUSTOM_EQUIPMENT, JSON.stringify(customList));
+    localStorage.setItem('tactus_custom_equipment', JSON.stringify(customList));
 
     if (window.HubToys && typeof window.HubToys.toggleOwned === 'function') {
       window.HubToys.toggleOwned(newToy.id);
+    } else {
+      let ownedIds = [];
+      try {
+        const rawO = localStorage.getItem('tactus_owned_equipment') || localStorage.getItem('kompass_owned_equipment');
+        if (rawO) ownedIds = JSON.parse(rawO);
+      } catch (e) {}
+      if (!ownedIds.includes(newToy.id)) ownedIds.push(newToy.id);
+      localStorage.setItem('tactus_owned_equipment', JSON.stringify(ownedIds));
     }
 
     stagedTonightIds.push(newToy.id);
@@ -509,23 +563,23 @@
 
   function selectMode(mode) {
     currentSelectedMode = mode;
-    var btnGuided = document.getElementById('btn-mode-guided');
-    var btnFree = document.getElementById('btn-mode-free');
-    var badgeGuided = document.getElementById('badge-mode-guided');
-    var badgeFree = document.getElementById('badge-mode-free');
-    var previewWrap = document.getElementById('playbook-preview-wrap');
+    const btnGuided = document.getElementById('btn-mode-guided');
+    const btnFree = document.getElementById('btn-mode-free');
+    const badgeGuided = document.getElementById('badge-mode-guided');
+    const badgeFree = document.getElementById('badge-mode-free');
+    const previewWrap = document.getElementById('playbook-preview-wrap');
 
     if (mode === 'guided') {
-      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-brand-950/50 border-brand-500 shadow-md block w-full";
-      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeGuided) { badgeGuided.innerText = "✓ Gewählt"; badgeGuided.className = "text-brand-300 font-bold text-xs"; }
-      if (badgeFree) { badgeFree.innerText = "○"; badgeFree.className = "text-slate-500 font-bold text-xs"; }
+      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#000000] border-[#c5a880] shadow-md block w-full";
+      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#090d14] border-[#2a364f] hover:border-slate-700 block w-full";
+      if (badgeGuided) { badgeGuided.innerText = "✓ Gewählt"; badgeGuided.className = "text-[#c5a880] font-mono font-bold text-xs"; }
+      if (badgeFree) { badgeFree.innerText = "○"; badgeFree.className = "text-[#94a3b8] font-mono font-bold text-xs"; }
       if (previewWrap) previewWrap.classList.remove('opacity-40', 'pointer-events-none');
     } else {
-      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-indigo-950/50 border-indigo-500 shadow-md block w-full";
-      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn theme-panel border-slate-800 hover:border-slate-700 block w-full";
-      if (badgeFree) { badgeFree.innerText = "✓ Gewählt"; badgeFree.className = "text-indigo-300 font-bold text-xs"; }
-      if (badgeGuided) { badgeGuided.innerText = "○"; badgeGuided.className = "text-slate-500 font-bold text-xs"; }
+      if (btnFree) btnFree.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#000000] border-[#c5a880] shadow-md block w-full";
+      if (btnGuided) btnGuided.className = "p-4 rounded-2xl border text-left space-y-2 transition-all touch-btn bg-[#090d14] border-[#2a364f] hover:border-slate-700 block w-full";
+      if (badgeFree) { badgeFree.innerText = "✓ Gewählt"; badgeFree.className = "text-[#c5a880] font-mono font-bold text-xs"; }
+      if (badgeGuided) { badgeGuided.innerText = "○"; badgeGuided.className = "text-[#94a3b8] font-mono font-bold text-xs"; }
       if (previewWrap) previewWrap.classList.add('opacity-40', 'pointer-events-none');
     }
 
@@ -535,28 +589,28 @@
   }
 
   function renderPlaybookPreview() {
-    var c = document.getElementById('playbook-preview-container');
+    const c = document.getElementById('playbook-preview-container');
     if (!c) return;
 
     if (currentSelectedPlaybook.length === 0) {
-      c.innerHTML = '<p class="text-slate-500 italic text-center py-4 text-xs">Keine Drehbuchschritte geladen.</p>';
+      c.innerHTML = '<p class="text-[#94a3b8] italic text-center py-4 text-xs font-mono">Keine Drehbuchschritte geladen.</p>';
       return;
     }
 
-    c.innerHTML = currentSelectedPlaybook.map(function(step, idx) {
+    c.innerHTML = currentSelectedPlaybook.map((step, idx) => {
       return `
-        <div class="p-3.5 rounded-2xl theme-panel border border-slate-800 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+        <div class="p-3.5 rounded-2xl bg-[#090d14] border border-[#2a364f] space-y-1.5 text-xs font-sans">
+          <div class="flex items-center justify-between border-b border-[#2a364f] pb-1">
             <div class="flex items-center gap-1.5">
-              <span class="text-brand-400 font-mono font-black">${idx + 1}.</span>
+              <span class="text-[#c5a880] font-mono font-bold">${idx + 1}.</span>
               <strong class="text-white text-xs">${escapeHtml(step.title)}</strong>
             </div>
-            <span class="text-[9.5px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">${escapeHtml(step.phase || '')}</span>
+            <span class="text-[9.5px] px-2 py-0.5 rounded bg-[#000000] border border-[#2a364f] text-[#c5a880] font-mono">${escapeHtml(step.phase || '')}</span>
           </div>
-          <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(step.desc)}</p>
-          <div class="grid grid-cols-2 gap-2 pt-1 text-[10px]">
-            <div class="p-1.5 rounded-lg bg-slate-900 text-brand-200">👑 <strong>Top:</strong> ${escapeHtml(step.top || '')}</div>
-            <div class="p-1.5 rounded-lg bg-slate-900 text-indigo-200">🧎 <strong>Bottom:</strong> ${escapeHtml(step.sub || '')}</div>
+          <p class="text-[11px] text-[#f8fafc] leading-snug">${escapeHtml(step.desc)}</p>
+          <div class="grid grid-cols-2 gap-2 pt-1 text-[10px] font-mono">
+            <div class="p-2 rounded-xl bg-[#000000] border border-[#2a364f] text-[#f8fafc]"><strong class="text-[#c5a880]">👑 Top:</strong> ${escapeHtml(step.top || '')}</div>
+            <div class="p-2 rounded-xl bg-[#000000] border border-[#2a364f] text-[#f8fafc]"><strong class="text-[#b3734a]">🧎 Bottom:</strong> ${escapeHtml(step.sub || '')}</div>
           </div>
         </div>
       `;
@@ -570,43 +624,42 @@
 
   async function generateAiPlaybook() {
     ensureNamesAndAnatomyLoaded();
-    var names = window.names || { A: 'Partner 1', B: 'Partner 2' };
-    var anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
+    const names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    const anatomy = window.anatomy || { A: 'penis', B: 'vulva' };
 
-    var topName = (names && names[topPartner]) || 'Top';
-    var subName = (names && names[subPartner]) || 'Bottom';
-    var subAnat = (anatomy && anatomy[subPartner]) ? anatomy[subPartner] : 'vulva';
+    const topName = names[topPartner] || 'Top';
+    const subName = names[subPartner] || 'Bottom';
+    const subAnat = anatomy[subPartner] || 'vulva';
 
-    var apiKey = getGeminiApiKey();
+    const apiKey = getGeminiApiKey();
     if (!apiKey) {
       showToast("⚠️ Kein Gemini API-Key hinterlegt. Bitte trage deinen Key in den Einstellungen ein.");
       return;
     }
 
-    var closet = getClosetCatalog();
-    var availableToys = closet.filter(function(i) {
-      return stagedTonightIds.indexOf(i.id) !== -1;
-    });
+    const closet = getClosetCatalog();
+    const availableToys = closet.filter(i => stagedTonightIds.includes(i.id));
 
-    var briefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
+    const briefing = (window.ToyCombinatorics && typeof window.ToyCombinatorics.generateAiPromptBriefing === 'function')
       ? window.ToyCombinatorics.generateAiPromptBriefing(availableToys, subAnat)
-      : ("Anatomie: " + subAnat);
+      : (`Anatomie: ${subAnat}`);
 
     showToast("⏳ Gemini schneidet das Drehbuch auf eure Schrank-Toys zu...");
 
-    var prompt = `Du bist eine erfahrene, psychologisch feinfühlige BDSM-Regisseurin für das Paar ${topName} (Top) und ${subName} (Bottom).
+    const prompt = `Du bist eine erfahrene, psychologisch feinfühlige BDSM-Regisseurin für das Paar ${topName} (Top) und ${subName} (Bottom).
 Erstelle ein zusammenhängendes, hochintensives 4-Phasen-Drehbuch (genau 8 Schritte) für den heutigen Abend.
 
 ${briefing}
 INTENSITÄTS-STUFE: ${sessionDepth} / 10
 ENERGIELEVEL: Top: ${energyTop}/5 · Bottom: ${energySub}/5
 
-STRIKTE REGELN:
+STRIKTE REGELN ZUR SPRACHE & TERMINOLOGIE:
+- Verwende AUSSCHLIESSLICH die Begriffe "Edge", "Edges" und "Edging". Niemals "Kanten" oder "Schwellen"!
 - Verwende ausschließlich reale Gegenstände aus der Liste oder Hände/Bett/Wand.
 - Ein Womanizer/Sauger darf NIEMALS am Penis angewendet werden!
 - Phase 1: Warm-up & Zentrierung (Schritt 1 & 2)
 - Phase 2: Machtaufbau & Begrenzung (Schritt 3 & 4)
-- Phase 3: Katharsis, Zucht & Schwellen-Quälerei (Schritt 5 & 6)
+- Phase 3: Katharsis, Zucht & Edging (Schritt 5 & 6)
 - Phase 4: Urteilsspruch & Aftercare (Schritt 7 & 8)
 
 Antworte AUSSCHLIESSLICH als valides JSON:
@@ -620,13 +673,17 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   }
 ]`;
 
-    var candidateModels = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-2.5-flash'];
-    var parsedSteps = null;
+    const candidateModels = [
+      localStorage.getItem(STORAGE_KEY_GEMINI_MODEL) || 'gemini-2.0-flash',
+      'gemini-2.0-flash',
+      'gemini-2.5-flash',
+      'gemini-1.5-flash'
+    ];
+    let parsedSteps = null;
 
-    for (var i = 0; i < candidateModels.length; i++) {
-      var model = candidateModels[i];
+    for (const model of candidateModels) {
       try {
-        var resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -636,12 +693,12 @@ Antworte AUSSCHLIESSLICH als valides JSON:
         });
 
         if (resp.ok) {
-          var resData = await resp.json();
-          var rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+          const resData = await resp.json();
+          const rawJson = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
           try {
             parsedSteps = JSON.parse(rawJson);
           } catch (pe) {
-            var match = rawJson.match(/\[[\s\S]*\]/);
+            const match = rawJson.match(/\[[\s\S]*\]/);
             parsedSteps = match ? JSON.parse(match[0]) : null;
           }
 
@@ -664,12 +721,11 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   }
 
   function toggleVoiceAssist(active) {
-    window.isTopVoiceAssistActive = active;
     try {
-      localStorage.setItem('kompass_voice_assist_active', active ? 'true' : 'false');
+      localStorage.setItem(STORAGE_KEY_VOICE_ACTIVE, active ? 'true' : 'false');
     } catch (e) {}
 
-    var indicator = document.getElementById('cockpit-voice-active-indicator');
+    const indicator = document.getElementById('cockpit-voice-active-indicator');
     if (indicator) {
       indicator.innerText = active ? "🔊 Stimme aktiv" : "Stumm";
     }
@@ -689,36 +745,40 @@ Antworte AUSSCHLIESSLICH als valides JSON:
 
   function changeVoice(voiceName) {
     try {
-      localStorage.setItem('kompass_session_voice', voiceName);
+      localStorage.setItem(STORAGE_KEY_VOICE_NAME, voiceName);
     } catch (e) {}
     showToast("Stimme ausgewählt: " + voiceName);
   }
 
   function testVoiceSample() {
     ensureNamesAndAnatomyLoaded();
-    var sel = document.getElementById('session-voice-select');
-    var voiceName = sel ? sel.value : 'Despina';
-    var topName = (window.names && window.names[window.topPartner]) || 'Top';
-    var subName = (window.names && window.names[window.subPartner]) || 'Bottom';
+    const sel = document.getElementById('session-voice-select');
+    const voiceName = sel ? sel.value : (localStorage.getItem(STORAGE_KEY_VOICE_NAME) || 'Despina');
+    const names = window.names || { A: 'Partner 1', B: 'Partner 2' };
+    const topName = names[topPartner] || 'Top';
+    const subName = names[subPartner] || 'Bottom';
 
-    var sampleText = `Blickkontakt halten, ${subName}. ${topName} führt ab jetzt jeden deiner Atemzüge.`;
+    const sampleText = `Blickkontakt halten, ${subName}. ${topName} führt ab jetzt jeden deiner Atemzüge an der Edge.`;
 
     if (window.SessionVoice && typeof window.SessionVoice.play === 'function') {
+      showToast(`🔊 Spiele 5s Probehör-Sample (${voiceName})...`);
       window.SessionVoice.play(sampleText, voiceName, true);
+    } else {
+      showToast("⚠️ SessionVoice Engine nicht verfügbar.");
     }
   }
 
   function applyPunishmentVoicePreset() {
-    var sel = document.getElementById('session-voice-select');
+    const sel = document.getElementById('session-voice-select');
     if (sel) sel.value = "Enceladus";
     changeVoice("Enceladus");
     toggleVoiceAssist(true);
-    var toggleBox = document.getElementById('session-voice-assist-toggle');
+    const toggleBox = document.getElementById('session-voice-assist-toggle');
     if (toggleBox) toggleBox.checked = true;
     showToast("⚡ Zucht-Preset aktiv: Enceladus (Autoritäre Männerstimme)");
   }
 
-  window.SessionStaging = {
+  const api = {
     selectRoleSetup: selectRoleSetup,
     goToStep: goToStep,
     updateEnergy: updateEnergy,
@@ -739,6 +799,8 @@ Antworte AUSSCHLIESSLICH als valides JSON:
     applyPunishmentVoicePreset: applyPunishmentVoicePreset
   };
 
+  window.SessionStaging = api;
+
   window.selectRoleSetup = selectRoleSetup;
   window.goToStagingStep = goToStep;
   window.updateEnergy = updateEnergy;
@@ -751,12 +813,12 @@ Antworte AUSSCHLIESSLICH als valides JSON:
   window.rerollPlaybook = rerollPlaybook;
   window.generateAiPlaybook = generateAiPlaybook;
 
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', function() {
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', updateRoleSelectionUI);
+    } else {
       updateRoleSelectionUI();
-    });
-  } else {
-    updateRoleSelectionUI();
+    }
   }
 
-})(window);
+})(typeof window !== 'undefined' ? window : this);
